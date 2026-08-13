@@ -58,7 +58,21 @@ class AssembleStep(Step):
         keys them.
     """
 
-    def __init__(self, component, subdir, target, product_steps, name=None):
+    #: The cull step's land mesh, staged as it was written.  It gets no step
+    #: of its own because there is nothing to compute or restamp: unlike the
+    #: SCRIP files it carries no mesh name, and unlike the ocean mesh it needs
+    #: no vertical coordinate.
+    LAND_MESH_FILENAME = 'culled_land_mesh.nc'
+
+    def __init__(
+        self,
+        component,
+        subdir,
+        target,
+        product_steps,
+        cull_mesh_step,
+        name=None,
+    ):
         """
         Create a new step.
 
@@ -76,6 +90,9 @@ class AssembleStep(Step):
         product_steps : dict of {str: polaris.Step}
             All component-input steps, from which this picks what ``target``
             calls for.
+
+        cull_mesh_step : polaris.tasks.e3sm.init.topo.cull.cull.CullMeshStep
+            The step that wrote the culled land mesh.
 
         name : str, optional
             The name of the step.
@@ -98,6 +115,12 @@ class AssembleStep(Step):
         }
 
         self.add_input_file(filename='README', package=names.__package__)
+        self.add_input_file(
+            filename=self.LAND_MESH_FILENAME,
+            work_dir_target=os.path.join(
+                cull_mesh_step.path, self.LAND_MESH_FILENAME
+            ),
+        )
 
         for key, step in self.product_steps.items():
             if key.endswith('graph_partition'):
@@ -155,10 +178,25 @@ class AssembleStep(Step):
                 names.scrip_path(short_name, creation_date, region),
             )
 
+        # the land mesh belongs to the shared set: it describes a domain of
+        # the unified mesh, not something one component runs with
+        self._stage(
+            self.LAND_MESH_FILENAME,
+            names.culled_mesh_path(short_name, creation_date, 'land'),
+        )
+
         if 'ocean_mesh' in self.product_steps:
+            # the same SCRIP files as above, in the second place developers
+            # look for them, named as they read in an ocean directory
+            for region in names.OCEAN_SCRIP_REGIONS:
+                self._stage(
+                    f'scrip__{ScripStep.scrip_filename(region)}',
+                    names.ocean_scrip_path(short_name, creation_date, region),
+                )
+
             self._stage(
                 'ocean_mesh__ocean_mesh.nc',
-                names.ocean_mesh_path(short_name, creation_date),
+                names.culled_mesh_path(short_name, creation_date, 'ocean'),
             )
             self._stage(
                 'ocean_initial_condition__ocean_initial_condition.nc',

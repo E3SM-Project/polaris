@@ -125,14 +125,17 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
         f'{mesh_dir}/{SHORT_NAME}.ocean.scrip.{CREATION_DATE}.nc',
         f'{mesh_dir}/{SHORT_NAME}.ocean_no_cavities.scrip.{CREATION_DATE}.nc',
         f'{mesh_dir}/{SHORT_NAME}.land.scrip.{CREATION_DATE}.nc',
+        f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc',
     }
     if 'ocean_mesh' in TARGET_PRODUCTS[target]:
         ocn = f'inputdata/ocn/mpas-o/{SHORT_NAME}'
         expected |= {
-            f'{ocn}/{SHORT_NAME}.{CREATION_DATE}.nc',
+            f'{mesh_dir}/{SHORT_NAME}.ocean.{CREATION_DATE}.nc',
             f'{ocn}/mpaso.{SHORT_NAME}.{CREATION_DATE}.nc',
             f'{ocn}/{SHORT_NAME}.mocBasinsAndTransects'
             f'{FEATURES_DATE}.{CREATION_DATE}.nc',
+            f'{ocn}/{SHORT_NAME}.scrip.{CREATION_DATE}.nc',
+            f'{ocn}/{SHORT_NAME}.no_cavities.scrip.{CREATION_DATE}.nc',
         } | {
             f'{ocn}/partitions/mpas-o.graph.info.{CREATION_DATE}.part.{n}'
             for n in NCORES
@@ -259,3 +262,103 @@ def test_the_tree_describes_one_assembly_not_every_assembly(tmp_path):
     assert any('.20250202.' in name for name in second)
     stale = sorted(name for name in second if '.20250101.' in name)
     assert stale == [], f'{len(stale)} file(s) left from the earlier date'
+
+
+def test_the_meshes_are_staged_beside_the_base_mesh(tmp_path):
+    """
+    Not under a component's own directory.  A culled mesh describes a domain
+    of the unified mesh rather than a file one component reads at run time,
+    which is the same argument that puts the base mesh in share/meshes.  An
+    earlier version staged the ocean mesh under ocn/mpas-o/, where Compass
+    never put it and where E3SM does not look for it.
+    """
+    staged = _run_assemble(tmp_path, 'all')
+
+    mesh_dir = 'inputdata/share/meshes/mpas/unified'
+    assert f'{mesh_dir}/{SHORT_NAME}.ocean.{CREATION_DATE}.nc' in staged
+    assert f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc' in staged
+
+    under_ocn = [
+        name
+        for name in staged
+        if name.startswith(f'inputdata/ocn/mpas-o/{SHORT_NAME}/')
+        and 'partitions/' not in name
+    ]
+    ocn = f'inputdata/ocn/mpas-o/{SHORT_NAME}'
+    assert set(under_ocn) == {
+        f'{ocn}/mpaso.{SHORT_NAME}.{CREATION_DATE}.nc',
+        f'{ocn}/{SHORT_NAME}.mocBasinsAndTransects'
+        f'{FEATURES_DATE}.{CREATION_DATE}.nc',
+        f'{ocn}/{SHORT_NAME}.scrip.{CREATION_DATE}.nc',
+        f'{ocn}/{SHORT_NAME}.no_cavities.scrip.{CREATION_DATE}.nc',
+    }
+
+
+def test_the_land_mesh_is_staged_for_every_target(tmp_path):
+    """
+    It comes from the cull step and describes a domain of the unified mesh, so
+    a sea-ice-only task stages it too, exactly as it stages the SCRIP files.
+    """
+    mesh_dir = 'inputdata/share/meshes/mpas/unified'
+    for target in ['ocean', 'seaice', 'all']:
+        staged = _run_assemble(tmp_path / target, target)
+        assert f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc' in staged
+
+
+def test_no_mesh_is_staged_for_the_no_cavities_domain():
+    """
+    It exists to build mapping files, and under calving_front it is identical
+    to the ocean mesh, so staging it would be a second copy of the same file.
+    Its SCRIP description is still staged.
+    """
+    from polaris.tasks.e3sm.init.component_inputs import names
+
+    assert 'ocean_no_cavities' in names.SCRIP_REGIONS
+    assert 'ocean_no_cavities' not in names.MESH_REGIONS
+    with pytest.raises(ValueError, match='ocean_no_cavities'):
+        names.culled_mesh_path(SHORT_NAME, CREATION_DATE, 'ocean_no_cavities')
+
+
+def test_the_ocean_scrip_files_are_staged_in_both_places(tmp_path):
+    """
+    Developers look for them beside the ocean products as well as in the
+    shared mesh directory, which holds every unified mesh and gets crowded.
+    Both names point at the same file.
+    """
+    staged = _run_assemble(tmp_path, 'all')
+    root = tmp_path / 'assemble' / 'all' / ASSEMBLED_FILES
+
+    mesh_dir = 'inputdata/share/meshes/mpas/unified'
+    ocn = f'inputdata/ocn/mpas-o/{SHORT_NAME}'
+    pairs = [
+        (
+            f'{mesh_dir}/{SHORT_NAME}.ocean.scrip.{CREATION_DATE}.nc',
+            f'{ocn}/{SHORT_NAME}.scrip.{CREATION_DATE}.nc',
+        ),
+        (
+            f'{mesh_dir}/{SHORT_NAME}.ocean_no_cavities.scrip.'
+            f'{CREATION_DATE}.nc',
+            f'{ocn}/{SHORT_NAME}.no_cavities.scrip.{CREATION_DATE}.nc',
+        ),
+    ]
+    for shared, beside_ocean in pairs:
+        assert shared in staged
+        assert beside_ocean in staged
+        assert os.path.realpath(root / shared) == os.path.realpath(
+            root / beside_ocean
+        )
+
+
+def test_the_land_scrip_has_no_copy_in_the_ocean_directory(tmp_path):
+    """
+    It has no business in an ocean directory, and dropping the region from the
+    name would make it indistinguishable from the ocean one.
+    """
+    staged = _run_assemble(tmp_path, 'all')
+
+    ocn = f'inputdata/ocn/mpas-o/{SHORT_NAME}'
+    assert not [
+        name
+        for name in staged
+        if name.startswith(ocn) and 'land' in os.path.basename(name)
+    ]
