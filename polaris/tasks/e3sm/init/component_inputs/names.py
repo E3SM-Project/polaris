@@ -31,7 +31,7 @@ OCEAN_SCRIP_REGIONS = ('ocean', 'ocean_no_cavities')
 #: to ``ocean`` anyway, so staging it would be a second copy of the same mesh.
 MESH_REGIONS = ('ocean', 'land')
 
-_MESH_DIR = 'inputdata/share/meshes/mpas/unified'
+_UNIFIED_MESH_DIR = 'inputdata/share/meshes/mpas/unified'
 
 
 def get_mesh_short_name(config: PolarisConfigParser) -> str:
@@ -136,10 +136,11 @@ def base_mesh_path(short_name: str, creation_date: str) -> str:
     """
     Where the base mesh, carrying the base-to-culled index maps, is staged.
 
-    Under ``share/meshes/mpas/unified/`` rather than Compass'
+    Under ``share/meshes/mpas/unified/<short_name>/`` rather than Compass'
     ``share/meshes/mpas/ocean/``: for a unified mesh the base mesh belongs to
     the ocean, sea-ice, land and river components equally, and filing it under
-    the ocean would misdescribe it.
+    the ocean would misdescribe it.  The per-mesh subdirectory keeps one
+    mesh's files together -- see :py:func:`_mesh_dir`.
 
     Parameters
     ----------
@@ -154,7 +155,7 @@ def base_mesh_path(short_name: str, creation_date: str) -> str:
     str
         The path, relative to :py:data:`ASSEMBLED_FILES`.
     """
-    return f'{_MESH_DIR}/{short_name}.base.{creation_date}.nc'
+    return f'{_mesh_dir(short_name)}/{short_name}.base.{creation_date}.nc'
 
 
 def scrip_path(short_name: str, creation_date: str, region: str) -> str:
@@ -187,17 +188,20 @@ def scrip_path(short_name: str, creation_date: str, region: str) -> str:
             f'No SCRIP file is staged for the region {region!r}.  Expected '
             f'one of {", ".join(SCRIP_REGIONS)}.'
         )
-    return f'{_MESH_DIR}/{short_name}.{region}.scrip.{creation_date}.nc'
+    return (
+        f'{_mesh_dir(short_name)}/'
+        f'{short_name}.{region}.scrip.{creation_date}.nc'
+    )
 
 
 def ocean_scrip_path(short_name: str, creation_date: str, region: str) -> str:
     """
     Where a SCRIP description is staged beside the ocean products.
 
-    The same files are staged under ``share/meshes/mpas/unified/`` by
-    :py:func:`scrip_path`.  They are in both places because developers look
-    for them in both, and because the shared mesh directory holds every
-    unified mesh and gets crowded.
+    The same files are staged under ``share/meshes/mpas/unified/<short_name>/``
+    by :py:func:`scrip_path`.  They are in both places because developers look
+    for them in both: with the mesh files and with the ocean files that were
+    built from them.
 
     Under ``ocn/mpas-o/`` the ``ocean`` in a region name says nothing -- every
     file there is the ocean's -- so it is dropped, leaving
@@ -242,12 +246,12 @@ def culled_mesh_path(short_name: str, creation_date: str, region: str) -> str:
     """
     Where one culled mesh is staged.
 
-    Next to the base mesh under ``share/meshes/mpas/unified/`` rather than
-    under a component's own directory, for the same reason the base mesh is
-    there: a culled mesh describes a domain of the unified mesh, not a file
-    one component reads at run time.  Compass files its ocean mesh under
-    ``share/meshes/mpas/ocean/`` and E3SM never reads it from ``ocn/mpas-o/``,
-    where an earlier version of this workflow put it.
+    Next to the base mesh under ``share/meshes/mpas/unified/<short_name>/``
+    rather than under a component's own directory, for the same reason the
+    base mesh is there: a culled mesh describes a domain of the unified mesh,
+    not a file one component reads at run time.  Compass files its ocean mesh
+    under ``share/meshes/mpas/ocean/`` and E3SM never reads it from
+    ``ocn/mpas-o/``, where an earlier version of this workflow put it.
 
     The ocean mesh carries the vertical coordinate as well, since that is what
     makes it an ocean mesh rather than a horizontal one; the land mesh is
@@ -279,7 +283,7 @@ def culled_mesh_path(short_name: str, creation_date: str, region: str) -> str:
             f'No mesh is staged for the region {region!r}.  Expected one of '
             f'{", ".join(MESH_REGIONS)}.'
         )
-    return f'{_MESH_DIR}/{short_name}.{region}.{creation_date}.nc'
+    return f'{_mesh_dir(short_name)}/{short_name}.{region}.{creation_date}.nc'
 
 
 def ocean_initial_condition_path(short_name: str, creation_date: str) -> str:
@@ -413,6 +417,21 @@ def seaice_partition_path(
         f'{_seaice_dir(short_name)}/partitions/'
         f'mpas-seaice.graph.info.{creation_date}.part.{ncores}'
     )
+
+
+def _mesh_dir(short_name: str) -> str:
+    """
+    The shared mesh directory for one unified mesh.
+
+    Every unified mesh gets its own subdirectory, named for its E3SM short
+    name.  The flat directory it replaced held half a dozen files per mesh --
+    a base mesh, three SCRIP descriptions and two culled meshes -- so with
+    more than a couple of meshes in it there was no way to see which files
+    belonged together.  The short name is already in every filename, so the
+    subdirectory adds no information; what it adds is that the mesh's files
+    are listed together and can be copied or removed as a unit.
+    """
+    return f'{_UNIFIED_MESH_DIR}/{short_name}'
 
 
 def _ocean_dir(short_name: str) -> str:

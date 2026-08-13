@@ -73,12 +73,12 @@ under `assemble/<target>/assembled_files/` is:
 
 | Product | Staged path |
 |---|---|
-| base mesh + maps | `inputdata/share/meshes/mpas/unified/<short>.base.<date>.nc` |
-| SCRIP, per region | `inputdata/share/meshes/mpas/unified/<short>.<region>.scrip.<date>.nc` |
+| base mesh + maps | `inputdata/share/meshes/mpas/unified/<short>/<short>.base.<date>.nc` |
+| SCRIP, per region | `inputdata/share/meshes/mpas/unified/<short>/<short>.<region>.scrip.<date>.nc` |
 | ocean SCRIP, again | `inputdata/ocn/mpas-o/<short>/<short>.scrip.<date>.nc` |
 | no-cavities SCRIP, again | `inputdata/ocn/mpas-o/<short>/<short>.no_cavities.scrip.<date>.nc` |
-| ocean mesh | `inputdata/share/meshes/mpas/unified/<short>.ocean.<date>.nc` |
-| land mesh | `inputdata/share/meshes/mpas/unified/<short>.land.<date>.nc` |
+| ocean mesh | `inputdata/share/meshes/mpas/unified/<short>/<short>.ocean.<date>.nc` |
+| land mesh | `inputdata/share/meshes/mpas/unified/<short>/<short>.land.<date>.nc` |
 | ocean IC | `inputdata/ocn/mpas-o/<short>/mpaso.<short>.<date>.nc` |
 | ocean partitions | `inputdata/ocn/mpas-o/<short>/partitions/mpas-o.graph.info.<date>.part.<n>` |
 | MOC masks | `inputdata/ocn/mpas-o/<short>/<short>.mocBasinsAndTransects<features_date>.<date>.nc` |
@@ -105,10 +105,18 @@ not look for a mesh under `ocn/mpas-o/`. The ocean mesh carries the vertical
 coordinate as well, which is what makes it an ocean mesh rather than a
 horizontal one.
 
+Each unified mesh gets its own subdirectory of `share/meshes/mpas/unified/`,
+named for its E3SM short name. One mesh contributes half a dozen files there —
+a base mesh, three SCRIP descriptions and two culled meshes — so a flat
+directory holding several meshes gives no way to see at a glance which files
+belong together, or to copy or remove one mesh's files as a unit. The short
+name is in every filename as well, so the subdirectory duplicates it on
+purpose: the grouping is the point, not the name.
+
 The two ocean SCRIP files are staged twice: once in the shared mesh directory
 under their full region names, and once beside the ocean products. Developers
-look in both places, and the shared directory holds every unified mesh, so it
-gets crowded. In `ocn/mpas-o/` the `ocean` in a region name says nothing —
+look in both places — with the mesh files, and with the ocean files built from
+them. In `ocn/mpas-o/` the `ocean` in a region name says nothing —
 everything there is the ocean's — so it is dropped, leaving
 `<short>.scrip.<date>.nc` and `<short>.no_cavities.scrip.<date>.nc`. Both
 names link to the same file. The land SCRIP has no copy there.
