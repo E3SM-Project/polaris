@@ -1,5 +1,7 @@
 import logging
 import os
+import shutil
+import subprocess
 
 import pytest
 from geometric_features.aggregation import get_aggregator_by_name
@@ -7,6 +9,7 @@ from geometric_features.aggregation import get_aggregator_by_name
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.component_inputs.assemble import (
     SHARED_PRODUCTS,
+    SYNC_SCRIPT,
     TARGET_PRODUCTS,
 )
 from polaris.tasks.e3sm.init.component_inputs.names import ASSEMBLED_FILES
@@ -382,3 +385,88 @@ def test_no_sea_ice_mesh_is_staged(tmp_path):
 
     # and nothing anywhere else claims to be a sea-ice mesh
     assert not [name for name in staged if '.seaice.' in name]
+
+
+def test_the_sync_script_is_available_but_not_staged(tmp_path):
+    """
+    Copying into a shared inputdata directory is a decision a person makes, so
+    the step provides the script and never runs it -- and it does not belong
+    in the staged tree either, since it is not an E3SM input.
+    """
+    _reset_shared_components()
+    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+
+    declared = [
+        entry['filename'] for entry in steps['assemble_all'].input_data
+    ]
+    assert SYNC_SCRIPT in declared
+
+    staged = _run_assemble(tmp_path, 'all')
+    assert SYNC_SCRIPT not in staged
+
+
+@pytest.mark.skipif(
+    shutil.which('rsync') is None, reason='rsync is not installed'
+)
+def test_the_sync_script_copies_and_sets_permissions(tmp_path):
+    """
+    Files land as real files rather than the symlinks the staged tree is made
+    of, directories come out 775 and files 664.
+    """
+    work_dir = tmp_path / 'assemble' / 'all'
+    staged_dir = work_dir / ASSEMBLED_FILES / 'inputdata' / 'ocn' / 'mpas-o'
+    staged_dir.mkdir(parents=True)
+
+    product = tmp_path / 'product.nc'
+    product.write_text('contents')
+    (staged_dir / 'staged.nc').symlink_to(product)
+
+    script = work_dir / SYNC_SCRIPT
+    script.symlink_to(_sync_script_source())
+
+    dest = tmp_path / 'inputdata'
+    dest.mkdir()
+    subprocess.run(['bash', str(script), str(dest)], check=True)
+
+    copied = dest / 'ocn' / 'mpas-o' / 'staged.nc'
+    assert copied.is_file() and not copied.is_symlink()
+    assert copied.read_text() == 'contents'
+    assert oct(copied.stat().st_mode)[-3:] == '664'
+    assert oct((dest / 'ocn' / 'mpas-o').stat().st_mode)[-3:] == '775'
+
+
+@pytest.mark.skipif(
+    shutil.which('rsync') is None, reason='rsync is not installed'
+)
+def test_the_sync_script_refuses_a_destination_that_is_not_there(tmp_path):
+    """
+    An inputdata directory is curated by someone else; a typo should stop the
+    copy rather than create a new tree next to the real one.
+    """
+    work_dir = tmp_path / 'assemble' / 'all'
+    (work_dir / ASSEMBLED_FILES / 'inputdata').mkdir(parents=True)
+    script = work_dir / SYNC_SCRIPT
+    script.symlink_to(_sync_script_source())
+
+    result = subprocess.run(
+        ['bash', str(script), str(tmp_path / 'typo')],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert 'does not exist' in result.stderr
+
+    result = subprocess.run(
+        ['bash', str(script)], capture_output=True, text=True
+    )
+    assert result.returncode != 0
+    assert 'usage' in result.stderr
+
+
+def _sync_script_source():
+    """
+    The script as it ships in the package.
+    """
+    import polaris.tasks.e3sm.init.component_inputs as package
+
+    return os.path.join(os.path.dirname(package.__file__), SYNC_SCRIPT)
