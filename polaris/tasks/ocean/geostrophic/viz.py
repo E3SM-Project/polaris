@@ -46,7 +46,7 @@ class Viz(OceanIOStep):
         super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
-            work_dir_target=f'{base_mesh.path}/base_mesh.nc',
+            work_dir_target=f'{init.path}/culled_mesh.nc',
         )
         self.add_input_file(
             filename='initial_state.nc',
@@ -76,7 +76,12 @@ class Viz(OceanIOStep):
             v='geostrophic_viz_vel',
         )
 
-        ds_init = self.open_model_dataset('initial_state.nc', config)
+        ds_init = self.open_model_dataset(
+            'initial_state.nc',
+            config,
+            mesh_filename='mesh.nc',
+            reconstruct_variables=['normalVelocity'],
+        )
         ds_vert_coord = self.open_vert_coord_dataset(ds_init)
         bottom_depth = ds_vert_coord.bottomDepth
         ds_init = self._process_ds(ds_init, bottom_depth, time_index=0)
@@ -94,7 +99,12 @@ class Viz(OceanIOStep):
                 plot_land=False,
             )
 
-        ds_out = self.open_model_dataset('output.nc', config)
+        ds_out = self.open_model_dataset(
+            'output.nc',
+            config,
+            mesh_filename='mesh.nc',
+            reconstruct_variables=['normalVelocity'],
+        )
         ds_out = self._process_ds(ds_out, bottom_depth, time_index=-1)
         ds_out.to_netcdf('remapped_final.nc')
 
