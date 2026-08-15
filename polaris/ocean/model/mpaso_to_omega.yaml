@@ -18,6 +18,7 @@ variables:
   verticesOnCell: VerticesOnCell
   cellsOnEdge: CellsOnEdge
   edgesOnEdge: EdgesOnEdge
+  weightsOnEdge: WeightsOnEdge
   verticesOnEdge: VerticesOnEdge
   cellsOnVertex: CellsOnVertex
   edgesOnVertex: EdgesOnVertex
