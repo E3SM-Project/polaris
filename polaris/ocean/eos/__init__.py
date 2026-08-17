@@ -271,3 +271,60 @@ def _tracers_in_teos10_convention(
         return float(cons_temp), float(abs_salin)
 
     return cons_temp, abs_salin
+
+
+def get_freezing_temperature(ds, config=None):
+    """
+    Return the freezing temperature of the top model layer
+
+    The model's own freezing temperature is used if it is available in the
+    output.  Otherwise, it is computed from the surface salinity with the
+    equation of state given by the config options, neglecting the (small)
+    gauge pressure at the surface.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The output dataset
+
+    config : polaris.config.PolarisConfigParser, optional
+        Configuration options, required if the freezing temperature is not
+        in the output
+
+    Returns
+    -------
+    t_freezing : xarray.DataArray
+        The freezing temperature in the top layer of each column
+    """
+    for var in ['freezingTemperature', 'CtFreezing', 'TFreezing']:
+        if var in ds:
+            t_freezing = _drop_time(ds[var])
+            if 'nVertLevels' in t_freezing.dims:
+                t_freezing = t_freezing.isel(nVertLevels=0)
+            return t_freezing
+
+    if 'salinity' not in ds:
+        raise ValueError(
+            'A frozen mass flux carries an enthalpy flux at the freezing '
+            'temperature, but neither a freezing temperature nor "salinity" '
+            'is available in the output to compute it.'
+        )
+    if config is None:
+        raise ValueError(
+            'A frozen mass flux carries an enthalpy flux at the freezing '
+            'temperature, which is not in the output, so config options are '
+            'required to compute it from the equation of state.'
+        )
+    salinity = _drop_time(ds.salinity).isel(nVertLevels=0)
+    return compute_ct_freezing(config, salinity, pressure=0.0)
+
+
+def _drop_time(da):
+    """
+    Return a data array with any time dimension removed, using the first time
+    slice since the forcing is assumed constant in time
+    """
+    for time_dim in ['time', 'Time']:
+        if time_dim in da.dims:
+            da = da.isel({time_dim: 0})
+    return da
