@@ -18,7 +18,6 @@ variables:
   verticesOnCell: VerticesOnCell
   cellsOnEdge: CellsOnEdge
   edgesOnEdge: EdgesOnEdge
-  weightsOnEdge: WeightsOnEdge
   verticesOnEdge: VerticesOnEdge
   cellsOnVertex: CellsOnVertex
   edgesOnVertex: EdgesOnVertex
@@ -98,7 +97,7 @@ variables:
   seaIceFreshWaterFlux: SeaIceFreshWaterFlux
   iceRunoffFlux: IceRunoffFlux
   riverRunoffFlux: RiverRunoffFlux
-  latentHeatFlux: LatentHeatFlux
+  latentHeatFlux: LatentHeatFluxEvap
   sensibleHeatFlux: SensibleHeatFlux
   longWaveHeatFluxUp: LongWaveHeatFluxUp
   longWaveHeatFluxDown: LongWaveHeatFluxDown

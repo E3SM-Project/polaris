@@ -12,6 +12,10 @@ latent_heat_fusion = {
     'omega': get_constant('latent_heat_of_fusion_reference'),
     'mpas-ocean': 3.337e5,
 }
+ct0_fw = {
+    'omega': 0.0153,
+    'mpas-ocean': 0.0,
+}
 # Freshwater/mass fluxes that the model adds to the (pseudo-)thickness
 # equation.  ``seaIceSalinityFlux`` also enters the thickness equation, so it
 # appears in the mass budget as well as the salt budget.
@@ -42,20 +46,14 @@ HEAT_FLUX_VARS = [
     'icebergHeatFlux',
 ]
 
-# mass fluxes (kg/m^2/s) that enter the heat budget as -flux * L_f
-FUSION_FLUX_VARS = [
-    'snowFlux',
-    'iceRunoffFlux',
-]
-
 SALT_FLUX_VARS = ['seaIceSalinityFlux']
 
 # Mass fluxes that may also carry an enthalpy flux, ``flux * cp_sw * T``.
 # Which of these are active, and the temperature ``T`` applied to each, is
 # model dependent and is resolved by ``_get_enthalpy_flux_vars``.
 ENTHALPY_FLUX_VARS = [
-    'rainFlux',
     'evaporationFlux',
+    'rainFlux',
     'riverRunoffFlux',
     'snowFlux',
     'iceRunoffFlux',
@@ -290,41 +288,16 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None, config=None):
         # compute_total_salt) carries the same rho_sw/1000 conversion
         total *= rho_sw / 1000.0
 
-    if budget == 'energy':
-        # frozen mass fluxes are melted by the ocean, absorbing the latent
-        # heat of fusion.  The enthalpy of the resulting meltwater is handled
-        # below, since the two models apply different temperatures to it.
-        for var in FUSION_FLUX_VARS:
-            if var in ds:
-                flux = _drop_time(ds[var])
-                inst_flux = float((flux * area_cell).sum(dim='nCells').values)
-                total -= latent_heat_fusion[model] * inst_flux
-
-        # MPAS-Ocean applies an evaporation enthalpy flux
-        # (accumulatedEvapTemperatureFlux) and clamps the river runoff
-        # temperature at 0 C, whereas Omega folds the evaporation enthalpy
-        # into LatentHeatFlux, applies no clamp, and additionally adds the
-        # cp_sw * T_f enthalpy of the meltwater from frozen mass fluxes (see
-        # SfcTracerForcingOnCell).
+        temperature_sources = {
+            'evaporationFlux': 'surface',
+            'rainFlux': 'surface_clamped',
+            'riverRunoffFlux': 'surface_clamped',
+            'snowFlux': 'freezing',
+            'iceRunoffFlux': 'freezing',
+        }
         if model == 'mpas-ocean':
-            temperature_sources = {
-                'rainFlux': 'surface',
-                'evaporationFlux': 'surface',
-                'riverRunoffFlux': 'surface_clamped',
-            }
-        elif model == 'omega':
-            temperature_sources = {
-                'rainFlux': 'surface',
-                'riverRunoffFlux': 'surface',
-                'snowFlux': 'freezing',
-                'iceRunoffFlux': 'freezing',
-            }
-        else:
-            raise ValueError(
-                f'"model" is "{model}", which is not one of '
-                f'{sorted(cp_sw.keys())}.  A valid model name is required '
-                'to compute the enthalpy contribution to the energy budget.'
-            )
+            temperature_sources['rainFlux'] = 'surface'
+
         temperature_sources = {
             var: source
             for var, source in temperature_sources.items()
@@ -395,21 +368,22 @@ def _compute_enthalpy_forcing(
     total = 0.0
     for var, source in active.items():
         if source == 'surface':
-            temperature = surface_temperature
+            potential_enthalpy = cp_sw[model] * surface_temperature
         elif source == 'surface_clamped':
             # fresh water cannot be colder than 0 C
-            temperature = np.maximum(surface_temperature, 0.0)
+            potential_enthalpy = cp_sw[model] * (
+                np.maximum(surface_temperature, ct0_fw[model])
+            )
         elif source == 'freezing':
-            temperature = _get_freezing_temperature(ds, config)
+            potential_enthalpy = -latent_heat_fusion[model]
+
         else:
             raise ValueError(
                 f'Unknown enthalpy temperature source "{source}" for "{var}"'
             )
         flux = _drop_time(ds[var])
         inst_flux = float(
-            (cp_sw[model] * flux * temperature * area_cell)
-            .sum(dim='nCells')
-            .values
+            (flux * potential_enthalpy * area_cell).sum(dim='nCells').values
         )
         total += inst_flux
     return total
