@@ -109,9 +109,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.init_state.velocity</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Helpers for adding velocity fields to an initial-state dataset.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -120,7 +120,7 @@
 <div class="viewcode-block" id="add_quiescent_normal_velocity">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.init_state.add_quiescent_normal_velocity.html#polaris.ocean.init_state.add_quiescent_normal_velocity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_quiescent_normal_velocity</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add a quiescent ``normalVelocity`` field (all zeros) to ``ds``.</span>
 
 <span class="sd">    Parameters</span>
@@ -135,13 +135,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    xarray.Dataset</span>
 <span class="sd">        Dataset with ``normalVelocity`` added.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">nedges</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">]</span>
-    <span class="n">nlevels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
-    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+<span class="sd">    """</span>
+    <span class="n">nedges</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nEdges'</span><span class="p">]</span>
+    <span class="n">nlevels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">nedges</span><span class="p">,</span> <span class="n">nlevels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nEdges&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span>
-        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;normal velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m s-1&#39;</span><span class="p">},</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nEdges'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'normal velocity'</span><span class="p">,</span> <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-1'</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">ds</span></div>
 

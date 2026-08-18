@@ -118,7 +118,7 @@
 <div class="viewcode-block" id="unpickle_suite">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.run.unpickle_suite.html#polaris.run.unpickle_suite">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">unpickle_suite</span><span class="p">(</span><span class="n">suite_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Unpickle the suite</span>
 
 <span class="sd">    Parameters</span>
@@ -130,18 +130,18 @@
 <span class="sd">    -------</span>
 <span class="sd">    test_suite : dict</span>
 <span class="sd">        The test suite</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Allow a suite name to either include or not the .pickle suffix</span>
-    <span class="k">if</span> <span class="n">suite_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pickle&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">suite_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'.pickle'</span><span class="p">):</span>
         <span class="c1"># code below assumes no suffix, so remove it</span>
-        <span class="n">suite_name</span> <span class="o">=</span> <span class="n">suite_name</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;.pickle&#39;</span><span class="p">)]</span>
-    <span class="c1"># Now open the the suite&#39;s pickle file</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.pickle&#39;</span><span class="p">):</span>
+        <span class="n">suite_name</span> <span class="o">=</span> <span class="n">suite_name</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">'.pickle'</span><span class="p">)]</span>
+    <span class="c1"># Now open the the suite's pickle file</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.pickle'</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;The suite &quot;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">&quot; does not appear to have &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;been set up here.&#39;</span>
+            <span class="sa">f</span><span class="s1">'The suite "</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">" does not appear to have '</span>
+            <span class="sa">f</span><span class="s1">'been set up here.'</span>
         <span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.pickle'</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
         <span class="n">test_suite</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">test_suite</span></div>
 
@@ -150,7 +150,7 @@
 <div class="viewcode-block" id="setup_config">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.run.setup_config.html#polaris.run.setup_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">setup_config</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">config_filepath</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set up the config object from the config file</span>
 
 <span class="sd">    Parameters</span>
@@ -159,13 +159,13 @@
 <span class="sd">        The base work directory where suites and tasks are being set up</span>
 
 <span class="sd">    config_filepath : str</span>
-<span class="sd">        The path to the config file within the component&#39;s work directory</span>
+<span class="sd">        The path to the config file within the component's work directory</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The config object</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">config_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">config_filepath</span><span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_file</span><span class="p">(</span><span class="n">config_filename</span><span class="p">)</span>
@@ -177,7 +177,7 @@
 <div class="viewcode-block" id="load_dependencies">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.run.load_dependencies.html#polaris.run.load_dependencies">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_dependencies</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Load each dependency from its pickle file to pick up changes that may have</span>
 <span class="sd">    happened since it ran</span>
 
@@ -185,20 +185,20 @@
 <span class="sd">    ----------</span>
 <span class="sd">    step : polaris.step.Step</span>
 <span class="sd">        The step object</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">old_dependency</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">old_dependency</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
             <span class="k">continue</span>
 
         <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">old_dependency</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;step_after_run.pickle&#39;</span>
+            <span class="n">old_dependency</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'step_after_run.pickle'</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;The dependency </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> of step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> was not run.&#39;</span>
+                <span class="sa">f</span><span class="s1">'The dependency </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> of step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> was not run.'</span>
             <span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">dependency</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
             <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dependency</span></div>
 
@@ -207,7 +207,7 @@
 <div class="viewcode-block" id="complete_step_run">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.run.complete_step_run.html#polaris.run.complete_step_run">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">complete_step_run</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write a file to indicate that the step has completed. If this step is a</span>
 <span class="sd">    dependency of other steps, pickle the step after it has run so its</span>
 <span class="sd">    dependencies will pick up any changes in its attributes</span>
@@ -216,13 +216,13 @@
 <span class="sd">    ----------</span>
 <span class="sd">    step : polaris.step.Step</span>
 <span class="sd">        The step object</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;polaris_step_complete.log&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">log_file</span><span class="p">:</span>
-        <span class="n">log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> finished successfully.&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'polaris_step_complete.log'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">log_file</span><span class="p">:</span>
+        <span class="n">log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> finished successfully.'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">is_dependency</span><span class="p">:</span>
         <span class="c1"># pickle the test case and step for use at runtime</span>
-        <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;step_after_run.pickle&#39;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'step_after_run.pickle'</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span></div>
 
 </pre></div>

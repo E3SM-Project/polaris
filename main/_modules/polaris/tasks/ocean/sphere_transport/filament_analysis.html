@@ -124,7 +124,7 @@
 <div class="viewcode-block" id="FilamentAnalysis">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis.html#polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FilamentAnalysis</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for analyzing the output from sphere transport test cases</span>
 
 <span class="sd">    Attributes</span>
@@ -138,7 +138,7 @@
 
 <span class="sd">    case_name : str</span>
 <span class="sd">        The name of the test case</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="FilamentAnalysis.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis.html#polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis.__init__">[docs]</a>
@@ -150,9 +150,9 @@
         <span class="n">subdir</span><span class="p">,</span>
         <span class="n">case_name</span><span class="p">,</span>
         <span class="n">dependencies</span><span class="p">,</span>
-        <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
+        <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -175,40 +175,40 @@
 
 <span class="sd">        dependencies : dict of dict of polaris.Steps</span>
 <span class="sd">            The dependencies of this step</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;filament_analysis&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'filament_analysis'</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">refinement_factors</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="n">refinement</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">case_name</span> <span class="o">=</span> <span class="n">case_name</span>
 
         <span class="k">for</span> <span class="n">refinement_factor</span> <span class="ow">in</span> <span class="n">refinement_factors</span><span class="p">:</span>
-            <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span>
-            <span class="n">init</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span>
-            <span class="n">forward</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span>
+            <span class="n">base_mesh</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">'mesh'</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span>
+            <span class="n">init</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">'init'</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span>
+            <span class="n">forward</span> <span class="o">=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">'forward'</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
-                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc&#39;</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc'</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
-                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc'</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
-                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc'</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;filament.png&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">'filament.png'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FilamentAnalysis.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis.run.html#polaris.tasks.ocean.sphere_transport.filament_analysis.FilamentAnalysis.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s1">'Agg'</span><span class="p">)</span>
         <span class="n">resolutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">refinement_factor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">refinement_factors</span><span class="p">:</span>
             <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
@@ -217,10 +217,10 @@
             <span class="n">resolutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">case_name</span><span class="p">]</span>
-        <span class="n">eval_time</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;filament_evaluation_time&#39;</span><span class="p">)</span>
+        <span class="n">eval_time</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'filament_evaluation_time'</span><span class="p">)</span>
         <span class="n">s_per_day</span> <span class="o">=</span> <span class="mf">86400.0</span>
         <span class="n">zidx</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">variable_name</span> <span class="o">=</span> <span class="s1">&#39;tracer2&#39;</span>
+        <span class="n">variable_name</span> <span class="o">=</span> <span class="s1">'tracer2'</span>
         <span class="n">num_tau</span> <span class="o">=</span> <span class="mi">21</span>
         <span class="n">filament_tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_tau</span><span class="p">)</span>
         <span class="n">filament_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">resolutions</span><span class="p">),</span> <span class="n">num_tau</span><span class="p">))</span>
@@ -229,17 +229,17 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">refinement_factor</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refinement_factors</span><span class="p">):</span>
             <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">resolution_to_string</span><span class="p">(</span><span class="n">resolutions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+                <span class="sa">f</span><span class="s1">'mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
             <span class="p">)</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+                <span class="sa">f</span><span class="s1">'output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
             <span class="p">)</span>
             <span class="n">t_days</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
             <span class="n">time_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">t_days</span><span class="p">,</span> <span class="n">eval_time</span> <span class="o">*</span> <span class="n">s_per_day</span><span class="p">))</span>
             <span class="p">)</span>
             <span class="n">tracer</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span>
-            <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;areaCell&#39;</span><span class="p">]</span>
+            <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'areaCell'</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">tau</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filament_tau</span><span class="p">):</span>
                 <span class="n">cells_above_tau</span> <span class="o">=</span> <span class="n">tracer</span><span class="p">[</span><span class="n">time_index</span><span class="p">,</span> <span class="p">:,</span> <span class="n">zidx</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">tau</span>
                 <span class="n">cells_above_tau0</span> <span class="o">=</span> <span class="n">tracer</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="n">zidx</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">tau</span>
@@ -250,22 +250,22 @@
                         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">area_cell</span> <span class="o">*</span> <span class="n">cells_above_tau</span><span class="p">),</span>
                         <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">cells_above_tau0</span> <span class="o">*</span> <span class="n">area_cell</span><span class="p">),</span>
                     <span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">filament_tau</span><span class="p">,</span> <span class="n">filament_norm</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;.-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">filament_tau</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">filament_tau</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">filament_tau</span><span class="p">,</span> <span class="n">filament_norm</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">'.-'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">filament_tau</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">filament_tau</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="s1">'k--'</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">filament_tau</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">filament_tau</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\tau$&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$l_f$&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Filament preservation diagnostic for </span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$\tau$'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$l_f$'</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Filament preservation diagnostic for </span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;filament.png&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'filament.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
 
         <span class="n">res_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">resolutions</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">res_array</span><span class="p">,</span> <span class="n">filament_norm</span><span class="p">))</span>
-        <span class="n">col_headers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;resolution&#39;</span><span class="p">]</span>
+        <span class="n">col_headers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'resolution'</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">tau</span> <span class="ow">in</span> <span class="n">filament_tau</span><span class="p">:</span>
-            <span class="n">col_headers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tau</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">col_headers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">tau</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">col_headers</span><span class="p">)</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;filament.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'filament.csv'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

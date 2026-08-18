@@ -118,14 +118,14 @@
 <div class="viewcode-block" id="add_river_tasks">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.river.add_river_tasks.html#polaris.tasks.mesh.spherical.unified.river.add_river_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_river_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add standalone river-network tasks.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        The mesh component that the tasks belong to</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">mesh_name</span> <span class="ow">in</span> <span class="n">UNIFIED_MESH_NAMES</span><span class="p">:</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
             <span class="n">UnifiedRiverNetworkTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>

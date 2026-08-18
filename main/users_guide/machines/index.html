@@ -291,7 +291,7 @@ was the problem.  A request on an axis the machine does not use at all – a
 simply ignored, so setting all of <code class="docutils literal notranslate"><span class="pre">partition</span></code>, <code class="docutils literal notranslate"><span class="pre">qos</span></code> and <code class="docutils literal notranslate"><span class="pre">queue</span></code> for
 portability is harmless.  For example, asking for <code class="docutils literal notranslate"><span class="pre">qos</span> <span class="pre">=</span> <span class="pre">debug</span></code> on Perlmutter
 with <code class="docutils literal notranslate"><span class="pre">wall_time</span> <span class="pre">=</span> <span class="pre">02:00:00</span></code> gives:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Warning: the &quot;debug&quot; qos allows a maximum wall clock of 00:30:00 but 02:00:00 was requested
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Warning: the "debug" qos allows a maximum wall clock of 00:30:00 but 02:00:00 was requested
 </pre></div>
 </div>
 <p>Even without a request, <code class="docutils literal notranslate"><span class="pre">wall_time</span></code> is capped at the maximum the selected

@@ -120,47 +120,47 @@
 <div class="viewcode-block" id="VMix">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.vmix.VMix.html#polaris.tasks.ocean.single_column.vmix.VMix">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VMix</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The VMix single-column test case creates the mesh and initial condition,</span>
 <span class="sd">    then performs a short forward run testing vertical mixing on 1 core.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="VMix.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.vmix.VMix.html#polaris.tasks.ocean.single_column.vmix.VMix.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;vmix&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'vmix'</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the test case</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">            The ocean component that this task belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
-        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;vmix.cfg&#39;</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'vmix.cfg'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column.vmix&#39;</span><span class="p">,</span> <span class="n">config_filename</span>
+            <span class="s1">'polaris.tasks.ocean.single_column.vmix'</span><span class="p">,</span> <span class="n">config_filename</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.eos&#39;</span><span class="p">,</span> <span class="s1">&#39;linear.cfg&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'linear.cfg'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">'init'</span><span class="p">)</span>
 
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
+            <span class="s1">'temperature'</span><span class="p">,</span>
+            <span class="s1">'salinity'</span><span class="p">,</span>
+            <span class="s1">'layerThickness'</span><span class="p">,</span>
+            <span class="s1">'normalVelocity'</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="c1"># A step to test standard vertical processes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Forward</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
                 <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
                 <span class="n">task_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">task_package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.ocean.single_column.vmix&#39;</span><span class="p">,</span>
+                <span class="n">task_package</span><span class="o">=</span><span class="s1">'polaris.tasks.ocean.single_column.vmix'</span><span class="p">,</span>
                 <span class="n">enable_hadv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -168,26 +168,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Forward</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
                 <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
                 <span class="n">task_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">task_package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.ocean.single_column.vmix&#39;</span><span class="p">,</span>
+                <span class="n">task_package</span><span class="o">=</span><span class="s1">'polaris.tasks.ocean.single_column.vmix'</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="c1"># A step to test restoring (with vmix and vadv)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Forward</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
                 <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
                 <span class="n">task_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">task_package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.ocean.single_column.vmix&#39;</span><span class="p">,</span>
+                <span class="n">task_package</span><span class="o">=</span><span class="s1">'polaris.tasks.ocean.single_column.vmix'</span><span class="p">,</span>
                 <span class="n">enable_hadv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">enable_restoring</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">),</span>
@@ -196,13 +196,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Forward</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
                 <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
                 <span class="n">task_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">task_package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.ocean.single_column.vmix&#39;</span><span class="p">,</span>
+                <span class="n">task_package</span><span class="o">=</span><span class="s1">'polaris.tasks.ocean.single_column.vmix'</span><span class="p">,</span>
                 <span class="n">enable_vadv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">enable_hadv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
@@ -211,13 +211,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Forward</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
                 <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
                 <span class="n">task_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">task_package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.ocean.single_column.vmix&#39;</span><span class="p">,</span>
+                <span class="n">task_package</span><span class="o">=</span><span class="s1">'polaris.tasks.ocean.single_column.vmix'</span><span class="p">,</span>
                 <span class="n">constant_diff</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">enable_vadv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">enable_hadv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -227,33 +227,33 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Viz</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
                 <span class="n">comparisons</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s1">&#39;standard&#39;</span><span class="p">:</span> <span class="s1">&#39;../forward&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;no_hadv&#39;</span><span class="p">:</span> <span class="s1">&#39;../forward_no_hadv&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;constant&#39;</span><span class="p">:</span> <span class="s1">&#39;../forward_no_vadv_no_hadv_constant&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;restoring&#39;</span><span class="p">:</span> <span class="s1">&#39;../forward_no_hadv_restoring&#39;</span><span class="p">,</span>
+                    <span class="s1">'standard'</span><span class="p">:</span> <span class="s1">'../forward'</span><span class="p">,</span>
+                    <span class="s1">'no_hadv'</span><span class="p">:</span> <span class="s1">'../forward_no_hadv'</span><span class="p">,</span>
+                    <span class="s1">'constant'</span><span class="p">:</span> <span class="s1">'../forward_no_vadv_no_hadv_constant'</span><span class="p">,</span>
+                    <span class="s1">'restoring'</span><span class="p">:</span> <span class="s1">'../forward_no_hadv_restoring'</span><span class="p">,</span>
                     <span class="c1"># Not plotted by default</span>
-                    <span class="c1"># &#39;no_vadv&#39;: &#39;../forward_no_vadv&#39;,</span>
+                    <span class="c1"># 'no_vadv': '../forward_no_vadv',</span>
                 <span class="p">},</span>
                 <span class="n">variables</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;degC&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;salinity&#39;</span><span class="p">:</span> <span class="s1">&#39;PSU&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;velocity&#39;</span><span class="p">:</span> <span class="s1">&#39;m s$^{-1}$&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;RiTopOfCell&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;BruntVaisalaFreqTop&#39;</span><span class="p">:</span> <span class="s1">&#39;$s^{-2}$&#39;</span><span class="p">,</span>
+                    <span class="s1">'temperature'</span><span class="p">:</span> <span class="s1">'degC'</span><span class="p">,</span>
+                    <span class="s1">'salinity'</span><span class="p">:</span> <span class="s1">'PSU'</span><span class="p">,</span>
+                    <span class="s1">'velocity'</span><span class="p">:</span> <span class="s1">'m s$^{-1}$'</span><span class="p">,</span>
+                    <span class="s1">'RiTopOfCell'</span><span class="p">:</span> <span class="s1">''</span><span class="p">,</span>
+                    <span class="s1">'BruntVaisalaFreqTop'</span><span class="p">:</span> <span class="s1">'$s^{-2}$'</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;vmix_stable&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'vmix_stable'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
                 <span class="n">Analysis</span><span class="p">(</span>
                     <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                    <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="n">indir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">indir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
                     <span class="n">comparisons</span><span class="o">=</span><span class="p">{</span>
-                        <span class="s1">&#39;standard&#39;</span><span class="p">:</span> <span class="s1">&#39;../forward&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;no_hadv&#39;</span><span class="p">:</span> <span class="s1">&#39;../forward_no_hadv&#39;</span><span class="p">,</span>
+                        <span class="s1">'standard'</span><span class="p">:</span> <span class="s1">'../forward'</span><span class="p">,</span>
+                        <span class="s1">'no_hadv'</span><span class="p">:</span> <span class="s1">'../forward_no_hadv'</span><span class="p">,</span>
                     <span class="p">},</span>
                 <span class="p">)</span>
             <span class="p">)</span></div>

@@ -130,7 +130,7 @@
     <span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">log_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build Omega on the current machine.</span>
 
 <span class="sd">    Parameters</span>
@@ -158,11 +158,11 @@
 
 <span class="sd">    log_filename : str, optional</span>
 <span class="sd">        The filename to use for logging build output.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Building Omega:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">Building Omega:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 
-    <span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_MACHINE&#39;</span><span class="p">]</span>
-    <span class="n">compiler</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_COMPILER&#39;</span><span class="p">]</span>
+    <span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_MACHINE'</span><span class="p">]</span>
+    <span class="n">compiler</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_COMPILER'</span><span class="p">]</span>
 
     <span class="c1"># there if needed</span>
     <span class="k">if</span> <span class="n">clean</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">build_dir</span><span class="p">):</span>
@@ -179,28 +179,28 @@
         <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  machine: </span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  compiler: </span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  branch: </span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  build directory: </span><span class="si">{</span><span class="n">build_dir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  clean? </span><span class="si">{</span><span class="n">clean</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  debug? </span><span class="si">{</span><span class="n">debug</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  machine: </span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  compiler: </span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  branch: </span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  build directory: </span><span class="si">{</span><span class="n">build_dir</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  clean? </span><span class="si">{</span><span class="n">clean</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  debug? </span><span class="si">{</span><span class="n">debug</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">account</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  account: </span><span class="si">{</span><span class="n">account</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  account: </span><span class="si">{</span><span class="n">account</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="c1"># clear environment variables and start fresh with those from login</span>
-    <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;env -i HOME=&quot;$HOME&quot; bash -l </span><span class="si">{</span><span class="n">script_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'env -i HOME="$HOME" bash -l </span><span class="si">{</span><span class="n">script_filename</span><span class="si">}</span><span class="s1">'</span>
     <span class="k">if</span> <span class="n">log_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Logging build to: </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Logging build to: </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">quiet</span><span class="p">:</span>
-            <span class="n">command</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; &gt; </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1"> 2&gt;&amp;1 &#39;</span>
+            <span class="n">command</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">' &gt; </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1"> 2&gt;&amp;1 '</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># use pipefail so a build failure is not masked by tee&#39;s exit code</span>
-            <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;set -o pipefail; </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> 2&gt;&amp;1 | tee </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="c1"># use pipefail so a build failure is not masked by tee's exit code</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'set -o pipefail; </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> 2&gt;&amp;1 | tee </span><span class="si">{</span><span class="n">log_filename</span><span class="si">}</span><span class="s1">'</span>
     <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Omega builds script written to:</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="n">script_filename</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Omega builds script written to:</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="n">script_filename</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span></div>
 
 
 
@@ -215,7 +215,7 @@
     <span class="n">cmake_flags</span><span class="p">,</span>
     <span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Make a shell script for checking out Omega and its submodules and building</span>
 <span class="sd">    Omega.</span>
 
@@ -246,38 +246,38 @@
 <span class="sd">    -------</span>
 <span class="sd">    script_filename : str, optional</span>
 <span class="sd">        The filename of the generated build script.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">polaris_source_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_BRANCH&#39;</span><span class="p">]</span>
-    <span class="n">metis_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;METIS_ROOT&#39;</span><span class="p">]</span>
-    <span class="n">parmetis_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PARMETIS_ROOT&#39;</span><span class="p">]</span>
+    <span class="n">polaris_source_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_BRANCH'</span><span class="p">]</span>
+    <span class="n">metis_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'METIS_ROOT'</span><span class="p">]</span>
+    <span class="n">parmetis_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'PARMETIS_ROOT'</span><span class="p">]</span>
 
     <span class="n">branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
-    <span class="n">omega_submodule</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">polaris_source_dir</span><span class="p">,</span> <span class="s1">&#39;e3sm_submodules/Omega&#39;</span><span class="p">)</span>
+    <span class="n">omega_submodule</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">polaris_source_dir</span><span class="p">,</span> <span class="s1">'e3sm_submodules/Omega'</span><span class="p">)</span>
     <span class="n">update_omega_submodule</span> <span class="o">=</span> <span class="n">branch</span> <span class="o">==</span> <span class="n">omega_submodule</span>
 
-    <span class="n">template_filename</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.build&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-        <span class="s1">&#39;build_omega.template&#39;</span>
+    <span class="n">template_filename</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">'polaris.build'</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+        <span class="s1">'build_omega.template'</span>
     <span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">template_filename</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">template_filename</span><span class="p">),</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
     <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-        <span class="n">build_type</span> <span class="o">=</span> <span class="s1">&#39;Debug&#39;</span>
+        <span class="n">build_type</span> <span class="o">=</span> <span class="s1">'Debug'</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">build_type</span> <span class="o">=</span> <span class="s1">&#39;Release&#39;</span>
+        <span class="n">build_type</span> <span class="o">=</span> <span class="s1">'Release'</span>
 
     <span class="k">if</span> <span class="n">cmake_flags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cmake_flags</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">cmake_flags</span> <span class="o">=</span> <span class="s1">''</span>
 
     <span class="k">if</span> <span class="n">account</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cmake_flags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cmake_flags</span><span class="si">}</span><span class="s1"> -DOMEGA_CIME_PROJECT=</span><span class="si">{</span><span class="n">account</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">cmake_flags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cmake_flags</span><span class="si">}</span><span class="s1"> -DOMEGA_CIME_PROJECT=</span><span class="si">{</span><span class="n">account</span><span class="si">}</span><span class="s1">'</span>
 
-    <span class="k">if</span> <span class="n">machine</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;pm-cpu&#39;</span><span class="p">,</span> <span class="s1">&#39;pm-gpu&#39;</span><span class="p">]:</span>
-        <span class="n">nersc_host</span> <span class="o">=</span> <span class="s1">&#39;export NERSC_HOST=&quot;perlmuter&quot;&#39;</span>
+    <span class="k">if</span> <span class="n">machine</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'pm-cpu'</span><span class="p">,</span> <span class="s1">'pm-gpu'</span><span class="p">]:</span>
+        <span class="n">nersc_host</span> <span class="o">=</span> <span class="s1">'export NERSC_HOST="perlmuter"'</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">nersc_host</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">nersc_host</span> <span class="o">=</span> <span class="s1">''</span>
 
     <span class="n">script</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
         <span class="n">update_omega_submodule</span><span class="o">=</span><span class="n">update_omega_submodule</span><span class="p">,</span>
@@ -292,10 +292,10 @@
         <span class="n">cmake_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
         <span class="n">nersc_host</span><span class="o">=</span><span class="n">nersc_host</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">script_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;build_omega_</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">.sh&#39;</span>
+    <span class="n">script_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'build_omega_</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">.sh'</span>
     <span class="n">script_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="n">script_filename</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">script_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">script_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">script_filename</span></div>
@@ -303,7 +303,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">detect_omega_build_type</span><span class="p">(</span><span class="n">build_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Detect the configured build type in a standalone Omega build.</span>
 
 <span class="sd">    Parameters</span>
@@ -314,9 +314,9 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Optional[str]</span>
-<span class="sd">        The configured build type, typically ``&#39;Debug&#39;`` or</span>
-<span class="sd">        ``&#39;Release&#39;``, or ``None`` if it cannot be determined.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        The configured build type, typically ``'Debug'`` or</span>
+<span class="sd">        ``'Release'``, or ``None`` if it cannot be determined.</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">build_dir</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
@@ -324,11 +324,11 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_omega_build_dir</span><span class="p">(</span><span class="n">build_dir</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="n">cache_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">&#39;CMakeCache.txt&#39;</span><span class="p">)</span>
+    <span class="n">cache_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">'CMakeCache.txt'</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cache_path</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;OMEGA_BUILD_TYPE&#39;</span><span class="p">,</span> <span class="s1">&#39;CMAKE_BUILD_TYPE&#39;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'OMEGA_BUILD_TYPE'</span><span class="p">,</span> <span class="s1">'CMAKE_BUILD_TYPE'</span><span class="p">]:</span>
         <span class="n">build_type</span> <span class="o">=</span> <span class="n">_read_cmake_cache_value</span><span class="p">(</span><span class="n">cache_path</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
         <span class="n">build_type</span> <span class="o">=</span> <span class="n">_normalize_build_type</span><span class="p">(</span><span class="n">build_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">build_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -339,11 +339,11 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_omega_build_dir</span><span class="p">(</span><span class="n">build_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="n">omega_markers</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s1">&#39;omega_build.sh&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;omega_env.sh&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;omega_run.sh&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;src/omega.exe&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;configs/Default.yml&#39;</span><span class="p">,</span>
+        <span class="s1">'omega_build.sh'</span><span class="p">,</span>
+        <span class="s1">'omega_env.sh'</span><span class="p">,</span>
+        <span class="s1">'omega_run.sh'</span><span class="p">,</span>
+        <span class="s1">'src/omega.exe'</span><span class="p">,</span>
+        <span class="s1">'configs/Default.yml'</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
@@ -354,17 +354,17 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_read_cmake_cache_value</span><span class="p">(</span><span class="n">cache_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cache_file</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_path</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">cache_file</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cache_file</span><span class="p">:</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">''</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'#'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'//'</span><span class="p">):</span>
                     <span class="k">continue</span>
 
-                <span class="n">name_and_type</span><span class="p">,</span> <span class="n">separator</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">separator</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">name_and_type</span><span class="p">,</span> <span class="n">separator</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">'='</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">separator</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
                     <span class="k">continue</span>
 
-                <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">name_and_type</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">name_and_type</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                     <span class="k">return</span> <span class="n">value</span> <span class="ow">or</span> <span class="kc">None</span>
@@ -379,12 +379,12 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="n">build_type</span> <span class="o">=</span> <span class="n">build_type</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">build_type</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">build_type</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="n">normalized</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;debug&#39;</span><span class="p">:</span> <span class="s1">&#39;Debug&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;release&#39;</span><span class="p">:</span> <span class="s1">&#39;Release&#39;</span><span class="p">,</span>
+        <span class="s1">'debug'</span><span class="p">:</span> <span class="s1">'Debug'</span><span class="p">,</span>
+        <span class="s1">'release'</span><span class="p">:</span> <span class="s1">'Release'</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="n">normalized</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">build_type</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">build_type</span><span class="p">)</span>
 </pre></div>

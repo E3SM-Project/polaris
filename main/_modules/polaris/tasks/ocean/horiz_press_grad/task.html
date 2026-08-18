@@ -122,7 +122,7 @@
 <div class="viewcode-block" id="HorizPressGradTask">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HorizPressGradTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The two-column test case tests convergence of the TEOS-10 pressure-gradient</span>
 <span class="sd">    computation in Omega at various horizontal and vertical resolutions. The</span>
 <span class="sd">    test uses fixed horizontal gradients in various proprties (e.g. salinity</span>
@@ -135,15 +135,15 @@
 <span class="sd">    resolutions.</span>
 
 <span class="sd">    The test also includes single-time-step forward model runs at each</span>
-<span class="sd">    resolution that output Omega&#39;s version of the HPGA, and an analysis step</span>
+<span class="sd">    resolution that output Omega's version of the HPGA, and an analysis step</span>
 <span class="sd">    that compares these runs with both the high-fidelity reference solution</span>
 <span class="sd">    and the Python-computed HPGA from the initial conditions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="HorizPressGradTask.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the test case</span>
 
 <span class="sd">        Parameters</span>
@@ -155,16 +155,16 @@
 <span class="sd">            The name of the test case, which must have a corresponding</span>
 <span class="sd">            &lt;name&gt;.cfg config file in the horiz_press_grad package that</span>
 <span class="sd">            specifies which properties vary betweeen the columns.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;column&#39;</span><span class="p">,</span> <span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">'column'</span><span class="p">,</span> <span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;horiz_press_grad.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.ocean.horiz_press_grad'</span><span class="p">,</span> <span class="s1">'horiz_press_grad.cfg'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.horiz_press_grad&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+            <span class="s1">'polaris.tasks.ocean.horiz_press_grad'</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span></div>
@@ -173,9 +173,9 @@
 <div class="viewcode-block" id="HorizPressGradTask.configure">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure.html#polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask.configure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set config options for the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
 
         <span class="c1"># set up the steps again in case a user has provided new resolutions</span>
@@ -183,24 +183,24 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        setup steps given resolutions</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">]</span>
-        <span class="n">horiz_resolutions</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">&#39;horiz_resolutions&#39;</span><span class="p">)</span>
-        <span class="n">vert_resolutions</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">&#39;vert_resolutions&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'horiz_press_grad'</span><span class="p">]</span>
+        <span class="n">horiz_resolutions</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">'horiz_resolutions'</span><span class="p">)</span>
+        <span class="n">vert_resolutions</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getexpression</span><span class="p">(</span><span class="s1">'vert_resolutions'</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="n">horiz_resolutions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-            <span class="s1">&#39;The &quot;horiz_resolutions&quot; configuration option must be set in the &#39;</span>
-            <span class="s1">&#39;&quot;horiz_press_grad&quot; section.&#39;</span>
+            <span class="s1">'The "horiz_resolutions" configuration option must be set in the '</span>
+            <span class="s1">'"horiz_press_grad" section.'</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="n">vert_resolutions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-            <span class="s1">&#39;The &quot;vert_resolutions&quot; configuration option must be set in the &#39;</span>
-            <span class="s1">&#39;&quot;horiz_press_grad&quot; section.&#39;</span>
+            <span class="s1">'The "vert_resolutions" configuration option must be set in the '</span>
+            <span class="s1">'"horiz_press_grad" section.'</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">horiz_resolutions</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">vert_resolutions</span><span class="p">),</span> <span class="p">(</span>
-            <span class="s1">&#39;The &quot;horiz_resolutions&quot; and &quot;vert_resolutions&quot; configuration &#39;</span>
-            <span class="s1">&#39;options must have the same length.&#39;</span>
+            <span class="s1">'The "horiz_resolutions" and "vert_resolutions" configuration '</span>
+            <span class="s1">'options must have the same length.'</span>
         <span class="p">)</span>
 
         <span class="c1"># start fresh with no steps</span>
@@ -237,8 +237,8 @@
                 <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
                 <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
                 <span class="n">dependencies</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s1">&#39;init&#39;</span><span class="p">:</span> <span class="n">init_steps</span><span class="p">,</span>
-                    <span class="s1">&#39;forward&#39;</span><span class="p">:</span> <span class="n">forward_steps</span><span class="p">,</span>
+                    <span class="s1">'init'</span><span class="p">:</span> <span class="n">init_steps</span><span class="p">,</span>
+                    <span class="s1">'forward'</span><span class="p">:</span> <span class="n">forward_steps</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
         <span class="p">)</span></div>

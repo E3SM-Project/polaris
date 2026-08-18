@@ -134,14 +134,14 @@
 <div class="viewcode-block" id="ClipRiverNetworkStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ClipRiverNetworkStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Prepare clipped river products for base-mesh consumers.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ClipRiverNetworkStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">simplify_step</span><span class="p">,</span> <span class="n">coastline_step</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step.</span>
 
 <span class="sd">        Parameters</span>
@@ -156,38 +156,38 @@
 <span class="sd">            The shared coastline step</span>
 
 <span class="sd">        subdir : str</span>
-<span class="sd">            The subdirectory within the component&#39;s work directory</span>
-<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+<span class="sd">            The subdirectory within the component's work directory</span>
+<span class="sd">        """</span>  <span class="c1"># noqa: E501</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;river_clip&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'river_clip'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simplify_step</span> <span class="o">=</span> <span class="n">simplify_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span> <span class="o">=</span> <span class="n">coastline_step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clipped_filename</span> <span class="o">=</span> <span class="s1">&#39;clipped_river_network.geojson&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">masks_filename</span> <span class="o">=</span> <span class="s1">&#39;clipped_river_network.nc&#39;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clipped_filename</span> <span class="o">=</span> <span class="s1">'clipped_river_network.geojson'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">masks_filename</span> <span class="o">=</span> <span class="s1">'clipped_river_network.nc'</span></div>
 
 
 <div class="viewcode-block" id="ClipRiverNetworkStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.setup.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Link simplified river and coastline products and declare outputs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">convention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;antarctic_boundary_convention&#39;</span>
+            <span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'antarctic_boundary_convention'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;simplified_river_network.geojson&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'simplified_river_network.geojson'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">simplify_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">simplify_step</span><span class="o">.</span><span class="n">simplified_filename</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;coastline.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'coastline.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">convention</span><span class="p">],</span>
@@ -200,56 +200,56 @@
 <div class="viewcode-block" id="ClipRiverNetworkStep.run">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.run.html#polaris.tasks.mesh.spherical.unified.river.ClipRiverNetworkStep.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Clip and simplify the retained river network for base-mesh use.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;river_network&#39;</span><span class="p">]</span>
-        <span class="n">river_fc</span> <span class="o">=</span> <span class="n">read_geojson</span><span class="p">(</span><span class="s1">&#39;simplified_river_network.geojson&#39;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;coastline.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_coastline</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'river_network'</span><span class="p">]</span>
+        <span class="n">river_fc</span> <span class="o">=</span> <span class="n">read_geojson</span><span class="p">(</span><span class="s1">'simplified_river_network.geojson'</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'coastline.nc'</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_coastline</span><span class="p">:</span>
             <span class="n">segments</span> <span class="o">=</span> <span class="n">read_river_segments_from_feature_collection</span><span class="p">(</span><span class="n">river_fc</span><span class="p">)</span>
             <span class="n">clipped_segments</span> <span class="o">=</span> <span class="n">condition_base_mesh_river_segments</span><span class="p">(</span>
                 <span class="n">segments</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span>
                 <span class="n">ds_coastline</span><span class="o">=</span><span class="n">ds_coastline</span><span class="p">,</span>
                 <span class="n">clip_distance_m</span><span class="o">=</span><span class="mf">1.0e3</span>
-                <span class="o">*</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;base_mesh_clip_distance_km&#39;</span><span class="p">),</span>
+                <span class="o">*</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'base_mesh_clip_distance_km'</span><span class="p">),</span>
                 <span class="n">simplify_tolerance_deg</span><span class="o">=</span><span class="n">_km_to_equatorial_degrees</span><span class="p">(</span>
-                    <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;base_mesh_simplify_tolerance_km&#39;</span><span class="p">)</span>
+                    <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'base_mesh_simplify_tolerance_km'</span><span class="p">)</span>
                 <span class="p">),</span>
                 <span class="n">min_segment_length_m</span><span class="o">=</span><span class="mf">1.0e3</span>
-                <span class="o">*</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;base_mesh_min_segment_length_km&#39;</span><span class="p">),</span>
+                <span class="o">*</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'base_mesh_min_segment_length_km'</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="n">clipped_fc</span> <span class="o">=</span> <span class="n">river_segments_to_feature_collection</span><span class="p">(</span><span class="n">clipped_segments</span><span class="p">)</span>
             <span class="n">ds_river</span> <span class="o">=</span> <span class="n">build_river_network_dataset</span><span class="p">(</span>
                 <span class="n">river_feature_collection</span><span class="o">=</span><span class="n">clipped_fc</span><span class="p">,</span>
                 <span class="n">ds_coastline</span><span class="o">=</span><span class="n">ds_coastline</span><span class="p">,</span>
                 <span class="n">resolution</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                    <span class="s1">&#39;unified_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution_latlon&#39;</span>
+                    <span class="s1">'unified_mesh'</span><span class="p">,</span> <span class="s1">'resolution_latlon'</span>
                 <span class="p">),</span>
                 <span class="n">channel_subsegment_fraction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span>
-                    <span class="s1">&#39;river_rasterize&#39;</span>
-                <span class="p">]</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;channel_subsegment_fraction&#39;</span><span class="p">),</span>
-                <span class="n">channel_buffer_km</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;river_rasterize&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                    <span class="s1">&#39;channel_buffer_km&#39;</span>
+                    <span class="s1">'river_rasterize'</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'channel_subsegment_fraction'</span><span class="p">),</span>
+                <span class="n">channel_buffer_km</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'river_rasterize'</span><span class="p">]</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                    <span class="s1">'channel_buffer_km'</span>
                 <span class="p">),</span>
             <span class="p">)</span>
 
         <span class="n">metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unified_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;mesh_name&#39;</span><span class="p">),</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'unified_mesh'</span><span class="p">,</span> <span class="s1">'mesh_name'</span><span class="p">),</span>
             <span class="n">resolution_latlon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;unified_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution_latlon&#39;</span>
+                <span class="s1">'unified_mesh'</span><span class="p">,</span> <span class="s1">'resolution_latlon'</span>
             <span class="p">),</span>
             <span class="n">source_river_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">simplify_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">source_coastline_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">clip_distance_m</span><span class="o">=</span><span class="mf">1.0e3</span>
-            <span class="o">*</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;base_mesh_clip_distance_km&#39;</span><span class="p">),</span>
+            <span class="o">*</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'base_mesh_clip_distance_km'</span><span class="p">),</span>
             <span class="n">simplify_tolerance_km</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;base_mesh_simplify_tolerance_km&#39;</span>
+                <span class="s1">'base_mesh_simplify_tolerance_km'</span>
             <span class="p">),</span>
             <span class="n">min_segment_length_km</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;base_mesh_min_segment_length_km&#39;</span>
+                <span class="s1">'base_mesh_min_segment_length_km'</span>
             <span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">clipped_fc</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span>
+        <span class="n">clipped_fc</span><span class="p">[</span><span class="s1">'metadata'</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span>
         <span class="n">ds_river</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
         <span class="n">write_geojson</span><span class="p">(</span><span class="n">clipped_fc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipped_filename</span><span class="p">)</span>
         <span class="n">ds_river</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">masks_filename</span><span class="p">)</span></div>
@@ -264,7 +264,7 @@
     <span class="n">simplify_tolerance_deg</span><span class="p">,</span>
     <span class="n">min_segment_length_m</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Clip, simplify, and clean river segments for base-mesh use.</span>
 
 <span class="sd">    Parameters</span>
@@ -294,7 +294,7 @@
 <span class="sd">        Conditioned segments sorted by network size (outlet drainage area,</span>
 <span class="sd">        largest first), then by segment drainage area and HydroRIVERS</span>
 <span class="sd">        identifier within each network</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">clipped_segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RiverSegment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">lat</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
@@ -377,18 +377,18 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_outlet_hyriv_id</span><span class="p">(</span><span class="n">segment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a sortable basin-root identifier for a river segment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">outlet_hyriv_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">return</span> <span class="n">segment</span><span class="o">.</span><span class="n">outlet_hyriv_id</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_clean_conditioned_geometry</span><span class="p">(</span><span class="n">geometry</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Drop degenerate conditioned geometries.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">LineString</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
 
@@ -409,9 +409,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_sample_spacing_deg</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a clipping sample spacing from the coastline grid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">spacings</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">lon_spacing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span>
@@ -429,9 +429,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_densify_line_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">max_spacing_deg</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Densify a line so coastline-distance clipping is geometry-local.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">coords</span>
 
@@ -609,16 +609,16 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_wrapped_longitude_difference</span><span class="p">(</span><span class="n">delta_lon</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Wrap a longitude difference into the [-180, 180) interval.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">delta_lon</span> <span class="o">+</span> <span class="mf">180.0</span><span class="p">)</span> <span class="o">%</span> <span class="mf">360.0</span> <span class="o">-</span> <span class="mf">180.0</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_longitude</span><span class="p">(</span><span class="n">lon</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Wrap a longitude into the [-180, 180) interval.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_wrapped_longitude_difference</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
 </pre></div>
 

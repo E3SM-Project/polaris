@@ -120,7 +120,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">surface_pressure_from_config</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Construct a spatially uniform surface pressure field from the</span>
 <span class="sd">    ``vertical_grid:surface_pressure`` config option.</span>
 
@@ -141,12 +141,12 @@
 <span class="sd">    -------</span>
 <span class="sd">    surface_pressure : xarray.DataArray</span>
 <span class="sd">        A uniform surface pressure field with dimension ``nCells``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'surface_pressure'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">surface_pressure</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-        <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,),</span>
-        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sea surface pressure&#39;</span><span class="p">},</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,),</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'units'</span><span class="p">:</span> <span class="s1">'Pa'</span><span class="p">,</span> <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'sea surface pressure'</span><span class="p">},</span>
     <span class="p">)</span></div>
 
 </pre></div>

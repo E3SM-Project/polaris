@@ -129,7 +129,7 @@
 <div class="viewcode-block" id="ReferenceColumn">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ReferenceColumn</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Continuous, coordinate-invariant HPGA reference a(z̃) at the edge x=0.</span>
 
 <span class="sd">    Evaluates the along-pseudo-height horizontal pressure-gradient</span>
@@ -138,15 +138,15 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        a(\tilde z) = -g\left[\eta&#39; - \rho_0\,\alpha(\tilde z_s)\,</span>
-<span class="sd">           \tilde z_s&#39; + \rho_0 \int_{\tilde z_s}^{\tilde z}</span>
+<span class="sd">        a(\tilde z) = -g\left[\eta' - \rho_0\,\alpha(\tilde z_s)\,</span>
+<span class="sd">           \tilde z_s' + \rho_0 \int_{\tilde z_s}^{\tilde z}</span>
 <span class="sd">           \bigl(\alpha_{S_A}\,\partial_x S_A</span>
 <span class="sd">           + \alpha_{\Theta}\,\partial_x \Theta\bigr)\,</span>
-<span class="sd">           d\tilde z&#39;\right]</span>
+<span class="sd">           d\tilde z'\right]</span>
 
-<span class="sd">    where :math:`\eta&#39; = \partial_x \eta` is the sea-surface-height gradient,</span>
+<span class="sd">    where :math:`\eta' = \partial_x \eta` is the sea-surface-height gradient,</span>
 <span class="sd">    :math:`\tilde z_s` is the surface pseudo-height (zero only when the surface</span>
-<span class="sd">    pressure is zero) and :math:`\tilde z_s&#39; = \partial_x \tilde z_s` its</span>
+<span class="sd">    pressure is zero) and :math:`\tilde z_s' = \partial_x \tilde z_s` its</span>
 <span class="sd">    gradient (all in the edge-normal direction), :math:`\alpha` is specific</span>
 <span class="sd">    volume, and :math:`\alpha_{S_A}`, :math:`\alpha_{\Theta}` are TEOS-10</span>
 <span class="sd">    specific-volume first derivatives.  The surface boundary term is kept</span>
@@ -159,7 +159,7 @@
 <span class="sd">    this along-pseudo-height formula equals :math:`-g\,\partial z/\partial</span>
 <span class="sd">    x|_{\tilde z}` exactly, and is valid at any pseudo-height including near</span>
 <span class="sd">    the seafloor.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ReferenceColumn.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.__init__">[docs]</a>
@@ -168,7 +168,7 @@
         <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span>
         <span class="n">x_sign</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        config : PolarisConfigParser</span>
@@ -177,14 +177,14 @@
 <span class="sd">            +1 or -1, mapping the config +x direction onto the edge normal.</span>
 <span class="sd">            Derived from ``sign(xCell[cell1] - xCell[cell0])`` in</span>
 <span class="sd">            ``Analysis``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">]</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reference_quadrature_method&#39;</span><span class="p">)</span>
-        <span class="n">nsub</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;reference_quadrature_subdivisions&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'horiz_press_grad'</span><span class="p">]</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'reference_quadrature_method'</span><span class="p">)</span>
+        <span class="n">nsub</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'reference_quadrature_subdivisions'</span><span class="p">)</span>
         <span class="c1"># Differencing half-width in km. ``get_array_from_mid_grad`` multiplies</span>
         <span class="c1"># the per-km config gradients by x, so x must be supplied in km; the</span>
         <span class="c1"># resulting centred differences are converted to per-metre below.</span>
-        <span class="n">eps_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;reference_horiz_eps_km&#39;</span><span class="p">)</span>
+        <span class="n">eps_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'reference_horiz_eps_km'</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_method</span> <span class="o">=</span> <span class="n">method</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nsub</span> <span class="o">=</span> <span class="n">nsub</span>
@@ -198,8 +198,8 @@
         <span class="c1"># depresses the surface pseudo-height by -p_surf / (RhoSw * Gravity);</span>
         <span class="c1"># its gradient drives the surface-pressure HPGA. A nonzero top z_tilde</span>
         <span class="c1"># node is also supported and adds to the surface pseudo-height.</span>
-        <span class="n">z_tilde_mid</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getnumpy</span><span class="p">(</span><span class="s1">&#39;z_tilde_mid&#39;</span><span class="p">)</span>
-        <span class="n">z_tilde_grad</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getnumpy</span><span class="p">(</span><span class="s1">&#39;z_tilde_grad&#39;</span><span class="p">)</span>
+        <span class="n">z_tilde_mid</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getnumpy</span><span class="p">(</span><span class="s1">'z_tilde_mid'</span><span class="p">)</span>
+        <span class="n">z_tilde_grad</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getnumpy</span><span class="p">(</span><span class="s1">'z_tilde_grad'</span><span class="p">)</span>
         <span class="c1"># the surface is the shallowest (largest) pseudo-height node</span>
         <span class="n">surf_node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">z_tilde_mid</span><span class="p">))</span>
 
@@ -212,44 +212,44 @@
         <span class="n">zt_surf_grad</span> <span class="o">=</span> <span class="n">z_tilde_grad</span><span class="p">[</span><span class="n">surf_node</span><span class="p">]</span> <span class="o">-</span> <span class="n">p_surf_depression_grad</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zt_surf_prime</span> <span class="o">=</span> <span class="p">(</span><span class="n">zt_surf_grad</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x_sign</span>
 
-        <span class="c1"># Sea-surface-height gradient eta&#39;. When geom_ssh is not configured it</span>
+        <span class="c1"># Sea-surface-height gradient eta'. When geom_ssh is not configured it</span>
         <span class="c1"># defaults to the resting surface-pressure depression gradient,</span>
-        <span class="c1"># mirroring the init step&#39;s run_pstar_init default.</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;geom_ssh_grad&#39;</span><span class="p">):</span>
-            <span class="n">geom_ssh_grad</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;geom_ssh_grad&#39;</span><span class="p">)</span>
+        <span class="c1"># mirroring the init step's run_pstar_init default.</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'geom_ssh_grad'</span><span class="p">):</span>
+            <span class="n">geom_ssh_grad</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'geom_ssh_grad'</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">geom_ssh_grad</span> <span class="o">=</span> <span class="o">-</span><span class="n">p_surf_depression_grad</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eta_prime</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom_ssh_grad</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x_sign</span>
 
         <span class="c1"># Evaluate node arrays at x = 0, +eps, -eps in km (config x direction)</span>
         <span class="n">x_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_km</span><span class="p">,</span> <span class="o">-</span><span class="n">eps_km</span><span class="p">])</span>
-        <span class="n">z_tilde_nodes</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;z_tilde&#39;</span><span class="p">,</span> <span class="n">x_eval</span><span class="p">)</span>
-        <span class="n">ct_nodes</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="n">x_eval</span><span class="p">)</span>
-        <span class="n">sa_nodes</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="n">x_eval</span><span class="p">)</span>
+        <span class="n">z_tilde_nodes</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'z_tilde'</span><span class="p">,</span> <span class="n">x_eval</span><span class="p">)</span>
+        <span class="n">ct_nodes</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'temperature'</span><span class="p">,</span> <span class="n">x_eval</span><span class="p">)</span>
+        <span class="n">sa_nodes</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">,</span> <span class="n">x_eval</span><span class="p">)</span>
 
         <span class="c1"># Build clamped PCHIP interpolants for SA and CT at each x</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sa_0</span> <span class="o">=</span> <span class="n">_ClampedInterp</span><span class="p">(</span><span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sa_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;salinity&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sa_0</span> <span class="o">=</span> <span class="n">_ClampedInterp</span><span class="p">(</span><span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sa_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">'salinity'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ct_0</span> <span class="o">=</span> <span class="n">_ClampedInterp</span><span class="p">(</span>
-            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ct_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;temperature&#39;</span>
+            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ct_nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">'temperature'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sa_plus</span> <span class="o">=</span> <span class="n">_ClampedInterp</span><span class="p">(</span>
-            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sa_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;salinity&#39;</span>
+            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sa_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">'salinity'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ct_plus</span> <span class="o">=</span> <span class="n">_ClampedInterp</span><span class="p">(</span>
-            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ct_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;temperature&#39;</span>
+            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ct_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">'temperature'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sa_minus</span> <span class="o">=</span> <span class="n">_ClampedInterp</span><span class="p">(</span>
-            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sa_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;salinity&#39;</span>
+            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sa_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">'salinity'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ct_minus</span> <span class="o">=</span> <span class="n">_ClampedInterp</span><span class="p">(</span>
-            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">ct_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;temperature&#39;</span>
+            <span class="n">z_tilde_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">ct_nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">'temperature'</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ReferenceColumn.specvol">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.specvol">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">specvol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Specific volume at x=0 (m³ kg⁻¹).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Specific volume at x=0 (m³ kg⁻¹)."""</span>
         <span class="n">z_tilde</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">sa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sa_0</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">)</span>
         <span class="n">ct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ct_0</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">)</span>
@@ -260,7 +260,7 @@
 <div class="viewcode-block" id="ReferenceColumn.dalpha_dx">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.dalpha_dx">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dalpha_dx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;d(α)/d(edge-normal) at fixed z̃ (m² kg⁻¹ m⁻¹).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""d(α)/d(edge-normal) at fixed z̃ (m² kg⁻¹ m⁻¹)."""</span>
         <span class="n">z_tilde</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">p_pa</span> <span class="o">=</span> <span class="o">-</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span> <span class="o">*</span> <span class="n">z_tilde</span>
         <span class="n">v_sa</span><span class="p">,</span> <span class="n">v_ct</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">specvol_first_derivatives</span><span class="p">(</span>
@@ -278,7 +278,7 @@
 <div class="viewcode-block" id="ReferenceColumn.hpga">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.hpga">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">hpga</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reference HPGA in the edge-normal direction (m s⁻²).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Reference HPGA in the edge-normal direction (m s⁻²)."""</span>
         <span class="n">z_tilde</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">flat</span> <span class="o">=</span> <span class="n">z_tilde</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
         <span class="n">z_surf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_z_tilde_surf</span>
@@ -290,7 +290,7 @@
         <span class="n">unique_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">z_surf</span><span class="p">],</span> <span class="n">flat</span><span class="p">]))</span>
 
         <span class="c1"># Cumulative integral, then re-reference to the surface so that</span>
-        <span class="c1"># I(z̃) = ∫_{z̃_surf}^{z̃} dalpha_dx dz̃&#39; (zero at the surface).</span>
+        <span class="c1"># I(z̃) = ∫_{z̃_surf}^{z̃} dalpha_dx dz̃' (zero at the surface).</span>
         <span class="n">I_cum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_z</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_z</span><span class="p">)):</span>
             <span class="n">I_cum</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">I_cum</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">_fixed_quadrature</span><span class="p">(</span>
@@ -305,7 +305,7 @@
         <span class="n">I_at</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">flat</span><span class="p">,</span> <span class="n">unique_z</span><span class="p">,</span> <span class="n">I_cum</span><span class="p">)</span>
         <span class="n">alpha_surf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specvol</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">z_surf</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span>
         <span class="c1"># Surface boundary term, kept general for nonzero sea-surface height</span>
-        <span class="c1"># and surface pressure (eta&#39; and the surface pseudo-height gradient).</span>
+        <span class="c1"># and surface pressure (eta' and the surface pseudo-height gradient).</span>
         <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta_prime</span> <span class="o">-</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">alpha_surf</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zt_surf_prime</span>
         <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="n">Gravity</span> <span class="o">*</span> <span class="p">(</span><span class="n">C</span> <span class="o">+</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">I_at</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">z_tilde</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div>
 
@@ -313,7 +313,7 @@
 <div class="viewcode-block" id="ReferenceColumn.layer_mean_hpga">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">layer_mean_hpga</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde_interfaces</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Layer-averaged HPGA in the edge-normal direction (m s⁻²).</span>
 
 <span class="sd">        Parameters</span>
@@ -326,7 +326,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        ndarray</span>
 <span class="sd">            Shape ``(nLayers,)`` Gauss-weighted layer-mean HPGA.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">z_tilde_interfaces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z_tilde_interfaces</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">n_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">z_tilde_interfaces</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 
@@ -387,24 +387,24 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_surface_pressure_mid_grad</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read the surface gauge pressure midpoint value and gradient (Pa and</span>
 <span class="sd">    Pa/km) from the ``horiz_press_grad`` section, defaulting to zero when the</span>
 <span class="sd">    options are not configured.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'horiz_press_grad'</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
-        <span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure_mid&#39;</span>
-    <span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure_grad&#39;</span><span class="p">):</span>
+        <span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'surface_pressure_mid'</span>
+    <span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'surface_pressure_grad'</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;surface_pressure_mid&#39;</span><span class="p">),</span>
-            <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;surface_pressure_grad&#39;</span><span class="p">),</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'surface_pressure_mid'</span><span class="p">),</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'surface_pressure_grad'</span><span class="p">),</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_ClampedInterp</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;PCHIP interpolant clamped (constant-extended) at its node boundaries.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""PCHIP interpolant clamped (constant-extended) at its node boundaries."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -433,19 +433,19 @@
     <span class="n">nsub</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composite fixed-step quadrature over [a,b].&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Composite fixed-step quadrature over [a,b]."""</span>
     <span class="n">h</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">/</span> <span class="n">nsub</span>
     <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;midpoint&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">'midpoint'</span><span class="p">:</span>
         <span class="n">mids</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nsub</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">h</span>
         <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">integrand</span><span class="p">(</span><span class="n">mids</span><span class="p">))</span> <span class="o">*</span> <span class="n">h</span>
-    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;trapezoid&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">'trapezoid'</span><span class="p">:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nsub</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">h</span>
         <span class="n">fx</span> <span class="o">=</span> <span class="n">integrand</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">total</span> <span class="o">=</span> <span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">fx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">fx</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;simpson&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">'simpson'</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">nsub</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Simpson requires even nsub.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Simpson requires even nsub.'</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nsub</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">h</span>
         <span class="n">fx</span> <span class="o">=</span> <span class="n">integrand</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">total</span> <span class="o">=</span> <span class="p">(</span>
@@ -458,10 +458,10 @@
                 <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">fx</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="p">)</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;gauss2&#39;</span><span class="p">,</span> <span class="s1">&#39;gauss4&#39;</span><span class="p">}:</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">'gauss2'</span><span class="p">,</span> <span class="s1">'gauss4'</span><span class="p">}:</span>
         <span class="n">total</span> <span class="o">=</span> <span class="n">_gauss_composite</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">nsub</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover - defensive</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown quadrature method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown quadrature method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
 
 
@@ -472,10 +472,10 @@
     <span class="n">nsub</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composite Gauss-Legendre quadrature (2- or 4-point).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Composite Gauss-Legendre quadrature (2- or 4-point)."""</span>
     <span class="n">h</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">/</span> <span class="n">nsub</span>
     <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;gauss2&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">'gauss2'</span><span class="p">:</span>
         <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">),</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)])</span>
         <span class="n">wi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># gauss4</span>
@@ -514,7 +514,7 @@
     <span class="n">abs_tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adaptive Simpson integration over [a,b].&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Adaptive Simpson integration over [a,b]."""</span>
     <span class="n">fa</span> <span class="o">=</span> <span class="n">integrand</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">fb</span> <span class="o">=</span> <span class="n">integrand</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">b</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">m</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
@@ -528,7 +528,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_simpson_basic</span><span class="p">(</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fb</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Single Simpson panel.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Single Simpson panel."""</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">/</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">fa</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">fm</span> <span class="o">+</span> <span class="n">fb</span><span class="p">)</span>
 
 

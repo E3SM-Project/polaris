@@ -134,7 +134,7 @@
 <div class="viewcode-block" id="BuildSizingFieldStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BuildSizingFieldStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build a unified sizing field on a shared lat-lon target grid.</span>
 
 <span class="sd">    The step reads the prepared coastline and river-network products for one</span>
@@ -161,14 +161,14 @@
 
 <span class="sd">    sizing_field_filename : str</span>
 <span class="sd">        Name of the output sizing-field NetCDF file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="BuildSizingFieldStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">coastline_step</span><span class="p">,</span> <span class="n">river_step</span><span class="p">,</span> <span class="n">fine_topo_step</span><span class="p">,</span> <span class="n">subdir</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step.</span>
 
 <span class="sd">        Parameters</span>
@@ -189,10 +189,10 @@
 <span class="sd">        subdir : str</span>
 <span class="sd">            The subdirectory within the component work directory where the</span>
 <span class="sd">            step runs</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;sizing_field&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'sizing_field'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -200,13 +200,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span> <span class="o">=</span> <span class="n">coastline_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">river_step</span> <span class="o">=</span> <span class="n">river_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fine_topo_step</span> <span class="o">=</span> <span class="n">fine_topo_step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span> <span class="o">=</span> <span class="s1">&#39;sizing_field.nc&#39;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span> <span class="o">=</span> <span class="s1">'sizing_field.nc'</span></div>
 
 
 <div class="viewcode-block" id="BuildSizingFieldStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.setup.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Link coastline and river products, configure the mesh family, and</span>
 <span class="sd">        declare outputs.</span>
 
@@ -214,25 +214,25 @@
 <span class="sd">        file as inputs, calls the mesh-family hook to register any additional</span>
 <span class="sd">        family-specific inputs (such as SO-region masks), and declares the</span>
 <span class="sd">        output sizing-field file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">convention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;antarctic_boundary_convention&#39;</span>
+            <span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'antarctic_boundary_convention'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;coastline.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'coastline.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">convention</span><span class="p">],</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;river_network.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'river_network.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">river_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">river_step</span><span class="o">.</span><span class="n">masks_filename</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography_finest.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'topography_finest.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="p">,</span>
@@ -245,21 +245,21 @@
 <div class="viewcode-block" id="BuildSizingFieldStep.run">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.run.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Build the sizing-field dataset and write it to NetCDF.</span>
 
 <span class="sd">        Opens the coastline and river-network files, constructs the</span>
 <span class="sd">        ocean-background field via the mesh family, calls</span>
 <span class="sd">        :py:func:`sizing_field_dataset` to compose the full sizing field, and</span>
 <span class="sd">        writes the result to ``sizing_field.nc``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sizing_field&#39;</span><span class="p">]</span>
-        <span class="n">unified_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;unified_mesh&#39;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'sizing_field'</span><span class="p">]</span>
+        <span class="n">unified_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'unified_mesh'</span><span class="p">]</span>
 
-        <span class="n">enable_cull_emulation</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;enable_cull_emulation&#39;</span><span class="p">)</span>
+        <span class="n">enable_cull_emulation</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'enable_cull_emulation'</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;coastline.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_coastline</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;river_network.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_river</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'coastline.nc'</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_coastline</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'river_network.nc'</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_river</span><span class="p">:</span>
                 <span class="n">ocean_background</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ocean_background</span><span class="p">(</span>
                     <span class="n">ds_coastline</span><span class="o">=</span><span class="n">ds_coastline</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="n">section</span>
                 <span class="p">)</span>
@@ -276,61 +276,61 @@
                 <span class="n">ds_sizing</span> <span class="o">=</span> <span class="n">sizing_field_dataset</span><span class="p">(</span>
                     <span class="n">ds_coastline</span><span class="o">=</span><span class="n">ds_coastline</span><span class="p">,</span>
                     <span class="n">ds_river</span><span class="o">=</span><span class="n">ds_river</span><span class="p">,</span>
-                    <span class="n">resolution</span><span class="o">=</span><span class="n">unified_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;resolution_latlon&#39;</span><span class="p">),</span>
-                    <span class="n">mesh_name</span><span class="o">=</span><span class="n">unified_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mesh_name&#39;</span><span class="p">),</span>
+                    <span class="n">resolution</span><span class="o">=</span><span class="n">unified_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'resolution_latlon'</span><span class="p">),</span>
+                    <span class="n">mesh_name</span><span class="o">=</span><span class="n">unified_section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mesh_name'</span><span class="p">),</span>
                     <span class="n">ocean_background</span><span class="o">=</span><span class="n">ocean_background</span><span class="p">,</span>
-                    <span class="n">land_background_km</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;land_background_km&#39;</span><span class="p">),</span>
+                    <span class="n">land_background_km</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'land_background_km'</span><span class="p">),</span>
                     <span class="n">enable_coastline_refinement</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
-                        <span class="s1">&#39;enable_coastline_refinement&#39;</span>
+                        <span class="s1">'enable_coastline_refinement'</span>
                     <span class="p">),</span>
                     <span class="n">coastline_transition_land_km</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">&#39;coastline_transition_land_km&#39;</span>
+                        <span class="s1">'coastline_transition_land_km'</span>
                     <span class="p">),</span>
                     <span class="n">enable_river_channel_refinement</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
-                        <span class="s1">&#39;enable_river_channel_refinement&#39;</span>
+                        <span class="s1">'enable_river_channel_refinement'</span>
                     <span class="p">),</span>
-                    <span class="n">river_channel_km</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;river_channel_km&#39;</span><span class="p">),</span>
+                    <span class="n">river_channel_km</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'river_channel_km'</span><span class="p">),</span>
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">emulation_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span>
+            <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">emulation_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">ds_sizing</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
-            <span class="n">ds_sizing</span><span class="o">.</span><span class="n">emulated_ocean_mask</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s1">&#39;Mesh-scale emulation of the MPAS ocean cull&#39;</span>
+            <span class="n">ds_sizing</span><span class="o">.</span><span class="n">emulated_ocean_mask</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'Mesh-scale emulation of the MPAS ocean cull'</span>
             <span class="p">)</span>
-            <span class="n">ds_sizing</span><span class="o">.</span><span class="n">effective_ocean_mask</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s1">&#39;Union of the shared coastline and emulated ocean masks&#39;</span>
+            <span class="n">ds_sizing</span><span class="o">.</span><span class="n">effective_ocean_mask</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'Union of the shared coastline and emulated ocean masks'</span>
             <span class="p">)</span>
-        <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;cull_emulation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">enable_cull_emulation</span><span class="p">)</span>
+        <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'cull_emulation'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">enable_cull_emulation</span><span class="p">)</span>
 
-        <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;source_coastline_step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">subdir</span>
-        <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;source_river_step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">river_step</span><span class="o">.</span><span class="n">subdir</span>
+        <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'source_coastline_step'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">subdir</span>
+        <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'source_river_step'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">river_step</span><span class="o">.</span><span class="n">subdir</span>
         <span class="n">ds_sizing</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_apply_cull_emulation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ds_coastline</span><span class="p">,</span> <span class="n">ocean_background</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">unified_section</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Replace the shared coastline ocean mask and signed distance</span>
 <span class="sd">        with effective fields that anticipate the MPAS cull.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">lat</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span>
         <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">resolution</span> <span class="o">=</span> <span class="n">unified_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;resolution_latlon&#39;</span><span class="p">)</span>
+        <span class="n">resolution</span> <span class="o">=</span> <span class="n">unified_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'resolution_latlon'</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Cull emulation: computing candidate fraction.&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Cull emulation: computing candidate fraction.'</span><span class="p">)</span>
         <span class="n">factor</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">resolution</span> <span class="o">/</span> <span class="n">FINEST_RESOLUTION</span><span class="p">))</span>
-        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;topography_finest.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_topo</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'topography_finest.nc'</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_topo</span><span class="p">:</span>
             <span class="n">fraction</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
-                <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span>
+                <span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span>
             <span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="n">fraction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fraction</span><span class="p">),</span> <span class="n">fraction</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="n">candidate_fraction</span> <span class="o">=</span> <span class="n">block_average</span><span class="p">(</span><span class="n">fraction</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Cull emulation: rasterizing critical transects.&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Cull emulation: rasterizing critical transects.'</span><span class="p">)</span>
         <span class="n">critical_transects</span> <span class="o">=</span> <span class="n">load_default_critical_transects</span><span class="p">()</span>
         <span class="n">land_blockages</span><span class="p">,</span> <span class="n">passages</span> <span class="o">=</span> <span class="n">rasterize_critical_transects</span><span class="p">(</span>
             <span class="n">critical_transects</span><span class="o">=</span><span class="n">critical_transects</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span>
@@ -338,14 +338,14 @@
 
         <span class="n">gf</span> <span class="o">=</span> <span class="n">GeometricFeatures</span><span class="p">()</span>
         <span class="n">fc_seed</span> <span class="o">=</span> <span class="n">gf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
-            <span class="n">componentName</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="n">objectType</span><span class="o">=</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;seed_point&#39;</span><span class="p">]</span>
+            <span class="n">componentName</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="n">objectType</span><span class="o">=</span><span class="s1">'point'</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">'seed_point'</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="n">seed_points</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">][</span><span class="s1">&#39;coordinates&#39;</span><span class="p">][:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">feature</span><span class="p">[</span><span class="s1">'geometry'</span><span class="p">][</span><span class="s1">'coordinates'</span><span class="p">][:</span><span class="mi">2</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">fc_seed</span><span class="o">.</span><span class="n">features</span>
         <span class="p">]</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Cull emulation: building effective ocean mask.&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Cull emulation: building effective ocean mask.'</span><span class="p">)</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="n">build_effective_ocean_mask</span><span class="p">(</span>
             <span class="n">candidate_fraction</span><span class="o">=</span><span class="n">candidate_fraction</span><span class="p">,</span>
             <span class="n">shared_ocean_mask</span><span class="o">=</span><span class="n">ds_coastline</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
@@ -356,18 +356,18 @@
             <span class="n">land_blockages</span><span class="o">=</span><span class="n">land_blockages</span><span class="p">,</span>
             <span class="n">passages</span><span class="o">=</span><span class="n">passages</span><span class="p">,</span>
             <span class="n">seed_points</span><span class="o">=</span><span class="n">seed_points</span><span class="p">,</span>
-            <span class="n">grow_threshold</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cull_emulation_grow_threshold&#39;</span><span class="p">),</span>
-            <span class="n">passage_widen_factor</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;passage_widen_factor&#39;</span><span class="p">),</span>
+            <span class="n">grow_threshold</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'cull_emulation_grow_threshold'</span><span class="p">),</span>
+            <span class="n">passage_widen_factor</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'passage_widen_factor'</span><span class="p">),</span>
             <span class="n">passage_widen_factor_high_lat</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;passage_widen_factor_high_lat&#39;</span>
+                <span class="s1">'passage_widen_factor_high_lat'</span>
             <span class="p">),</span>
             <span class="n">passage_widen_latitude_threshold</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;passage_widen_latitude_threshold&#39;</span>
+                <span class="s1">'passage_widen_latitude_threshold'</span>
             <span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Cull emulation: computing effective signed distance.&#39;</span><span class="p">)</span>
-        <span class="n">effective</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;effective_ocean_mask&#39;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Cull emulation: computing effective signed distance.'</span><span class="p">)</span>
+        <span class="n">effective</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="s1">'effective_ocean_mask'</span><span class="p">]</span>
         <span class="n">signed_distance</span> <span class="o">=</span> <span class="n">signed_distance_from_ocean_mask</span><span class="p">(</span>
             <span class="n">ocean_mask</span><span class="o">=</span><span class="n">effective</span><span class="p">,</span>
             <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
@@ -376,35 +376,35 @@
         <span class="p">)</span>
 
         <span class="n">ds_effective</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">ds_effective</span><span class="p">[</span><span class="s1">&#39;ocean_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-            <span class="n">effective</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span>
+        <span class="n">ds_effective</span><span class="p">[</span><span class="s1">'ocean_mask'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">effective</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">ds_effective</span><span class="p">[</span><span class="s1">&#39;signed_distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-            <span class="n">signed_distance</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span>
+        <span class="n">ds_effective</span><span class="p">[</span><span class="s1">'signed_distance'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">signed_distance</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="n">emulation_fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">effective_ocean_mask</span><span class="o">=</span><span class="n">effective</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span>
-            <span class="n">emulated_ocean_mask</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;emulated_ocean_mask&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span>
-            <span class="n">mesh_scale_ocean_fraction</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;mesh_scale_fraction&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="n">emulated_ocean_mask</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s1">'emulated_ocean_mask'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span>
+            <span class="n">mesh_scale_ocean_fraction</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s1">'mesh_scale_fraction'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
             <span class="p">),</span>
-            <span class="n">passages_widened</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;passages_widened&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span>
+            <span class="n">passages_widened</span><span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="s1">'passages_widened'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">ds_effective</span><span class="p">,</span> <span class="n">emulation_fields</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_ocean_background</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_coastline</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Build the ocean background field for the shared target grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mesh_family</span><span class="p">()</span><span class="o">.</span><span class="n">build_ocean_background</span><span class="p">(</span>
             <span class="n">ds_coastline</span><span class="o">=</span><span class="n">ds_coastline</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="n">section</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_mesh_family</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the unified-mesh family object for this step&#39;s shared config.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the unified-mesh family object for this step's shared config.</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">get_unified_mesh_family</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span></div>
 
 
@@ -423,7 +423,7 @@
     <span class="n">enable_river_channel_refinement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">river_channel_km</span><span class="o">=</span><span class="mf">240.0</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build the unified sizing-field dataset from coastline and river products.</span>
 
 <span class="sd">    Parameters</span>
@@ -471,18 +471,18 @@
 <span class="sd">        Dataset on the shared lat-lon grid containing ``cellWidth`` (the</span>
 <span class="sd">        final cell-width field in km) and diagnostic variables that record</span>
 <span class="sd">        each intermediate sizing stage and the active control index</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">_validate_shared_grid</span><span class="p">(</span><span class="n">ds_coastline</span><span class="o">=</span><span class="n">ds_coastline</span><span class="p">,</span> <span class="n">ds_river</span><span class="o">=</span><span class="n">ds_river</span><span class="p">)</span>
 
     <span class="n">lat</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span>
     <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span>
     <span class="n">ocean_background</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ocean_background</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">expected_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">ocean_background</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">expected_shape</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Ocean background must have shape &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">expected_shape</span><span class="si">}</span><span class="s1">, got </span><span class="si">{</span><span class="n">ocean_background</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="s1">'Ocean background must have shape '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">expected_shape</span><span class="si">}</span><span class="s1">, got </span><span class="si">{</span><span class="n">ocean_background</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">.'</span>
         <span class="p">)</span>
 
     <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
@@ -534,18 +534,18 @@
         <span class="n">coords</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">lat</span><span class="o">=</span><span class="n">ds_coastline</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">ds_coastline</span><span class="o">.</span><span class="n">lon</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">data_vars</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;cellWidth&#39;</span><span class="p">:</span> <span class="n">final_cell_width</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-        <span class="s1">&#39;signed_distance&#39;</span><span class="p">:</span> <span class="n">signed_distance</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-        <span class="s1">&#39;background_cell_width&#39;</span><span class="p">:</span> <span class="n">background</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-        <span class="s1">&#39;ocean_background_cell_width&#39;</span><span class="p">:</span> <span class="n">ocean_background</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-        <span class="s1">&#39;land_river_cell_width&#39;</span><span class="p">:</span> <span class="n">land_river_cell_width</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-        <span class="s1">&#39;pre_coastline_cell_width&#39;</span><span class="p">:</span> <span class="n">composed_background</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-        <span class="s1">&#39;coastline_cell_width&#39;</span><span class="p">:</span> <span class="n">coastline_candidate</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-        <span class="s1">&#39;coastal_transition_delta&#39;</span><span class="p">:</span> <span class="n">coastal_transition_delta</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="s1">'cellWidth'</span><span class="p">:</span> <span class="n">final_cell_width</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s1">'signed_distance'</span><span class="p">:</span> <span class="n">signed_distance</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s1">'background_cell_width'</span><span class="p">:</span> <span class="n">background</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s1">'ocean_background_cell_width'</span><span class="p">:</span> <span class="n">ocean_background</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s1">'land_river_cell_width'</span><span class="p">:</span> <span class="n">land_river_cell_width</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s1">'pre_coastline_cell_width'</span><span class="p">:</span> <span class="n">composed_background</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s1">'coastline_cell_width'</span><span class="p">:</span> <span class="n">coastline_candidate</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s1">'coastal_transition_delta'</span><span class="p">:</span> <span class="n">coastal_transition_delta</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
         <span class="p">),</span>
-        <span class="s1">&#39;river_channel_cell_width&#39;</span><span class="p">:</span> <span class="n">river_channel_candidate</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-        <span class="s1">&#39;active_control&#39;</span><span class="p">:</span> <span class="n">active_control</span><span class="p">,</span>
+        <span class="s1">'river_channel_cell_width'</span><span class="p">:</span> <span class="n">river_channel_candidate</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="s1">'active_control'</span><span class="p">:</span> <span class="n">active_control</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">ds_sizing</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
@@ -553,34 +553,34 @@
     <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
         <span class="nb">dict</span><span class="p">(</span>
             <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-            <span class="n">target_grid</span><span class="o">=</span><span class="s1">&#39;lat_lon&#39;</span><span class="p">,</span>
+            <span class="n">target_grid</span><span class="o">=</span><span class="s1">'lat_lon'</span><span class="p">,</span>
             <span class="n">target_grid_resolution_degrees</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
             <span class="n">active_control_meanings</span><span class="o">=</span><span class="p">(</span>
-                <span class="s1">&#39;0=background 1=coastline 2=river_channel&#39;</span>
+                <span class="s1">'0=background 1=coastline 2=river_channel'</span>
             <span class="p">),</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="n">_add_mask_candidate_attrs</span><span class="p">(</span>
         <span class="n">ds_sizing</span><span class="o">=</span><span class="n">ds_sizing</span><span class="p">,</span>
-        <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;river_channel&#39;</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="s1">'river_channel'</span><span class="p">,</span>
         <span class="n">mask</span><span class="o">=</span><span class="n">river_channel_mask</span><span class="p">,</span>
         <span class="n">candidate</span><span class="o">=</span><span class="n">river_channel_candidate</span><span class="p">,</span>
         <span class="n">background</span><span class="o">=</span><span class="n">land_background</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">background_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">ocean_background_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">land_river_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">pre_coastline_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">coastline_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">coastal_transition_delta</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">river_channel_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;km&#39;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">active_control</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s1">&#39;Index of the active sizing control&#39;</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">background_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">ocean_background_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">land_river_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">pre_coastline_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">coastline_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">coastal_transition_delta</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">river_channel_cell_width</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'km'</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">active_control</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">'Index of the active sizing control'</span>
     <span class="p">)</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s1">&#39;Signed distance to the coastline from the source coastline field&#39;</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">'Signed distance to the coastline from the source coastline field'</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_sizing</span></div>
@@ -588,45 +588,45 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_shared_grid</span><span class="p">(</span><span class="n">ds_coastline</span><span class="p">,</span> <span class="n">ds_river</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Validate that coastline and river products share the same target grid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">coord_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">]:</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">coord_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">]:</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">coord_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">coords</span>
             <span class="ow">or</span> <span class="n">coord_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_river</span><span class="o">.</span><span class="n">coords</span>
         <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Missing required coordinate </span><span class="si">{</span><span class="n">coord_name</span><span class="si">!r}</span><span class="s1">.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Missing required coordinate </span><span class="si">{</span><span class="n">coord_name</span><span class="si">!r}</span><span class="s1">.'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span>
             <span class="n">ds_coastline</span><span class="p">[</span><span class="n">coord_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_river</span><span class="p">[</span><span class="n">coord_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Coastline and river products must share the same lat-lon &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;grid. Mismatch found in coordinate </span><span class="si">{</span><span class="n">coord_name</span><span class="si">!r}</span><span class="s1">.&#39;</span>
+                <span class="s1">'Coastline and river products must share the same lat-lon '</span>
+                <span class="sa">f</span><span class="s1">'grid. Mismatch found in coordinate </span><span class="si">{</span><span class="n">coord_name</span><span class="si">!r}</span><span class="s1">.'</span>
             <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_mask_candidate_attrs</span><span class="p">(</span><span class="n">ds_sizing</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">candidate</span><span class="p">,</span> <span class="n">background</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add provenance counts for a mask-based sizing candidate.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mask_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_finer_than_background_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+<span class="sd">    """</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mask_count'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_finer_than_background_count'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">candidate</span> <span class="o">&lt;</span> <span class="n">background</span><span class="p">))</span>
     <span class="p">)</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_equal_to_background_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_equal_to_background_count'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="n">background</span><span class="p">))</span>
     <span class="p">)</span>
-    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_coarser_than_background_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+    <span class="n">ds_sizing</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_coarser_than_background_count'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">candidate</span> <span class="o">&gt;</span> <span class="n">background</span><span class="p">))</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_mask_candidate</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">target_km</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build a mask-based candidate field in km.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">enabled</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">background</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -641,9 +641,9 @@
     <span class="n">enabled</span><span class="p">,</span>
     <span class="n">land_transition_km</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build the coastline candidate field in km.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">candidate</span> <span class="o">=</span> <span class="n">background</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">enabled</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">candidate</span>
@@ -665,11 +665,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_apply_transition</span><span class="p">(</span>
     <span class="n">candidate</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">signed_distance</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">transition_m</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Apply a linear transition from the coastline target back to background.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">transition_m</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Transition widths must be nonnegative.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Transition widths must be nonnegative.'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">transition_m</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="n">zero_mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">signed_distance</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>

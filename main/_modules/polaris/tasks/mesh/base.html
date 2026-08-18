@@ -121,17 +121,17 @@
 <div class="viewcode-block" id="add_base_mesh_tasks">
 <a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.base.add_base_mesh_tasks.html#polaris.tasks.mesh.base.add_base_mesh_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_base_mesh_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add tasks for uniform spherical base meshes to the mesh component</span>
 
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        the mesh component that the tasks will be added to</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">mesh_name</span> <span class="ow">in</span> <span class="n">get_base_mesh_step_names</span><span class="p">():</span>
         <span class="n">steps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_shared_base_mesh_steps</span><span class="p">(</span>
             <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">base_mesh_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">]</span>
+        <span class="n">base_mesh_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">'base_mesh'</span><span class="p">]</span>
         <span class="n">task</span> <span class="o">=</span> <span class="n">BaseMeshTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">base_mesh_step</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">)</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span></div>
 
@@ -140,14 +140,14 @@
 <div class="viewcode-block" id="BaseMeshTask">
 <a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.base.BaseMeshTask.html#polaris.tasks.mesh.base.BaseMeshTask">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseMeshTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A task for creating a uniform spherical mesh with a given resolution</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="BaseMeshTask.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.base.BaseMeshTask.html#polaris.tasks.mesh.base.BaseMeshTask.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">base_mesh_step</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the base mesh task</span>
 
 <span class="sd">        Parameters</span>
@@ -158,16 +158,16 @@
 <span class="sd">        base_mesh_step : polaris.mesh.spherical.BaseMeshStep</span>
 <span class="sd">            The base mesh step to use for this task</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># We will take the unusual step of putting the task in a subdirectory</span>
         <span class="c1"># of the step because most folks will just run the step directly</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">&#39;task&#39;</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">_task&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">'task'</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">_task'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">link</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+            <span class="n">link</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_mesh_step</span><span class="o">.</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">)</span></div>
 </div>

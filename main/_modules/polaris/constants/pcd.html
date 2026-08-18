@@ -120,7 +120,7 @@
 <div class="viewcode-block" id="get_constant">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.constants.pcd.get_constant.html#polaris.constants.pcd.get_constant">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_constant</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a constant from the Physical Constants Dictionary (PCD).</span>
 
 <span class="sd">    Parameters</span>
@@ -132,7 +132,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    value: float or None</span>
 <span class="sd">        The value of the constant or None if not found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">PCD_CONSTANTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
@@ -140,16 +140,16 @@
 <div class="viewcode-block" id="get_pcd_version">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.constants.pcd.get_pcd_version.html#polaris.constants.pcd.get_pcd_version">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_pcd_version</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the PCD version from Polaris&#39; packaged ``pcd.yaml``.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the PCD version from Polaris' packaged ``pcd.yaml``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    version : str</span>
 <span class="sd">        The PCD version.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span>
-        <span class="n">_get_version_from_pcd_dict</span><span class="p">(</span><span class="n">PCD_FULL</span><span class="p">,</span> <span class="s1">&#39;polaris.constants/pcd.yaml&#39;</span><span class="p">)</span>
+        <span class="n">_get_version_from_pcd_dict</span><span class="p">(</span><span class="n">PCD_FULL</span><span class="p">,</span> <span class="s1">'polaris.constants/pcd.yaml'</span><span class="p">)</span>
     <span class="p">)</span></div>
 
 
@@ -157,7 +157,7 @@
 <div class="viewcode-block" id="get_pcd_version_from_file">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.constants.pcd.get_pcd_version_from_file.html#polaris.constants.pcd.get_pcd_version_from_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_pcd_version_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the PCD version from a ``pcd.yaml`` file.</span>
 
 <span class="sd">    Parameters</span>
@@ -169,9 +169,9 @@
 <span class="sd">    -------</span>
 <span class="sd">    version : str</span>
 <span class="sd">        The PCD version.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">'rt'</span><span class="p">)</span>
         <span class="n">pcd_full</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">_get_version_from_pcd_dict</span><span class="p">(</span><span class="n">pcd_full</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span></div>
@@ -181,7 +181,7 @@
 <div class="viewcode-block" id="check_pcd_version_matches_branch">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.constants.pcd.check_pcd_version_matches_branch.html#polaris.constants.pcd.check_pcd_version_matches_branch">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_pcd_version_matches_branch</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check that the PCD version in Polaris matches the version in a branch.</span>
 
 <span class="sd">    Parameters</span>
@@ -191,20 +191,20 @@
 <span class="sd">        ``share/pcd.yaml``.</span>
 
 <span class="sd">    model : str</span>
-<span class="sd">        The model being set up (e.g. ``&#39;mpas-ocean&#39;`` or ``&#39;omega&#39;``).</span>
+<span class="sd">        The model being set up (e.g. ``'mpas-ocean'`` or ``'omega'``).</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        If the PCD version in Polaris and the branch are not identical.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
-    <span class="n">branch_pcd_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="s1">&#39;share&#39;</span><span class="p">,</span> <span class="s1">&#39;pcd.yaml&#39;</span><span class="p">)</span>
+    <span class="n">branch_pcd_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="s1">'share'</span><span class="p">,</span> <span class="s1">'pcd.yaml'</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">branch_pcd_path</span><span class="p">):</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Could not check PCD version for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> because &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;`share/pcd.yaml` was not found at </span><span class="si">{</span><span class="n">branch_pcd_path</span><span class="si">}</span><span class="s1">. &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;Skipping PCD version check for this branch.&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'Could not check PCD version for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> because '</span>
+            <span class="sa">f</span><span class="s1">'`share/pcd.yaml` was not found at </span><span class="si">{</span><span class="n">branch_pcd_path</span><span class="si">}</span><span class="s1">. '</span>
+            <span class="sa">f</span><span class="s1">'Skipping PCD version check for this branch.'</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span>
@@ -214,52 +214,52 @@
 
     <span class="k">if</span> <span class="n">polaris_version</span> <span class="o">!=</span> <span class="n">branch_version</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;PCD version mismatch for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">: Polaris has &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">polaris_version</span><span class="si">}</span><span class="s1"> but branch </span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s1"> has </span><span class="si">{</span><span class="n">branch_version</span><span class="si">}</span><span class="s1">. &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;Please use matching PCD versions.&#39;</span>
+            <span class="sa">f</span><span class="s1">'PCD version mismatch for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">: Polaris has '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">polaris_version</span><span class="si">}</span><span class="s1"> but branch </span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s1"> has </span><span class="si">{</span><span class="n">branch_version</span><span class="si">}</span><span class="s1">. '</span>
+            <span class="sa">f</span><span class="s1">'Please use matching PCD versions.'</span>
         <span class="p">)</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_pcd</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse constants from the Physical Constants Dictonary (PCD) yaml file&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse constants from the Physical Constants Dictonary (PCD) yaml file"""</span>
 
-    <span class="k">with</span> <span class="n">open_text</span><span class="p">(</span><span class="s1">&#39;polaris.constants&#39;</span><span class="p">,</span> <span class="s1">&#39;pcd.yaml&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">open_text</span><span class="p">(</span><span class="s1">'polaris.constants'</span><span class="p">,</span> <span class="s1">'pcd.yaml'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">'rt'</span><span class="p">)</span>
         <span class="n">pcd_full</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
     <span class="n">pcd_constants</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="c1"># constants are within the physical_constants_dictionary and set sections</span>
-    <span class="n">sets</span> <span class="o">=</span> <span class="n">pcd_full</span><span class="p">[</span><span class="s1">&#39;physical_constants_dictionary&#39;</span><span class="p">][</span><span class="s1">&#39;set&#39;</span><span class="p">]</span>
+    <span class="n">sets</span> <span class="o">=</span> <span class="n">pcd_full</span><span class="p">[</span><span class="s1">'physical_constants_dictionary'</span><span class="p">][</span><span class="s1">'set'</span><span class="p">]</span>
     <span class="c1"># they may be within any of the available subsections</span>
     <span class="k">for</span> <span class="n">set_dict</span> <span class="ow">in</span> <span class="n">sets</span><span class="p">:</span>
-        <span class="n">entries</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">set_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="s1">&#39;entries&#39;</span><span class="p">]</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">set_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="s1">'entries'</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
-            <span class="n">pcd_constants</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span>
+            <span class="n">pcd_constants</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'value'</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">pcd_full</span><span class="p">,</span> <span class="n">pcd_constants</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_version_from_pcd_dict</span><span class="p">(</span><span class="n">pcd_full</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get ``physical_constants_dictionary/version_number`` from YAML data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get ``physical_constants_dictionary/version_number`` from YAML data."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pcd_full</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid PCD format in </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">: expected a map.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Invalid PCD format in </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">: expected a map.'</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s1">&#39;physical_constants_dictionary&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pcd_full</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">'physical_constants_dictionary'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pcd_full</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Invalid PCD format in </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">: missing &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;&quot;physical_constants_dictionary&quot;.&#39;</span>
+            <span class="sa">f</span><span class="s1">'Invalid PCD format in </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">: missing '</span>
+            <span class="sa">f</span><span class="s1">'"physical_constants_dictionary".'</span>
         <span class="p">)</span>
 
-    <span class="n">pcd_dict</span> <span class="o">=</span> <span class="n">pcd_full</span><span class="p">[</span><span class="s1">&#39;physical_constants_dictionary&#39;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pcd_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;version_number&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pcd_dict</span><span class="p">:</span>
+    <span class="n">pcd_dict</span> <span class="o">=</span> <span class="n">pcd_full</span><span class="p">[</span><span class="s1">'physical_constants_dictionary'</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pcd_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">'version_number'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pcd_dict</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Invalid PCD format in </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">: missing &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;&quot;physical_constants_dictionary/version_number&quot;.&#39;</span>
+            <span class="sa">f</span><span class="s1">'Invalid PCD format in </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">: missing '</span>
+            <span class="sa">f</span><span class="s1">'"physical_constants_dictionary/version_number".'</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">pcd_dict</span><span class="p">[</span><span class="s1">&#39;version_number&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">pcd_dict</span><span class="p">[</span><span class="s1">'version_number'</span><span class="p">]</span>
 
 
 <span class="c1"># parsed full dictionary and constants for quick lookup</span>

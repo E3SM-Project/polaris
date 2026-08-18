@@ -122,7 +122,7 @@
     <span class="n">temperature</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the density of seawater based on the the linear equation of state</span>
 <span class="sd">    with coefficients specified in the configuration. The distinction between</span>
 <span class="sd">    conservative, potential, and in-situ temperature or between absolute and</span>
@@ -143,20 +143,20 @@
 <span class="sd">    -------</span>
 <span class="sd">    density : float or xarray.DataArray</span>
 <span class="sd">        Computed density of the seawater.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
-    <span class="n">alpha</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_alpha&#39;</span><span class="p">)</span>
-    <span class="n">beta</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_beta&#39;</span><span class="p">)</span>
-    <span class="n">rhoref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_rhoref&#39;</span><span class="p">)</span>
-    <span class="n">Tref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_Tref&#39;</span><span class="p">)</span>
-    <span class="n">Sref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_Sref&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">]</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_alpha'</span><span class="p">)</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_beta'</span><span class="p">)</span>
+    <span class="n">rhoref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_rhoref'</span><span class="p">)</span>
+    <span class="n">Tref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_Tref'</span><span class="p">)</span>
+    <span class="n">Sref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_Sref'</span><span class="p">)</span>
     <span class="k">assert</span> <span class="p">(</span>
         <span class="n">alpha</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="ow">and</span> <span class="n">beta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="ow">and</span> <span class="n">rhoref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="ow">and</span> <span class="n">Tref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="ow">and</span> <span class="n">Sref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-    <span class="p">),</span> <span class="s1">&#39;All linear EOS parameters must be specified in the config options.&#39;</span>
+    <span class="p">),</span> <span class="s1">'All linear EOS parameters must be specified in the config options.'</span>
     <span class="n">density</span> <span class="o">=</span> <span class="n">rhoref</span> <span class="o">+</span> <span class="o">-</span><span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">-</span> <span class="n">Tref</span><span class="p">)</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="n">salinity</span> <span class="o">-</span> <span class="n">Sref</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">density</span></div>
 

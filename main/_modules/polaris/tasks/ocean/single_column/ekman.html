@@ -122,41 +122,41 @@
 <div class="viewcode-block" id="Ekman">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.ekman.Ekman.html#polaris.tasks.ocean.single_column.ekman.Ekman">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ekman</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The Ekman single-column test case creates the mesh and initial condition,</span>
 <span class="sd">    then performs a short forward run spinning up an ekman layer on 1 core.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Ekman.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.ekman.Ekman.html#polaris.tasks.ocean.single_column.ekman.Ekman.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the test case</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">            The ocean component that this task belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ekman&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">'ekman'</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indir</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;single_column.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'single_column.cfg'</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;ekman.cfg&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.eos&#39;</span><span class="p">,</span> <span class="s1">&#39;linear.cfg&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">'ekman.cfg'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'linear.cfg'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column.ekman&#39;</span><span class="p">,</span> <span class="s1">&#39;ekman.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.ocean.single_column.ekman'</span><span class="p">,</span> <span class="s1">'ekman.cfg'</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">'init'</span><span class="p">)</span>
 
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
+            <span class="s1">'temperature'</span><span class="p">,</span>
+            <span class="s1">'salinity'</span><span class="p">,</span>
+            <span class="s1">'layerThickness'</span><span class="p">,</span>
+            <span class="s1">'normalVelocity'</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
@@ -180,7 +180,7 @@
             <span class="n">Viz</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                 <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
-                <span class="n">comparisons</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;forward&#39;</span><span class="p">:</span> <span class="s1">&#39;../forward_constant&#39;</span><span class="p">},</span>
+                <span class="n">comparisons</span><span class="o">=</span><span class="p">{</span><span class="s1">'forward'</span><span class="p">:</span> <span class="s1">'../forward_constant'</span><span class="p">},</span>
             <span class="p">),</span>
             <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span></div>

@@ -109,9 +109,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.e3sm.init.topo.resolutions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Shared resolution definitions for e3sm/init topography workflows.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="n">STANDARD_CUBED_SPHERE_RESOLUTION</span> <span class="o">=</span> <span class="mi">3000</span>
 <span class="n">LOW_RES_CUBED_SPHERE_RESOLUTION</span> <span class="o">=</span> <span class="mi">120</span>
@@ -129,7 +129,7 @@
 <div class="viewcode-block" id="format_lat_lon_resolution_name">
 <a class="viewcode-back" href="../../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.topo.format_lat_lon_resolution_name.html#polaris.e3sm.init.topo.format_lat_lon_resolution_name">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_lat_lon_resolution_name</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Format a latitude-longitude resolution for use in task subdirectories.</span>
 
 <span class="sd">    Parameters</span>
@@ -141,15 +141,15 @@
 <span class="sd">    -------</span>
 <span class="sd">    resolution_name : str</span>
 <span class="sd">        The formatted resolution name.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span><span class="si">:</span><span class="s1">.</span><span class="si">{</span><span class="n">LAT_LON_RESOLUTION_DECIMALS</span><span class="si">}</span><span class="s1">f</span><span class="si">}</span><span class="s1">_degree&#39;</span></div>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span><span class="si">:</span><span class="s1">.</span><span class="si">{</span><span class="n">LAT_LON_RESOLUTION_DECIMALS</span><span class="si">}</span><span class="s1">f</span><span class="si">}</span><span class="s1">_degree'</span></div>
 
 
 
 <div class="viewcode-block" id="get_cubed_sphere_resolution">
 <a class="viewcode-back" href="../../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.topo.get_cubed_sphere_resolution.html#polaris.e3sm.init.topo.get_cubed_sphere_resolution">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_cubed_sphere_resolution</span><span class="p">(</span><span class="n">low_res</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the cubed-sphere source-topography resolution for a mode.</span>
 
 <span class="sd">    Parameters</span>
@@ -161,7 +161,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    resolution : int</span>
 <span class="sd">        The cubed-sphere resolution.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">low_res</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">LOW_RES_CUBED_SPHERE_RESOLUTION</span>
 
@@ -172,7 +172,7 @@
 <div class="viewcode-block" id="uses_low_res_cubed_sphere">
 <a class="viewcode-back" href="../../../../../developers_guide/e3sm/init/generated/polaris.e3sm.init.topo.uses_low_res_cubed_sphere.html#polaris.e3sm.init.topo.uses_low_res_cubed_sphere">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">uses_low_res_cubed_sphere</span><span class="p">(</span><span class="n">cell_width</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Determine whether a base mesh should use lower-resolution topography.</span>
 
 <span class="sd">    Parameters</span>
@@ -184,7 +184,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    low_res : bool</span>
 <span class="sd">        Whether to use the lower-resolution cubed-sphere source topography.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">cell_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cell_width</span> <span class="o">&gt;=</span> <span class="n">LOW_RES_BASE_MESH_CELL_WIDTH</span>
     <span class="p">)</span></div>

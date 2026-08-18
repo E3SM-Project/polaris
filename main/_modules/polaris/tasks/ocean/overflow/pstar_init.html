@@ -130,7 +130,7 @@
 <div class="viewcode-block" id="PStarInit">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.pstar_init.PStarInit.html#polaris.tasks.ocean.overflow.pstar_init.PStarInit">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PStarInit</span><span class="p">(</span><span class="n">PStarInitStep</span><span class="p">,</span> <span class="n">OceanIOStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for creating a mesh and initial condition for overflow test</span>
 <span class="sd">    cases on the p-star vertical coordinate.</span>
 
@@ -138,12 +138,12 @@
 <span class="sd">    temperature (CT) and absolute salinity (SA).  For the nonlinear</span>
 <span class="sd">    (TEOS-10) tree, the framework converts them to potential temperature</span>
 <span class="sd">    and practical salinity when writing the initial state for MPAS-Ocean.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="PStarInit.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.pstar_init.PStarInit.html#polaris.tasks.ocean.overflow.pstar_init.PStarInit.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'init'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -156,7 +156,7 @@
 
 <span class="sd">        indir : str</span>
 <span class="sd">            The name of the directory the task will be set up in</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span></div>
 
 
@@ -165,18 +165,18 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_files_for_ocean_model_input</span><span class="p">(</span>
-            <span class="n">horiz_mesh_filename</span><span class="o">=</span><span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span>
-            <span class="n">base_mesh_filename</span><span class="o">=</span><span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">,</span>
-            <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
+            <span class="n">horiz_mesh_filename</span><span class="o">=</span><span class="s1">'culled_mesh.nc'</span><span class="p">,</span>
+            <span class="n">base_mesh_filename</span><span class="o">=</span><span class="s1">'base_mesh.nc'</span><span class="p">,</span>
+            <span class="n">graph_filename</span><span class="o">=</span><span class="s1">'culled_graph.info'</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PStarInit.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.pstar_init.PStarInit.run.html#polaris.tasks.ocean.overflow.pstar_init.PStarInit.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">build_overflow_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -184,8 +184,8 @@
         <span class="c1"># Form a continental shelf-like bathymetry</span>
         <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">compute_bottom_depth</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="p">)</span>
         <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="o">-</span><span class="n">bottom_depth</span>
-        <span class="n">geom_z_bot</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;seafloor geometric height&#39;</span>
-        <span class="n">geom_z_bot</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="n">geom_z_bot</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seafloor geometric height'</span>
+        <span class="n">geom_z_bot</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
         <span class="c1"># Iterate the p-star coordinate to convergence with zero surface</span>
         <span class="c1"># pressure</span>
@@ -195,8 +195,8 @@
         <span class="n">ds</span> <span class="o">=</span> <span class="n">add_quiescent_normal_velocity</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">add_density_from_specvol</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'vert_coord.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PStarInit.init_tracers">
@@ -204,27 +204,27 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize conservative temperature and absolute salinity at the</span>
 <span class="sd">        current p-star layer midpoints: the overflow profile of constant</span>
 <span class="sd">        temperature except for a block of cold water on the shelf, and</span>
 <span class="sd">        constant salinity.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
         <span class="n">temp_cell</span> <span class="o">=</span> <span class="n">compute_initial_temperature</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="p">)</span>
         <span class="c1"># the profile does not vary with depth, so broadcasting over the</span>
         <span class="c1"># p-star layer midpoints is trivial</span>
         <span class="n">ct</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_cell</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="p">))</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
-            <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span>
+            <span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span>
         <span class="p">)</span>
-        <span class="n">ct</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;conservative temperature&#39;</span>
-        <span class="n">ct</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;degC&#39;</span>
+        <span class="n">ct</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'conservative temperature'</span>
+        <span class="n">ct</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'degC'</span>
 
-        <span class="n">salinity</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;overflow&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">)</span>
+        <span class="n">salinity</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'overflow'</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">)</span>
         <span class="n">sa</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
-        <span class="n">sa</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;absolute salinity&#39;</span>
-        <span class="n">sa</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;g kg-1&#39;</span>
+        <span class="n">sa</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'absolute salinity'</span>
+        <span class="n">sa</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'g kg-1'</span>
 
         <span class="k">return</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span></div>
 </div>

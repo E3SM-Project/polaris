@@ -120,14 +120,14 @@
 <div class="viewcode-block" id="Analysis">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.geostrophic.analysis.Analysis.html#polaris.tasks.ocean.geostrophic.analysis.Analysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">ConvergenceAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for analyzing the output from the geostrophic test case</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Analysis.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.geostrophic.analysis.Analysis.html#polaris.tasks.ocean.geostrophic.analysis.Analysis.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -143,10 +143,10 @@
 
 <span class="sd">        refinement : str, optional</span>
 <span class="sd">            Whether to refine in space, time or both space and time</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;water-column thickness&#39;</span><span class="p">,</span> <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;normal velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'h'</span><span class="p">,</span> <span class="s1">'title'</span><span class="p">:</span> <span class="s1">'water-column thickness'</span><span class="p">,</span> <span class="s1">'zidx'</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'normalVelocity'</span><span class="p">,</span> <span class="s1">'title'</span><span class="p">:</span> <span class="s1">'normal velocity'</span><span class="p">,</span> <span class="s1">'zidx'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
@@ -160,7 +160,7 @@
 <div class="viewcode-block" id="Analysis.exact_solution">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.geostrophic.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.geostrophic.analysis.Analysis.exact_solution">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">exact_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the exact solution</span>
 
 <span class="sd">        Parameters</span>
@@ -185,28 +185,28 @@
 <span class="sd">        -------</span>
 <span class="sd">        solution: xarray.DataArray</span>
 <span class="sd">            The exact solution with dimension nCells</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'h'</span><span class="p">,</span> <span class="s1">'normalVelocity'</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available as an analytic &#39;</span>
-                <span class="s1">&#39;solution for the geostrophic test case&#39;</span>
+                <span class="sa">f</span><span class="s1">'Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available as an analytic '</span>
+                <span class="s1">'solution for the geostrophic test case'</span>
             <span class="p">)</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;geostrophic&#39;</span><span class="p">]</span>
-        <span class="n">alpha</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;alpha&#39;</span><span class="p">)</span>
-        <span class="n">vel_period</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vel_period&#39;</span><span class="p">)</span>
-        <span class="n">gh_0</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;gh_0&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'geostrophic'</span><span class="p">]</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'alpha'</span><span class="p">)</span>
+        <span class="n">vel_period</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vel_period'</span><span class="p">)</span>
+        <span class="n">gh_0</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'gh_0'</span><span class="p">)</span>
 
-        <span class="n">mesh_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span>
+        <span class="n">mesh_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span>
 
         <span class="n">h</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">normalVelocity</span> <span class="o">=</span> <span class="n">compute_exact_solution</span><span class="p">(</span>
             <span class="n">alpha</span><span class="p">,</span> <span class="n">vel_period</span><span class="p">,</span> <span class="n">gh_0</span><span class="p">,</span> <span class="n">mesh_filename</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'h'</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">h</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">normalVelocity</span></div>
@@ -215,7 +215,7 @@
 <div class="viewcode-block" id="Analysis.get_output_field">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.geostrophic.analysis.Analysis.get_output_field.html#polaris.tasks.ocean.geostrophic.analysis.Analysis.get_output_field">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_output_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the model output field at the given time and z index</span>
 
 <span class="sd">        Parameters</span>
@@ -236,15 +236,15 @@
 <span class="sd">        -------</span>
 <span class="sd">        field_mpas : xarray.DataArray</span>
 <span class="sd">            model output field</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'h'</span><span class="p">,</span> <span class="s1">'normalVelocity'</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available for analysis in the &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;geostrophic test case&#39;</span>
+                <span class="sa">f</span><span class="s1">'Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available for analysis in the '</span>
+                <span class="sa">f</span><span class="s1">'geostrophic test case'</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'normalVelocity'</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_output_field</span><span class="p">(</span>
                 <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
                 <span class="n">field_name</span><span class="o">=</span><span class="n">field_name</span><span class="p">,</span>
@@ -253,16 +253,16 @@
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+                <span class="sa">f</span><span class="s1">'init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
             <span class="p">)</span>
             <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_vert_coord_dataset</span><span class="p">(</span>
                 <span class="n">ds_init</span><span class="p">,</span>
-                <span class="n">vert_coord_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;vert_coord_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc&#39;</span><span class="p">,</span>
+                <span class="n">vert_coord_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'vert_coord_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">bottomDepth</span>
             <span class="n">ssh</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_output_field</span><span class="p">(</span>
                 <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
-                <span class="n">field_name</span><span class="o">=</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span>
+                <span class="n">field_name</span><span class="o">=</span><span class="s1">'ssh'</span><span class="p">,</span>
                 <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
                 <span class="n">zidx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="p">)</span>
@@ -271,7 +271,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">convergence_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get convergence parameters</span>
 
 <span class="sd">        Parameters</span>
@@ -286,12 +286,12 @@
 
 <span class="sd">        conv_thresh: float</span>
 <span class="sd">            The maximum convergence rate</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">conv_thresh</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;geostrophic&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;convergence_thresh_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="s1">'geostrophic'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'convergence_thresh_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
-        <span class="n">error_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="s1">&#39;error_type&#39;</span><span class="p">)</span>
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'convergence'</span><span class="p">,</span> <span class="s1">'error_type'</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span></div>
 

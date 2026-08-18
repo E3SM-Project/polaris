@@ -119,14 +119,14 @@
 <div class="viewcode-block" id="RRSBaseMesh">
 <a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.base.rrs.RRSBaseMesh.html#polaris.mesh.base.rrs.RRSBaseMesh">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RRSBaseMesh</span><span class="p">(</span><span class="n">QuasiUniformSphericalMeshStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for creating Rossby Radius Scaled (RRS) variable resolution meshes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="RRSBaseMesh.build_cell_width_lat_lon">
 <a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.base.rrs.RRSBaseMesh.build_cell_width_lat_lon.html#polaris.mesh.base.rrs.RRSBaseMesh.build_cell_width_lat_lon">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">build_cell_width_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create cell width array for this mesh on a regular latitude-longitude</span>
 <span class="sd">        grid</span>
 
@@ -140,11 +140,11 @@
 
 <span class="sd">        lat : numpy.array</span>
 <span class="sd">            longitude in degrees (length m and between -90 and 90)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">]</span>
-        <span class="n">min_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;min_cell_width&#39;</span><span class="p">)</span>
-        <span class="n">max_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_cell_width&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'spherical_mesh'</span><span class="p">]</span>
+        <span class="n">min_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'min_cell_width'</span><span class="p">)</span>
+        <span class="n">max_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'max_cell_width'</span><span class="p">)</span>
 
         <span class="n">dlon</span> <span class="o">=</span> <span class="mf">10.0</span>
         <span class="n">dlat</span> <span class="o">=</span> <span class="mf">0.1</span>

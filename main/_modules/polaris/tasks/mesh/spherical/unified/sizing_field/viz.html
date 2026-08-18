@@ -125,7 +125,7 @@
 <div class="viewcode-block" id="VizSizingFieldStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VizSizingFieldStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Visualize sizing-field diagnostics produced by</span>
 <span class="sd">    :py:class:`BuildSizingFieldStep`.</span>
 
@@ -139,12 +139,12 @@
 
 <span class="sd">    output_filenames : list of str</span>
 <span class="sd">        The names of the output files written by this step</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="VizSizingFieldStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">sizing_step</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step.</span>
 
 <span class="sd">        Parameters</span>
@@ -158,30 +158,30 @@
 <span class="sd">        subdir : str</span>
 <span class="sd">            The subdirectory within the component work directory where the</span>
 <span class="sd">            step runs</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;sizing_field_viz&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'sizing_field_viz'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sizing_step</span> <span class="o">=</span> <span class="n">sizing_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_filenames</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;sizing_field_overview.png&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;active_control.png&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;debug_summary.txt&#39;</span><span class="p">,</span>
+            <span class="s1">'sizing_field_overview.png'</span><span class="p">,</span>
+            <span class="s1">'active_control.png'</span><span class="p">,</span>
+            <span class="s1">'debug_summary.txt'</span><span class="p">,</span>
         <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="VizSizingFieldStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.setup.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Link the sizing-field dataset and declare outputs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;sizing_field.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'sizing_field.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sizing_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sizing_step</span><span class="o">.</span><span class="n">sizing_field_filename</span>
             <span class="p">),</span>
@@ -193,20 +193,20 @@
 <div class="viewcode-block" id="VizSizingFieldStep.run">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.run.html#polaris.tasks.mesh.spherical.unified.sizing_field.VizSizingFieldStep.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create simple global diagnostic plots and a text summary.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">use_mplstyle</span><span class="p">()</span>
-        <span class="n">dpi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sizing_field_viz&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;dpi&#39;</span><span class="p">)</span>
-        <span class="n">cmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;sizing_field_viz&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cell_width_cmap&#39;</span><span class="p">)</span>
+        <span class="n">dpi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'sizing_field_viz'</span><span class="p">]</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'dpi'</span><span class="p">)</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'sizing_field_viz'</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cell_width_cmap'</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;sizing_field.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'sizing_field.nc'</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
             <span class="n">lon</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span>
             <span class="n">lat</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span>
             <span class="n">cell_width_fields</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="p">(</span><span class="s1">&#39;cellWidth&#39;</span><span class="p">,</span> <span class="s1">&#39;Final cell width (km)&#39;</span><span class="p">),</span>
-                <span class="p">(</span><span class="s1">&#39;ocean_background_cell_width&#39;</span><span class="p">,</span> <span class="s1">&#39;Ocean background (km)&#39;</span><span class="p">),</span>
-                <span class="p">(</span><span class="s1">&#39;land_river_cell_width&#39;</span><span class="p">,</span> <span class="s1">&#39;Land/river composite (km)&#39;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s1">'cellWidth'</span><span class="p">,</span> <span class="s1">'Final cell width (km)'</span><span class="p">),</span>
+                <span class="p">(</span><span class="s1">'ocean_background_cell_width'</span><span class="p">,</span> <span class="s1">'Ocean background (km)'</span><span class="p">),</span>
+                <span class="p">(</span><span class="s1">'land_river_cell_width'</span><span class="p">,</span> <span class="s1">'Land/river composite (km)'</span><span class="p">),</span>
             <span class="p">]</span>
             <span class="n">delta_field</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coastal_transition_delta</span><span class="o">.</span><span class="n">values</span>
 
@@ -251,8 +251,8 @@
                 <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
                 <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
                 <span class="n">field</span><span class="o">=</span><span class="n">delta_field</span><span class="p">,</span>
-                <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Coastal transition delta (km)&#39;</span><span class="p">,</span>
-                <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s1">'Coastal transition delta (km)'</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
                 <span class="n">norm</span><span class="o">=</span><span class="n">delta_norm</span><span class="p">,</span>
                 <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
@@ -260,26 +260,26 @@
             <span class="n">colorbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
                 <span class="n">image</span><span class="p">,</span>
                 <span class="n">cax</span><span class="o">=</span><span class="n">shared_cax</span><span class="p">,</span>
-                <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span>
-                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Cell width (km)&#39;</span><span class="p">,</span>
+                <span class="n">orientation</span><span class="o">=</span><span class="s1">'horizontal'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">'Cell width (km)'</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">ticks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">colorbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
             <span class="n">delta_colorbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
                 <span class="n">delta_image</span><span class="p">,</span>
                 <span class="n">cax</span><span class="o">=</span><span class="n">delta_cax</span><span class="p">,</span>
-                <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span>
-                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Final minus pre-coastline cell width (km)&#39;</span><span class="p">,</span>
+                <span class="n">orientation</span><span class="o">=</span><span class="s1">'horizontal'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">'Final minus pre-coastline cell width (km)'</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">delta_ticks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">delta_colorbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">delta_ticks</span><span class="p">)</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;sizing_field_overview.png&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'sizing_field_overview.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
 
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">11.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
             <span class="n">control_cmap</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">(</span>
-                <span class="p">[</span><span class="s1">&#39;#3b528b&#39;</span><span class="p">,</span> <span class="s1">&#39;#5ec962&#39;</span><span class="p">,</span> <span class="s1">&#39;#fdae61&#39;</span><span class="p">]</span>
+                <span class="p">[</span><span class="s1">'#3b528b'</span><span class="p">,</span> <span class="s1">'#5ec962'</span><span class="p">,</span> <span class="s1">'#fdae61'</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="n">control_norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">control_cmap</span><span class="o">.</span><span class="n">N</span>
@@ -289,7 +289,7 @@
                 <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
                 <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
                 <span class="n">field</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">active_control</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Active sizing control&#39;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s1">'Active sizing control'</span><span class="p">,</span>
                 <span class="n">cmap</span><span class="o">=</span><span class="n">control_cmap</span><span class="p">,</span>
                 <span class="n">norm</span><span class="o">=</span><span class="n">control_norm</span><span class="p">,</span>
                 <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -298,9 +298,9 @@
                 <span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.75</span>
             <span class="p">)</span>
             <span class="n">colorbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span>
-                <span class="p">[</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="s1">&#39;coastline&#39;</span><span class="p">,</span> <span class="s1">&#39;river channel&#39;</span><span class="p">]</span>
+                <span class="p">[</span><span class="s1">'background'</span><span class="p">,</span> <span class="s1">'coastline'</span><span class="p">,</span> <span class="s1">'river channel'</span><span class="p">]</span>
             <span class="p">)</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;active_control.png&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'active_control.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_write_summary</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span></div>
@@ -319,20 +319,20 @@
         <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Plot one scalar field on a simple global Plate Carree map.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_global</span><span class="p">()</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
             <span class="n">field</span><span class="p">,</span>
-            <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s1">'lower'</span><span class="p">,</span>
             <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">lon</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">lon</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">lat</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">lat</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
             <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
             <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
             <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
             <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
-            <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span>
+            <span class="n">interpolation</span><span class="o">=</span><span class="s1">'nearest'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">add_colorbar</span><span class="p">:</span>
@@ -341,69 +341,69 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_summary</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write a compact summary of the sizing-field dataset.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;debug_summary.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">summary</span><span class="p">:</span>
-            <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mesh_name: </span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;mesh_name&quot;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'debug_summary.txt'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">summary</span><span class="p">:</span>
+            <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'mesh_name: </span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"mesh_name"</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="s1">&#39;target_grid_resolution_degrees: &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;target_grid_resolution_degrees&quot;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">'target_grid_resolution_degrees: '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"target_grid_resolution_degrees"</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
             <span class="p">)</span>
             <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;cellWidth_min_km: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span><span class="p">))</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'cellWidth_min_km: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span><span class="p">))</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
             <span class="p">)</span>
             <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;cellWidth_max_km: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span><span class="p">))</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'cellWidth_max_km: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span><span class="p">))</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
             <span class="p">)</span>
             <span class="n">background</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">background_cell_width</span><span class="o">.</span><span class="n">values</span>
             <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span> <span class="o">!=</span> <span class="n">background</span><span class="p">))</span>
             <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;cellWidth_differs_from_background_count: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'cellWidth_differs_from_background_count: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="p">[</span>
-                <span class="s1">&#39;background_cell_width&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;ocean_background_cell_width&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;land_river_cell_width&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;pre_coastline_cell_width&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;coastline_cell_width&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;coastal_transition_delta&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;river_channel_cell_width&#39;</span><span class="p">,</span>
+                <span class="s1">'background_cell_width'</span><span class="p">,</span>
+                <span class="s1">'ocean_background_cell_width'</span><span class="p">,</span>
+                <span class="s1">'land_river_cell_width'</span><span class="p">,</span>
+                <span class="s1">'pre_coastline_cell_width'</span><span class="p">,</span>
+                <span class="s1">'coastline_cell_width'</span><span class="p">,</span>
+                <span class="s1">'coastal_transition_delta'</span><span class="p">,</span>
+                <span class="s1">'river_channel_cell_width'</span><span class="p">,</span>
             <span class="p">]:</span>
                 <span class="n">values</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
                 <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_min_km: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">values</span><span class="p">))</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_min_km: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">values</span><span class="p">))</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
                 <span class="p">)</span>
                 <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_max_km: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">values</span><span class="p">))</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_max_km: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">values</span><span class="p">))</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
-                    <span class="s1">&#39;background_cell_width&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;ocean_background_cell_width&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;coastal_transition_delta&#39;</span><span class="p">,</span>
+                    <span class="s1">'background_cell_width'</span><span class="p">,</span>
+                    <span class="s1">'ocean_background_cell_width'</span><span class="p">,</span>
+                    <span class="s1">'coastal_transition_delta'</span><span class="p">,</span>
                 <span class="p">]:</span>
                     <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">values</span> <span class="o">&lt;</span> <span class="n">background</span><span class="p">))</span>
                     <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_finer_than_background_count: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_finer_than_background_count: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
                     <span class="p">)</span>
-            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;river_channel&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'river_channel'</span><span class="p">]:</span>
                 <span class="n">_write_attr_count_summary</span><span class="p">(</span>
                     <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span>
                 <span class="p">)</span>
             <span class="k">for</span> <span class="n">control_value</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-                <span class="p">[</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="s1">&#39;coastline&#39;</span><span class="p">,</span> <span class="s1">&#39;river_channel&#39;</span><span class="p">]</span>
+                <span class="p">[</span><span class="s1">'background'</span><span class="p">,</span> <span class="s1">'coastline'</span><span class="p">,</span> <span class="s1">'river_channel'</span><span class="p">]</span>
             <span class="p">):</span>
                 <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">active_control</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">control_value</span><span class="p">)</span>
                 <span class="p">)</span>
-                <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">_count: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+                <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">_count: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_cell_width_norm_and_ticks</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a shared linear norm and optional readable ticks for cell-width plots.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">finite_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
         <span class="p">[</span><span class="n">field</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">field</span><span class="p">)]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">]</span>
     <span class="p">)</span>
@@ -425,9 +425,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_difference_norm_and_ticks</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a zero-centered norm and optional readable ticks for difference plots.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">finite_values</span> <span class="o">=</span> <span class="n">field</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">field</span><span class="p">)]</span>
     <span class="n">max_abs</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">finite_values</span><span class="p">)))</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">max_abs</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
@@ -442,18 +442,18 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_attr_count_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write optional sizing-candidate provenance counts.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="s1">&#39;mask_count&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;finer_than_background_count&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;equal_to_background_count&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;coarser_than_background_count&#39;</span><span class="p">,</span>
+        <span class="s1">'mask_count'</span><span class="p">,</span>
+        <span class="s1">'finer_than_background_count'</span><span class="p">,</span>
+        <span class="s1">'equal_to_background_count'</span><span class="p">,</span>
+        <span class="s1">'coarser_than_background_count'</span><span class="p">,</span>
     <span class="p">]:</span>
-        <span class="n">attr_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">attr_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span>
         <span class="k">if</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
-            <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">summary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 
            </div>

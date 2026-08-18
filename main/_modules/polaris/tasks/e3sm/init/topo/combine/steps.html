@@ -124,14 +124,14 @@
 <div class="viewcode-block" id="get_cubed_sphere_topo_steps">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps.html#polaris.tasks.e3sm.init.topo.combine.get_cubed_sphere_topo_steps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_cubed_sphere_topo_steps</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared combined-topography steps for a cubed-sphere target grid.</span>
 
 <span class="sd">    The :class:`CombineStep` (and :class:`VizCombinedStep` when requested) set</span>
 <span class="sd">    ``default_cached = True`` in their constructors because they are expensive</span>
 <span class="sd">    to produce.  Downstream tasks benefit from cached outputs automatically.</span>
 <span class="sd">    Tasks that require free-running execution (e.g. standalone combine tasks)</span>
-<span class="sd">    should add each returned step&#39;s ``subdir`` to ``self.free_running_steps``</span>
+<span class="sd">    should add each returned step's ``subdir`` to ``self.free_running_steps``</span>
 <span class="sd">    in their ``__init__``, as :class:`CubedSphereCombineTask` does.</span>
 
 <span class="sd">    Parameters</span>
@@ -153,10 +153,10 @@
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_get_target_topo_steps</span><span class="p">(</span>
         <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-        <span class="n">target_grid</span><span class="o">=</span><span class="s1">&#39;cubed_sphere&#39;</span><span class="p">,</span>
+        <span class="n">target_grid</span><span class="o">=</span><span class="s1">'cubed_sphere'</span><span class="p">,</span>
         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
         <span class="n">include_viz</span><span class="o">=</span><span class="n">include_viz</span><span class="p">,</span>
     <span class="p">)</span></div>
@@ -166,14 +166,14 @@
 <div class="viewcode-block" id="get_lat_lon_topo_steps">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps.html#polaris.tasks.e3sm.init.topo.combine.get_lat_lon_topo_steps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_lat_lon_topo_steps</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared combined-topography steps for a latitude-longitude target grid.</span>
 
 <span class="sd">    The :class:`CombineStep` (and :class:`VizCombinedStep` when requested) set</span>
 <span class="sd">    ``default_cached = True`` in their constructors because they are expensive</span>
 <span class="sd">    to produce.  Downstream tasks benefit from cached outputs automatically.</span>
 <span class="sd">    Tasks that require free-running execution (e.g. standalone combine tasks)</span>
-<span class="sd">    should add each returned step&#39;s ``subdir`` to ``self.free_running_steps``</span>
+<span class="sd">    should add each returned step's ``subdir`` to ``self.free_running_steps``</span>
 <span class="sd">    in their ``__init__``, as :class:`LatLonCombineTask` does.</span>
 
 <span class="sd">    Parameters</span>
@@ -195,10 +195,10 @@
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_get_target_topo_steps</span><span class="p">(</span>
         <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-        <span class="n">target_grid</span><span class="o">=</span><span class="s1">&#39;lat_lon&#39;</span><span class="p">,</span>
+        <span class="n">target_grid</span><span class="o">=</span><span class="s1">'lat_lon'</span><span class="p">,</span>
         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
         <span class="n">include_viz</span><span class="o">=</span><span class="n">include_viz</span><span class="p">,</span>
     <span class="p">)</span></div>
@@ -206,7 +206,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_target_topo_steps</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">target_grid</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared combined-topography steps for a target grid and resolution.</span>
 
 <span class="sd">    Parameters</span>
@@ -214,7 +214,7 @@
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        The component that the steps will be added to.</span>
 
-<span class="sd">    target_grid : {&#39;cubed_sphere&#39;, &#39;lat_lon&#39;}</span>
+<span class="sd">    target_grid : {'cubed_sphere', 'lat_lon'}</span>
 <span class="sd">        The type of target grid.</span>
 
 <span class="sd">    resolution : int or float</span>
@@ -231,31 +231,31 @@
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">target_grid</span> <span class="o">==</span> <span class="s1">&#39;cubed_sphere&#39;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">target_grid</span> <span class="o">==</span> <span class="s1">'cubed_sphere'</span><span class="p">:</span>
         <span class="n">resolution</span><span class="p">,</span> <span class="n">resolution_name</span> <span class="o">=</span> <span class="n">_validate_cubed_sphere_resolution</span><span class="p">(</span>
             <span class="n">resolution</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">target_grid</span> <span class="o">==</span> <span class="s1">&#39;lat_lon&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">target_grid</span> <span class="o">==</span> <span class="s1">'lat_lon'</span><span class="p">:</span>
         <span class="n">resolution</span><span class="p">,</span> <span class="n">resolution_name</span> <span class="o">=</span> <span class="n">_validate_lat_lon_resolution</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected target grid: </span><span class="si">{</span><span class="n">target_grid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unexpected target grid: </span><span class="si">{</span><span class="n">target_grid</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">(),</span> <span class="n">target_grid</span><span class="p">,</span> <span class="n">resolution_name</span>
     <span class="p">)</span>
 
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;combine_topo.cfg&#39;</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'combine_topo.cfg'</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.e3sm.init.topo.combine&#39;</span><span class="p">,</span> <span class="s1">&#39;combine.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.e3sm.init.topo.combine'</span><span class="p">,</span> <span class="s1">'combine.cfg'</span>
     <span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;combine_topo&#39;</span><span class="p">,</span> <span class="s1">&#39;target_grid&#39;</span><span class="p">,</span> <span class="n">target_grid</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">target_grid</span> <span class="o">==</span> <span class="s1">&#39;cubed_sphere&#39;</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;combine_topo&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution_cubedsphere&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'combine_topo'</span><span class="p">,</span> <span class="s1">'target_grid'</span><span class="p">,</span> <span class="n">target_grid</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">target_grid</span> <span class="o">==</span> <span class="s1">'cubed_sphere'</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'combine_topo'</span><span class="p">,</span> <span class="s1">'resolution_cubedsphere'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;combine_topo&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution_latlon&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'combine_topo'</span><span class="p">,</span> <span class="s1">'resolution_latlon'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">combine_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
@@ -269,12 +269,12 @@
     <span class="n">steps</span><span class="p">[</span><span class="n">combine_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine_step</span>
 
     <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
-        <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">combine_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">&#39;viz&#39;</span><span class="p">)</span>
+        <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">combine_step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="s1">'viz'</span><span class="p">)</span>
         <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
             <span class="n">step_cls</span><span class="o">=</span><span class="n">VizCombinedStep</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">viz_subdir</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">config_filename</span><span class="o">=</span><span class="s1">&#39;combine_topo.cfg&#39;</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="s1">'combine_topo.cfg'</span><span class="p">,</span>
             <span class="n">combine_step</span><span class="o">=</span><span class="n">combine_step</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">steps</span><span class="p">[</span><span class="n">viz_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_step</span>
@@ -283,7 +283,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_cubed_sphere_resolution</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Validate and normalize a cubed-sphere resolution.</span>
 
 <span class="sd">    Parameters</span>
@@ -298,32 +298,32 @@
 
 <span class="sd">    resolution_name : str</span>
 <span class="sd">        The corresponding resolution name.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">resolution</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">resolution</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Cubed-sphere resolution must be positive, got </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="sa">f</span><span class="s1">'Cubed-sphere resolution must be positive, got </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">.'</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">resolution</span><span class="o">.</span><span class="n">is_integer</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Cubed-sphere resolution must be an integer face count, &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;got </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="s1">'Cubed-sphere resolution must be an integer face count, '</span>
+            <span class="sa">f</span><span class="s1">'got </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">.'</span>
         <span class="p">)</span>
 
     <span class="n">resolution</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">resolution</span> <span class="o">&lt;</span> <span class="n">_MIN_CUBED_SPHERE_RESOLUTION</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Cubed-sphere resolution is implausibly coarse for combined &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;topography: ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">. Expected ne&#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_MIN_CUBED_SPHERE_RESOLUTION</span><span class="si">}</span><span class="s1"> or finer.&#39;</span>
+            <span class="s1">'Cubed-sphere resolution is implausibly coarse for combined '</span>
+            <span class="sa">f</span><span class="s1">'topography: ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">. Expected ne'</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_MIN_CUBED_SPHERE_RESOLUTION</span><span class="si">}</span><span class="s1"> or finer.'</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">resolution</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="n">resolution</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">'</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_lat_lon_resolution</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Validate and normalize a latitude-longitude resolution.</span>
 
 <span class="sd">    Parameters</span>
@@ -338,19 +338,19 @@
 
 <span class="sd">    resolution_name : str</span>
 <span class="sd">        The corresponding resolution name.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">resolution</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">resolution</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Latitude-longitude resolution must be positive, &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;got </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="s1">'Latitude-longitude resolution must be positive, '</span>
+            <span class="sa">f</span><span class="s1">'got </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">.'</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">resolution</span> <span class="o">&gt;</span> <span class="n">_MAX_LAT_LON_RESOLUTION</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Latitude-longitude resolution is implausibly coarse for &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;combined topography: </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1"> degree. Expected &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_MAX_LAT_LON_RESOLUTION</span><span class="si">}</span><span class="s1"> degree or finer.&#39;</span>
+            <span class="s1">'Latitude-longitude resolution is implausibly coarse for '</span>
+            <span class="sa">f</span><span class="s1">'combined topography: </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1"> degree. Expected '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">_MAX_LAT_LON_RESOLUTION</span><span class="si">}</span><span class="s1"> degree or finer.'</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">format_lat_lon_resolution_name</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>

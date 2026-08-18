@@ -121,36 +121,36 @@
 <div class="viewcode-block" id="add_single_column_tasks">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.add_single_column_tasks.html#polaris.tasks.ocean.single_column.add_single_column_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_single_column_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add tasks for various single-column tests</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">        the ocean component that the tasks will be added to</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">group_name</span> <span class="o">=</span> <span class="s1">&#39;single_column&#39;</span>
+<span class="sd">    """</span>
+    <span class="n">group_name</span> <span class="o">=</span> <span class="s1">'single_column'</span>
 
-    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;vmix_stable&#39;</span>
-    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wind&#39;</span><span class="p">]</span>
-    <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">&#39;no_forcing&#39;</span>
-    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">'vmix_stable'</span>
+    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'wind'</span><span class="p">]</span>
+    <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">'_'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">'no_forcing'</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
         <span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;stable_stratification.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'stable_stratification.cfg'</span>
     <span class="p">)</span>
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;column/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/init_stable&#39;</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'column/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/init_stable'</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
         <span class="n">VMix</span><span class="p">(</span>
@@ -158,30 +158,30 @@
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
-            <span class="n">indir</span><span class="o">=</span><span class="s1">&#39;column&#39;</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;vmix_unstable&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">'vmix_unstable'</span>
     <span class="n">forcing</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">&#39;no_forcing&#39;</span>
-    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+    <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">'_'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">'no_forcing'</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
         <span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;unstable_stratification.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'unstable_stratification.cfg'</span>
     <span class="p">)</span>
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;column/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/init_unstable&#39;</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'column/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/init_unstable'</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
         <span class="n">VMix</span><span class="p">(</span>
@@ -189,93 +189,93 @@
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
-            <span class="n">indir</span><span class="o">=</span><span class="s1">&#39;column&#39;</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wind&#39;</span><span class="p">]</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ekman&#39;</span>
-    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'wind'</span><span class="p">]</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">'ekman'</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
         <span class="p">)</span>
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;column/</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">/init&#39;</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'column/</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">/init'</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
         <span class="n">Ekman</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
-            <span class="n">indir</span><span class="o">=</span><span class="s1">&#39;column&#39;</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ideal_age&#39;</span>
-    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;evap&#39;</span><span class="p">]</span>
-    <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">&#39;no_forcing&#39;</span>
-    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">'ideal_age'</span>
+    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'evap'</span><span class="p">]</span>
+    <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">'_'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">'no_forcing'</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
         <span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;stable_stratification.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'stable_stratification.cfg'</span>
     <span class="p">)</span>
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;column/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/init_stable&#39;</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'column/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/init_stable'</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
         <span class="n">IdealAge</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">indir</span><span class="o">=</span><span class="s1">&#39;column&#39;</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;inertial&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">'inertial'</span>
     <span class="n">forcing</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">&#39;no_forcing&#39;</span>
-    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+    <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">'_'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">'no_forcing'</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
         <span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;stable_stratification.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'stable_stratification.cfg'</span>
     <span class="p">)</span>
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;column/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/init_stable&#39;</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'column/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/init_stable'</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
         <span class="n">Inertial</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">indir</span><span class="o">=</span><span class="s1">&#39;column&#39;</span><span class="p">,</span>
+            <span class="n">indir</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span></div>
 

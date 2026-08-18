@@ -319,7 +319,7 @@ workflow that needs the 0.03125° coastline products:</p>
     <span class="n">cached</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">fine_coastline_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;coastline_final&#39;</span><span class="p">]</span>
+<span class="n">fine_coastline_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">'coastline_final'</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>To get coastline steps at a coarser resolution:</p>
@@ -332,9 +332,9 @@ workflow that needs the 0.03125° coastline products:</p>
     <span class="n">cached</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="c1"># steps[&#39;coastline_compute&#39;] is the shared ComputeCoastlineStep at 0.03125°</span>
-<span class="c1"># steps[&#39;coastline_final&#39;] is the RemapCoastlineStep at 0.25°</span>
-<span class="n">coarse_coastline_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;coastline_final&#39;</span><span class="p">]</span>
+<span class="c1"># steps['coastline_compute'] is the shared ComputeCoastlineStep at 0.03125°</span>
+<span class="c1"># steps['coastline_final'] is the RemapCoastlineStep at 0.25°</span>
+<span class="n">coarse_coastline_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">'coastline_final'</span><span class="p">]</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">get_unified_mesh_coastline_steps</span></code> returns a 2-tuple <code class="docutils literal notranslate"><span class="pre">(steps,</span> <span class="pre">config)</span></code>.  The

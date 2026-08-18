@@ -122,14 +122,14 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_unified_base_mesh_config</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Load one unified mesh config with spherical-mesh and viz defaults.</span>
 
 <span class="sd">    mesh_name : str</span>
 <span class="sd">        The name of the unified mesh.</span>
 
 <span class="sd">    filepath : str, optional</span>
-<span class="sd">        The config filepath relative to the component&#39;s work directory.</span>
+<span class="sd">        The config filepath relative to the component's work directory.</span>
 <span class="sd">        If the config is already registered under this path it is returned</span>
 <span class="sd">        unchanged.</span>
 
@@ -137,27 +137,27 @@
 <span class="sd">    -------</span>
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options for the named unified base mesh.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">_get_mesh_component</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">component</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="n">get_unified_mesh_config</span><span class="p">(</span><span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.mesh.spherical.unified.base_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;base_mesh.cfg&#39;</span>
+        <span class="s1">'polaris.tasks.mesh.spherical.unified.base_mesh'</span><span class="p">,</span> <span class="s1">'base_mesh.cfg'</span>
     <span class="p">)</span>
 
     <span class="n">min_cell_width</span><span class="p">,</span> <span class="n">max_cell_width</span> <span class="o">=</span> <span class="n">_get_mesh_cell_width_bounds</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;prefix&#39;</span><span class="p">,</span> <span class="s1">&#39;UN&#39;</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;min_cell_width&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">min_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;max_cell_width&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">max_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'prefix'</span><span class="p">,</span> <span class="s1">'UN'</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'min_cell_width'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">min_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'max_cell_width'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">max_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">config</span>
 
 
 <div class="viewcode-block" id="get_unified_base_mesh_steps">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps.html#polaris.tasks.mesh.spherical.unified.base_mesh.get_unified_base_mesh_steps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_unified_base_mesh_steps</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared steps for building one named unified base mesh.</span>
 
 <span class="sd">    Calls the upstream step factories for combined topography, coastline,</span>
@@ -182,15 +182,15 @@
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options for the named unified base mesh.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">_get_mesh_component</span><span class="p">()</span>
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;base_mesh.cfg&#39;</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'base_mesh.cfg'</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;unified&#39;</span><span class="p">,</span>
+        <span class="s1">'spherical'</span><span class="p">,</span>
+        <span class="s1">'unified'</span><span class="p">,</span>
         <span class="n">mesh_name</span><span class="p">,</span>
-        <span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span>
+        <span class="s1">'base_mesh'</span><span class="p">,</span>
         <span class="n">config_filename</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">get_unified_base_mesh_config</span><span class="p">(</span>
@@ -201,11 +201,11 @@
         <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
         <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">river_clip_step</span> <span class="o">=</span> <span class="n">sizing_steps</span><span class="p">[</span><span class="s1">&#39;river_clip&#39;</span><span class="p">]</span>
-    <span class="n">sizing_step</span> <span class="o">=</span> <span class="n">sizing_steps</span><span class="p">[</span><span class="s1">&#39;sizing_field&#39;</span><span class="p">]</span>
+    <span class="n">river_clip_step</span> <span class="o">=</span> <span class="n">sizing_steps</span><span class="p">[</span><span class="s1">'river_clip'</span><span class="p">]</span>
+    <span class="n">sizing_step</span> <span class="o">=</span> <span class="n">sizing_steps</span><span class="p">[</span><span class="s1">'sizing_field'</span><span class="p">]</span>
 
     <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;unified&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span>
+        <span class="s1">'spherical'</span><span class="p">,</span> <span class="s1">'unified'</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'base_mesh'</span><span class="p">,</span> <span class="s1">'build'</span>
     <span class="p">)</span>
     <span class="n">build_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">UnifiedBaseMeshStep</span><span class="p">,</span>
@@ -222,7 +222,7 @@
 
     <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
         <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="s1">&#39;spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;unified&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;viz&#39;</span>
+            <span class="s1">'spherical'</span><span class="p">,</span> <span class="s1">'unified'</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'base_mesh'</span><span class="p">,</span> <span class="s1">'viz'</span>
         <span class="p">)</span>
         <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
             <span class="n">step_cls</span><span class="o">=</span><span class="n">VizBaseMeshStep</span><span class="p">,</span>
@@ -247,7 +247,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_mesh_cell_width_bounds</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get representative min and max cell widths from unified mesh settings.</span>
 
 <span class="sd">    Parameters</span>
@@ -263,16 +263,16 @@
 
 <span class="sd">    max_width : float</span>
 <span class="sd">        The maximum cell width in km across all active sizing-field options.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;sizing_field&#39;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'sizing_field'</span><span class="p">]</span>
     <span class="n">widths</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean_background_min_km&#39;</span><span class="p">),</span>
-        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean_background_max_km&#39;</span><span class="p">),</span>
-        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;land_background_km&#39;</span><span class="p">),</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ocean_background_min_km'</span><span class="p">),</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ocean_background_max_km'</span><span class="p">),</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'land_background_km'</span><span class="p">),</span>
     <span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;enable_river_channel_refinement&#39;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">widths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;river_channel_km&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'enable_river_channel_refinement'</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">widths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'river_channel_km'</span><span class="p">))</span>
 
     <span class="n">widths</span> <span class="o">=</span> <span class="p">[</span><span class="n">width</span> <span class="k">for</span> <span class="n">width</span> <span class="ow">in</span> <span class="n">widths</span> <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
     <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">widths</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">widths</span><span class="p">)</span>

@@ -122,103 +122,103 @@
 <div class="viewcode-block" id="ExactRestart">
 <a class="viewcode-back" href="../../../../../developers_guide/seaice/generated/polaris.tasks.seaice.single_column.exact_restart.ExactRestart.html#polaris.tasks.seaice.single_column.exact_restart.ExactRestart">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExactRestart</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A single-column restart test case, which makes sure  the model produces</span>
 <span class="sd">    identical results with one longer run and two shorter runs with a restart</span>
 <span class="sd">    in between.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ExactRestart.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/seaice/generated/polaris.tasks.seaice.single_column.exact_restart.ExactRestart.html#polaris.tasks.seaice.single_column.exact_restart.ExactRestart.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the test case</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        component : polaris.tasks.seaice.SeaIce</span>
 <span class="sd">            the component that that the task belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;exact_restart&#39;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;single_column&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">'exact_restart'</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">'single_column'</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;iceAreaCategory&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;iceVolumeCategory&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;snowVolumeCategory&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;surfaceTemperature&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;iceEnthalpy&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;iceSalinity&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;snowEnthalpy&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;levelIceArea&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;levelIceVolume&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;pondArea&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;pondDepth&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;pondLidThickness&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;uVelocity&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;vVelocity&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;freezeOnset&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;snowfallRate&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;pondSnowDepthDifference&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;pondLidMeltFluxFraction&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;solarZenithAngleCosine&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;shortwaveScalingFactor&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;shortwaveVisibleDirectDown&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;shortwaveVisibleDiffuseDown&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;shortwaveIRDirectDown&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;shortwaveIRDiffuseDown&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;oceanStressCellU&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;oceanStressCellV&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;seaSurfaceTemperature&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;freezingMeltingPotential&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;airOceanDragCoefficientRatio&#39;</span><span class="p">,</span>
+            <span class="s1">'iceAreaCategory'</span><span class="p">,</span>
+            <span class="s1">'iceVolumeCategory'</span><span class="p">,</span>
+            <span class="s1">'snowVolumeCategory'</span><span class="p">,</span>
+            <span class="s1">'surfaceTemperature'</span><span class="p">,</span>
+            <span class="s1">'iceEnthalpy'</span><span class="p">,</span>
+            <span class="s1">'iceSalinity'</span><span class="p">,</span>
+            <span class="s1">'snowEnthalpy'</span><span class="p">,</span>
+            <span class="s1">'levelIceArea'</span><span class="p">,</span>
+            <span class="s1">'levelIceVolume'</span><span class="p">,</span>
+            <span class="s1">'pondArea'</span><span class="p">,</span>
+            <span class="s1">'pondDepth'</span><span class="p">,</span>
+            <span class="s1">'pondLidThickness'</span><span class="p">,</span>
+            <span class="s1">'uVelocity'</span><span class="p">,</span>
+            <span class="s1">'vVelocity'</span><span class="p">,</span>
+            <span class="s1">'freezeOnset'</span><span class="p">,</span>
+            <span class="s1">'snowfallRate'</span><span class="p">,</span>
+            <span class="s1">'pondSnowDepthDifference'</span><span class="p">,</span>
+            <span class="s1">'pondLidMeltFluxFraction'</span><span class="p">,</span>
+            <span class="s1">'solarZenithAngleCosine'</span><span class="p">,</span>
+            <span class="s1">'shortwaveScalingFactor'</span><span class="p">,</span>
+            <span class="s1">'shortwaveVisibleDirectDown'</span><span class="p">,</span>
+            <span class="s1">'shortwaveVisibleDiffuseDown'</span><span class="p">,</span>
+            <span class="s1">'shortwaveIRDirectDown'</span><span class="p">,</span>
+            <span class="s1">'shortwaveIRDiffuseDown'</span><span class="p">,</span>
+            <span class="s1">'oceanStressCellU'</span><span class="p">,</span>
+            <span class="s1">'oceanStressCellV'</span><span class="p">,</span>
+            <span class="s1">'seaSurfaceTemperature'</span><span class="p">,</span>
+            <span class="s1">'freezingMeltingPotential'</span><span class="p">,</span>
+            <span class="s1">'airOceanDragCoefficientRatio'</span><span class="p">,</span>
         <span class="p">]</span>
 
-        <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;full_run&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'full_run'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
         <span class="n">step</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;restarts/restart.2000-01-01_12.00.00.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'restarts/restart.2000-01-01_12.00.00.nc'</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">step</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;restarts/restart.2000-01-02_00.00.00.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'restarts/restart.2000-01-02_00.00.00.nc'</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">step</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span>
-            <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.seaice.single_column.exact_restart&#39;</span><span class="p">,</span>
-            <span class="n">namelist</span><span class="o">=</span><span class="s1">&#39;namelist.full&#39;</span><span class="p">,</span>
+            <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.tasks.seaice.single_column.exact_restart'</span><span class="p">,</span>
+            <span class="n">namelist</span><span class="o">=</span><span class="s1">'namelist.full'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">step</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span>
-            <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.seaice.single_column.exact_restart&#39;</span><span class="p">,</span>
-            <span class="n">streams</span><span class="o">=</span><span class="s1">&#39;streams.full&#39;</span><span class="p">,</span>
+            <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.tasks.seaice.single_column.exact_restart'</span><span class="p">,</span>
+            <span class="n">streams</span><span class="o">=</span><span class="s1">'streams.full'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
         <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
-            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;restart_run&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'restart_run'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span>
         <span class="p">)</span>
         <span class="n">step</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;restarts/restart.2000-01-01_12.00.00.nc&#39;</span><span class="p">,</span>
-            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../full_run/restarts/restart.2000-01-01_12.00.00.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'restarts/restart.2000-01-01_12.00.00.nc'</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="s1">'../../full_run/restarts/restart.2000-01-01_12.00.00.nc'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">step</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;restarts/restart.2000-01-02_00.00.00.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'restarts/restart.2000-01-02_00.00.00.nc'</span>
         <span class="p">)</span>
 
         <span class="n">step</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span>
-            <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.seaice.single_column.exact_restart&#39;</span><span class="p">,</span>
-            <span class="n">namelist</span><span class="o">=</span><span class="s1">&#39;namelist.restart&#39;</span><span class="p">,</span>
+            <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.tasks.seaice.single_column.exact_restart'</span><span class="p">,</span>
+            <span class="n">namelist</span><span class="o">=</span><span class="s1">'namelist.restart'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">step</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span>
-            <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.seaice.single_column.exact_restart&#39;</span><span class="p">,</span>
-            <span class="n">streams</span><span class="o">=</span><span class="s1">&#39;streams.restart&#39;</span><span class="p">,</span>
+            <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.tasks.seaice.single_column.exact_restart'</span><span class="p">,</span>
+            <span class="n">streams</span><span class="o">=</span><span class="s1">'streams.restart'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
-        <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;full_run&#39;</span><span class="p">,</span> <span class="s1">&#39;restart_run&#39;</span><span class="p">]</span>
-        <span class="n">restart_filename</span> <span class="o">=</span> <span class="s1">&#39;restarts/restart.2000-01-02_00.00.00.nc&#39;</span>
+        <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'full_run'</span><span class="p">,</span> <span class="s1">'restart_run'</span><span class="p">]</span>
+        <span class="n">restart_filename</span> <span class="o">=</span> <span class="s1">'restarts/restart.2000-01-02_00.00.00.nc'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Validate</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>

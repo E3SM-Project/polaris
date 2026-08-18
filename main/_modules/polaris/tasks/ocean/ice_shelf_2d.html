@@ -121,27 +121,27 @@
 <div class="viewcode-block" id="add_ice_shelf_2d_tasks">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.ice_shelf_2d.add_ice_shelf_2d_tasks.html#polaris.tasks.ocean.ice_shelf_2d.add_ice_shelf_2d_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_ice_shelf_2d_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add tasks for different ice shelf 2-d tests to the ocean component</span>
 
 <span class="sd">    component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">        the ocean component that the tasks will be added to</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]:</span>
         <span class="n">resdir</span> <span class="o">=</span> <span class="n">resolution_to_string</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">coord_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;z-star&#39;</span><span class="p">,</span> <span class="s1">&#39;z-level&#39;</span><span class="p">]:</span>
-            <span class="n">basedir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/ice_shelf_2d/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">coord_type</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">coord_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'z-star'</span><span class="p">,</span> <span class="s1">'z-level'</span><span class="p">]:</span>
+            <span class="n">basedir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'planar/ice_shelf_2d/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">coord_type</span><span class="si">}</span><span class="s1">'</span>
 
-            <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;ice_shelf_2d.cfg&#39;</span>
+            <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'ice_shelf_2d.cfg'</span>
             <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">basedir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.ocean.ice_shelf&#39;</span><span class="p">,</span> <span class="s1">&#39;ssh_adjustment.cfg&#39;</span>
+                <span class="s1">'polaris.ocean.ice_shelf'</span><span class="p">,</span> <span class="s1">'ssh_adjustment.cfg'</span>
             <span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.tasks.ocean.ice_shelf_2d&#39;</span><span class="p">,</span> <span class="n">config_filename</span>
+                <span class="s1">'polaris.tasks.ocean.ice_shelf_2d'</span><span class="p">,</span> <span class="n">config_filename</span>
             <span class="p">)</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;coord_type&#39;</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'coord_type'</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">)</span>
 
             <span class="n">init</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">basedir</span>
@@ -193,21 +193,21 @@
 
         <span class="c1"># The only test case that makes sense with the single_layer coordinate</span>
         <span class="c1"># type is the one with barotropic tidal_forcing</span>
-        <span class="k">for</span> <span class="n">coord_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;single_layer&#39;</span><span class="p">]:</span>
-            <span class="n">basedir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/ice_shelf_2d/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">coord_type</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">coord_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'single_layer'</span><span class="p">]:</span>
+            <span class="n">basedir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'planar/ice_shelf_2d/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">coord_type</span><span class="si">}</span><span class="s1">'</span>
 
-            <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;ice_shelf_2d.cfg&#39;</span>
+            <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'ice_shelf_2d.cfg'</span>
             <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">basedir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.ocean.ice_shelf&#39;</span><span class="p">,</span> <span class="s1">&#39;ssh_adjustment.cfg&#39;</span>
+                <span class="s1">'polaris.ocean.ice_shelf'</span><span class="p">,</span> <span class="s1">'ssh_adjustment.cfg'</span>
             <span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.tasks.ocean.ice_shelf_2d&#39;</span><span class="p">,</span> <span class="n">config_filename</span>
+                <span class="s1">'polaris.tasks.ocean.ice_shelf_2d'</span><span class="p">,</span> <span class="n">config_filename</span>
             <span class="p">)</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;coord_type&#39;</span><span class="p">,</span> <span class="s1">&#39;z-level&#39;</span><span class="p">)</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;vert_levels&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">)</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;partial_cell_type&#39;</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'coord_type'</span><span class="p">,</span> <span class="s1">'z-level'</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'vert_levels'</span><span class="p">,</span> <span class="s1">'1'</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'partial_cell_type'</span><span class="p">,</span> <span class="s1">'None'</span><span class="p">)</span>
 
             <span class="n">init</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">basedir</span>

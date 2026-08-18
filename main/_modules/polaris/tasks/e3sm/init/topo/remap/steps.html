@@ -129,7 +129,7 @@
 <div class="viewcode-block" id="get_remap_topo_steps">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.get_remap_topo_steps.html#polaris.tasks.e3sm.init.topo.remap.get_remap_topo_steps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_remap_topo_steps</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">smoothing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared steps for computing a mapping file and then remapping</span>
 <span class="sd">    bathymetry and ice-shelf topography from a cubed-sphere grid to a global</span>
 <span class="sd">    MPAS base mesh.</span>
@@ -161,15 +161,15 @@
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options for remapping topography.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">e3sm_init</span>
     <span class="n">base_mesh_steps</span><span class="p">,</span> <span class="n">base_mesh_config</span> <span class="o">=</span> <span class="n">get_base_mesh_steps</span><span class="p">(</span>
         <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
-    <span class="n">base_mesh_step</span> <span class="o">=</span> <span class="n">base_mesh_steps</span><span class="p">[</span><span class="s1">&#39;base_mesh&#39;</span><span class="p">]</span>
+    <span class="n">base_mesh_step</span> <span class="o">=</span> <span class="n">base_mesh_steps</span><span class="p">[</span><span class="s1">'base_mesh'</span><span class="p">]</span>
 
     <span class="n">max_cell_width</span> <span class="o">=</span> <span class="n">base_mesh_config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-        <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;max_cell_width&#39;</span>
+        <span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'max_cell_width'</span>
     <span class="p">)</span>
     <span class="n">low_res</span> <span class="o">=</span> <span class="n">uses_low_res_cubed_sphere</span><span class="p">(</span><span class="n">max_cell_width</span><span class="p">)</span>
     <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_cubed_sphere_resolution</span><span class="p">(</span><span class="n">low_res</span><span class="p">)</span>
@@ -179,16 +179,16 @@
         <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">resolution_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">resolution_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">'</span>
     <span class="n">combine_step_name</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span>
-        <span class="n">target_grid</span><span class="o">=</span><span class="s1">&#39;cubed_sphere&#39;</span><span class="p">,</span> <span class="n">resolution_name</span><span class="o">=</span><span class="n">resolution_name</span>
+        <span class="n">target_grid</span><span class="o">=</span><span class="s1">'cubed_sphere'</span><span class="p">,</span> <span class="n">resolution_name</span><span class="o">=</span><span class="n">resolution_name</span>
     <span class="p">)</span>
     <span class="n">combine_topo_step</span> <span class="o">=</span> <span class="n">combine_topo_steps</span><span class="p">[</span><span class="n">combine_step_name</span><span class="p">]</span>
-    <span class="n">combine_topo_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;combine_topo_cubed_sphere_</span><span class="si">{</span><span class="n">resolution_name</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">combine_topo_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'combine_topo_cubed_sphere_</span><span class="si">{</span><span class="n">resolution_name</span><span class="si">}</span><span class="s1">'</span>
 
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;remap_topo.cfg&#39;</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'remap_topo.cfg'</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;topo&#39;</span><span class="p">,</span> <span class="s1">&#39;remap&#39;</span><span class="p">,</span> <span class="n">config_filename</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'topo'</span><span class="p">,</span> <span class="s1">'remap'</span><span class="p">,</span> <span class="n">config_filename</span>
     <span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">_get_remap_topo_config</span><span class="p">(</span>
         <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span>
@@ -199,8 +199,8 @@
     <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base_mesh_steps</span><span class="p">)</span>
     <span class="n">steps</span><span class="p">[</span><span class="n">combine_topo_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">combine_topo_step</span>
 
-    <span class="n">step_name</span> <span class="o">=</span> <span class="s1">&#39;mask_topo&#39;</span>
-    <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;topo&#39;</span><span class="p">,</span> <span class="s1">&#39;remap&#39;</span><span class="p">,</span> <span class="s1">&#39;mask&#39;</span><span class="p">)</span>
+    <span class="n">step_name</span> <span class="o">=</span> <span class="s1">'mask_topo'</span>
+    <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'topo'</span><span class="p">,</span> <span class="s1">'remap'</span><span class="p">,</span> <span class="s1">'mask'</span><span class="p">)</span>
     <span class="n">mask_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">MaskTopoStep</span><span class="p">,</span>
         <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -209,17 +209,17 @@
         <span class="n">combine_topo_step</span><span class="o">=</span><span class="n">combine_topo_step</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;mask_topo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask_step</span>
+    <span class="n">steps</span><span class="p">[</span><span class="s1">'mask_topo'</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask_step</span>
 
     <span class="k">if</span> <span class="n">smoothing</span><span class="p">:</span>
-        <span class="n">suffixes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;unsmoothed&#39;</span><span class="p">,</span> <span class="s1">&#39;smoothed&#39;</span><span class="p">]</span>
+        <span class="n">suffixes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'unsmoothed'</span><span class="p">,</span> <span class="s1">'smoothed'</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">suffixes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;unsmoothed&#39;</span><span class="p">]</span>
+        <span class="n">suffixes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'unsmoothed'</span><span class="p">]</span>
 
     <span class="n">unsmoothed_topo</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">suffixes</span><span class="p">:</span>
-        <span class="n">step_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;remap_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;topo&#39;</span><span class="p">,</span> <span class="s1">&#39;remap&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">step_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'remap_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'topo'</span><span class="p">,</span> <span class="s1">'remap'</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
         <span class="n">remap_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
             <span class="n">step_cls</span><span class="o">=</span><span class="n">RemapTopoStep</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -229,19 +229,19 @@
             <span class="n">mask_topo_step</span><span class="o">=</span><span class="n">mask_step</span><span class="p">,</span>
             <span class="n">combine_topo_step</span><span class="o">=</span><span class="n">combine_topo_step</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span>
-            <span class="n">smoothing</span><span class="o">=</span><span class="p">(</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;smoothed&#39;</span><span class="p">),</span>
+            <span class="n">smoothing</span><span class="o">=</span><span class="p">(</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">'smoothed'</span><span class="p">),</span>
             <span class="n">unsmoothed_topo</span><span class="o">=</span><span class="n">unsmoothed_topo</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;unsmoothed&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s1">'unsmoothed'</span><span class="p">:</span>
             <span class="n">unsmoothed_topo</span> <span class="o">=</span> <span class="n">remap_step</span>
-            <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;remap_unsmoothed_topo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">remap_step</span>
+            <span class="n">steps</span><span class="p">[</span><span class="s1">'remap_unsmoothed_topo'</span><span class="p">]</span> <span class="o">=</span> <span class="n">remap_step</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">steps</span><span class="p">[</span><span class="s1">&#39;remap_smoothed_topo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">remap_step</span>
+            <span class="n">steps</span><span class="p">[</span><span class="s1">'remap_smoothed_topo'</span><span class="p">]</span> <span class="o">=</span> <span class="n">remap_step</span>
 
         <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
-            <span class="n">step_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;viz_remapped_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subdir</span><span class="p">),</span> <span class="s1">&#39;viz&#39;</span><span class="p">)</span>
+            <span class="n">step_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'viz_remapped_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subdir</span><span class="p">),</span> <span class="s1">'viz'</span><span class="p">)</span>
             <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
                 <span class="n">step_cls</span><span class="o">=</span><span class="n">VizRemappedTopoStep</span><span class="p">,</span>
                 <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -250,7 +250,7 @@
                 <span class="n">remap_step</span><span class="o">=</span><span class="n">remap_step</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">step_name</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">steps</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;viz_remapped_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">_topo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_step</span>
+            <span class="n">steps</span><span class="p">[</span><span class="sa">f</span><span class="s1">'viz_remapped_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">_topo'</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_step</span>
 
     <span class="k">return</span> <span class="n">steps</span><span class="p">,</span> <span class="n">config</span></div>
 
@@ -262,19 +262,19 @@
         <span class="k">return</span> <span class="n">component</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.e3sm.init.topo.remap&#39;</span><span class="p">,</span> <span class="s1">&#39;remap.cfg&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.tasks.e3sm.init.topo.remap'</span><span class="p">,</span> <span class="s1">'remap.cfg'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">low_res</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.e3sm.init.topo.remap&#39;</span><span class="p">,</span> <span class="s1">&#39;remap_low_res.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.e3sm.init.topo.remap'</span><span class="p">,</span> <span class="s1">'remap_low_res.cfg'</span>
         <span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.mesh.spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.mesh.spherical'</span><span class="p">,</span> <span class="s1">'spherical.cfg'</span><span class="p">)</span>
 
     <span class="n">convention</span> <span class="o">=</span> <span class="n">base_mesh_step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;antarctic_boundary_convention&#39;</span>
+        <span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'antarctic_boundary_convention'</span>
     <span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-        <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;antarctic_boundary_convention&#39;</span><span class="p">,</span>
+        <span class="s1">'spherical_mesh'</span><span class="p">,</span>
+        <span class="s1">'antarctic_boundary_convention'</span><span class="p">,</span>
         <span class="n">convention</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">config</span>

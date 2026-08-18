@@ -122,17 +122,17 @@
 <div class="viewcode-block" id="SmokeTest">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.smoke_test.SmokeTest.html#polaris.tasks.ocean.overflow.smoke_test.SmokeTest">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SmokeTest</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The short overflow smoke test simply creates the mesh and</span>
 <span class="sd">    initial condition, then performs a short forward run on 4 cores.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="SmokeTest.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.smoke_test.SmokeTest.html#polaris.tasks.ocean.overflow.smoke_test.SmokeTest.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">horiz_adv_order</span><span class="p">,</span> <span class="n">use_mom_del4</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the test case</span>
 
 <span class="sd">        Parameters</span>
@@ -148,19 +148,19 @@
 
 <span class="sd">        horiz_adv_order : int</span>
 <span class="sd">            The horizontal advection order for the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">task_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;smoke_test_horiz_adv_order_</span><span class="si">{</span><span class="n">horiz_adv_order</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">task_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'smoke_test_horiz_adv_order_</span><span class="si">{</span><span class="n">horiz_adv_order</span><span class="si">}</span><span class="s1">'</span>
         <span class="k">if</span> <span class="n">use_mom_del4</span><span class="p">:</span>
-            <span class="n">task_name</span> <span class="o">+=</span> <span class="s1">&#39;_del4&#39;</span>
+            <span class="n">task_name</span> <span class="o">+=</span> <span class="s1">'_del4'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">task_name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">'init'</span><span class="p">)</span>
 
         <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
-            <span class="n">config_section</span><span class="o">=</span><span class="s1">&#39;overflow_smoke_test&#39;</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span>
+            <span class="n">config_section</span><span class="o">=</span><span class="s1">'overflow_smoke_test'</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'forward'</span><span class="p">,</span>
             <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">horiz_adv_order</span><span class="o">=</span><span class="n">horiz_adv_order</span><span class="p">,</span>
             <span class="n">use_mom_del4</span><span class="o">=</span><span class="n">use_mom_del4</span><span class="p">,</span>

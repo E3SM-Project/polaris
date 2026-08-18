@@ -119,7 +119,7 @@
 <div class="viewcode-block" id="Forward">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.merry_go_round.forward.Forward.html#polaris.tasks.ocean.merry_go_round.forward.Forward">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">ConvergenceForward</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for performing forward ocean component runs as part of</span>
 <span class="sd">    merry-go-round test cases.</span>
 
@@ -129,12 +129,12 @@
 <span class="sd">        The factor by which to scale space, time or both</span>
 
 <span class="sd">    refinement : str</span>
-<span class="sd">        Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">        Refinement type. One of 'space', 'time' or 'both' indicating both</span>
 <span class="sd">        space and time</span>
 
 <span class="sd">    resolution : float</span>
 <span class="sd">        The resolution of the test case in km</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.merry_go_round.forward.Forward.html#polaris.tasks.ocean.merry_go_round.forward.Forward.__init__">[docs]</a>
@@ -145,11 +145,11 @@
         <span class="n">refinement_factor</span><span class="p">,</span>
         <span class="n">subdir</span><span class="p">,</span>
         <span class="n">init</span><span class="p">,</span>
-        <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>
+        <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span>
         <span class="n">vert_adv_order</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
         <span class="n">limiter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new test case</span>
 
 <span class="sd">        Parameters</span>
@@ -170,11 +170,11 @@
 <span class="sd">            The step which generates the mesh and initial condition</span>
 
 <span class="sd">        refinement : str, optional</span>
-<span class="sd">            Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">            Refinement type. One of 'space', 'time' or 'both' indicating both</span>
 <span class="sd">            space and time</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer2&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer3&#39;</span><span class="p">]</span>
+        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">,</span> <span class="s1">'tracer1'</span><span class="p">,</span> <span class="s1">'tracer2'</span><span class="p">,</span> <span class="s1">'tracer3'</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -183,15 +183,15 @@
             <span class="n">mesh</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
             <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
-            <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.tasks.ocean.merry_go_round&#39;</span><span class="p">,</span>
-            <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
-            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info&#39;</span><span class="p">,</span>
-            <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.tasks.ocean.merry_go_round'</span><span class="p">,</span>
+            <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">'forward.yaml'</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_graph.info'</span><span class="p">,</span>
+            <span class="n">output_filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">vert_adv_order</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">limiter</span> <span class="o">=</span> <span class="n">limiter</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Forward.setup">
@@ -199,16 +199,16 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_coeffs.nc&#39;</span><span class="p">,</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;coeffs.nc&#39;</span><span class="p">,</span>
-            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;merry_go_round&#39;</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_coeffs.nc'</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="s1">'merry_go_round'</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Forward.dynamic_model_config">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.merry_go_round.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.merry_go_round.forward.Forward.dynamic_model_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">        options or template replacements that need to be set both during step</span>
 <span class="sd">        setup and at runtime</span>
@@ -218,24 +218,24 @@
 <span class="sd">        at_setup : bool</span>
 <span class="sd">            Whether this method is being run during setup of the step, as</span>
 <span class="sd">            opposed to at runtime</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
-            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;config_vert_tracer_adv_flux_order&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">},</span>
-            <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'config_vert_tracer_adv_flux_order'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">},</span>
+            <span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiter</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
-                <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;VerticalTracerFluxLimiterEnable&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-                <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;Omega&#39;</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'VerticalTracerFluxLimiterEnable'</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span><span class="p">,</span>
             <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Forward.compute_cell_count">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.merry_go_round.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.merry_go_round.forward.Forward.compute_cell_count">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
 <span class="sd">        resources</span>
 
@@ -243,16 +243,16 @@
 <span class="sd">        -------</span>
 <span class="sd">        cell_count : int or None</span>
 <span class="sd">            The approximate number of cells in the mesh</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;merry_go_round&#39;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'merry_go_round'</span><span class="p">]</span>
 
-        <span class="c1"># no file to read from, so we&#39;ll compute it based on config options</span>
+        <span class="c1"># no file to read from, so we'll compute it based on config options</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">refinement</span>
         <span class="p">)</span>
 
-        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
-        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'lx'</span><span class="p">)</span>
+        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ly'</span><span class="p">)</span>
 
         <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
 

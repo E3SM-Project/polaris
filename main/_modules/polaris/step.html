@@ -125,13 +125,13 @@
 <div class="viewcode-block" id="Step">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.html#polaris.Step">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Step</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The base class for a step of a tasks, such as setting up a mesh,</span>
 <span class="sd">    creating an initial condition, or running the component forward in time.</span>
 <span class="sd">    The step is the smallest unit of work in polaris that can be run on its</span>
 <span class="sd">    own by a user, though users will typically run full tasks or suites.</span>
 
-<span class="sd">    Below, the terms &quot;input&quot; and &quot;output&quot; refer to inputs and outputs to the</span>
+<span class="sd">    Below, the terms "input" and "output" refer to inputs and outputs to the</span>
 <span class="sd">    step itself, not necessarily the MPAS model.  In fact, the MPAS model</span>
 <span class="sd">    itself is often an input to the step.</span>
 
@@ -148,7 +148,7 @@
 
 <span class="sd">    path : str</span>
 <span class="sd">        the path within the base work directory of the step, made up of</span>
-<span class="sd">        ``component`` and the step&#39;s ``subdir``</span>
+<span class="sd">        ``component`` and the step's ``subdir``</span>
 
 <span class="sd">    cpus_per_task : int, optional</span>
 <span class="sd">        the number of cores per task the step would ideally use.  If</span>
@@ -200,9 +200,9 @@
 <span class="sd">        files must exist after the task has run or an exception will be raised</span>
 
 <span class="sd">    dependencies : dict of polaris.Step</span>
-<span class="sd">        A dictionary of steps that this step depends on (i.e. it can&#39;t run</span>
+<span class="sd">        A dictionary of steps that this step depends on (i.e. it can't run</span>
 <span class="sd">        until they have finished). Dependencies are used when the names of</span>
-<span class="sd">        the files produced by the dependency aren&#39;t known at setup (e.g.</span>
+<span class="sd">        the files produced by the dependency aren't known at setup (e.g.</span>
 <span class="sd">        because they depend on config options or data read in from files).</span>
 <span class="sd">        Under other circumstances, it is sufficient to indicate that an output</span>
 <span class="sd">        file from another step is an input of this step to establish a</span>
@@ -229,7 +229,7 @@
 <span class="sd">        during setup and read from during run</span>
 
 <span class="sd">    work_dir : str</span>
-<span class="sd">        The step&#39;s work directory, defined during setup as the combination</span>
+<span class="sd">        The step's work directory, defined during setup as the combination</span>
 <span class="sd">        of ``base_work_dir`` and ``path``</span>
 
 <span class="sd">    base_work_dir : str</span>
@@ -264,7 +264,7 @@
 <span class="sd">        ``__init__`` of expensive step classes (e.g. :class:`CombineStep`,</span>
 <span class="sd">        :class:`ComputeCoastlineStep`) to indicate that their outputs should</span>
 <span class="sd">        be reused across tasks without requiring each caller to opt in.</span>
-<span class="sd">        Tasks that require free-running execution should add this step&#39;s</span>
+<span class="sd">        Tasks that require free-running execution should add this step's</span>
 <span class="sd">        ``subdir`` to ``self.free_running_steps`` in their ``__init__``</span>
 <span class="sd">        rather than modifying this flag.</span>
 
@@ -279,7 +279,7 @@
 <span class="sd">        A list of lists of command-line arguments to call in parallel.  Each</span>
 <span class="sd">        inner list represents a single command.  All commands must use the</span>
 <span class="sd">        same parallel resources.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Step.__init__">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.html#polaris.Step.__init__">[docs]</a>
@@ -300,7 +300,7 @@
         <span class="n">gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new task</span>
 
 <span class="sd">        Parameters</span>
@@ -363,7 +363,7 @@
 <span class="sd">            subprocess if there is not a good way to redirect output to a log</span>
 <span class="sd">            file (e.g. if the step calls external code that, in turn, calls</span>
 <span class="sd">            additional subprocesses).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="k">if</span> <span class="n">subdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -389,7 +389,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">has_shared_config</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="s1">''</span>
 
         <span class="c1"># child steps (or tasks) will add to these</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -401,9 +401,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
         <span class="c1"># these will be set later during setup, dummy placeholders for now</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">machine_info</span> <span class="o">=</span> <span class="n">MachineInfo</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">machine_info</span> <span class="o">=</span> <span class="n">MachineInfo</span><span class="p">(</span><span class="n">machine</span><span class="o">=</span><span class="s1">'default'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s1">''</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span> <span class="o">=</span> <span class="s1">''</span>
         <span class="c1"># may be set during setup if there is a baseline for comparison</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validate_vars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -411,7 +411,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">setup_complete</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># these will be set before running the step, dummy placeholders for now</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;dummy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">'dummy'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_filename</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># output caching</span>
@@ -432,7 +432,7 @@
         <span class="n">gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Update the resources for the subtask.  This can be done within init,</span>
 <span class="sd">        ``setup()`` or ``runtime_setup()`` of this step, or init,</span>
 <span class="sd">        ``configure()`` or ``run()`` for the task that this step belongs</span>
@@ -474,7 +474,7 @@
 
 <span class="sd">        min_gpus_per_task : int, optional</span>
 <span class="sd">            the number of GPUs per task the step requires</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">cpus_per_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">=</span> <span class="n">cpus_per_task</span>
         <span class="k">if</span> <span class="n">min_cpus_per_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -496,7 +496,7 @@
 <div class="viewcode-block" id="Step.constrain_resources">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.constrain_resources.html#polaris.Step.constrain_resources">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">constrain_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Constrain ``cpus_per_task`` and ``ntasks`` based on the number of</span>
 <span class="sd">        cores available to this step</span>
 
@@ -505,23 +505,23 @@
 <span class="sd">        available_resources : dict</span>
 <span class="sd">            A dictionary containing available resources (cores, tasks, nodes</span>
 <span class="sd">            and cores_per_node)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mpi_allowed</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;mpi_allowed&#39;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">mpi_allowed</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">'mpi_allowed'</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">mpi_allowed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;You are trying to run an MPI job on a login node.</span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="s1">&#39;Please switch to a compute node.&#39;</span>
+                <span class="s1">'You are trying to run an MPI job on a login node.</span><span class="se">\n</span><span class="s1">'</span>
+                <span class="s1">'Please switch to a compute node.'</span>
             <span class="p">)</span>
 
-        <span class="n">available_cores</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;cores&#39;</span><span class="p">]</span>
-        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">&#39;cores_per_node&#39;</span><span class="p">]</span>
+        <span class="n">available_cores</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">'cores'</span><span class="p">]</span>
+        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">'cores_per_node'</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">available_cores</span><span class="p">,</span> <span class="n">cores_per_node</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Available cpus_per_task (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="si">}</span><span class="s1">) is below the &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'Available cpus_per_task (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="si">}</span><span class="s1">) is below the '</span>
+                <span class="sa">f</span><span class="s1">'minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
         <span class="n">available_tasks</span> <span class="o">=</span> <span class="n">available_cores</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
@@ -529,16 +529,16 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Available number of MPI tasks (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">) is below the &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'Available number of MPI tasks (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">) is below the '</span>
+                <span class="sa">f</span><span class="s1">'minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
-        <span class="n">available_gpus</span> <span class="o">=</span> <span class="n">available_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gpus&#39;</span><span class="p">)</span>
+        <span class="n">available_gpus</span> <span class="o">=</span> <span class="n">available_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'gpus'</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">available_gpus</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">available_gpus</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> requests </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span><span class="si">}</span><span class="s1"> GPUs &#39;</span>
-                    <span class="s1">&#39;per task but no GPUs are available on this machine.&#39;</span>
+                    <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> requests </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span><span class="si">}</span><span class="s1"> GPUs '</span>
+                    <span class="s1">'per task but no GPUs are available on this machine.'</span>
                 <span class="p">)</span>
 
             <span class="n">available_gpu_tasks</span> <span class="o">=</span> <span class="n">available_gpus</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span>
@@ -546,35 +546,35 @@
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Available gpus_per_task (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span><span class="si">}</span><span class="s1">) is &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;below the minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span><span class="si">}</span><span class="s1"> for &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'Available gpus_per_task (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span><span class="si">}</span><span class="s1">) is '</span>
+                    <span class="sa">f</span><span class="s1">'below the minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span><span class="si">}</span><span class="s1"> for '</span>
+                    <span class="sa">f</span><span class="s1">'step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Available number of MPI tasks (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">) is &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;below the minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1"> for step &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> after GPU constraints are applied&#39;</span>
+                    <span class="sa">f</span><span class="s1">'Available number of MPI tasks (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">) is '</span>
+                    <span class="sa">f</span><span class="s1">'below the minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1"> for step '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> after GPU constraints are applied'</span>
                 <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Step.setup">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.setup.html#polaris.Step.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set up the task in the work directory, including downloading any</span>
 <span class="sd">        dependencies.  The step should override this function to perform setup</span>
 <span class="sd">        operations such as generating namelist and streams files, adding inputs</span>
 <span class="sd">        and outputs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="Step.runtime_setup">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.runtime_setup.html#polaris.Step.runtime_setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Update attributes of the step at runtime before calling the ``run()``</span>
 <span class="sd">        method.  The most common reason to override this method is to</span>
 <span class="sd">        determine the number of cores and threads to run with.  It may also</span>
@@ -582,17 +582,17 @@
 <span class="sd">        graph and partition files before running a parallel command. When</span>
 <span class="sd">        running with parallel tasks in the future, this method will be called</span>
 <span class="sd">        for each step in serial before steps are run in task parallel.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="Step.run">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.run.html#polaris.Step.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run the step.  Every child class must override this method to perform</span>
 <span class="sd">        the main work.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
@@ -609,7 +609,7 @@
         <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add an input file to the step (but not necessarily to the MPAS model).</span>
 <span class="sd">        The file can be local, a symlink to a file that will be created in</span>
 <span class="sd">        another step, a symlink to a file in one of the databases for files</span>
@@ -618,14 +618,14 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str, optional</span>
-<span class="sd">            The relative path of the input file within the step&#39;s work</span>
+<span class="sd">            The relative path of the input file within the step's work</span>
 <span class="sd">            directory. The default is the file name (without the path) of</span>
 <span class="sd">            ``target``.</span>
 
 <span class="sd">        target : str, optional</span>
 <span class="sd">            A file that will be the target of a symlink to ``filename``.  If</span>
 <span class="sd">            ``database`` is not specified, this should be an absolute path or a</span>
-<span class="sd">            relative path from the step&#39;s work directory.  If ``database`` is</span>
+<span class="sd">            relative path from the step's work directory.  If ``database`` is</span>
 <span class="sd">            specified, this is a relative path within the database and the name</span>
 <span class="sd">            of the remote file to download.</span>
 
@@ -636,7 +636,7 @@
 <span class="sd">            determined by combining the base URL of the data server, the</span>
 <span class="sd">            relative path for the core, ``database`` and ``target``.</span>
 
-<span class="sd">        database_component : {&#39;ocean&#39;, &#39;seaice&#39;, &#39;landice&#39;, None}, optional</span>
+<span class="sd">        database_component : {'ocean', 'seaice', 'landice', None}, optional</span>
 <span class="sd">            The prefix of a database root that the database resides in.  By</span>
 <span class="sd">            default this is the component name for this step.  The suffix</span>
 <span class="sd">            ``_database_root`` is appended to this string to determine the</span>
@@ -651,18 +651,18 @@
 <span class="sd">        work_dir_target : str, optional</span>
 <span class="sd">            Same as ``target`` but with a path relative to the base work</span>
 <span class="sd">            directory.  This is useful if it is not easy to determine the</span>
-<span class="sd">            relative path between the step&#39;s work directory and the target.</span>
+<span class="sd">            relative path between the step's work directory and the target.</span>
 
 <span class="sd">        package : str or package, optional</span>
 <span class="sd">            A package within ``polaris`` from which the file should be linked</span>
 
 <span class="sd">        copy : bool, optional</span>
 <span class="sd">            Whether to make a copy of the file, rather than a symlink</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;At least one of local_name and target are required.&#39;</span>
+                    <span class="s1">'At least one of local_name and target are required.'</span>
                 <span class="p">)</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
 
@@ -685,7 +685,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">add_output_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">validate_vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_properties</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add the output file that must be produced by this step and may be made</span>
 <span class="sd">        available as an input to steps, perhaps in other tasks.  This file</span>
 <span class="sd">        must exist after the task has run or an exception will be raised.</span>
@@ -696,13 +696,13 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str</span>
-<span class="sd">            The relative path of the output file within the step&#39;s work</span>
+<span class="sd">            The relative path of the output file within the step's work</span>
 <span class="sd">            directory</span>
 
 <span class="sd">        validate_vars : list, optional</span>
 <span class="sd">            A list of variable names to compare with a baseline (if one is</span>
 <span class="sd">            provided)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">validate_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">validate_vars</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">validate_vars</span>
@@ -713,10 +713,10 @@
 <div class="viewcode-block" id="Step.add_dependency">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add `step` as a dependency of this step (i.e. this step can&#39;t run</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Add `step` as a dependency of this step (i.e. this step can't run</span>
 <span class="sd">        until the dependency has finished). A dependency should be used when</span>
-<span class="sd">        the names of the files produced by the dependency aren&#39;t known at setup</span>
+<span class="sd">        the names of the files produced by the dependency aren't known at setup</span>
 <span class="sd">        (e.g. because they depend on config options or data read in from</span>
 <span class="sd">        files). Under other circumstances, a dependency can be established by</span>
 <span class="sd">        indicating that an output (added with the ``add_output_file()`` method)</span>
@@ -732,27 +732,27 @@
 <span class="sd">            The name of the step used to access it in the ``dependencies``</span>
 <span class="sd">            dictionary.  By default, it is ``step.name`` but another name may</span>
 <span class="sd">            be required if 2 dependencies have the same ``step.name``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Adding a dependency that is already in dependencies.&#39;</span>
+                <span class="s1">'Adding a dependency that is already in dependencies.'</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
         <span class="n">step</span><span class="o">.</span><span class="n">is_dependency</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;step_after_run.pickle&#39;</span><span class="p">)</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dependencies/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_after_run.pickle&#39;</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/step_after_run.pickle&#39;</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">'step_after_run.pickle'</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'dependencies/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_after_run.pickle'</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/step_after_run.pickle'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Step.check_properties">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.check_properties.html#polaris.Step.check_properties">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        This method should be overridden to check properties of step outputs</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">checked</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">checked</span><span class="p">,</span> <span class="n">success</span></div>
@@ -761,7 +761,7 @@
 <div class="viewcode-block" id="Step.validate_baselines">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.validate_baselines.html#polaris.Step.validate_baselines">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_baselines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compare variables between output files in this step and in the same</span>
 <span class="sd">        step from a baseline run if one was provided.</span>
 
@@ -776,11 +776,11 @@
 
 <span class="sd">        success : bool</span>
 <span class="sd">            Whether the outputs were successfully validated against a baseline</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The work directory must be set before the step &#39;</span>
-                <span class="s1">&#39;outputs can be validated against baselines.&#39;</span>
+                <span class="s1">'The work directory must be set before the step '</span>
+                <span class="s1">'outputs can be validated against baselines.'</span>
             <span class="p">)</span>
         <span class="n">compared</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
@@ -807,21 +807,21 @@
 
             <span class="k">if</span> <span class="n">compared</span> <span class="ow">and</span> <span class="n">success</span><span class="p">:</span>
                 <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;baseline_passed.log&#39;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'baseline_passed.log'</span>
                 <span class="p">)</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
                     <span class="n">result_log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                        <span class="s1">&#39;All variables passed baseline comparison.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="s1">'All variables passed baseline comparison.</span><span class="se">\n</span><span class="s1">'</span>
                     <span class="p">)</span>
             <span class="k">elif</span> <span class="n">compared</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
                 <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;baseline_failed.log&#39;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'baseline_failed.log'</span>
                 <span class="p">)</span>
-                <span class="n">failed_vars_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed_vars</span><span class="p">)</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
+                <span class="n">failed_vars_str</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">  '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed_vars</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
                     <span class="n">result_log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;Baseline comparison failed for:.</span><span class="se">\n</span><span class="s1"> &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">failed_vars_str</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="sa">f</span><span class="s1">'Baseline comparison failed for:.</span><span class="se">\n</span><span class="s1"> '</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">failed_vars_str</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
                     <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">compared</span><span class="p">,</span> <span class="n">success</span></div>
@@ -830,8 +830,8 @@
 <div class="viewcode-block" id="Step.set_shared_config">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.set_shared_config.html#polaris.Step.set_shared_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_shared_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Replace the step&#39;s config parser with the shared config parser</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Replace the step's config parser with the shared config parser</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -840,22 +840,22 @@
 <span class="sd">            set</span>
 
 <span class="sd">        link : str, optional</span>
-<span class="sd">            A link to the shared config file to go in the step&#39;s work</span>
+<span class="sd">            A link to the shared config file to go in the step's work</span>
 <span class="sd">            directory. If not provided, the config file itself must be in</span>
-<span class="sd">            the step&#39;s work directory</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            the step's work directory</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_shared_config</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_config</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">link</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">process_inputs_and_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Process the inputs to and outputs from a step added with</span>
 <span class="sd">        :py:meth:`polaris.Step.add_input_file` and</span>
 <span class="sd">        :py:meth:`polaris.Step.add_output_file`.  This includes downloading</span>
 <span class="sd">        files, making symlinks, and converting relative paths to absolute</span>
 <span class="sd">        paths.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span>
         <span class="n">step_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
@@ -863,19 +863,19 @@
 
         <span class="c1"># process the outputs first because cached outputs will add more inputs</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
-            <span class="c1"># forget about the inputs -- we won&#39;t used them, but we will add</span>
+            <span class="c1"># forget about the inputs -- we won't used them, but we will add</span>
             <span class="c1"># the cached outputs as inputs</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">input_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
                 <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">cached_files</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;The file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> has not been added &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;to the cache database&#39;</span>
+                        <span class="sa">f</span><span class="s1">'The file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> has not been added '</span>
+                        <span class="sa">f</span><span class="s1">'to the cache database'</span>
                     <span class="p">)</span>
                 <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">cached_files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                    <span class="n">filename</span><span class="o">=</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;polaris_cache&#39;</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">'polaris_cache'</span>
                 <span class="p">)</span>
 
         <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -890,9 +890,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">databases_with_downloads</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
-            <span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span>
+            <span class="s1">'e3sm_unified'</span><span class="p">,</span> <span class="s1">'group'</span>
         <span class="p">):</span>
-            <span class="n">group</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">)</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'e3sm_unified'</span><span class="p">,</span> <span class="s1">'group'</span><span class="p">)</span>
             <span class="n">update_permissions</span><span class="p">(</span>
                 <span class="n">databases_with_downloads</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">group_writable</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
@@ -904,8 +904,8 @@
         <span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Replace the step&#39;s config parser with the shared config parser</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Replace the step's config parser with the shared config parser</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -914,10 +914,10 @@
 <span class="sd">            set</span>
 
 <span class="sd">        link : str, optional</span>
-<span class="sd">            A link to the shared config file to go in the step&#39;s work</span>
+<span class="sd">            A link to the shared config file to go in the step's work</span>
 <span class="sd">            directory. If not provided, the config file itself must be in</span>
-<span class="sd">            the step&#39;s work directory</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            the step's work directory</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
@@ -925,9 +925,9 @@
             <span class="n">directory</span><span class="p">,</span> <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">directory</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;No link parameter was provided but the &#39;</span>
-                    <span class="s2">&quot;config file is not in this step&#39;s work &quot;</span>
-                    <span class="s1">&#39;directory.&#39;</span>
+                    <span class="s1">'No link parameter was provided but the '</span>
+                    <span class="s2">"config file is not in this step's work "</span>
+                    <span class="s1">'directory.'</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="n">basename</span>
         <span class="k">else</span><span class="p">:</span>
@@ -936,14 +936,14 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_input</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">step_dir</span><span class="p">):</span>
         <span class="n">database_subdirs</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
-        <span class="n">database</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">]</span>
-        <span class="n">database_component</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;database_component&#39;</span><span class="p">]</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
-        <span class="n">work_dir_target</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;work_dir_target&#39;</span><span class="p">]</span>
-        <span class="n">package</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;package&#39;</span><span class="p">]</span>
-        <span class="n">copy</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;copy&#39;</span><span class="p">]</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'target'</span><span class="p">]</span>
+        <span class="n">database</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'database'</span><span class="p">]</span>
+        <span class="n">database_component</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'database_component'</span><span class="p">]</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'url'</span><span class="p">]</span>
+        <span class="n">work_dir_target</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'work_dir_target'</span><span class="p">]</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'package'</span><span class="p">]</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'copy'</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">package</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -963,16 +963,16 @@
         <span class="n">download_path</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">database</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># we&#39;re downloading a file to a cache of a database (if it&#39;s</span>
+            <span class="c1"># we're downloading a file to a cache of a database (if it's</span>
             <span class="c1"># not already there.</span>
             <span class="k">if</span> <span class="n">database_component</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">database_component</span> <span class="o">=</span> <span class="n">component</span>
 
             <span class="k">if</span> <span class="n">url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">base_url</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;download&#39;</span><span class="p">,</span> <span class="s1">&#39;server_base_url&#39;</span><span class="p">)</span>
-                <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">database_component</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">base_url</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'download'</span><span class="p">,</span> <span class="s1">'server_base_url'</span><span class="p">)</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">database_component</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">'</span>
 
-            <span class="n">database_root</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;database_root&#39;</span><span class="p">)</span>
+            <span class="n">database_root</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'database_root'</span><span class="p">)</span>
             <span class="n">download_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="n">database_root</span><span class="p">,</span> <span class="n">database_component</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">download_target</span>
             <span class="p">)</span>

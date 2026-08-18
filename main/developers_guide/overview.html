@@ -136,7 +136,7 @@ is the command-line interface with commands like <a class="reference internal" h
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">symlink</span>
 
 
-<span class="n">symlink</span><span class="p">(</span><span class="s1">&#39;../initial_condition/initial_condition.nc&#39;</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
+<span class="n">symlink</span><span class="p">(</span><span class="s1">'../initial_condition/initial_condition.nc'</span><span class="p">,</span> <span class="s1">'init.nc'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Before we dig into the details of how to develop new tasks and other
@@ -199,16 +199,16 @@ has a class <a class="reference internal" href="ocean/generated/polaris.tasks.oc
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="n">configs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;mpas_ocean.cfg&#39;</span><span class="p">,</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span> <span class="s1">&#39;omega.cfg&#39;</span><span class="p">}</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'model'</span><span class="p">)</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'mpas-ocean'</span><span class="p">:</span> <span class="s1">'mpas_ocean.cfg'</span><span class="p">,</span> <span class="s1">'omega'</span><span class="p">:</span> <span class="s1">'omega.cfg'</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> in config options&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> in config options'</span><span class="p">)</span>
 
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean&#39;</span><span class="p">,</span> <span class="n">configs</span><span class="p">[</span><span class="n">model</span><span class="p">])</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean'</span><span class="p">,</span> <span class="n">configs</span><span class="p">[</span><span class="n">model</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Elsewhere, all the ocean tasks and steps get added this class.  The details
@@ -237,11 +237,11 @@ about those…).</p>
 <p>As an example, the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package contains a module <code class="docutils literal notranslate"><span class="pre">list.py</span></code>.
 There’s a function <a class="reference internal" href="generated/polaris.list.list_machines.html#polaris.list.list_machines" title="polaris.list.list_machines"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_machines()</span></code></a> in that module:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">list_machines</span><span class="p">():</span>
-    <span class="n">machine_configs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Machines:&#39;</span><span class="p">)</span>
+    <span class="n">machine_configs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">(</span><span class="s1">'polaris.machines'</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Machines:'</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">machine_configs</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.cfg&#39;</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;   </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">config</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'.cfg'</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'   </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">config</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>It lists the supported machines.  You would import this function just like in

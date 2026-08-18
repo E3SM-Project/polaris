@@ -125,14 +125,14 @@
 <div class="viewcode-block" id="RestartStep">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.restart.RestartStep.html#polaris.tasks.ocean.cosine_bell.restart.RestartStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RestartStep</span><span class="p">(</span><span class="n">Forward</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A forward model step in the restart test case</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="RestartStep.dynamic_model_config">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.restart.RestartStep.dynamic_model_config.html#polaris.tasks.ocean.cosine_bell.restart.RestartStep.dynamic_model_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">        options or template replacements that need to be set both during step</span>
 <span class="sd">        setup and at runtime</span>
@@ -142,7 +142,7 @@
 <span class="sd">        at_setup : bool</span>
 <span class="sd">            Whether this method is being run during setup of the step, as</span>
 <span class="sd">            opposed to at runtime</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
 
         <span class="n">do_restart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_restart</span>
@@ -163,10 +163,10 @@
             <span class="n">run_duration</span> <span class="o">=</span> <span class="n">dt</span>
             <span class="n">output_interval</span> <span class="o">=</span> <span class="n">dt</span>
 
-        <span class="c1"># to keep the time formatting from getting too complicated, we&#39;ll</span>
+        <span class="c1"># to keep the time formatting from getting too complicated, we'll</span>
         <span class="c1"># assume 2 time steps is never more than a day</span>
         <span class="n">start_time_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
-            <span class="s1">&#39;0001-01-01_%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+            <span class="s1">'0001-01-01_%H:%M:%S'</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">run_duration</span><span class="p">)</span>
@@ -178,13 +178,13 @@
 
         <span class="k">if</span> <span class="n">do_restart</span><span class="p">:</span>
             <span class="n">restart_time_str</span> <span class="o">=</span> <span class="n">start_time_str</span>
-            <span class="n">init_freq_units</span> <span class="o">=</span> <span class="s1">&#39;never&#39;</span>
+            <span class="n">init_freq_units</span> <span class="o">=</span> <span class="s1">'never'</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Effectively never</span>
-            <span class="n">restart_time_str</span> <span class="o">=</span> <span class="s1">&#39;99999-12-31_00:00:00&#39;</span>
-            <span class="n">init_freq_units</span> <span class="o">=</span> <span class="s1">&#39;OnStartup&#39;</span>
+            <span class="n">restart_time_str</span> <span class="o">=</span> <span class="s1">'99999-12-31_00:00:00'</span>
+            <span class="n">init_freq_units</span> <span class="o">=</span> <span class="s1">'OnStartup'</span>
 
-        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.tasks.ocean.cosine_bell.restart&#39;</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.cosine_bell.restart'</span>
         <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">do_restart</span><span class="o">=</span><span class="n">do_restart</span><span class="p">,</span>
             <span class="n">not_restart</span><span class="o">=</span><span class="ow">not</span> <span class="n">do_restart</span><span class="p">,</span>
@@ -193,17 +193,17 @@
             <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
             <span class="n">restart_time</span><span class="o">=</span><span class="n">restart_time_str</span><span class="p">,</span>
             <span class="n">init_freq_units</span><span class="o">=</span><span class="n">init_freq_units</span><span class="p">,</span>
-            <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_freq</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_freq</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
             <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
-            <span class="n">yaml</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
+            <span class="n">yaml</span><span class="o">=</span><span class="s1">'forward.yaml'</span><span class="p">,</span>
             <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">restart_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;..&#39;</span><span class="p">,</span> <span class="s1">&#39;restarts&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">,</span> <span class="s1">'restarts'</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">restart_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 </div>

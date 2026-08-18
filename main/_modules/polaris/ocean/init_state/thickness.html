@@ -109,15 +109,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.init_state.thickness</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Helpers for adding layer-thickness fields to an initial-state dataset.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <div class="viewcode-block" id="layer_thickness_from_geom_interfaces">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.init_state.layer_thickness_from_geom_interfaces.html#polaris.ocean.init_state.layer_thickness_from_geom_interfaces">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">layer_thickness_from_geom_interfaces</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute ``restingThickness`` and ``layerThickness`` from geometric</span>
 <span class="sd">    interface heights in ``ds``.</span>
 
@@ -136,23 +136,23 @@
 <span class="sd">    -------</span>
 <span class="sd">    xarray.Dataset</span>
 <span class="sd">        Dataset with ``restingThickness`` and ``layerThickness`` added.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">geom_z_inter</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;GeomZInterface&#39;</span><span class="p">]</span>  <span class="c1"># (Time, nCells, nVertLevelsP1)</span>
+<span class="sd">    """</span>
+    <span class="n">geom_z_inter</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'GeomZInterface'</span><span class="p">]</span>  <span class="c1"># (Time, nCells, nVertLevelsP1)</span>
     <span class="n">layer_thick</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
         <span class="o">-</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">})</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">})</span>
 
-    <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;cellMask&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'cellMask'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
     <span class="n">layer_thick</span> <span class="o">=</span> <span class="n">layer_thick</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">layer_thick</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;layer thickness&#39;</span>
-    <span class="n">layer_thick</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+    <span class="n">layer_thick</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'layer thickness'</span>
+    <span class="n">layer_thick</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
-    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;restingThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_thick</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;resting layer thickness&#39;</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'restingThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_thick</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'resting layer thickness'</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
-    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_thick</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_thick</span>
     <span class="k">return</span> <span class="n">ds</span></div>
 
 </pre></div>

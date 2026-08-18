@@ -173,9 +173,9 @@ to be plotted is defined at cells, edges, or vertices and generates the patches
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
 <span class="n">edge_mask</span> <span class="o">=</span> <span class="n">cell_mask_to_edge_mask</span><span class="p">(</span><span class="n">ds_init</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">)</span>
 
-<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span> <span class="s1">&#39;final_normalVelocity.png&#39;</span><span class="p">,</span>
+<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span> <span class="s1">'final_normalVelocity.png'</span><span class="p">,</span>
                  <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="n">max_velocity</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_velocity</span><span class="p">,</span>
-                 <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                 <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span> <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
                  <span class="n">field_mask</span><span class="o">=</span><span class="n">edge_mask</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -189,17 +189,17 @@ mask is converted to an edges mask using the
 <a class="reference external" href="https://docs.e3sm.org/mosaic/developers_guide/generated/mosaic.Descriptor.html#mosaic.Descriptor" title="(in mosaic)"><code class="xref py py-class docutils literal notranslate"><span class="pre">mosaic.Descriptor</span></code></a> returned by <code class="docutils literal notranslate"><span class="pre">plot_horiz_field()</span></code> and reuse it in
 subsequent calls; assuming you are plotting with the same mesh.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
-<span class="n">descriptor</span> <span class="o">=</span> <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">],</span> <span class="s1">&#39;plots/ssh.png&#39;</span><span class="p">,</span>
+<span class="n">descriptor</span> <span class="o">=</span> <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">],</span> <span class="s1">'plots/ssh.png'</span><span class="p">,</span>
                               <span class="n">vmin</span><span class="o">=-</span><span class="mi">720</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
                               <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">)</span>
 
-<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">],</span> <span class="s1">&#39;plots/bottomDepth.png&#39;</span><span class="p">,</span>
+<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'bottomDepth'</span><span class="p">],</span> <span class="s1">'plots/bottomDepth.png'</span><span class="p">,</span>
                  <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">720</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
                  <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">)</span>
 
 <span class="n">edge_mask</span> <span class="o">=</span> <span class="n">cell_mask_to_edge_mask</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">)</span>
-<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span> <span class="s1">&#39;plots/normalVelocity.png&#39;</span><span class="p">,</span>
-                 <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+<span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span> <span class="s1">'plots/normalVelocity.png'</span><span class="p">,</span>
+                 <span class="n">t_index</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
                  <span class="n">field_mask</span><span class="o">=</span><span class="n">edge_mask</span><span class="p">,</span> <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">)</span>
 
 <span class="o">...</span>
@@ -231,14 +231,14 @@ of map projection for spherical meshes,
 <span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
-        <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'initial_state.nc'</span><span class="p">)</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'tracer1'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         
         <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
-            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Tracer at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">'init.png'</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">'cosine_bell_viz'</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">'Tracer at init'</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">central_longitude</span><span class="o">=</span><span class="mf">180.</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -260,7 +260,7 @@ specifying the colormap:</p>
 <span class="na">norm_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">linear</span>
 
 <span class="c1"># A dictionary with keywords for the norm</span>
-<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;vmin&#39;: 0., &#39;vmax&#39;: 1.}</span>
+<span class="na">norm_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{'vmin': 0., 'vmax': 1.}</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">colormap_name</span></code> can be any available matplotlib colormap.  For ocean test
@@ -295,14 +295,14 @@ is used  to enable or disable continents overlain on top of the data:</p>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'initial_state.nc'</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[[</span><span class="s1">'tracer1'</span><span class="p">]]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         
         <span class="n">plot_global_lat_lon_field</span><span class="p">(</span>
             <span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Tracer at init&#39;</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">'init.png'</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">'cosine_bell_viz'</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">'Tracer at init'</span><span class="p">,</span> <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">&lt;task&gt;_viz</span></code> of the config file is the same as what’s used by

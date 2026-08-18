@@ -121,14 +121,14 @@
 <div class="viewcode-block" id="Viz">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.viz.Viz.html#polaris.tasks.ocean.realistic_global.viz.Viz">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for plotting fields from the realistic global output</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    mesh_name : str</span>
 <span class="sd">        The name of the mesh</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Viz.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.viz.Viz.html#polaris.tasks.ocean.realistic_global.viz.Viz.__init__">[docs]</a>
@@ -137,9 +137,9 @@
         <span class="n">component</span><span class="p">,</span>
         <span class="n">indir</span><span class="p">,</span>
         <span class="n">forward</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">'viz'</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -151,7 +151,7 @@
 <span class="sd">            The name of the step</span>
 
 <span class="sd">        subdir : str</span>
-<span class="sd">            The subdirectory in the test case&#39;s work directory for the step</span>
+<span class="sd">            The subdirectory in the test case's work directory for the step</span>
 
 <span class="sd">        base_mesh : polaris.Step</span>
 <span class="sd">            The base mesh step</span>
@@ -161,24 +161,24 @@
 
 <span class="sd">        forward : polaris.Step</span>
 <span class="sd">            The init step</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/mesh.nc'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">forward</span> <span class="o">=</span> <span class="n">forward</span>
         <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">state_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">component</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variables_to_plot</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;kineticEnergyCell&#39;</span> <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;normalVelocity&#39;</span> <span class="k">else</span> <span class="n">var</span>
+            <span class="s1">'kineticEnergyCell'</span> <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">'normalVelocity'</span> <span class="k">else</span> <span class="n">var</span>
             <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">state_vars</span>
         <span class="p">]</span></div>
 
@@ -186,68 +186,68 @@
 <div class="viewcode-block" id="Viz.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.viz.Viz.run.html#polaris.tasks.ocean.realistic_global.viz.Viz.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">variables_to_plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables_to_plot</span>
 
         <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-            <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
+            <span class="s1">'init.nc'</span><span class="p">,</span>
             <span class="n">config</span><span class="p">,</span>
             <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-            <span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="s1">'output.nc'</span><span class="p">,</span>
             <span class="n">config</span><span class="p">,</span>
             <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">time</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
         <span class="n">ds_final</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">t_days</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
 
-        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;windStressZonal&#39;</span><span class="p">,</span> <span class="s1">&#39;windStressMeridional&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'windStressZonal'</span><span class="p">,</span> <span class="s1">'windStressMeridional'</span><span class="p">]:</span>
             <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
                 <span class="n">da</span><span class="o">=</span><span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
-                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;realistic_global_viz_windStress&#39;</span><span class="p">,</span>
+                <span class="n">colormap_section</span><span class="o">=</span><span class="s1">'realistic_global_viz_windStress'</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="n">var</span><span class="p">,</span>
                 <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">central_longitude</span><span class="o">=</span><span class="mf">180.0</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables_to_plot</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plotting </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">colormap_section</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;realistic_global_viz_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotting </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">colormap_section</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'realistic_global_viz_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span>
             <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> not found in init.nc&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> not found in init.nc'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-                    <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+                    <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
                     <span class="n">da</span><span class="o">=</span><span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
-                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_init.png&#39;</span><span class="p">,</span>
+                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_init.png'</span><span class="p">,</span>
                     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                     <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
-                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> at init&#39;</span><span class="p">,</span>
+                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> at init'</span><span class="p">,</span>
                     <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">central_longitude</span><span class="o">=</span><span class="mf">180.0</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_final</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> not found in output.nc&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> not found in output.nc'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-                    <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+                    <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
                     <span class="n">da</span><span class="o">=</span><span class="n">ds_final</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
-                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">t_days</span><span class="si">}</span><span class="s1">days.png&#39;</span><span class="p">,</span>
+                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">t_days</span><span class="si">}</span><span class="s1">days.png'</span><span class="p">,</span>
                     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                     <span class="n">colormap_section</span><span class="o">=</span><span class="n">colormap_section</span><span class="p">,</span>
-                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> after </span><span class="si">{</span><span class="n">t_days</span><span class="si">}</span><span class="s1"> days&#39;</span><span class="p">,</span>
+                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> after </span><span class="si">{</span><span class="n">t_days</span><span class="si">}</span><span class="s1"> days'</span><span class="p">,</span>
                     <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">central_longitude</span><span class="o">=</span><span class="mf">180.0</span><span class="p">,</span>
                 <span class="p">)</span></div>

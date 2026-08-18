@@ -123,10 +123,10 @@
     <span class="n">min_ratio</span><span class="p">,</span>
     <span class="n">max_ratio</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">,</span>
-    <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;ocean_dc_edge_diagnostics.nc&#39;</span><span class="p">,</span>
+    <span class="n">out_filename</span><span class="o">=</span><span class="s1">'ocean_dc_edge_diagnostics.nc'</span><span class="p">,</span>
     <span class="n">max_clusters</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check that ``dcEdge`` in the ocean/sea-ice domain stays within</span>
 <span class="sd">    bounds relative to the local ocean background cell width.</span>
 
@@ -176,7 +176,7 @@
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        If any ocean-interior edge violates the ratio bounds</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dc_edge</span> <span class="o">=</span> <span class="n">ds_base_mesh</span><span class="o">.</span><span class="n">dcEdge</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="mf">1e3</span>
     <span class="n">lat_edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">ds_base_mesh</span><span class="o">.</span><span class="n">latEdge</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
     <span class="n">lon_edge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">ds_base_mesh</span><span class="o">.</span><span class="n">lonEdge</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
@@ -205,65 +205,65 @@
     <span class="n">too_large</span> <span class="o">=</span> <span class="n">ocean_edge</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ratio</span> <span class="o">&gt;</span> <span class="n">max_ratio</span><span class="p">)</span>
 
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;oceanEdgeMask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,),</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s1">'oceanEdgeMask'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,),</span>
         <span class="n">ocean_edge</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;dcEdgeRatio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,),</span> <span class="n">ratio</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;dcEdgeTooSmallMask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,),</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s1">'dcEdgeRatio'</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s1">'nEdges'</span><span class="p">,),</span> <span class="n">ratio</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s1">'dcEdgeTooSmallMask'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,),</span>
         <span class="n">too_small</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;dcEdgeTooLargeMask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,),</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s1">'dcEdgeTooLargeMask'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,),</span>
         <span class="n">too_large</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;min_dc_edge_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_ratio</span>
-    <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;max_dc_edge_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_ratio</span>
+    <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'min_dc_edge_ratio'</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_ratio</span>
+    <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'max_dc_edge_ratio'</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_ratio</span>
     <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
 
     <span class="n">n_ocean</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ocean_edge</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">n_ocean</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;dcEdge diagnostic: no ocean-interior edges found.&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'dcEdge diagnostic: no ocean-interior edges found.'</span><span class="p">)</span>
         <span class="k">return</span>
 
     <span class="n">ratio_ocean</span> <span class="o">=</span> <span class="n">ratio</span><span class="p">[</span><span class="n">ocean_edge</span><span class="p">]</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">&#39;dcEdge diagnostic: </span><span class="si">{</span><span class="n">n_ocean</span><span class="si">}</span><span class="s1"> ocean-interior edges, &#39;</span>
-        <span class="sa">f</span><span class="s1">&#39;ratio range [</span><span class="si">{</span><span class="n">ratio_ocean</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">ratio_ocean</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">], &#39;</span>
-        <span class="sa">f</span><span class="s1">&#39;allowed [</span><span class="si">{</span><span class="n">min_ratio</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">max_ratio</span><span class="si">}</span><span class="s1">].&#39;</span>
+        <span class="sa">f</span><span class="s1">'dcEdge diagnostic: </span><span class="si">{</span><span class="n">n_ocean</span><span class="si">}</span><span class="s1"> ocean-interior edges, '</span>
+        <span class="sa">f</span><span class="s1">'ratio range [</span><span class="si">{</span><span class="n">ratio_ocean</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">ratio_ocean</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">], '</span>
+        <span class="sa">f</span><span class="s1">'allowed [</span><span class="si">{</span><span class="n">min_ratio</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">max_ratio</span><span class="si">}</span><span class="s1">].'</span>
     <span class="p">)</span>
 
     <span class="n">n_small</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">too_small</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
     <span class="n">n_large</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">too_large</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">n_small</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">n_large</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;dcEdge diagnostic passed.&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'dcEdge diagnostic passed.'</span><span class="p">)</span>
         <span class="k">return</span>
 
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s1">&#39;below min_dc_edge_ratio&#39;</span><span class="p">,</span> <span class="n">too_small</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;above max_dc_edge_ratio&#39;</span><span class="p">,</span> <span class="n">too_large</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'below min_dc_edge_ratio'</span><span class="p">,</span> <span class="n">too_small</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'above max_dc_edge_ratio'</span><span class="p">,</span> <span class="n">too_large</span><span class="p">),</span>
     <span class="p">]:</span>
         <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> ocean-interior edges </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">:&#39;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> ocean-interior edges </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">:'</span><span class="p">)</span>
         <span class="n">clusters</span> <span class="o">=</span> <span class="n">_cluster_violations</span><span class="p">(</span>
             <span class="n">lat_edge</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">lon_edge</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">ratio</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">n_members</span><span class="p">,</span> <span class="n">worst</span> <span class="ow">in</span> <span class="n">clusters</span><span class="p">[:</span><span class="n">max_clusters</span><span class="p">]:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;  lon=</span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s1">8.2f</span><span class="si">}</span><span class="s1"> lat=</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s1">7.2f</span><span class="si">}</span><span class="s1"> n=</span><span class="si">{</span><span class="n">n_members</span><span class="si">:</span><span class="s1">5d</span><span class="si">}</span><span class="s1"> &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;worst ratio=</span><span class="si">{</span><span class="n">worst</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'  lon=</span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s1">8.2f</span><span class="si">}</span><span class="s1"> lat=</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s1">7.2f</span><span class="si">}</span><span class="s1"> n=</span><span class="si">{</span><span class="n">n_members</span><span class="si">:</span><span class="s1">5d</span><span class="si">}</span><span class="s1"> '</span>
+                <span class="sa">f</span><span class="s1">'worst ratio=</span><span class="si">{</span><span class="n">worst</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
     <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s1">&#39;The culled ocean/sea-ice domain contains edges whose dcEdge &#39;</span>
-        <span class="s1">&#39;is out of bounds relative to the local ocean background cell &#39;</span>
-        <span class="s1">&#39;width, indicating that resolution intended for the land/river &#39;</span>
-        <span class="sa">f</span><span class="s1">&#39;domain has leaked into the ocean (see </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1"> and the &#39;</span>
-        <span class="s1">&#39;unified_mesh_cull_leak design doc):</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="s1">'The culled ocean/sea-ice domain contains edges whose dcEdge '</span>
+        <span class="s1">'is out of bounds relative to the local ocean background cell '</span>
+        <span class="s1">'width, indicating that resolution intended for the land/river '</span>
+        <span class="sa">f</span><span class="s1">'domain has leaked into the ocean (see </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1"> and the '</span>
+        <span class="s1">'unified_mesh_cull_leak design doc):</span><span class="se">\n</span><span class="s1">'</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
@@ -271,9 +271,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_sample_nearest</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat_points</span><span class="p">,</span> <span class="n">lon_points</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Sample a lat/lon field at scattered points via nearest neighbor.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dlat</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">dlon</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lon</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">lon_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">lon_points</span> <span class="o">-</span> <span class="n">lon</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">360.0</span><span class="p">)</span> <span class="o">+</span> <span class="n">lon</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -291,12 +291,12 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_cluster_violations</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">radius_deg</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Greedily cluster violating edges by proximity for reporting.</span>
 
 <span class="sd">    Returns a list of ``(lon, lat, count, worst_ratio)`` tuples sorted</span>
 <span class="sd">    by how far the worst member deviates from 1.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">lon</span> <span class="o">+</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">360.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">180.0</span>
     <span class="n">deviation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">)))</span>
     <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">deviation</span><span class="p">)</span>

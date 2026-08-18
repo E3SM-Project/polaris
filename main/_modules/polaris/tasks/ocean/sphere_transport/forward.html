@@ -117,10 +117,10 @@
 <div class="viewcode-block" id="Forward">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.forward.Forward.html#polaris.tasks.ocean.sphere_transport.forward.Forward">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">SphericalConvergenceForward</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for performing forward ocean component runs as part of the sphere</span>
 <span class="sd">    transport test case</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.forward.Forward.html#polaris.tasks.ocean.sphere_transport.forward.Forward.__init__">[docs]</a>
@@ -135,7 +135,7 @@
         <span class="n">refinement_factor</span><span class="p">,</span>
         <span class="n">refinement</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step</span>
 
 <span class="sd">        Parameters</span>
@@ -162,27 +162,27 @@
 <span class="sd">            The factor by which to scale space, time or both</span>
 
 <span class="sd">        refinement : str, optional</span>
-<span class="sd">            Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">            Refinement type. One of 'space', 'time' or 'both' indicating both</span>
 <span class="sd">            space and time</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.tasks.ocean.sphere_transport&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.sphere_transport'</span>
         <span class="n">flow_id</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;rotation_2d&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s1">&#39;nondivergent_2d&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="s1">&#39;divergent_2d&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-            <span class="s1">&#39;correlated_tracers_2d&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s1">'rotation_2d'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">'nondivergent_2d'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s1">'divergent_2d'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s1">'correlated_tracers_2d'</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">flow_type</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;rotation_2d&#39;</span><span class="p">:</span> <span class="s1">&#39;Init&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;nondivergent_2d&#39;</span><span class="p">:</span> <span class="s1">&#39;NonDivergent&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;divergent_2d&#39;</span><span class="p">:</span> <span class="s1">&#39;Divergent&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;correlated_tracers_2d&#39;</span><span class="p">:</span> <span class="s1">&#39;NonDivergent&#39;</span><span class="p">,</span>
+            <span class="s1">'rotation_2d'</span><span class="p">:</span> <span class="s1">'Init'</span><span class="p">,</span>
+            <span class="s1">'nondivergent_2d'</span><span class="p">:</span> <span class="s1">'NonDivergent'</span><span class="p">,</span>
+            <span class="s1">'divergent_2d'</span><span class="p">:</span> <span class="s1">'Divergent'</span><span class="p">,</span>
+            <span class="s1">'correlated_tracers_2d'</span><span class="p">:</span> <span class="s1">'NonDivergent'</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;flow_id&#39;</span><span class="p">:</span> <span class="n">flow_id</span><span class="p">[</span><span class="n">case_name</span><span class="p">],</span>
-            <span class="s1">&#39;flow_type&#39;</span><span class="p">:</span> <span class="n">flow_type</span><span class="p">[</span><span class="n">case_name</span><span class="p">],</span>
+            <span class="s1">'flow_id'</span><span class="p">:</span> <span class="n">flow_id</span><span class="p">[</span><span class="n">case_name</span><span class="p">],</span>
+            <span class="s1">'flow_type'</span><span class="p">:</span> <span class="n">flow_type</span><span class="p">[</span><span class="n">case_name</span><span class="p">],</span>
         <span class="p">}</span>
-        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer2&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer3&#39;</span><span class="p">]</span>
+        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">,</span> <span class="s1">'tracer1'</span><span class="p">,</span> <span class="s1">'tracer2'</span><span class="p">,</span> <span class="s1">'tracer3'</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -190,13 +190,13 @@
             <span class="n">mesh</span><span class="o">=</span><span class="n">base_mesh</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
             <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
-            <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
-            <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">'forward.yaml'</span><span class="p">,</span>
+            <span class="n">output_filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
-            <span class="n">check_properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mass conservation&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer conservation&#39;</span><span class="p">],</span>
+            <span class="n">check_properties</span><span class="o">=</span><span class="p">[</span><span class="s1">'mass conservation'</span><span class="p">,</span> <span class="s1">'tracer conservation'</span><span class="p">],</span>
             <span class="n">replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
             <span class="n">update_eos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info&#39;</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info'</span><span class="p">,</span>
             <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
             <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
         <span class="p">)</span>

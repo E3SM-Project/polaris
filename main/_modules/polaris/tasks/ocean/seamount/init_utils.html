@@ -111,14 +111,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.seamount.init_utils</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Shared helpers for the seamount init step: the Beckmann and Haidvogel</span>
 <span class="sd">density profile and the tracers that reproduce it under either equation of</span>
 <span class="sd">state.</span>
 
 <span class="sd">Kept free of ``mpas_tools`` and of the step framework so the unit tests can</span>
 <span class="sd">import it directly.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -132,7 +132,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_target_density</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span> <span class="n">z_mid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the target Beckmann and Haidvogel stratification, either the</span>
 <span class="sd">    linear profile of their eqn 15 or the exponential profile of their</span>
 <span class="sd">    eqn 16.</span>
@@ -156,27 +156,27 @@
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
 <span class="sd">        The target potential density (kg m-3) at the layer midpoints.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;seamount&#39;</span><span class="p">]</span>
-    <span class="n">stratification_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;seamount_stratification_type&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'seamount'</span><span class="p">]</span>
+    <span class="n">stratification_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'seamount_stratification_type'</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">stratification_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
-        <span class="n">coef</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount_density_coef_linear&#39;</span><span class="p">)</span>
-        <span class="n">gradient</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount_density_gradient_linear&#39;</span><span class="p">)</span>
-        <span class="n">depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount_density_depth_linear&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stratification_type</span> <span class="o">==</span> <span class="s1">'linear'</span><span class="p">:</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'seamount_density_coef_linear'</span><span class="p">)</span>
+        <span class="n">gradient</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'seamount_density_gradient_linear'</span><span class="p">)</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'seamount_density_depth_linear'</span><span class="p">)</span>
         <span class="n">density</span> <span class="o">=</span> <span class="n">coef</span> <span class="o">-</span> <span class="n">gradient</span> <span class="o">*</span> <span class="n">z_mid</span> <span class="o">/</span> <span class="n">depth</span>
-    <span class="k">elif</span> <span class="n">stratification_type</span> <span class="o">==</span> <span class="s1">&#39;exponential&#39;</span><span class="p">:</span>
-        <span class="n">coef</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount_density_coef_exp&#39;</span><span class="p">)</span>
-        <span class="n">gradient</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount_density_gradient_exp&#39;</span><span class="p">)</span>
-        <span class="n">depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount_density_depth_exp&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">stratification_type</span> <span class="o">==</span> <span class="s1">'exponential'</span><span class="p">:</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'seamount_density_coef_exp'</span><span class="p">)</span>
+        <span class="n">gradient</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'seamount_density_gradient_exp'</span><span class="p">)</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'seamount_density_depth_exp'</span><span class="p">)</span>
         <span class="n">density</span> <span class="o">=</span> <span class="n">coef</span> <span class="o">-</span> <span class="n">gradient</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">z_mid</span> <span class="o">/</span> <span class="n">depth</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Unsupported seamount_stratification_type: </span><span class="si">{</span><span class="n">stratification_type</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'Unsupported seamount_stratification_type: </span><span class="si">{</span><span class="n">stratification_type</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
 
-    <span class="n">density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;target potential density&#39;</span>
-    <span class="n">density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kg m-3&#39;</span>
+    <span class="n">density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'target potential density'</span>
+    <span class="n">density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'kg m-3'</span>
     <span class="k">return</span> <span class="n">density</span></div>
 
 
@@ -186,7 +186,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_tracers</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span> <span class="n">z_mid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the temperature and salinity that reproduce the Beckmann and</span>
 <span class="sd">    Haidvogel stratification under the configured equation of state.</span>
 
@@ -218,43 +218,43 @@
 <span class="sd">    salinity : xarray.DataArray</span>
 <span class="sd">        Practical salinity for a linear equation of state, absolute</span>
 <span class="sd">        salinity for TEOS-10.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">density</span> <span class="o">=</span> <span class="n">compute_target_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">z_mid</span><span class="p">)</span>
 
-    <span class="n">constant_salinity</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;seamount&#39;</span><span class="p">,</span> <span class="s1">&#39;constant_salinity&#39;</span><span class="p">)</span>
+    <span class="n">constant_salinity</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'seamount'</span><span class="p">,</span> <span class="s1">'constant_salinity'</span><span class="p">)</span>
     <span class="n">salinity</span> <span class="o">=</span> <span class="n">constant_salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">density</span><span class="p">)</span>
 
-    <span class="n">eos_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">eos_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'eos_type'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
-        <span class="n">rhoref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_rhoref&#39;</span><span class="p">)</span>
-        <span class="n">tref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_Tref&#39;</span><span class="p">)</span>
-        <span class="n">sref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_Sref&#39;</span><span class="p">)</span>
-        <span class="n">alpha</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_alpha&#39;</span><span class="p">)</span>
-        <span class="n">beta</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_beta&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">'linear'</span><span class="p">:</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">]</span>
+        <span class="n">rhoref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_rhoref'</span><span class="p">)</span>
+        <span class="n">tref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_Tref'</span><span class="p">)</span>
+        <span class="n">sref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_Sref'</span><span class="p">)</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_alpha'</span><span class="p">)</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_beta'</span><span class="p">)</span>
 
         <span class="c1"># Back-solve the linear EOS that both Polaris and the ocean model</span>
         <span class="c1"># apply, rho = rho_ref - alpha * (T - T_ref) + beta * (S - S_ref),</span>
         <span class="c1"># for the temperature that reproduces the target density.  The</span>
-        <span class="c1"># salinity term matters: dropping it leaves the model&#39;s density</span>
+        <span class="c1"># salinity term matters: dropping it leaves the model's density</span>
         <span class="c1"># offset from the Beckmann and Haidvogel profile by beta * S.</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">tref</span> <span class="o">+</span> <span class="p">(</span><span class="n">rhoref</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="n">salinity</span> <span class="o">-</span> <span class="n">sref</span><span class="p">)</span> <span class="o">-</span> <span class="n">density</span><span class="p">)</span> <span class="o">/</span> <span class="n">alpha</span>
         <span class="p">)</span>
-        <span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;potential temperature&#39;</span>
-        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;practical salinity&#39;</span>
-        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;PSU&#39;</span>
-    <span class="k">elif</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
+        <span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'potential temperature'</span>
+        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'practical salinity'</span>
+        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'PSU'</span>
+    <span class="k">elif</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">'teos-10'</span><span class="p">:</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="n">ct_from_potential_density</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">salinity</span><span class="p">)</span>
-        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;absolute salinity&#39;</span>
-        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;g kg-1&#39;</span>
+        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'absolute salinity'</span>
+        <span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'g kg-1'</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;The seamount task does not support eos_type: </span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'The seamount task does not support eos_type: </span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
 
-    <span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;degC&#39;</span>
+    <span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'degC'</span>
     <span class="k">return</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span></div>
 
 </pre></div>

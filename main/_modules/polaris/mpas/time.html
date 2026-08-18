@@ -117,7 +117,7 @@
 <div class="viewcode-block" id="time_index_from_xtime">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mpas.time_index_from_xtime.html#polaris.mpas.time_index_from_xtime">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">time_index_from_xtime</span><span class="p">(</span><span class="n">xtime</span><span class="p">,</span> <span class="n">dt_target</span><span class="p">,</span> <span class="n">start_xtime</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Determine the time index closest to the target time</span>
 
 <span class="sd">    Parameters</span>
@@ -135,15 +135,15 @@
 <span class="sd">    -------</span>
 <span class="sd">    time_index : int</span>
 <span class="sd">        Index in xtime that is closest to dt_target</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="n">time_since_start</span><span class="p">(</span><span class="n">xtime</span><span class="p">,</span> <span class="n">start_xtime</span><span class="p">)</span>
     <span class="n">time_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">dt_target</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">time_index</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">time_since_start</span><span class="p">(</span><span class="n">xtime</span><span class="p">,</span> <span class="n">start_xtime</span><span class="o">=</span><span class="s1">&#39;0001-01-01_01:00:00&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">time_since_start</span><span class="p">(</span><span class="n">xtime</span><span class="p">,</span> <span class="n">start_xtime</span><span class="o">=</span><span class="s1">'0001-01-01_01:00:00'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Determine the time elapsed since the start of the simulation</span>
 
 <span class="sd">    Parameters</span>
@@ -158,15 +158,15 @@
 <span class="sd">    -------</span>
 <span class="sd">    dt : numpy.ndarray</span>
 <span class="sd">        The elapsed time in seconds corresponding to each entry in xtime</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">start_xtime</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">start_xtime</span> <span class="o">=</span> <span class="n">xtime</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">time_format</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">_%H:%M:%S.</span><span class="si">%f</span><span class="s1">&#39;</span>
+        <span class="n">time_format</span> <span class="o">=</span> <span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">_%H:%M:%S.</span><span class="si">%f</span><span class="s1">'</span>
         <span class="n">t0</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">start_xtime</span><span class="p">,</span> <span class="n">time_format</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="n">time_format</span> <span class="o">=</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">_%H:%M:%S&#39;</span>
+        <span class="n">time_format</span> <span class="o">=</span> <span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">_%H:%M:%S'</span>
         <span class="n">t0</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">start_xtime</span><span class="p">,</span> <span class="n">time_format</span><span class="p">)</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">xtime</span><span class="p">),))</span>
     <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">xt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xtime</span><span class="p">):</span>

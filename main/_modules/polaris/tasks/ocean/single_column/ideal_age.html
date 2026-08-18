@@ -121,33 +121,33 @@
 <div class="viewcode-block" id="IdealAge">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.ideal_age.IdealAge.html#polaris.tasks.ocean.single_column.ideal_age.IdealAge">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">IdealAge</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The ideal-age single-column test case creates the mesh and initial</span>
 <span class="sd">    condition, then performs a short forward run evolving the ideal-age tracer</span>
 <span class="sd">    on 1 core.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="IdealAge.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.ideal_age.IdealAge.html#polaris.tasks.ocean.single_column.ideal_age.IdealAge.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">ideal_age</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the test case</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">            The ocean component that this task belongs to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ideal_age&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">'ideal_age'</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indir</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
-        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;ideal_age.cfg&#39;</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'ideal_age.cfg'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.single_column.ideal_age&#39;</span><span class="p">,</span> <span class="n">config_filename</span>
+            <span class="s1">'polaris.tasks.ocean.single_column.ideal_age'</span><span class="p">,</span> <span class="n">config_filename</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">'init'</span><span class="p">)</span>
 
-        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;iAge&#39;</span><span class="p">]</span>
+        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'temperature'</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">,</span> <span class="s1">'iAge'</span><span class="p">]</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>

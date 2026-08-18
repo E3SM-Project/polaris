@@ -123,7 +123,7 @@
 <div class="viewcode-block" id="Component">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.html#polaris.Component">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Component</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The base class for housing all the tasks for a given component, such as</span>
 <span class="sd">    ocean, landice, or seaice</span>
 
@@ -144,19 +144,19 @@
 <span class="sd">        A dictionary that maps from output file names in steps within tasks to</span>
 <span class="sd">        cached files in the ``polaris_cache`` database for the component. These</span>
 <span class="sd">        file mappings are read in from ``cached_files.json`` in the component.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Component.__init__">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.html#polaris.Component.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new container for the tasks for a given component</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        name : str</span>
 <span class="sd">            the name of the component</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
         <span class="c1"># tasks are added with add_task()</span>
@@ -174,14 +174,14 @@
 <div class="viewcode-block" id="Component.set_parallel_system">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.set_parallel_system.html#polaris.Component.set_parallel_system">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_parallel_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Construct and store the active parallel system for this component</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            The config to use in constructing the parallel system</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">combined</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">combine</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">config</span><span class="o">.</span><span class="n">combined</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -191,17 +191,17 @@
 <div class="viewcode-block" id="Component.get_available_resources">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_available_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get available resources from the active parallel system</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        available_resources : dict</span>
 <span class="sd">            Available CPU and GPU resources and machine capabilities</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Parallel system has not been set for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'Parallel system has not been set for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
@@ -225,7 +225,7 @@
         <span class="n">logger</span><span class="p">,</span>
         <span class="n">gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run a command using the active parallel system</span>
 
 <span class="sd">        Parameters</span>
@@ -247,16 +247,16 @@
 
 <span class="sd">        gpus_per_task : int, optional</span>
 <span class="sd">            Number of GPUs per task</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Parallel system has not been set for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'Parallel system has not been set for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
         <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
-        <span class="n">env</span><span class="p">[</span><span class="s1">&#39;OMP_NUM_THREADS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">env</span><span class="p">[</span><span class="s1">'OMP_NUM_THREADS'</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1">'</span>
         <span class="k">if</span> <span class="n">openmp_threads</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running with </span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1"> OpenMP threads&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Running with </span><span class="si">{</span><span class="n">openmp_threads</span><span class="si">}</span><span class="s1"> OpenMP threads'</span><span class="p">)</span>
 
         <span class="n">command_line_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">get_parallel_command</span><span class="p">(</span>
             <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
@@ -270,17 +270,17 @@
 <div class="viewcode-block" id="Component.add_task">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.add_task.html#polaris.Component.add_task">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add a task to the component</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        task : polaris.Task</span>
 <span class="sd">            The task to add</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">subdir</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;A task has already been added with path </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'A task has already been added with path </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span></div>
 
@@ -288,18 +288,18 @@
 <div class="viewcode-block" id="Component.add_step">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.add_step.html#polaris.Component.add_step">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add a step to the component</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        step : polaris.Step</span>
 <span class="sd">            The step to add</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">]</span> <span class="o">!=</span> <span class="n">step</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;A different step has already been added with &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;path </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'A different step has already been added with '</span>
+                <span class="sa">f</span><span class="s1">'path </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span></div>
 
@@ -307,18 +307,18 @@
 <div class="viewcode-block" id="Component.remove_step">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.remove_step.html#polaris.Component.remove_step">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Remove the given step from this component</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        step : polaris.Step</span>
 <span class="sd">            The step to add if adding by Step object, not subdirectory</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1"> not in the &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> component&#39;</span>
+                <span class="sa">f</span><span class="s1">'step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1"> not in the '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> component'</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span></div>
 
@@ -326,32 +326,32 @@
 <div class="viewcode-block" id="Component.add_config">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.add_config.html#polaris.Component.add_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add a shared config to the component</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            The config to add</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The filepath attribute of a config must be set &#39;</span>
-                <span class="s1">&#39;before it can be added to a component&#39;</span>
+                <span class="s1">'The filepath attribute of a config must be set '</span>
+                <span class="s1">'before it can be added to a component'</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">!=</span> <span class="n">config</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;A different shared config has already been &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;added at </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'A different shared config has already been '</span>
+                <span class="sa">f</span><span class="s1">'added at </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Configure the component</span>
 
 <span class="sd">        Parameters</span>
@@ -361,7 +361,7 @@
 
 <span class="sd">        tasks : list of polaris.Task</span>
 <span class="sd">            The tasks to be set up for this component</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="Component.get_or_create_shared_step">
@@ -369,14 +369,14 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_or_create_shared_step</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">step_cls</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">config_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get a shared step from the component if it exists, otherwise create and</span>
 <span class="sd">        add it.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        step_cls : type</span>
-<span class="sd">            The class of the step to create if it doesn&#39;t exist</span>
+<span class="sd">            The class of the step to create if it doesn't exist</span>
 
 <span class="sd">        subdir : str</span>
 <span class="sd">            The subdirectory for the step</span>
@@ -395,7 +395,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        step : polaris.Step</span>
 <span class="sd">            The shared step instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">subdir</span><span class="p">]</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">step_cls</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -405,7 +405,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">open_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Open the given dataset, mapping variable and dimension names from Omega</span>
 <span class="sd">        to MPAS-Ocean names if appropriate</span>
 
@@ -426,12 +426,12 @@
 <span class="sd">        -------</span>
 <span class="sd">        ds : xarray.Dataset</span>
 <span class="sd">            The dataset with variables named as expected in MPAS-Ocean</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">write_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write out the given dataset, mapping dimension and variable names from</span>
 <span class="sd">        MPAS-Ocean to Omega names if appropriate</span>
 
@@ -447,17 +447,17 @@
 <span class="sd">            Configuration for the task; passed to model-specific subclasses</span>
 <span class="sd">            that need it (e.g. to convert layer thickness to pseudo-thickness</span>
 <span class="sd">            for Omega). The base implementation ignores it.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_cached_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read in the dictionary of cached files from cached_files.json&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Read in the dictionary of cached files from cached_files.json"""</span>
 
-        <span class="n">package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;polaris.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;cached_files.json&#39;</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'polaris.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span><span class="w"> </span><span class="s2">"."</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">'cached_files.json'</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">pkg_file</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">pkg_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">pkg_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cached_files</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="c1"># no cached files for this core</span>

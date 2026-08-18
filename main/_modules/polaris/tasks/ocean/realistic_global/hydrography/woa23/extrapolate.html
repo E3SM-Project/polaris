@@ -122,16 +122,16 @@
 <div class="viewcode-block" id="ExtrapolateStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExtrapolateStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for extrapolating WOA23 into missing ocean, land and ice regions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">output_filename</span> <span class="o">=</span> <span class="s1">&#39;woa23_decav_0.25_jan_extrap.nc&#39;</span>
+    <span class="n">output_filename</span> <span class="o">=</span> <span class="s1">'woa23_decav_0.25_jan_extrap.nc'</span>
 
 <div class="viewcode-block" id="ExtrapolateStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">combine_step</span><span class="p">,</span> <span class="n">combine_topo_step</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step.</span>
 
 <span class="sd">        Parameters</span>
@@ -148,10 +148,10 @@
 <span class="sd">        combine_topo_step : polaris.Step</span>
 <span class="sd">            The cached ``e3sm/init`` step that produces combined topography on</span>
 <span class="sd">            the WOA23 grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'extrapolate'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -164,19 +164,19 @@
 <div class="viewcode-block" id="ExtrapolateStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.setup.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set up input files for the step.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'woa.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/'</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">),</span>
         <span class="p">)</span></div>
 
@@ -184,73 +184,73 @@
 <div class="viewcode-block" id="ExtrapolateStep.run">
 <a class="viewcode-back" href="../../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.run.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.ExtrapolateStep.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Extrapolate WOA23 horizontally and vertically in two stages.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Building a 3D ocean mask on the WOA23 grid&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Building a 3D ocean mask on the WOA23 grid'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_3d_ocean_mask</span><span class="p">()</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Horizontally extrapolating within the ocean mask&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Horizontally extrapolating within the ocean mask'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extrap_horiz</span><span class="p">(</span>
-            <span class="n">in_filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span>
-            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;woa_extrap_ocean_horiz.nc&#39;</span><span class="p">,</span>
+            <span class="n">in_filename</span><span class="o">=</span><span class="s1">'woa.nc'</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">'woa_extrap_ocean_horiz.nc'</span><span class="p">,</span>
             <span class="n">use_ocean_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Vertically extrapolating within the ocean mask&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Vertically extrapolating within the ocean mask'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extrap_vert</span><span class="p">(</span>
-            <span class="n">in_filename</span><span class="o">=</span><span class="s1">&#39;woa_extrap_ocean_horiz.nc&#39;</span><span class="p">,</span>
-            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;woa_extrap_ocean.nc&#39;</span><span class="p">,</span>
+            <span class="n">in_filename</span><span class="o">=</span><span class="s1">'woa_extrap_ocean_horiz.nc'</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">'woa_extrap_ocean.nc'</span><span class="p">,</span>
             <span class="n">use_ocean_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Horizontally extrapolating into land and grounded ice&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Horizontally extrapolating into land and grounded ice'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extrap_horiz</span><span class="p">(</span>
-            <span class="n">in_filename</span><span class="o">=</span><span class="s1">&#39;woa_extrap_ocean.nc&#39;</span><span class="p">,</span>
-            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;woa_extrap_horiz.nc&#39;</span><span class="p">,</span>
+            <span class="n">in_filename</span><span class="o">=</span><span class="s1">'woa_extrap_ocean.nc'</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">'woa_extrap_horiz.nc'</span><span class="p">,</span>
             <span class="n">use_ocean_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Vertically extrapolating into land and grounded ice&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Vertically extrapolating into land and grounded ice'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extrap_vert</span><span class="p">(</span>
-            <span class="n">in_filename</span><span class="o">=</span><span class="s1">&#39;woa_extrap_horiz.nc&#39;</span><span class="p">,</span>
+            <span class="n">in_filename</span><span class="o">=</span><span class="s1">'woa_extrap_horiz.nc'</span><span class="p">,</span>
             <span class="n">out_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">,</span>
             <span class="n">use_ocean_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Wrote </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Wrote </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
 
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_make_3d_ocean_mask</span><span class="p">():</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Build a three-dimensional mask of valid ocean cells on the WOA grid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_topo</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_woa</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'topography.nc'</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_topo</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'woa.nc'</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_woa</span><span class="p">:</span>
                 <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
-                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;depth&#39;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'lon'</span><span class="p">,</span> <span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'depth'</span><span class="p">]:</span>
                     <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_woa</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
-                    <span class="n">ds_out</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_bnds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_woa</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_bnds&#39;</span><span class="p">]</span>
+                    <span class="n">ds_out</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_bnds'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_woa</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_bnds'</span><span class="p">]</span>
 
                 <span class="n">z_top</span> <span class="o">=</span> <span class="o">-</span><span class="n">ds_woa</span><span class="o">.</span><span class="n">depth_bnds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nbounds</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                 <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">ExtrapolateStep</span><span class="o">.</span><span class="n">_get_ocean_mask</span><span class="p">(</span><span class="n">ds_topo</span><span class="p">)</span>
                 <span class="n">ocean_mask_3d</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="p">(</span><span class="n">ds_topo</span><span class="o">.</span><span class="n">base_elevation</span> <span class="o">&lt;=</span> <span class="n">z_top</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ocean_mask</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">)</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;depth&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span>
-                <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;ocean_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ocean_mask_3d</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'depth'</span><span class="p">,</span> <span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span>
+                <span class="n">ds_out</span><span class="p">[</span><span class="s1">'ocean_mask'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ocean_mask_3d</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="s1">&#39;ocean_mask.nc&#39;</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="s1">'ocean_mask.nc'</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_ocean_mask</span><span class="p">(</span><span class="n">ds_topo</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the 2D ocean mask from combined topography.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">ocean_mask</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_extrap_horiz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_filename</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">,</span> <span class="n">use_ocean_mask</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Extrapolate horizontally on each depth level.</span>
 
 <span class="sd">        Parameters</span>
@@ -263,19 +263,19 @@
 
 <span class="sd">        use_ocean_mask : bool</span>
 <span class="sd">            Whether to restrict filling to the remapped ocean mask.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">in_filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
             <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 
         <span class="n">ocean_mask</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">use_ocean_mask</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;ocean_mask.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_mask</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'ocean_mask.nc'</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_mask</span><span class="p">:</span>
                 <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">ds_mask</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
 
-        <span class="n">ndepth</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span>
+        <span class="n">ndepth</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'depth'</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">depth_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndepth</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;  Horizontal fill for depth </span><span class="si">{</span><span class="n">depth_index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">ndepth</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'  Horizontal fill for depth </span><span class="si">{</span><span class="n">depth_index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">ndepth</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
             <span class="n">level_mask</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">ocean_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -284,15 +284,15 @@
             <span class="n">ds_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extrap_level</span><span class="p">(</span>
                 <span class="n">ds_level</span><span class="o">=</span><span class="n">ds_level</span><span class="p">,</span>
                 <span class="n">ocean_mask</span><span class="o">=</span><span class="n">level_mask</span><span class="p">,</span>
-                <span class="n">threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;woa23&#39;</span><span class="p">,</span> <span class="s1">&#39;extrap_threshold&#39;</span><span class="p">),</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'woa23'</span><span class="p">,</span> <span class="s1">'extrap_threshold'</span><span class="p">),</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ct_an&#39;</span><span class="p">,</span> <span class="s1">&#39;sa_an&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'ct_an'</span><span class="p">,</span> <span class="s1">'sa_an'</span><span class="p">]:</span>
                 <span class="n">ds_out</span><span class="p">[</span><span class="n">field_name</span><span class="p">][</span><span class="n">depth_index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">ds_level</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
 
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_extrap_vert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_filename</span><span class="p">,</span> <span class="n">out_filename</span><span class="p">,</span> <span class="n">use_ocean_mask</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Extrapolate vertically from shallower depths into deeper missing</span>
 <span class="sd">        values.</span>
 
@@ -306,17 +306,17 @@
 
 <span class="sd">        use_ocean_mask : bool</span>
 <span class="sd">            Whether to restrict filling to the remapped ocean mask.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">in_filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
             <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
 
         <span class="n">ocean_mask</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">use_ocean_mask</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;ocean_mask.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_mask</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'ocean_mask.nc'</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_mask</span><span class="p">:</span>
                 <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">ds_mask</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
 
-        <span class="n">ndepth</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ct_an&#39;</span><span class="p">,</span> <span class="s1">&#39;sa_an&#39;</span><span class="p">]:</span>
+        <span class="n">ndepth</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'depth'</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'ct_an'</span><span class="p">,</span> <span class="s1">'sa_an'</span><span class="p">]:</span>
             <span class="n">field</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="k">for</span> <span class="n">depth_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ndepth</span><span class="p">):</span>
                 <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">field</span><span class="p">[</span><span class="n">depth_index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
@@ -330,7 +330,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_extrap_level</span><span class="p">(</span><span class="n">ds_level</span><span class="p">,</span> <span class="n">ocean_mask</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Extrapolate a single depth level horizontally.</span>
 
 <span class="sd">        Parameters</span>
@@ -348,7 +348,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        ds_level : xarray.Dataset</span>
 <span class="sd">            The filled depth level.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">ExtrapolateStep</span><span class="o">.</span><span class="n">_get_kernel</span><span class="p">()</span>
         <span class="n">field</span> <span class="o">=</span> <span class="n">ds_level</span><span class="o">.</span><span class="n">ct_an</span><span class="o">.</span><span class="n">values</span>
 
@@ -363,7 +363,7 @@
 
         <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">field_name</span><span class="p">:</span> <span class="n">ds_level</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ct_an&#39;</span><span class="p">,</span> <span class="s1">&#39;sa_an&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'ct_an'</span><span class="p">,</span> <span class="s1">'sa_an'</span><span class="p">]</span>
         <span class="p">}</span>
 
         <span class="n">nlon</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -414,14 +414,14 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_kernel</span><span class="p">():</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Build the small averaging kernel used for horizontal extrapolation.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        kernel : numpy.ndarray</span>
 <span class="sd">            A two-dimensional Gaussian-like averaging kernel.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">coordinates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span></div>
@@ -429,7 +429,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extrap_with_halo</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">lon_with_halo</span><span class="p">,</span> <span class="n">lon_no_halo</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extrapolate a two-dimensional field using a periodic halo in longitude.</span>
 
 <span class="sd">    Parameters</span>
@@ -453,11 +453,11 @@
 <span class="sd">    -------</span>
 <span class="sd">    field_extrap : numpy.ndarray</span>
 <span class="sd">        The convolved field without the periodic halo.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">masked_field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">masked_field</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">valid</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">field_with_halo</span> <span class="o">=</span> <span class="n">masked_field</span><span class="p">[:,</span> <span class="n">lon_with_halo</span><span class="p">]</span>
-    <span class="n">field_extrap</span> <span class="o">=</span> <span class="n">convolve2d</span><span class="p">(</span><span class="n">field_with_halo</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)</span>
+    <span class="n">field_extrap</span> <span class="o">=</span> <span class="n">convolve2d</span><span class="p">(</span><span class="n">field_with_halo</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'same'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">field_extrap</span><span class="p">[:,</span> <span class="n">lon_no_halo</span><span class="p">]</span>
 </pre></div>
 

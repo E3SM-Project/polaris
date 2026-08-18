@@ -224,18 +224,18 @@ from <code class="docutils literal notranslate"><span class="pre">setup()</span>
 <p>A typical viz or analysis step that reads vert-coord variables:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
-                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span>
-                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'viz'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span>
+                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc'</span><span class="p">)</span>
         <span class="c1"># registers vert_coord.nc for Omega; no-op for MPAS-Ocean</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/vert_coord.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/output.nc&#39;</span><span class="p">)</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/vert_coord.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../forward/output.nc'</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="c1"># returns ds_init for MPAS-Ocean; opens vert_coord.nc for Omega</span>
         <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_vert_coord_dataset</span><span class="p">(</span><span class="n">ds_init</span><span class="p">)</span>
         <span class="o">...</span>
@@ -318,7 +318,7 @@ so-called <code class="docutils literal notranslate"><span class="pre">config_mo
 <p>When model config options are set in code, it is also important to specify
 which <code class="docutils literal notranslate"><span class="pre">config_model</span></code> they apply to (<code class="docutils literal notranslate"><span class="pre">ocean</span></code>, <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> or <code class="docutils literal notranslate"><span class="pre">Omega</span></code>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">),</span>
-                              <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
+                              <span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We implement a mapping from the MPAS-Ocean names to the corresponding Omega
@@ -376,13 +376,13 @@ file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_time_interval_string</span>
 
 
-<span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;dt_per_km&#39;</span><span class="p">)</span>
+<span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'dt_per_km'</span><span class="p">)</span>
 <span class="n">dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">dt_per_km</span> <span class="o">*</span> <span class="n">resolution</span><span class="p">)</span>
 
-<span class="n">run_duration</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
+<span class="n">run_duration</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'run_duration'</span><span class="p">)</span>
 <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">run_duration</span><span class="p">)</span>
 
-<span class="n">output_interval</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;output_interval&#39;</span><span class="p">)</span>
+<span class="n">output_interval</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'output_interval'</span><span class="p">)</span>
 <span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">output_interval</span><span class="p">)</span>
 
 <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -545,7 +545,7 @@ to test. When spherical meshes are being tested, the values in the
 <span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>
 
 <span class="c1"># the base mesh resolution (km) to which refinement_factors</span>
-<span class="c1"># are applied if refinement is &#39;space&#39; or &#39;both&#39; on a planar mesh</span>
+<span class="c1"># are applied if refinement is 'space' or 'both' on a planar mesh</span>
 <span class="c1"># base resolutions for spherical meshes are given in section spherical_convergence</span>
 <span class="na">base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120</span>
 
@@ -556,7 +556,7 @@ to test. When spherical meshes are being tested, the values in the
 <span class="c1"># config options for convergence forward steps</span>
 <span class="k">[convergence_forward]</span>
 
-<span class="c1"># time integrator: {&#39;split_explicit&#39;, &#39;RK4&#39;}</span>
+<span class="c1"># time integrator: {'split_explicit', 'RK4'}</span>
 <span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
 
 <span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
@@ -599,16 +599,16 @@ its own config file to make sure they take precedence, e.g.:</p>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[(</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;icos&#39;</span><span class="p">),</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;qu&#39;</span><span class="p">)]:</span>
+    <span class="k">for</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[(</span><span class="kc">True</span><span class="p">,</span> <span class="s1">'icos'</span><span class="p">),</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s1">'qu'</span><span class="p">)]:</span>
 
-        <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/cosine_bell.cfg&#39;</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/cosine_bell.cfg'</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;convergence.cfg&#39;</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.convergence.spherical&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;spherical.cfg&#39;</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.cosine_bell&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;cosine_bell.cfg&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.convergence'</span><span class="p">,</span>
+                                <span class="s1">'convergence.cfg'</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.convergence.spherical'</span><span class="p">,</span>
+                                <span class="s1">'spherical.cfg'</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.cosine_bell'</span><span class="p">,</span>
+                                <span class="s1">'cosine_bell.cfg'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In addition, the <a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>
@@ -626,14 +626,14 @@ example:</p>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">SphericalConvergenceForward</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for performing forward ocean component runs as part of the cosine</span>
 <span class="sd">    bell test case</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span>
-                 <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+                 <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step</span>
 
 <span class="sd">        Parameters</span>
@@ -658,16 +658,16 @@ example:</p>
 
 <span class="sd">        refinement_factor : float</span>
 <span class="sd">            The factor by which to scale space, time or both</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.tasks.ocean.cosine_bell&#39;</span>
-        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.cosine_bell'</span>
+        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">,</span> <span class="s1">'tracer1'</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                          <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,</span>
                          <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
-                         <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
-                         <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+                         <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">'forward.yaml'</span><span class="p">,</span>
+                         <span class="n">output_filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
                          <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
-                         <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info&#39;</span><span class="p">,</span>
+                         <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info'</span><span class="p">,</span>
                          <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
                          <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
 </pre></div>
@@ -724,11 +724,11 @@ forward step. It also produces the convergence plot.</p>
 <p>This is an example of how a task’s analysis step can descend from the parent
 class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">ConvergenceAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for analyzing the output from the cosine bell test case</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -747,10 +747,10 @@ class:</p>
 
 <span class="sd">        refinement : str, optional</span>
 <span class="sd">            Whether to refine in space, time or both space and time</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
+<span class="sd">        """</span>
+        <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'tracer1'</span><span class="p">,</span>
+                             <span class="s1">'title'</span><span class="p">:</span> <span class="s1">'tracer1'</span><span class="p">,</span>
+                             <span class="s1">'zidx'</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                          <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
                          <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>

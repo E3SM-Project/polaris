@@ -257,25 +257,25 @@ GeoJSON file:</p>
 
 <span class="n">rank</span> <span class="o">=</span> <span class="mi">1</span>
 
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;simplified_river_network.geojson&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'simplified_river_network.geojson'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
     <span class="n">river_fc</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
 
 <span class="n">features</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">feature</span>
-    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">river_fc</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;river_network_rank&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">rank</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">river_fc</span><span class="p">[</span><span class="s1">'features'</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">feature</span><span class="p">[</span><span class="s1">'properties'</span><span class="p">][</span><span class="s1">'river_network_rank'</span><span class="p">]</span> <span class="o">==</span> <span class="n">rank</span>
 <span class="p">]</span>
 
 <span class="n">network_fc</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-    <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;FeatureCollection&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="s1">'FeatureCollection'</span><span class="p">,</span>
     <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
-    <span class="n">metadata</span><span class="o">=</span><span class="n">river_fc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;metadata&#39;</span><span class="p">,</span> <span class="p">{}),</span>
+    <span class="n">metadata</span><span class="o">=</span><span class="n">river_fc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'metadata'</span><span class="p">,</span> <span class="p">{}),</span>
 <span class="p">)</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s1">&#39;river_network_rank_</span><span class="si">{</span><span class="n">rank</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">.geojson&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;w&#39;</span><span class="p">,</span>
-    <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span>
+    <span class="sa">f</span><span class="s1">'river_network_rank_</span><span class="si">{</span><span class="n">rank</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">.geojson'</span><span class="p">,</span>
+    <span class="s1">'w'</span><span class="p">,</span>
+    <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span>
 <span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
     <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">network_fc</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>

@@ -120,16 +120,16 @@
 <div class="viewcode-block" id="use_mplstyle">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">use_mplstyle</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Use the Polaris matplotlib style file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">global</span> <span class="n">_SCI_VIZ_COLORMAPS_REGISTERED</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCI_VIZ_COLORMAPS_REGISTERED</span><span class="p">:</span>
         <span class="n">register_sci_viz_colormaps</span><span class="p">()</span>
         <span class="n">_SCI_VIZ_COLORMAPS_REGISTERED</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="n">style_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">&#39;polaris.viz&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;polaris.mplstyle&#39;</span><span class="p">)</span>
+    <span class="n">style_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">'polaris.viz'</span><span class="p">)</span> <span class="o">/</span> <span class="s1">'polaris.mplstyle'</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">style_filename</span><span class="p">)</span></div>
 
 </pre></div>

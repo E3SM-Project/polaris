@@ -132,7 +132,7 @@
 <div class="viewcode-block" id="Init">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">PStarInitStep</span><span class="p">,</span> <span class="n">OceanIOStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for creating a mesh and initial condition for two column</span>
 <span class="sd">    test cases</span>
 
@@ -147,12 +147,12 @@
 <span class="sd">    x : numpy.ndarray</span>
 <span class="sd">        The x-coordinates of the two columns in km, used by</span>
 <span class="sd">        :py:meth:`init_tracers` and :py:meth:`_build_pstar_coord_ds`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Init.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">horiz_res</span><span class="p">,</span> <span class="n">vert_res</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -169,58 +169,58 @@
 <span class="sd">        indir : str</span>
 <span class="sd">            The subdirectory that the task belongs to, that this step will</span>
 <span class="sd">            go into a subdirectory of</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">horiz_res</span> <span class="o">=</span> <span class="n">horiz_res</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vert_res</span> <span class="o">=</span> <span class="n">vert_res</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;init_</span><span class="si">{</span><span class="n">resolution_to_string</span><span class="p">(</span><span class="n">horiz_res</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'init_</span><span class="si">{</span><span class="n">resolution_to_string</span><span class="p">(</span><span class="n">horiz_res</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_files_for_ocean_model_input</span><span class="p">(</span>
-            <span class="n">horiz_mesh_filename</span><span class="o">=</span><span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">horiz_mesh_filename</span><span class="o">=</span><span class="s1">'culled_mesh.nc'</span><span class="p">,</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="Init.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.init.Init.run.html#polaris.tasks.ocean.horiz_press_grad.init.Init.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">hpg_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="n">hpg_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'horiz_press_grad'</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The horiz_press_grad test case is only supported for the &#39;</span>
-                <span class="s1">&#39;Omega ocean model.&#39;</span>
+                <span class="s1">'The horiz_press_grad test case is only supported for the '</span>
+                <span class="s1">'Omega ocean model.'</span>
             <span class="p">)</span>
 
         <span class="n">horiz_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_res</span>
         <span class="n">vert_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert_res</span>
 
-        <span class="n">z_tilde_bot_mid</span> <span class="o">=</span> <span class="n">hpg_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;z_tilde_bot_mid&#39;</span><span class="p">)</span>
+        <span class="n">z_tilde_bot_mid</span> <span class="o">=</span> <span class="n">hpg_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'z_tilde_bot_mid'</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="n">z_tilde_bot_mid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-            <span class="s1">&#39;The &quot;z_tilde_bot_mid&quot; configuration option must be set in the &#39;</span>
-            <span class="s1">&#39;&quot;horiz_press_grad&quot; section.&#39;</span>
+            <span class="s1">'The "z_tilde_bot_mid" configuration option must be set in the '</span>
+            <span class="s1">'"horiz_press_grad" section.'</span>
         <span class="p">)</span>
 
-        <span class="c1"># it needs to be an error if the full water column can&#39;t be evenly</span>
+        <span class="c1"># it needs to be an error if the full water column can't be evenly</span>
         <span class="c1"># divided by the resolution, because the later analysis will fail</span>
         <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="n">z_tilde_bot_mid</span> <span class="o">/</span> <span class="n">vert_res</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The &quot;z_tilde_bot_mid&quot; value must be an integer multiple of &#39;</span>
-                <span class="s1">&#39;the vertical resolution to ensure that the vertical grid can &#39;</span>
-                <span class="s1">&#39;be evenly divided into layers. Currently, z_tilde_bot_mid = &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">z_tilde_bot_mid</span><span class="si">}</span><span class="s1"> and vert_res = </span><span class="si">{</span><span class="n">vert_res</span><span class="si">}</span><span class="s1">, which results &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;in </span><span class="si">{</span><span class="o">-</span><span class="n">z_tilde_bot_mid</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">vert_res</span><span class="si">}</span><span class="s1"> layers.&#39;</span>
+                <span class="s1">'The "z_tilde_bot_mid" value must be an integer multiple of '</span>
+                <span class="s1">'the vertical resolution to ensure that the vertical grid can '</span>
+                <span class="s1">'be evenly divided into layers. Currently, z_tilde_bot_mid = '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">z_tilde_bot_mid</span><span class="si">}</span><span class="s1"> and vert_res = </span><span class="si">{</span><span class="n">vert_res</span><span class="si">}</span><span class="s1">, which results '</span>
+                <span class="sa">f</span><span class="s1">'in </span><span class="si">{</span><span class="o">-</span><span class="n">z_tilde_bot_mid</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">vert_res</span><span class="si">}</span><span class="s1"> layers.'</span>
             <span class="p">)</span>
         <span class="n">vert_levels</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="o">-</span><span class="n">z_tilde_bot_mid</span> <span class="o">/</span> <span class="n">vert_res</span><span class="p">)</span>
 
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;vert_levels&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">vert_levels</span><span class="p">))</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'vert_levels'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">vert_levels</span><span class="p">))</span>
 
         <span class="n">nx</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="n">ny</span> <span class="o">=</span> <span class="mi">2</span>
@@ -230,27 +230,27 @@
             <span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span> <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
 
-        <span class="c1"># cull one more row of cells so we&#39;re only left with 2</span>
+        <span class="c1"># cull one more row of cells so we're only left with 2</span>
         <span class="n">cull_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">cullCell</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
         <span class="c1"># remove the last 2 rows in y</span>
         <span class="n">cull_cell</span><span class="p">[</span><span class="n">ncells</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">nx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="p">:</span> <span class="n">ncells</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;cullCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">cull_cell</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">])</span>
+        <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'cullCell'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">cull_cell</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">])</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'base_mesh.nc'</span><span class="p">)</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span>
-            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">'culled_graph.info'</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
         <span class="p">)</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">add_coriolis_to_dataset</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_horiz_mesh_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_horiz_mesh_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'culled_mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
-        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ncells</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The two-column test case requires a mesh with exactly &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;2 cells, but the culled mesh has &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ncells</span><span class="si">}</span><span class="s1"> cells.&#39;</span>
+                <span class="s1">'The two-column test case requires a mesh with exactly '</span>
+                <span class="sa">f</span><span class="s1">'2 cells, but the culled mesh has '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ncells</span><span class="si">}</span><span class="s1"> cells.'</span>
             <span class="p">)</span>
 
         <span class="n">x</span> <span class="o">=</span> <span class="n">horiz_res</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -274,38 +274,38 @@
             <span class="n">sea_surface_height</span><span class="o">=</span><span class="n">geom_ssh</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;Density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SpecVol&#39;</span><span class="p">]</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;density&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kg m-3&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'Density'</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'SpecVol'</span><span class="p">]</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'density'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'kg m-3'</span>
 
-        <span class="n">nvertlevels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
-        <span class="n">nedges</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">]</span>
+        <span class="n">nvertlevels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+        <span class="n">nedges</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nEdges'</span><span class="p">]</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">nedges</span><span class="p">,</span> <span class="n">nvertlevels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nEdges&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nEdges'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
             <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;normal velocity&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m s-1&#39;</span><span class="p">,</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'normal velocity'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-1'</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;nx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nx</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ny&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ny</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;dc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dc</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'nx'</span><span class="p">]</span> <span class="o">=</span> <span class="n">nx</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'ny'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ny</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'dc'</span><span class="p">]</span> <span class="o">=</span> <span class="n">dc</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_compute_montgomery_and_hpga</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">p_mid</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'vert_coord.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Interpolate conservative temperature and absolute salinity from</span>
 <span class="sd">        piecewise pseudo-height profiles defined in the configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate_t_s</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">z_tilde_mid</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build_pstar_coord_ds</span><span class="p">(</span>
@@ -314,42 +314,42 @@
         <span class="n">bottom_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
         <span class="n">surface_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Build the p-star coordinate per cell, allowing each column to have a</span>
 <span class="sd">        different reference pseudo-depth set by ``z_tilde_bot`` in config.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
 
-        <span class="n">z_tilde_bot</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;z_tilde_bot&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">z_tilde_bot</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'z_tilde_bot'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;BottomPressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_pressure</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;seafloor gauge pressure&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Pa&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'BottomPressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_pressure</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seafloor gauge pressure'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Pa'</span>
         <span class="k">if</span> <span class="n">surface_pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bottom_pressure</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sea surface gauge pressure&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Pa&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'SurfacePressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'sea surface gauge pressure'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Pa'</span>
 
         <span class="n">ds_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]):</span>
             <span class="n">pseudo_bottom_depth</span> <span class="o">=</span> <span class="o">-</span><span class="n">z_tilde_bot</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span>
             <span class="n">ds_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">icell</span><span class="p">,</span> <span class="n">icell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
             <span class="n">local_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">local_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-                <span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom_depth&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pseudo_bottom_depth</span><span class="p">)</span>
+                <span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'bottom_depth'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pseudo_bottom_depth</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">init_pstar_vertical_coord</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="n">ds_cell</span><span class="p">)</span>
             <span class="n">cell_vars</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">var</span>
                 <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_cell</span><span class="o">.</span><span class="n">data_vars</span>
-                <span class="k">if</span> <span class="s1">&#39;nCells&#39;</span> <span class="ow">in</span> <span class="n">ds_cell</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span>
+                <span class="k">if</span> <span class="s1">'nCells'</span> <span class="ow">in</span> <span class="n">ds_cell</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span>
             <span class="p">]</span>
             <span class="n">ds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds_cell</span><span class="p">[</span><span class="n">cell_vars</span><span class="p">])</span>
 
-        <span class="n">ds_cell_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ds_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nCells&#39;</span><span class="p">)</span>
+        <span class="n">ds_cell_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ds_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_cell_vars</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
             <span class="n">attrs</span> <span class="o">=</span> <span class="n">ds_cell_vars</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
             <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_cell_vars</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
@@ -357,12 +357,12 @@
 
         <span class="c1"># vertCoordMovementWeights is a vertical-only variable; the per-cell</span>
         <span class="c1"># loop above only copies cell variables back, so add it here.</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;vertCoordMovementWeights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'vertCoordMovementWeights'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span>
             <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;vertical coordinate movement weights&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'vertical coordinate movement weights'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span>
@@ -373,7 +373,7 @@
         <span class="n">dx</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">p_mid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute Montgomery potential and a 2-column HPGA.</span>
+<span class="w">        </span><span class="sd">"""Compute Montgomery potential and a 2-column HPGA.</span>
 
 <span class="sd">        This mimics the way Omega will compute the horizontal pressure</span>
 <span class="sd">        gradient: simple finite differences between the two columns.</span>
@@ -390,14 +390,14 @@
 <span class="sd">        - MontgomeryInter (Time, nCells, nVertLevels, nbnds)</span>
 <span class="sd">        - HPGAMid (Time, nVertLevels)</span>
 <span class="sd">        - HPGAInter (Time, nVertLevels, nbnds)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The two-column HPGA computation requires exactly 2 cells.&#39;</span>
+                <span class="s1">'The two-column HPGA computation requires exactly 2 cells.'</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">dx</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;dx must be non-zero for finite differences.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'dx must be non-zero for finite differences.'</span><span class="p">)</span>
 
         <span class="c1"># Midpoint quantities (alpha is layerwise constant)</span>
         <span class="n">alpha_mid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span>
@@ -407,34 +407,34 @@
         <span class="c1"># (top and bottom), with discontinuities permitted between layers.</span>
         <span class="n">z_tilde_top</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
             <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">})</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">})</span>
         <span class="n">z_tilde_bot</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
             <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">})</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">})</span>
         <span class="n">z_top</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-            <span class="p">{</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">}</span>
+            <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
         <span class="p">)</span>
         <span class="n">z_bot</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-            <span class="p">{</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">}</span>
+            <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
         <span class="p">)</span>
 
-        <span class="n">z_tilde_bnds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">z_tilde_top</span><span class="p">,</span> <span class="n">z_tilde_bot</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nbnds&#39;</span><span class="p">)</span>
-        <span class="n">z_bnds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">z_top</span><span class="p">,</span> <span class="n">z_bot</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nbnds&#39;</span><span class="p">)</span>
+        <span class="n">z_tilde_bnds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">z_tilde_top</span><span class="p">,</span> <span class="n">z_tilde_bot</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'nbnds'</span><span class="p">)</span>
+        <span class="n">z_bnds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">z_top</span><span class="p">,</span> <span class="n">z_bot</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'nbnds'</span><span class="p">)</span>
         <span class="c1"># put nbnds last for readability/consistency</span>
         <span class="n">z_tilde_bnds</span> <span class="o">=</span> <span class="n">z_tilde_bnds</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
-            <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nbnds&#39;</span>
+            <span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'nbnds'</span>
         <span class="p">)</span>
-        <span class="n">z_bnds</span> <span class="o">=</span> <span class="n">z_bnds</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nbnds&#39;</span><span class="p">)</span>
+        <span class="n">z_bnds</span> <span class="o">=</span> <span class="n">z_bnds</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'nbnds'</span><span class="p">)</span>
 
         <span class="n">alpha_bnds</span> <span class="o">=</span> <span class="n">alpha_mid</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">nbnds</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
-            <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nbnds&#39;</span>
+            <span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'nbnds'</span>
         <span class="p">)</span>
         <span class="c1"># Montgomery: M = alpha * p + g * z, with p = -rho0 * g * z_tilde</span>
         <span class="n">montgomery_inter</span> <span class="o">=</span> <span class="n">Gravity</span> <span class="o">*</span> <span class="p">(</span>
             <span class="n">z_bnds</span> <span class="o">-</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">alpha_bnds</span> <span class="o">*</span> <span class="n">z_tilde_bnds</span>
         <span class="p">)</span>
         <span class="n">montgomery_inter</span> <span class="o">=</span> <span class="n">montgomery_inter</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
-            <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nbnds&#39;</span>
+            <span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'nbnds'</span>
         <span class="p">)</span>
 
         <span class="c1"># Omega convention: Montgomery potential at midpoints is the mean of</span>
@@ -461,134 +461,134 @@
 
         <span class="n">hpga_mid</span> <span class="o">=</span> <span class="o">-</span><span class="n">dM_dx_mid</span> <span class="o">+</span> <span class="n">p_edge_mid</span> <span class="o">*</span> <span class="n">dalpha_dx_mid</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;MontgomeryMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">montgomery_mid</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s1">&#39;Montgomery potential at layer midpoints&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'MontgomeryMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">montgomery_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'Montgomery potential at layer midpoints'</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m2 s-2&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m2 s-2'</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;MontgomeryInter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">montgomery_inter</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryInter</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s1">&#39;Montgomery potential at layer interfaces (bounds)&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'MontgomeryInter'</span><span class="p">]</span> <span class="o">=</span> <span class="n">montgomery_inter</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryInter</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'Montgomery potential at layer interfaces (bounds)'</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryInter</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m2 s-2&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">MontgomeryInter</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m2 s-2'</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;HPGA&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hpga_mid</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'HPGA'</span><span class="p">]</span> <span class="o">=</span> <span class="n">hpga_mid</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">HPGA</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s1">&#39;along-layer pressure gradient acceleration at layer midpoints&#39;</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s1">'along-layer pressure gradient acceleration at layer midpoints'</span>
             <span class="p">),</span>
-            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m s-2&#39;</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-2'</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;dMdxMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dM_dx_mid</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'dMdxMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">dM_dx_mid</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">dMdxMid</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Gradient of Montgomery potential at layer midpoints&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m s-2&#39;</span><span class="p">,</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'Gradient of Montgomery potential at layer midpoints'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m s-2'</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;PEdgeMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_edge_mid</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'PEdgeMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_edge_mid</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">PEdgeMid</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s1">&#39;Gauge pressure at horizontal edge and layer midpoints&#39;</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s1">'Gauge pressure at horizontal edge and layer midpoints'</span>
             <span class="p">),</span>
-            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'Pa'</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;dalphadxMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dalpha_dx_mid</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'dalphadxMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">dalpha_dx_mid</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">dalphadxMid</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Gradient of specific volume at layer midpoints&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m2 kg-1&#39;</span><span class="p">,</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'Gradient of specific volume at layer midpoints'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m2 kg-1'</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;dSAdxMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dsa_dx_mid</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'dSAdxMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">dsa_dx_mid</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">dSAdxMid</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Gradient of absolute salinity at layer midpoints&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;g kg-1 m-1&#39;</span><span class="p">,</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'Gradient of absolute salinity at layer midpoints'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'g kg-1 m-1'</span><span class="p">,</span>
         <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_geom_z_bot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the geometric sea floor height for each column from the</span>
 <span class="sd">        configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;geom_z_bot&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">geom_z_bot</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s1">'geom_z_bot'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">geom_z_bot</span><span class="p">,</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span>
             <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;seafloor geometric height&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'seafloor geometric height'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_geom_ssh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the optional geometric sea surface height override for each column</span>
 <span class="sd">        from the configuration. Returns ``None`` when ``geom_ssh_mid`` /</span>
 <span class="sd">        ``geom_ssh_grad`` are not set, in which case the base class defaults</span>
 <span class="sd">        the sea-surface height to the resting surface-pressure depression.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;geom_ssh_mid&#39;</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;geom_ssh_grad&#39;</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'geom_ssh_mid'</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'geom_ssh_grad'</span><span class="p">)</span>
         <span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">geom_ssh</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;geom_ssh&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">geom_ssh</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'geom_ssh'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">geom_ssh</span><span class="p">,</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span>
             <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sea surface geometric height&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'sea surface geometric height'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_surface_pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the sea-surface gauge pressure for each column from the</span>
 <span class="sd">        configuration. Defaults to zero when ``surface_pressure_mid`` /</span>
 <span class="sd">        ``surface_pressure_grad`` are not set.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure_mid&#39;</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;horiz_press_grad&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_pressure_grad&#39;</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'surface_pressure_mid'</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'horiz_press_grad'</span><span class="p">,</span> <span class="s1">'surface_pressure_grad'</span><span class="p">)</span>
         <span class="p">):</span>
             <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span>
-                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;surface_pressure&#39;</span><span class="p">,</span> <span class="n">x</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">'surface_pressure'</span><span class="p">,</span> <span class="n">x</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">surface_pressure</span><span class="p">,</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span>
             <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sea surface gauge pressure&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'sea surface gauge pressure'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'Pa'</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_z_tilde_t_s_nodes</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the z-tilde, temperature and salinity node values from the</span>
 <span class="sd">        configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">z_tilde_node</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;z_tilde&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-        <span class="n">t_node</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-        <span class="n">s_node</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">z_tilde_node</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'z_tilde'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">t_node</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'temperature'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">s_node</span> <span class="o">=</span> <span class="n">get_array_from_mid_grad</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">z_tilde_node</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">t_node</span><span class="o">.</span><span class="n">shape</span>
             <span class="ow">or</span> <span class="n">z_tilde_node</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">s_node</span><span class="o">.</span><span class="n">shape</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The number of z_tilde, temperature and salinity &#39;</span>
-                <span class="s1">&#39;points must be the same in each column.&#39;</span>
+                <span class="s1">'The number of z_tilde, temperature and salinity '</span>
+                <span class="s1">'points must be the same in each column.'</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">z_tilde_node</span><span class="p">,</span> <span class="n">t_node</span><span class="p">,</span> <span class="n">s_node</span>
@@ -599,32 +599,32 @@
         <span class="n">z_tilde_mid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
         <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Interpolate temperature and salinity to p-star layer midpoints using</span>
 <span class="sd">        piecewise pseudo-height profiles from configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">z_tilde_node</span><span class="p">,</span> <span class="n">t_node</span><span class="p">,</span> <span class="n">s_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_z_tilde_t_s_nodes</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
-        <span class="n">nvertlevels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]</span>
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
+        <span class="n">nvertlevels</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
 
         <span class="n">temperature_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nvertlevels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">salinity_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nvertlevels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">z_tilde_node</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ncells</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The number of z_tilde columns provided must match the &#39;</span>
-                <span class="s1">&#39;number of mesh columns.&#39;</span>
+                <span class="s1">'The number of z_tilde columns provided must match the '</span>
+                <span class="s1">'number of mesh columns.'</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">t_node</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ncells</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The number of temperature columns provided must match the &#39;</span>
-                <span class="s1">&#39;number of mesh columns.&#39;</span>
+                <span class="s1">'The number of temperature columns provided must match the '</span>
+                <span class="s1">'number of mesh columns.'</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">s_node</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ncells</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The number of salinity columns provided must match the &#39;</span>
-                <span class="s1">&#39;number of mesh columns.&#39;</span>
+                <span class="s1">'The number of salinity columns provided must match the '</span>
+                <span class="s1">'number of mesh columns.'</span>
             <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncells</span><span class="p">):</span>
@@ -635,19 +635,19 @@
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;At least two z_tilde points are required to &#39;</span>
-                    <span class="s1">&#39;define piecewise linear initial conditions.&#39;</span>
+                    <span class="s1">'At least two z_tilde points are required to '</span>
+                    <span class="s1">'define piecewise linear initial conditions.'</span>
                 <span class="p">)</span>
 
             <span class="n">t_interp</span> <span class="o">=</span> <span class="n">get_pchip_interpolator</span><span class="p">(</span>
                 <span class="n">z_tilde_nodes</span><span class="o">=</span><span class="n">z_tilde</span><span class="p">,</span>
                 <span class="n">values_nodes</span><span class="o">=</span><span class="n">temperatures</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">'temperature'</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">s_interp</span> <span class="o">=</span> <span class="n">get_pchip_interpolator</span><span class="p">(</span>
                 <span class="n">z_tilde_nodes</span><span class="o">=</span><span class="n">z_tilde</span><span class="p">,</span>
                 <span class="n">values_nodes</span><span class="o">=</span><span class="n">salinities</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">'salinity'</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">z_tilde_mid_col</span><span class="p">)</span>
             <span class="n">temperature_np</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">icell</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
@@ -660,18 +660,18 @@
 
         <span class="n">temperature</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">temperature_np</span><span class="p">,</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
             <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;conservative temperature&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;degC&#39;</span><span class="p">,</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'conservative temperature'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'degC'</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
         <span class="n">salinity</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">salinity_np</span><span class="p">,</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
             <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;absolute salinity&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;g kg-1&#39;</span><span class="p">,</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'absolute salinity'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'g kg-1'</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 

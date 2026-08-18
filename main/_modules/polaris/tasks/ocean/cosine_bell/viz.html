@@ -120,21 +120,21 @@
 <div class="viewcode-block" id="Viz">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.viz.Viz.html#polaris.tasks.ocean.cosine_bell.viz.Viz">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for plotting fields from the cosine bell output</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    mesh_name : str</span>
 <span class="sd">        The name of the mesh</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Viz.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.viz.Viz.html#polaris.tasks.ocean.cosine_bell.viz.Viz.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">forward</span><span class="p">,</span> <span class="n">mesh_name</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -146,7 +146,7 @@
 <span class="sd">            The name of the step</span>
 
 <span class="sd">        subdir : str</span>
-<span class="sd">            The subdirectory in the test case&#39;s work directory for the step</span>
+<span class="sd">            The subdirectory in the test case's work directory for the step</span>
 
 <span class="sd">        base_mesh : polaris.Step</span>
 <span class="sd">            The base mesh step</span>
@@ -159,58 +159,58 @@
 
 <span class="sd">        mesh_name : str</span>
 <span class="sd">            The name of the mesh</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'initial_state.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;init.png&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">&#39;final.png&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">'init.png'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">'final.png'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Viz.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.viz.Viz.run.html#polaris.tasks.ocean.cosine_bell.viz.Viz.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">mesh_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span>
-        <span class="n">run_duration</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;convergence_forward&#39;</span><span class="p">,</span> <span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
+        <span class="n">run_duration</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'convergence_forward'</span><span class="p">,</span> <span class="s1">'run_duration'</span><span class="p">)</span>
 
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-        <span class="n">da</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'initial_state.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="s1">'tracer1'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
             <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
-            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;init.png&#39;</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">'init.png'</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> tracer at init&#39;</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">'cosine_bell_viz'</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> tracer at init'</span><span class="p">,</span>
             <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">central_longitude</span><span class="o">=</span><span class="mf">180.0</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-        <span class="n">da</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s1">'tracer1'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
             <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
-            <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;final.png&#39;</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="s1">'final.png'</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;cosine_bell_viz&#39;</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> tracer after </span><span class="si">{</span><span class="n">run_duration</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">24.0</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> days&#39;</span><span class="p">,</span>
+            <span class="n">colormap_section</span><span class="o">=</span><span class="s1">'cosine_bell_viz'</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1"> tracer after </span><span class="si">{</span><span class="n">run_duration</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">24.0</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1"> days'</span><span class="p">,</span>
             <span class="n">plot_land</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">central_longitude</span><span class="o">=</span><span class="mf">180.0</span><span class="p">,</span>
         <span class="p">)</span></div>

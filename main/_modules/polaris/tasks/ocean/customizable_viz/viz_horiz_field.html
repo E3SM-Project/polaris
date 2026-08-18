@@ -128,7 +128,7 @@
 <div class="viewcode-block" id="VizHorizField">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizHorizField.html#polaris.tasks.ocean.customizable_viz.VizHorizField">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VizHorizField</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for visualizing MPAS horizontal fields</span>
 
 <span class="sd">    Attributes</span>
@@ -145,34 +145,34 @@
 
 <span class="sd">    variables : list of str</span>
 <span class="sd">        Names of variables to visualize</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="VizHorizField.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizHorizField.html#polaris.tasks.ocean.customizable_viz.VizHorizField.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transect_file</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span> <span class="o">=</span> <span class="s1">''</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="s1">''</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transect_file</span> <span class="o">=</span> <span class="s1">''</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 
 <div class="viewcode-block" id="VizHorizField.runtime_setup">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizHorizField.runtime_setup.html#polaris.tasks.ocean.customizable_viz.VizHorizField.runtime_setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;customizable_viz&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mesh_file&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;input_file&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transect_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;transect_file&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'customizable_viz'</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mesh_file'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'input_file'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transect_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'transect_file'</span><span class="p">)</span>
 
-        <span class="n">section_name</span> <span class="o">=</span> <span class="s1">&#39;customizable_viz_horiz_field&#39;</span>
+        <span class="n">section_name</span> <span class="o">=</span> <span class="s1">'customizable_viz_horiz_field'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-            <span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;variables&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span>
+            <span class="n">section_name</span><span class="p">,</span> <span class="s1">'variables'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;No variables specified in the </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s1"> section of &#39;</span>
-                <span class="s1">&#39;the config file.&#39;</span>
+                <span class="sa">f</span><span class="s1">'No variables specified in the </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s1"> section of '</span>
+                <span class="s1">'the config file.'</span>
             <span class="p">)</span></div>
 
 
@@ -180,16 +180,16 @@
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.VizHorizField.run.html#polaris.tasks.ocean.customizable_viz.VizHorizField.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># noqa:C901</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mesh file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="si">}</span><span class="s1"> is not found&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Mesh file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="si">}</span><span class="s1"> is not found'</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Input file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="si">}</span><span class="s1"> is not found&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Input file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="si">}</span><span class="s1"> is not found'</span><span class="p">)</span>
 
-        <span class="n">section_name</span> <span class="o">=</span> <span class="s1">&#39;customizable_viz_horiz_field&#39;</span>
+        <span class="n">section_name</span> <span class="o">=</span> <span class="s1">'customizable_viz_horiz_field'</span>
         <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">section_name</span><span class="p">]</span>
 
         <span class="c1"># Determine the projection from the config file</span>
-        <span class="n">projection_name</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;projection&#39;</span><span class="p">)</span>
-        <span class="n">central_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;central_longitude&#39;</span><span class="p">)</span>
+        <span class="n">projection_name</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'projection'</span><span class="p">)</span>
+        <span class="n">central_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'central_longitude'</span><span class="p">)</span>
 
         <span class="c1"># Descriptor is none for the first variable and assigned thereafter</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="kc">None</span>
@@ -197,14 +197,14 @@
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">decode_timedelta</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
-        <span class="n">min_latitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;min_latitude&#39;</span><span class="p">)</span>
-        <span class="n">max_latitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_latitude&#39;</span><span class="p">)</span>
-        <span class="n">min_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;min_longitude&#39;</span><span class="p">)</span>
-        <span class="n">max_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_longitude&#39;</span><span class="p">)</span>
+        <span class="n">min_latitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'min_latitude'</span><span class="p">)</span>
+        <span class="n">max_latitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'max_latitude'</span><span class="p">)</span>
+        <span class="n">min_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'min_longitude'</span><span class="p">)</span>
+        <span class="n">max_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'max_longitude'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">min_longitude</span> <span class="o">&gt;</span> <span class="n">max_longitude</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;min_longitude must be greater than max_longitude&#39;</span>
+                <span class="s1">'min_longitude must be greater than max_longitude'</span>
             <span class="p">)</span>
 
         <span class="c1"># Normalize longitudes given in [-180, 180] to [0, 360)</span>
@@ -215,8 +215,8 @@
         <span class="k">if</span> <span class="n">max_longitude</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="n">max_longitude</span> <span class="o">=</span> <span class="p">(</span><span class="mf">360.0</span> <span class="o">+</span> <span class="n">max_longitude</span><span class="p">)</span> <span class="o">%</span> <span class="mf">360.0</span>
 
-        <span class="n">lat_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;latCell&#39;</span><span class="p">])</span>
-        <span class="n">lon_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">[</span><span class="s1">&#39;lonCell&#39;</span><span class="p">])</span>
+        <span class="n">lat_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'latCell'</span><span class="p">])</span>
+        <span class="n">lon_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'lonCell'</span><span class="p">])</span>
         <span class="n">lat_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat_cell</span> <span class="o">&gt;=</span> <span class="n">min_latitude</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lat_cell</span> <span class="o">&lt;=</span> <span class="n">max_latitude</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">min_longitude</span> <span class="o">&gt;=</span> <span class="n">max_longitude</span><span class="p">:</span>
             <span class="n">lon_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon_cell</span> <span class="o">&gt;=</span> <span class="n">min_longitude</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
@@ -227,36 +227,36 @@
                 <span class="n">lon_cell</span> <span class="o">&lt;=</span> <span class="n">max_longitude</span>
             <span class="p">)</span>
         <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">lat_mask</span> <span class="o">&amp;</span> <span class="n">lon_mask</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;min lon </span><span class="si">{</span><span class="n">min_longitude</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;min lon </span><span class="si">{</span><span class="n">min_longitude_copy</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude_copy</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'min lon </span><span class="si">{</span><span class="n">min_longitude</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'min lon </span><span class="si">{</span><span class="n">min_longitude_copy</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude_copy</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;No cells of </span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;nCells&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> cells found within the&#39;</span>
-                <span class="s1">&#39; specified lat/lon bounds. Please adjust the min/max &#39;</span>
-                <span class="s1">&#39;latitude/longitude values to be within the bounds of the &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;dataset: latitude &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">lat_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">lat_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;longitude </span><span class="si">{</span><span class="n">lon_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">lon_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;min lon </span><span class="si">{</span><span class="n">min_longitude</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'No cells of </span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"nCells"</span><span class="p">]</span><span class="si">}</span><span class="s1"> cells found within the'</span>
+                <span class="s1">' specified lat/lon bounds. Please adjust the min/max '</span>
+                <span class="s1">'latitude/longitude values to be within the bounds of the '</span>
+                <span class="sa">f</span><span class="s1">'dataset: latitude '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">lat_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">lat_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">'</span>
+                <span class="sa">f</span><span class="s1">'longitude </span><span class="si">{</span><span class="n">lon_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">lon_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">'</span>
+                <span class="sa">f</span><span class="s1">'min lon </span><span class="si">{</span><span class="n">min_longitude</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">'</span>
             <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s1"> cells of &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;nCells&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> cells in the mesh&#39;</span>
+            <span class="sa">f</span><span class="s1">'Using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s1"> cells of '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"nCells"</span><span class="p">]</span><span class="si">}</span><span class="s1"> cells in the mesh'</span>
         <span class="p">)</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">if</span> <span class="s1">&#39;nVertLevels&#39;</span> <span class="ow">in</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-            <span class="n">z_target</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;z_target&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;restingThickness&#39;</span> <span class="ow">in</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">'nVertLevels'</span> <span class="ow">in</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="n">z_target</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'z_target'</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">'restingThickness'</span> <span class="ow">in</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">h_rest</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">restingThickness</span>
-                <span class="n">z_bottom</span> <span class="o">=</span> <span class="n">h_rest</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
-                <span class="n">dz</span> <span class="o">=</span> <span class="n">z_bottom</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nCells&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">z_target</span>
+                <span class="n">z_bottom</span> <span class="o">=</span> <span class="n">h_rest</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+                <span class="n">dz</span> <span class="o">=</span> <span class="n">z_bottom</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span> <span class="o">-</span> <span class="n">z_target</span>
                 <span class="n">z_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dz</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">dz</span><span class="p">[</span><span class="n">z_index</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">z_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">z_index</span> <span class="o">-=</span> <span class="mi">1</span>
-                <span class="n">z_mean</span> <span class="o">=</span> <span class="n">z_bottom</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;nCells&#39;</span><span class="p">)[</span><span class="n">z_index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">z_mean</span> <span class="o">=</span> <span class="n">z_bottom</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)[</span><span class="n">z_index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
                 <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Using z_index </span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s1"> for z_target </span><span class="si">{</span><span class="n">z_target</span><span class="si">}</span><span class="s1"> &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;with mean depth </span><span class="si">{</span><span class="n">z_mean</span><span class="si">}</span><span class="s1"> &#39;</span>
+                    <span class="sa">f</span><span class="s1">'Using z_index </span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s1"> for z_target </span><span class="si">{</span><span class="n">z_target</span><span class="si">}</span><span class="s1"> '</span>
+                    <span class="sa">f</span><span class="s1">'with mean depth </span><span class="si">{</span><span class="n">z_mean</span><span class="si">}</span><span class="s1"> '</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">z_index</span> <span class="o">=</span> <span class="mi">0</span>
@@ -265,18 +265,18 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">decode_timedelta</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>
             <span class="n">t_index</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="c1"># TODO support different time selection from config file</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">)</span>
 
         <span class="n">prefix</span><span class="p">,</span> <span class="n">time_variable</span> <span class="o">=</span> <span class="n">determine_time_variable</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="c1"># Default to empty stamp; only set if we have a usable scalar time</span>
-        <span class="n">time_stamp</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">time_stamp</span> <span class="o">=</span> <span class="s1">''</span>
         <span class="k">if</span> <span class="n">time_variable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">start_time</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">time_variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-            <span class="c1"># If it&#39;s a NumPy array, handle scalar vs. multi-value arrays</span>
+            <span class="c1"># If it's a NumPy array, handle scalar vs. multi-value arrays</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">start_time</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="c1"># extract the scalar value</span>
@@ -291,55 +291,55 @@
                     <span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">start_time</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
-                <span class="n">time_stamp</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">start_time</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">time_stamp</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'_</span><span class="si">{</span><span class="n">start_time</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span>
 
-        <span class="k">if</span> <span class="s1">&#39;nCells&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'nCells'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Number of cells in the mesh </span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;nCells&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;and input </span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;nCells&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> do not match. &#39;</span>
+                    <span class="sa">f</span><span class="s1">'Number of cells in the mesh </span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"nCells"</span><span class="p">]</span><span class="si">}</span><span class="s1"> '</span>
+                    <span class="sa">f</span><span class="s1">'and input </span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"nCells"</span><span class="p">]</span><span class="si">}</span><span class="s1"> do not match. '</span>
                 <span class="p">)</span>
         <span class="n">viz_dict</span> <span class="o">=</span> <span class="n">get_viz_defaults</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_range_percent&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">'colormap_range_percent'</span><span class="p">):</span>
             <span class="n">colormap_range_percent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_range_percent&#39;</span>
+                <span class="n">section_name</span><span class="p">,</span> <span class="s1">'colormap_range_percent'</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">colormap_range_percent</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;accumulated&#39;</span> <span class="ow">in</span> <span class="n">var_name</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">'accumulated'</span> <span class="ow">in</span> <span class="n">var_name</span><span class="p">:</span>
                 <span class="n">full_var_name</span> <span class="o">=</span> <span class="n">var_name</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">full_var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">full_var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">'</span>
             <span class="k">if</span> <span class="n">full_var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">if</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">activeTracers_</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="n">full_var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">activeTracers_</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">&#39;</span>
-                <span class="k">elif</span> <span class="n">var_name</span> <span class="o">==</span> <span class="s1">&#39;columnThickness&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">activeTracers_</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">full_var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">activeTracers_</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">'</span>
+                <span class="k">elif</span> <span class="n">var_name</span> <span class="o">==</span> <span class="s1">'columnThickness'</span><span class="p">:</span>
                     <span class="n">ds</span><span class="p">[</span><span class="n">full_var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span> <span class="o">+</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;Skipping </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">, &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;not found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="sa">f</span><span class="s1">'Skipping </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">, '</span>
+                        <span class="sa">f</span><span class="s1">'not found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="si">}</span><span class="s1">'</span>
                     <span class="p">)</span>
                     <span class="k">continue</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plotting </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">filename_suffix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotting </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">filename_suffix</span> <span class="o">=</span> <span class="s1">''</span>
             <span class="n">mpas_field</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">full_var_name</span><span class="p">]</span>
-            <span class="k">if</span> <span class="s1">&#39;nVertLevels&#39;</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">'nVertLevels'</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>
                 <span class="n">mpas_field</span> <span class="o">=</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">z_index</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">z_index</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">filename_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;_z</span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="n">filename_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'_z</span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s1">'</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">):</span>
-                <span class="n">cmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">'colormap_name'</span><span class="p">):</span>
+                <span class="n">cmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">'colormap_name'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">viz_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="n">cmap</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="s1">&#39;colormap&#39;</span><span class="p">]</span>
+                    <span class="n">cmap</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="s1">'colormap'</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">cmap</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;colormap&#39;</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;colormap_name&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+                    <span class="n">cmap</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">'default'</span><span class="p">][</span><span class="s1">'colormap'</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">'colormap_name'</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">colormap_range_percent</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">mpas_field</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">colormap_range_percent</span><span class="p">)</span>
@@ -351,58 +351,58 @@
                 <span class="n">vmax</span> <span class="o">=</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
-                <span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;vmin&#39;</span>
-            <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">&#39;vmax&#39;</span><span class="p">):</span>
-                <span class="n">vmin</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vmin&#39;</span><span class="p">)</span>
-                <span class="n">vmax</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vmax&#39;</span><span class="p">)</span>
+                <span class="n">section_name</span><span class="p">,</span> <span class="s1">'vmin'</span>
+            <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section_name</span><span class="p">,</span> <span class="s1">'vmax'</span><span class="p">):</span>
+                <span class="n">vmin</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vmin'</span><span class="p">)</span>
+                <span class="n">vmax</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vmax'</span><span class="p">)</span>
             <span class="k">elif</span> <span class="p">(</span>
-                <span class="n">cmap</span> <span class="o">==</span> <span class="s1">&#39;cmo.balance&#39;</span>
-                <span class="ow">or</span> <span class="s1">&#39;vertVelocityTop&#39;</span> <span class="ow">in</span> <span class="n">var_name</span>
-                <span class="ow">or</span> <span class="s1">&#39;Tendency&#39;</span> <span class="ow">in</span> <span class="n">var_name</span>
-                <span class="ow">or</span> <span class="s1">&#39;Flux&#39;</span> <span class="ow">in</span> <span class="n">var_name</span>
+                <span class="n">cmap</span> <span class="o">==</span> <span class="s1">'cmo.balance'</span>
+                <span class="ow">or</span> <span class="s1">'vertVelocityTop'</span> <span class="ow">in</span> <span class="n">var_name</span>
+                <span class="ow">or</span> <span class="s1">'Tendency'</span> <span class="ow">in</span> <span class="n">var_name</span>
+                <span class="ow">or</span> <span class="s1">'Flux'</span> <span class="ow">in</span> <span class="n">var_name</span>
             <span class="p">):</span>
                 <span class="n">vmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vmax</span><span class="p">))</span>
                 <span class="n">vmin</span> <span class="o">=</span> <span class="o">-</span><span class="n">vmax</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                 <span class="n">section_name</span><span class="p">,</span>
-                <span class="s1">&#39;norm_args&#39;</span><span class="p">,</span>
-                <span class="n">value</span><span class="o">=</span><span class="s1">&#39;{&quot;vmin&quot;: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmin</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, &quot;vmax&quot;: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmax</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span><span class="p">,</span>
+                <span class="s1">'norm_args'</span><span class="p">,</span>
+                <span class="n">value</span><span class="o">=</span><span class="s1">'{"vmin": '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmin</span><span class="p">)</span> <span class="o">+</span> <span class="s1">', "vmax": '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmax</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'}'</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">viz_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">units</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="n">var_name</span><span class="p">][</span><span class="s1">'units'</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">units</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">][</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="n">viz_dict</span><span class="p">[</span><span class="s1">'default'</span><span class="p">][</span><span class="s1">'units'</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transect_file</span><span class="p">):</span>
                 <span class="n">ds_transect</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transect_file</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">ds_transect</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="c1"># Only apply regional bounds for cell-centered fields</span>
-            <span class="k">if</span> <span class="s1">&#39;nEdges&#39;</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">or</span> <span class="s1">&#39;nVertices&#39;</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">'nEdges'</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">or</span> <span class="s1">'nVertices'</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
                 <span class="n">descriptor</span> <span class="o">=</span> <span class="n">plot_global_mpas_field</span><span class="p">(</span>
                     <span class="n">mesh_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="p">,</span>
                     <span class="n">da</span><span class="o">=</span><span class="n">mpas_field</span><span class="p">,</span>
-                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_horiz</span><span class="si">{</span><span class="n">time_stamp</span><span class="si">}{</span><span class="n">filename_suffix</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_horiz</span><span class="si">{</span><span class="n">time_stamp</span><span class="si">}{</span><span class="n">filename_suffix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                     <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;customizable_viz_horiz_field&#39;</span><span class="p">,</span>
+                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">'customizable_viz_horiz_field'</span><span class="p">,</span>
                     <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
-                    <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">,</span>
+                    <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">]'</span><span class="p">,</span>
                     <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">projection_name</span><span class="o">=</span><span class="n">projection_name</span><span class="p">,</span>
                     <span class="n">ds_transect</span><span class="o">=</span><span class="n">ds_transect</span><span class="p">,</span>
                     <span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="k">elif</span> <span class="s1">&#39;nCells&#39;</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="s1">&#39;nVertices&#39;</span> <span class="ow">in</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="s1">'nCells'</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="s1">'nVertices'</span> <span class="ow">in</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
                 <span class="n">descriptor</span> <span class="o">=</span> <span class="n">plot_global_mpas_field</span><span class="p">(</span>
                     <span class="n">mesh_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="p">,</span>
                     <span class="n">da</span><span class="o">=</span><span class="n">mpas_field</span><span class="p">,</span>
-                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_horiz</span><span class="si">{</span><span class="n">time_stamp</span><span class="si">}{</span><span class="n">filename_suffix</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">_horiz</span><span class="si">{</span><span class="n">time_stamp</span><span class="si">}{</span><span class="n">filename_suffix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                     <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">&#39;customizable_viz_horiz_field&#39;</span><span class="p">,</span>
+                    <span class="n">colormap_section</span><span class="o">=</span><span class="s1">'customizable_viz_horiz_field'</span><span class="p">,</span>
                     <span class="n">descriptor</span><span class="o">=</span><span class="n">descriptor</span><span class="p">,</span>
-                    <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">,</span>
+                    <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">]'</span><span class="p">,</span>
                     <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">projection_name</span><span class="o">=</span><span class="n">projection_name</span><span class="p">,</span>
                     <span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">,</span>
@@ -411,8 +411,8 @@
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> does not have expected &#39;</span>
-                    <span class="s1">&#39;dimensions of nCells, nEdges, or nVertices&#39;</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> does not have expected '</span>
+                    <span class="s1">'dimensions of nCells, nEdges, or nVertices'</span>
                 <span class="p">)</span></div>
 </div>
 

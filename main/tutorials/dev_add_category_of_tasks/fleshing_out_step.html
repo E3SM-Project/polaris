@@ -170,17 +170,17 @@ snippet below is an example of how to make use of the
 
         <span class="o">...</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'culled_mesh.nc'</span><span class="p">)</span>
 
-<span class="hll">        <span class="n">max_bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_bottom_depth&#39;</span><span class="p">)</span>
-</span><span class="hll">        <span class="n">shelf_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;shelf_depth&#39;</span><span class="p">)</span>
-</span><span class="hll">        <span class="n">x_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;x_slope&#39;</span><span class="p">)</span>
-</span><span class="hll">        <span class="n">l_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;l_slope&#39;</span><span class="p">)</span>
+<span class="hll">        <span class="n">max_bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'max_bottom_depth'</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">shelf_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'shelf_depth'</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">x_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'x_slope'</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">l_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'l_slope'</span><span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 </span><span class="hll">
 </span><span class="hll">        <span class="c1"># Form a continental shelf-like bathymetry</span>
-</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shelf_depth</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">'bottomDepth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">shelf_depth</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
 </span><span class="hll">            <span class="n">max_bottom_depth</span> <span class="o">-</span> <span class="n">shelf_depth</span>
 </span><span class="hll">        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
 </span><span class="hll">            <span class="mf">1.0</span>
@@ -191,10 +191,10 @@ snippet below is an example of how to make use of the
 </span><span class="hll">        <span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">        <span class="c1"># ssh is zero</span>
-</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">        <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'vert_coord.nc'</span><span class="p">)</span>
 </span></pre></div>
 </div>
 <p>This part of the step, too, relies on config options, this time from the
@@ -219,7 +219,7 @@ this):</p>
 </span><span class="hll"><span class="c1"># The type of vertical coordinate (e.g. z-level, z-star)</span>
 </span><span class="hll"><span class="na">coord_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">z-star</span>
 </span><span class="hll">
-</span><span class="hll"><span class="c1"># Whether to use &quot;partial&quot; or &quot;full&quot;, or &quot;None&quot; to not alter the topography</span>
+</span><span class="hll"><span class="c1"># Whether to use "partial" or "full", or "None" to not alter the topography</span>
 </span><span class="hll"><span class="na">partial_cell_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
 </span>
 <span class="c1"># Options related to the overflow case</span>
@@ -300,77 +300,77 @@ define the initial condition:</p>
 
         <span class="o">...</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'vert_coord.nc'</span><span class="p">)</span>
 
 <span class="hll">        <span class="c1"># initial temperature is constant except for a block of cold water on</span>
 </span><span class="hll">        <span class="c1"># the shelf</span>
-</span><span class="hll">        <span class="n">x_dense</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;x_dense&#39;</span><span class="p">)</span>
-</span><span class="hll">        <span class="n">lower_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lower_temperature&#39;</span><span class="p">)</span>
-</span><span class="hll">        <span class="n">higher_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;higher_temperature&#39;</span><span class="p">)</span>
-</span><span class="hll">        <span class="n">_</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]),</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">x_dense</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'x_dense'</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">lower_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'lower_temperature'</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">higher_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'higher_temperature'</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">_</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]),</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="p">)</span>
 </span><span class="hll">        <span class="n">temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
 </span><span class="hll">            <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">x_dense</span> <span class="o">*</span> <span class="mf">1.0e3</span><span class="p">,</span>
 </span><span class="hll">            <span class="n">lower_temperature</span><span class="p">,</span>
 </span><span class="hll">            <span class="n">higher_temperature</span><span class="p">,</span>
 </span><span class="hll">        <span class="p">)</span>
-</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
 </span><span class="hll">            <span class="p">(</span>
-</span><span class="hll">                <span class="s1">&#39;Time&#39;</span><span class="p">,</span>
-</span><span class="hll">                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
-</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'Time'</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nCells'</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nVertLevels'</span><span class="p">,</span>
 </span><span class="hll">            <span class="p">),</span>
 </span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
 </span><span class="hll">        <span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">        <span class="c1"># initial salinity is constant</span>
-</span><span class="hll">        <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;salinity&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
-</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'salinity'</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">        <span class="n">density</span> <span class="o">=</span> <span class="n">compute_density</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">salinity</span><span class="p">)</span>
-</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">'density'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
 </span><span class="hll">            <span class="p">(</span>
-</span><span class="hll">                <span class="s1">&#39;Time&#39;</span><span class="p">,</span>
-</span><span class="hll">                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
-</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'Time'</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nCells'</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nVertLevels'</span><span class="p">,</span>
 </span><span class="hll">            <span class="p">),</span>
 </span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
 </span><span class="hll">        <span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">        <span class="c1"># initial velocity on edges is stationary</span>
-</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
 </span><span class="hll">            <span class="p">(</span>
-</span><span class="hll">                <span class="s1">&#39;Time&#39;</span><span class="p">,</span>
-</span><span class="hll">                <span class="s1">&#39;nEdges&#39;</span><span class="p">,</span>
-</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'Time'</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nEdges'</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nVertLevels'</span><span class="p">,</span>
 </span><span class="hll">            <span class="p">),</span>
-</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]]),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nEdges'</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]]),</span>
 </span><span class="hll">        <span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">        <span class="c1"># Coriolis parameter is zero</span>
-</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">'fCell'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
 </span><span class="hll">            <span class="p">(</span>
-</span><span class="hll">                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
-</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nCells'</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nVertLevels'</span><span class="p">,</span>
 </span><span class="hll">            <span class="p">),</span>
-</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]]),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]]),</span>
 </span><span class="hll">        <span class="p">)</span>
-</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fEdge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">'fEdge'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
 </span><span class="hll">            <span class="p">(</span>
-</span><span class="hll">                <span class="s1">&#39;nEdges&#39;</span><span class="p">,</span>
-</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nEdges'</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nVertLevels'</span><span class="p">,</span>
 </span><span class="hll">            <span class="p">),</span>
-</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nEdges&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]]),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nEdges'</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]]),</span>
 </span><span class="hll">        <span class="p">)</span>
-</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fVertex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span class="hll">        <span class="n">ds</span><span class="p">[</span><span class="s1">'fVertex'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
 </span><span class="hll">            <span class="p">(</span>
-</span><span class="hll">                <span class="s1">&#39;nVertices&#39;</span><span class="p">,</span>
-</span><span class="hll">                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nVertices'</span><span class="p">,</span>
+</span><span class="hll">                <span class="s1">'nVertLevels'</span><span class="p">,</span>
 </span><span class="hll">            <span class="p">),</span>
-</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertices&#39;</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]]),</span>
+</span><span class="hll">            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertices'</span><span class="p">],</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]]),</span>
 </span><span class="hll">        <span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">        <span class="c1"># finalize and write file</span>
-</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'init.nc'</span><span class="p">)</span>
 </span></pre></div>
 </div>
 <p>The details aren’t critical for the purpose of this tutorial, though you may

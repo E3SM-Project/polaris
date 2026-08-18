@@ -148,12 +148,12 @@ Here is the contents of <code class="docutils literal notranslate"><span class="
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for plotting the results of the default overflow forward step</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">forward</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -169,31 +169,31 @@ Here is the contents of <code class="docutils literal notranslate"><span class="
 
 <span class="sd">        indir : str</span>
 <span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'viz'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc'</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the task</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">)</span>
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">'init.nc'</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">'output.nc'</span><span class="p">)</span>
 
         <span class="n">x_min</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
         <span class="n">x_max</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
         <span class="n">y_mid</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;nPoints&#39;</span><span class="p">,))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nPoints'</span><span class="p">,))</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">y_mid</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
         <span class="n">ds_transect</span> <span class="o">=</span> <span class="n">compute_transect</span><span class="p">(</span>
@@ -207,10 +207,10 @@ Here is the contents of <code class="docutils literal notranslate"><span class="
             <span class="n">spherical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">field_name</span> <span class="o">=</span> <span class="s1">&#39;temperature&#39;</span>
+        <span class="n">field_name</span> <span class="o">=</span> <span class="s1">'temperature'</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;initial&#39;</span><span class="p">:</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
-            <span class="s1">&#39;final&#39;</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="s1">'initial'</span><span class="p">:</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+            <span class="s1">'final'</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">mpas_field</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -218,11 +218,11 @@ Here is the contents of <code class="docutils literal notranslate"><span class="
             <span class="n">plot_transect</span><span class="p">(</span>
                 <span class="n">ds_transect</span><span class="o">=</span><span class="n">ds_transect</span><span class="p">,</span>
                 <span class="n">mpas_field</span><span class="o">=</span><span class="n">mpas_field</span><span class="p">,</span>
-                <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> at y=</span><span class="si">{</span><span class="mf">1e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y_mid</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> km&#39;</span><span class="p">,</span>
-                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">_section.png&#39;</span><span class="p">,</span>
-                <span class="n">interface_color</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span>
-                <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.thermal&#39;</span><span class="p">,</span>
-                <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$^\circ$C&#39;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> at y=</span><span class="si">{</span><span class="mf">1e-3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y_mid</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> km'</span><span class="p">,</span>
+                <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">_section.png'</span><span class="p">,</span>
+                <span class="n">interface_color</span><span class="o">=</span><span class="s1">'grey'</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.thermal'</span><span class="p">,</span>
+                <span class="n">colorbar_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">'$^\circ$C'</span><span class="p">,</span>
             <span class="p">)</span>
 </pre></div>
 </div>

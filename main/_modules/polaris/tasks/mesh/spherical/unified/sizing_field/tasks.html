@@ -118,7 +118,7 @@
 <div class="viewcode-block" id="add_sizing_field_tasks">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks.html#polaris.tasks.mesh.spherical.unified.sizing_field.add_sizing_field_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_sizing_field_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add standalone sizing-field tasks for all supported unified meshes.</span>
 
 <span class="sd">    One :py:class:`SizingFieldTask` is registered for each mesh name in</span>
@@ -128,7 +128,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        The component to register the tasks with</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">mesh_name</span> <span class="ow">in</span> <span class="n">UNIFIED_MESH_NAMES</span><span class="p">:</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
             <span class="n">SizingFieldTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">)</span>

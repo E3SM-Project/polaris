@@ -117,16 +117,16 @@
 
 <span class="c1"># Maps placeholder filenames to their [ocean_staged_files] config option names.</span>
 <span class="n">_PLACEHOLDER_MAP</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;&lt;&lt;&lt;horiz_mesh&gt;&gt;&gt;&#39;</span><span class="p">:</span> <span class="s1">&#39;horiz_mesh_filename&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;&lt;&lt;&lt;vert_coord&gt;&gt;&gt;&#39;</span><span class="p">:</span> <span class="s1">&#39;vert_coord_filename&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;&lt;&lt;&lt;init&gt;&gt;&gt;&#39;</span><span class="p">:</span> <span class="s1">&#39;init_filename&#39;</span><span class="p">,</span>
+    <span class="s1">'&lt;&lt;&lt;horiz_mesh&gt;&gt;&gt;'</span><span class="p">:</span> <span class="s1">'horiz_mesh_filename'</span><span class="p">,</span>
+    <span class="s1">'&lt;&lt;&lt;vert_coord&gt;&gt;&gt;'</span><span class="p">:</span> <span class="s1">'vert_coord_filename'</span><span class="p">,</span>
+    <span class="s1">'&lt;&lt;&lt;init&gt;&gt;&gt;'</span><span class="p">:</span> <span class="s1">'init_filename'</span><span class="p">,</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="OceanModelFilesMixin">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelFilesMixin.html#polaris.ocean.model.OceanModelFilesMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OceanModelFilesMixin</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Mixin providing access to the ``[ocean_staged_files]`` config section and</span>
 <span class="sd">    the shared placeholder mechanism for the three canonical ocean dataset</span>
 <span class="sd">    files (horizontal mesh, vertical coordinate, initial state).</span>
@@ -136,38 +136,38 @@
 <span class="sd">    are safe to call from ``__init__()`` because the model check is deferred</span>
 <span class="sd">    to :py:meth:`_resolve_model_file_placeholders`, which is called at</span>
 <span class="sd">    ``process_inputs_and_outputs()`` time.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">component</span><span class="p">:</span> <span class="s1">&#39;Ocean&#39;</span>
+    <span class="n">component</span><span class="p">:</span> <span class="s1">'Ocean'</span>
     <span class="c1"># These attributes and methods are provided by the Step base class:</span>
-    <span class="n">config</span><span class="p">:</span> <span class="s1">&#39;PolarisConfigParser&#39;</span>
+    <span class="n">config</span><span class="p">:</span> <span class="s1">'PolarisConfigParser'</span>
     <span class="n">input_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
     <span class="n">add_input_file</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
 
     <span class="c1"># --- filename getters ---</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_horiz_mesh_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the configured local filename for the horizontal mesh file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_filename</span><span class="p">(</span><span class="s1">&#39;horiz_mesh_filename&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_filename</span><span class="p">(</span><span class="s1">'horiz_mesh_filename'</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_vert_coord_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the configured local filename for the vertical coordinate file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_filename</span><span class="p">(</span><span class="s1">&#39;vert_coord_filename&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_filename</span><span class="p">(</span><span class="s1">'vert_coord_filename'</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_init_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the configured local filename for the initial-condition file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_filename</span><span class="p">(</span><span class="s1">&#39;init_filename&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_filename</span><span class="p">(</span><span class="s1">'init_filename'</span><span class="p">)</span>
 
     <span class="c1"># --- input file registration ---</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_horiz_mesh_input_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add the horizontal-mesh input file using a placeholder that is</span>
 <span class="sd">        resolved to the configured filename at</span>
 <span class="sd">        :py:meth:`process_inputs_and_outputs` time.  Safe to call from</span>
@@ -178,20 +178,20 @@
 <span class="sd">        **kwargs</span>
 <span class="sd">            Additional keyword arguments forwarded to</span>
 <span class="sd">            :py:meth:`polaris.Step.add_input_file`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;&lt;&lt;&lt;horiz_mesh&gt;&gt;&gt;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'&lt;&lt;&lt;horiz_mesh&gt;&gt;&gt;'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_vert_coord_input_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add the vertical-coordinate input file.</span>
 
 <span class="sd">        When *filename* is ``None`` (the default), the</span>
-<span class="sd">        ``&#39;&lt;&lt;&lt;vert_coord&gt;&gt;&gt;&#39;`` placeholder is used.  The placeholder is</span>
+<span class="sd">        ``'&lt;&lt;&lt;vert_coord&gt;&gt;&gt;'`` placeholder is used.  The placeholder is</span>
 <span class="sd">        resolved at :py:meth:`process_inputs_and_outputs` time and silently</span>
 <span class="sd">        dropped for MPAS-Ocean (no separate vert_coord file exists).  Safe</span>
 <span class="sd">        to call from ``__init__()``.</span>
 
-<span class="sd">        When *filename* is provided explicitly (e.g. ``&#39;vert_coord_r04.nc&#39;``</span>
+<span class="sd">        When *filename* is provided explicitly (e.g. ``'vert_coord_r04.nc'``</span>
 <span class="sd">        for multi-resolution steps), the entry is added directly for Omega</span>
 <span class="sd">        only and must be called from ``setup()`` or later (requires</span>
 <span class="sd">        ``self.config``).</span>
@@ -203,16 +203,16 @@
 <span class="sd">        **kwargs</span>
 <span class="sd">            Additional keyword arguments forwarded to</span>
 <span class="sd">            :py:meth:`polaris.Step.add_input_file`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;&lt;&lt;&lt;vert_coord&gt;&gt;&gt;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'&lt;&lt;&lt;vert_coord&gt;&gt;&gt;'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_init_input_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add the initial-condition input file using a placeholder that is</span>
 <span class="sd">        resolved to the configured filename at</span>
 <span class="sd">        :py:meth:`process_inputs_and_outputs` time.  Safe to call from</span>
@@ -223,8 +223,8 @@
 <span class="sd">        **kwargs</span>
 <span class="sd">            Additional keyword arguments forwarded to</span>
 <span class="sd">            :py:meth:`polaris.Step.add_input_file`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;&lt;&lt;&lt;init&gt;&gt;&gt;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'&lt;&lt;&lt;init&gt;&gt;&gt;'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_output_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -233,7 +233,7 @@
         <span class="n">check_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">validate_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add an output file, optionally resolving ``validate_class`` to a</span>
 <span class="sd">        pre-defined list of variables from the Ocean component.</span>
 
@@ -249,13 +249,13 @@
 <span class="sd">            Forwarded to :py:meth:`polaris.Step.add_output_file`.</span>
 
 <span class="sd">        validate_class : str, optional</span>
-<span class="sd">            A named class of variables to validate. &#39;state&#39; or &#39;vert_coord&#39;</span>
+<span class="sd">            A named class of variables to validate. 'state' or 'vert_coord'</span>
 <span class="sd">            are supported. The resulting list is unioned with any explicitly</span>
 <span class="sd">            supplied ``validate_vars``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">validate_vars_native</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">validate_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">validate_class</span> <span class="o">==</span> <span class="s1">&#39;vert_coord&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">validate_class</span> <span class="o">==</span> <span class="s1">'vert_coord'</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
                 <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -264,7 +264,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">vert_coord_vars</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">validate_class</span> <span class="o">==</span> <span class="s1">&#39;state&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">validate_class</span> <span class="o">==</span> <span class="s1">'state'</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">state_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
                 <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">state_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -277,8 +277,8 @@
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Unknown validate_class &#39;</span><span class="si">{</span><span class="n">validate_class</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
-                    <span class="s2">&quot;Currently only &#39;vert_coord&#39; and &#39;state&#39; are supported.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Unknown validate_class '</span><span class="si">{</span><span class="n">validate_class</span><span class="si">}</span><span class="s2">'. "</span>
+                    <span class="s2">"Currently only 'vert_coord' and 'state' are supported."</span>
                 <span class="p">)</span>
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
             <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span>
@@ -301,22 +301,22 @@
     <span class="c1"># --- shared placeholder resolution ---</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_model_file_placeholders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Scan ``self.input_data``, replace placeholder filenames with the</span>
 <span class="sd">        configured names from ``[ocean_staged_files]``, and drop</span>
-<span class="sd">        ``&#39;&lt;&lt;&lt;vert_coord&gt;&gt;&gt;&#39;`` entries for MPAS-Ocean.  Called at the top of</span>
+<span class="sd">        ``'&lt;&lt;&lt;vert_coord&gt;&gt;&gt;'`` entries for MPAS-Ocean.  Called at the top of</span>
 <span class="sd">        :py:meth:`process_inputs_and_outputs` by both</span>
 <span class="sd">        :py:class:`~polaris.ocean.model.OceanModelStep` and</span>
 <span class="sd">        :py:class:`~polaris.ocean.model.OceanIOStep`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="n">keep</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_data</span><span class="p">:</span>
-            <span class="n">fn</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">fn</span> <span class="o">==</span> <span class="s1">&#39;&lt;&lt;&lt;vert_coord&gt;&gt;&gt;&#39;</span> <span class="ow">and</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">fn</span> <span class="o">==</span> <span class="s1">'&lt;&lt;&lt;vert_coord&gt;&gt;&gt;'</span> <span class="ow">and</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">'omega'</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">_PLACEHOLDER_MAP</span><span class="p">:</span>
-                <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_filename</span><span class="p">(</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_filename</span><span class="p">(</span>
                     <span class="n">_PLACEHOLDER_MAP</span><span class="p">[</span><span class="n">fn</span><span class="p">]</span>
                 <span class="p">)</span>
             <span class="n">keep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
@@ -325,16 +325,16 @@
     <span class="c1"># --- private helper ---</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_model_input_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="s1">&#39;ocean_staged_files&#39;</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="s1">'ocean_staged_files'</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Config section [</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">] is required to determine model &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;input filenames, but it was not found.&#39;</span>
+                <span class="sa">f</span><span class="s1">'Config section [</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">] is required to determine model '</span>
+                <span class="sa">f</span><span class="s1">'input filenames, but it was not found.'</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Config option </span><span class="si">{</span><span class="n">option</span><span class="si">!r}</span><span class="s1"> is required to determine model &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;input filenames, but it was not found in [</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">].&#39;</span>
+                <span class="sa">f</span><span class="s1">'Config option </span><span class="si">{</span><span class="n">option</span><span class="si">!r}</span><span class="s1"> is required to determine model '</span>
+                <span class="sa">f</span><span class="s1">'input filenames, but it was not found in [</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">].'</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span></div>
 

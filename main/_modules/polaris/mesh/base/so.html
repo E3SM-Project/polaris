@@ -119,18 +119,18 @@
 <div class="viewcode-block" id="SOBaseMesh">
 <a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.base.so.SOBaseMesh.html#polaris.mesh.base.so.SOBaseMesh">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SOBaseMesh</span><span class="p">(</span><span class="n">QuasiUniformSphericalMeshStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for creating Southern Ocean (SO) regionally refined meshes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add some input files</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;high_res_region.geojson&#39;</span><span class="p">,</span>
-            <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.mesh.base.so&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'high_res_region.geojson'</span><span class="p">,</span>
+            <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.mesh.base.so'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
@@ -138,7 +138,7 @@
 <div class="viewcode-block" id="SOBaseMesh.build_cell_width_lat_lon">
 <a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.base.so.SOBaseMesh.build_cell_width_lat_lon.html#polaris.mesh.base.so.SOBaseMesh.build_cell_width_lat_lon">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">build_cell_width_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create cell width array for this mesh on a regular latitude-longitude</span>
 <span class="sd">        grid</span>
 
@@ -152,11 +152,11 @@
 
 <span class="sd">        lat : numpy.array</span>
 <span class="sd">            longitude in degrees (length m and between -90 and 90)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;spherical_mesh&#39;</span><span class="p">]</span>
-        <span class="n">min_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;min_cell_width&#39;</span><span class="p">)</span>
-        <span class="n">max_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_cell_width&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'spherical_mesh'</span><span class="p">]</span>
+        <span class="n">min_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'min_cell_width'</span><span class="p">)</span>
+        <span class="n">max_res</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'max_cell_width'</span><span class="p">)</span>
 
         <span class="n">dlon</span> <span class="o">=</span> <span class="mf">0.1</span>
         <span class="n">dlat</span> <span class="o">=</span> <span class="n">dlon</span>
@@ -170,7 +170,7 @@
             <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
             <span class="n">high_res_km</span><span class="o">=</span><span class="n">min_res</span><span class="p">,</span>
             <span class="n">low_res_km</span><span class="o">=</span><span class="n">max_res</span><span class="p">,</span>
-            <span class="n">region_filename</span><span class="o">=</span><span class="s1">&#39;high_res_region.geojson&#39;</span><span class="p">,</span>
+            <span class="n">region_filename</span><span class="o">=</span><span class="s1">'high_res_region.geojson'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span></div>

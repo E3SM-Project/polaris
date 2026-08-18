@@ -119,9 +119,9 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseMeshDefinition</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Immutable metadata for one supported simple base mesh.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">min_res</span><span class="p">:</span> <span class="nb">float</span>
@@ -129,19 +129,19 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_base_mesh_step_names</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the supported simple base-mesh names in registration order.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    mesh_names : tuple of str</span>
 <span class="sd">        The supported simple base-mesh names.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">BASE_MESH_DEFINITIONS</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_base_mesh_definition</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get metadata for one supported simple base mesh.</span>
 
 <span class="sd">    Parameters</span>
@@ -153,12 +153,12 @@
 <span class="sd">    -------</span>
 <span class="sd">    definition : BaseMeshDefinition</span>
 <span class="sd">        The mesh metadata needed to rebuild the shared step.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">mesh_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">BASE_MESH_DEFINITIONS</span><span class="p">:</span>
-        <span class="n">valid_mesh_names</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_base_mesh_step_names</span><span class="p">())</span>
+        <span class="n">valid_mesh_names</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_base_mesh_step_names</span><span class="p">())</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Unknown simple base mesh </span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">. Valid mesh names are: &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">valid_mesh_names</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'Unknown simple base mesh </span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">. Valid mesh names are: '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">valid_mesh_names</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">BASE_MESH_DEFINITIONS</span><span class="p">[</span><span class="n">mesh_name</span><span class="p">]</span>
 
@@ -166,14 +166,14 @@
 <div class="viewcode-block" id="get_base_mesh_steps">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.base.get_base_mesh_steps.html#polaris.mesh.base.get_base_mesh_steps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_base_mesh_steps</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a list of supported base mesh steps from the mesh component</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    base_mesh_steps : list of polaris.mesh.spherical.BaseMeshStep</span>
 <span class="sd">        All supported base mesh steps in the mesh component</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Import lazily to avoid a circular import through polaris.tasks.mesh.</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base.add</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
 
@@ -198,13 +198,13 @@
     <span class="n">min_res</span><span class="p">,</span>
     <span class="n">max_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add one supported spherical base mesh step to a component.</span>
 
 <span class="sd">    This compatibility wrapper preserves the historic</span>
 <span class="sd">    ``polaris.mesh.base.add_spherical_base_mesh_step`` API while importing</span>
 <span class="sd">    the lower-level implementation lazily to avoid circular imports.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Import lazily to avoid a circular import through polaris.tasks.mesh.</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base.add</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
         <span class="n">add_spherical_base_mesh_step</span> <span class="k">as</span> <span class="n">add_base_mesh_step</span><span class="p">,</span>
@@ -219,9 +219,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_mesh_filepath</span><span class="p">(</span><span class="n">mesh_path</span><span class="p">):</span>
-    <span class="n">component</span> <span class="o">=</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">database</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="s1">'/'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">component</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">mesh_name</span>
 
 
@@ -232,20 +232,20 @@
         <span class="n">min_str</span><span class="p">,</span> <span class="n">min_units</span> <span class="o">=</span> <span class="n">resolution_to_string_and_units</span><span class="p">(</span><span class="n">min_res</span><span class="p">)</span>
         <span class="n">max_str</span><span class="p">,</span> <span class="n">max_units</span> <span class="o">=</span> <span class="n">resolution_to_string_and_units</span><span class="p">(</span><span class="n">max_res</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">min_units</span> <span class="o">==</span> <span class="n">max_units</span><span class="p">:</span>
-            <span class="n">min_units</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">min_str</span><span class="si">}{</span><span class="n">min_units</span><span class="si">}</span><span class="s1">to</span><span class="si">{</span><span class="n">max_str</span><span class="si">}{</span><span class="n">max_units</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">min_units</span> <span class="o">=</span> <span class="s1">''</span>
+        <span class="n">res_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">min_str</span><span class="si">}{</span><span class="n">min_units</span><span class="si">}</span><span class="s1">to</span><span class="si">{</span><span class="n">max_str</span><span class="si">}{</span><span class="n">max_units</span><span class="si">}</span><span class="s1">'</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">res_str</span><span class="si">}</span><span class="s1">'</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_base_mesh_definitions</span><span class="p">():</span>
     <span class="n">uniform_res</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;icos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
-        <span class="s1">&#39;qu&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">210.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
+        <span class="s1">'icos'</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
+        <span class="s1">'qu'</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">210.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
     <span class="p">}</span>
 
     <span class="n">variable_res</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;so&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)],</span>
-        <span class="s1">&#39;rrs&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">)],</span>
+        <span class="s1">'so'</span><span class="p">:</span> <span class="p">[(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)],</span>
+        <span class="s1">'rrs'</span><span class="p">:</span> <span class="p">[(</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">)],</span>
     <span class="p">}</span>
 
     <span class="n">definitions</span> <span class="o">=</span> <span class="p">{}</span>

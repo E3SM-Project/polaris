@@ -120,7 +120,7 @@
 <div class="viewcode-block" id="MaskTopoStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MaskTopoStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step to mask the global topograph dataset for ocean and land regions</span>
 
 <span class="sd">    Attributes</span>
@@ -128,12 +128,12 @@
 <span class="sd">    combine_topo_step : polaris.tasks.e3sm.init.topo.CombineStep</span>
 <span class="sd">        The step for combining global and Antarctic topography on a cubed</span>
 <span class="sd">        sphere grid</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="MaskTopoStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">combine_topo_step</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step</span>
 
 <span class="sd">        Parameters</span>
@@ -150,25 +150,25 @@
 
 <span class="sd">        subdir : str</span>
 <span class="sd">            the subdirectory for the step</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span> <span class="o">=</span> <span class="n">combine_topo_step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography_masked.nc&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'topography_masked.nc'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MaskTopoStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.setup.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set up the step in the work directory and set input files.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
         <span class="n">combine_topo_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span>
         <span class="n">topo_filename</span> <span class="o">=</span> <span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">topo_filename</span>
             <span class="p">),</span>
@@ -178,7 +178,7 @@
 <div class="viewcode-block" id="MaskTopoStep.define_masks">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.define_masks.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.define_masks">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">define_masks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Override in subclasses to return an ocean and a land mask array</span>
 <span class="sd">        with the same shape as ``ds.base_elevation`` and other topogrpahy</span>
 <span class="sd">        fields.  The masks are floating point arrays with values between 0</span>
@@ -203,7 +203,7 @@
 
 <span class="sd">        land_mask : xarray.DataArray</span>
 <span class="sd">            The mask array with the same shape as the topography fields</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">convention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_antarctic_boundary_convention</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="n">base_elevation</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">base_elevation</span>
@@ -227,25 +227,25 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_antarctic_boundary_convention</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get and validate the Antarctic boundary convention from config.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span>
-            <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;antarctic_boundary_convention&#39;</span>
+            <span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'antarctic_boundary_convention'</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Missing spherical_mesh.antarctic_boundary_convention &#39;</span>
-                <span class="s1">&#39;in remap topography config.&#39;</span>
+                <span class="s1">'Missing spherical_mesh.antarctic_boundary_convention '</span>
+                <span class="s1">'in remap topography config.'</span>
             <span class="p">)</span>
 
         <span class="n">convention</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s1">&#39;spherical_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;antarctic_boundary_convention&#39;</span>
+            <span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'antarctic_boundary_convention'</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">convention</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CONVENTIONS</span><span class="p">:</span>
-            <span class="n">valid</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CONVENTIONS</span><span class="p">)</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CONVENTIONS</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Unexpected antarctic_boundary_convention </span><span class="si">{</span><span class="n">convention</span><span class="si">!r}</span><span class="s1">. &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;Valid options are: </span><span class="si">{</span><span class="n">valid</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'Unexpected antarctic_boundary_convention </span><span class="si">{</span><span class="n">convention</span><span class="si">!r}</span><span class="s1">. '</span>
+                <span class="sa">f</span><span class="s1">'Valid options are: </span><span class="si">{</span><span class="n">valid</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">convention</span>
 
@@ -256,56 +256,56 @@
         <span class="n">grounded_mask</span><span class="p">,</span>
         <span class="n">convention</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get the ocean mask before remapping.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">below_sea_level</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_elevation</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">convention</span> <span class="o">==</span> <span class="s1">&#39;calving_front&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">convention</span> <span class="o">==</span> <span class="s1">'calving_front'</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">below_sea_level</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">ice_mask</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">convention</span> <span class="o">==</span> <span class="s1">&#39;grounding_line&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">convention</span> <span class="o">==</span> <span class="s1">'grounding_line'</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">below_sea_level</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">grounded_mask</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">convention</span> <span class="o">==</span> <span class="s1">&#39;bedrock_zero&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">convention</span> <span class="o">==</span> <span class="s1">'bedrock_zero'</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">below_sea_level</span>
 
-        <span class="n">valid</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CONVENTIONS</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CONVENTIONS</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Unexpected antarctic_boundary_convention </span><span class="si">{</span><span class="n">convention</span><span class="si">!r}</span><span class="s1">. &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;Valid options are: </span><span class="si">{</span><span class="n">valid</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'Unexpected antarctic_boundary_convention </span><span class="si">{</span><span class="n">convention</span><span class="si">!r}</span><span class="s1">. '</span>
+            <span class="sa">f</span><span class="s1">'Valid options are: </span><span class="si">{</span><span class="n">valid</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="MaskTopoStep.run">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.MaskTopoStep.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">in_filename</span> <span class="o">=</span> <span class="s1">&#39;topography.nc&#39;</span>
-        <span class="n">out_filename</span> <span class="o">=</span> <span class="s1">&#39;topography_masked.nc&#39;</span>
+        <span class="n">in_filename</span> <span class="o">=</span> <span class="s1">'topography.nc'</span>
+        <span class="n">out_filename</span> <span class="o">=</span> <span class="s1">'topography_masked.nc'</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Masking topography dataset </span><span class="si">{</span><span class="n">in_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Masking topography dataset </span><span class="si">{</span><span class="n">in_filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">in_filename</span><span class="p">)</span>
 
         <span class="n">var_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Creating ocean and land masks&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Creating ocean and land masks'</span><span class="p">)</span>
         <span class="n">masks</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">masks</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">],</span> <span class="n">masks</span><span class="p">[</span><span class="s1">&#39;land&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">define_masks</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="n">masks</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">],</span> <span class="n">masks</span><span class="p">[</span><span class="s1">'land'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">define_masks</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Applying ocean and land masks to topography dataset&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;land&#39;</span><span class="p">,</span> <span class="s1">&#39;ocean&#39;</span><span class="p">]:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Applying ocean and land masks to topography dataset'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'land'</span><span class="p">,</span> <span class="s1">'ocean'</span><span class="p">]:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="n">prefix</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
-                <span class="n">out_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_masked_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">out_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_masked_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">'</span>
                 <span class="n">ds</span><span class="p">[</span><span class="n">out_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">*</span> <span class="n">mask</span>
                 <span class="n">ds</span><span class="p">[</span><span class="n">out_var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
-            <span class="n">out_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mask&#39;</span>
+            <span class="n">out_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mask'</span>
             <span class="n">ds</span><span class="p">[</span><span class="n">out_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask</span>
 
         <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">out_filename</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Wrote masked topography dataset </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Wrote masked topography dataset </span><span class="si">{</span><span class="n">out_filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

@@ -130,7 +130,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
-<span class="n">EARTH_RADIUS</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;mean_radius&#39;</span><span class="p">)</span>
+<span class="n">EARTH_RADIUS</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'mean_radius'</span><span class="p">)</span>
 <span class="n">KM2_TO_M2</span> <span class="o">=</span> <span class="mf">1.0e6</span>
 <span class="n">_METERS_PER_DEGREE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span> <span class="o">*</span> <span class="n">EARTH_RADIUS</span>
 
@@ -146,7 +146,7 @@
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RiverSegment</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Canonical representation of one river-network segment.</span>
 
 <span class="sd">    Attributes</span>
@@ -185,9 +185,9 @@
 <span class="sd">        belongs to, in square meters</span>
 
 <span class="sd">    river_network_rank : int or None, optional</span>
-<span class="sd">        The 1-based size rank of this segment&#39;s basin, with 1 denoting the</span>
+<span class="sd">        The 1-based size rank of this segment's basin, with 1 denoting the</span>
 <span class="sd">        largest retained outlet drainage area</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">geometry</span><span class="p">:</span> <span class="n">LineString</span>
     <span class="n">hyriv_id</span><span class="p">:</span> <span class="nb">int</span>
@@ -203,9 +203,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return the downstream endpoint of the segment.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
 
@@ -213,14 +213,14 @@
 <div class="viewcode-block" id="SimplifyRiverNetworkStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SimplifyRiverNetworkStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Prepare a simplified, source-grid-independent river network.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="SimplifyRiverNetworkStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step.</span>
 
 <span class="sd">        Parameters</span>
@@ -229,32 +229,32 @@
 <span class="sd">            The component the step belongs to</span>
 
 <span class="sd">        subdir : str</span>
-<span class="sd">            The subdirectory within the component&#39;s work directory</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            The subdirectory within the component's work directory</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;river_simplify&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'river_simplify'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
             <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">simplified_filename</span> <span class="o">=</span> <span class="s1">&#39;simplified_river_network.geojson&#39;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simplified_filename</span> <span class="o">=</span> <span class="s1">'simplified_river_network.geojson'</span></div>
 
 
 <div class="viewcode-block" id="SimplifyRiverNetworkStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.setup.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add the HydroRIVERS shapefile archive input and declare outputs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;river_network&#39;</span><span class="p">]</span>
-        <span class="n">archive_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hydrorivers_archive_filename&#39;</span><span class="p">)</span>
-        <span class="n">source_url</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hydrorivers_url&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'river_network'</span><span class="p">]</span>
+        <span class="n">archive_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'hydrorivers_archive_filename'</span><span class="p">)</span>
+        <span class="n">source_url</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'hydrorivers_url'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">archive_filename</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="n">archive_filename</span><span class="p">,</span>
             <span class="n">url</span><span class="o">=</span><span class="n">source_url</span><span class="p">,</span>
-            <span class="n">database</span><span class="o">=</span><span class="s1">&#39;river_network&#39;</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="s1">'river_network'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">simplified_filename</span><span class="p">)</span></div>
 
@@ -262,37 +262,37 @@
 <div class="viewcode-block" id="SimplifyRiverNetworkStep.run">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.run.html#polaris.tasks.mesh.spherical.unified.river.SimplifyRiverNetworkStep.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Download, unpack, convert, and simplify HydroRIVERS source data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cpus_per_task = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'cpus_per_task = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;river_network&#39;</span><span class="p">]</span>
-        <span class="n">archive_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hydrorivers_archive_filename&#39;</span><span class="p">)</span>
-        <span class="n">shp_directory</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hydrorivers_shp_directory&#39;</span><span class="p">)</span>
-        <span class="n">shp_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hydrorivers_shp_filename&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'river_network'</span><span class="p">]</span>
+        <span class="n">archive_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'hydrorivers_archive_filename'</span><span class="p">)</span>
+        <span class="n">shp_directory</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'hydrorivers_shp_directory'</span><span class="p">)</span>
+        <span class="n">shp_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'hydrorivers_shp_filename'</span><span class="p">)</span>
         <span class="n">_unpack_hydrorivers_archive</span><span class="p">(</span><span class="n">archive_filename</span><span class="p">,</span> <span class="n">shp_directory</span><span class="p">)</span>
 
-        <span class="n">drainage_area_threshold</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;drainage_area_threshold&#39;</span><span class="p">)</span>
+        <span class="n">drainage_area_threshold</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'drainage_area_threshold'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">drainage_area_threshold</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">land_background_km</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;sizing_field&#39;</span><span class="p">,</span> <span class="s1">&#39;land_background_km&#39;</span>
+                <span class="s1">'sizing_field'</span><span class="p">,</span> <span class="s1">'land_background_km'</span>
             <span class="p">)</span>
             <span class="n">drainage_area_multiplier</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;drainage_area_multiplier&#39;</span>
+                <span class="s1">'drainage_area_multiplier'</span>
             <span class="p">)</span>
             <span class="n">drainage_area_threshold</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">land_background_km</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">drainage_area_multiplier</span> <span class="o">*</span> <span class="n">KM2_TO_M2</span>
             <span class="p">)</span>
 
         <span class="n">branch_distance_tolerance</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;branch_distance_tolerance&#39;</span>
+            <span class="s1">'branch_distance_tolerance'</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">branch_distance_tolerance</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">river_channel_km</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;sizing_field&#39;</span><span class="p">,</span> <span class="s1">&#39;river_channel_km&#39;</span>
+                <span class="s1">'sizing_field'</span><span class="p">,</span> <span class="s1">'river_channel_km'</span>
             <span class="p">)</span>
             <span class="n">branch_distance_tolerance</span> <span class="o">=</span> <span class="n">river_channel_km</span> <span class="o">*</span> <span class="mf">1000.0</span>
 
@@ -302,7 +302,7 @@
             <span class="n">drainage_area_threshold</span><span class="o">=</span><span class="n">drainage_area_threshold</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;read shapefile (filtered): </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'read shapefile (filtered): </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s'</span><span class="p">,</span>
             <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -311,34 +311,34 @@
             <span class="n">feature_collection</span><span class="o">=</span><span class="n">feature_collection</span><span class="p">,</span>
             <span class="n">drainage_area_threshold</span><span class="o">=</span><span class="n">drainage_area_threshold</span><span class="p">,</span>
             <span class="n">branch_distance_tolerance</span><span class="o">=</span><span class="n">branch_distance_tolerance</span><span class="p">,</span>
-            <span class="n">tributary_area_ratio</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;tributary_area_ratio&#39;</span><span class="p">),</span>
+            <span class="n">tributary_area_ratio</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'tributary_area_ratio'</span><span class="p">),</span>
             <span class="n">n_cpus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;simplify: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">simplified_fc</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unified_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;mesh_name&#39;</span><span class="p">),</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'simplify: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">simplified_fc</span><span class="p">[</span><span class="s1">'metadata'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'unified_mesh'</span><span class="p">,</span> <span class="s1">'mesh_name'</span><span class="p">),</span>
             <span class="n">resolution_latlon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;unified_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution_latlon&#39;</span>
+                <span class="s1">'unified_mesh'</span><span class="p">,</span> <span class="s1">'resolution_latlon'</span>
             <span class="p">),</span>
-            <span class="n">hydrorivers_url</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hydrorivers_url&#39;</span><span class="p">),</span>
+            <span class="n">hydrorivers_url</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'hydrorivers_url'</span><span class="p">),</span>
             <span class="n">hydrorivers_archive_filename</span><span class="o">=</span><span class="n">archive_filename</span><span class="p">,</span>
             <span class="n">hydrorivers_shp_directory</span><span class="o">=</span><span class="n">shp_directory</span><span class="p">,</span>
             <span class="n">hydrorivers_shp_filename</span><span class="o">=</span><span class="n">shp_filename</span><span class="p">,</span>
             <span class="n">drainage_area_threshold</span><span class="o">=</span><span class="n">drainage_area_threshold</span><span class="p">,</span>
             <span class="n">branch_distance_tolerance</span><span class="o">=</span><span class="n">branch_distance_tolerance</span><span class="p">,</span>
-            <span class="n">tributary_area_ratio</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;tributary_area_ratio&#39;</span><span class="p">),</span>
+            <span class="n">tributary_area_ratio</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'tributary_area_ratio'</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">write_geojson</span><span class="p">(</span><span class="n">simplified_fc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">simplified_filename</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;write outputs: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'write outputs: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 </div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_unpack_hydrorivers_archive</span><span class="p">(</span><span class="n">archive_filename</span><span class="p">,</span> <span class="n">data_directory</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Unpack the HydroRIVERS archive if needed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">data_directory</span><span class="p">):</span>
         <span class="k">return</span>
 
@@ -346,54 +346,54 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">data_directory</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
-            <span class="s1">&#39;Unpacked HydroRIVERS archive but did not find the expected &#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;data directory </span><span class="si">{</span><span class="n">data_directory</span><span class="si">!r}</span><span class="s1">.&#39;</span>
+            <span class="s1">'Unpacked HydroRIVERS archive but did not find the expected '</span>
+            <span class="sa">f</span><span class="s1">'data directory </span><span class="si">{</span><span class="n">data_directory</span><span class="si">!r}</span><span class="s1">.'</span>
         <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_read_filtered_shapefile_feature_collection</span><span class="p">(</span>
     <span class="n">shp_filename</span><span class="p">,</span> <span class="n">drainage_area_threshold</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read a HydroRIVERS shapefile, skipping segments below the drainage area</span>
 <span class="sd">    threshold before constructing geometry to avoid processing the ~97% of</span>
 <span class="sd">    records that would be discarded immediately afterward.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">reader</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">shp_filename</span><span class="p">)</span>
     <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">shape_record</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">iterShapeRecords</span><span class="p">():</span>
         <span class="n">props</span> <span class="o">=</span> <span class="n">shape_record</span><span class="o">.</span><span class="n">record</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-        <span class="n">upland_skm</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;UPLAND_SKM&#39;</span><span class="p">)</span>
+        <span class="n">upland_skm</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'UPLAND_SKM'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">upland_skm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">upland_skm</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;upland_skm&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">upland_skm</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'upland_skm'</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">upland_skm</span><span class="p">)</span> <span class="o">*</span> <span class="n">KM2_TO_M2</span> <span class="o">&lt;</span> <span class="n">drainage_area_threshold</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="nb">dict</span><span class="p">(</span>
-                <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;Feature&#39;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s1">'Feature'</span><span class="p">,</span>
                 <span class="n">properties</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
                 <span class="n">geometry</span><span class="o">=</span><span class="n">shape_record</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">__geo_interface__</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;FeatureCollection&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">'FeatureCollection'</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_convert_hydrorivers_shapefile_to_geojson</span><span class="p">(</span><span class="n">shp_filename</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert the HydroRIVERS shapefile to GeoJSON.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">reader</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">shp_filename</span><span class="p">)</span>
     <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">shape_record</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">iterShapeRecords</span><span class="p">():</span>
         <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="nb">dict</span><span class="p">(</span>
-                <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;Feature&#39;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s1">'Feature'</span><span class="p">,</span>
                 <span class="n">properties</span><span class="o">=</span><span class="n">shape_record</span><span class="o">.</span><span class="n">record</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
                 <span class="n">geometry</span><span class="o">=</span><span class="n">shape_record</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">__geo_interface__</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="n">write_geojson</span><span class="p">(</span>
-        <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;FeatureCollection&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">),</span> <span class="n">output_filename</span>
+        <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">'FeatureCollection'</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">),</span> <span class="n">output_filename</span>
     <span class="p">)</span>
 
 
@@ -406,7 +406,7 @@
     <span class="n">tributary_area_ratio</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
     <span class="n">n_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Simplify a HydroRIVERS-style feature collection.</span>
 
 <span class="sd">    Parameters</span>
@@ -433,7 +433,7 @@
 <span class="sd">    simplified_fc : dict</span>
 <span class="sd">        A GeoJSON feature collection for the simplified river network</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
     <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -445,14 +445,14 @@
         <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">drainage_area</span> <span class="o">&gt;=</span> <span class="n">drainage_area_threshold</span>
     <span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">&#39;  read segments: </span><span class="si">{</span><span class="n">n_raw</span><span class="si">}</span><span class="s1"> raw, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span><span class="si">}</span><span class="s1"> after area filter, &#39;</span>
-        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">'  read segments: </span><span class="si">{</span><span class="n">n_raw</span><span class="si">}</span><span class="s1"> raw, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span><span class="si">}</span><span class="s1"> after area filter, '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s'</span><span class="p">,</span>
         <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;No river-network segments remain after applying the drainage &#39;</span>
-            <span class="s1">&#39;area threshold.&#39;</span>
+            <span class="s1">'No river-network segments remain after applying the drainage '</span>
+            <span class="s1">'area threshold.'</span>
         <span class="p">)</span>
 
     <span class="n">segment_by_id</span> <span class="o">=</span> <span class="p">{</span><span class="n">segment</span><span class="o">.</span><span class="n">hyriv_id</span><span class="p">:</span> <span class="n">segment</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">}</span>
@@ -467,7 +467,7 @@
         <span class="n">segment</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span> <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">next_down</span> <span class="o">==</span> <span class="mi">0</span>
     <span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">&#39;  terminal basin roots: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">terminal_segments</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">'  terminal basin roots: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">terminal_segments</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
         <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -475,13 +475,13 @@
     <span class="n">seg_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
     <span class="n">seg_tree</span> <span class="o">=</span> <span class="n">STRtree</span><span class="p">([</span><span class="n">seg</span><span class="o">.</span><span class="n">geometry</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">seg_list</span><span class="p">])</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">&#39;  build STRtree (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">seg_list</span><span class="p">)</span><span class="si">}</span><span class="s1"> geoms): </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">'  build STRtree (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">seg_list</span><span class="p">)</span><span class="si">}</span><span class="s1"> geoms): </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s'</span><span class="p">,</span>
         <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">retained_segments</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RiverSegment</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">n_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_cpus</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">terminal_segments</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  basin traversal: n_workers=</span><span class="si">{</span><span class="n">n_workers</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  basin traversal: n_workers=</span><span class="si">{</span><span class="n">n_workers</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">n_workers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">global</span> <span class="n">_WORKER_UPSTREAM_MAP</span><span class="p">,</span> <span class="n">_WORKER_SEGMENT_BY_ID</span>
@@ -493,7 +493,7 @@
         <span class="n">_WORKER_TRIBUTARY_AREA_RATIO</span> <span class="o">=</span> <span class="n">tributary_area_ratio</span>
         <span class="n">_WORKER_SEG_TREE</span> <span class="o">=</span> <span class="n">seg_tree</span>
         <span class="n">_WORKER_SEG_LIST</span> <span class="o">=</span> <span class="n">seg_list</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="s1">&#39;fork&#39;</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="s1">'fork'</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_process_basin_root</span><span class="p">,</span> <span class="n">terminal_segments</span><span class="p">)</span>
         <span class="n">_WORKER_UPSTREAM_MAP</span> <span class="o">=</span> <span class="kc">None</span>
@@ -520,7 +520,7 @@
                 <span class="n">seg_list</span><span class="o">=</span><span class="n">seg_list</span><span class="p">,</span>
             <span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  basin traversal: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  basin traversal: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">annotated_segments</span> <span class="o">=</span> <span class="n">_annotate_river_networks</span><span class="p">(</span>
         <span class="n">segments</span><span class="o">=</span><span class="n">retained_segments</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
@@ -542,7 +542,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">read_river_segments_from_feature_collection</span><span class="p">(</span>
     <span class="n">feature_collection</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">RiverSegment</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert a GeoJSON feature collection to canonical river segments.</span>
 
 <span class="sd">    Parameters</span>
@@ -555,9 +555,9 @@
 <span class="sd">    list of RiverSegment</span>
 <span class="sd">        Canonical river segments; geometries with duplicate HydroRIVERS</span>
 <span class="sd">        identifiers are merged into a single segment</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">merged_segments</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RiverSegment</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">feature_collection</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">feature_collection</span><span class="p">[</span><span class="s1">'features'</span><span class="p">]:</span>
         <span class="n">segment</span> <span class="o">=</span> <span class="n">_segment_from_feature</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
         <span class="n">existing</span> <span class="o">=</span> <span class="n">merged_segments</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">hyriv_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">existing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -584,7 +584,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">river_segments_to_feature_collection</span><span class="p">(</span><span class="n">segments</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert canonical river segments to a GeoJSON feature collection.</span>
 
 <span class="sd">    Parameters</span>
@@ -597,7 +597,7 @@
 <span class="sd">    dict</span>
 <span class="sd">        A GeoJSON feature collection with one feature per segment,</span>
 <span class="sd">        preserving all HydroRIVERS properties</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
         <span class="n">properties</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -611,25 +611,25 @@
             <span class="n">outlet_hyriv_id</span><span class="o">=</span><span class="n">segment</span><span class="o">.</span><span class="n">outlet_hyriv_id</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">outlet_drainage_area</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">properties</span><span class="p">[</span><span class="s1">&#39;outlet_drainage_area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">outlet_drainage_area</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s1">'outlet_drainage_area'</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">outlet_drainage_area</span>
         <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">river_network_rank</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">properties</span><span class="p">[</span><span class="s1">&#39;river_network_rank&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">river_network_rank</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s1">'river_network_rank'</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">river_network_rank</span>
         <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">river_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">properties</span><span class="p">[</span><span class="s1">&#39;river_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">river_name</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s1">'river_name'</span><span class="p">]</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">river_name</span>
         <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="nb">dict</span><span class="p">(</span>
-                <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;Feature&#39;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s1">'Feature'</span><span class="p">,</span>
                 <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">,</span>
                 <span class="n">geometry</span><span class="o">=</span><span class="n">mapping</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">geometry</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;FeatureCollection&#39;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">'FeatureCollection'</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_process_basin_root</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Process one terminal-root basin in a fork-based worker process.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">retained</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">RiverSegment</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">_retain_basin_segments</span><span class="p">(</span>
         <span class="n">segment</span><span class="o">=</span><span class="n">replace</span><span class="p">(</span>
@@ -648,18 +648,18 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_outlet_drainage_area</span><span class="p">(</span><span class="n">segment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a sortable outlet drainage area for a river segment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">outlet_drainage_area</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">0.0</span>
     <span class="k">return</span> <span class="n">segment</span><span class="o">.</span><span class="n">outlet_drainage_area</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_annotate_river_networks</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">terminal_segments</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add size-rank metadata to retained river-network segments.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">roots</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="n">terminal_segments</span><span class="p">,</span>
         <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">root</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">root</span><span class="o">.</span><span class="n">drainage_area</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">hyriv_id</span><span class="p">),</span>
@@ -694,9 +694,9 @@
     <span class="n">seg_tree</span><span class="p">,</span>
     <span class="n">seg_list</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Iteratively retain a main stem and major tributaries for one basin.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">basin_visited</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">stack</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment</span><span class="p">]</span>
 
@@ -737,9 +737,9 @@
     <span class="n">seg_tree</span><span class="p">,</span>
     <span class="n">seg_list</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Select retained upstream segments for one confluence.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">upstream_segments</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="n">upstream_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">hyriv_id</span><span class="p">,</span> <span class="p">[]),</span>
         <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">upstream</span><span class="p">:</span> <span class="p">(</span>
@@ -776,9 +776,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_acyclic_downstream_graph</span><span class="p">(</span><span class="n">segment_by_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Validate that retained segments do not contain NEXT_DOWN cycles.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">checked</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">hyriv_id</span> <span class="ow">in</span> <span class="n">segment_by_id</span><span class="p">:</span>
@@ -794,10 +794,10 @@
                 <span class="k">break</span>
             <span class="k">if</span> <span class="n">current_id</span> <span class="ow">in</span> <span class="n">path_index</span><span class="p">:</span>
                 <span class="n">cycle</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="n">path_index</span><span class="p">[</span><span class="n">current_id</span><span class="p">]</span> <span class="p">:]</span> <span class="o">+</span> <span class="p">[</span><span class="n">current_id</span><span class="p">]</span>
-                <span class="n">cycle_text</span> <span class="o">=</span> <span class="s1">&#39; -&gt; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">cycle</span><span class="p">)</span>
+                <span class="n">cycle_text</span> <span class="o">=</span> <span class="s1">' -&gt; '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">cycle</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;Cycle detected in retained river-network NEXT_DOWN &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;chain: </span><span class="si">{</span><span class="n">cycle_text</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="s1">'Cycle detected in retained river-network NEXT_DOWN '</span>
+                    <span class="sa">f</span><span class="s1">'chain: </span><span class="si">{</span><span class="n">cycle_text</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
 
             <span class="n">path_index</span><span class="p">[</span><span class="n">current_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -818,13 +818,13 @@
     <span class="n">seg_list</span><span class="p">,</span>
     <span class="n">distance_tolerance</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the minimum distance from a segment to already retained segments.</span>
 
 <span class="sd">    Uses a spatial index to limit exact distance computations to nearby</span>
 <span class="sd">    candidates, and returns early once a distance below distance_tolerance</span>
 <span class="sd">    is found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">basin_id_set</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
     <span class="n">bounds</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">bounds</span>
@@ -852,39 +852,39 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_segment_from_feature</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Parse one GeoJSON feature into a canonical river segment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">properties</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">]</span>
-    <span class="n">geometry</span> <span class="o">=</span> <span class="n">_line_string_from_geojson</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">])</span>
-    <span class="n">hyriv_id</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;hyriv_id&#39;</span><span class="p">,</span> <span class="s1">&#39;HYRIV_ID&#39;</span><span class="p">))</span>
-    <span class="n">main_riv</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;main_riv&#39;</span><span class="p">,</span> <span class="s1">&#39;MAIN_RIV&#39;</span><span class="p">))</span>
-    <span class="n">ord_stra</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;ord_stra&#39;</span><span class="p">,</span> <span class="s1">&#39;ORD_STRA&#39;</span><span class="p">))</span>
-    <span class="n">next_down</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;next_down&#39;</span><span class="p">,</span> <span class="s1">&#39;NEXT_DOWN&#39;</span><span class="p">))</span>
-    <span class="n">endorheic</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;endorheic&#39;</span><span class="p">,</span> <span class="s1">&#39;ENDORHEIC&#39;</span><span class="p">))</span>
+<span class="sd">    """</span>
+    <span class="n">properties</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s1">'properties'</span><span class="p">]</span>
+    <span class="n">geometry</span> <span class="o">=</span> <span class="n">_line_string_from_geojson</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s1">'geometry'</span><span class="p">])</span>
+    <span class="n">hyriv_id</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">'hyriv_id'</span><span class="p">,</span> <span class="s1">'HYRIV_ID'</span><span class="p">))</span>
+    <span class="n">main_riv</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">'main_riv'</span><span class="p">,</span> <span class="s1">'MAIN_RIV'</span><span class="p">))</span>
+    <span class="n">ord_stra</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">'ord_stra'</span><span class="p">,</span> <span class="s1">'ORD_STRA'</span><span class="p">))</span>
+    <span class="n">next_down</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">'next_down'</span><span class="p">,</span> <span class="s1">'NEXT_DOWN'</span><span class="p">))</span>
+    <span class="n">endorheic</span> <span class="o">=</span> <span class="n">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">'endorheic'</span><span class="p">,</span> <span class="s1">'ENDORHEIC'</span><span class="p">))</span>
     <span class="n">drainage_area</span> <span class="o">=</span> <span class="n">_get_float_property</span><span class="p">(</span>
         <span class="n">properties</span><span class="p">,</span>
-        <span class="p">(</span><span class="s1">&#39;drainage_area&#39;</span><span class="p">,),</span>
+        <span class="p">(</span><span class="s1">'drainage_area'</span><span class="p">,),</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">drainage_area</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">drainage_area</span> <span class="o">=</span> <span class="n">_get_float_property</span><span class="p">(</span>
-            <span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;upland_skm&#39;</span><span class="p">,</span> <span class="s1">&#39;UPLAND_SKM&#39;</span><span class="p">)</span>
+            <span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">'upland_skm'</span><span class="p">,</span> <span class="s1">'UPLAND_SKM'</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">drainage_area</span> <span class="o">*=</span> <span class="n">KM2_TO_M2</span>
     <span class="n">river_name</span> <span class="o">=</span> <span class="n">_get_str_property</span><span class="p">(</span>
-        <span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;river_name&#39;</span><span class="p">,</span> <span class="s1">&#39;RIVER_NAME&#39;</span><span class="p">,</span> <span class="s1">&#39;RIV_NAME&#39;</span><span class="p">,</span> <span class="s1">&#39;NAME&#39;</span><span class="p">)</span>
+        <span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">'river_name'</span><span class="p">,</span> <span class="s1">'RIVER_NAME'</span><span class="p">,</span> <span class="s1">'RIV_NAME'</span><span class="p">,</span> <span class="s1">'NAME'</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">outlet_hyriv_id</span> <span class="o">=</span> <span class="n">_get_optional_int_property</span><span class="p">(</span>
-        <span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;outlet_hyriv_id&#39;</span><span class="p">,</span> <span class="s1">&#39;OUTLET_HYRIV_ID&#39;</span><span class="p">)</span>
+        <span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">'outlet_hyriv_id'</span><span class="p">,</span> <span class="s1">'OUTLET_HYRIV_ID'</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">outlet_drainage_area</span> <span class="o">=</span> <span class="n">_get_float_property</span><span class="p">(</span>
         <span class="n">properties</span><span class="p">,</span>
-        <span class="p">(</span><span class="s1">&#39;outlet_drainage_area&#39;</span><span class="p">,</span> <span class="s1">&#39;OUTLET_DRAINAGE_AREA&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'outlet_drainage_area'</span><span class="p">,</span> <span class="s1">'OUTLET_DRAINAGE_AREA'</span><span class="p">),</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">river_network_rank</span> <span class="o">=</span> <span class="n">_get_optional_int_property</span><span class="p">(</span>
-        <span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;river_network_rank&#39;</span><span class="p">,</span> <span class="s1">&#39;RIVER_NETWORK_RANK&#39;</span><span class="p">)</span>
+        <span class="n">properties</span><span class="p">,</span> <span class="p">(</span><span class="s1">'river_network_rank'</span><span class="p">,</span> <span class="s1">'RIVER_NETWORK_RANK'</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">RiverSegment</span><span class="p">(</span>
@@ -903,9 +903,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_line_string_from_geojson</span><span class="p">(</span><span class="n">geometry</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert a GeoJSON line geometry to a single LineString.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">geom</span> <span class="o">=</span> <span class="n">shape</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">LineString</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">geom</span>
@@ -915,23 +915,23 @@
         <span class="k">return</span> <span class="n">merged</span>
 
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">&#39;Unsupported river geometry type </span><span class="si">{</span><span class="n">geom</span><span class="o">.</span><span class="n">geom_type</span><span class="si">!r}</span><span class="s1">; expected a &#39;</span>
-        <span class="s1">&#39;LineString-compatible geometry.&#39;</span>
+        <span class="sa">f</span><span class="s1">'Unsupported river geometry type </span><span class="si">{</span><span class="n">geom</span><span class="o">.</span><span class="n">geom_type</span><span class="si">!r}</span><span class="s1">; expected a '</span>
+        <span class="s1">'LineString-compatible geometry.'</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read an integer property using one of several candidate keys.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">_get_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_optional_int_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read an optional integer property using one of several candidate keys.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">_get_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -939,9 +939,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_float_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read a float property using one of several candidate keys.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">_get_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -949,33 +949,33 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_str_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read a string property if available.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">_get_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">''</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_property</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read one of several candidate properties from a mapping.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">properties</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Could not find any of the required properties </span><span class="si">{</span><span class="n">keys</span><span class="si">!r}</span><span class="s1">.&#39;</span>
+            <span class="sa">f</span><span class="s1">'Could not find any of the required properties </span><span class="si">{</span><span class="n">keys</span><span class="si">!r}</span><span class="s1">.'</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">default</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_minimum_line_distance</span><span class="p">(</span><span class="n">line_a</span><span class="p">,</span> <span class="n">line_b</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Approximate the minimum distance between two lines on the sphere.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">coords_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line_a</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
     <span class="n">coords_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line_b</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
     <span class="n">distances</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span>

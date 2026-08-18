@@ -162,13 +162,13 @@ functions.  Here is a code snippet from
 
 <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="o">...</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;dome&#39;</span><span class="p">]</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'dome'</span><span class="p">]</span>
     <span class="o">...</span>
-    <span class="n">levels</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;levels&#39;</span><span class="p">)</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;create_landice_grid_from_generic_MPAS_grid.py&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="s1">&#39;mpas_grid.nc&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;landice_grid.nc&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-l&#39;</span><span class="p">,</span> <span class="n">levels</span><span class="p">]</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'levels'</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'create_landice_grid_from_generic_MPAS_grid.py'</span><span class="p">,</span>
+            <span class="s1">'-i'</span><span class="p">,</span> <span class="s1">'mpas_grid.nc'</span><span class="p">,</span>
+            <span class="s1">'-o'</span><span class="p">,</span> <span class="s1">'landice_grid.nc'</span><span class="p">,</span>
+            <span class="s1">'-l'</span><span class="p">,</span> <span class="n">levels</span><span class="p">]</span>
 
     <span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
     <span class="o">...</span>

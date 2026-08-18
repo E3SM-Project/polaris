@@ -128,23 +128,23 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;ComputeCoastlineStep&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;build_coastline_dataset&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;build_coastline_datasets&#39;</span><span class="p">,</span>
+    <span class="s1">'ComputeCoastlineStep'</span><span class="p">,</span>
+    <span class="s1">'build_coastline_dataset'</span><span class="p">,</span>
+    <span class="s1">'build_coastline_datasets'</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <div class="viewcode-block" id="ComputeCoastlineStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ComputeCoastlineStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Prepare coastline masks and signed-distance fields on a lat-lon grid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ComputeCoastlineStep.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">combine_step</span><span class="p">,</span> <span class="n">subdir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step.</span>
 
 <span class="sd">        Parameters</span>
@@ -156,11 +156,11 @@
 <span class="sd">            The step with combined topography on the target lat-lon grid</span>
 
 <span class="sd">        subdir : str</span>
-<span class="sd">            The subdirectory within the component&#39;s work directory</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            The subdirectory within the component's work directory</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;coastline_compute&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'coastline_compute'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -168,7 +168,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">default_cached</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span> <span class="o">=</span> <span class="n">combine_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_filenames</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">convention</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;coastline_</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">.nc&#39;</span>
+            <span class="n">convention</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'coastline_</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">.nc'</span>
             <span class="k">for</span> <span class="n">convention</span> <span class="ow">in</span> <span class="n">CONVENTIONS</span>
         <span class="p">}</span></div>
 
@@ -176,12 +176,12 @@
 <div class="viewcode-block" id="ComputeCoastlineStep.setup">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.setup.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set up the step in the work directory, including linking inputs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">combine_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">combine_step</span><span class="o">.</span><span class="n">combined_filename</span>
             <span class="p">),</span>
@@ -193,23 +193,23 @@
 <div class="viewcode-block" id="ComputeCoastlineStep.run">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.run.html#polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="n">FINEST_RESOLUTION</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;coastline&#39;</span><span class="p">]</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'coastline'</span><span class="p">]</span>
         <span class="n">include_critical_transects</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
-            <span class="s1">&#39;include_critical_transects&#39;</span>
+            <span class="s1">'include_critical_transects'</span>
         <span class="p">)</span>
-        <span class="n">mask_threshold</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;mask_threshold&#39;</span><span class="p">)</span>
-        <span class="n">sea_level_elevation</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;sea_level_elevation&#39;</span><span class="p">)</span>
-        <span class="n">distance_chunk_size</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;distance_chunk_size&#39;</span><span class="p">)</span>
+        <span class="n">mask_threshold</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'mask_threshold'</span><span class="p">)</span>
+        <span class="n">sea_level_elevation</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'sea_level_elevation'</span><span class="p">)</span>
+        <span class="n">distance_chunk_size</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'distance_chunk_size'</span><span class="p">)</span>
 
         <span class="n">critical_transects</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">include_critical_transects</span><span class="p">:</span>
             <span class="n">critical_transects</span> <span class="o">=</span> <span class="n">load_default_critical_transects</span><span class="p">()</span>
 
-        <span class="n">ds_topo</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds_topo</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'topography.nc'</span><span class="p">)</span>
         <span class="n">ds_coastlines</span> <span class="o">=</span> <span class="n">build_coastline_datasets</span><span class="p">(</span>
             <span class="n">ds_topo</span><span class="o">=</span><span class="n">ds_topo</span><span class="p">,</span>
             <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
@@ -220,10 +220,10 @@
             <span class="n">critical_transects</span><span class="o">=</span><span class="n">critical_transects</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">convention</span><span class="p">,</span> <span class="n">ds_coastline</span> <span class="ow">in</span> <span class="n">ds_coastlines</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">ds_coastline</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;source_topography&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ds_coastline</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'source_topography'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">combined_filename</span>
             <span class="p">)</span>
-            <span class="n">ds_coastline</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;source_topography_step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ds_coastline</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'source_topography_step'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">subdir</span>
             <span class="p">)</span>
             <span class="n">_write_netcdf_with_fill_values</span><span class="p">(</span>

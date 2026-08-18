@@ -117,7 +117,7 @@
 <div class="viewcode-block" id="Analysis">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.merry_go_round.analysis.Analysis.html#polaris.tasks.ocean.merry_go_round.analysis.Analysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">ConvergenceAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for analyzing the output from merry-go-round test case</span>
 
 <span class="sd">    Attributes</span>
@@ -127,12 +127,12 @@
 
 <span class="sd">    case_name : str</span>
 <span class="sd">        The name of the test case</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Analysis.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.merry_go_round.analysis.Analysis.html#polaris.tasks.ocean.merry_go_round.analysis.Analysis.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -147,11 +147,11 @@
 <span class="sd">            The dependencies of this step</span>
 
 <span class="sd">        refinement : str, optional</span>
-<span class="sd">            Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">            Refinement type. One of 'space', 'time' or 'both' indicating both</span>
 <span class="sd">            space and time</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'tracer1'</span><span class="p">,</span> <span class="s1">'title'</span><span class="p">:</span> <span class="s1">'tracer1'</span><span class="p">,</span> <span class="s1">'zidx'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
@@ -159,7 +159,7 @@
             <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
             <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">,</span>
             <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'culled_mesh.nc'</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 

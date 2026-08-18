@@ -141,7 +141,7 @@ optional <code class="docutils literal notranslate"><span class="pre">max_res</s
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
 
 <span class="n">mesh_step</span> <span class="o">=</span> <span class="n">add_spherical_base_mesh_step</span><span class="p">(</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;qu&#39;</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="s1">'qu'</span><span class="p">,</span>
     <span class="n">min_res</span><span class="o">=</span><span class="mf">120.0</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -149,7 +149,7 @@ optional <code class="docutils literal notranslate"><span class="pre">max_res</s
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_spherical_base_mesh_step</span>
 
 <span class="n">mesh_step</span> <span class="o">=</span> <span class="n">add_spherical_base_mesh_step</span><span class="p">(</span>
-    <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;so&#39;</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="o">=</span><span class="s1">'so'</span><span class="p">,</span>
     <span class="n">min_res</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>
     <span class="n">max_res</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
 <span class="p">)</span>
@@ -265,14 +265,14 @@ returned by <code class="docutils literal notranslate"><span class="pre">get_bas
 <p>If you wish to add a new resolution (in km), simply edit the list of either
 uniform or variable resolutions to add the new value(s):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="n">uniform_res</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;icos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
-        <span class="s1">&#39;qu&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">210.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
+        <span class="s1">'icos'</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
+        <span class="s1">'qu'</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">210.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
     <span class="p">}</span>
 
     <span class="c1"># Add more variable resolution base meshes here</span>
     <span class="n">variable_res</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;so&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)],</span>
-        <span class="s1">&#39;rrs&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">)],</span>
+        <span class="s1">'so'</span><span class="p">:</span> <span class="p">[(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)],</span>
+        <span class="s1">'rrs'</span><span class="p">:</span> <span class="p">[(</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">)],</span>
     <span class="p">}</span>
 </pre></div>
 </div>
@@ -281,17 +281,17 @@ resolution.</p>
 <p>To add a new type of base mesh, you first need to add its base class to
 <code class="docutils literal notranslate"><span class="pre">MESH_CLASSES</span></code> and <code class="docutils literal notranslate"><span class="pre">MESH_NAME_PREFIXES</span></code> in <code class="docutils literal notranslate"><span class="pre">polaris/mesh/base/add.py</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MESH_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;icos&#39;</span><span class="p">:</span> <span class="n">IcosahedralMeshStep</span><span class="p">,</span>
-    <span class="s1">&#39;qu&#39;</span><span class="p">:</span> <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
-    <span class="s1">&#39;rrs&#39;</span><span class="p">:</span> <span class="n">RRSBaseMesh</span><span class="p">,</span>
-    <span class="s1">&#39;so&#39;</span><span class="p">:</span> <span class="n">SOBaseMesh</span><span class="p">,</span>
+    <span class="s1">'icos'</span><span class="p">:</span> <span class="n">IcosahedralMeshStep</span><span class="p">,</span>
+    <span class="s1">'qu'</span><span class="p">:</span> <span class="n">QuasiUniformSphericalMeshStep</span><span class="p">,</span>
+    <span class="s1">'rrs'</span><span class="p">:</span> <span class="n">RRSBaseMesh</span><span class="p">,</span>
+    <span class="s1">'so'</span><span class="p">:</span> <span class="n">SOBaseMesh</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">MESH_NAME_PREFIXES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;icos&#39;</span><span class="p">:</span> <span class="s1">&#39;Icos&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;qu&#39;</span><span class="p">:</span> <span class="s1">&#39;QU&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;rrs&#39;</span><span class="p">:</span> <span class="s1">&#39;RRS&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;so&#39;</span><span class="p">:</span> <span class="s1">&#39;SO&#39;</span><span class="p">,</span>
+    <span class="s1">'icos'</span><span class="p">:</span> <span class="s1">'Icos'</span><span class="p">,</span>
+    <span class="s1">'qu'</span><span class="p">:</span> <span class="s1">'QU'</span><span class="p">,</span>
+    <span class="s1">'rrs'</span><span class="p">:</span> <span class="s1">'RRS'</span><span class="p">,</span>
+    <span class="s1">'so'</span><span class="p">:</span> <span class="s1">'SO'</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>

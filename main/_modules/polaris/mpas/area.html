@@ -115,7 +115,7 @@
 <div class="viewcode-block" id="area_for_field">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mpas.area_for_field.html#polaris.mpas.area_for_field">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">area_for_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the appropriate area (on cells, vertices or edges) for the given</span>
 <span class="sd">    field</span>
 
@@ -131,13 +131,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    area : xarray.DataArray</span>
 <span class="sd">        The area on cells, vertices or edges</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;nCells&#39;</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'nCells'</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="n">area</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">areaCell</span>
-    <span class="k">elif</span> <span class="s1">&#39;nEdges&#39;</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="s1">'nEdges'</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="n">area</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">dcEdge</span> <span class="o">*</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">dvEdge</span>
-    <span class="k">elif</span> <span class="s1">&#39;nVertices&#39;</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-        <span class="n">vertex_degree</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;vertexDegree&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="s1">'nVertices'</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">vertex_degree</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'vertexDegree'</span><span class="p">]</span>
         <span class="n">area</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ivert</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">vertex_degree</span><span class="p">):</span>
             <span class="n">cov</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">cellsOnVertex</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">vertexDegree</span><span class="o">=</span><span class="n">ivert</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
@@ -146,8 +146,8 @@
             <span class="n">area</span> <span class="o">=</span> <span class="n">area</span> <span class="o">+</span> <span class="n">kite_area</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;The field does not have any of the expected &#39;</span>
-            <span class="s1">&#39;horizontal dimensions for an MPAS mesh&#39;</span>
+            <span class="s1">'The field does not have any of the expected '</span>
+            <span class="s1">'horizontal dimensions for an MPAS mesh'</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">area</span></div>

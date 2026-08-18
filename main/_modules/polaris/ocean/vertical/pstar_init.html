@@ -110,11 +110,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.vertical.pstar_init</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Base class for steps that initialize the p-star vertical coordinate by</span>
 <span class="sd">iterating on BottomPressure until the recovered geometric seafloor depth</span>
 <span class="sd">matches a target bathymetry within a configurable tolerance.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
@@ -136,7 +136,7 @@
 <div class="viewcode-block" id="PStarInitStep">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PStarInitStep</span><span class="p">(</span><span class="n">Step</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Base class for initialization steps that use the p-star vertical</span>
 <span class="sd">    coordinate.</span>
 
@@ -147,7 +147,7 @@
 
 <span class="sd">    The outer fixed-point iteration is provided by</span>
 <span class="sd">    :py:meth:`run_pstar_init`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="PStarInitStep.init_tracers">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers.html#polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers">[docs]</a>
@@ -155,7 +155,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize conservative temperature (CT) and absolute salinity (SA)</span>
 <span class="sd">        at p-star layer midpoints for the current outer iteration.</span>
 
@@ -172,7 +172,7 @@
 <span class="sd">            CT with dimensions ``(Time, nCells, nVertLevels)``.</span>
 <span class="sd">        absolute_salinity : xarray.DataArray</span>
 <span class="sd">            SA with dimensions ``(Time, nCells, nVertLevels)``.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        """</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build_pstar_coord_ds</span><span class="p">(</span>
@@ -181,7 +181,7 @@
         <span class="n">bottom_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
         <span class="n">surface_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Build the p-star vertical coordinate dataset for one outer iteration.</span>
 
 <span class="sd">        The default implementation calls</span>
@@ -203,25 +203,25 @@
 <span class="sd">        -------</span>
 <span class="sd">        xarray.Dataset</span>
 <span class="sd">            Dataset with p-star coordinate variables added.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;BottomPressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_pressure</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;seafloor pressure&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Pa&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'BottomPressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_pressure</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seafloor pressure'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Pa'</span>
         <span class="k">if</span> <span class="n">surface_pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bottom_pressure</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sea surface pressure&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Pa&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'SurfacePressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'sea surface pressure'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Pa'</span>
         <span class="n">init_pstar_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s1">&#39;vertCoordMovementWeights&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;vertCoordMovementWeights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span>
+        <span class="k">if</span> <span class="s1">'vertCoordMovementWeights'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">'vertCoordMovementWeights'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span>
                 <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;vertical coordinate movement weights&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                    <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'vertical coordinate movement weights'</span><span class="p">,</span>
+                    <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span>
@@ -235,7 +235,7 @@
         <span class="n">surface_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sea_surface_height</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run the fixed-point iteration that determines BottomPressure (and</span>
 <span class="sd">        therefore the p-star coordinate) such that the recovered geometric</span>
 <span class="sd">        water-column thickness matches the target within a configurable</span>
@@ -277,19 +277,19 @@
 <span class="sd">        xarray.Dataset</span>
 <span class="sd">            Dataset containing all base-class output variables with</span>
 <span class="sd">            ``long_name`` and ``units`` attributes set.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
-        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+        <span class="n">ncells</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">surface_pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ncells</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span>
                 <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;sea surface pressure&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span>
+                    <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'sea surface pressure'</span><span class="p">,</span>
+                    <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'Pa'</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
 
@@ -304,14 +304,14 @@
         <span class="p">)</span>
 
         <span class="n">pseudothickness_iter_count</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-            <span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;pseudothickness_iter_count&#39;</span>
+            <span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'pseudothickness_iter_count'</span>
         <span class="p">)</span>
         <span class="n">water_col_adjust_frac_change_threshold</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;water_col_adjust_frac_change_threshold&#39;</span>
+            <span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'water_col_adjust_frac_change_threshold'</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">water_col_adjust_frac_change_threshold</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;&quot;water_col_adjust_frac_change_threshold&quot; must be nonnegative.&#39;</span>
+                <span class="s1">'"water_col_adjust_frac_change_threshold" must be nonnegative.'</span>
             <span class="p">)</span>
 
         <span class="n">prev_geom_water_column_thickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -328,14 +328,14 @@
         <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">ct</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nvertlevels</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">sa</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">p_mid</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">geom_z_inter</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncells</span><span class="p">,</span> <span class="n">nvertlevels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">],</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevelsP1'</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">geom_water_column_thickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="p">(</span>
@@ -352,7 +352,7 @@
             <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_tracers</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
             <span class="n">p_mid</span> <span class="o">=</span> <span class="n">pressure_from_z_tilde</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="p">)</span>
 
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: p_mid = </span><span class="si">{</span><span class="n">p_mid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: p_mid = </span><span class="si">{</span><span class="n">p_mid</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
             <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">compute_specvol</span><span class="p">(</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
@@ -393,17 +393,17 @@
                 <span class="n">max_frac_change</span> <span class="o">=</span> <span class="n">frac_change</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: max fractional change in &#39;</span>
-                    <span class="s1">&#39;geometric water-column thickness = &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">max_frac_change</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: max fractional change in '</span>
+                    <span class="s1">'geometric water-column thickness = '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">max_frac_change</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">max_frac_change</span> <span class="o">&lt;</span> <span class="n">water_col_adjust_frac_change_threshold</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;Early stopping after iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;max fractional change (</span><span class="si">{</span><span class="n">max_frac_change</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">) &#39;</span>
-                        <span class="s1">&#39;is below threshold &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">water_col_adjust_frac_change_threshold</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">).&#39;</span>
+                        <span class="sa">f</span><span class="s1">'Early stopping after iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: '</span>
+                        <span class="sa">f</span><span class="s1">'max fractional change (</span><span class="si">{</span><span class="n">max_frac_change</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">) '</span>
+                        <span class="s1">'is below threshold '</span>
+                        <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="n">water_col_adjust_frac_change_threshold</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">).'</span>
                     <span class="p">)</span>
                     <span class="k">break</span>
 
@@ -431,9 +431,9 @@
                 <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
             <span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: cell snapping is holding &#39;</span>
-                    <span class="s1">&#39;BottomPressure constant in every column — stopping &#39;</span>
-                    <span class="s1">&#39;early.&#39;</span>
+                    <span class="sa">f</span><span class="s1">'Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: cell snapping is holding '</span>
+                    <span class="s1">'BottomPressure constant in every column — stopping '</span>
+                    <span class="s1">'early.'</span>
                 <span class="p">)</span>
                 <span class="k">break</span>
 
@@ -442,9 +442,9 @@
                 <span class="n">goal_geom_water_column_thickness</span> <span class="o">/</span> <span class="n">geom_water_column_thickness</span>
             <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;min scaling factor = </span><span class="si">{</span><span class="n">scaling_factor</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="s1">, &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;max scaling factor = </span><span class="si">{</span><span class="n">scaling_factor</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: '</span>
+                <span class="sa">f</span><span class="s1">'min scaling factor = </span><span class="si">{</span><span class="n">scaling_factor</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="s1">, '</span>
+                <span class="sa">f</span><span class="s1">'max scaling factor = </span><span class="si">{</span><span class="n">scaling_factor</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
             <span class="n">bottom_pressure</span> <span class="o">=</span> <span class="p">(</span>
@@ -469,21 +469,21 @@
         <span class="p">)</span>
 
         <span class="c1"># Assemble the output dataset from the converged state</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ct</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;conservative temperature&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;degC&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ct</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'conservative temperature'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'degC'</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sa</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;absolute salinity&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;g kg-1&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sa</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'absolute salinity'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'g kg-1'</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SpecVol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;specific volume&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m3 kg-1&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'SpecVol'</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'specific volume'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m3 kg-1'</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;pressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_mid</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pressure at layer midpoints&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Pa&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'pressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'pressure at layer midpoints'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Pa'</span>
 
         <span class="c1"># Anchor the geometric column at the prescribed free surface: ``ssh``</span>
         <span class="c1"># is prescribed (``sea_surface_height``) and ``bottomDepth`` is the</span>
@@ -502,15 +502,15 @@
         <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="n">geom_z_mid</span> <span class="o">+</span> <span class="n">shift</span>
         <span class="n">geom_z_inter</span> <span class="o">=</span> <span class="n">geom_z_inter</span> <span class="o">+</span> <span class="n">shift</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;GeomZMid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_mid</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;geometric height at layer midpoints&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'GeomZMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_mid</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'geometric height at layer midpoints'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;GeomZInterface&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_inter</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s1">&#39;geometric height at layer interfaces&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'GeomZInterface'</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_inter</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'geometric height at layer interfaces'</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
         <span class="c1"># Geometric depth of the seafloor below z=0, i.e. the negation of the</span>
         <span class="c1"># (shifted) bottom interface height.  With the surface-anchored column</span>
@@ -519,24 +519,24 @@
         <span class="c1"># the partial-cell-snapped depth otherwise.  Omega reads this as</span>
         <span class="c1"># BottomGeomDepth and anchors its column there, so that (together with</span>
         <span class="c1"># BottomPressure) it recovers the same prescribed ``ssh``.</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">geom_z_max</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;seafloor geometric depth&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'bottomDepth'</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">geom_z_max</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seafloor geometric depth'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sea_surface_height</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sea surface geometric height&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sea_surface_height</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'sea surface geometric height'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
-        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pseudo-height at layer midpoints&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'pseudo-height at layer midpoints'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
-        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s1">&#39;pseudo-height at layer interfaces&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'pseudo-height at layer interfaces'</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
-        <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pseudo-layer thickness&#39;</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'pseudo-layer thickness'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
         <span class="k">return</span> <span class="n">ds</span></div>
 </div>
@@ -549,11 +549,11 @@
     <span class="n">geom_water_column_thickness</span><span class="p">,</span>
     <span class="n">frac_change_threshold</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Log how far the sea floor had to move in columns where cell snapping</span>
 <span class="sd">    kept the iteration from reaching the requested bathymetry.  ``ssh`` is</span>
 <span class="sd">    prescribed, so the residual shows up in ``bottomDepth``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">residual</span> <span class="o">=</span> <span class="n">goal_geom_water_column_thickness</span> <span class="o">-</span> <span class="n">geom_water_column_thickness</span>
     <span class="n">frac_residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span> <span class="o">/</span> <span class="n">goal_geom_water_column_thickness</span>
     <span class="n">snapped</span> <span class="o">=</span> <span class="n">frac_residual</span> <span class="o">&gt;</span> <span class="n">frac_change_threshold</span>
@@ -565,11 +565,11 @@
     <span class="n">max_move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">snapped</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
     <span class="n">mean_move</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">snapped</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1"> columns (</span><span class="si">{</span><span class="mf">100.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">%) have a &#39;</span>
-        <span class="s1">&#39;requested bathymetry that cell snapping cannot represent. &#39;</span>
-        <span class="s1">&#39;bottomDepth is the nearest representable depth, moved from the &#39;</span>
-        <span class="sa">f</span><span class="s1">&#39;target by up to </span><span class="si">{</span><span class="n">max_move</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> m (mean </span><span class="si">{</span><span class="n">mean_move</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> m); ssh is &#39;</span>
-        <span class="s1">&#39;unaffected.&#39;</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s1"> columns (</span><span class="si">{</span><span class="mf">100.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">%) have a '</span>
+        <span class="s1">'requested bathymetry that cell snapping cannot represent. '</span>
+        <span class="s1">'bottomDepth is the nearest representable depth, moved from the '</span>
+        <span class="sa">f</span><span class="s1">'target by up to </span><span class="si">{</span><span class="n">max_move</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> m (mean </span><span class="si">{</span><span class="n">mean_move</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> m); ssh is '</span>
+        <span class="s1">'unaffected.'</span>
     <span class="p">)</span>
 </pre></div>
 

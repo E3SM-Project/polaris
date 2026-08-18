@@ -589,11 +589,11 @@ remain <code class="docutils literal notranslate"><span class="pre">reference.py
 encapsulates the central column and exposes the reference as a function of
 pseudo-height.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ReferenceColumn</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    High-fidelity continuous HPGA reference at the edge (x = 0) between the</span>
 <span class="sd">    two columns, evaluated analytically via the chain-rule / Leibniz</span>
 <span class="sd">    expansion of the along-pseudo-height gradient.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">x_sign</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="c1"># x_sign carries the edge-normal orientation (+1 if x increases from</span>
@@ -603,35 +603,35 @@ pseudo-height.</p>
         <span class="c1"># Cache, at x = 0:</span>
         <span class="c1">#   - PCHIP interpolants for SA(z_tilde), CT(z_tilde)</span>
         <span class="c1">#   - the surface pseudo-height z_tilde_s (shallowest z_tilde node),</span>
-        <span class="c1">#     the sea-surface-height slope eta&#39; and the surface pseudo-height</span>
-        <span class="c1">#     slope z_tilde_s&#39; (per-metre, * x_sign); kept general so nonzero</span>
+        <span class="c1">#     the sea-surface-height slope eta' and the surface pseudo-height</span>
+        <span class="c1">#     slope z_tilde_s' (per-metre, * x_sign); kept general so nonzero</span>
         <span class="c1">#     SSH / surface pressure need no further change</span>
         <span class="c1">#   - alpha(z_tilde_s) for the boundary term</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">specvol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;alpha = EOS(SA(z_tilde), CT(z_tilde), p = -RhoSw*g*z_tilde).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""alpha = EOS(SA(z_tilde), CT(z_tilde), p = -RhoSw*g*z_tilde)."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">dalpha_dx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        alpha_SA * dSA/dx + alpha_CT * dCT/dx at fixed z_tilde, with alpha_*</span>
 <span class="sd">        from gsw.specvol_first_derivatives and dSA/dx, dCT/dx from analytic-input</span>
 <span class="sd">        differencing of the profiles (handles tilted nodes).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">hpga</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        a(z_tilde) = -g [ eta&#39; - RhoSw*alpha(z_tilde_s)*z_tilde_s&#39;</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        a(z_tilde) = -g [ eta' - RhoSw*alpha(z_tilde_s)*z_tilde_s'</span>
 <span class="sd">                          + RhoSw * I(z_tilde) ],</span>
 <span class="sd">        with I(z_tilde) the cumulative integral of dalpha_dx from the surface</span>
 <span class="sd">        z_tilde_s. Vectorized over a 1-D array of target pseudo-heights.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">layer_mean_hpga</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_tilde_interfaces</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Given edge layer interface pseudo-heights (length nLayers+1), return</span>
 <span class="sd">        the per-layer mean of a(z_tilde) over each [z_top, z_bot] interval by</span>
 <span class="sd">        high-order quadrature.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 </pre></div>
 </div>
 <p>Reuse existing utilities rather than reimplementing them:</p>

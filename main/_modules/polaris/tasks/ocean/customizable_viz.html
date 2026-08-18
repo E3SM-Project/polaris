@@ -122,9 +122,9 @@
 <div class="viewcode-block" id="add_customizable_viz_tasks">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.add_customizable_viz_tasks.html#polaris.tasks.ocean.customizable_viz.add_customizable_viz_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_customizable_viz_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add a customizable visualization task for MPAS output</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">customizable_viz_task</span> <span class="o">=</span> <span class="n">CustomizableViz</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
     <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">customizable_viz_task</span><span class="p">)</span></div>
 
@@ -133,32 +133,32 @@
 <div class="viewcode-block" id="CustomizableViz">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.CustomizableViz.html#polaris.tasks.ocean.customizable_viz.CustomizableViz">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CustomizableViz</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A customizable visualization task for MPAS output</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="CustomizableViz.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.customizable_viz.CustomizableViz.html#polaris.tasks.ocean.customizable_viz.CustomizableViz.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-        <span class="n">basedir</span> <span class="o">=</span> <span class="s1">&#39;customizable_viz&#39;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;customizable_viz&#39;</span>
+        <span class="n">basedir</span> <span class="o">=</span> <span class="s1">'customizable_viz'</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">'customizable_viz'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">basedir</span><span class="p">)</span>
 
-        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;customizable_viz.cfg&#39;</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'customizable_viz.cfg'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.customizable_viz&#39;</span><span class="p">,</span> <span class="n">config_filename</span>
+            <span class="s1">'polaris.tasks.ocean.customizable_viz'</span><span class="p">,</span> <span class="n">config_filename</span>
         <span class="p">)</span>
 
         <span class="n">viz_step</span> <span class="o">=</span> <span class="n">VizHorizField</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz_horiz_field&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'viz_horiz_field'</span><span class="p">,</span>
             <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_step</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">transect_step</span> <span class="o">=</span> <span class="n">VizTransect</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz_transect&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'viz_transect'</span><span class="p">,</span>
             <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">transect_step</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>

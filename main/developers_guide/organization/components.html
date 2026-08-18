@@ -164,12 +164,12 @@ might look like this:</p>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">add_ocean_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add tasks to the ocean component.</span>
 
 <span class="sd">    component : polaris.Component</span>
 <span class="sd">        The ocean component to which tasks will be added.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># please keep these in alphabetical order</span>
     <span class="n">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
     <span class="n">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
@@ -203,9 +203,9 @@ itself, to <code class="docutils literal notranslate"><span class="pre">polaris/
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_components</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add all tasks to the Polaris components</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">global</span> <span class="n">_tasks_added</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_tasks_added</span><span class="p">:</span>
         <span class="c1"># add tasks to each component</span>

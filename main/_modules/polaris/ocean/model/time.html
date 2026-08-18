@@ -121,32 +121,32 @@
 <div class="viewcode-block" id="get_days_since_start">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.get_days_since_start.html#polaris.ocean.model.get_days_since_start">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_days_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Ocean model output may or may not include &#39;daysSinceStartOfSim&#39;. This</span>
-<span class="sd">    routine uses &#39;daysSinceStartOfSim&#39; if available, otherwise it uses &#39;Time&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;daysSinceStartOfSim&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Ocean model output may or may not include 'daysSinceStartOfSim'. This</span>
+<span class="sd">    routine uses 'daysSinceStartOfSim' if available, otherwise it uses 'Time'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'daysSinceStartOfSim'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="n">t_arr</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">daysSinceStartOfSim</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="s1">&#39;xtime&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="k">elif</span> <span class="s1">'xtime'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="c1"># Calculate seconds since the first timestamp</span>
         <span class="n">seconds_since_start</span> <span class="o">=</span> <span class="n">time_since_start</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="c1"># Convert to days</span>
         <span class="n">t_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seconds_since_start</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="mf">86400.0</span>
-    <span class="k">elif</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="k">elif</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="c1"># This option works if decode_times=True when loading xr.Dataset</span>
-        <span class="k">if</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
             <span class="n">t_arr</span> <span class="o">=</span> <span class="n">cftime</span><span class="o">.</span><span class="n">date2num</span><span class="p">(</span>
-                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">units</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">Units</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;days&#39;</span><span class="p">),</span>
-                <span class="n">calendar</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">calendar</span><span class="p">,</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">units</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span><span class="o">.</span><span class="n">Units</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'seconds'</span><span class="p">,</span> <span class="s1">'days'</span><span class="p">),</span>
+                <span class="n">calendar</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">calendar</span><span class="p">,</span>
                 <span class="n">has_year_zero</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">t_pd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">t_arr</span> <span class="o">=</span> <span class="mf">1.0e9</span> <span class="o">*</span> <span class="p">(</span><span class="n">t_pd</span> <span class="o">-</span> <span class="n">t_pd</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span>
+            <span class="n">t_pd</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">t_arr</span> <span class="o">=</span> <span class="mf">1.0e9</span> <span class="o">*</span> <span class="p">(</span><span class="n">t_pd</span> <span class="o">-</span> <span class="n">t_pd</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'s'</span><span class="p">)</span>
             <span class="n">t_arr</span> <span class="o">=</span> <span class="n">t_arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="mf">86400.0</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not find a time variable in dataset&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Could not find a time variable in dataset'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">t_arr</span></div>
 
 
@@ -154,7 +154,7 @@
 <div class="viewcode-block" id="get_time_interval_string">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert a time interval in days and/or seconds to a string for use in a</span>
 <span class="sd">    model config option.  If both are provided, they will be added</span>
 
@@ -169,9 +169,9 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    time_str : str</span>
-<span class="sd">        The time as a string in the format &quot;DDDD_HH:MM:SS.SS&quot;</span>
+<span class="sd">        The time as a string in the format "DDDD_HH:MM:SS.SS"</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">sec_per_day</span> <span class="o">=</span> <span class="mi">86400</span>
     <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">if</span> <span class="n">seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -183,8 +183,8 @@
     <span class="n">sec_part</span> <span class="o">=</span> <span class="n">total</span> <span class="o">-</span> <span class="n">day_part</span> <span class="o">*</span> <span class="n">sec_per_day</span>
     <span class="n">sec_decimal</span> <span class="o">=</span> <span class="n">sec_part</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">sec_part</span><span class="p">)</span>
     <span class="c1"># https://stackoverflow.com/a/1384565/7728169</span>
-    <span class="n">seconds_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">sec_part</span><span class="p">))</span>
-    <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">day_part</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">seconds_str</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">sec_decimal</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="p">)</span><span class="si">:</span><span class="s1">03d</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">seconds_str</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%H:%M:%S'</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">sec_part</span><span class="p">))</span>
+    <span class="n">time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">day_part</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">seconds_str</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">sec_decimal</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="p">)</span><span class="si">:</span><span class="s1">03d</span><span class="si">}</span><span class="s1">'</span>
     <span class="k">return</span> <span class="n">time_str</span></div>
 
 </pre></div>

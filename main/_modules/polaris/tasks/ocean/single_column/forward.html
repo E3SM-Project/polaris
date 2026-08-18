@@ -117,30 +117,30 @@
 <div class="viewcode-block" id="Forward">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for performing forward ocean component runs as part of single_column</span>
 <span class="sd">    test cases.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    resources_fixed : bool</span>
-<span class="sd">        Whether resources were set already and shouldn&#39;t be updated</span>
+<span class="sd">        Whether resources were set already and shouldn't be updated</span>
 <span class="sd">        algorithmically</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">'forward'</span><span class="p">,</span>
         <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">validate_vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">task_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">task_name</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span>
         <span class="n">task_package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">update_eos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">enable_vadv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -148,7 +148,7 @@
         <span class="n">enable_restoring</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">constant_diff</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new test case</span>
 
 <span class="sd">        Parameters</span>
@@ -186,18 +186,18 @@
 <span class="sd">            the name of the test case</span>
 
 <span class="sd">        task_package : str, optional</span>
-<span class="sd">            the python package containing the task&#39;s ``forward.yaml``.  If not</span>
+<span class="sd">            the python package containing the task's ``forward.yaml``.  If not</span>
 <span class="sd">            provided, it is assumed to be</span>
 <span class="sd">            ``polaris.tasks.ocean.single_column.&lt;task_name&gt;``</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">enable_vadv</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_no_vadv&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_no_vadv'</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">enable_hadv</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_no_hadv&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_no_hadv'</span>
         <span class="k">if</span> <span class="n">enable_restoring</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_restoring&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_restoring'</span>
         <span class="k">if</span> <span class="n">constant_diff</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_constant&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_constant'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -208,21 +208,21 @@
             <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_horiz_mesh_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/culled_mesh.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/vert_coord.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_init_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/init.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;forcing.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/forcing.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_horiz_mesh_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">'../init/culled_mesh.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">'../init/vert_coord.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_init_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">'../init/init.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'forcing.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/forcing.nc'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/culled_graph.info&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'graph.info'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/culled_graph.info'</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.ocean.config'</span><span class="p">,</span> <span class="s1">'output.yaml'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'forward.yaml'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">task_package</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">task_package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;polaris.tasks.ocean.single_column.</span><span class="si">{</span><span class="n">task_name</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="n">task_package</span><span class="p">,</span> <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+            <span class="n">task_package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'polaris.tasks.ocean.single_column.</span><span class="si">{</span><span class="n">task_name</span><span class="si">}</span><span class="s1">'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="n">task_package</span><span class="p">,</span> <span class="s1">'forward.yaml'</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">resources_fixed</span> <span class="o">=</span> <span class="n">ntasks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
@@ -236,20 +236,20 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        TEMP: symlink initial condition to name hard-coded in Omega</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="c1"># TODO: remove as soon as Omega no longer hard-codes this file</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;OmegaMesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'OmegaMesh.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">)</span>
             <span class="c1"># Uncomment these lines when coeffs.nc has been added to the</span>
             <span class="c1"># database</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">target</span><span class="o">=</span><span class="s1">&#39;coeffs.nc&#39;</span><span class="p">,</span>
-                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;coeffs.nc&#39;</span><span class="p">,</span>
-                <span class="n">database</span><span class="o">=</span><span class="s1">&#39;single_column&#39;</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
+                <span class="n">database</span><span class="o">=</span><span class="s1">'single_column'</span><span class="p">,</span>
             <span class="p">)</span>
 
 <div class="viewcode-block" id="Forward.dynamic_model_config">
@@ -257,51 +257,51 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span><span class="p">)</span>
 
-        <span class="n">time_integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;time_integrator&#39;</span><span class="p">)</span>
-        <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;single_column&#39;</span><span class="p">,</span> <span class="s1">&#39;run_duration&#39;</span><span class="p">)</span>
-        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">&#39;RK4&#39;</span><span class="p">,</span> <span class="s1">&#39;RungeKutta4&#39;</span><span class="p">)])</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="n">time_integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'single_column'</span><span class="p">,</span> <span class="s1">'time_integrator'</span><span class="p">)</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'single_column'</span><span class="p">,</span> <span class="s1">'run_duration'</span><span class="p">)</span>
+        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">'RK4'</span><span class="p">,</span> <span class="s1">'RungeKutta4'</span><span class="p">)])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="n">time_integrator_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">time_integrator_map</span><span class="p">[</span><span class="n">time_integrator</span><span class="p">]</span>
                 <span class="n">duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
-                    <span class="s1">&#39;Warning: mapping from time integrator &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">time_integrator</span><span class="si">}</span><span class="s1"> to omega not found, &#39;</span>
-                    <span class="s1">&#39;retaining name given in config&#39;</span>
+                    <span class="s1">'Warning: mapping from time integrator '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">time_integrator</span><span class="si">}</span><span class="s1"> to omega not found, '</span>
+                    <span class="s1">'retaining name given in config'</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">duration_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">duration</span> <span class="o">*</span> <span class="mi">86400</span><span class="p">)</span>
 
         <span class="n">shared_options</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;config_time_integrator&#39;</span><span class="p">:</span> <span class="n">time_integrator</span><span class="p">,</span>
-            <span class="s1">&#39;config_run_duration&#39;</span><span class="p">:</span> <span class="n">duration_str</span><span class="p">,</span>
+            <span class="s1">'config_time_integrator'</span><span class="p">:</span> <span class="n">time_integrator</span><span class="p">,</span>
+            <span class="s1">'config_run_duration'</span><span class="p">:</span> <span class="n">duration_str</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">mpas_options</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">omega_options</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">==</span> <span class="s1">&#39;ekman&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">==</span> <span class="s1">'ekman'</span><span class="p">:</span>
             <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;single_column_ekman&#39;</span><span class="p">,</span> <span class="s1">&#39;vertical_viscosity&#39;</span>
+                <span class="s1">'single_column_ekman'</span><span class="p">,</span> <span class="s1">'vertical_viscosity'</span>
             <span class="p">)</span>
-            <span class="n">shared_options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;config_cvmix_background_viscosity&#39;</span><span class="p">:</span> <span class="n">nu</span><span class="p">})</span>
+            <span class="n">shared_options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">'config_cvmix_background_viscosity'</span><span class="p">:</span> <span class="n">nu</span><span class="p">})</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vadv</span><span class="p">:</span>
             <span class="n">mpas_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s1">&#39;config_vert_coord_movement&#39;</span><span class="p">:</span> <span class="s1">&#39;impermeable_interfaces&#39;</span><span class="p">,</span>
+                    <span class="s1">'config_vert_coord_movement'</span><span class="p">:</span> <span class="s1">'impermeable_interfaces'</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
             <span class="n">shared_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s1">&#39;config_disable_thick_vadv&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s1">&#39;config_disable_vel_vadv&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s1">&#39;config_disable_tr_adv&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s1">'config_disable_thick_vadv'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s1">'config_disable_vel_vadv'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s1">'config_disable_tr_adv'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
             <span class="n">omega_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s1">&#39;TracerVertAdvTendencyEnable&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">'TracerVertAdvTendencyEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_hadv</span><span class="p">:</span>
@@ -309,44 +309,44 @@
             <span class="c1"># hadv without also turning off vadv</span>
             <span class="n">omega_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s1">&#39;TracerHorzAdvTendencyEnable&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                    <span class="s1">&#39;PVTendencyEnable&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                    <span class="s1">&#39;KETendencyEnable&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">'TracerHorzAdvTendencyEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">'PVTendencyEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">'KETendencyEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_restoring</span><span class="p">:</span>
             <span class="n">shared_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s1">&#39;config_use_activeTracers_surface_restoring&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s1">'config_use_activeTracers_surface_restoring'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_diff</span><span class="p">:</span>
             <span class="n">shared_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s1">&#39;config_use_cvmix_convection&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                    <span class="s1">&#39;config_use_cvmix_shear&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">'config_use_cvmix_convection'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">'config_use_cvmix_shear'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">shared_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s1">&#39;config_use_cvmix_convection&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s1">&#39;config_use_cvmix_shear&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s1">'config_use_cvmix_convection'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s1">'config_use_cvmix_shear'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
             <span class="n">options</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
-            <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span>
+            <span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
             <span class="n">options</span><span class="o">=</span><span class="n">mpas_options</span><span class="p">,</span>
-            <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">,</span>
+            <span class="n">config_model</span><span class="o">=</span><span class="s1">'mpas-ocean'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
             <span class="n">options</span><span class="o">=</span><span class="n">omega_options</span><span class="p">,</span>
-            <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;Omega&#39;</span><span class="p">,</span>
+            <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 

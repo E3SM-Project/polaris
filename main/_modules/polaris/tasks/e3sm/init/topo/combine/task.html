@@ -123,14 +123,14 @@
 <div class="viewcode-block" id="CubedSphereCombineTask">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CubedSphereCombineTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A task for creating combined topography on a cubed-sphere target grid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="CubedSphereCombineTask.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.html#polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new task.</span>
 
 <span class="sd">        Parameters</span>
@@ -140,18 +140,18 @@
 
 <span class="sd">        resolution : int</span>
 <span class="sd">            The cubed-sphere resolution, such as 3000 or 120.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">antarctic_dataset</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="o">.</span><span class="n">ANTARCTIC</span>
         <span class="n">global_dataset</span> <span class="o">=</span> <span class="n">CombineStep</span><span class="o">.</span><span class="n">GLOBAL</span>
         <span class="n">name</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;combine_topo_</span><span class="si">{</span><span class="n">antarctic_dataset</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">global_dataset</span><span class="si">}</span><span class="s1">_&#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;cubed_sphere_ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">_task&#39;</span>
+            <span class="sa">f</span><span class="s1">'combine_topo_</span><span class="si">{</span><span class="n">antarctic_dataset</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">global_dataset</span><span class="si">}</span><span class="s1">_'</span>
+            <span class="sa">f</span><span class="s1">'cubed_sphere_ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">_task'</span>
         <span class="p">)</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">(),</span>
-            <span class="s1">&#39;cubed_sphere&#39;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s1">&#39;ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;task&#39;</span><span class="p">,</span>
+            <span class="s1">'cubed_sphere'</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'ne</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="s1">'task'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
@@ -163,7 +163,7 @@
             <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
             <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;combine_topo.cfg&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">'combine_topo.cfg'</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">free_running_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span></div>
@@ -174,14 +174,14 @@
 <div class="viewcode-block" id="LatLonCombineTask">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.html#polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LatLonCombineTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A task for creating combined topography on a latitude-longitude grid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="LatLonCombineTask.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.html#polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new task.</span>
 
 <span class="sd">        Parameters</span>
@@ -191,17 +191,17 @@
 
 <span class="sd">        resolution : float</span>
 <span class="sd">            The latitude-longitude resolution in degrees.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">resolution_name</span> <span class="o">=</span> <span class="n">format_lat_lon_resolution_name</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">CombineStep</span><span class="o">.</span><span class="n">get_subdir</span><span class="p">(),</span>
-            <span class="s1">&#39;lat_lon&#39;</span><span class="p">,</span>
+            <span class="s1">'lat_lon'</span><span class="p">,</span>
             <span class="n">resolution_name</span><span class="p">,</span>
-            <span class="s1">&#39;task&#39;</span><span class="p">,</span>
+            <span class="s1">'task'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;combine_topo_lat_lon_</span><span class="si">{</span><span class="n">resolution_name</span><span class="si">}</span><span class="s1">_task&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">'combine_topo_lat_lon_</span><span class="si">{</span><span class="n">resolution_name</span><span class="si">}</span><span class="s1">_task'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_lat_lon_topo_steps</span><span class="p">(</span>
@@ -209,7 +209,7 @@
             <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
             <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;combine_topo.cfg&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">'combine_topo.cfg'</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">free_running_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span></div>

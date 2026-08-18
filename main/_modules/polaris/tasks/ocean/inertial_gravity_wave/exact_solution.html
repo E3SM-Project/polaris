@@ -119,7 +119,7 @@
 <div class="viewcode-block" id="ExactSolution">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExactSolution</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class to compute the exact solution for the inertial gravity wave</span>
 <span class="sd">    test case</span>
 
@@ -154,12 +154,12 @@
 
 <span class="sd">    omega : float</span>
 <span class="sd">        Angular frequency</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ExactSolution.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new exact solution object</span>
 
 <span class="sd">        Parameters</span>
@@ -169,22 +169,22 @@
 
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            Config options for test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">angleEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">angleEdge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xEdge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yEdge</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yEdge</span>
 
-        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom_depth&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">f0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;coriolis&#39;</span><span class="p">,</span> <span class="s1">&#39;constant_f&#39;</span><span class="p">)</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;inertial_gravity_wave&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ssh_amplitude&#39;</span><span class="p">)</span>
-        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
-        <span class="n">npx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;n_wavelengths_x&#39;</span><span class="p">)</span>
-        <span class="n">npy</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;n_wavelengths_y&#39;</span><span class="p">)</span>
+        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'bottom_depth'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f0</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'coriolis'</span><span class="p">,</span> <span class="s1">'constant_f'</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'inertial_gravity_wave'</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ssh_amplitude'</span><span class="p">)</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'lx'</span><span class="p">)</span>
+        <span class="n">npx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'n_wavelengths_x'</span><span class="p">)</span>
+        <span class="n">npy</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'n_wavelengths_y'</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;standard_acceleration_of_gravity&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'standard_acceleration_of_gravity'</span><span class="p">)</span>
         <span class="n">ly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">lx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">=</span> <span class="n">npx</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">lx</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">=</span> <span class="n">npy</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">ly</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span>
@@ -196,7 +196,7 @@
 <div class="viewcode-block" id="ExactSolution.ssh">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.ssh">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">ssh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Exact solution for sea surface height</span>
 
 <span class="sd">        Parameters</span>
@@ -209,7 +209,7 @@
 <span class="sd">        eta : xr.DataArray</span>
 <span class="sd">            the exact sea surface height solution on cells at time t</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">eta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xCell</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">yCell</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega</span> <span class="o">*</span> <span class="n">t</span>
         <span class="p">)</span>
@@ -220,7 +220,7 @@
 <div class="viewcode-block" id="ExactSolution.normal_velocity">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">normal_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Exact solution for normal velocity</span>
 
 <span class="sd">        Parameters</span>
@@ -232,7 +232,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        norm_vel : xr.DataArray</span>
 <span class="sd">            the exact normal velocity solution on edges at time t</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eta0</span> <span class="o">*</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">g</span>
             <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omega</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f0</span><span class="o">**</span><span class="mf">2.0</span><span class="p">)</span>

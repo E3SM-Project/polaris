@@ -602,7 +602,7 @@ activate abstract-method enforcement. The required method signature is:</p>
 <span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Initialize CT and SA at p-star layer midpoints for the current iteration.</span>
 
 <span class="sd">    Parameters</span>
@@ -617,7 +617,7 @@ activate abstract-method enforcement. The required method signature is:</p>
 <span class="sd">        CT with dimensions (Time, nCells, nVertLevels).</span>
 <span class="sd">    absolute_salinity : xarray.DataArray</span>
 <span class="sd">        SA with dimensions (Time, nCells, nVertLevels).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 </pre></div>
 </div>
 <p>The former <code class="docutils literal notranslate"><span class="pre">horiz_press_grad.Init._interpolate_t_s</span></code> private method is the concrete
@@ -632,8 +632,8 @@ column-position array <code class="docutils literal notranslate"><span class="pr
 <p>The base class <code class="docutils literal notranslate"><span class="pre">run_pstar_init</span></code> method assembles and returns the output dataset from
 the quantities accumulated during the outer loop. The concrete subclass <code class="docutils literal notranslate"><span class="pre">run</span></code> method
 then writes the split output files using the framework helpers:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'vert_coord.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">write_vert_coord_dataset</span></code> is a no-op for MPAS-Ocean; <code class="docutils literal notranslate"><span class="pre">write_initial_state_dataset</span></code>

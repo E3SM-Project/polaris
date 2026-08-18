@@ -111,11 +111,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.overflow.init_utils</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Shared helpers for the overflow init steps: building the mesh and</span>
 <span class="sd">computing the idealized bathymetry and initial-temperature profiles,</span>
 <span class="sd">used by both the z-star and p-star init steps.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -129,7 +129,7 @@
 <div class="viewcode-block" id="build_overflow_mesh">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh.html#polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_overflow_mesh</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build the overflow planar hex mesh, cull it, and add the Coriolis</span>
 <span class="sd">    parameter, writing out ``base_mesh.nc``, ``culled_mesh.nc`` and</span>
 <span class="sd">    ``culled_graph.info``.</span>
@@ -144,28 +144,28 @@
 <span class="sd">    -------</span>
 <span class="sd">    xarray.Dataset</span>
 <span class="sd">        The culled mesh dataset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">logger</span>
 
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;overflow&#39;</span><span class="p">]</span>
-    <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
-    <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
-    <span class="n">resolution</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;resolution&#39;</span><span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'overflow'</span><span class="p">]</span>
+    <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'lx'</span><span class="p">)</span>
+    <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ly'</span><span class="p">)</span>
+    <span class="n">resolution</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'resolution'</span><span class="p">)</span>
 
     <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">compute_planar_hex_nx_ny</span><span class="p">(</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
     <span class="n">dc</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">resolution</span>
     <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span>
         <span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span> <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
-    <span class="n">step</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'base_mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
     <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span>
-        <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+        <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">'culled_graph.info'</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
     <span class="p">)</span>
     <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">add_coriolis_to_dataset</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">)</span>
-    <span class="n">step</span><span class="o">.</span><span class="n">write_horiz_mesh_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">write_horiz_mesh_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'culled_mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds_mesh</span></div>
 
 
@@ -173,7 +173,7 @@
 <div class="viewcode-block" id="compute_bottom_depth">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth.html#polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_bottom_depth</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">x_cell</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the overflow continental shelf-like bathymetry, a tanh</span>
 <span class="sd">    profile between the shelf depth and the maximum bottom depth.</span>
 
@@ -189,12 +189,12 @@
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
 <span class="sd">        The positive-down bottom depth (m) with dimension ``nCells``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;overflow&#39;</span><span class="p">]</span>
-    <span class="n">max_bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;max_bottom_depth&#39;</span><span class="p">)</span>
-    <span class="n">shelf_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;shelf_depth&#39;</span><span class="p">)</span>
-    <span class="n">x_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;x_slope&#39;</span><span class="p">)</span>
-    <span class="n">l_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;l_slope&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'overflow'</span><span class="p">]</span>
+    <span class="n">max_bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'max_bottom_depth'</span><span class="p">)</span>
+    <span class="n">shelf_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'shelf_depth'</span><span class="p">)</span>
+    <span class="n">x_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'x_slope'</span><span class="p">)</span>
+    <span class="n">l_slope</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'l_slope'</span><span class="p">)</span>
 
     <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">shelf_depth</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_bottom_depth</span> <span class="o">-</span> <span class="n">shelf_depth</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
         <span class="mf">1.0</span>
@@ -209,7 +209,7 @@
 <div class="viewcode-block" id="compute_initial_temperature">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature.html#polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_initial_temperature</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">x_cell</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the overflow initial temperature, constant except for a</span>
 <span class="sd">    block of cold water on the shelf.</span>
 
@@ -225,11 +225,11 @@
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
 <span class="sd">        The temperature (degC) with dimension ``nCells``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;overflow&#39;</span><span class="p">]</span>
-    <span class="n">x_dense</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;x_dense&#39;</span><span class="p">)</span>
-    <span class="n">lower_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lower_temperature&#39;</span><span class="p">)</span>
-    <span class="n">higher_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;higher_temperature&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'overflow'</span><span class="p">]</span>
+    <span class="n">x_dense</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'x_dense'</span><span class="p">)</span>
+    <span class="n">lower_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'lower_temperature'</span><span class="p">)</span>
+    <span class="n">higher_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'higher_temperature'</span><span class="p">)</span>
 
     <span class="n">temperature</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
         <span class="p">(</span><span class="n">x_cell</span> <span class="o">-</span> <span class="n">x_cell</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">&lt;</span> <span class="n">x_dense</span> <span class="o">*</span> <span class="mf">1.0e3</span><span class="p">,</span>

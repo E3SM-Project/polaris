@@ -117,7 +117,7 @@
 <div class="viewcode-block" id="Analysis">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.analysis.Analysis.html#polaris.tasks.ocean.sphere_transport.analysis.Analysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">ConvergenceAnalysis</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for analyzing the output from sphere transport test cases</span>
 
 <span class="sd">    Attributes</span>
@@ -127,14 +127,14 @@
 
 <span class="sd">    case_name : str</span>
 <span class="sd">        The name of the test case</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Analysis.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.analysis.Analysis.html#polaris.tasks.ocean.sphere_transport.analysis.Analysis.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">case_name</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">case_name</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -152,14 +152,14 @@
 <span class="sd">            The dependencies of this step</span>
 
 <span class="sd">        refinement : str, optional</span>
-<span class="sd">            Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">            Refinement type. One of 'space', 'time' or 'both' indicating both</span>
 <span class="sd">            space and time</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">case_name</span> <span class="o">=</span> <span class="n">case_name</span>
         <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span> <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer2&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer2&#39;</span><span class="p">,</span> <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-            <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer3&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;tracer3&#39;</span><span class="p">,</span> <span class="s1">&#39;zidx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'tracer1'</span><span class="p">,</span> <span class="s1">'title'</span><span class="p">:</span> <span class="s1">'tracer1'</span><span class="p">,</span> <span class="s1">'zidx'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'tracer2'</span><span class="p">,</span> <span class="s1">'title'</span><span class="p">:</span> <span class="s1">'tracer2'</span><span class="p">,</span> <span class="s1">'zidx'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'tracer3'</span><span class="p">,</span> <span class="s1">'title'</span><span class="p">:</span> <span class="s1">'tracer3'</span><span class="p">,</span> <span class="s1">'zidx'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
@@ -175,7 +175,7 @@
 <div class="viewcode-block" id="Analysis.convergence_parameters">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.analysis.Analysis.convergence_parameters.html#polaris.tasks.ocean.sphere_transport.analysis.Analysis.convergence_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">convergence_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get convergence parameters</span>
 
 <span class="sd">        Parameters</span>
@@ -190,20 +190,20 @@
 
 <span class="sd">        conv_thresh: float</span>
 <span class="sd">            The maximum convergence rate</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_name</span> <span class="o">==</span> <span class="s1">&#39;rotation_2d&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_name</span> <span class="o">==</span> <span class="s1">'rotation_2d'</span><span class="p">:</span>
             <span class="n">order</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">order</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">case_name</span><span class="p">]</span>
         <span class="n">conv_thresh</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;convergence_thresh_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">_order</span><span class="si">{</span><span class="n">order</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'convergence_thresh_</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">_order</span><span class="si">{</span><span class="n">order</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
 
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;convergence&#39;</span><span class="p">]</span>
-        <span class="n">error_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error_type&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'convergence'</span><span class="p">]</span>
+        <span class="n">error_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'error_type'</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">conv_thresh</span><span class="p">,</span> <span class="n">error_type</span></div>
 </div>

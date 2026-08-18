@@ -128,17 +128,17 @@
 <div class="viewcode-block" id="Analysis">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for analyzing the output from the barotropic gyre test case.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    boundary_condition : str</span>
-<span class="sd">        The type of boundary condition to use (&#39;free-slip&#39; or &#39;no-slip&#39;).</span>
+<span class="sd">        The type of boundary condition to use ('free-slip' or 'no-slip').</span>
 
 <span class="sd">    test_name : str</span>
-<span class="sd">        The name of the test case (e.g., &#39;munk&#39;).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        The name of the test case (e.g., 'munk').</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Analysis.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.__init__">[docs]</a>
@@ -146,10 +146,10 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">,</span>
         <span class="n">indir</span><span class="p">,</span>
-        <span class="n">test_name</span><span class="o">=</span><span class="s1">&#39;munk&#39;</span><span class="p">,</span>
-        <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">&#39;free-slip&#39;</span><span class="p">,</span>
+        <span class="n">test_name</span><span class="o">=</span><span class="s1">'munk'</span><span class="p">,</span>
+        <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">'free-slip'</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the analysis step.</span>
 
 <span class="sd">        Parameters</span>
@@ -161,21 +161,21 @@
 <span class="sd">            The directory the step is in, to which ``name`` will be appended.</span>
 
 <span class="sd">        test_name : str, optional</span>
-<span class="sd">            The name of the test case (default is &#39;munk&#39;).</span>
+<span class="sd">            The name of the test case (default is 'munk').</span>
 
 <span class="sd">        boundary_condition : str, optional</span>
-<span class="sd">            The type of boundary condition to use (default is &#39;free-slip&#39;).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;analysis&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+<span class="sd">            The type of boundary condition to use (default is 'free-slip').</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'analysis'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/culled_mesh.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/culled_mesh.nc'</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/init.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/init.nc'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../long_forward/output.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../long_forward/output.nc'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/vert_coord.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'vert_coord.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/vert_coord.nc'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">boundary_condition</span> <span class="o">=</span> <span class="n">boundary_condition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">test_name</span> <span class="o">=</span> <span class="n">test_name</span></div>
@@ -185,34 +185,34 @@
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">ds_vert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">ds_vert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'vert_coord.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
         <span class="n">field_mpas</span> <span class="o">=</span> <span class="n">compute_barotropic_streamfunction</span><span class="p">(</span>
-            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert_coord</span><span class="o">=</span><span class="n">ds_vert</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">time_index</span><span class="o">=-</span><span class="mi">1</span>
+            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert_coord</span><span class="o">=</span><span class="n">ds_vert</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">time_index</span><span class="o">=-</span><span class="mi">1</span>
         <span class="p">)</span>
         <span class="n">x_maxpsi</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertices</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">field_mpas</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Streamfunction reaches maximum at x = </span><span class="si">{</span><span class="n">x_maxpsi</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Streamfunction reaches maximum at x = </span><span class="si">{</span><span class="n">x_maxpsi</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="n">field_exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exact_solution</span><span class="p">(</span>
             <span class="n">ds_mesh</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;Vertex&#39;</span><span class="p">,</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s1">'Vertex'</span><span class="p">,</span>
             <span class="n">boundary_condition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary_condition</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;psi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_mpas</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;psi_exact&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_exact</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;psi_error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_mpas</span> <span class="o">-</span> <span class="n">field_exact</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'psi'</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_mpas</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'psi_exact'</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_exact</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'psi_error'</span><span class="p">]</span> <span class="o">=</span> <span class="n">field_mpas</span> <span class="o">-</span> <span class="n">field_exact</span>
 
         <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_error</span><span class="p">(</span>
             <span class="n">ds_mesh</span><span class="p">,</span>
             <span class="n">ds</span><span class="p">,</span>
-            <span class="n">variable_name</span><span class="o">=</span><span class="s1">&#39;psi&#39;</span><span class="p">,</span>
+            <span class="n">variable_name</span><span class="o">=</span><span class="s1">'psi'</span><span class="p">,</span>
             <span class="n">boundary_condition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary_condition</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;L2 error norm for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary_condition</span><span class="si">}</span><span class="s1"> bsf: </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s1">1.2e</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'L2 error norm for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary_condition</span><span class="si">}</span><span class="s1"> bsf: </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s1">1.2e</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
 
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">Descriptor</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
@@ -241,22 +241,22 @@
             <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">descriptor</span><span class="p">,</span>
             <span class="n">field_mpas</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
             <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
             <span class="n">antialiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\psi$&#39;</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$\psi$'</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span>
             <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
             <span class="n">descriptor</span><span class="p">,</span>
             <span class="n">field_exact</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
             <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
             <span class="n">antialiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\psi$&#39;</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$\psi$'</span><span class="p">)</span>
 
         <span class="n">eta0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">field_mpas</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">field_exact</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
         <span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">eta0</span><span class="p">,</span> <span class="n">eta0</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
@@ -265,19 +265,19 @@
             <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
             <span class="n">descriptor</span><span class="p">,</span>
             <span class="n">field_mpas</span> <span class="o">-</span> <span class="n">field_exact</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
             <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
             <span class="n">antialiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$d\psi$&#39;</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Numerical solution&#39;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;y (km)&#39;</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x (km)&#39;</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Analytical solution&#39;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x (km)&#39;</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Error (Numerical - Analytical)&#39;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x (km)&#39;</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$d\psi$'</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Numerical solution'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'y (km)'</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Analytical solution'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Error (Numerical - Analytical)'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
 
         <span class="n">xmin</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="n">xmax</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
@@ -286,8 +286,8 @@
         <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;comparison.png&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">'equal'</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'comparison.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Analysis.compute_error">
@@ -297,11 +297,11 @@
         <span class="n">ds_mesh</span><span class="p">,</span>
         <span class="n">ds_out</span><span class="p">,</span>
         <span class="n">variable_name</span><span class="p">,</span>
-        <span class="n">error_type</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">,</span>
-        <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;Vertex&#39;</span><span class="p">,</span>
-        <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">&#39;free slip&#39;</span><span class="p">,</span>
+        <span class="n">error_type</span><span class="o">=</span><span class="s1">'l2'</span><span class="p">,</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s1">'Vertex'</span><span class="p">,</span>
+        <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">'free slip'</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compute the error for a given resolution</span>
 
 <span class="sd">        Parameters</span>
@@ -319,15 +319,15 @@
 <span class="sd">        zidx : int, optional</span>
 <span class="sd">            The z index to use to slice the field given by variable name</span>
 
-<span class="sd">        error_type: {&#39;l2&#39;, &#39;inf&#39;}, optional</span>
+<span class="sd">        error_type: {'l2', 'inf'}, optional</span>
 <span class="sd">            The type of error to compute</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        error : float</span>
 <span class="sd">            The error of the variable given by variable_name</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">norm_type</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;l2&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;inf&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">}</span>
+<span class="sd">        """</span>
+        <span class="n">norm_type</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'l2'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">'inf'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">}</span>
 
         <span class="n">field_exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exact_solution</span><span class="p">(</span>
             <span class="n">ds_mesh</span><span class="p">,</span>
@@ -340,7 +340,7 @@
         <span class="n">diff</span> <span class="o">=</span> <span class="n">field_exact</span> <span class="o">-</span> <span class="n">field_mpas</span>
 
         <span class="c1"># Only the L2 norm is area-weighted</span>
-        <span class="k">if</span> <span class="n">error_type</span> <span class="o">==</span> <span class="s1">&#39;l2&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">error_type</span> <span class="o">==</span> <span class="s1">'l2'</span><span class="p">:</span>
             <span class="n">area</span> <span class="o">=</span> <span class="n">area_for_field</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
             <span class="n">field_exact</span> <span class="o">=</span> <span class="n">field_exact</span> <span class="o">*</span> <span class="n">area</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">*</span> <span class="n">area</span>
@@ -356,52 +356,52 @@
 <div class="viewcode-block" id="Analysis.exact_solution">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.barotropic_gyre.analysis.Analysis.exact_solution">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">exact_solution</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;Cell&#39;</span><span class="p">,</span> <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">&#39;free slip&#39;</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">'Cell'</span><span class="p">,</span> <span class="n">boundary_condition</span><span class="o">=</span><span class="s1">'free slip'</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Exact solution to the barotropic streamfunction for the linearized Munk</span>
 <span class="sd">        layer experiments.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ds_mesh : xarray.Dataset</span>
-<span class="sd">            The mesh dataset. Must contain the fields: f&#39;x{loc}&#39;, f&#39;y{loc}&#39;.</span>
+<span class="sd">            The mesh dataset. Must contain the fields: f'x{loc}', f'y{loc}'.</span>
 
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            The configuration options for the test case.</span>
 
 <span class="sd">        loc : str, optional</span>
-<span class="sd">            The location type (&#39;Cell&#39;, &#39;Vertex&#39;, etc.) for which to compute</span>
+<span class="sd">            The location type ('Cell', 'Vertex', etc.) for which to compute</span>
 <span class="sd">            the solution.</span>
 
 <span class="sd">        boundary_condition : str, optional</span>
-<span class="sd">            The type of boundary condition to use (&#39;free-slip&#39; or &#39;no-slip&#39;).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            The type of boundary condition to use ('free-slip' or 'no-slip').</span>
+<span class="sd">        """</span>
 
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">test_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_name</span>
         <span class="n">boundary_condition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_condition</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;x</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="p">[</span><span class="sa">f</span><span class="s1">'x</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;y</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="p">[</span><span class="sa">f</span><span class="s1">'y</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yEdge</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="n">L_x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
         <span class="n">L_y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
 
         <span class="c1"># df/dy where f is coriolis parameter</span>
-        <span class="n">beta</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;barotropic_gyre&#39;</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">)</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'barotropic_gyre'</span><span class="p">,</span> <span class="s1">'beta'</span><span class="p">)</span>
         <span class="c1"># Laplacian viscosity</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;barotropic_gyre_</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">boundary_condition</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;nu_2&#39;</span>
+            <span class="sa">f</span><span class="s1">'barotropic_gyre_</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">boundary_condition</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'nu_2'</span>
         <span class="p">)</span>
 
         <span class="c1"># Compute some non-dimensional numbers</span>
         <span class="n">delta_m</span> <span class="o">=</span> <span class="p">(</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="n">beta</span> <span class="o">*</span> <span class="n">L_y</span><span class="o">**</span><span class="mf">3.0</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">delta_m</span> <span class="o">*</span> <span class="n">L_x</span><span class="p">)</span>
         <span class="n">x_maxpsi</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">delta_m</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Streamfunction should reach maximum at x = </span><span class="si">{</span><span class="n">x_maxpsi</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Streamfunction should reach maximum at x = </span><span class="si">{</span><span class="n">x_maxpsi</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">boundary_condition</span> <span class="o">==</span> <span class="s1">&#39;no-slip&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">boundary_condition</span> <span class="o">==</span> <span class="s1">'no-slip'</span><span class="p">:</span>
             <span class="n">psi</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">pi</span>
                 <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">y</span> <span class="o">/</span> <span class="n">L_y</span><span class="p">)</span>
@@ -417,7 +417,7 @@
                 <span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">boundary_condition</span> <span class="o">==</span> <span class="s1">&#39;free-slip&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">boundary_condition</span> <span class="o">==</span> <span class="s1">'free-slip'</span><span class="p">:</span>
             <span class="n">psi</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">pi</span>
                 <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="n">L_y</span><span class="p">))</span>

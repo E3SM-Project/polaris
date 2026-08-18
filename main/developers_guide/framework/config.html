@@ -157,15 +157,15 @@ options. Examples of this can be found in many tasks as well as in the
 
 <span class="k">class</span><span class="w"> </span><span class="nc">InertialGravityWave</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;inertial_gravity_wave&#39;</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">'inertial_gravity_wave'</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'planar/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="o">...</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.inertial_gravity_wave&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;inertial_gravity_wave.cfg&#39;</span><span class="p">)</span>
+            <span class="s1">'polaris.tasks.ocean.inertial_gravity_wave'</span><span class="p">,</span>
+            <span class="s1">'inertial_gravity_wave.cfg'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The first and second arguments are the name of a package containing the config
@@ -184,7 +184,7 @@ file for the particular machine we’re on, and that’s fine:</p>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_basic_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;mache.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'mache.machines'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
                                 <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -230,12 +230,12 @@ resolution’s work directory:</p>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_baroclinic_channel_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">resolution</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]:</span>
         <span class="n">resdir</span> <span class="o">=</span> <span class="n">resolution_to_string</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
-        <span class="n">resdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/baroclinic_channel/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">resdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'planar/baroclinic_channel/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">'</span>
 
-        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;baroclinic_channel.cfg&#39;</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
+        <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'baroclinic_channel.cfg'</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.baroclinic_channel'</span><span class="p">,</span>
+                                <span class="s1">'baroclinic_channel.cfg'</span><span class="p">)</span>
 
         <span class="n">init</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">)</span>
         <span class="n">init</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
@@ -264,33 +264,33 @@ added as follows:</p>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Rpe</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rpe&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'rpe'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
 
         <span class="c1"># this needs to be added before we can use the config options it</span>
         <span class="c1"># brings in to set up the steps</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;baroclinic_channel.cfg&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">'baroclinic_channel.cfg'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">'init'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_rpe_and_analysis_steps</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_add_rpe_and_analysis_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Add the steps in the test case either at init or set-up &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Add the steps in the test case either at init or set-up """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
 
-        <span class="n">nus</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel_rpe&#39;</span><span class="p">,</span> <span class="s1">&#39;viscosities&#39;</span><span class="p">,</span>
+        <span class="n">nus</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'baroclinic_channel_rpe'</span><span class="p">,</span> <span class="s1">'viscosities'</span><span class="p">,</span>
                              <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">nu</span> <span class="ow">in</span> <span class="n">nus</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;nu_</span><span class="si">{</span><span class="n">nu</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'nu_</span><span class="si">{</span><span class="n">nu</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span>
             <span class="n">step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
                 <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="n">nu</span><span class="p">)</span>
 
             <span class="n">step</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel.rpe&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+                <span class="s1">'polaris.tasks.ocean.baroclinic_channel.rpe'</span><span class="p">,</span>
+                <span class="s1">'forward.yaml'</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>

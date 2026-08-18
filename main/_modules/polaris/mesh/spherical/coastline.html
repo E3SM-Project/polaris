@@ -121,8 +121,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.critical_transects</span><span class="w"> </span><span class="kn">import</span> <span class="n">CriticalTransects</span>
 
-<span class="n">CONVENTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;calving_front&#39;</span><span class="p">,</span> <span class="s1">&#39;grounding_line&#39;</span><span class="p">,</span> <span class="s1">&#39;bedrock_zero&#39;</span><span class="p">)</span>
-<span class="n">EARTH_RADIUS</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;mean_radius&#39;</span><span class="p">)</span>
+<span class="n">CONVENTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'calving_front'</span><span class="p">,</span> <span class="s1">'grounding_line'</span><span class="p">,</span> <span class="s1">'bedrock_zero'</span><span class="p">)</span>
+<span class="n">EARTH_RADIUS</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'mean_radius'</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="build_coastline_datasets">
@@ -136,7 +136,7 @@
     <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">critical_transects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build coastline datasets from combined topography.</span>
 
 <span class="sd">    Parameters</span>
@@ -166,25 +166,25 @@
 <span class="sd">    -------</span>
 <span class="sd">    ds_coastlines : dict[str, xr.Dataset]</span>
 <span class="sd">        Coastline datasets keyed by coastline convention</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span>
     <span class="n">lat</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span>
 
-    <span class="n">base_elevation</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">base_elevation</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">base_elevation</span> <span class="o">=</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">base_elevation</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
     <span class="n">ice_mask</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">ds_topo</span><span class="o">.</span><span class="n">ice_mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">mask_threshold</span>
+        <span class="n">ds_topo</span><span class="o">.</span><span class="n">ice_mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">mask_threshold</span>
     <span class="p">)</span>
     <span class="n">grounded_mask</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">ds_topo</span><span class="o">.</span><span class="n">grounded_mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">mask_threshold</span>
+        <span class="n">ds_topo</span><span class="o">.</span><span class="n">grounded_mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">mask_threshold</span>
     <span class="p">)</span>
     <span class="n">below_sea_level</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">base_elevation</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
         <span class="n">base_elevation</span> <span class="o">&lt;</span> <span class="n">sea_level_elevation</span>
     <span class="p">)</span>
 
     <span class="n">candidate_masks</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;calving_front&#39;</span><span class="p">:</span> <span class="n">below_sea_level</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">ice_mask</span><span class="p">),</span>
-        <span class="s1">&#39;grounding_line&#39;</span><span class="p">:</span> <span class="n">below_sea_level</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">grounded_mask</span><span class="p">),</span>
-        <span class="s1">&#39;bedrock_zero&#39;</span><span class="p">:</span> <span class="n">below_sea_level</span><span class="p">,</span>
+        <span class="s1">'calving_front'</span><span class="p">:</span> <span class="n">below_sea_level</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">ice_mask</span><span class="p">),</span>
+        <span class="s1">'grounding_line'</span><span class="p">:</span> <span class="n">below_sea_level</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">grounded_mask</span><span class="p">),</span>
+        <span class="s1">'bedrock_zero'</span><span class="p">:</span> <span class="n">below_sea_level</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">land_blockages</span><span class="p">,</span> <span class="n">passages</span> <span class="o">=</span> <span class="n">_rasterize_critical_transects</span><span class="p">(</span>
@@ -240,9 +240,9 @@
     <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">critical_transects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build a coastline dataset for one coastline convention.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ds_coastlines</span> <span class="o">=</span> <span class="n">build_coastline_datasets</span><span class="p">(</span>
         <span class="n">ds_topo</span><span class="o">=</span><span class="n">ds_topo</span><span class="p">,</span>
         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
@@ -263,7 +263,7 @@
     <span class="n">distance_chunk_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
     <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the signed distance to the coastline of an ocean mask.</span>
 
 <span class="sd">    Parameters</span>
@@ -288,7 +288,7 @@
 <span class="sd">    signed_distance : numpy.ndarray</span>
 <span class="sd">        The signed distance in meters to the nearest coastline sample</span>
 <span class="sd">        (positive over ocean, negative over land)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">edge_east</span><span class="p">,</span> <span class="n">edge_north</span> <span class="o">=</span> <span class="n">_coastline_edges</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_signed_distance_from_mask</span><span class="p">(</span>
         <span class="n">ocean_mask</span><span class="o">=</span><span class="n">ocean_mask</span><span class="p">,</span>
@@ -302,7 +302,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">rasterize_critical_transects</span><span class="p">(</span><span class="n">critical_transects</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Rasterize critical land blockages and passages onto a lat-lon grid.</span>
 
 <span class="sd">    Parameters</span>
@@ -325,7 +325,7 @@
 
 <span class="sd">    passages : numpy.ndarray</span>
 <span class="sd">        A boolean mask of rasterized ocean passages</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_rasterize_critical_transects</span><span class="p">(</span>
         <span class="n">critical_transects</span><span class="o">=</span><span class="n">critical_transects</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span>
     <span class="p">)</span>
@@ -340,9 +340,9 @@
     <span class="n">ocean_mask</span><span class="p">,</span>
     <span class="n">signed_distance</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build one convention-specific coastline dataset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ds_coastline</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
         <span class="n">coords</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
             <span class="n">lat</span><span class="o">=</span><span class="n">ds_topo</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
@@ -350,10 +350,10 @@
         <span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'lat'</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">)</span>
     <span class="n">data_vars</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;ocean_mask&#39;</span><span class="p">:</span> <span class="n">ocean_mask</span><span class="p">,</span>
-        <span class="s1">&#39;signed_distance&#39;</span><span class="p">:</span> <span class="n">signed_distance</span><span class="p">,</span>
+        <span class="s1">'ocean_mask'</span><span class="p">:</span> <span class="n">ocean_mask</span><span class="p">,</span>
+        <span class="s1">'signed_distance'</span><span class="p">:</span> <span class="n">signed_distance</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">ds_coastline</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span>
@@ -361,40 +361,40 @@
     <span class="n">ds_coastline</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
         <span class="nb">dict</span><span class="p">(</span>
             <span class="n">coastline_convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
-            <span class="n">target_grid</span><span class="o">=</span><span class="s1">&#39;lat_lon&#39;</span><span class="p">,</span>
+            <span class="n">target_grid</span><span class="o">=</span><span class="s1">'lat_lon'</span><span class="p">,</span>
             <span class="n">target_grid_resolution_degrees</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
-            <span class="n">coastline_source</span><span class="o">=</span><span class="s1">&#39;combined_topography&#39;</span><span class="p">,</span>
+            <span class="n">coastline_source</span><span class="o">=</span><span class="s1">'combined_topography'</span><span class="p">,</span>
             <span class="n">mask_threshold</span><span class="o">=</span><span class="n">mask_threshold</span><span class="p">,</span>
             <span class="n">sea_level_elevation</span><span class="o">=</span><span class="n">sea_level_elevation</span><span class="p">,</span>
-            <span class="n">flood_fill_seed_strategy</span><span class="o">=</span><span class="s1">&#39;candidate_ocean_on_northernmost_row&#39;</span><span class="p">,</span>
-            <span class="n">sign_convention</span><span class="o">=</span><span class="s1">&#39;negative_over_land_positive_over_ocean&#39;</span><span class="p">,</span>
+            <span class="n">flood_fill_seed_strategy</span><span class="o">=</span><span class="s1">'candidate_ocean_on_northernmost_row'</span><span class="p">,</span>
+            <span class="n">sign_convention</span><span class="o">=</span><span class="s1">'negative_over_land_positive_over_ocean'</span><span class="p">,</span>
             <span class="n">coastline_edge_definition</span><span class="o">=</span><span class="p">(</span>
-                <span class="s1">&#39;east and north cell-edge transitions on the target grid&#39;</span>
+                <span class="s1">'east and north cell-edge transitions on the target grid'</span>
             <span class="p">),</span>
             <span class="n">coastline_distance_definition</span><span class="o">=</span><span class="p">(</span>
-                <span class="s1">&#39;spherical nearest-sample distance from raster coastline&#39;</span>
+                <span class="s1">'spherical nearest-sample distance from raster coastline'</span>
             <span class="p">),</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">ds_coastline</span><span class="p">[</span><span class="s1">&#39;ocean_mask&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s1">&#39;Exclusive ocean mask after flood fill&#39;</span>
+    <span class="n">ds_coastline</span><span class="p">[</span><span class="s1">'ocean_mask'</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">'Exclusive ocean mask after flood fill'</span>
     <span class="p">)</span>
-    <span class="n">ds_coastline</span><span class="p">[</span><span class="s1">&#39;signed_distance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s1">&#39;Signed distance to the nearest coastline sample&#39;</span>
+    <span class="n">ds_coastline</span><span class="p">[</span><span class="s1">'signed_distance'</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">'Signed distance to the nearest coastline sample'</span>
     <span class="p">)</span>
-    <span class="n">ds_coastline</span><span class="p">[</span><span class="s1">&#39;signed_distance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+    <span class="n">ds_coastline</span><span class="p">[</span><span class="s1">'signed_distance'</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
     <span class="k">return</span> <span class="n">ds_coastline</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_flood_fill_ocean</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Flood fill candidate ocean regions from the northernmost latitude row.</span>
 
 <span class="sd">    Periodicity is enforced in longitude by merging labels on the eastern and</span>
 <span class="sd">    western boundaries before selecting connected components.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">structure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
     <span class="n">labels</span><span class="p">,</span> <span class="n">label_count</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">candidate_ocean</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">label_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -434,9 +434,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_coastline_edges</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build east and north coastline edge diagnostics from an ocean mask.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">edge_east</span> <span class="o">=</span> <span class="n">ocean_mask</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">edge_north</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ocean_mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
     <span class="n">edge_north</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">ocean_mask</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">!=</span> <span class="n">ocean_mask</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span>
@@ -452,9 +452,9 @@
     <span class="n">chunk_size</span><span class="p">,</span>
     <span class="n">workers</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute signed distance to the nearest raster coastline sample.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">sample_points</span> <span class="o">=</span> <span class="n">_coastline_sample_xyz</span><span class="p">(</span>
         <span class="n">edge_east</span><span class="o">=</span><span class="n">edge_east</span><span class="p">,</span> <span class="n">edge_north</span><span class="o">=</span><span class="n">edge_north</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span>
     <span class="p">)</span>
@@ -487,9 +487,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_coastline_sample_xyz</span><span class="p">(</span><span class="n">edge_east</span><span class="p">,</span> <span class="n">edge_north</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert coastline edge midpoints into Cartesian coordinates.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">east_rows</span><span class="p">,</span> <span class="n">east_cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">edge_east</span><span class="p">)</span>
     <span class="n">north_rows</span><span class="p">,</span> <span class="n">north_cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">edge_north</span><span class="p">)</span>
 
@@ -514,9 +514,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_angular_midpoint</span><span class="p">(</span><span class="n">lon_a</span><span class="p">,</span> <span class="n">lon_b</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the midpoint between longitudes, respecting antimeridian wrap.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">lon_a_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lon_a</span><span class="p">)</span>
     <span class="n">lon_b_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lon_b</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon_a_rad</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon_b_rad</span><span class="p">)</span>
@@ -525,9 +525,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_lon_lat_to_xyz</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert lon/lat coordinates in degrees to Cartesian coordinates.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">lon_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
     <span class="n">lat_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
     <span class="n">cos_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat_rad</span><span class="p">)</span>
@@ -539,34 +539,34 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_tree_query</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">workers</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Query a KD-tree with SciPy-version-compatible worker support.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_write_netcdf_with_fill_values</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;NETCDF4&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_netcdf_with_fill_values</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">'NETCDF4'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write an xarray Dataset with NetCDF4 fill values where needed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">fill_values</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">default_fillvals</span>
     <span class="n">encoding</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">vars_and_coords</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">vars_and_coords</span><span class="p">:</span>
-        <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;_FillValue&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'_FillValue'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">is_numeric</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_numeric</span><span class="p">:</span>
             <span class="n">dtype</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
             <span class="k">for</span> <span class="n">fill_type</span><span class="p">,</span> <span class="n">fill_value</span> <span class="ow">in</span> <span class="n">fill_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">fill_type</span><span class="p">):</span>
-                    <span class="n">encoding</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;_FillValue&#39;</span><span class="p">:</span> <span class="n">fill_value</span><span class="p">}</span>
+                    <span class="n">encoding</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'_FillValue'</span><span class="p">:</span> <span class="n">fill_value</span><span class="p">}</span>
                     <span class="k">break</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">encoding</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;_FillValue&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+            <span class="n">encoding</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'_FillValue'</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
 
 
@@ -575,9 +575,9 @@
     <span class="n">lon</span><span class="p">,</span>
     <span class="n">lat</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Rasterize critical land blockages and passages onto a lat-lon grid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">critical_transects</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -599,9 +599,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_rasterize_feature_collection</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Rasterize a transect feature collection to a 4-connected cell mask.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">lat</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">lon</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">feature_collection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">mask</span>
@@ -623,28 +623,28 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_iter_feature_coordinates</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Yield the coordinates for each line geometry in a feature collection.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="n">feature_collection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">feature_collection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'features'</span><span class="p">,</span> <span class="p">[])</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="s1">'features'</span><span class="p">,</span> <span class="p">[])</span>
 
     <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
-        <span class="n">geometry</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">)</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'geometry'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">continue</span>
 
-        <span class="n">geometry_type</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">&#39;LineString&#39;</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">geometry</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">&#39;MultiLineString&#39;</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">coordinates</span> <span class="ow">in</span> <span class="n">geometry</span><span class="p">[</span><span class="s1">&#39;coordinates&#39;</span><span class="p">]:</span>
+        <span class="n">geometry_type</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'type'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">'LineString'</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">geometry</span><span class="p">[</span><span class="s1">'coordinates'</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">'MultiLineString'</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">coordinates</span> <span class="ow">in</span> <span class="n">geometry</span><span class="p">[</span><span class="s1">'coordinates'</span><span class="p">]:</span>
                 <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Unsupported critical transect geometry type: </span><span class="si">{</span><span class="n">geometry_type</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'Unsupported critical transect geometry type: </span><span class="si">{</span><span class="n">geometry_type</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
 
@@ -656,9 +656,9 @@
     <span class="n">lon_spacing</span><span class="p">,</span>
     <span class="n">lat_spacing</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Rasterize one line string by densifying and connecting nearest cells.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">coordinates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span>
 
@@ -695,9 +695,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_densify_segment</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">lon_spacing</span><span class="p">,</span> <span class="n">lat_spacing</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Densify a segment enough to avoid gaps when mapping to cell centers.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">delta_lon</span> <span class="o">=</span> <span class="n">_wrap_longitude_delta</span><span class="p">(</span><span class="n">stop</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">delta_lat</span> <span class="o">=</span> <span class="n">stop</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">n_lon</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">lon_spacing</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_lon</span><span class="p">)</span> <span class="o">/</span> <span class="n">lon_spacing</span>
@@ -711,9 +711,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_representative_spacing</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Estimate a typical grid spacing from a one-dimensional coordinate.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">1.0</span>
 
@@ -725,31 +725,31 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_nearest_lat_index</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find the nearest latitude index for a point.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">lat</span> <span class="o">-</span> <span class="n">value</span><span class="p">)))</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_nearest_lon_index</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">lon</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Find the nearest longitude index for a point with periodic wrap.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">delta</span> <span class="o">=</span> <span class="n">_wrap_longitude_delta</span><span class="p">(</span><span class="n">lon</span> <span class="o">-</span> <span class="n">value</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta</span><span class="p">)))</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_longitude_delta</span><span class="p">(</span><span class="n">delta</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Wrap longitude differences to the shortest path on the sphere.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">delta</span> <span class="o">+</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">360.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">180.0</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_mark_grid_connection</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">previous</span><span class="p">,</span> <span class="n">current</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Mark a 4-connected path between two raster cells.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">previous</span>
     <span class="n">stop_row</span><span class="p">,</span> <span class="n">stop_col</span> <span class="o">=</span> <span class="n">current</span>
     <span class="n">n_lon</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -767,9 +767,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_periodic_index_delta</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the shortest signed periodic index delta.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">half_size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">/</span> <span class="mf">2.0</span>
     <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="n">half_size</span><span class="p">:</span>
         <span class="n">delta</span> <span class="o">-=</span> <span class="n">size</span>

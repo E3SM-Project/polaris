@@ -151,7 +151,7 @@ test cases in the <code class="docutils literal notranslate"><span class="pre">l
 <span class="c1"># number of levels in the mesh</span>
 <span class="na">levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
 
-<span class="c1"># the dome type (&#39;halfar&#39; or &#39;cism&#39;)</span>
+<span class="c1"># the dome type ('halfar' or 'cism')</span>
 <span class="na">dome_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">halfar</span>
 
 <span class="c1"># Whether to center the dome in the center of the cell that is closest to the</span>
@@ -196,13 +196,13 @@ tasks to the <code class="docutils literal notranslate"><span class="pre">landic
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">add_dome_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add tasks that define Dome test cases</span>
 <span class="sd">    </span>
 <span class="sd">    component : polaris.landice.Landice</span>
 <span class="sd">        the component that to add the tasks to</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">mesh_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;2000m&#39;</span><span class="p">,</span> <span class="s1">&#39;variable_resolution&#39;</span><span class="p">]:</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">mesh_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'2000m'</span><span class="p">,</span> <span class="s1">'variable_resolution'</span><span class="p">]:</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
             <span class="n">SmokeTest</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">))</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>

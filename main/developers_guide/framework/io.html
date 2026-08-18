@@ -150,10 +150,10 @@ README file that the user might want to have available) using
 <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="k">with</span> <span class="n">path</span><span class="p">(</span>
-        <span class="s1">&#39;polaris.tasks.ocean.realistic_global.hydrography.woa23&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;woa23.cfg&#39;</span><span class="p">,</span>
+        <span class="s1">'polaris.tasks.ocean.realistic_global.hydrography.woa23'</span><span class="p">,</span>
+        <span class="s1">'woa23.cfg'</span><span class="p">,</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">target</span><span class="p">:</span>
-        <span class="n">symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/woa23.cfg&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;work_dir&#39;</span><span class="p">]))</span>
+        <span class="n">symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="s1">'</span><span class="si">{}</span><span class="s1">/woa23.cfg'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">'work_dir'</span><span class="p">]))</span>
 </pre></div>
 </div>
 <p>In this example, we get the path to a config file within polaris and make
@@ -178,17 +178,17 @@ and adding it as an input to the step.  No current tasks use
 <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
     <span class="n">step_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span>
-    <span class="n">database_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;database_root&#39;</span><span class="p">)</span>
-    <span class="n">download_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">,</span>
-                                 <span class="s1">&#39;bathymetry_database&#39;</span><span class="p">)</span>
+    <span class="n">database_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'database_root'</span><span class="p">)</span>
+    <span class="n">download_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="s1">'mpas-ocean'</span><span class="p">,</span>
+                                 <span class="s1">'bathymetry_database'</span><span class="p">)</span>
 
     <span class="n">remote_filename</span> <span class="o">=</span> \
-        <span class="s1">&#39;BedMachineAntarctica_and_GEBCO_2019_0.05_degree.200128.nc&#39;</span>
-    <span class="n">local_filename</span> <span class="o">=</span> <span class="s1">&#39;topography.nc&#39;</span>
+        <span class="s1">'BedMachineAntarctica_and_GEBCO_2019_0.05_degree.200128.nc'</span>
+    <span class="n">local_filename</span> <span class="o">=</span> <span class="s1">'topography.nc'</span>
 
     <span class="n">download</span><span class="p">(</span>
-        <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;https://web.lcrc.anl.gov/public/e3sm/mpas_standalonedata/&#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;mpas-ocean/bathymetry_database/</span><span class="si">{</span><span class="n">remote_filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s1">'https://web.lcrc.anl.gov/public/e3sm/mpas_standalonedata/'</span>
+            <span class="sa">f</span><span class="s1">'mpas-ocean/bathymetry_database/</span><span class="si">{</span><span class="n">remote_filename</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">dest_path</span><span class="o">=</span><span class="n">download_path</span><span class="p">)</span>
 
     <span class="n">symlink</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">download_path</span><span class="p">,</span> <span class="n">remote_filename</span><span class="p">),</span>
@@ -206,7 +206,7 @@ bathymetry database.</p>
 <p>After downloading a file to a shared location, it is typically a good idea to
 change permissions so others can access the file and write to the directory it
 is stored in.</p>
-<p>This can be accomplished with <a class="reference external" href="https://docs.e3sm.org/mache/main/developers_guide/generated/mache.permissions.update_permissions.html#mache.permissions.update_permissions" title="(in Mache main)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mache.permissions.update_permissions()</span></code></a>,
+<p>This can be accomplished with <code class="xref py py-func docutils literal notranslate"><span class="pre">mache.permissions.update_permissions()</span></code>,
 which takes a list of one or more directories on which to update permissions,
 along with a group name that files should belong to. As an example, if we
 download a file <code class="docutils literal notranslate"><span class="pre">ocean.QU.240km.151209.nc</span></code> to a database <code class="docutils literal notranslate"><span class="pre">ocean/omega_ctest</span></code>,
@@ -218,28 +218,28 @@ follows:</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">download</span>
 
 
-<span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_MACHINE&#39;</span><span class="p">]</span>
+<span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_MACHINE'</span><span class="p">]</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
-<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris&#39;</span><span class="p">,</span> <span class="s1">&#39;default.cfg&#39;</span><span class="p">)</span>
-<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;mache.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">)</span>
-<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris'</span><span class="p">,</span> <span class="s1">'default.cfg'</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'mache.machines'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.machines'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">)</span>
 
-<span class="n">database_root</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;database_root&#39;</span><span class="p">)</span>
+<span class="n">database_root</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'database_root'</span><span class="p">)</span>
 
-<span class="n">base_url</span> <span class="o">=</span> <span class="s1">&#39;https://web.lcrc.anl.gov/public/e3sm/polaris/&#39;</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s1">'https://web.lcrc.anl.gov/public/e3sm/polaris/'</span>
 
-<span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;ocean.QU.240km.151209.nc&#39;</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s1">'ocean.QU.240km.151209.nc'</span>
 
-<span class="n">database_path</span> <span class="o">=</span> <span class="s1">&#39;ocean/omega_ctest&#39;</span>
+<span class="n">database_path</span> <span class="o">=</span> <span class="s1">'ocean/omega_ctest'</span>
 
 <span class="n">download_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="n">database_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-<span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">database_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">database_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span>
 <span class="n">download_target</span> <span class="o">=</span> <span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">download_path</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">):</span>
+<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'e3sm_unified'</span><span class="p">,</span> <span class="s1">'group'</span><span class="p">):</span>
     <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">database_root</span><span class="p">,</span> <span class="n">database_path</span><span class="p">)</span>
-    <span class="n">group</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;e3sm_unified&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">)</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'e3sm_unified'</span><span class="p">,</span> <span class="s1">'group'</span><span class="p">)</span>
     <span class="n">update_permissions</span><span class="p">([</span><span class="n">full_path</span><span class="p">],</span> <span class="n">group</span><span class="p">,</span> <span class="n">group_writable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>

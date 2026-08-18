@@ -117,7 +117,7 @@
 <div class="viewcode-block" id="Forward">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.forward.Forward.html#polaris.tasks.ocean.cosine_bell.forward.Forward">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">SphericalConvergenceForward</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for performing forward ocean component runs as part of the cosine</span>
 <span class="sd">    bell test case</span>
 
@@ -125,7 +125,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    do_restart : bool</span>
 <span class="sd">        Whether this is a restart run</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Forward.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.forward.Forward.html#polaris.tasks.ocean.cosine_bell.forward.Forward.__init__">[docs]</a>
@@ -140,7 +140,7 @@
         <span class="n">refinement</span><span class="p">,</span>
         <span class="n">do_restart</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new step</span>
 
 <span class="sd">        Parameters</span>
@@ -164,14 +164,14 @@
 <span class="sd">            The factor by which to scale space, time or both</span>
 
 <span class="sd">        refinement : str</span>
-<span class="sd">            Refinement type. One of &#39;space&#39;, &#39;time&#39; or &#39;both&#39; indicating both</span>
+<span class="sd">            Refinement type. One of 'space', 'time' or 'both' indicating both</span>
 <span class="sd">            space and time</span>
 
 <span class="sd">        do_restart : bool, optional</span>
 <span class="sd">            Whether this is a restart run</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.tasks.ocean.cosine_bell&#39;</span>
-        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer1&#39;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.cosine_bell'</span>
+        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">,</span> <span class="s1">'tracer1'</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -179,12 +179,12 @@
             <span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
             <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
-            <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;forward.yaml&#39;</span><span class="p">,</span>
-            <span class="n">output_filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">'forward.yaml'</span><span class="p">,</span>
+            <span class="n">output_filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
-            <span class="n">check_properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mass conservation&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer conservation&#39;</span><span class="p">],</span>
+            <span class="n">check_properties</span><span class="o">=</span><span class="p">[</span><span class="s1">'mass conservation'</span><span class="p">,</span> <span class="s1">'tracer conservation'</span><span class="p">],</span>
             <span class="n">update_eos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info&#39;</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info'</span><span class="p">,</span>
             <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
             <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
         <span class="p">)</span>
@@ -196,14 +196,14 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_mesh_filepath</span>
 
-        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="n">component</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">parse_mesh_filepath</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mesh_path</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;coeffs.nc&#39;</span><span class="p">,</span>
-                <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_coeffs.nc&#39;</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_coeffs.nc'</span><span class="p">,</span>
                 <span class="n">database_component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                 <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
             <span class="p">)</span></div>

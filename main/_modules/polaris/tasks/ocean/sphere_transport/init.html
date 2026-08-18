@@ -132,20 +132,20 @@
     <span class="n">xyztrig</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;mean_radius&#39;</span><span class="p">)</span>
+<span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'mean_radius'</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Init">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.init.Init.html#polaris.tasks.ocean.sphere_transport.init.Init">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for an initial condition for for the cosine bell test case</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Init.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.init.Init.html#polaris.tasks.ocean.sphere_transport.init.Init.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">base_mesh</span><span class="p">,</span> <span class="n">case_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -164,80 +164,80 @@
 
 <span class="sd">        case_name: str</span>
 <span class="sd">            The name of the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">case_name</span> <span class="o">=</span> <span class="n">case_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/base_mesh.nc'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'graph.info'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;reconstruction_weights.nc&#39;</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/reconstruction_weights.nc&#39;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'reconstruction_weights.nc'</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_mesh</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/reconstruction_weights.nc'</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_files_for_ocean_model_input</span><span class="p">(</span>
-            <span class="n">horiz_mesh_filename</span><span class="o">=</span><span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span>
+            <span class="n">horiz_mesh_filename</span><span class="o">=</span><span class="s1">'culled_mesh.nc'</span><span class="p">,</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="Init.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.sphere_transport.init.Init.run.html#polaris.tasks.ocean.sphere_transport.init.Init.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the task</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">case_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_name</span>
 
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;sphere_transport&#39;</span><span class="p">]</span>
-        <span class="n">temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;temperature&#39;</span><span class="p">)</span>
-        <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;salinity&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'sphere_transport'</span><span class="p">]</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'temperature'</span><span class="p">)</span>
+        <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'salinity'</span><span class="p">)</span>
 
         <span class="c1"># time (hours) for bell to transit equator once</span>
-        <span class="n">vel_pd</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vel_pd&#39;</span><span class="p">)</span>
+        <span class="n">vel_pd</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vel_pd'</span><span class="p">)</span>
 
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">]</span>
-        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;bottom_depth&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'vertical_grid'</span><span class="p">]</span>
+        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'bottom_depth'</span><span class="p">)</span>
 
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">)</span>
         <span class="n">latCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span>
         <span class="n">latEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latEdge</span>
         <span class="n">lonCell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonCell</span>
         <span class="n">lonEdge</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonEdge</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">add_coriolis_to_dataset</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_horiz_mesh_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_horiz_mesh_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'culled_mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">latCell</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">latCell</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'bottomDepth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">latCell</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">latCell</span><span class="p">)</span>
 
         <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
 
         <span class="n">temperature_array</span> <span class="o">=</span> <span class="n">temperature</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">latCell</span><span class="p">)</span>
         <span class="n">temperature_array</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">temperature_array</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature_array</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature_array</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
 
         <span class="c1"># tracer1</span>
         <span class="n">tracer1</span> <span class="o">=</span> <span class="n">xyztrig</span><span class="p">(</span><span class="n">lonCell</span><span class="p">,</span> <span class="n">latCell</span><span class="p">,</span> <span class="n">earth_radius</span><span class="p">)</span>
 
         <span class="c1"># tracer2</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;sphere_transport&#39;</span><span class="p">]</span>
-        <span class="n">radius</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bells_radius&#39;</span><span class="p">)</span>
-        <span class="n">background_value</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bells_background&#39;</span><span class="p">)</span>
-        <span class="n">amplitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;cosine_bells_amplitude&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'sphere_transport'</span><span class="p">]</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'cosine_bells_radius'</span><span class="p">)</span>
+        <span class="n">background_value</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'cosine_bells_background'</span><span class="p">)</span>
+        <span class="n">amplitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'cosine_bells_amplitude'</span><span class="p">)</span>
         <span class="n">tracer2</span> <span class="o">=</span> <span class="n">cosine_bells</span><span class="p">(</span>
             <span class="n">lonCell</span><span class="p">,</span>
             <span class="n">latCell</span><span class="p">,</span>
@@ -248,16 +248,16 @@
         <span class="p">)</span>
 
         <span class="c1"># tracer3</span>
-        <span class="k">if</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">&#39;correlated_tracers_2d&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">'correlated_tracers_2d'</span><span class="p">:</span>
             <span class="n">coeff</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-                <span class="n">case_name</span><span class="p">,</span> <span class="s1">&#39;correlation_coefficients&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
+                <span class="n">case_name</span><span class="p">,</span> <span class="s1">'correlation_coefficients'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
             <span class="p">)</span>
             <span class="n">tracer3</span> <span class="o">=</span> <span class="n">correlation_fn</span><span class="p">(</span><span class="n">tracer2</span><span class="p">,</span> <span class="n">coeff</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coeff</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">coeff</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;sphere_transport&#39;</span><span class="p">]</span>
-            <span class="n">radius</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;slotted_cylinders_radius&#39;</span><span class="p">)</span>
-            <span class="n">background_value</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;slotted_cylinders_background&#39;</span><span class="p">)</span>
-            <span class="n">amplitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;slotted_cylinders_amplitude&#39;</span><span class="p">)</span>
+            <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'sphere_transport'</span><span class="p">]</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'slotted_cylinders_radius'</span><span class="p">)</span>
+            <span class="n">background_value</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'slotted_cylinders_background'</span><span class="p">)</span>
+            <span class="n">amplitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'slotted_cylinders_amplitude'</span><span class="p">)</span>
             <span class="n">tracer3</span> <span class="o">=</span> <span class="n">slotted_cylinders</span><span class="p">(</span>
                 <span class="n">lonCell</span><span class="p">,</span>
                 <span class="n">latCell</span><span class="p">,</span>
@@ -270,45 +270,45 @@
         <span class="n">_</span><span class="p">,</span> <span class="n">tracer2_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">tracer2</span><span class="p">)</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">tracer3_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">tracer3</span><span class="p">)</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'tracer1'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">(</span>
-                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+                <span class="s1">'nCells'</span><span class="p">,</span>
+                <span class="s1">'nVertLevels'</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">tracer1_array</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;tracer1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;tracer2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'tracer1'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer1</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'tracer2'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">(</span>
-                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+                <span class="s1">'nCells'</span><span class="p">,</span>
+                <span class="s1">'nVertLevels'</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">tracer2_array</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;tracer2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer2</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;tracer3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'tracer2'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer2</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'tracer3'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">(</span>
-                <span class="s1">&#39;nCells&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span>
+                <span class="s1">'nCells'</span><span class="p">,</span>
+                <span class="s1">'nVertLevels'</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">tracer3_array</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;tracer3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer3</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'tracer3'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">tracer3</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># Initialize velocity</span>
         <span class="n">s_per_hour</span> <span class="o">=</span> <span class="mf">3600.0</span>
-        <span class="k">if</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">&#39;rotation_2d&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">'rotation_2d'</span><span class="p">:</span>
             <span class="n">rotation_vector</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-                <span class="n">case_name</span><span class="p">,</span> <span class="s1">&#39;rotation_vector&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
+                <span class="n">case_name</span><span class="p">,</span> <span class="s1">'rotation_vector'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
             <span class="p">)</span>
             <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rotation_vector</span><span class="p">)</span>
             <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">flow_rotation</span><span class="p">(</span><span class="n">lonEdge</span><span class="p">,</span> <span class="n">latEdge</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">vel_pd</span> <span class="o">*</span> <span class="n">s_per_hour</span><span class="p">)</span>
             <span class="n">u_cell</span><span class="p">,</span> <span class="n">v_cell</span> <span class="o">=</span> <span class="n">flow_rotation</span><span class="p">(</span>
                 <span class="n">lonCell</span><span class="p">,</span> <span class="n">latCell</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">vel_pd</span> <span class="o">*</span> <span class="n">s_per_hour</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">&#39;divergent_2d&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">'divergent_2d'</span><span class="p">:</span>
             <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">case_name</span><span class="p">]</span>
-            <span class="n">vel_amp</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vel_amp&#39;</span><span class="p">)</span>
+            <span class="n">vel_amp</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vel_amp'</span><span class="p">)</span>
             <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">flow_divergent</span><span class="p">(</span>
                 <span class="mf">0.0</span><span class="p">,</span> <span class="n">lonEdge</span><span class="p">,</span> <span class="n">latEdge</span><span class="p">,</span> <span class="n">vel_amp</span><span class="p">,</span> <span class="n">vel_pd</span> <span class="o">*</span> <span class="n">s_per_hour</span>
             <span class="p">)</span>
@@ -316,11 +316,11 @@
                 <span class="mf">0.0</span><span class="p">,</span> <span class="n">lonCell</span><span class="p">,</span> <span class="n">latCell</span><span class="p">,</span> <span class="n">vel_amp</span><span class="p">,</span> <span class="n">vel_pd</span> <span class="o">*</span> <span class="n">s_per_hour</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="p">(</span>
-            <span class="n">case_name</span> <span class="o">==</span> <span class="s1">&#39;nondivergent_2d&#39;</span>
-            <span class="ow">or</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">&#39;correlated_tracers_2d&#39;</span>
+            <span class="n">case_name</span> <span class="o">==</span> <span class="s1">'nondivergent_2d'</span>
+            <span class="ow">or</span> <span class="n">case_name</span> <span class="o">==</span> <span class="s1">'correlated_tracers_2d'</span>
         <span class="p">):</span>
             <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">case_name</span><span class="p">]</span>
-            <span class="n">vel_amp</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vel_amp&#39;</span><span class="p">)</span>
+            <span class="n">vel_amp</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vel_amp'</span><span class="p">)</span>
             <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">flow_nondivergent</span><span class="p">(</span>
                 <span class="mf">0.0</span><span class="p">,</span> <span class="n">lonEdge</span><span class="p">,</span> <span class="n">latEdge</span><span class="p">,</span> <span class="n">vel_amp</span><span class="p">,</span> <span class="n">vel_pd</span> <span class="o">*</span> <span class="n">s_per_hour</span>
             <span class="p">)</span>
@@ -328,26 +328,26 @@
                 <span class="mf">0.0</span><span class="p">,</span> <span class="n">lonCell</span><span class="p">,</span> <span class="n">latCell</span><span class="p">,</span> <span class="n">vel_amp</span><span class="p">,</span> <span class="n">vel_pd</span> <span class="o">*</span> <span class="n">s_per_hour</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected test case name </span><span class="si">{</span><span class="n">case_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unexpected test case name </span><span class="si">{</span><span class="n">case_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="n">normalVelocity</span> <span class="o">=</span> <span class="n">normal_velocity_from_zonal_meridional</span><span class="p">(</span>
             <span class="n">ds</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">recompute_angle_edge</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="n">normalVelocity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">normalVelocity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalVelocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalVelocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">u_cell_broadcast</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span>
-            <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">u_cell</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s1">&#39;nCells&#39;</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span>
+            <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">u_cell</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span>
         <span class="p">)</span>
         <span class="n">v_cell_broadcast</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span>
-            <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">v_cell</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s1">&#39;nCells&#39;</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span>
+            <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">v_cell</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityZonal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_cell_broadcast</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityMeridional&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_cell_broadcast</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
-            <span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_cell_broadcast</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_cell_broadcast</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;vert_coord.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_vert_coord_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'vert_coord.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_initial_state_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

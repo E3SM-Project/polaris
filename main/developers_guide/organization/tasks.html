@@ -209,7 +209,7 @@ mesh type and the velocity solver an attributes:</p>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SmokeTest</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The default dome task creates the mesh and initial condition, then performs</span>
 <span class="sd">    a short forward run on 4 cores.</span>
 
@@ -218,12 +218,12 @@ mesh type and the velocity solver an attributes:</p>
 <span class="sd">    mesh_type : str</span>
 <span class="sd">        The resolution or type of mesh of the task</span>
 
-<span class="sd">    velo_solver : {&#39;sia&#39;, &#39;FO&#39;}</span>
+<span class="sd">    velo_solver : {'sia', 'FO'}</span>
 <span class="sd">        The velocity solver to use for the task</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">velo_solver</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the task</span>
 
 <span class="sd">        Parameters</span>
@@ -231,16 +231,16 @@ mesh type and the velocity solver an attributes:</p>
 <span class="sd">        component : polaris.landice.Landice</span>
 <span class="sd">            The land-ice component that this task belongs to</span>
 
-<span class="sd">        velo_solver : {&#39;sia&#39;, &#39;FO&#39;}</span>
+<span class="sd">        velo_solver : {'sia', 'FO'}</span>
 <span class="sd">            The velocity solver to use for the task</span>
 
 <span class="sd">        mesh_type : str</span>
 <span class="sd">            The resolution or type of mesh of the task</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;smoke_test&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">'smoke_test'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_type</span> <span class="o">=</span> <span class="n">mesh_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">velo_solver</span> <span class="o">=</span> <span class="n">velo_solver</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mesh_type</span><span class="p">,</span> <span class="n">velo_solver</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="s1">'</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mesh_type</span><span class="p">,</span> <span class="n">velo_solver</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                          <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
 
@@ -248,11 +248,11 @@ mesh type and the velocity solver an attributes:</p>
             <span class="n">SetupMesh</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">))</span>
 
         <span class="n">step</span> <span class="o">=</span> <span class="n">RunModel</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;run_step&#39;</span><span class="p">,</span> <span class="n">velo_solver</span><span class="o">=</span><span class="n">velo_solver</span><span class="p">,</span>
+                        <span class="n">name</span><span class="o">=</span><span class="s1">'run_step'</span><span class="p">,</span> <span class="n">velo_solver</span><span class="o">=</span><span class="n">velo_solver</span><span class="p">,</span>
                         <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">velo_solver</span> <span class="o">==</span> <span class="s1">&#39;sia&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">velo_solver</span> <span class="o">==</span> <span class="s1">'sia'</span><span class="p">:</span>
             <span class="n">step</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
-                <span class="p">{</span><span class="s1">&#39;config_run_duration&#39;</span><span class="p">:</span> <span class="s2">&quot;&#39;0200-00-00_00:00:00&#39;&quot;</span><span class="p">})</span>
+                <span class="p">{</span><span class="s1">'config_run_duration'</span><span class="p">:</span> <span class="s2">"'0200-00-00_00:00:00'"</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
         <span class="n">step</span> <span class="o">=</span> <span class="n">Visualize</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh_type</span><span class="o">=</span><span class="n">mesh_type</span><span class="p">)</span>
@@ -301,14 +301,14 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">&#39;both&#39;</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">include_viz</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span>
     <span class="p">):</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_cosine_bell_convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">'</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_cosine_bell_convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">'</span>
         <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
-            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/with_viz&#39;</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_with_viz&#39;</span>
-        <span class="n">link</span> <span class="o">=</span> <span class="s1">&#39;cosine_bell.cfg&#39;</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/with_viz'</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_with_viz'</span>
+        <span class="n">link</span> <span class="o">=</span> <span class="s1">'cosine_bell.cfg'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="n">refinement</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span>
@@ -323,14 +323,14 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">config_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span>
 
-        <span class="k">if</span> <span class="n">refinement</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
-            <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_time&#39;</span>
+        <span class="k">if</span> <span class="n">refinement</span> <span class="o">==</span> <span class="s1">'time'</span><span class="p">:</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="s1">'refinement_factors_time'</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">option</span> <span class="o">=</span> <span class="s1">&#39;refinement_factors_space&#39;</span>
+            <span class="n">option</span> <span class="o">=</span> <span class="s1">'refinement_factors_space'</span>
 
         <span class="n">_set_convergence_configs</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
 
-        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;convergence&#39;</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'convergence'</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
         <span class="c1"># start fresh with no steps</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -345,7 +345,7 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
         <span class="n">resolutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">timesteps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
-        <span class="n">case_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell&#39;</span>
+        <span class="n">case_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell'</span>
 
         <span class="k">for</span> <span class="n">refinement_factor</span> <span class="ow">in</span> <span class="n">refinement_factors</span><span class="p">:</span>
             <span class="n">resolution</span> <span class="o">=</span> <span class="n">get_resolution_for_task</span><span class="p">(</span>
@@ -353,12 +353,12 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
             <span class="p">)</span>
 
             <span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">add_uniform_spherical_base_mesh_step</span><span class="p">(</span>
-                <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="o">=</span><span class="p">(</span><span class="n">prefix</span> <span class="o">==</span> <span class="s1">&#39;icos&#39;</span><span class="p">)</span>
+                <span class="n">resolution</span><span class="p">,</span> <span class="n">icosahedral</span><span class="o">=</span><span class="p">(</span><span class="n">prefix</span> <span class="o">==</span> <span class="s1">'icos'</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;mesh&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_mesh_step</span>
+            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">'mesh'</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_mesh_step</span>
 
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_init_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">case_dir</span><span class="si">}</span><span class="s1">/init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_init_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">'</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">case_dir</span><span class="si">}</span><span class="s1">/init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">'</span>
             <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
                 <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
                 <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -367,11 +367,11 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">base_mesh</span><span class="o">=</span><span class="n">base_mesh_step</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
+            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">'init'</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_step</span>
 
             <span class="k">if</span> <span class="n">resolution</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resolutions</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;base_mesh/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">base_mesh_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="sa">f</span><span class="s1">'base_mesh/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="sa">f</span><span class="s1">'init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
                 <span class="n">resolutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
 
             <span class="n">timestep</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_timestep_for_task</span><span class="p">(</span>
@@ -380,9 +380,9 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
             <span class="n">timestep</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span>
             <span class="n">timesteps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span>
 
-            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">case_dir</span><span class="si">}</span><span class="s1">/forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
-            <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_forward_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">case_dir</span><span class="si">}</span><span class="s1">/forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s'</span>
+            <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'forward/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s'</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_forward_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s'</span>
             <span class="n">forward_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
                 <span class="n">step_cls</span><span class="o">=</span><span class="n">Forward</span><span class="p">,</span>
                 <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -395,11 +395,11 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
                 <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
-            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span>
+            <span class="n">analysis_dependencies</span><span class="p">[</span><span class="s1">'forward'</span><span class="p">][</span><span class="n">refinement_factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">forward_step</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span><span class="p">:</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_viz_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
-                <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">case_dir</span><span class="si">}</span><span class="s1">/viz/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s&#39;</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_viz_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s'</span>
+                <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">case_dir</span><span class="si">}</span><span class="s1">/viz/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">timestep</span><span class="si">}</span><span class="s1">s'</span>
                 <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
                     <span class="n">step_cls</span><span class="o">=</span><span class="n">Viz</span><span class="p">,</span>
                     <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -413,7 +413,7 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">viz_step</span><span class="p">)</span>
 
-        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">case_dir</span><span class="si">}</span><span class="s1">/convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">/analysis&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">case_dir</span><span class="si">}</span><span class="s1">/convergence_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">/analysis'</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
             <span class="n">step_cls</span><span class="o">=</span><span class="n">Analysis</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -426,7 +426,7 @@ to demonstrate how to make full use of <a class="reference internal" href="../ov
         <span class="n">step</span><span class="o">.</span><span class="n">resolutions</span> <span class="o">=</span> <span class="n">resolutions</span>
         <span class="n">step</span><span class="o">.</span><span class="n">dependencies_dict</span> <span class="o">=</span> <span class="n">analysis_dependencies</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_viz</span><span class="p">:</span>
-            <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;analysis_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'analysis_</span><span class="si">{</span><span class="n">refinement</span><span class="si">}</span><span class="s1">'</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
@@ -632,9 +632,9 @@ change:</p>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CosineBell</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set config options for the test case</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
 
         <span class="c1"># set up the steps again in case a user has provided new resolutions</span>
@@ -654,12 +654,12 @@ methods, not in <code class="docutils literal notranslate"><span class="pre">con
 
 <span class="k">class</span><span class="w"> </span><span class="nc">InertialGravityWave</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add the config file common to inertial gravity wave tests</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.inertial_gravity_wave&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;inertial_gravity_wave.cfg&#39;</span><span class="p">)</span>
+            <span class="s1">'polaris.tasks.ocean.inertial_gravity_wave'</span><span class="p">,</span>
+            <span class="s1">'inertial_gravity_wave.cfg'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>However, this is more typically done in the constructor if config options are
@@ -674,12 +674,12 @@ creating a symlink to a README file that is shared across the whole task:</p>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Modify the configuration options for this task</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.tasks.ocean.realistic_global.hydrography.woa23&#39;</span>
-    <span class="n">target</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;woa23.cfg&#39;</span><span class="p">)</span>
-    <span class="n">symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="si">}</span><span class="s1">/woa23.cfg&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.realistic_global.hydrography.woa23'</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'woa23.cfg'</span><span class="p">)</span>
+    <span class="n">symlink</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="si">}</span><span class="s1">/woa23.cfg'</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

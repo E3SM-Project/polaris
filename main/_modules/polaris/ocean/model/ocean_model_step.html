@@ -148,7 +148,7 @@
 <div class="viewcode-block" id="OceanModelStep">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OceanModelStep</span><span class="p">(</span><span class="n">OceanModelFilesMixin</span><span class="p">,</span> <span class="n">ModelStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    An Omega or MPAS-Ocean step</span>
 
 <span class="sd">    Attributes</span>
@@ -165,17 +165,17 @@
 <span class="sd">    graph_target : str</span>
 <span class="sd">        The name of the graph partition file to link to (relative to the base</span>
 <span class="sd">        working directory)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># make sure component is of type Ocean, using a string to avoid circular</span>
     <span class="c1"># imports</span>
-    <span class="n">component</span><span class="p">:</span> <span class="s1">&#39;Ocean&#39;</span>
+    <span class="n">component</span><span class="p">:</span> <span class="s1">'Ocean'</span>
 
 <div class="viewcode-block" id="OceanModelStep.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">component</span><span class="p">:</span> <span class="s1">&#39;Ocean&#39;</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="s1">'Ocean'</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">subdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">indir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -192,9 +192,9 @@
         <span class="n">mesh_filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">partition_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">graph_target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">target_location</span><span class="o">=</span><span class="s1">&#39;work_dir&#39;</span><span class="p">,</span>
+        <span class="n">target_location</span><span class="o">=</span><span class="s1">'work_dir'</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Make a step for running the model</span>
 
 <span class="sd">        Parameters</span>
@@ -262,7 +262,7 @@
 <span class="sd">        graph_target : str, optional</span>
 <span class="sd">            The graph file name (relative to the base work directory).</span>
 <span class="sd">            If none, it will be created.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">graph_target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">make_graph</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -282,7 +282,7 @@
             <span class="n">make_graph</span><span class="o">=</span><span class="n">make_graph</span><span class="p">,</span>
             <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mesh_filename</span><span class="p">,</span>
             <span class="n">partition_graph</span><span class="o">=</span><span class="n">partition_graph</span><span class="p">,</span>
-            <span class="n">graph_filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
+            <span class="n">graph_filename</span><span class="o">=</span><span class="s1">'graph.info'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span> <span class="o">=</span> <span class="n">ntasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span>
@@ -297,36 +297,36 @@
 <div class="viewcode-block" id="OceanModelStep.setup">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.setup.html#polaris.ocean.model.OceanModelStep.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Determine if we will make yaml files or namelists and streams files,</span>
 <span class="sd">        then, determine the number of MPI tasks to use based on the estimated</span>
 <span class="sd">        mesh size</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;Omega&#39;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">yaml</span> <span class="o">=</span> <span class="s1">&#39;omega.yml&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span> <span class="o">=</span> <span class="s1">&#39;IOStreams&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'Omega'</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yaml</span> <span class="o">=</span> <span class="s1">'omega.yml'</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span> <span class="o">=</span> <span class="s1">'IOStreams'</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_config_map</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">partition_graph</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_models</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'mpas-ocean'</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">make_yaml</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_location</span> <span class="o">==</span> <span class="s1">&#39;work_dir&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_location</span> <span class="o">==</span> <span class="s1">'work_dir'</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                    <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_target</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="s1">'graph.info'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_target</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                    <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;graph.info&#39;</span><span class="p">,</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="s1">'graph.info'</span><span class="p">,</span>
                     <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_target</span><span class="p">,</span>
                     <span class="n">database</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_location</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span> <span class="o">=</span> <span class="s1">&#39;streams&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">streams_section</span> <span class="o">=</span> <span class="s1">'streams'</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unexpected ocean model: </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unexpected ocean model: </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span>
 
@@ -338,7 +338,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">        options or template replacements that need to be set both during step</span>
 <span class="sd">        setup and at runtime</span>
@@ -348,41 +348,41 @@
 <span class="sd">        at_setup : bool</span>
 <span class="sd">            Whether this method is being run during setup of the step, as</span>
 <span class="sd">            opposed to at runtime</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_io_tasks</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">at_setup</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_io_tasks_config</span><span class="p">(</span><span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_io_tasks_config</span><span class="p">(</span><span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;model_inputs.yaml&#39;</span><span class="p">,</span>
+            <span class="s1">'polaris.ocean.config'</span><span class="p">,</span>
+            <span class="s1">'model_inputs.yaml'</span><span class="p">,</span>
             <span class="n">template_replacements</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_replacements</span><span class="p">(),</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_eos</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_namelist_eos</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;write_coeffs_reconstruct&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'write_coeffs_reconstruct'</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_coeffs_reconstruct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;write_coeffs_reconstruct&#39;</span>
+                <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'write_coeffs_reconstruct'</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_coeffs_reconstruct</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_coeffs_reconstruct</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;Coefficients for vector reconstruction can only be &#39;</span>
-                    <span class="s1">&#39;written for ocean model MPAS-Ocean&#39;</span>
+                    <span class="s1">'Coefficients for vector reconstruction can only be '</span>
+                    <span class="s1">'written for ocean model MPAS-Ocean'</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
-                <span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;coeffs_reconstruct.yaml&#39;</span>
+                <span class="s1">'polaris.ocean.config'</span><span class="p">,</span> <span class="s1">'coeffs_reconstruct.yaml'</span>
             <span class="p">)</span>
 
 <div class="viewcode-block" id="OceanModelStep.constrain_resources">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">constrain_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_cores</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Update the number of MPI tasks to use based on the estimated mesh size</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_ntasks</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_gpus_per_task</span><span class="p">()</span>
@@ -390,18 +390,18 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">process_inputs_and_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Process the model and any configured model-input placeholders.</span>
 <span class="sd">        For MPAS-Ocean, ``&lt;&lt;&lt;vert_coord&gt;&gt;&gt;`` entries are removed because no</span>
 <span class="sd">        separate vert coord file is written for that model.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_model_file_placeholders</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">process_inputs_and_outputs</span><span class="p">()</span>
 
 <div class="viewcode-block" id="OceanModelStep.compute_cell_count">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compute the approximate number of cells in the mesh, used to constrain</span>
 <span class="sd">        resources</span>
 
@@ -409,7 +409,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        cell_count : int or None</span>
 <span class="sd">            The approximate number of cells in the mesh</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
 
@@ -420,7 +420,7 @@
         <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">],</span>
         <span class="n">config_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ConfigsType</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        A mapping between model config options from MPAS-Ocean to Omega</span>
 
 <span class="sd">        Parameters</span>
@@ -442,10 +442,10 @@
 <span class="sd">        configs : dict or None</span>
 <span class="sd">            A revised nested dictionary of yaml sections, options and value to</span>
 <span class="sd">            use as replacements for existing values</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="n">config_model</span> <span class="o">==</span> <span class="s1">&#39;ocean&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="n">config_model</span> <span class="o">==</span> <span class="s1">'ocean'</span><span class="p">:</span>
             <span class="c1"># make a dummy configs dict with None as the section</span>
             <span class="n">mpaso_configs</span><span class="p">:</span> <span class="n">ConfigsType</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="n">options</span><span class="p">}</span>
             <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_mpaso_to_omega_configs</span><span class="p">(</span><span class="n">mpaso_configs</span><span class="p">)</span>
@@ -461,7 +461,7 @@
         <span class="n">configs</span><span class="p">:</span> <span class="n">ConfigsType</span><span class="p">,</span>
         <span class="n">config_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ConfigsType</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        A mapping between model sections and config options from MPAS-Ocean to</span>
 <span class="sd">        Omega</span>
 
@@ -480,10 +480,10 @@
 <span class="sd">        configs : dict</span>
 <span class="sd">            A revised nested dictionary of yaml sections, options and value to</span>
 <span class="sd">            use as replacements for existing values</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="n">config_model</span> <span class="o">==</span> <span class="s1">&#39;ocean&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="n">config_model</span> <span class="o">==</span> <span class="s1">'ocean'</span><span class="p">:</span>
             <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_mpaso_to_omega_configs</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">configs</span></div>
 
@@ -493,7 +493,7 @@
         <span class="n">package</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ModuleType</span><span class="p">],</span>
         <span class="n">namelist</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add a file with updates to namelist options to the step to be parsed</span>
 <span class="sd">        when generating a complete namelist file if and when the step gets set</span>
 <span class="sd">        up.</span>
@@ -505,9 +505,9 @@
 
 <span class="sd">        namelist : str</span>
 <span class="sd">            The name of the namelist replacements file to read from</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Input namelist files are not supported in OceanModelStep&#39;</span>
+            <span class="s1">'Input namelist files are not supported in OceanModelStep'</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_streams_file</span><span class="p">(</span>
@@ -516,7 +516,7 @@
         <span class="n">streams</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">template_replacements</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add a streams file to the step to be parsed when generating a complete</span>
 <span class="sd">        streams file if and when the step gets set up.</span>
 
@@ -531,87 +531,87 @@
 <span class="sd">        template_replacements : dict, optional</span>
 <span class="sd">            A dictionary of replacements, in which case ``streams`` must be a</span>
 <span class="sd">            Jinja2 template to be rendered with these replacements</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;Input streams files are not supported in OceanModelStep&#39;</span>
+            <span class="s1">'Input streams files are not supported in OceanModelStep'</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">update_namelist_eos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Modify the namelist to make it consistent with eos config options</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">]</span>
 
-        <span class="n">eos_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eos_type&#39;</span><span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="n">eos_type</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'eos_type'</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'linear'</span><span class="p">,</span> <span class="s1">'constant'</span><span class="p">):</span>
             <span class="n">replacements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_linear_eos_replacements</span><span class="p">(</span>
                 <span class="n">eos_type</span><span class="o">=</span><span class="n">eos_type</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'teos-10'</span><span class="p">:</span>
             <span class="n">replacements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_teos10_eos_replacements</span><span class="p">(</span>
                 <span class="n">eos_type</span><span class="o">=</span><span class="n">eos_type</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported equation of state: </span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unsupported equation of state: </span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
-            <span class="n">options</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span> <span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_linear_eos_replacements</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">eos_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get model config replacements for the linear or constant EOS</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
-        <span class="n">eos_linear_alpha</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_alpha&#39;</span><span class="p">)</span>
-        <span class="n">eos_linear_beta</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_beta&#39;</span><span class="p">)</span>
-        <span class="n">eos_linear_rhoref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_rhoref&#39;</span><span class="p">)</span>
-        <span class="n">eos_linear_Tref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_Tref&#39;</span><span class="p">)</span>
-        <span class="n">eos_linear_Sref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;eos_linear_Sref&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">]</span>
+        <span class="n">eos_linear_alpha</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_alpha'</span><span class="p">)</span>
+        <span class="n">eos_linear_beta</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_beta'</span><span class="p">)</span>
+        <span class="n">eos_linear_rhoref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_rhoref'</span><span class="p">)</span>
+        <span class="n">eos_linear_Tref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_Tref'</span><span class="p">)</span>
+        <span class="n">eos_linear_Sref</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'eos_linear_Sref'</span><span class="p">)</span>
 
         <span class="n">replacements</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;config_eos_type&#39;</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
-            <span class="s1">&#39;config_eos_linear_alpha&#39;</span><span class="p">:</span> <span class="n">eos_linear_alpha</span><span class="p">,</span>
-            <span class="s1">&#39;config_eos_linear_beta&#39;</span><span class="p">:</span> <span class="n">eos_linear_beta</span><span class="p">,</span>
-            <span class="s1">&#39;config_eos_linear_densityref&#39;</span><span class="p">:</span> <span class="n">eos_linear_rhoref</span><span class="p">,</span>
+            <span class="s1">'config_eos_type'</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
+            <span class="s1">'config_eos_linear_alpha'</span><span class="p">:</span> <span class="n">eos_linear_alpha</span><span class="p">,</span>
+            <span class="s1">'config_eos_linear_beta'</span><span class="p">:</span> <span class="n">eos_linear_beta</span><span class="p">,</span>
+            <span class="s1">'config_eos_linear_densityref'</span><span class="p">:</span> <span class="n">eos_linear_rhoref</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">eos_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'constant'</span><span class="p">:</span>
                 <span class="c1"># MPAS-Ocean has no constant EOS; the constant.cfg options</span>
                 <span class="c1"># make its linear EOS constant</span>
-                <span class="n">eos_type</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span>
+                <span class="n">eos_type</span> <span class="o">=</span> <span class="s1">'linear'</span>
             <span class="n">replacements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s1">&#39;config_eos_type&#39;</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
-                    <span class="s1">&#39;config_eos_linear_Tref&#39;</span><span class="p">:</span> <span class="n">eos_linear_Tref</span><span class="p">,</span>
-                    <span class="s1">&#39;config_eos_linear_Sref&#39;</span><span class="p">:</span> <span class="n">eos_linear_Sref</span><span class="p">,</span>
+                    <span class="s1">'config_eos_type'</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
+                    <span class="s1">'config_eos_linear_Tref'</span><span class="p">:</span> <span class="n">eos_linear_Tref</span><span class="p">,</span>
+                    <span class="s1">'config_eos_linear_Sref'</span><span class="p">:</span> <span class="n">eos_linear_Sref</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">eos_linear_Tref</span> <span class="o">!=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">eos_linear_Sref</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;Nonzero Tref and Sref are not supported for Omega &#39;</span>
-                    <span class="s1">&#39;model since they do not affect the linear EOS&#39;</span>
+                    <span class="s1">'Nonzero Tref and Sref are not supported for Omega '</span>
+                    <span class="s1">'model since they do not affect the linear EOS'</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">replacements</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_teos10_eos_replacements</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">eos_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get model config replacements for the TEOS-10 EOS</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
             <span class="c1"># MPAS-Ocean has no TEOS-10 option; Jackett-McDougall is the</span>
             <span class="c1"># closest available nonlinear EOS</span>
-            <span class="n">eos_type</span> <span class="o">=</span> <span class="s1">&#39;jm&#39;</span>
+            <span class="n">eos_type</span> <span class="o">=</span> <span class="s1">'jm'</span>
         <span class="n">replacements</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;config_eos_type&#39;</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
+            <span class="s1">'config_eos_type'</span><span class="p">:</span> <span class="n">eos_type</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">replacements</span>
 
@@ -622,8 +622,8 @@
         <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The work directory must be set before the step &#39;</span>
-                <span class="s1">&#39;output properties can be checked.&#39;</span>
+                <span class="s1">'The work directory must be set before the step '</span>
+                <span class="s1">'output properties can be checked.'</span>
             <span class="p">)</span>
         <span class="n">passed_properties</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">failed_properties</span> <span class="o">=</span> <span class="p">[]</span>
@@ -637,35 +637,35 @@
                 <span class="n">mesh_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
             <span class="p">)</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">this_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;tracer conservation&#39;</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">'tracer conservation'</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
                 <span class="c1"># All tracers in mpaso_to_omega.yaml</span>
                 <span class="n">tracers_to_check</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;tracer1&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;tracer2&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;tracer3&#39;</span><span class="p">,</span>
+                    <span class="s1">'temperature'</span><span class="p">,</span>
+                    <span class="s1">'salinity'</span><span class="p">,</span>
+                    <span class="s1">'tracer1'</span><span class="p">,</span>
+                    <span class="s1">'tracer2'</span><span class="p">,</span>
+                    <span class="s1">'tracer3'</span><span class="p">,</span>
                 <span class="p">]</span>
-                <span class="c1"># Expand &#39;tracer conservation&#39; into list of tracers to check</span>
+                <span class="c1"># Expand 'tracer conservation' into list of tracers to check</span>
                 <span class="n">properties</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">item</span>
                     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">properties</span>
-                    <span class="k">if</span> <span class="n">item</span> <span class="o">!=</span> <span class="s1">&#39;tracer conservation&#39;</span>
+                    <span class="k">if</span> <span class="n">item</span> <span class="o">!=</span> <span class="s1">'tracer conservation'</span>
                 <span class="p">]</span>
                 <span class="k">for</span> <span class="n">tracer</span> <span class="ow">in</span> <span class="n">tracers_to_check</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">tracer</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                        <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;tracer conservation-</span><span class="si">{</span><span class="n">tracer</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'tracer conservation-</span><span class="si">{</span><span class="n">tracer</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">output_property</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">&#39;mass conservation&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'mass conservation'</span><span class="p">:</span>
                     <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;mass_conservation_tolerance&#39;</span>
+                        <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'mass_conservation_tolerance'</span>
                     <span class="p">)</span>
                     <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
                         <span class="n">compute_total_mass</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="o">=</span><span class="n">ds</span>
                     <span class="p">)</span>
-                <span class="k">elif</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">&#39;salt conservation&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'salt conservation'</span><span class="p">:</span>
                     <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;salt_conservation_tolerance&#39;</span>
+                        <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'salt_conservation_tolerance'</span>
                     <span class="p">)</span>
                     <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
                         <span class="n">compute_total_mass</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span>
@@ -673,94 +673,94 @@
                     <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
                         <span class="n">compute_total_salt</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span>
                     <span class="p">)</span>
-                <span class="k">elif</span> <span class="n">output_property</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;tracer conservation&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">output_property</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'-'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'tracer conservation'</span><span class="p">:</span>
                     <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;tracer_conservation_tolerance&#39;</span>
+                        <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'tracer_conservation_tolerance'</span>
                     <span class="p">)</span>
-                    <span class="n">tracer</span> <span class="o">=</span> <span class="n">output_property</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">tracer</span> <span class="o">=</span> <span class="n">output_property</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'-'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
                     <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
                         <span class="n">compute_total_tracer</span><span class="p">,</span>
                         <span class="n">ds_mesh</span><span class="p">,</span>
                         <span class="n">ds</span><span class="p">,</span>
                         <span class="n">tracer_name</span><span class="o">=</span><span class="n">tracer</span><span class="p">,</span>
                     <span class="p">)</span>
-                <span class="k">elif</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">&#39;energy conservation&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'energy conservation'</span><span class="p">:</span>
                     <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;energy_conservation_tolerance&#39;</span>
+                        <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'energy_conservation_tolerance'</span>
                     <span class="p">)</span>
                     <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
                         <span class="n">compute_total_energy</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s1">&#39;Could not find method to execute property check &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="s1">'Could not find method to execute property check '</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1">'</span>
                     <span class="p">)</span>
 
                 <span class="n">result</span> <span class="o">=</span> <span class="n">relative_error</span> <span class="o">&lt;</span> <span class="n">tol</span>
                 <span class="n">success</span> <span class="o">=</span> <span class="n">success</span> <span class="ow">and</span> <span class="n">result</span>
                 <span class="n">checked</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="c1"># We already appended log strings for tracer conservation</span>
-                <span class="k">if</span> <span class="n">output_property</span> <span class="o">!=</span> <span class="s1">&#39;tracer conservation&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">output_property</span> <span class="o">!=</span> <span class="s1">'tracer conservation'</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
                         <span class="n">failed_properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1"> relative error &#39;</span>
-                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">relative_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> exceeds </span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s1">&#39;</span>
+                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1"> relative error '</span>
+                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">relative_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> exceeds </span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s1">'</span>
                         <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">passed_properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1"> relative error &#39;</span>
-                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">relative_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">&#39;</span>
+                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1"> relative error '</span>
+                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">relative_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">'</span>
                         <span class="p">)</span>
         <span class="k">if</span> <span class="n">checked</span> <span class="ow">and</span> <span class="n">success</span><span class="p">:</span>
             <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;property_check_passed.log&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'property_check_passed.log'</span>
             <span class="p">)</span>
-            <span class="n">passed_properties_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">passed_properties</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
+            <span class="n">passed_properties_str</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">  '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">passed_properties</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
                 <span class="n">result_log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Output file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> passed property checks.</span><span class="se">\n</span><span class="s1">&#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">passed_properties_str</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'Output file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> passed property checks.</span><span class="se">\n</span><span class="s1">'</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">passed_properties_str</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
                 <span class="p">)</span>
         <span class="k">elif</span> <span class="n">checked</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
             <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;property_check_failed.log&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'property_check_failed.log'</span>
             <span class="p">)</span>
-            <span class="n">failed_properties_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed_properties</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
+            <span class="n">failed_properties_str</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">  '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed_properties</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
                 <span class="n">result_log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Property checks on </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> failed for:</span><span class="se">\n</span><span class="s1"> &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">failed_properties_str</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'Property checks on </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> failed for:</span><span class="se">\n</span><span class="s1"> '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">failed_properties_str</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">checked</span><span class="p">,</span> <span class="n">success</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Update ``ntasks`` and ``min_tasks`` for the step based on the estimated</span>
 <span class="sd">        mesh size</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">cell_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_cell_count</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">cell_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;ntasks and min_tasks were not set explicitly &#39;</span>
-                <span class="s1">&#39;but they also cannot be computed because &#39;</span>
-                <span class="s1">&#39;compute_cell_count() does not appear to have &#39;</span>
-                <span class="s1">&#39;been overridden.&#39;</span>
+                <span class="s1">'ntasks and min_tasks were not set explicitly '</span>
+                <span class="s1">'but they also cannot be computed because '</span>
+                <span class="s1">'compute_cell_count() does not appear to have '</span>
+                <span class="s1">'been overridden.'</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_gpu_resources</span><span class="p">():</span>
             <span class="n">goal_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;goal_cells_per_gpu&#39;</span>
+                <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'goal_cells_per_gpu'</span>
             <span class="p">)</span>
-            <span class="n">max_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;max_cells_per_gpu&#39;</span><span class="p">)</span>
+            <span class="n">max_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'max_cells_per_gpu'</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">goal_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;goal_cells_per_core&#39;</span>
+                <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'goal_cells_per_core'</span>
             <span class="p">)</span>
-            <span class="n">max_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;max_cells_per_core&#39;</span><span class="p">)</span>
+            <span class="n">max_cells_per_core</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'max_cells_per_core'</span><span class="p">)</span>
         <span class="c1"># machines (e.g. Perlmutter) seem to be happier with ntasks that</span>
         <span class="c1"># are multiples of 4</span>
         <span class="c1"># ideally, about 200 cells per cpu or 8000 cells per gpu</span>
@@ -772,16 +772,16 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_model_input_replacements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s1">&#39;horiz_mesh_filename&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_horiz_mesh_filename</span><span class="p">(),</span>
-            <span class="s1">&#39;vert_coord_filename&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vert_coord_filename</span><span class="p">(),</span>
-            <span class="s1">&#39;init_filename&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_init_filename</span><span class="p">(),</span>
+            <span class="s1">'horiz_mesh_filename'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_horiz_mesh_filename</span><span class="p">(),</span>
+            <span class="s1">'vert_coord_filename'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vert_coord_filename</span><span class="p">(),</span>
+            <span class="s1">'init_filename'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_init_filename</span><span class="p">(),</span>
         <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_gpus_per_task</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Set ``gpus_per_task`` and ``min_gpus_per_task`` for the step based</span>
 <span class="sd">        on whether gpus are available and the model is Omega</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_gpu_resources</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">=</span> <span class="mi">1</span>
@@ -790,50 +790,50 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_use_gpu_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Whether to use GPU resources based on whether gpus are available and</span>
 <span class="sd">        the model is Omega</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
-        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
 
         <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">parallel_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">parallel_system</span>
         <span class="k">if</span> <span class="n">parallel_system</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_config_int</span><span class="p">(</span>
-                <span class="s1">&#39;gpus_per_node&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span>
+                <span class="s1">'gpus_per_node'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="n">gpus_per_node</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="n">gpus_per_node</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_config_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Read the map from MPAS-Ocean to Omega config options</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.model&#39;</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;mpaso_to_omega.yaml&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.ocean.model'</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">'mpaso_to_omega.yaml'</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
 
-        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">'rt'</span><span class="p">)</span>
         <span class="n">nested_dict</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;config&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">'config'</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_map_mpaso_to_omega_configs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">configs</span><span class="p">:</span> <span class="n">ConfigsType</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ConfigsType</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Map MPAS-Ocean namelist options to Omega config options</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">out_configs</span><span class="p">:</span> <span class="n">ConfigsType</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">not_found</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">mpaso_value</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mpaso_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;Nested sections are not supported in &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;MPAS-Ocean configs: </span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="sa">f</span><span class="s1">'Nested sections are not supported in '</span>
+                        <span class="sa">f</span><span class="s1">'MPAS-Ocean configs: </span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">'</span>
                     <span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">omega_sections</span><span class="p">,</span> <span class="n">omega_option</span><span class="p">,</span> <span class="n">omega_value</span> <span class="o">=</span> <span class="p">(</span>
@@ -842,19 +842,19 @@
                         <span class="p">)</span>
                     <span class="p">)</span>
                     <span class="n">local_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_configs</span>
-                    <span class="n">sec_str</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">omega_sections</span><span class="p">)</span>
+                    <span class="n">sec_str</span> <span class="o">=</span> <span class="s1">'/'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">omega_sections</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">omega_section</span> <span class="ow">in</span> <span class="n">omega_sections</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">omega_section</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">local_config</span><span class="p">:</span>
                             <span class="n">local_config</span><span class="p">[</span><span class="n">omega_section</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">local_config</span><span class="p">[</span><span class="n">omega_section</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1"> appears to point to a config &#39;</span>
-                                <span class="sa">f</span><span class="s1">&#39;option, not a section&#39;</span>
+                                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1"> appears to point to a config '</span>
+                                <span class="sa">f</span><span class="s1">'option, not a section'</span>
                             <span class="p">)</span>
                         <span class="n">local_config</span> <span class="o">=</span> <span class="n">local_config</span><span class="p">[</span><span class="n">omega_section</span><span class="p">]</span>
                     <span class="n">local_config</span><span class="p">[</span><span class="n">omega_option</span><span class="p">]</span> <span class="o">=</span> <span class="n">omega_value</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="n">not_found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">not_found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_warn_not_found</span><span class="p">(</span><span class="n">not_found</span><span class="p">)</span>
 
@@ -866,9 +866,9 @@
         <span class="n">value</span><span class="p">:</span> <span class="n">OptionValue</span><span class="p">,</span>
         <span class="n">section</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Map MPAS-Ocean namelist section and option to Omega equivalent</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">out_sections</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">out_option</span> <span class="o">=</span> <span class="n">option</span>
 
@@ -877,10 +877,10 @@
         <span class="n">option_found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># traverse the map</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_map</span><span class="p">:</span>
-            <span class="n">section_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;section&#39;</span><span class="p">]</span>
+            <span class="n">section_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'section'</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">section_dict</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;Mapping entries must have exactly one section&#39;</span>
+                    <span class="s1">'Mapping entries must have exactly one section'</span>
                 <span class="p">)</span>
 
             <span class="n">mpaso_section</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">section_dict</span><span class="p">))</span>
@@ -888,7 +888,7 @@
             <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mpaso_section</span> <span class="o">!=</span> <span class="n">section</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="n">options_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
+            <span class="n">options_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'options'</span><span class="p">]</span>
             <span class="n">option_found</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">omega_option</span> <span class="o">=</span> <span class="n">options_dict</span><span class="p">[</span><span class="n">option</span><span class="p">]</span>
@@ -907,9 +907,9 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">option_found</span><span class="p">:</span>
             <span class="n">sec_str</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">section</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">section</span>
+                <span class="s1">'/'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">section</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">section</span>
             <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No mapping found for </span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'No mapping found for </span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="n">out_option</span><span class="p">,</span> <span class="n">out_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_handle_not</span><span class="p">(</span><span class="n">out_option</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
@@ -931,13 +931,13 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_warn_not_found</span><span class="p">(</span><span class="n">not_found</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Warn about options that were not found in the map&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Warn about options that were not found in the map"""</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">not_found</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING: No Omega mapping found for these MPASO options:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'WARNING: No Omega mapping found for these MPASO options:'</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">string</span> <span class="ow">in</span> <span class="n">not_found</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    </span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
@@ -945,10 +945,10 @@
         <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">OptionValue</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Handle negation of boolean value if the option starts with &quot;not&quot;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;not &#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Handle negation of boolean value if the option starts with "not"</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">option</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'not '</span><span class="p">):</span>
             <span class="c1"># a special case where we want the opposite of a boolean value</span>
             <span class="n">option</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
@@ -957,8 +957,8 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="n">value</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s2">: Cannot apply &#39;not&#39; to option type &quot;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s2">: Cannot apply 'not' to option type "</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span></div>
 

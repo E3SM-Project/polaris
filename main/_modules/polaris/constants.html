@@ -115,14 +115,14 @@
 <span class="n">CONSTANTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
 <span class="n">CONVERSION_FACTORS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;day_to_s&#39;</span><span class="p">:</span> <span class="mf">86400.0</span><span class="p">,</span>
+    <span class="s1">'day_to_s'</span><span class="p">:</span> <span class="mf">86400.0</span><span class="p">,</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_constant">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.constants.get_constant.html#polaris.constants.get_constant">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_constant</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get constants from the Physical Constants Dictionary (PCD) if available,</span>
 <span class="sd">    otherwise from the temporary dictionary of constants.</span>
 
@@ -135,7 +135,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    value : float</span>
 <span class="sd">        The value of the constant.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">value</span> <span class="o">=</span> <span class="n">pcd</span><span class="o">.</span><span class="n">get_constant</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -145,8 +145,8 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">CONVERSION_FACTORS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Constant </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> not found in Physical Constants Dictionary &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;or temporary constants&#39;</span>
+                <span class="sa">f</span><span class="s1">'Constant </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> not found in Physical Constants Dictionary '</span>
+                <span class="sa">f</span><span class="s1">'or temporary constants'</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">value</span></div>

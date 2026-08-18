@@ -120,14 +120,14 @@
 <div class="viewcode-block" id="BaseMeshTask">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask.html#polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseMeshTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A standalone task for creating one named unified base mesh.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="BaseMeshTask.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask.html#polaris.tasks.mesh.spherical.unified.base_mesh.BaseMeshTask.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new task.</span>
 
 <span class="sd">        Parameters</span>
@@ -137,13 +137,13 @@
 
 <span class="sd">        mesh_name : str</span>
 <span class="sd">            The name of the unified mesh.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="s1">&#39;spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;unified&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;base_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;task&#39;</span>
+            <span class="s1">'spherical'</span><span class="p">,</span> <span class="s1">'unified'</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'base_mesh'</span><span class="p">,</span> <span class="s1">'task'</span>
         <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;base_mesh_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_task&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">'base_mesh_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_task'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">)</span>
 

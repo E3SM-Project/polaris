@@ -139,7 +139,7 @@
     <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">baseline_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">component_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">suite_name</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span>
+    <span class="n">suite_name</span><span class="o">=</span><span class="s1">'custom'</span><span class="p">,</span>
     <span class="n">cached</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">free_running</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">copy_executable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -152,7 +152,7 @@
     <span class="n">cmake_flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">debug</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set up one or more tasks</span>
 
 <span class="sd">    Parameters</span>
@@ -185,17 +185,17 @@
 
 <span class="sd">    suite_name : str, optional</span>
 <span class="sd">        The name of the suite if tasks are being set up through a suite or</span>
-<span class="sd">        ``&#39;custom&#39;`` if not</span>
+<span class="sd">        ``'custom'`` if not</span>
 
 <span class="sd">    cached : list of list of str, optional</span>
 <span class="sd">        For each task in ``tasks``, which steps (if any) should read their</span>
-<span class="sd">        outputs from the cache, or a list with &quot;_all&quot; as the first entry if</span>
+<span class="sd">        outputs from the cache, or a list with "_all" as the first entry if</span>
 <span class="sd">        all steps in the task should use cached outputs</span>
 
 <span class="sd">    free_running : list of list of str, optional</span>
 <span class="sd">        For the single task in ``tasks``, which steps (if any) should be</span>
 <span class="sd">        forced free-running (not cached), overriding ``default_cached``,</span>
-<span class="sd">        or a list with ``&quot;_all&quot;`` as the first entry if all steps should</span>
+<span class="sd">        or a list with ``"_all"`` as the first entry if all steps should</span>
 <span class="sd">        be free-running.  A step may not appear in both ``cached`` and</span>
 <span class="sd">        ``free_running``.</span>
 
@@ -235,15 +235,15 @@
 <span class="sd">    tasks : dict of polaris.Task</span>
 <span class="sd">        A dictionary of tasks, with the relative path in the work</span>
 <span class="sd">        directory as keys</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">machine</span> <span class="o">=</span> <span class="n">__get_machine_and_check_params</span><span class="p">(</span>
         <span class="n">machine</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">task_list</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">cached</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="s1">&#39;Warning: no base work directory was provided so setting up in &#39;</span>
-            <span class="s1">&#39;the current directory.&#39;</span>
+            <span class="s1">'Warning: no base work directory was provided so setting up in '</span>
+            <span class="s1">'the current directory.'</span>
         <span class="p">)</span>
         <span class="n">work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="n">work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
@@ -258,7 +258,7 @@
     <span class="n">_add_tasks_by_number</span><span class="p">(</span><span class="n">numbers</span><span class="p">,</span> <span class="n">all_tasks</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
     <span class="n">_add_tasks_by_name</span><span class="p">(</span><span class="n">task_list</span><span class="p">,</span> <span class="n">all_tasks</span><span class="p">,</span> <span class="n">cached</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
 
-    <span class="c1"># get the component of the first task.  We&#39;ll ensure that all tasks are</span>
+    <span class="c1"># get the component of the first task.  We'll ensure that all tasks are</span>
     <span class="c1"># for this component</span>
     <span class="n">first_path</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="p">))</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[</span><span class="n">first_path</span><span class="p">]</span><span class="o">.</span><span class="n">component</span>
@@ -290,8 +290,8 @@
         <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
         <span class="n">baseline_dir</span><span class="o">=</span><span class="n">baseline_dir</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]</span>
-    <span class="n">build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">'build'</span><span class="p">]</span>
+    <span class="n">build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'build'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">build</span><span class="p">:</span>
         <span class="n">_build_model</span><span class="p">(</span>
@@ -303,10 +303,10 @@
     <span class="n">_check_pcd_version</span><span class="p">(</span><span class="n">basic_config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">clean_tasks</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cleaning task and step work directories:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'Cleaning task and step work directories:'</span><span class="p">)</span>
         <span class="n">_clean_tasks_and_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
 
     <span class="n">_setup_configs</span><span class="p">(</span>
         <span class="n">basic_config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
@@ -324,13 +324,13 @@
         <span class="n">task</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
         <span class="n">fr_steps</span> <span class="o">=</span> <span class="n">free_running</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">fr_step_list</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">fr_steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_all&#39;</span> <span class="k">else</span> <span class="n">fr_steps</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">fr_steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'_all'</span> <span class="k">else</span> <span class="n">fr_steps</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">fr_step_list</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">step_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Step </span><span class="si">{</span><span class="n">step_name</span><span class="si">!r}</span><span class="s1"> is not in the task. &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;Available steps: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="n">step_name</span><span class="si">!r}</span><span class="s1"> is not in the task. '</span>
+                    <span class="sa">f</span><span class="s1">'Available steps: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
             <span class="n">task</span><span class="o">.</span><span class="n">free_running_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
 
@@ -338,22 +338,22 @@
         <span class="c1"># --free_running (after expanding _all in cached_steps).</span>
         <span class="n">cached_list</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="k">if</span> <span class="n">cached_steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">[])</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;_all&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">cached_steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">[])</span> <span class="o">==</span> <span class="p">[</span><span class="s1">'_all'</span><span class="p">]</span>
             <span class="k">else</span> <span class="n">cached_steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">[])</span>
         <span class="p">)</span>
         <span class="n">conflicts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cached_list</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">fr_step_list</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Steps </span><span class="si">{</span><span class="n">conflicts</span><span class="si">}</span><span class="s1"> are listed in both --cached and &#39;</span>
-                <span class="s1">&#39;--free_running. Each step must be unambiguously cached, &#39;</span>
-                <span class="s1">&#39;free-running, or left at its default.&#39;</span>
+                <span class="sa">f</span><span class="s1">'Steps </span><span class="si">{</span><span class="n">conflicts</span><span class="si">}</span><span class="s1"> are listed in both --cached and '</span>
+                <span class="s1">'--free_running. Each step must be unambiguously cached, '</span>
+                <span class="s1">'free-running, or left at its default.'</span>
             <span class="p">)</span>
 
     <span class="c1"># do this after _setup_configs() in case tasks mark additional steps</span>
     <span class="c1"># as cached in their configure() methods</span>
     <span class="n">_expand_and_mark_cached_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting up tasks:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Setting up tasks:'</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">setup_task</span><span class="p">(</span>
             <span class="n">path</span><span class="p">,</span>
@@ -366,11 +366,11 @@
 
     <span class="n">_check_dependencies</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
 
-    <span class="n">suite</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">suite_name</span><span class="p">,</span> <span class="s1">&#39;tasks&#39;</span><span class="p">:</span> <span class="n">tasks</span><span class="p">,</span> <span class="s1">&#39;work_dir&#39;</span><span class="p">:</span> <span class="n">work_dir</span><span class="p">}</span>
+    <span class="n">suite</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="n">suite_name</span><span class="p">,</span> <span class="s1">'tasks'</span><span class="p">:</span> <span class="n">tasks</span><span class="p">,</span> <span class="s1">'work_dir'</span><span class="p">:</span> <span class="n">work_dir</span><span class="p">}</span>
 
     <span class="c1"># pickle the task or step dictionary for use at runtime</span>
-    <span class="n">pickle_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">&#39;work_dir&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.pickle&#39;</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="n">pickle_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">'work_dir'</span><span class="p">],</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.pickle'</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_file</span><span class="p">,</span> <span class="s1">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
 
     <span class="n">_symlink_load_script</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
@@ -379,11 +379,11 @@
         <span class="n">_get_required_resources</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;target cores: </span><span class="si">{</span><span class="n">max_cores</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;minimum cores: </span><span class="si">{</span><span class="n">max_of_min_cores</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'target cores: </span><span class="si">{</span><span class="n">max_cores</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'minimum cores: </span><span class="si">{</span><span class="n">max_of_min_cores</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">max_gpus</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">max_of_min_gpus</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;target gpus: </span><span class="si">{</span><span class="n">max_gpus</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;minimum gpus: </span><span class="si">{</span><span class="n">max_of_min_gpus</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'target gpus: </span><span class="si">{</span><span class="n">max_gpus</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'minimum gpus: </span><span class="si">{</span><span class="n">max_of_min_gpus</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">job_options</span> <span class="o">=</span> <span class="n">write_job_script</span><span class="p">(</span>
@@ -400,7 +400,7 @@
         <span class="k">if</span> <span class="n">job_options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Rewrite provenance (it was written earlier so that it exists</span>
             <span class="c1"># even if setup fails) now that we know which scheduler options</span>
-            <span class="c1"># the suite&#39;s job script ended up using.</span>
+            <span class="c1"># the suite's job script ended up using.</span>
             <span class="n">provenance</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
                 <span class="n">work_dir</span><span class="p">,</span>
                 <span class="n">tasks</span><span class="p">,</span>
@@ -417,7 +417,7 @@
 <div class="viewcode-block" id="setup_task">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.setup.setup_task.html#polaris.setup.setup_task">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">setup_task</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set up one or more tasks</span>
 
 <span class="sd">    Parameters</span>
@@ -441,9 +441,9 @@
 <span class="sd">    cached_steps : list of str</span>
 <span class="sd">        Which steps (if any) should read their outputs from the cache,</span>
 <span class="sd">        identified by a list of subdirectories in the component</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="n">task_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
@@ -458,14 +458,14 @@
         <span class="n">task</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">print_steps</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    steps with cached outputs: </span><span class="si">{</span><span class="n">print_steps</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">print_steps</span> <span class="o">=</span> <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cached_steps</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    steps with cached outputs: </span><span class="si">{</span><span class="n">print_steps</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="c1"># iterate over steps</span>
     <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="n">_setup_step</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">task_dir</span><span class="p">)</span>
 
-    <span class="c1"># wait until we&#39;ve set up all the steps before pickling because steps may</span>
+    <span class="c1"># wait until we've set up all the steps before pickling because steps may</span>
     <span class="c1"># need other steps to be set up</span>
     <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">setup_complete</span><span class="p">:</span>
@@ -473,8 +473,8 @@
             <span class="k">continue</span>
 
         <span class="c1"># pickle the task and step for use at runtime</span>
-        <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;step.pickle&#39;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'step.pickle'</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
 
         <span class="n">_symlink_load_script</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
@@ -496,12 +496,12 @@
         <span class="n">step</span><span class="o">.</span><span class="n">setup_complete</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># pickle the task and step for use at runtime</span>
-    <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;task.pickle&#39;</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="n">pickle_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'task.pickle'</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_filename</span><span class="p">,</span> <span class="s1">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
         <span class="n">suite</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;task&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;tasks&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="p">:</span> <span class="n">task</span><span class="p">},</span>
-            <span class="s1">&#39;work_dir&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span>
+            <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'task'</span><span class="p">,</span>
+            <span class="s1">'tasks'</span><span class="p">:</span> <span class="p">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="p">:</span> <span class="n">task</span><span class="p">},</span>
+            <span class="s1">'work_dir'</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
 
@@ -525,150 +525,150 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Set up one or more tasks&#39;</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="s1">&#39;polaris setup&#39;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">'Set up one or more tasks'</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="s1">'polaris setup'</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;-t&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--tasks&#39;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;tasks&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Relative path for a task(s) to set up.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span>
+        <span class="s1">'-t'</span><span class="p">,</span>
+        <span class="s1">'--tasks'</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">'+'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'tasks'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Relative path for a task(s) to set up.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'PATH'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;-n&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--task_number&#39;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;task_num&#39;</span><span class="p">,</span>
+        <span class="s1">'-n'</span><span class="p">,</span>
+        <span class="s1">'--task_number'</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">'+'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'task_num'</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Task number(s) to setup, as listed from &#39;</span>
-        <span class="s2">&quot;&#39;polaris list&#39;. Can be a space-separated &quot;</span>
-        <span class="s2">&quot;list of task numbers.  A suffix &#39;c&#39; indicates &quot;</span>
-        <span class="s1">&#39;that all steps in the task should use cached &#39;</span>
-        <span class="s1">&#39;outputs.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;NUM&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Task number(s) to setup, as listed from '</span>
+        <span class="s2">"'polaris list'. Can be a space-separated "</span>
+        <span class="s2">"list of task numbers.  A suffix 'c' indicates "</span>
+        <span class="s1">'that all steps in the task should use cached '</span>
+        <span class="s1">'outputs.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'NUM'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;-f&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--config_file&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;config_file&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Configuration file for task setup.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;FILE&#39;</span><span class="p">,</span>
+        <span class="s1">'-f'</span><span class="p">,</span>
+        <span class="s1">'--config_file'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'config_file'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Configuration file for task setup.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'FILE'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;-m&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--machine&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;machine&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The name of the machine for loading machine-&#39;</span>
-        <span class="s1">&#39;related config options.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;MACH&#39;</span><span class="p">,</span>
+        <span class="s1">'-m'</span><span class="p">,</span>
+        <span class="s1">'--machine'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'machine'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'The name of the machine for loading machine-'</span>
+        <span class="s1">'related config options.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'MACH'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;-w&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--work_dir&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;work_dir&#39;</span><span class="p">,</span>
+        <span class="s1">'-w'</span><span class="p">,</span>
+        <span class="s1">'--work_dir'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'work_dir'</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A base directory for setting up tasks.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'A base directory for setting up tasks.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'PATH'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;-b&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--baseline_dir&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;baseline_dir&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Location of baselines that can be compared to.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span>
+        <span class="s1">'-b'</span><span class="p">,</span>
+        <span class="s1">'--baseline_dir'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'baseline_dir'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Location of baselines that can be compared to.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'PATH'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;-p&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;--component_path&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;component_path&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path where the component executable and &#39;</span>
-        <span class="s1">&#39;default namelists have been (or will be) built.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span>
+        <span class="s1">'-p'</span><span class="p">,</span>
+        <span class="s1">'--component_path'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'component_path'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'The path where the component executable and '</span>
+        <span class="s1">'default namelists have been (or will be) built.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'PATH'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--suite_name&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;suite_name&#39;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name to use for the &#39;custom&#39; suite &quot;</span>
-        <span class="s1">&#39;containing all setup tasks.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;SUITE&#39;</span><span class="p">,</span>
+        <span class="s1">'--suite_name'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'suite_name'</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s1">'custom'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The name to use for the 'custom' suite "</span>
+        <span class="s1">'containing all setup tasks.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'SUITE'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--cached&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;cached&#39;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A list of steps in a single task supplied with &#39;</span>
-        <span class="s1">&#39;--tasks or --task_number that should use cached &#39;</span>
-        <span class="s2">&quot;outputs, or &#39;_all&#39; if all steps should &quot;</span>
-        <span class="s1">&#39;use cached outputs.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;STEP&#39;</span><span class="p">,</span>
+        <span class="s1">'--cached'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'cached'</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">'+'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'A list of steps in a single task supplied with '</span>
+        <span class="s1">'--tasks or --task_number that should use cached '</span>
+        <span class="s2">"outputs, or '_all' if all steps should "</span>
+        <span class="s1">'use cached outputs.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'STEP'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--free_running&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;free_running&#39;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;A list of steps in a single task supplied with &#39;</span>
-        <span class="s1">&#39;--tasks or --task_number that should be free-running &#39;</span>
-        <span class="s2">&quot;(not cached), overriding default_cached, or &#39;_all&#39; &quot;</span>
-        <span class="s1">&#39;if all steps should be free-running.&#39;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;STEP&#39;</span><span class="p">,</span>
+        <span class="s1">'--free_running'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'free_running'</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">'+'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'A list of steps in a single task supplied with '</span>
+        <span class="s1">'--tasks or --task_number that should be free-running '</span>
+        <span class="s2">"(not cached), overriding default_cached, or '_all' "</span>
+        <span class="s1">'if all steps should be free-running.'</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">'STEP'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--copy_executable&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;copy_executable&#39;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model executable should be copied to the work directory.&#39;</span><span class="p">,</span>
+        <span class="s1">'--copy_executable'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'copy_executable'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'If the model executable should be copied to the work directory.'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--clean_tasks&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;clean_tasks&#39;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the task work directories should be deleted &#39;</span>
-        <span class="s1">&#39;before setting up the tasks.&#39;</span><span class="p">,</span>
+        <span class="s1">'--clean_tasks'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'clean_tasks'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'If the task work directories should be deleted '</span>
+        <span class="s1">'before setting up the tasks.'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--model&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The model to run (one of &#39;mpas-ocean&#39;, &#39;omega&#39;, &quot;</span>
-        <span class="s2">&quot;or &#39;mpas-seaice&#39;)&quot;</span><span class="p">,</span>
+        <span class="s1">'--model'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'model'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The model to run (one of 'mpas-ocean', 'omega', "</span>
+        <span class="s2">"or 'mpas-seaice')"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--build&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;build&#39;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model should be built.&#39;</span><span class="p">,</span>
+        <span class="s1">'--build'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'build'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'If the model should be built.'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--branch&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;branch&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The branch of the model to build. The default is the submodule &#39;</span>
-        <span class="s1">&#39;associated with the model&#39;</span><span class="p">,</span>
+        <span class="s1">'--branch'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'branch'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'The branch of the model to build. The default is the submodule '</span>
+        <span class="s1">'associated with the model'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--clean_build&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;clean_build&#39;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model should be cleaned before building. Implies &#39;</span>
-        <span class="s1">&#39;--build.&#39;</span><span class="p">,</span>
+        <span class="s1">'--clean_build'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'clean_build'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'If the model should be cleaned before building. Implies '</span>
+        <span class="s1">'--build.'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--quiet_build&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;quiet_build&#39;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model should be built without output. Implies --build.&#39;</span><span class="p">,</span>
+        <span class="s1">'--quiet_build'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'quiet_build'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'If the model should be built without output. Implies --build.'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--cmake_flags&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;cmake_flags&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Additional flags to pass to make or CMake when building the &#39;</span>
-        <span class="s1">&#39;model.&#39;</span><span class="p">,</span>
+        <span class="s1">'--cmake_flags'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'cmake_flags'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'Additional flags to pass to make or CMake when building the '</span>
+        <span class="s1">'model.'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;--debug&#39;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If the model should be built in debug mode.&#39;</span><span class="p">,</span>
+        <span class="s1">'--debug'</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s1">'debug'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'If the model should be built in debug mode.'</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
@@ -676,11 +676,11 @@
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tasks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;You can only cache steps for one task at at time.&#39;</span>
+                <span class="s1">'You can only cache steps for one task at at time.'</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">task_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">task_num</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;You can only cache steps for one task at at time.&#39;</span>
+                <span class="s1">'You can only cache steps for one task at at time.'</span>
             <span class="p">)</span>
         <span class="c1"># cached is a list of lists</span>
         <span class="n">cached</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">cached</span><span class="p">]</span>
@@ -689,11 +689,11 @@
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">free_running</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tasks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tasks</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;You can only set free-running steps for one task at a time.&#39;</span>
+                <span class="s1">'You can only set free-running steps for one task at a time.'</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">task_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">task_num</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;You can only set free-running steps for one task at a time.&#39;</span>
+                <span class="s1">'You can only set free-running steps for one task at a time.'</span>
             <span class="p">)</span>
         <span class="c1"># free_running is a list of lists</span>
         <span class="n">free_running</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">free_running</span><span class="p">]</span>
@@ -722,7 +722,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_expand_and_mark_cached_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Mark any cached steps that will get their outputs from the cache database,</span>
 <span class="sd">    rather than being run.</span>
 
@@ -732,18 +732,18 @@
 <span class="sd">       ``free_running_steps``, that step always runs (never reads from cache).</span>
 <span class="sd">    2. CLI ``--cached``: steps explicitly requested via command line.</span>
 <span class="sd">    3. Factory default: steps whose ``default_cached`` flag is True.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Expand _all shorthand</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">cached_names</span> <span class="o">=</span> <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">cached_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_all&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">cached_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'_all'</span><span class="p">:</span>
             <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
     <span class="c1"># Phase 1: collect free-running preferences from all selected tasks</span>
     <span class="c1"># (includes additions made by configure(), which runs before this)</span>
     <span class="n">free_running_subdirs</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">free_running_subdirs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s1">&#39;free_running_steps&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))</span>
+        <span class="n">free_running_subdirs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s1">'free_running_steps'</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))</span>
 
     <span class="c1"># Phase 2: apply CLI-specified caching</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -753,7 +753,7 @@
     <span class="c1"># Phase 3: Apply default_cached for steps not yet designated as cached</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s1">&#39;default_cached&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s1">'default_cached'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
                 <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># Phase 4: free-running wins — override any cached=True</span>
@@ -776,23 +776,23 @@
     <span class="n">work_dir</span><span class="p">,</span>
     <span class="n">copy_executable</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up config parsers for this component&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Set up config parsers for this component"""</span>
 
     <span class="n">common_config</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
-        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">,</span> <span class="s1">&#39;copy_executable&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">)</span>
+        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'setup'</span><span class="p">,</span> <span class="s1">'copy_executable'</span><span class="p">,</span> <span class="s1">'True'</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s1">&#39;POLARIS_BRANCH&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">polaris_branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_BRANCH&#39;</span><span class="p">]</span>
-        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;polaris_branch&#39;</span><span class="p">,</span> <span class="n">polaris_branch</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'POLARIS_BRANCH'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="n">polaris_branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_BRANCH'</span><span class="p">]</span>
+        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'polaris_branch'</span><span class="p">,</span> <span class="n">polaris_branch</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;polaris_branch&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'polaris_branch'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
 
     <span class="n">initial_configs</span> <span class="o">=</span> <span class="n">_add_task_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">common_config</span><span class="p">)</span>
 
-    <span class="c1"># okay, we&#39;re finally ready to configure all the tasks and add configs</span>
-    <span class="c1"># to the &quot;owned&quot; steps</span>
+    <span class="c1"># okay, we're finally ready to configure all the tasks and add configs</span>
+    <span class="c1"># to the "owned" steps</span>
     <span class="n">configs</span> <span class="o">=</span> <span class="n">_configure_tasks_and_add_step_configs</span><span class="p">(</span>
         <span class="n">tasks</span><span class="p">,</span> <span class="n">initial_configs</span><span class="p">,</span> <span class="n">common_config</span>
     <span class="p">)</span>
@@ -803,16 +803,16 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_task_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">common_config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add config parsers for tasks and steps that don&#39;t already have shared ones</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add config parsers for tasks and steps that don't already have shared ones</span>
+<span class="sd">    """</span>
 
     <span class="c1"># get a list of shared steps and add config files for tasks to the</span>
     <span class="c1"># component</span>
     <span class="n">configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">task</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
             <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">config_filename</span>
             <span class="p">)</span>
@@ -831,19 +831,19 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_configure_tasks_and_add_step_configs</span><span class="p">(</span>
     <span class="n">tasks</span><span class="p">,</span> <span class="n">initial_configs</span><span class="p">,</span> <span class="n">common_config</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Call the configure() method for each task and add configs to &quot;owned&quot; steps</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Call the configure() method for each task and add configs to "owned" steps</span>
+<span class="sd">    """</span>
 
     <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">initial_configs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">tasks</span><span class="p">:</span>
             <span class="n">task</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
             <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-                <span class="n">section</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                <span class="n">option</span><span class="o">=</span><span class="s1">&#39;steps_to_run&#39;</span><span class="p">,</span>
-                <span class="n">value</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">),</span>
-                <span class="n">comment</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A list of steps to include when running the &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> task&#39;</span><span class="p">,</span>
+                <span class="n">section</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                <span class="n">option</span><span class="o">=</span><span class="s1">'steps_to_run'</span><span class="p">,</span>
+                <span class="n">value</span><span class="o">=</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">),</span>
+                <span class="n">comment</span><span class="o">=</span><span class="sa">f</span><span class="s1">'A list of steps to include when running the '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> task'</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="c1"># add configs to steps after calling task.configure() on all tasks in case</span>
@@ -855,7 +855,7 @@
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">has_shared_config</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">step</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
                     <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">config_filename</span>
                     <span class="p">)</span>
@@ -874,10 +874,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_configs</span><span class="p">(</span><span class="n">common_config</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write out all the config files&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Write out all the config files"""</span>
 
     <span class="c1"># add the common config at the component level</span>
-    <span class="n">common_config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+    <span class="n">common_config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">configs</span><span class="p">[</span><span class="n">common_config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">common_config</span>
 
     <span class="c1"># finally, write out the config files</span>
@@ -888,12 +888,12 @@
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">config_dir</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_symlink_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Symlink config files for requested tasks and steps&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Symlink config files for requested tasks and steps"""</span>
 
     <span class="n">symlinks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -927,15 +927,15 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_clean_tasks_and_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">base_work_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Remove contents of task and step work directories to start fresh</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_work_dir</span><span class="si">}</span><span class="s1">:&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base_work_dir</span><span class="si">}</span><span class="s1">:'</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">task_work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">task_work_dir</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">' </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="k">pass</span>
 
@@ -943,15 +943,15 @@
             <span class="n">step_work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_required_resources</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get max target and minimum CPU and GPU resource counts across task steps</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">max_cores</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">max_of_min_cores</span> <span class="o">=</span> <span class="mi">0</span>
@@ -964,13 +964,13 @@
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;The number of tasks (ntasks) was never set for &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'The number of tasks (ntasks) was never set for '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;The number of CPUs per task (cpus_per_task) was never &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;set for </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'The number of CPUs per task (cpus_per_task) was never '</span>
+                    <span class="sa">f</span><span class="s1">'set for </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
             <span class="n">cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span>
             <span class="n">min_cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_cpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">min_tasks</span>
@@ -987,33 +987,33 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">__get_machine_and_check_params</span><span class="p">(</span>
     <span class="n">machine</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">cached</span>
 <span class="p">):</span>
-    <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;POLARIS_MACHINE&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_MACHINE&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">'POLARIS_MACHINE'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="n">machine</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_MACHINE'</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">machine</span> <span class="o">=</span> <span class="n">discover_machine</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">config_file</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">machine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;At least one of config_file and machine is needed.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'At least one of config_file and machine is needed.'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;The user config file wasn&#39;t found: </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"The user config file wasn't found: </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">tasks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">numbers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;At least one of tasks or numbers is needed.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'At least one of tasks or numbers is needed.'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s1">&#39;Ignoring &quot;cached&quot; argument because &quot;tasks&quot; was not provided&#39;</span><span class="p">,</span>
+                <span class="s1">'Ignoring "cached" argument because "tasks" was not provided'</span><span class="p">,</span>
                 <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;A list of cached steps must be provided for each task in&#39;</span>
-                <span class="o">+</span> <span class="s1">&#39;&quot;tasks&quot;&#39;</span>
+                <span class="s1">'A list of cached steps must be provided for each task in'</span>
+                <span class="o">+</span> <span class="s1">'"tasks"'</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">machine</span>
@@ -1033,10 +1033,10 @@
     <span class="n">quiet_build</span><span class="p">,</span>
     <span class="n">work_dir</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a base config parser for the machine and component but not a specific</span>
 <span class="sd">    task</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1044,73 +1044,73 @@
 
     <span class="c1"># set the model from the command line if provided</span>
     <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># start with default polaris config options</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris&#39;</span><span class="p">,</span> <span class="s1">&#39;default.cfg&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris'</span><span class="p">,</span> <span class="s1">'default.cfg'</span><span class="p">)</span>
 
     <span class="c1"># add the E3SM config options from mache</span>
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;mache.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">False</span>
+            <span class="s1">'mache.machines'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
 
     <span class="c1"># add the polaris machine config file</span>
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">machine</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.machines&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">)</span>
+        <span class="n">machine</span> <span class="o">=</span> <span class="s1">'default'</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.machines'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s1">&#39;POLARIS_BRANCH&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">polaris_branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_BRANCH&#39;</span><span class="p">]</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;polaris_branch&#39;</span><span class="p">,</span> <span class="n">polaris_branch</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'POLARIS_BRANCH'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="n">polaris_branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_BRANCH'</span><span class="p">]</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'polaris_branch'</span><span class="p">,</span> <span class="n">polaris_branch</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;polaris_branch&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'polaris_branch'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
 
     <span class="c1"># add the config options for the component</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">&#39;polaris.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">'polaris.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span><span class="w"> </span><span class="s2">"."</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
         <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># set the component_path path from the command line if provided</span>
     <span class="k">if</span> <span class="n">component_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">component_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">build</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;branch&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">branch</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">compiler</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_COMPILER&#39;</span><span class="p">]</span>
-    <span class="n">mpi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_MPI&#39;</span><span class="p">]</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;machine&#39;</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;mpi&#39;</span><span class="p">,</span> <span class="n">mpi</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'branch'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">branch</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">compiler</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_COMPILER'</span><span class="p">]</span>
+    <span class="n">mpi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_MPI'</span><span class="p">]</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'machine'</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'mpi'</span><span class="p">,</span> <span class="n">mpi</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cmake_flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;cmake_flags&#39;</span><span class="p">,</span> <span class="n">cmake_flags</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'cmake_flags'</span><span class="p">,</span> <span class="n">cmake_flags</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">debug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;debug&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">debug</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'debug'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">debug</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">clean_build</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;clean&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">clean_build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'clean'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">clean_build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">quiet_build</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;quiet&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">quiet_build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'quiet'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">quiet_build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">)</span>
-    <span class="n">clean_build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;clean&#39;</span><span class="p">)</span>
+    <span class="n">build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">)</span>
+    <span class="n">clean_build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'clean'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clean_build</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">build</span><span class="p">:</span>
-        <span class="c1"># the user presumably expects to clean the build, notice that it&#39;s</span>
+        <span class="c1"># the user presumably expects to clean the build, notice that it's</span>
         <span class="c1"># absent, and build again</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">,</span> <span class="s1">'True'</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">quiet_build</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">build</span><span class="p">:</span>
         <span class="c1"># the user presumably expects to build, since they want to build</span>
         <span class="c1"># quietly</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">,</span> <span class="s1">'True'</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;base_work_dir&#39;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'base_work_dir'</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">config</span>
 
@@ -1120,7 +1120,7 @@
         <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_tasks</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">:</span>
             <span class="n">cache_all</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="n">number</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">number</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'c'</span><span class="p">):</span>
                 <span class="n">cache_all</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1128,12 +1128,12 @@
 
             <span class="k">if</span> <span class="n">number</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;task number </span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s1"> is out of range.  &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;There are only </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span><span class="si">}</span><span class="s1"> tasks.&#39;</span>
+                    <span class="sa">f</span><span class="s1">'task number </span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s1"> is out of range.  '</span>
+                    <span class="sa">f</span><span class="s1">'There are only </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span><span class="si">}</span><span class="s1"> tasks.'</span>
                 <span class="p">)</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">number</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">cache_all</span><span class="p">:</span>
-                <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_all&#39;</span><span class="p">]</span>
+                <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'_all'</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
             <span class="n">tasks</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_tasks</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
@@ -1143,7 +1143,7 @@
     <span class="k">if</span> <span class="n">task_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">task_list</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_tasks</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Task with path </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> is not in tasks&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Task with path </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> is not in tasks'</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">cached</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1152,9 +1152,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_setup_step</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">,</span> <span class="n">task_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up a step in a task&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Set up a step in a task"""</span>
 
-    <span class="c1"># make the step directory if it doesn&#39;t exist</span>
+    <span class="c1"># make the step directory if it doesn't exist</span>
     <span class="n">step_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">:</span>
@@ -1185,42 +1185,42 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_symlink_load_script</span><span class="p">(</span><span class="n">work_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;make a symlink to the script for loading the polaris env.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;POLARIS_LOAD_SCRIPT&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">script_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;POLARIS_LOAD_SCRIPT&#39;</span><span class="p">]</span>
-        <span class="n">symlink</span><span class="p">(</span><span class="n">script_filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">&#39;load_polaris_env.sh&#39;</span><span class="p">))</span>
+<span class="w">    </span><span class="sd">"""make a symlink to the script for loading the polaris env."""</span>
+    <span class="k">if</span> <span class="s1">'POLARIS_LOAD_SCRIPT'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="n">script_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_LOAD_SCRIPT'</span><span class="p">]</span>
+        <span class="n">symlink</span><span class="p">(</span><span class="n">script_filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'load_polaris_env.sh'</span><span class="p">))</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_dependencies</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dependency</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">dependency</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">dependency</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;The dependency </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> of &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> was &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;not set up.&#39;</span>
+                        <span class="sa">f</span><span class="s1">'The dependency </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> of '</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> was '</span>
+                        <span class="sa">f</span><span class="s1">'not set up.'</span>
                     <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_model</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">machine</span><span class="p">):</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]</span>
-    <span class="n">branch</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">)</span>
-    <span class="n">clean_build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;clean&#39;</span><span class="p">)</span>
-    <span class="n">quiet_build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;quiet&#39;</span><span class="p">)</span>
-    <span class="n">debug</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">)</span>
-    <span class="n">cmake_flags</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cmake_flags&#39;</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">'build'</span><span class="p">]</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'branch'</span><span class="p">)</span>
+    <span class="n">clean_build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'clean'</span><span class="p">)</span>
+    <span class="n">quiet_build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'quiet'</span><span class="p">)</span>
+    <span class="n">debug</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'debug'</span><span class="p">)</span>
+    <span class="n">cmake_flags</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cmake_flags'</span><span class="p">)</span>
 
-    <span class="n">build_dir</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">)</span>
+    <span class="n">build_dir</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;account&#39;</span><span class="p">):</span>
-        <span class="n">account</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parallel&#39;</span><span class="p">,</span> <span class="s1">&#39;account&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'parallel'</span><span class="p">,</span> <span class="s1">'account'</span><span class="p">):</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'parallel'</span><span class="p">,</span> <span class="s1">'account'</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">account</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
-        <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">&#39;build_omega.log&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+        <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">'build_omega.log'</span><span class="p">)</span>
         <span class="n">build_omega</span><span class="p">(</span>
             <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
             <span class="n">build_dir</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span>
@@ -1231,19 +1231,19 @@
             <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
             <span class="n">log_filename</span><span class="o">=</span><span class="n">log_filename</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]</span>
-        <span class="n">compiler</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;compiler&#39;</span><span class="p">)</span>
-        <span class="n">mpilib</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mpi&#39;</span><span class="p">)</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">mpilib</span><span class="si">}</span><span class="s1">_target&#39;</span>
+    <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">'build'</span><span class="p">]</span>
+        <span class="n">compiler</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'compiler'</span><span class="p">)</span>
+        <span class="n">mpilib</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mpi'</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">mpilib</span><span class="si">}</span><span class="s1">_target'</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;The build target </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> is not defined in the [build] &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;section of the config file for machine </span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="sa">f</span><span class="s1">'The build target </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> is not defined in the [build] '</span>
+                <span class="sa">f</span><span class="s1">'section of the config file for machine </span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.'</span>
             <span class="p">)</span>
         <span class="n">make_target</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
-        <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">&#39;build_mpas_ocean.log&#39;</span><span class="p">)</span>
+        <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">'build_mpas_ocean.log'</span><span class="p">)</span>
         <span class="n">build_mpas_ocean</span><span class="p">(</span>
             <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
             <span class="n">build_dir</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span>
@@ -1256,45 +1256,45 @@
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Automated build is not implemented for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'Automated build is not implemented for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_pcd_version</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check that Polaris and branch PCD versions match when applicable.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;ocean&#39;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Check that Polaris and branch PCD versions match when applicable."""</span>
+    <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s1">'ocean'</span><span class="p">:</span>
         <span class="k">return</span>
 
-    <span class="n">model</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;omega&#39;</span><span class="p">]:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'mpas-ocean'</span><span class="p">,</span> <span class="s1">'omega'</span><span class="p">]:</span>
         <span class="k">return</span>
 
-    <span class="n">branch</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;branch&#39;</span><span class="p">)</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'branch'</span><span class="p">)</span>
     <span class="n">check_pcd_version_matches_branch</span><span class="p">(</span><span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_suite_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add config options from the suite&#39;s optional ``&lt;suite_name&gt;.cfg``</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add config options from the suite's optional ``&lt;suite_name&gt;.cfg``</span>
 <span class="sd">    file, if it exists, to ``config``</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        The config options to add the suite&#39;s config options to</span>
+<span class="sd">        The config options to add the suite's config options to</span>
 
 <span class="sd">    component_name : str</span>
 <span class="sd">        The name of the component that the suite belongs to</span>
 
 <span class="sd">    suite_name : str</span>
-<span class="sd">        The name of the suite, or ``&#39;custom&#39;`` if tasks are not being set</span>
+<span class="sd">        The name of the suite, or ``'custom'`` if tasks are not being set</span>
 <span class="sd">        up as part of a suite</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">suite_name</span> <span class="ow">or</span> <span class="n">suite_name</span> <span class="o">==</span> <span class="s1">&#39;custom&#39;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">suite_name</span> <span class="ow">or</span> <span class="n">suite_name</span> <span class="o">==</span> <span class="s1">'custom'</span><span class="p">:</span>
         <span class="k">return</span>
 
-    <span class="n">package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;polaris.suites.</span><span class="si">{</span><span class="n">component_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">package</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'polaris.suites.</span><span class="si">{</span><span class="n">component_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span><span class="w"> </span><span class="s2">"."</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
            </div>

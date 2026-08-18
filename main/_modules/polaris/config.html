@@ -118,10 +118,10 @@
 <div class="viewcode-block" id="PolarisConfigParser">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PolarisConfigParser</span><span class="p">(</span><span class="n">Tranche</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A &quot;meta&quot; config parser that keeps a dictionary of config parsers and their</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A "meta" config parser that keeps a dictionary of config parsers and their</span>
 <span class="sd">    sources to combine when needed.  The custom config parser allows provenance</span>
-<span class="sd">    of the source of different config options and allows the &quot;user&quot; config</span>
+<span class="sd">    of the source of different config options and allows the "user" config</span>
 <span class="sd">    options to always take precedence over other config options (even if they</span>
 <span class="sd">    are added later).</span>
 
@@ -136,12 +136,12 @@
 
 <span class="sd">    tasks : set of polaris.Task</span>
 <span class="sd">        A list of tasks that use this config</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="PolarisConfigParser.__init__">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Make a new (empty) config parser</span>
 
 <span class="sd">        Parameters</span>
@@ -149,7 +149,7 @@
 <span class="sd">        filepath : str, optional</span>
 <span class="sd">            A filepath within the work directory where this config will be</span>
 <span class="sd">            written out</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">filepath</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span></div>
@@ -158,39 +158,39 @@
 <div class="viewcode-block" id="PolarisConfigParser.setup">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.config.PolarisConfigParser.setup.html#polaris.config.PolarisConfigParser.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        A method that can be overridden to add config options during polaris</span>
 <span class="sd">        setup</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">combine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Combine the config files into one</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        raw : bool, optional</span>
-<span class="sd">            Whether to combine config &quot;raw&quot; config options, rather than using</span>
+<span class="sd">            Whether to combine config "raw" config options, rather than using</span>
 <span class="sd">            extended interpolation</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_absolute_paths</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_absolute_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        make sure all paths in the paths, namelists, streams, and executables</span>
 <span class="sd">        sections are absolute paths</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined</span>
-        <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;namelists&#39;</span><span class="p">,</span> <span class="s1">&#39;streams&#39;</span><span class="p">,</span> <span class="s1">&#39;executables&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'namelists'</span><span class="p">,</span> <span class="s1">'streams'</span><span class="p">,</span> <span class="s1">'executables'</span><span class="p">]:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
                 <span class="c1"># not safe to make paths that start with other config options</span>
                 <span class="c1"># into absolute paths</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;$&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'$'</span><span class="p">):</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 

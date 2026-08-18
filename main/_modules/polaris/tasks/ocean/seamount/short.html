@@ -119,17 +119,17 @@
 <div class="viewcode-block" id="Short">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.seamount.short.Short.html#polaris.tasks.ocean.seamount.short.Short">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Short</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The short seamount test case creates the mesh and initial condition, then</span>
 <span class="sd">    performs a 1 hour forward run.  It is too short to say anything about the</span>
 <span class="sd">    pressure gradient error but long enough to catch a regression, so it is</span>
 <span class="sd">    the variant that belongs in the pull request suites.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Short.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.seamount.short.Short.html#polaris.tasks.ocean.seamount.short.Short.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the test case</span>
 
 <span class="sd">        Parameters</span>
@@ -142,17 +142,17 @@
 
 <span class="sd">        init : polaris.tasks.ocean.seamount.init.Init</span>
 <span class="sd">            A shared step for creating the initial state</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">task_name</span> <span class="o">=</span> <span class="s1">&#39;short&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">task_name</span> <span class="o">=</span> <span class="s1">'short'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">task_name</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="s1">'init'</span><span class="p">)</span>
 
         <span class="n">forward_step</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
             <span class="n">task_name</span><span class="o">=</span><span class="n">task_name</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'forward'</span><span class="p">,</span>
             <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>

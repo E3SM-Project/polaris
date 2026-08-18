@@ -127,7 +127,7 @@
     <span class="n">baseline_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">job_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write a file with provenance, such as the git version, conda packages,</span>
 <span class="sd">    command, and tasks, to the work directory.</span>
 
@@ -158,18 +158,18 @@
 <span class="sd">        The scheduler options that were written to the job script, as</span>
 <span class="sd">        returned by :py:func:`polaris.job.write_job_script()`.  If not</span>
 <span class="sd">        provided, no scheduler metadata is recorded.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">polaris_git_version</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'.git'</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;git&#39;</span><span class="p">,</span> <span class="s1">&#39;describe&#39;</span><span class="p">,</span> <span class="s1">&#39;--tags&#39;</span><span class="p">,</span> <span class="s1">&#39;--dirty&#39;</span><span class="p">,</span> <span class="s1">&#39;--always&#39;</span><span class="p">]</span>
-            <span class="n">polaris_git_version</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-            <span class="n">polaris_git_version</span> <span class="o">=</span> <span class="n">polaris_git_version</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'git'</span><span class="p">,</span> <span class="s1">'describe'</span><span class="p">,</span> <span class="s1">'--tags'</span><span class="p">,</span> <span class="s1">'--dirty'</span><span class="p">,</span> <span class="s1">'--always'</span><span class="p">]</span>
+            <span class="n">polaris_git_version</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span>
+            <span class="n">polaris_git_version</span> <span class="o">=</span> <span class="n">polaris_git_version</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
             <span class="k">pass</span>
 
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># this is a call to clean and we don&#39;t need to document the component</span>
+        <span class="c1"># this is a call to clean and we don't need to document the component</span>
         <span class="c1"># version</span>
         <span class="n">component_git_version</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
@@ -179,84 +179,84 @@
     <span class="n">pixi_exe</span> <span class="o">=</span> <span class="n">_get_pixi_executable</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">pixi_exe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">pixi_exe</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">]</span>
-            <span class="n">pixi_list</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">pixi_exe</span><span class="p">,</span> <span class="s1">'list'</span><span class="p">]</span>
+            <span class="n">pixi_list</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">):</span>
             <span class="k">pass</span>
 
-    <span class="n">calling_command</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">calling_command</span> <span class="o">=</span> <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
         <span class="k">pass</span>
 
-    <span class="n">provenance_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">work_dir</span><span class="si">}</span><span class="s1">/provenance&#39;</span>
+    <span class="n">provenance_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">work_dir</span><span class="si">}</span><span class="s1">/provenance'</span>
     <span class="c1"># Always overwrite to ensure provenance reflects the latest setup/suite</span>
-    <span class="n">provenance_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">provenance_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span>
 
     <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-        <span class="s1">&#39;**************************************************&#39;</span>
-        <span class="s1">&#39;*********************</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">'**************************************************'</span>
+        <span class="s1">'*********************</span><span class="se">\n</span><span class="s1">'</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">polaris_git_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;polaris git version: </span><span class="si">{</span><span class="n">polaris_git_version</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'polaris git version: </span><span class="si">{</span><span class="n">polaris_git_version</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">'</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">component_git_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;component git version: </span><span class="si">{</span><span class="n">component_git_version</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'component git version: </span><span class="si">{</span><span class="n">component_git_version</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">'</span>
         <span class="p">)</span>
-    <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;command: </span><span class="si">{</span><span class="n">calling_command</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'command: </span><span class="si">{</span><span class="n">calling_command</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="c1"># Add readily parsable, PR-friendly metadata discovered at setup time</span>
-    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;machine&#39;</span><span class="p">,</span> <span class="n">machine</span><span class="p">)</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'machine'</span><span class="p">,</span> <span class="n">machine</span><span class="p">)</span>
     <span class="n">_write_scheduler_metadata</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">job_options</span><span class="p">)</span>
-    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">,</span> <span class="n">_get_compiler</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
-    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;work directory&#39;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
-    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;build directory&#39;</span><span class="p">,</span> <span class="n">_get_build_dir</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
-    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;build type&#39;</span><span class="p">,</span> <span class="n">_get_build_type</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
-    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">&#39;baseline work directory&#39;</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">)</span>
-    <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;tasks:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">,</span> <span class="n">_get_compiler</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'work directory'</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'build directory'</span><span class="p">,</span> <span class="n">_get_build_dir</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'build type'</span><span class="p">,</span> <span class="n">_get_build_type</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'baseline work directory'</span><span class="p">,</span> <span class="n">baseline_dir</span><span class="p">)</span>
+    <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'tasks:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;  &#39;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">'  '</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">to_print</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;component&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;subdir&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="s1">'path'</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="s1">'name'</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">'component'</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">'subdir'</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">to_print</span><span class="p">:</span>
-            <span class="n">key_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">: &#39;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">key_string</span><span class="si">}{</span><span class="n">to_print</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">steps:&#39;</span><span class="p">)</span>
+            <span class="n">key_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">: '</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">key_string</span><span class="si">}{</span><span class="n">to_print</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">steps:'</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="n">print_string</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+        <span class="n">print_string</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
-        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">print_string</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">print_string</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">pixi_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;pixi list:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pixi_list</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'pixi list:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">pixi_list</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-        <span class="s1">&#39;**************************************************&#39;</span>
-        <span class="s1">&#39;*********************</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">'**************************************************'</span>
+        <span class="s1">'*********************</span><span class="se">\n</span><span class="s1">'</span>
     <span class="p">)</span>
     <span class="n">provenance_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_component_git_version</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;branch&#39;</span><span class="p">):</span>
-        <span class="n">branch</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;branch&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'branch'</span><span class="p">):</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'branch'</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">branch</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -267,9 +267,9 @@
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;git&#39;</span><span class="p">,</span> <span class="s1">&#39;describe&#39;</span><span class="p">,</span> <span class="s1">&#39;--tags&#39;</span><span class="p">,</span> <span class="s1">&#39;--dirty&#39;</span><span class="p">,</span> <span class="s1">&#39;--always&#39;</span><span class="p">]</span>
-        <span class="n">component_git_version</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="n">component_git_version</span> <span class="o">=</span> <span class="n">component_git_version</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'git'</span><span class="p">,</span> <span class="s1">'describe'</span><span class="p">,</span> <span class="s1">'--tags'</span><span class="p">,</span> <span class="s1">'--dirty'</span><span class="p">,</span> <span class="s1">'--always'</span><span class="p">]</span>
+        <span class="n">component_git_version</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span>
+        <span class="n">component_git_version</span> <span class="o">=</span> <span class="n">component_git_version</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
         <span class="n">component_git_version</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
@@ -279,20 +279,20 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_pixi_executable</span><span class="p">():</span>
     <span class="k">for</span> <span class="n">env_var</span> <span class="ow">in</span> <span class="p">(</span>
-        <span class="s1">&#39;MACHE_DEPLOY_ACTIVE_PIXI_EXE&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;MACHE_DEPLOY_COMPUTE_PIXI_EXE&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;PIXI&#39;</span><span class="p">,</span>
+        <span class="s1">'MACHE_DEPLOY_ACTIVE_PIXI_EXE'</span><span class="p">,</span>
+        <span class="s1">'MACHE_DEPLOY_COMPUTE_PIXI_EXE'</span><span class="p">,</span>
+        <span class="s1">'PIXI'</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">pixi_exe</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">env_var</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">_is_executable_file</span><span class="p">(</span><span class="n">pixi_exe</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">pixi_exe</span>
 
-    <span class="n">pixi_exe</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s1">&#39;pixi&#39;</span><span class="p">)</span>
+    <span class="n">pixi_exe</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s1">'pixi'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">pixi_exe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pixi_exe</span>
 
     <span class="n">default_pixi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">),</span> <span class="s1">&#39;.pixi&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;pixi&#39;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">'~'</span><span class="p">),</span> <span class="s1">'.pixi'</span><span class="p">,</span> <span class="s1">'bin'</span><span class="p">,</span> <span class="s1">'pixi'</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">_is_executable_file</span><span class="p">(</span><span class="n">default_pixi</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">default_pixi</span>
@@ -309,12 +309,12 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_compiler</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">):</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">val</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;deploy&#39;</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">):</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deploy&#39;</span><span class="p">,</span> <span class="s1">&#39;compiler&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'deploy'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'deploy'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">val</span> <span class="ow">or</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="kc">None</span>
 
@@ -322,8 +322,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_build_dir</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">):</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">val</span> <span class="ow">or</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="kc">None</span>
 
@@ -331,8 +331,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_model</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">):</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">val</span> <span class="ow">or</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="kc">None</span>
 
@@ -346,41 +346,41 @@
     <span class="k">if</span> <span class="n">build_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">build_type</span>
 
-    <span class="k">if</span> <span class="n">_get_model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">_get_model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'omega'</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;debug&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'debug'</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">debug</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;debug&#39;</span><span class="p">)</span>
+        <span class="n">debug</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'debug'</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;Debug&#39;</span>
-    <span class="k">return</span> <span class="s1">&#39;Release&#39;</span>
+        <span class="k">return</span> <span class="s1">'Debug'</span>
+    <span class="k">return</span> <span class="s1">'Release'</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a simple &#39;label: value&#39; line if value is provided.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Write a simple 'label: value' line if value is provided."""</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
         <span class="k">return</span>
-    <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">'</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_scheduler_metadata</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">job_options</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the scheduler options that the job script actually used.</span>
+<span class="w">    </span><span class="sd">"""Write the scheduler options that the job script actually used.</span>
 
 <span class="sd">    Slurm machines have a partition and a QOS, PBS machines have a queue,</span>
 <span class="sd">    and either may have a constraint, so only the fields that the resolved</span>
 <span class="sd">    options actually carry are written.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">job_options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
-    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;partition&#39;</span><span class="p">,</span> <span class="s1">&#39;qos&#39;</span><span class="p">,</span> <span class="s1">&#39;queue&#39;</span><span class="p">,</span> <span class="s1">&#39;constraint&#39;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'partition'</span><span class="p">,</span> <span class="s1">'qos'</span><span class="p">,</span> <span class="s1">'queue'</span><span class="p">,</span> <span class="s1">'constraint'</span><span class="p">):</span>
         <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">job_options</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 </pre></div>
 

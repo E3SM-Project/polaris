@@ -128,36 +128,36 @@
 <div class="viewcode-block" id="add_barotropic_gyre_tasks">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.add_barotropic_gyre_tasks.html#polaris.tasks.ocean.barotropic_gyre.add_barotropic_gyre_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_barotropic_gyre_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add a task that defines a convergence test for inertial gravity waves</span>
 
 <span class="sd">    component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">        the ocean component that the task will be added to</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">group_name</span> <span class="o">=</span> <span class="s1">&#39;barotropic_gyre&#39;</span>
-    <span class="n">group_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;planar&#39;</span><span class="p">,</span> <span class="n">group_name</span><span class="p">)</span>
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg&#39;</span>
+<span class="sd">    """</span>
+    <span class="n">group_name</span> <span class="o">=</span> <span class="s1">'barotropic_gyre'</span>
+    <span class="n">group_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">'planar'</span><span class="p">,</span> <span class="n">group_name</span><span class="p">)</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">config_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">group_dir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">config_filepath</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.eos&#39;</span><span class="p">,</span> <span class="s1">&#39;constant.cfg&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'constant.cfg'</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">&#39;polaris.tasks.ocean.</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">config_filename</span>
+        <span class="sa">f</span><span class="s1">'polaris.tasks.ocean.</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">config_filename</span>
     <span class="p">)</span>
     <span class="c1"># Set rhoref to the PCD value only at setup so that if the</span>
     <span class="c1"># user wants to run with a different value by changing the cfg</span>
     <span class="c1"># before runtime, they can</span>
     <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-        <span class="s1">&#39;ocean&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;eos_constant_rhoref&#39;</span><span class="p">,</span>
-        <span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">get_constant</span><span class="p">(</span><span class="s2">&quot;seawater_density_reference&quot;</span><span class="p">)</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="s1">'ocean'</span><span class="p">,</span>
+        <span class="s1">'eos_constant_rhoref'</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">get_constant</span><span class="p">(</span><span class="s2">"seawater_density_reference"</span><span class="p">)</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">boundary_condition</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;free-slip&#39;</span><span class="p">,</span> <span class="s1">&#39;no-slip&#39;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">boundary_condition</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'free-slip'</span><span class="p">,</span> <span class="s1">'no-slip'</span><span class="p">]:</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
             <span class="n">BarotropicGyre</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                 <span class="n">subdir</span><span class="o">=</span><span class="n">group_dir</span><span class="p">,</span>
-                <span class="n">test_name</span><span class="o">=</span><span class="s1">&#39;munk&#39;</span><span class="p">,</span>
+                <span class="n">test_name</span><span class="o">=</span><span class="s1">'munk'</span><span class="p">,</span>
                 <span class="n">boundary_condition</span><span class="o">=</span><span class="n">boundary_condition</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
@@ -169,9 +169,9 @@
 <div class="viewcode-block" id="BarotropicGyre">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.BarotropicGyre.html#polaris.tasks.ocean.barotropic_gyre.BarotropicGyre">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BarotropicGyre</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The convergence test case for inertial gravity waves</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="BarotropicGyre.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.BarotropicGyre.html#polaris.tasks.ocean.barotropic_gyre.BarotropicGyre.__init__">[docs]</a>
@@ -184,7 +184,7 @@
         <span class="n">config</span><span class="p">,</span>
         <span class="n">config_filename</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the test case</span>
 
 <span class="sd">        Parameters</span>
@@ -194,16 +194,16 @@
 <span class="sd">        subdir : str</span>
 <span class="sd">            The subdirectory for the task</span>
 <span class="sd">        test_name : str</span>
-<span class="sd">            The name of the test (e.g., &#39;munk&#39;)</span>
+<span class="sd">            The name of the test (e.g., 'munk')</span>
 <span class="sd">        boundary_condition : str</span>
-<span class="sd">            The type of boundary condition (&#39;free-slip&#39; or &#39;no-slip&#39;)</span>
+<span class="sd">            The type of boundary condition ('free-slip' or 'no-slip')</span>
 <span class="sd">        config : PolarisConfigParser</span>
 <span class="sd">            The configuration parser for the task</span>
 <span class="sd">        config_filename : str</span>
 <span class="sd">            The name of the configuration file</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">boundary_condition</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="n">indir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">test_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">boundary_condition</span><span class="si">}</span><span class="s1">'</span>
+        <span class="n">indir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
 
@@ -222,9 +222,9 @@
             <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">boundary_condition</span><span class="o">=</span><span class="n">boundary_condition</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;short_forward&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'short_forward'</span><span class="p">,</span>
             <span class="n">run_time_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-            <span class="n">graph_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">init_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;culled_graph.info&#39;</span><span class="p">),</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">init_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">'culled_graph.info'</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">forward_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
@@ -236,8 +236,8 @@
             <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">boundary_condition</span><span class="o">=</span><span class="n">boundary_condition</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;long_forward&#39;</span><span class="p">,</span>
-            <span class="n">graph_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">init_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;culled_graph.info&#39;</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'long_forward'</span><span class="p">,</span>
+            <span class="n">graph_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">init_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">'culled_graph.info'</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">forward</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>

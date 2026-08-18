@@ -134,7 +134,7 @@
     <span class="n">mesh_name</span><span class="p">,</span>
     <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared sizing-field steps for one named mesh.</span>
 
 <span class="sd">    Calls the upstream step factory for river network, then creates the</span>
@@ -157,15 +157,15 @@
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared sizing-field config options</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">_get_mesh_component</span><span class="p">()</span>
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;sizing_field.cfg&#39;</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'sizing_field.cfg'</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;unified&#39;</span><span class="p">,</span>
+        <span class="s1">'spherical'</span><span class="p">,</span>
+        <span class="s1">'unified'</span><span class="p">,</span>
         <span class="n">mesh_name</span><span class="p">,</span>
-        <span class="s1">&#39;sizing_field&#39;</span><span class="p">,</span>
+        <span class="s1">'sizing_field'</span><span class="p">,</span>
         <span class="n">config_filename</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">_get_lat_lon_sizing_field_config</span><span class="p">(</span>
@@ -177,21 +177,21 @@
         <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">coastline_step</span> <span class="o">=</span> <span class="n">river_steps</span><span class="p">[</span><span class="s1">&#39;coastline_final&#39;</span><span class="p">]</span>
-    <span class="n">river_step</span> <span class="o">=</span> <span class="n">river_steps</span><span class="p">[</span><span class="s1">&#39;river_rasterize&#39;</span><span class="p">]</span>
+    <span class="n">coastline_step</span> <span class="o">=</span> <span class="n">river_steps</span><span class="p">[</span><span class="s1">'coastline_final'</span><span class="p">]</span>
+    <span class="n">river_step</span> <span class="o">=</span> <span class="n">river_steps</span><span class="p">[</span><span class="s1">'river_rasterize'</span><span class="p">]</span>
     <span class="c1"># the finest-resolution combined-topography step (an ancestor of the</span>
     <span class="c1"># coastline steps) provides the candidate fraction for cull emulation</span>
     <span class="n">fine_resolution_name</span> <span class="o">=</span> <span class="n">format_lat_lon_resolution_name</span><span class="p">(</span><span class="n">FINEST_RESOLUTION</span><span class="p">)</span>
     <span class="n">fine_topo_step</span> <span class="o">=</span> <span class="n">river_steps</span><span class="p">[</span>
-        <span class="sa">f</span><span class="s1">&#39;combine_topo_lat_lon_</span><span class="si">{</span><span class="n">fine_resolution_name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="sa">f</span><span class="s1">'combine_topo_lat_lon_</span><span class="si">{</span><span class="n">fine_resolution_name</span><span class="si">}</span><span class="s1">'</span>
     <span class="p">]</span>
 
     <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;unified&#39;</span><span class="p">,</span>
+        <span class="s1">'spherical'</span><span class="p">,</span>
+        <span class="s1">'unified'</span><span class="p">,</span>
         <span class="n">mesh_name</span><span class="p">,</span>
-        <span class="s1">&#39;sizing_field&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;build&#39;</span><span class="p">,</span>
+        <span class="s1">'sizing_field'</span><span class="p">,</span>
+        <span class="s1">'build'</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">build_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
@@ -209,11 +209,11 @@
 
     <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
         <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="s1">&#39;spherical&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;unified&#39;</span><span class="p">,</span>
+            <span class="s1">'spherical'</span><span class="p">,</span>
+            <span class="s1">'unified'</span><span class="p">,</span>
             <span class="n">mesh_name</span><span class="p">,</span>
-            <span class="s1">&#39;sizing_field&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;viz&#39;</span><span class="p">,</span>
+            <span class="s1">'sizing_field'</span><span class="p">,</span>
+            <span class="s1">'viz'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
             <span class="n">step_cls</span><span class="o">=</span><span class="n">VizSizingFieldStep</span><span class="p">,</span>

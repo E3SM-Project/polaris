@@ -137,7 +137,7 @@
     <span class="n">mesh_name</span><span class="p">,</span>
     <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared river-network steps for one mesh (source, lat-lon, base-mesh).</span>
 
 <span class="sd">    Parameters</span>
@@ -159,32 +159,32 @@
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared lat-lon river config options</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">_get_mesh_component</span><span class="p">()</span>
     <span class="n">config_filename</span> <span class="o">=</span> <span class="n">RIVER_CONFIG_FILENAME</span>
 
     <span class="n">config_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;unified&#39;</span><span class="p">,</span>
+        <span class="s1">'spherical'</span><span class="p">,</span>
+        <span class="s1">'unified'</span><span class="p">,</span>
         <span class="n">mesh_name</span><span class="p">,</span>
-        <span class="s1">&#39;river&#39;</span><span class="p">,</span>
+        <span class="s1">'river'</span><span class="p">,</span>
         <span class="n">config_filename</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">_get_mesh_river_config</span><span class="p">(</span>
         <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">config_filepath</span>
     <span class="p">)</span>
-    <span class="n">lat_lon_resolution</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;unified_mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution_latlon&#39;</span><span class="p">)</span>
+    <span class="n">lat_lon_resolution</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'unified_mesh'</span><span class="p">,</span> <span class="s1">'resolution_latlon'</span><span class="p">)</span>
 
     <span class="n">coastline_steps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_unified_mesh_coastline_steps</span><span class="p">(</span>
         <span class="n">resolution</span><span class="o">=</span><span class="n">lat_lon_resolution</span><span class="p">,</span>
         <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">coastline_step</span> <span class="o">=</span> <span class="n">coastline_steps</span><span class="p">[</span><span class="s1">&#39;coastline_final&#39;</span><span class="p">]</span>
+    <span class="n">coastline_step</span> <span class="o">=</span> <span class="n">coastline_steps</span><span class="p">[</span><span class="s1">'coastline_final'</span><span class="p">]</span>
 
     <span class="n">steps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Step</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">coastline_steps</span><span class="p">)</span>
     <span class="n">simplify_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;unified&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;river&#39;</span><span class="p">,</span> <span class="s1">&#39;simplify&#39;</span>
+        <span class="s1">'spherical'</span><span class="p">,</span> <span class="s1">'unified'</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'river'</span><span class="p">,</span> <span class="s1">'simplify'</span>
     <span class="p">)</span>
     <span class="n">simplify_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">SimplifyRiverNetworkStep</span><span class="p">,</span>
@@ -194,7 +194,7 @@
     <span class="p">)</span>
 
     <span class="n">rasterize_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;unified&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;river&#39;</span><span class="p">,</span> <span class="s1">&#39;rasterize&#39;</span>
+        <span class="s1">'spherical'</span><span class="p">,</span> <span class="s1">'unified'</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'river'</span><span class="p">,</span> <span class="s1">'rasterize'</span>
     <span class="p">)</span>
     <span class="n">rasterize_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">RasterizeRiverLatLonStep</span><span class="p">,</span>
@@ -208,7 +208,7 @@
     <span class="n">steps</span><span class="p">[</span><span class="n">rasterize_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">rasterize_step</span>
 
     <span class="n">clip_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="s1">&#39;spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;unified&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;river&#39;</span><span class="p">,</span> <span class="s1">&#39;clip&#39;</span>
+        <span class="s1">'spherical'</span><span class="p">,</span> <span class="s1">'unified'</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'river'</span><span class="p">,</span> <span class="s1">'clip'</span>
     <span class="p">)</span>
     <span class="n">prepare_clip_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">ClipRiverNetworkStep</span><span class="p">,</span>
@@ -222,7 +222,7 @@
 
     <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
         <span class="n">viz_subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="s1">&#39;spherical&#39;</span><span class="p">,</span> <span class="s1">&#39;unified&#39;</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">&#39;river&#39;</span><span class="p">,</span> <span class="s1">&#39;viz&#39;</span>
+            <span class="s1">'spherical'</span><span class="p">,</span> <span class="s1">'unified'</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="s1">'river'</span><span class="p">,</span> <span class="s1">'viz'</span>
         <span class="p">)</span>
         <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
             <span class="n">step_cls</span><span class="o">=</span><span class="n">VizRiverStep</span><span class="p">,</span>

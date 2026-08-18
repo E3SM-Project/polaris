@@ -235,8 +235,8 @@ config options must have unique names.</p>
 <p>A typical yaml file is added by passing a package where the yaml file
 is located and the name of the input yaml file within that package
 as arguments to <a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.global_convergence.cosine_bell&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.global_convergence.cosine_bell'</span><span class="p">,</span>
+                   <span class="s1">'forward.yaml'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Model config values are replaced by the files (or options, see below) in the
@@ -256,7 +256,7 @@ get set up or run.)</p>
 <p>The format of the namelist file is simply a list of namelist options and
 the replacement values:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>config_write_output_on_startup = .false.
-config_run_duration = &#39;0000_00:15:00&#39;
+config_run_duration = '0000_00:15:00'
 config_use_mom_del2 = .true.
 config_implicit_bottom_drag_coeff = 1.0e-2
 config_use_cvmix_background = .true.
@@ -269,8 +269,8 @@ which specific namelist within the file each belongs to.</p>
 <p>A typical namelist file is added by passing a package where the namelist file
 is located and the name of the input namelist file within that package
 as arguments to <a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_namelist_file</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.baroclinic_channel'</span><span class="p">,</span>
+                       <span class="s1">'namelist.forward'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Namelist values are replaced by the files (or options, see below) in the
@@ -298,10 +298,10 @@ example:</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">))</span>
 
 <span class="c1"># make sure output is double precision</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.ocean.config'</span><span class="p">,</span> <span class="s1">'output.yaml'</span><span class="p">)</span>
 
-<span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.baroclinic_channel'</span><span class="p">,</span>
+                   <span class="s1">'forward.yaml'</span><span class="p">)</span>
 
 </pre></div>
 </div>
@@ -323,7 +323,7 @@ need to be computed once at setup and again (possibly based on updated
 config options) at runtime.  A step needs to override the
 <a class="reference internal" href="../generated/polaris.ModelStep.dynamic_model_config.html#polaris.ModelStep.dynamic_model_config" title="polaris.ModelStep.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.dynamic_model_config()</span></code></a> method, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add model config options, namelist, streams and yaml files using config</span>
 <span class="sd">    options or template replacements that need to be set both during step</span>
 <span class="sd">    setup and at runtime</span>
@@ -333,7 +333,7 @@ config options) at runtime.  A step needs to override the
 <span class="sd">    at_setup : bool</span>
 <span class="sd">        Whether this method is being run during setup of the step, as</span>
 <span class="sd">        opposed to at runtime</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="p">)</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
@@ -341,23 +341,23 @@ config options) at runtime.  A step needs to override the
     <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="c1"># dt is proportional to resolution: default 30 seconds per km</span>
-    <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;dt_per_km&#39;</span><span class="p">)</span>
+    <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'baroclinic_channel'</span><span class="p">,</span> <span class="s1">'dt_per_km'</span><span class="p">)</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="n">dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
     <span class="c1"># https://stackoverflow.com/a/1384565/7728169</span>
-    <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_dt&#39;</span><span class="p">]</span> <span class="o">=</span> \
-        <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
+    <span class="n">options</span><span class="p">[</span><span class="s1">'config_dt'</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%H:%M:%S'</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># default run duration is a few time steps</span>
         <span class="n">run_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">*</span> <span class="n">dt</span>
-        <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_run_duration&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_seconds</span><span class="p">))</span>
+        <span class="n">options</span><span class="p">[</span><span class="s1">'config_run_duration'</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%H:%M:%S'</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">run_seconds</span><span class="p">))</span>
 
     <span class="c1"># btr_dt is also proportional to resolution: default 1.5 seconds per km</span>
-    <span class="n">btr_dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">,</span> <span class="s1">&#39;btr_dt_per_km&#39;</span><span class="p">)</span>
+    <span class="n">btr_dt_per_km</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'baroclinic_channel'</span><span class="p">,</span> <span class="s1">'btr_dt_per_km'</span><span class="p">)</span>
     <span class="n">btr_dt</span> <span class="o">=</span> <span class="n">btr_dt_per_km</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
-    <span class="n">options</span><span class="p">[</span><span class="s1">&#39;config_btr_dt&#39;</span><span class="p">]</span> <span class="o">=</span> \
-        <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">btr_dt</span><span class="p">))</span>
+    <span class="n">options</span><span class="p">[</span><span class="s1">'config_btr_dt'</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%H:%M:%S'</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">btr_dt</span><span class="p">))</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">btr_dt</span> <span class="o">=</span> <span class="n">btr_dt</span>
@@ -381,24 +381,24 @@ a step at init even if that task will never get set up or run.)</p>
 generated streams file, e.g.:</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;streams&gt;</span>
 
-<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mesh&quot;</span>
-<span class="w">                  </span><span class="na">filename_template=</span><span class="s">&quot;init.nc&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">"mesh"</span>
+<span class="w">                  </span><span class="na">filename_template=</span><span class="s">"init.nc"</span><span class="nt">/&gt;</span>
 
-<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;input&quot;</span>
-<span class="w">                  </span><span class="na">filename_template=</span><span class="s">&quot;init.nc&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">"input"</span>
+<span class="w">                  </span><span class="na">filename_template=</span><span class="s">"init.nc"</span><span class="nt">/&gt;</span>
 
-<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;restart&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">"restart"</span><span class="nt">/&gt;</span>
 
-<span class="nt">&lt;stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;output&quot;</span>
-<span class="w">        </span><span class="na">type=</span><span class="s">&quot;output&quot;</span>
-<span class="w">        </span><span class="na">filename_template=</span><span class="s">&quot;output.nc&quot;</span>
-<span class="w">        </span><span class="na">output_interval=</span><span class="s">&quot;0000_00:00:01&quot;</span>
-<span class="w">        </span><span class="na">clobber_mode=</span><span class="s">&quot;truncate&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;stream</span><span class="w"> </span><span class="na">name=</span><span class="s">"output"</span>
+<span class="w">        </span><span class="na">type=</span><span class="s">"output"</span>
+<span class="w">        </span><span class="na">filename_template=</span><span class="s">"output.nc"</span>
+<span class="w">        </span><span class="na">output_interval=</span><span class="s">"0000_00:00:01"</span>
+<span class="w">        </span><span class="na">clobber_mode=</span><span class="s">"truncate"</span><span class="nt">&gt;</span>
 
-<span class="w">    </span><span class="nt">&lt;var_struct</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;tracers&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;xtime&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;normalVelocity&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;layerThickness&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;var_struct</span><span class="w"> </span><span class="na">name=</span><span class="s">"tracers"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">"xtime"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">"normalVelocity"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;var</span><span class="w"> </span><span class="na">name=</span><span class="s">"layerThickness"</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/stream&gt;</span>
 
 <span class="nt">&lt;/streams&gt;</span>
@@ -416,8 +416,8 @@ confusing and difficult to keep synchronized with the E3SM code.)</p>
 <p>A typical streams file is added by calling
 <a class="reference internal" href="../generated/polaris.ModelStep.add_streams_file.html#polaris.ModelStep.add_streams_file" title="polaris.ModelStep.add_streams_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_streams_file()</span></code></a> with a package where the streams
 file is located and the name of the input streams file within that package:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
-                      <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_streams_file</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.baroclinic_channel'</span><span class="p">,</span>
+                      <span class="s1">'streams.forward'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If the streams file should have a different name than the default
@@ -438,28 +438,28 @@ using the provided replacements.  Here is an example of such a template streams
 file:</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;streams&gt;</span>
 
-<span class="nt">&lt;stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;output&quot;</span>
-<span class="w">        </span><span class="na">output_interval=</span><span class="s">&quot;{{ output_interval }}&quot;</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;restart&quot;</span>
-<span class="w">                  </span><span class="na">filename_template=</span><span class="s">&quot;../restarts/rst.$Y-$M-$D_$h.$m.$s.nc&quot;</span>
-<span class="w">                  </span><span class="na">output_interval=</span><span class="s">&quot;{{ restart_interval }}&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;stream</span><span class="w"> </span><span class="na">name=</span><span class="s">"output"</span>
+<span class="w">        </span><span class="na">output_interval=</span><span class="s">"{{ output_interval }}"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;immutable_stream</span><span class="w"> </span><span class="na">name=</span><span class="s">"restart"</span>
+<span class="w">                  </span><span class="na">filename_template=</span><span class="s">"../restarts/rst.$Y-$M-$D_$h.$m.$s.nc"</span>
+<span class="w">                  </span><span class="na">output_interval=</span><span class="s">"{{ restart_interval }}"</span><span class="nt">/&gt;</span>
 
 <span class="nt">&lt;/streams&gt;</span>
 </pre></div>
 </div>
 <p>And here is how it would be added, along with replacements:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stream_replacements</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;output_interval&#39;</span><span class="p">:</span> <span class="s1">&#39;00-00-01_00:00:00&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;restart_interval&#39;</span><span class="p">:</span> <span class="s1">&#39;00-00-01_00:00:00&#39;</span><span class="p">}</span>
-<span class="n">add_streams_file</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="s1">&#39;streams.template&#39;</span><span class="p">,</span>
+    <span class="s1">'output_interval'</span><span class="p">:</span> <span class="s1">'00-00-01_00:00:00'</span><span class="p">,</span>
+    <span class="s1">'restart_interval'</span><span class="p">:</span> <span class="s1">'00-00-01_00:00:00'</span><span class="p">}</span>
+<span class="n">add_streams_file</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="s1">'streams.template'</span><span class="p">,</span>
                  <span class="n">template_replacements</span><span class="o">=</span><span class="n">stream_replacements</span><span class="p">)</span>
 
 <span class="o">...</span>
 
 <span class="n">stream_replacements</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;output_interval&#39;</span><span class="p">:</span> <span class="s1">&#39;00-00-01_00:00:00&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;restart_interval&#39;</span><span class="p">:</span> <span class="s1">&#39;00-00-01_00:00:00&#39;</span><span class="p">}</span>
-<span class="n">add_streams_file</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="s1">&#39;streams.template&#39;</span><span class="p">,</span>
+    <span class="s1">'output_interval'</span><span class="p">:</span> <span class="s1">'00-00-01_00:00:00'</span><span class="p">,</span>
+    <span class="s1">'restart_interval'</span><span class="p">:</span> <span class="s1">'00-00-01_00:00:00'</span><span class="p">}</span>
+<span class="n">add_streams_file</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="s1">'streams.template'</span><span class="p">,</span>
                  <span class="n">template_replacements</span><span class="o">=</span><span class="n">stream_replacements</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -557,10 +557,10 @@ dictionary.</p></li>
 <p><strong>Example Usage:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">namelist</span>
 
-<span class="n">replacements</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">parse_replacements</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">,</span> <span class="s1">&#39;namelist.forward&#39;</span><span class="p">)</span>
-<span class="n">namelist_dict</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="s1">&#39;namelist.defaults&#39;</span><span class="p">)</span>
+<span class="n">replacements</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">parse_replacements</span><span class="p">(</span><span class="s1">'my_package'</span><span class="p">,</span> <span class="s1">'namelist.forward'</span><span class="p">)</span>
+<span class="n">namelist_dict</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="s1">'namelist.defaults'</span><span class="p">)</span>
 <span class="n">updated</span> <span class="o">=</span> <span class="n">namelist</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">namelist_dict</span><span class="p">,</span> <span class="n">replacements</span><span class="p">)</span>
-<span class="n">namelist</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">updated</span><span class="p">,</span> <span class="s1">&#39;namelist.input&#39;</span><span class="p">)</span>
+<span class="n">namelist</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">updated</span><span class="p">,</span> <span class="s1">'namelist.input'</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -581,8 +581,8 @@ attribute for output streams if not already set.</p></li>
 <p><strong>Example Usage:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">streams</span>
 
-<span class="n">tree</span> <span class="o">=</span> <span class="n">streams</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;my_package&#39;</span><span class="p">,</span> <span class="s1">&#39;streams.forward&#39;</span><span class="p">)</span>
-<span class="n">streams</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s1">&#39;streams.xml&#39;</span><span class="p">)</span>
+<span class="n">tree</span> <span class="o">=</span> <span class="n">streams</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">'my_package'</span><span class="p">,</span> <span class="s1">'streams.forward'</span><span class="p">)</span>
+<span class="n">streams</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s1">'streams.xml'</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -608,9 +608,9 @@ files to a YAML config.</p></li>
 <p><strong>Example Usage:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisYaml</span>
 
-<span class="n">yaml_cfg</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;config.yaml&#39;</span><span class="p">)</span>
-<span class="n">yaml_cfg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;config_dt&#39;</span><span class="p">:</span> <span class="s1">&#39;00:10:00&#39;</span><span class="p">})</span>
-<span class="n">yaml_cfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;updated_config.yaml&#39;</span><span class="p">)</span>
+<span class="n">yaml_cfg</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">'config.yaml'</span><span class="p">)</span>
+<span class="n">yaml_cfg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'config_dt'</span><span class="p">:</span> <span class="s1">'00:10:00'</span><span class="p">})</span>
+<span class="n">yaml_cfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'updated_config.yaml'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>See also:</strong>

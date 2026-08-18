@@ -122,7 +122,7 @@
 <div class="viewcode-block" id="add_overflow_tasks">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.overflow.add_overflow_tasks.html#polaris.tasks.ocean.overflow.add_overflow_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_overflow_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add tasks following the overflow test case of Petersen et al. (2015)</span>
 <span class="sd">    doi:10.1016/j.ocemod.2014.12.004</span>
 
@@ -131,42 +131,42 @@
 
 <span class="sd">    component : polaris.ocean.Ocean</span>
 <span class="sd">        the ocean component that the task will be added to</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">eos_type</span><span class="p">,</span> <span class="n">coord_type</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;zstar&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;pstar&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;nonlinear&#39;</span><span class="p">,</span> <span class="s1">&#39;pstar&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'linear'</span><span class="p">,</span> <span class="s1">'zstar'</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'linear'</span><span class="p">,</span> <span class="s1">'pstar'</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'nonlinear'</span><span class="p">,</span> <span class="s1">'pstar'</span><span class="p">),</span>
     <span class="p">]:</span>
         <span class="n">_add_overflow_variant_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">eos_type</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">)</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_overflow_variant_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">eos_type</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add the overflow tasks (smoke tests and RPE) for one combination of</span>
-<span class="sd">    equation of state (``&#39;linear&#39;`` or ``&#39;nonlinear&#39;``) and vertical</span>
-<span class="sd">    coordinate for the initial condition (``&#39;zstar&#39;`` or ``&#39;pstar&#39;``).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">taskdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;planar/overflow/</span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">coord_type</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">&#39;overflow.cfg&#39;</span>
+<span class="sd">    equation of state (``'linear'`` or ``'nonlinear'``) and vertical</span>
+<span class="sd">    coordinate for the initial condition (``'zstar'`` or ``'pstar'``).</span>
+<span class="sd">    """</span>
+    <span class="n">taskdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'planar/overflow/</span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">coord_type</span><span class="si">}</span><span class="s1">'</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'overflow.cfg'</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span>
         <span class="n">filepath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">taskdir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
-        <span class="n">eos_cfg</span> <span class="o">=</span> <span class="s1">&#39;linear.cfg&#39;</span>
+    <span class="k">if</span> <span class="n">eos_type</span> <span class="o">==</span> <span class="s1">'linear'</span><span class="p">:</span>
+        <span class="n">eos_cfg</span> <span class="o">=</span> <span class="s1">'linear.cfg'</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">eos_cfg</span> <span class="o">=</span> <span class="s1">&#39;teos10.cfg&#39;</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.eos&#39;</span><span class="p">,</span> <span class="n">eos_cfg</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.overflow&#39;</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
+        <span class="n">eos_cfg</span> <span class="o">=</span> <span class="s1">'teos10.cfg'</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="n">eos_cfg</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.overflow'</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
 
     <span class="n">init_step</span><span class="p">:</span> <span class="n">Init</span> <span class="o">|</span> <span class="n">PStarInit</span>
-    <span class="k">if</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">&#39;pstar&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s1">'pstar'</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-            <span class="s1">&#39;polaris.tasks.ocean.overflow&#39;</span><span class="p">,</span> <span class="s1">&#39;overflow_pstar.cfg&#39;</span>
+            <span class="s1">'polaris.tasks.ocean.overflow'</span><span class="p">,</span> <span class="s1">'overflow_pstar.cfg'</span>
         <span class="p">)</span>
-        <span class="n">init_step</span> <span class="o">=</span> <span class="n">PStarInit</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">)</span>
+        <span class="n">init_step</span> <span class="o">=</span> <span class="n">PStarInit</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'init'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">)</span>
+        <span class="n">init_step</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'init'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">taskdir</span><span class="p">)</span>
     <span class="n">init_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">horiz_adv_order</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>

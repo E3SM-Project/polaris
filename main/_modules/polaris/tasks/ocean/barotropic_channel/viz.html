@@ -123,14 +123,14 @@
 <div class="viewcode-block" id="Viz">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_channel.viz.Viz.html#polaris.tasks.ocean.barotropic_channel.viz.Viz">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for plotting the results of barotropic channel forward step</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Viz.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_channel.viz.Viz.html#polaris.tasks.ocean.barotropic_channel.viz.Viz.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step</span>
 
 <span class="sd">        Parameters</span>
@@ -140,101 +140,101 @@
 
 <span class="sd">        indir : str</span>
 <span class="sd">            the directory the step is in, to which ``name`` will be appended</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;viz&#39;</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'viz'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/culled_mesh.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/culled_mesh.nc'</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/init.nc&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">&#39;../init/vert_coord.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/init.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s1">'../init/vert_coord.nc'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/output.nc&#39;</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../forward/output.nc'</span>
         <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="c1"># TODO: remove as soon as Omega no longer needs this file</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;coeffs.nc&#39;</span><span class="p">,</span>
-                <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../forward/coeffs.nc&#39;</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="s1">'../forward/coeffs.nc'</span><span class="p">,</span>
             <span class="p">)</span>
 
 <div class="viewcode-block" id="Viz.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_channel.viz.Viz.run.html#polaris.tasks.ocean.barotropic_channel.viz.Viz.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the task</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">&#39;init.nc&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_vert_coord_dataset</span><span class="p">(</span><span class="n">ds_init</span><span class="p">)</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-            <span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
+            <span class="s1">'output.nc'</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">],</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">&#39;mesh.nc&#39;</span><span class="p">,</span>
-            <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">&#39;coeffs.nc&#39;</span><span class="p">,</span>
-            <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">&#39;RBF&#39;</span><span class="p">,</span>
+            <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+            <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
+            <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">'RBF'</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">&gt;=</span> <span class="mi">1</span>
         <span class="n">vertex_mask</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">boundaryVertex</span> <span class="o">==</span> <span class="mi">0</span>
 
         <span class="c1"># Uncomment these lines to get 10 evenly spaced time slices</span>
-        <span class="c1"># nt = ds_out.sizes[&#39;Time&#39;]</span>
+        <span class="c1"># nt = ds_out.sizes['Time']</span>
         <span class="c1"># for t_index in np.arange(0, nt, int(np.floor(nt / 10))):</span>
 
         <span class="c1"># These indices correspond to the first and last time step</span>
         <span class="k">for</span> <span class="n">t_index</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="k">for</span> <span class="n">z_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">]):</span>
-                <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;t</span><span class="si">{</span><span class="n">t_index</span><span class="si">}</span><span class="s1">_z</span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">for</span> <span class="n">z_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds_out</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]):</span>
+                <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'t</span><span class="si">{</span><span class="n">t_index</span><span class="si">}</span><span class="s1">_z</span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s1">'</span>
                 <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="n">z_index</span><span class="p">)</span>
                 <span class="k">if</span> <span class="p">(</span>
-                    <span class="s1">&#39;velocityZonal&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                    <span class="ow">and</span> <span class="s1">&#39;velocityMeridional&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="s1">'velocityZonal'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="ow">and</span> <span class="s1">'velocityMeridional'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
                 <span class="p">):</span>
                     <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">velocityZonal</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
                     <span class="n">plot_horiz_field</span><span class="p">(</span>
                         <span class="n">ds_mesh</span><span class="p">,</span>
-                        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityZonal&#39;</span><span class="p">],</span>
-                        <span class="sa">f</span><span class="s1">&#39;velocity_zonal_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                        <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">],</span>
+                        <span class="sa">f</span><span class="s1">'velocity_zonal_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                         <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax</span><span class="p">,</span>
                         <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
-                        <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                        <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
                         <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">plot_horiz_field</span><span class="p">(</span>
                         <span class="n">ds_mesh</span><span class="p">,</span>
-                        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;velocityMeridional&#39;</span><span class="p">],</span>
-                        <span class="sa">f</span><span class="s1">&#39;velocity_meridional_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                        <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">],</span>
+                        <span class="sa">f</span><span class="s1">'velocity_meridional_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                         <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax</span><span class="p">,</span>
                         <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
-                        <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                        <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
                         <span class="n">field_mask</span><span class="o">=</span><span class="n">cell_mask</span><span class="p">,</span>
                     <span class="p">)</span>
 
                 <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">relativeVorticity</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
                 <span class="n">plot_horiz_field</span><span class="p">(</span>
                     <span class="n">ds_mesh</span><span class="p">,</span>
-                    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;relativeVorticity&#39;</span><span class="p">],</span>
-                    <span class="sa">f</span><span class="s1">&#39;relative_vorticity_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                    <span class="n">ds</span><span class="p">[</span><span class="s1">'relativeVorticity'</span><span class="p">],</span>
+                    <span class="sa">f</span><span class="s1">'relative_vorticity_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                     <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax</span><span class="p">,</span>
                     <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
-                    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                    <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
                     <span class="n">field_mask</span><span class="o">=</span><span class="n">vertex_mask</span><span class="p">,</span>
                 <span class="p">)</span>
 
-                <span class="k">if</span> <span class="s1">&#39;circulation&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="s1">'circulation'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">circulation</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
                     <span class="n">plot_horiz_field</span><span class="p">(</span>
                         <span class="n">ds_mesh</span><span class="p">,</span>
-                        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;circulation&#39;</span><span class="p">],</span>
-                        <span class="sa">f</span><span class="s1">&#39;circulation_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+                        <span class="n">ds</span><span class="p">[</span><span class="s1">'circulation'</span><span class="p">],</span>
+                        <span class="sa">f</span><span class="s1">'circulation_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                         <span class="n">vmin</span><span class="o">=-</span><span class="n">vmax</span><span class="p">,</span>
                         <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
-                        <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+                        <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
                         <span class="n">field_mask</span><span class="o">=</span><span class="n">vertex_mask</span><span class="p">,</span>
                     <span class="p">)</span></div>
 </div>

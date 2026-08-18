@@ -120,7 +120,7 @@
 <div class="viewcode-block" id="SizingFieldTask">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask.html#polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SizingFieldTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A standalone task for building one named unified sizing field.</span>
 
 <span class="sd">    Parameters</span>
@@ -130,28 +130,28 @@
 
 <span class="sd">    mesh_name : str</span>
 <span class="sd">        The name of the unified mesh</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="SizingFieldTask.__init__">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask.html#polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">):</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="s1">&#39;spherical&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;unified&#39;</span><span class="p">,</span>
+            <span class="s1">'spherical'</span><span class="p">,</span>
+            <span class="s1">'unified'</span><span class="p">,</span>
             <span class="n">mesh_name</span><span class="p">,</span>
-            <span class="s1">&#39;sizing_field&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;task&#39;</span><span class="p">,</span>
+            <span class="s1">'sizing_field'</span><span class="p">,</span>
+            <span class="s1">'task'</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;sizing_field_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_task&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">'sizing_field_</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_task'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">sizing_steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_unified_mesh_sizing_field_steps</span><span class="p">(</span>
             <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;sizing_field.cfg&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">'sizing_field.cfg'</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">symlink</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">sizing_steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span></div>
 </div>

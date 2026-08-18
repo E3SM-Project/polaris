@@ -138,20 +138,20 @@
     <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">RhoSw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">&#39;seawater_density_reference&#39;</span><span class="p">)</span>
+<span class="n">RhoSw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'seawater_density_reference'</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Ocean">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.html#polaris.tasks.ocean.Ocean">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ocean</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The collection of all test case for the MPAS-Ocean core</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    model : str</span>
-<span class="sd">        The ocean model being used, either &#39;mpas-ocean&#39;, &#39;omega&#39;, or</span>
-<span class="sd">        &#39;unknown&#39; if no OceanModelStep or OceanIOStep is present in any task</span>
+<span class="sd">        The ocean model being used, either 'mpas-ocean', 'omega', or</span>
+<span class="sd">        'unknown' if no OceanModelStep or OceanIOStep is present in any task</span>
 
 <span class="sd">    mpaso_to_omega_dim_map : dict</span>
 <span class="sd">        A map from MPAS-Ocean dimension names to their Omega equivalents</span>
@@ -171,15 +171,15 @@
 <span class="sd">        Horizontal mesh variables that are specific to Omega (currently</span>
 <span class="sd">        just the cell-centered vector-reconstruction fields), read from</span>
 <span class="sd">        the ``Omega`` section of variables.yaml</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Ocean.__init__">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.html#polaris.tasks.ocean.Ocean.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Construct the collection of MPAS-Ocean test cases</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ocean&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -190,7 +190,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Configure the component</span>
 
 <span class="sd">        Parameters</span>
@@ -200,58 +200,58 @@
 
 <span class="sd">        tasks : list of polaris.Task</span>
 <span class="sd">            The tasks to be set up for this component</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'model'</span><span class="p">)</span>
         <span class="n">has_ocean_io_steps</span><span class="p">,</span> <span class="n">has_ocean_model_steps</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_has_ocean_io_model_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">has_ocean_model_steps</span> <span class="ow">or</span> <span class="n">has_ocean_io_steps</span><span class="p">):</span>
             <span class="c1"># No ocean I/O or model steps, so no model detection or build</span>
             <span class="c1"># needed.</span>
-            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;detect&#39;</span><span class="p">:</span>
-                <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'detect'</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="s1">'unknown'</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
             <span class="k">return</span>
 
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;detect&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'detect'</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Detected ocean model:&#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'Detected ocean model:'</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
 
-        <span class="n">configs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;mpas_ocean.cfg&#39;</span><span class="p">,</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span> <span class="s1">&#39;omega.cfg&#39;</span><span class="p">}</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'mpas-ocean'</span><span class="p">:</span> <span class="s1">'mpas_ocean.cfg'</span><span class="p">,</span> <span class="s1">'omega'</span><span class="p">:</span> <span class="s1">'omega.cfg'</span><span class="p">}</span>
 
         <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
-        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean&#39;</span><span class="p">,</span> <span class="n">configs</span><span class="p">[</span><span class="n">model</span><span class="p">])</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean'</span><span class="p">,</span> <span class="n">configs</span><span class="p">[</span><span class="n">model</span><span class="p">])</span>
 
-        <span class="n">component_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">)</span>
+        <span class="n">component_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">has_ocean_model_steps</span><span class="p">:</span>
             <span class="c1"># we need to try to detect the model and build it if needed</span>
-            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
                 <span class="n">detected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_omega_build</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">detected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_mpas_ocean_build</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">detected</span><span class="p">:</span>
                 <span class="c1"># looks like we need to build the model</span>
-                <span class="n">build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">)</span>
+                <span class="n">build</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">build</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;Ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> not found in &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">component_path</span><span class="si">}</span><span class="s1">, setting build option to True&#39;</span>
+                        <span class="sa">f</span><span class="s1">'Ocean model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> not found in '</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component_path</span><span class="si">}</span><span class="s1">, setting build option to True'</span>
                     <span class="p">)</span>
-                    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">,</span> <span class="s1">'True'</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_var_map</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Ocean.map_to_native_model_vars">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.map_to_native_model_vars.html#polaris.tasks.ocean.Ocean.map_to_native_model_vars">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_to_native_model_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        If the model is Omega, rename dimensions and variables in a dataset</span>
 <span class="sd">        from their MPAS-Ocean names to the Omega equivalent (appropriate for</span>
 <span class="sd">        input datasets like an initial condition)</span>
@@ -266,9 +266,9 @@
 <span class="sd">        ds : xarray.Dataset</span>
 <span class="sd">            The same dataset with variables renamed as appropriate for the</span>
 <span class="sd">            ocean model being run</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">rename</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
@@ -287,7 +287,7 @@
 <div class="viewcode-block" id="Ocean.map_var_list_to_native_model">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.map_var_list_to_native_model.html#polaris.tasks.ocean.Ocean.map_var_list_to_native_model">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_var_list_to_native_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_list</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        If the model is Omega, rename variables from their MPAS-Ocean names to</span>
 <span class="sd">        the Omega equivalent (appropriate for validation variable lists)</span>
 
@@ -301,10 +301,10 @@
 <span class="sd">        renamed_vars : list of str</span>
 <span class="sd">            The same list with variables renamed as appropriate for the</span>
 <span class="sd">            ocean model being run</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">renamed_vars</span> <span class="o">=</span> <span class="n">var_list</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">renamed_vars</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var_list</span>
@@ -315,7 +315,7 @@
 <div class="viewcode-block" id="Ocean.write_model_dataset">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.write_model_dataset.html#polaris.tasks.ocean.Ocean.write_model_dataset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write_model_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">contains_state</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write out the given dataset, mapping dimension and variable names from</span>
 <span class="sd">        MPAS-Ocean to Omega names if appropriate</span>
 
@@ -335,18 +335,18 @@
 <span class="sd">        contains_state : bool, optional</span>
 <span class="sd">            If True, perform additional validation that all configured state</span>
 <span class="sd">            variables are present in the dataset after mapping.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="c1"># fields to be converted from geometric to pseudo thickness</span>
             <span class="n">mpas_to_omega_vars</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;layerThickness&#39;</span><span class="p">:</span> <span class="s1">&#39;PseudoThickness&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;restingThickness&#39;</span><span class="p">:</span> <span class="s1">&#39;RefPseudoThickness&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;vertAleTransportTop&#39;</span><span class="p">:</span> <span class="s1">&#39;TotalVerticalPseudoVelocity&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;vertVelocityTop&#39;</span><span class="p">:</span> <span class="s1">&#39;VerticalPseudoVelocity&#39;</span><span class="p">,</span>
+                <span class="s1">'layerThickness'</span><span class="p">:</span> <span class="s1">'PseudoThickness'</span><span class="p">,</span>
+                <span class="s1">'restingThickness'</span><span class="p">:</span> <span class="s1">'RefPseudoThickness'</span><span class="p">,</span>
+                <span class="s1">'vertAleTransportTop'</span><span class="p">:</span> <span class="s1">'TotalVerticalPseudoVelocity'</span><span class="p">,</span>
+                <span class="s1">'vertVelocityTop'</span><span class="p">:</span> <span class="s1">'VerticalPseudoVelocity'</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="k">for</span> <span class="n">mpas_var</span><span class="p">,</span> <span class="n">omega_var</span> <span class="ow">in</span> <span class="n">mpas_to_omega_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">mpas_var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">omega_var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">mpas_var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span> <span class="s1">&#39;restingThickness&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">mpas_var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">,</span> <span class="s1">'restingThickness'</span><span class="p">]:</span>
                         <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
                             <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">src_var_name</span><span class="o">=</span><span class="n">mpas_var</span>
                         <span class="p">)</span>
@@ -356,22 +356,22 @@
                         <span class="p">):</span>
                             <span class="n">ds</span><span class="p">[</span><span class="n">omega_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudothickness</span>
                             <span class="k">if</span> <span class="p">(</span>
-                                <span class="s1">&#39;SpecVol&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                                <span class="ow">and</span> <span class="n">mpas_var</span> <span class="o">==</span> <span class="s1">&#39;layerThickness&#39;</span>
+                                <span class="s1">'SpecVol'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                <span class="ow">and</span> <span class="n">mpas_var</span> <span class="o">==</span> <span class="s1">'layerThickness'</span>
                             <span class="p">):</span>
-                                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SpecVol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
+                                <span class="n">ds</span><span class="p">[</span><span class="s1">'SpecVol'</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
                     <span class="k">elif</span> <span class="n">mpas_var</span> <span class="ow">in</span> <span class="p">[</span>
-                        <span class="s1">&#39;vertVelocityTop&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;vertAleTransportTop&#39;</span><span class="p">,</span>
+                        <span class="s1">'vertVelocityTop'</span><span class="p">,</span>
+                        <span class="s1">'vertAleTransportTop'</span><span class="p">,</span>
                     <span class="p">]:</span>
                         <span class="k">if</span> <span class="p">(</span>
-                            <span class="s1">&#39;SpecVol&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                            <span class="ow">and</span> <span class="s1">&#39;layerThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                            <span class="s1">'SpecVol'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                            <span class="ow">and</span> <span class="s1">'layerThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
                         <span class="p">):</span>
                             <span class="n">_</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
                                 <span class="n">ds</span><span class="p">,</span>
                                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                                <span class="n">src_var_name</span><span class="o">=</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
+                                <span class="n">src_var_name</span><span class="o">=</span><span class="s1">'layerThickness'</span><span class="p">,</span>
                             <span class="p">)</span>
                             <span class="n">ds</span><span class="p">[</span><span class="n">omega_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">mpas_var</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">spec_vol</span> <span class="o">*</span> <span class="n">RhoSw</span><span class="p">)</span>
 
@@ -383,18 +383,18 @@
             <span class="c1"># pseudo-thickness</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_read_var_map</span><span class="p">()</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
             <span class="n">native_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">&#39;write_model_dataset&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">'write_model_dataset'</span><span class="p">)</span>
 
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">write_horiz_mesh_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write a horizontal mesh dataset, validating that all expected mesh</span>
 <span class="sd">        variables are present.</span>
 
@@ -403,12 +403,12 @@
 <span class="sd">        in the current working directory, since MPAS-Ocean does not</span>
 <span class="sd">        support least-squares vector reconstruction. This file must be</span>
 <span class="sd">        added as an input to the step, pointing at whichever mesh ``ds``</span>
-<span class="sd">        was built from: the base mesh&#39;s ``reconstruction_weights.nc``</span>
+<span class="sd">        was built from: the base mesh's ``reconstruction_weights.nc``</span>
 <span class="sd">        (from ``polaris.mesh.spherical.SphericalBaseStep``) or, for</span>
-<span class="sd">        culled meshes, a culled mesh&#39;s</span>
+<span class="sd">        culled meshes, a culled mesh's</span>
 <span class="sd">        ``culled_{prefix}_reconstruction_weights.nc`` (from</span>
 <span class="sd">        ``polaris.tasks.e3sm.init.topo.cull.CullMeshStep``). Planar</span>
-<span class="sd">        meshes (``on_a_sphere == &#39;NO&#39;``) never compute or require these</span>
+<span class="sd">        meshes (``on_a_sphere == 'NO'``) never compute or require these</span>
 <span class="sd">        fields.</span>
 
 <span class="sd">        Parameters</span>
@@ -422,32 +422,32 @@
 
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            Not used; retained for API compatibility.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_var_map</span><span class="p">()</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
-        <span class="n">is_spherical</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;on_a_sphere&#39;</span><span class="p">,</span> <span class="s1">&#39;NO&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;YES&#39;</span>
+        <span class="n">is_spherical</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'on_a_sphere'</span><span class="p">,</span> <span class="s1">'NO'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'YES'</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="n">is_spherical</span><span class="p">:</span>
-            <span class="n">recon_filename</span> <span class="o">=</span> <span class="s1">&#39;reconstruction_weights.nc&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="n">is_spherical</span><span class="p">:</span>
+            <span class="n">recon_filename</span> <span class="o">=</span> <span class="s1">'reconstruction_weights.nc'</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">recon_filename</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">recon_filename</span><span class="si">}</span><span class="s1"> not found but is required to write &#39;</span>
-                    <span class="s1">&#39;the horizontal mesh dataset for Omega. Make sure the &#39;</span>
-                    <span class="s1">&#39;base mesh (or culled mesh) step ran with &#39;</span>
-                    <span class="s1">&#39;vector-reconstruction weight generation enabled and &#39;</span>
-                    <span class="s1">&#39;that its weights file is added as an input to this &#39;</span>
-                    <span class="s1">&#39;step, renamed to reconstruction_weights.nc.&#39;</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">recon_filename</span><span class="si">}</span><span class="s1"> not found but is required to write '</span>
+                    <span class="s1">'the horizontal mesh dataset for Omega. Make sure the '</span>
+                    <span class="s1">'base mesh (or culled mesh) step ran with '</span>
+                    <span class="s1">'vector-reconstruction weight generation enabled and '</span>
+                    <span class="s1">'that its weights file is added as an input to this '</span>
+                    <span class="s1">'step, renamed to reconstruction_weights.nc.'</span>
                 <span class="p">)</span>
             <span class="n">ds_recon</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">recon_filename</span><span class="p">)</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ds_recon</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_to_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="n">horiz_mesh_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_spherical</span><span class="p">:</span>
-            <span class="c1"># planar meshes never have reconstruction weights and don&#39;t</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_spherical</span><span class="p">:</span>
+            <span class="c1"># planar meshes never have reconstruction weights and don't</span>
             <span class="c1"># need them (least-squares vector reconstruction is only used</span>
             <span class="c1"># on spherical meshes)</span>
             <span class="n">omega_only</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_only_horiz_mesh_vars</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -455,11 +455,11 @@
                 <span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">horiz_mesh_vars</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">omega_only</span>
             <span class="p">]</span>
         <span class="n">native_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="n">horiz_mesh_vars</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">&#39;write_horiz_mesh_dataset&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">'write_horiz_mesh_dataset'</span><span class="p">)</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_horiz_mesh_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Remove horizontal mesh variables from a dataset.</span>
 
 <span class="sd">        Parameters</span>
@@ -471,7 +471,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        ds : xarray.Dataset</span>
 <span class="sd">            The same dataset without horizontal mesh variables</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
 
@@ -482,8 +482,8 @@
         <span class="k">return</span> <span class="n">ds</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">write_vert_coord_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Write a vertical-coordinate dataset for Omega&#39;s ``InitialVertCoord``</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Write a vertical-coordinate dataset for Omega's ``InitialVertCoord``</span>
 <span class="sd">        stream.  This is a no-op for MPAS-Ocean (vertical coordinate fields</span>
 <span class="sd">        stay in the initial state file).</span>
 
@@ -501,17 +501,17 @@
 <span class="sd">        config : polaris.config.PolarisConfigParser</span>
 <span class="sd">            Configuration for the task; used when converting</span>
 <span class="sd">            ``restingThickness`` to ``RefPseudoThickness``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_var_map</span><span class="p">()</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="n">native_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">!=</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">!=</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span>
-                <span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">&#39;write_vert_coord_dataset&#39;</span>
+                <span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">'write_vert_coord_dataset'</span>
             <span class="p">)</span>
             <span class="k">return</span>
 
@@ -521,44 +521,44 @@
         <span class="c1"># Resting thicknesses are defined at zero surface pressure, so the</span>
         <span class="c1"># conversion must not use whatever surface pressure the dataset</span>
         <span class="c1"># happens to carry.</span>
-        <span class="k">if</span> <span class="s1">&#39;restingThickness&#39;</span> <span class="ow">in</span> <span class="n">ds_vc</span> <span class="ow">and</span> <span class="s1">&#39;RefPseudoThickness&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_vc</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'restingThickness'</span> <span class="ow">in</span> <span class="n">ds_vc</span> <span class="ow">and</span> <span class="s1">'RefPseudoThickness'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_vc</span><span class="p">:</span>
             <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
                 <span class="n">ds_vc</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                <span class="n">src_var_name</span><span class="o">=</span><span class="s1">&#39;restingThickness&#39;</span><span class="p">,</span>
+                <span class="n">src_var_name</span><span class="o">=</span><span class="s1">'restingThickness'</span><span class="p">,</span>
                 <span class="n">surf_pressure</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">pseudothickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># VertCoordInit stream is time-independent; drop Time dim</span>
-                <span class="k">if</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">pseudothickness</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">pseudothickness</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
                     <span class="n">pseudothickness</span> <span class="o">=</span> <span class="n">pseudothickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="n">ds_vc</span><span class="p">[</span><span class="s1">&#39;RefPseudoThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudothickness</span>
-        <span class="k">if</span> <span class="s1">&#39;vertCoordMovementWeights&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_vc</span><span class="p">:</span>
+                <span class="n">ds_vc</span><span class="p">[</span><span class="s1">'RefPseudoThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudothickness</span>
+        <span class="k">if</span> <span class="s1">'vertCoordMovementWeights'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_vc</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="s1">&#39;vertCoordMovementWeights not found in vert_coord dataset; &#39;</span>
-                <span class="s1">&#39;defaulting to ones&#39;</span>
+                <span class="s1">'vertCoordMovementWeights not found in vert_coord dataset; '</span>
+                <span class="s1">'defaulting to ones'</span>
             <span class="p">)</span>
-            <span class="n">ds_vc</span><span class="p">[</span><span class="s1">&#39;vertCoordMovementWeights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">ds_vc</span><span class="p">[</span><span class="s1">'vertCoordMovementWeights'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span>
-                    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds_vc</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevels&#39;</span><span class="p">],</span> <span class="n">ds_vc</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]),</span>
+                    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds_vc</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span> <span class="n">ds_vc</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]),</span>
                     <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
                 <span class="p">),</span>
-                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;nCells&#39;</span><span class="p">],</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'nCells'</span><span class="p">],</span>
                 <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Vertical coordinate movement weights&#39;</span><span class="p">,</span>
+                    <span class="s1">'units'</span><span class="p">:</span> <span class="s1">''</span><span class="p">,</span>
+                    <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'Vertical coordinate movement weights'</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">)</span>
 
         <span class="n">ds_vc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_to_native_model_vars</span><span class="p">(</span><span class="n">ds_vc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span>
-            <span class="n">ds_vc</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">&#39;write_vert_coord_dataset&#39;</span>
+            <span class="n">ds_vc</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">'write_vert_coord_dataset'</span>
         <span class="p">)</span>
         <span class="n">ds_vc</span> <span class="o">=</span> <span class="n">ds_vc</span><span class="p">[</span><span class="n">native_vars</span><span class="p">]</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds_vc</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_vert_coord_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Remove vertical coordinate variables from a dataset.</span>
 
 <span class="sd">        Parameters</span>
@@ -570,7 +570,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        ds : xarray.Dataset</span>
 <span class="sd">            The same dataset without vertical coordinate variables</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
 
@@ -590,7 +590,7 @@
         <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write an initial-state dataset, converting the tracers to the</span>
 <span class="sd">        convention the model expects and omitting horizontal mesh fields and</span>
 <span class="sd">        (for Omega) vertical coordinate fields.</span>
@@ -612,10 +612,10 @@
 <span class="sd">            Configuration for the task; forwarded to</span>
 <span class="sd">            :py:meth:`write_model_dataset`.</span>
 
-<span class="sd">        tracer_convention : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}, optional</span>
+<span class="sd">        tracer_convention : {'teos-10', 'mpas-ocean'}, optional</span>
 <span class="sd">            The convention of ``temperature`` and ``salinity`` in ``ds``.  The</span>
 <span class="sd">            default is to assume the convention implied by the ``eos_type``</span>
-<span class="sd">            config option: ``&#39;teos-10&#39;`` for the TEOS-10 equation of state and</span>
+<span class="sd">            config option: ``'teos-10'`` for the TEOS-10 equation of state and</span>
 <span class="sd">            no conversion otherwise.</span>
 
 <span class="sd">        lon : float or xarray.DataArray, optional</span>
@@ -630,9 +630,9 @@
 <span class="sd">        logger : logging.Logger, optional</span>
 <span class="sd">            A logger for logging EOS iteration information if a pressure needs</span>
 <span class="sd">            to be computed for the tracer conversion</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_tracers_for_model</span><span class="p">(</span>
             <span class="n">ds</span><span class="p">,</span>
             <span class="n">config</span><span class="p">,</span>
@@ -641,22 +641,22 @@
             <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="s1">&#39;pressure&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'pressure'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
             <span class="c1"># pressure is a diagnostic that neither model reads, and it is</span>
             <span class="c1"># only present for some vertical coordinates, so drop it to keep</span>
             <span class="c1"># initial conditions consistent with one another</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s1">&#39;pressure&#39;</span><span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s1">'pressure'</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_horiz_mesh_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_vert_coord_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
             <span class="c1"># Omega requires a surface pressure in its initial state but</span>
             <span class="c1"># MPAS-Ocean does not, so only add it for Omega.  This is the one</span>
             <span class="c1"># place the vertical_grid:surface_pressure config option is read</span>
             <span class="c1"># (it always has a value from ocean.cfg); tasks that prescribe</span>
             <span class="c1"># their own surface pressure are left untouched.</span>
-            <span class="k">if</span> <span class="s1">&#39;SurfacePressure&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SurfacePressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure_from_config</span><span class="p">(</span>
-                    <span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">'SurfacePressure'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s1">'SurfacePressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure_from_config</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
                 <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write_model_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">contains_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -664,7 +664,7 @@
 <div class="viewcode-block" id="Ocean.map_from_native_model_vars">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.map_from_native_model_vars.html#polaris.tasks.ocean.Ocean.map_from_native_model_vars">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_from_native_model_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        If the model is Omega, rename dimensions and variables in a dataset</span>
 <span class="sd">        from their Omega names to the MPAS-Ocean equivalent (appropriate for</span>
 <span class="sd">        datasets that are output from the model)</span>
@@ -678,9 +678,9 @@
 <span class="sd">        -------</span>
 <span class="sd">        ds : xarray.Dataset</span>
 <span class="sd">            The same dataset with variables named as expected in MPAS-Ocean</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="c1"># switch keys and values in mpaso_to_omega maps to get</span>
             <span class="c1"># omega to mpaso maps</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -701,7 +701,7 @@
 <div class="viewcode-block" id="Ocean.map_var_list_from_native_model">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.tasks.ocean.Ocean.map_var_list_from_native_model.html#polaris.tasks.ocean.Ocean.map_var_list_from_native_model">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_var_list_from_native_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_list</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        If the model is Omega, rename variables from their Omega names to</span>
 <span class="sd">        the MPAS-Ocean equivalent</span>
 
@@ -715,10 +715,10 @@
 <span class="sd">        renamed_vars : list of str</span>
 <span class="sd">            The same list with variables renamed as appropriate for the</span>
 <span class="sd">            ocean model being run</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">renamed_vars</span> <span class="o">=</span> <span class="n">var_list</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="c1"># switch keys and values in mpaso_to_omega maps to get</span>
             <span class="c1"># omega to mpaso maps</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -740,14 +740,14 @@
         <span class="n">vert_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">reconstruct_variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">coeffs_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">reconstruct_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;RBF&#39;</span><span class="p">,</span> <span class="s1">&#39;LSTSQ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;LSTSQ&#39;</span><span class="p">,</span>
+        <span class="n">reconstruct_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'RBF'</span><span class="p">,</span> <span class="s1">'LSTSQ'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'LSTSQ'</span><span class="p">,</span>
         <span class="n">tracer_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Open the given dataset, mapping variable and dimension names from Omega</span>
 <span class="sd">        to MPAS-Ocean names if appropriate</span>
 
@@ -771,17 +771,17 @@
 <span class="sd">        coeffs_filename : str, optional</span>
 <span class="sd">            Path to the coefficients NetCDF file.</span>
 
-<span class="sd">        reonstruct_method : {&#39;RBF&#39;, &#39;LSTSQ&#39;}, optional</span>
+<span class="sd">        reonstruct_method : {'RBF', 'LSTSQ'}, optional</span>
 <span class="sd">            Method to use for reconstructing vector variables.</span>
 <span class="sd">            RBF: Radial Basis Function; approach used in MPAS-Ocean.</span>
 <span class="sd">            LSTSQ: Least-squares reconstruction; new approach in Omega</span>
 
-<span class="sd">        tracer_convention : {&#39;teos-10&#39;, &#39;mpas-ocean&#39;}, optional</span>
+<span class="sd">        tracer_convention : {'teos-10', 'mpas-ocean'}, optional</span>
 <span class="sd">            The convention of ``temperature`` and ``salinity`` in the dataset</span>
 <span class="sd">            that is returned.  The default is to leave the tracers in the</span>
-<span class="sd">            convention the ocean model wrote them in: ``&#39;teos-10&#39;``</span>
+<span class="sd">            convention the ocean model wrote them in: ``'teos-10'``</span>
 <span class="sd">            (conservative temperature and absolute salinity) for Omega and</span>
-<span class="sd">            ``&#39;mpas-ocean&#39;`` (potential temperature and practical salinity)</span>
+<span class="sd">            ``'mpas-ocean'`` (potential temperature and practical salinity)</span>
 <span class="sd">            for MPAS-Ocean.  The two conventions are indistinguishable unless</span>
 <span class="sd">            the ``eos_type`` config option is ``teos-10``, so this is a no-op</span>
 <span class="sd">            for any other equation of state.</span>
@@ -805,26 +805,26 @@
 <span class="sd">        -------</span>
 <span class="sd">        ds : xarray.Dataset</span>
 <span class="sd">            The dataset with variables named as expected in MPAS-Ocean</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="ow">and</span> <span class="s1">&#39;GeomLayerThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="s1">'GeomLayerThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="c1"># this is an indication that the geometric layer thickness is</span>
             <span class="c1"># derived from MPAS-O datasets or python since Omega does not</span>
             <span class="c1"># compute it</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GeomLayerThickness</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GeomLayerThickness</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span>
-            <span class="ow">and</span> <span class="s1">&#39;layerThickness&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">&#39;PseudoThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">&#39;SpecVol&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span>
+            <span class="ow">and</span> <span class="s1">'layerThickness'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s1">'PseudoThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s1">'SpecVol'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="p">):</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;layerThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span>
-            <span class="ow">and</span> <span class="s1">&#39;SpecVol&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">&#39;Temperature&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">&#39;Salinity&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">&#39;SurfacePressure&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span>
+            <span class="ow">and</span> <span class="s1">'SpecVol'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s1">'Temperature'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s1">'Salinity'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s1">'SurfacePressure'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="p">):</span>
             <span class="n">ds_mpas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
             <span class="n">iter_count</span> <span class="o">=</span> <span class="n">get_iter_count_for_eos</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
@@ -836,13 +836,13 @@
                 <span class="n">ds_mpas</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="p">,</span>
                 <span class="n">iter_count</span><span class="o">=</span><span class="n">iter_count</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SpecVol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">'SpecVol'</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span>
-            <span class="ow">and</span> <span class="s1">&#39;vertVelocityTop&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">&#39;PseudoThickness&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">&#39;SpecVol&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">&#39;VerticalPseudoVelocity&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span>
+            <span class="ow">and</span> <span class="s1">'vertVelocityTop'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s1">'PseudoThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s1">'SpecVol'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="s1">'VerticalPseudoVelocity'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="c1"># the vertical coordinate file, not the mesh, is what this</span>
             <span class="c1"># derivation reads</span>
             <span class="ow">and</span> <span class="n">vert_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -851,19 +851,19 @@
             <span class="n">geom_z_inter</span><span class="p">,</span> <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="n">geom_height_from_pseudo_height</span><span class="p">(</span>
                 <span class="n">geom_z_bot</span><span class="o">=</span><span class="n">ds_vert</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
                 <span class="n">h_tilde</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                    <span class="p">{</span><span class="s1">&#39;NVertLayers&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;NCells&#39;</span><span class="p">:</span> <span class="s1">&#39;nCells&#39;</span><span class="p">}</span>
+                    <span class="p">{</span><span class="s1">'NVertLayers'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'NCells'</span><span class="p">:</span> <span class="s1">'nCells'</span><span class="p">}</span>
                 <span class="p">),</span>
                 <span class="n">spec_vol</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                    <span class="p">{</span><span class="s1">&#39;NVertLayers&#39;</span><span class="p">:</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">,</span> <span class="s1">&#39;NCells&#39;</span><span class="p">:</span> <span class="s1">&#39;nCells&#39;</span><span class="p">}</span>
+                    <span class="p">{</span><span class="s1">'NVertLayers'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'NCells'</span><span class="p">:</span> <span class="s1">'nCells'</span><span class="p">}</span>
                 <span class="p">),</span>
                 <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_vert</span><span class="o">.</span><span class="n">minLevelCell</span><span class="p">,</span>
                 <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_vert</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">n_time</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
-            <span class="n">n_vert_levels_p1</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nVertLevelsP1&#39;</span><span class="p">]</span>
-            <span class="n">n_cells</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span>
+            <span class="n">n_time</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span>
+            <span class="n">n_vert_levels_p1</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevelsP1'</span><span class="p">]</span>
+            <span class="n">n_cells</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
             <span class="n">spec_vol_inter_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_time</span><span class="p">,</span> <span class="n">n_vert_levels_p1</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">i_time</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">i_time</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]):</span>
                 <span class="k">for</span> <span class="n">i_cell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cells</span><span class="p">):</span>
                     <span class="n">x_vals</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">i_time</span><span class="p">)</span>
                     <span class="n">xp_vals</span> <span class="o">=</span> <span class="n">geom_z_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">i_time</span><span class="p">)</span>
@@ -876,14 +876,14 @@
                     <span class="n">spec_vol_inter_vals</span><span class="p">[</span><span class="n">i_time</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i_cell</span><span class="p">]</span> <span class="o">=</span> <span class="n">interp_vals</span>
             <span class="n">spec_vol_inter</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
                 <span class="n">spec_vol_inter_vals</span><span class="p">,</span>
-                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;NVertLayersP1&#39;</span><span class="p">,</span> <span class="s1">&#39;NCells&#39;</span><span class="p">],</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'time'</span><span class="p">,</span> <span class="s1">'NVertLayersP1'</span><span class="p">,</span> <span class="s1">'NCells'</span><span class="p">],</span>
             <span class="p">)</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;vertVelocityTop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s1">'vertVelocityTop'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">ds</span><span class="o">.</span><span class="n">VerticalPseudoVelocity</span> <span class="o">*</span> <span class="n">spec_vol_inter</span> <span class="o">*</span> <span class="n">RhoSw</span>
             <span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="c1"># the conversion is the last thing that happens to the tracers: the</span>
-        <span class="c1"># derivations above feed the model&#39;s own tracers into TEOS-10 and</span>
+        <span class="c1"># derivations above feed the model's own tracers into TEOS-10 and</span>
         <span class="c1"># would be wrong if they were converted first</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_tracers_from_model</span><span class="p">(</span>
             <span class="n">ds</span><span class="p">,</span>
@@ -897,22 +897,22 @@
         <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;mesh_filename must be provided to open_model_dataset &#39;</span>
-                    <span class="s1">&#39;for variable reconstruction&#39;</span>
+                    <span class="s1">'mesh_filename must be provided to open_model_dataset '</span>
+                    <span class="s1">'for variable reconstruction'</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">&#39;RBF&#39;</span> <span class="ow">and</span> <span class="n">coeffs_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'RBF'</span> <span class="ow">and</span> <span class="n">coeffs_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;coeffs_filename must be provided to open_model_dataset &#39;</span>
-                    <span class="s1">&#39;for variable reconstruction&#39;</span>
+                    <span class="s1">'coeffs_filename must be provided to open_model_dataset '</span>
+                    <span class="s1">'for variable reconstruction'</span>
                 <span class="p">)</span>
             <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span>
-                <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">&#39;LSTSQ&#39;</span>
+                <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'LSTSQ'</span>
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">_reconstruction_weights_in_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
             <span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;Reconstruction weights are not present in the mesh &#39;</span>
-                    <span class="s1">&#39;dataset; cannot reconstruct variables using LSTSQ method&#39;</span>
+                    <span class="s1">'Reconstruction weights are not present in the mesh '</span>
+                    <span class="s1">'dataset; cannot reconstruct variables using LSTSQ method'</span>
                 <span class="p">)</span>
 
             <span class="n">ds</span> <span class="o">=</span> <span class="n">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
@@ -928,7 +928,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_convert_tracers_for_model</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tracer_convention</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">logger</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Convert ``temperature`` and ``salinity`` from the convention they are</span>
 <span class="sd">        given in to the one the ocean model expects: conservative temperature</span>
 <span class="sd">        and absolute salinity for Omega, potential temperature and practical</span>
@@ -936,19 +936,19 @@
 
 <span class="sd">        The conventions only differ for the TEOS-10 equation of state, so this</span>
 <span class="sd">        is a no-op for any other ``eos_type``, as it is when the tracers are</span>
-<span class="sd">        already in the model&#39;s convention.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">):</span>
+<span class="sd">        already in the model's convention.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'eos_type'</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">ds</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'eos_type'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">'teos-10'</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ds</span>
 
         <span class="k">if</span> <span class="n">tracer_convention</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># tasks build their initial condition in the convention implied by</span>
             <span class="c1"># the equation of state unless they say otherwise</span>
-            <span class="n">tracer_convention</span> <span class="o">=</span> <span class="s1">&#39;teos-10&#39;</span>
+            <span class="n">tracer_convention</span> <span class="o">=</span> <span class="s1">'teos-10'</span>
 
-        <span class="n">target</span> <span class="o">=</span> <span class="s1">&#39;teos-10&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="k">else</span> <span class="s1">&#39;mpas-ocean&#39;</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="s1">'teos-10'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="k">else</span> <span class="s1">'mpas-ocean'</span>
         <span class="k">if</span> <span class="n">tracer_convention</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ds</span>
 
@@ -967,7 +967,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_convert_tracers_from_model</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tracer_convention</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">logger</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Convert ``temperature`` and ``salinity`` from the convention the ocean</span>
 <span class="sd">        model uses to the ``tracer_convention`` the caller has asked for, so</span>
 <span class="sd">        that analysis and visualization can work in one convention no matter</span>
@@ -975,18 +975,18 @@
 
 <span class="sd">        Unlike on write, there is nothing to infer: a caller that does not ask</span>
 <span class="sd">        for a convention gets the tracers as the model wrote them.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">tracer_convention</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ds</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'eos_type'</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">ds</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;eos_type&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;teos-10&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'eos_type'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">'teos-10'</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ds</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
 
-        <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;teos-10&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;omega&#39;</span> <span class="k">else</span> <span class="s1">&#39;mpas-ocean&#39;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="s1">'teos-10'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="k">else</span> <span class="s1">'mpas-ocean'</span>
         <span class="k">if</span> <span class="n">tracer_convention</span> <span class="o">==</span> <span class="n">source</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ds</span>
 
@@ -1005,7 +1005,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_lon_lat_from_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Determine the longitude and latitude (in degrees) at which to convert</span>
 <span class="sd">        the tracers in a dataset being read.</span>
 
@@ -1013,40 +1013,40 @@
 <span class="sd">        typically had its horizontal mesh variables removed (or never had</span>
 <span class="sd">        them), so the locations come from the mesh file rather than from the</span>
 <span class="sd">        dataset itself.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">lon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;lon and lat must either both be given or both be omitted&#39;</span>
+                <span class="s1">'lon and lat must either both be given or both be omitted'</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
 
         <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Converting tracers to another convention requires the &#39;</span>
-                <span class="s1">&#39;location of each cell.  Pass mesh_filename to &#39;</span>
-                <span class="s1">&#39;open_model_dataset(), or an explicit lon and lat.&#39;</span>
+                <span class="s1">'Converting tracers to another convention requires the '</span>
+                <span class="s1">'location of each cell.  Pass mesh_filename to '</span>
+                <span class="s1">'open_model_dataset(), or an explicit lon and lat.'</span>
             <span class="p">)</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_lon_lat_for_tracer_conversion</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_vars_present</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Raise ValueError if any variable in native_vars is absent from ds.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">native_vars</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">context</span><span class="si">}</span><span class="s1"> requires the following variables that are &#39;</span>
-                <span class="s1">&#39;missing from the dataset: &#39;</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">context</span><span class="si">}</span><span class="s1"> requires the following variables that are '</span>
+                <span class="s1">'missing from the dataset: '</span> <span class="o">+</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
             <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_has_ocean_io_model_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Determine if any steps in this component descend from OceanIOStep or</span>
 <span class="sd">        OceanModelStep</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># local import to avoid circular imports</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.ocean_io_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.ocean_model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
@@ -1065,87 +1065,87 @@
         <span class="k">return</span> <span class="n">has_ocean_io_steps</span><span class="p">,</span> <span class="n">has_ocean_model_steps</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_variables_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Read horiz_mesh_vars and vert_coord_vars from variables.yaml</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.model&#39;</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;variables.yaml&#39;</span>
+<span class="sd">        """</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.ocean.model'</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">'variables.yaml'</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
-        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">'rt'</span><span class="p">)</span>
         <span class="n">nested_dict</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-            <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">][</span><span class="s1">&#39;horiz_mesh_variables&#39;</span><span class="p">]</span>
+            <span class="n">nested_dict</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">][</span><span class="s1">'horiz_mesh_variables'</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-            <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">][</span><span class="s1">&#39;vert_coord_variables&#39;</span><span class="p">]</span>
+            <span class="n">nested_dict</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">][</span><span class="s1">'vert_coord_variables'</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">][</span><span class="s1">&#39;state_variables&#39;</span><span class="p">])</span>
-        <span class="n">model_section_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mpas-ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;mpas-ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;omega&#39;</span><span class="p">:</span> <span class="s1">&#39;Omega&#39;</span><span class="p">}</span>
-        <span class="n">model_key</span> <span class="o">=</span> <span class="n">model_section_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nested_dict</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">][</span><span class="s1">'state_variables'</span><span class="p">])</span>
+        <span class="n">model_section_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'mpas-ocean'</span><span class="p">:</span> <span class="s1">'mpas-ocean'</span><span class="p">,</span> <span class="s1">'omega'</span><span class="p">:</span> <span class="s1">'Omega'</span><span class="p">}</span>
+        <span class="n">model_key</span> <span class="o">=</span> <span class="n">model_section_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model_key</span><span class="p">:</span>
             <span class="n">extra</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s1">&#39;horiz_mesh_variables&#39;</span><span class="p">,</span> <span class="p">[]</span>
+                <span class="s1">'horiz_mesh_variables'</span><span class="p">,</span> <span class="p">[]</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">omega_only_horiz_mesh_vars</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span> <span class="k">if</span> <span class="n">model_key</span> <span class="o">==</span> <span class="s1">&#39;Omega&#39;</span> <span class="k">else</span> <span class="p">[]</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span> <span class="k">if</span> <span class="n">model_key</span> <span class="o">==</span> <span class="s1">'Omega'</span> <span class="k">else</span> <span class="p">[]</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
             <span class="n">extra</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s1">&#39;vert_coord_variables&#39;</span><span class="p">,</span> <span class="p">[]</span>
+                <span class="s1">'vert_coord_variables'</span><span class="p">,</span> <span class="p">[]</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
-            <span class="n">extra</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;state_variables&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'state_variables'</span><span class="p">,</span> <span class="p">[])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_var_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Read the map from MPAS-Ocean to Omega dimension and variable names</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">package</span> <span class="o">=</span> <span class="s1">&#39;polaris.ocean.model&#39;</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.ocean.model'</span>
 
-        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;mpaso_to_omega.yaml&#39;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">'mpaso_to_omega.yaml'</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
-        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+        <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">'rt'</span><span class="p">)</span>
         <span class="n">nested_dict</span> <span class="o">=</span> <span class="n">yaml_data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;dimensions&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">&#39;variables&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_dim_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">'dimensions'</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">'variables'</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_detect_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Detect which ocean model to use</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># build config options for each model, so the default component_path</span>
-        <span class="c1"># can be read if it hasn&#39;t been overridden</span>
+        <span class="c1"># can be read if it hasn't been overridden</span>
         <span class="n">omega_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">omega_config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;omega.cfg&#39;</span><span class="p">)</span>
-        <span class="n">omega_path</span> <span class="o">=</span> <span class="n">omega_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">)</span>
+        <span class="n">omega_config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean'</span><span class="p">,</span> <span class="s1">'omega.cfg'</span><span class="p">)</span>
+        <span class="n">omega_path</span> <span class="o">=</span> <span class="n">omega_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">)</span>
 
         <span class="n">mpas_ocean_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">mpas_ocean_config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">&#39;polaris.ocean&#39;</span><span class="p">,</span> <span class="s1">&#39;mpas_ocean.cfg&#39;</span><span class="p">)</span>
-        <span class="n">mpas_ocean_path</span> <span class="o">=</span> <span class="n">mpas_ocean_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;paths&#39;</span><span class="p">,</span> <span class="s1">&#39;component_path&#39;</span><span class="p">)</span>
+        <span class="n">mpas_ocean_config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean'</span><span class="p">,</span> <span class="s1">'mpas_ocean.cfg'</span><span class="p">)</span>
+        <span class="n">mpas_ocean_path</span> <span class="o">=</span> <span class="n">mpas_ocean_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_omega_build</span><span class="p">(</span><span class="n">omega_path</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s1">&#39;omega&#39;</span>
+            <span class="k">return</span> <span class="s1">'omega'</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_mpas_ocean_build</span><span class="p">(</span><span class="n">mpas_ocean_path</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s1">&#39;mpas-ocean&#39;</span>
+            <span class="k">return</span> <span class="s1">'mpas-ocean'</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Could not detect ocean model; neither MPAS-Ocean &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;nor Omega appear to be available; &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;searched </span><span class="si">{</span><span class="n">omega_path</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">mpas_ocean_path</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="sa">f</span><span class="s1">'Could not detect ocean model; neither MPAS-Ocean '</span>
+                <span class="sa">f</span><span class="s1">'nor Omega appear to be available; '</span>
+                <span class="sa">f</span><span class="s1">'searched </span><span class="si">{</span><span class="n">omega_path</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">mpas_ocean_path</span><span class="si">}</span><span class="s1">.'</span>
             <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_detect_omega_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Detect if Omega is available</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">required_files</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;configs/Default.yml&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;src/omega.exe&#39;</span><span class="p">,</span>
+            <span class="s1">'configs/Default.yml'</span><span class="p">,</span>
+            <span class="s1">'src/omega.exe'</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
@@ -1157,19 +1157,19 @@
         <span class="k">return</span> <span class="n">all_found</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_detect_mpas_ocean_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Detect if MPAS-Ocean is available</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        is_mpas_ocean : bool</span>
 <span class="sd">            True if MPAS-Ocean appears to be available, False otherwise</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">required_files</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;default_inputs/namelist.ocean.forward&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;default_inputs/streams.ocean.forward&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;src/Registry_processed.xml&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;ocean_model&#39;</span><span class="p">,</span>
+            <span class="s1">'default_inputs/namelist.ocean.forward'</span><span class="p">,</span>
+            <span class="s1">'default_inputs/streams.ocean.forward'</span><span class="p">,</span>
+            <span class="s1">'src/Registry_processed.xml'</span><span class="p">,</span>
+            <span class="s1">'ocean_model'</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
@@ -1185,7 +1185,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_lon_lat_for_tracer_conversion</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Determine the longitude and latitude (in degrees) at which to convert</span>
 <span class="sd">    tracers between the TEOS-10 and MPAS-Ocean conventions.</span>
 
@@ -1223,37 +1223,37 @@
 
 <span class="sd">    lat : float or xarray.DataArray</span>
 <span class="sd">        The latitude(s) in degrees</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">lon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">&#39;lon and lat must either both be given or both be omitted&#39;</span>
+            <span class="s1">'lon and lat must either both be given or both be omitted'</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
 
-    <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;on_a_sphere&#39;</span><span class="p">)</span>
+    <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'on_a_sphere'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">on_a_sphere</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;A tracer conversion needs to know whether the mesh is on a &#39;</span>
-                <span class="s1">&#39;sphere but the mesh dataset has no on_a_sphere attribute&#39;</span>
+                <span class="s1">'A tracer conversion needs to know whether the mesh is on a '</span>
+                <span class="s1">'sphere but the mesh dataset has no on_a_sphere attribute'</span>
             <span class="p">)</span>
-        <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="s1">&#39;NO&#39;</span>
+        <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="s1">'NO'</span>
 
     <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">on_a_sphere</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">on_a_sphere</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">on_a_sphere</span> <span class="o">==</span> <span class="s1">'yes'</span><span class="p">:</span>
         <span class="c1"># planar meshes carry meaningless lonCell/latCell, so they may only</span>
         <span class="c1"># be used when the mesh really is on a sphere</span>
-        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;lonCell&#39;</span><span class="p">,</span> <span class="s1">&#39;latCell&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'lonCell'</span><span class="p">,</span> <span class="s1">'latCell'</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;A tracer conversion on a spherical mesh requires per-cell &#39;</span>
-                <span class="s1">&#39;locations but the dataset is missing: &#39;</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+                <span class="s1">'A tracer conversion on a spherical mesh requires per-cell '</span>
+                <span class="s1">'locations but the dataset is missing: '</span> <span class="o">+</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">lonCell</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">latCell</span><span class="p">)</span>
 
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ocean&#39;</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;nominal_lon&#39;</span><span class="p">),</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;nominal_lat&#39;</span><span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'ocean'</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'nominal_lon'</span><span class="p">),</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'nominal_lat'</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
@@ -1261,9 +1261,9 @@
     <span class="n">reconstruct_variables</span><span class="p">,</span>
     <span class="n">ds_mesh</span><span class="p">,</span>
     <span class="n">coeffs_filename</span><span class="p">,</span>
-    <span class="n">reconstruct_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;RBF&#39;</span><span class="p">,</span> <span class="s1">&#39;LSTSQ&#39;</span><span class="p">],</span>
+    <span class="n">reconstruct_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'RBF'</span><span class="p">,</span> <span class="s1">'LSTSQ'</span><span class="p">],</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add reconstructed vector variables to the dataset if requested.</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1279,25 +1279,25 @@
 <span class="sd">    coeffs_filename : str</span>
 <span class="sd">        Path to the coefficients NetCDF file.</span>
 
-<span class="sd">    reconstruct_method : {&#39;RBF&#39;, &#39;LSTSQ&#39;}</span>
+<span class="sd">    reconstruct_method : {'RBF', 'LSTSQ'}</span>
 <span class="sd">        Method to use for reconstructing vector variables.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        The dataset with reconstructed variables added.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ds</span>
 
     <span class="n">out_var_names</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">reconstruct_variables</span><span class="p">:</span>
         <span class="n">out_var_name</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">variable</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="s1">&#39;normal&#39;</span> <span class="ow">in</span> <span class="n">variable</span>
+            <span class="n">variable</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'normal'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">'normal'</span> <span class="ow">in</span> <span class="n">variable</span>
             <span class="k">else</span> <span class="n">variable</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal&#39;</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional&#39;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
             <span class="c1"># already reconstructed, e.g. by MPAS-Ocean itself</span>
             <span class="k">continue</span>
         <span class="n">out_var_names</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_var_name</span>
@@ -1308,23 +1308,23 @@
     <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">out_var_names</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;User requested vector reconstruction for &#39;</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                <span class="s2">&quot;but it isn&#39;t present in the dataset.&quot;</span>
+                <span class="sa">f</span><span class="s2">"User requested vector reconstruction for '</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="s2">"but it isn't present in the dataset."</span>
             <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">&#39;RBF&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'RBF'</span><span class="p">:</span>
         <span class="n">ds_coeff</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">coeffs_filename</span><span class="p">)</span>
         <span class="n">coeffs_reconstruct</span> <span class="o">=</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">coeffs_reconstruct</span>
 
-        <span class="k">if</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;nCells&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;The sizes of coefficient dataset do not match mesh dataset;&#39;</span>
-                <span class="sa">f</span><span class="s1">&#39; exiting without reconstructing </span><span class="si">{</span><span class="n">reconstruct_variables</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">'The sizes of coefficient dataset do not match mesh dataset;'</span>
+                <span class="sa">f</span><span class="s1">' exiting without reconstructing </span><span class="si">{</span><span class="n">reconstruct_variables</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">ds</span>
 
     <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">out_var_name</span> <span class="ow">in</span> <span class="n">out_var_names</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">&#39;RBF&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'RBF'</span><span class="p">:</span>
             <span class="n">reconstruct_variable</span><span class="p">(</span>
                 <span class="n">out_var_name</span><span class="p">,</span>
                 <span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span>
@@ -1334,34 +1334,34 @@
                 <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">&#39;LSTSQ&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'LSTSQ'</span><span class="p">:</span>
             <span class="n">stencil</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">reconstructStencilCell</span>
             <span class="n">weights</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">reconstructWeightsCell</span>
 
             <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span> <span class="o">=</span> <span class="n">tangential_reconstruction</span><span class="p">(</span>
                 <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="n">stencil</span><span class="o">=</span><span class="n">stencil</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;on_a_sphere&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;NO&#39;</span><span class="p">:</span>
-                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">X&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_x</span>
-                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_y</span>
+            <span class="k">if</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'on_a_sphere'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'NO'</span><span class="p">:</span>
+                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">X'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_x</span>
+                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Y'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_y</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_merid</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cartesian_to_local_geographic</span><span class="p">(</span>
                     <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span>
                 <span class="p">)</span>
 
-                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_zonal</span>
-                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_merid</span>
+                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_zonal</span>
+                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_merid</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal&#39;</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional&#39;</span> <span class="ow">in</span> <span class="n">ds</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span> <span class="ow">in</span> <span class="n">ds</span>
         <span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to reconstruct </span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Failed to reconstruct </span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ds</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_reconstruction_weights_in_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">vertices</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check if the reconstruction weights are present in the dataset.</span>
 
 <span class="sd">    Parameters</span>
@@ -1375,13 +1375,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    present</span>
 <span class="sd">        True if reconstruction weights are present, False otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">present</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;reconstructstencilcell&#39;</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">)</span>
-    <span class="n">present</span> <span class="o">&amp;=</span> <span class="nb">any</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;reconstructweightscell&#39;</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">present</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'reconstructstencilcell'</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="n">present</span> <span class="o">&amp;=</span> <span class="nb">any</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'reconstructweightscell'</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">vertices</span><span class="p">:</span>
-        <span class="n">present</span> <span class="o">&amp;=</span> <span class="nb">any</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;reconstructstencilvertex&#39;</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">)</span>
-        <span class="n">present</span> <span class="o">&amp;=</span> <span class="nb">any</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;reconstructweightsvertex&#39;</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">)</span>
+        <span class="n">present</span> <span class="o">&amp;=</span> <span class="nb">any</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'reconstructstencilvertex'</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">)</span>
+        <span class="n">present</span> <span class="o">&amp;=</span> <span class="nb">any</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'reconstructweightsvertex'</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">present</span>
 

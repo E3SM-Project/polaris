@@ -121,30 +121,30 @@
 <div class="viewcode-block" id="add_realistic_global_tasks">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.add_realistic_global_tasks.html#polaris.tasks.ocean.realistic_global.add_realistic_global_tasks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_realistic_global_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add tasks for realistic global ocean preprocessing and initialization.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">        The ocean component to which the tasks will be added.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">Woa23</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">))</span>
 
     <span class="n">mesh_dict</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;QU.240km&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mpaso_id</span><span class="o">=</span><span class="mi">151209</span><span class="p">,</span> <span class="n">omega_id</span><span class="o">=</span><span class="mi">260807</span><span class="p">,</span> <span class="n">ncells</span><span class="o">=</span><span class="mi">7153</span><span class="p">),</span>
-        <span class="s1">&#39;EC30to60E2r2&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mpaso_id</span><span class="o">=</span><span class="mi">200908</span><span class="p">,</span> <span class="n">omega_id</span><span class="o">=</span><span class="mi">260807</span><span class="p">,</span> <span class="n">ncells</span><span class="o">=</span><span class="mi">236853</span><span class="p">),</span>
+        <span class="s1">'QU.240km'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mpaso_id</span><span class="o">=</span><span class="mi">151209</span><span class="p">,</span> <span class="n">omega_id</span><span class="o">=</span><span class="mi">260807</span><span class="p">,</span> <span class="n">ncells</span><span class="o">=</span><span class="mi">7153</span><span class="p">),</span>
+        <span class="s1">'EC30to60E2r2'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mpaso_id</span><span class="o">=</span><span class="mi">200908</span><span class="p">,</span> <span class="n">omega_id</span><span class="o">=</span><span class="mi">260807</span><span class="p">,</span> <span class="n">ncells</span><span class="o">=</span><span class="mi">236853</span><span class="p">),</span>
     <span class="p">}</span>
     <span class="k">for</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">mesh_info</span> <span class="ow">in</span> <span class="n">mesh_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;spherical/realistic_global/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'spherical/realistic_global/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">'</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
             <span class="n">AnalysisMembers</span><span class="p">(</span>
                 <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
                 <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
                 <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
-                <span class="n">mpaso_id</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">&#39;mpaso_id&#39;</span><span class="p">],</span>
-                <span class="n">omega_id</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">&#39;omega_id&#39;</span><span class="p">],</span>
-                <span class="n">ncells</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">&#39;ncells&#39;</span><span class="p">],</span>
+                <span class="n">mpaso_id</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">'mpaso_id'</span><span class="p">],</span>
+                <span class="n">omega_id</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">'omega_id'</span><span class="p">],</span>
+                <span class="n">ncells</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">'ncells'</span><span class="p">],</span>
             <span class="p">)</span>
         <span class="p">)</span></div>
 

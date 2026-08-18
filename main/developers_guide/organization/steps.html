@@ -168,9 +168,9 @@ created and set up once, even if multiple tasks reference it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="n">shared_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
     <span class="n">step_cls</span><span class="o">=</span><span class="n">InitStep</span><span class="p">,</span>
-    <span class="n">subdir</span><span class="o">=</span><span class="s2">&quot;init&quot;</span><span class="p">,</span>
+    <span class="n">subdir</span><span class="o">=</span><span class="s2">"init"</span><span class="p">,</span>
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-    <span class="n">config_filename</span><span class="o">=</span><span class="s2">&quot;init.cfg&quot;</span>
+    <span class="n">config_filename</span><span class="o">=</span><span class="s2">"init.cfg"</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -321,16 +321,16 @@ mesh type as an attribute:</p>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SetupMesh</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for creating a mesh and initial condition for dome tasks</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    mesh_type : str</span>
 <span class="sd">        The resolution or mesh type of the task</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">mesh_type</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Update the dictionary of step properties</span>
 
 <span class="sd">        Parameters</span>
@@ -340,18 +340,18 @@ mesh type as an attribute:</p>
 
 <span class="sd">        mesh_type : str</span>
 <span class="sd">            The resolution or mesh type of the task</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;setup_mesh&#39;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'setup_mesh'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_type</span> <span class="o">=</span> <span class="n">mesh_type</span>
 
-        <span class="k">if</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">&#39;variable_resolution&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mesh_type</span> <span class="o">==</span> <span class="s1">'variable_resolution'</span><span class="p">:</span>
             <span class="c1"># download and link the mesh</span>
             <span class="c1"># the empty database is a trick for downloading to the root of</span>
             <span class="c1"># the local MALI file cache</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mpas_grid.nc&#39;</span><span class="p">,</span>
-                                <span class="n">target</span><span class="o">=</span><span class="s1">&#39;dome_varres_grid.nc&#39;</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'mpas_grid.nc'</span><span class="p">,</span>
+                                <span class="n">target</span><span class="o">=</span><span class="s1">'dome_varres_grid.nc'</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;landice_grid.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'landice_grid.nc'</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -393,7 +393,7 @@ constructor.</p>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">OceanModelStep</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step for performing forward ocean component runs as part of baroclinic</span>
 <span class="sd">    channel tasks.</span>
 
@@ -410,11 +410,11 @@ constructor.</p>
 
 <span class="sd">    run_time_steps : int or None</span>
 <span class="sd">        Number of time steps to run for</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="sd">    """</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'forward'</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">indir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                  <span class="n">nu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_time_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new task</span>
 
 <span class="sd">        Parameters</span>
@@ -453,7 +453,7 @@ constructor.</p>
 
 <span class="sd">        run_time_steps : int, optional</span>
 <span class="sd">            Number of time steps to run for</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run_time_steps</span> <span class="o">=</span> <span class="n">run_time_steps</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -461,13 +461,13 @@ constructor.</p>
                          <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">)</span>
 
         <span class="c1"># make sure output is double precision</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.ocean.config&#39;</span><span class="p">,</span> <span class="s1">&#39;output.yaml&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.ocean.config'</span><span class="p">,</span> <span class="s1">'output.yaml'</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;initial_state.nc&#39;</span><span class="p">,</span>
-                            <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../../init/initial_state.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'initial_state.nc'</span><span class="p">,</span>
+                            <span class="n">target</span><span class="o">=</span><span class="s1">'../../init/initial_state.nc'</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">&#39;polaris.tasks.ocean.baroclinic_channel&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;forward.yaml&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.baroclinic_channel'</span><span class="p">,</span>
+                           <span class="s1">'forward.yaml'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># update the viscosity to the requested value *after* loading</span>
@@ -475,9 +475,9 @@ constructor.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
-            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
+            <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">,</span> <span class="s1">'layerThickness'</span><span class="p">,</span>
+                           <span class="s1">'normalVelocity'</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">btr_dt</span> <span class="o">=</span> <span class="kc">None</span>
@@ -517,19 +517,19 @@ other than downloading files.  Time-consuming work should be saved for
 <p>As an example, here is
 <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep.setup()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set up input files for the step.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span>
-        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc&#39;</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s1">'woa.nc'</span><span class="p">,</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>
         <span class="n">work_dir_target</span><span class="o">=</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/&#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/'</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">),</span>
     <span class="p">)</span>
 </pre></div>
@@ -613,17 +613,17 @@ is quite involved:</p>
 <span class="k">class</span><span class="w"> </span><span class="nc">Init</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the task</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
 
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">]</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'baroclinic_channel'</span><span class="p">]</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
 
-        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;lx&#39;</span><span class="p">)</span>
-        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;ly&#39;</span><span class="p">)</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'lx'</span><span class="p">)</span>
+        <span class="n">ly</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ly'</span><span class="p">)</span>
 
         <span class="c1"># these could be hard-coded as functions of specific supported</span>
         <span class="c1"># resolutions but it is preferable to make them algorithmic like here</span>
@@ -634,31 +634,31 @@ is quite involved:</p>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">make_planar_hex_mesh</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="n">ny</span><span class="p">,</span> <span class="n">dc</span><span class="o">=</span><span class="n">dc</span><span class="p">,</span>
                                        <span class="n">nonperiodic_x</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                        <span class="n">nonperiodic_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;base_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'base_mesh.nc'</span><span class="p">)</span>
 
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">cull</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
-        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">&#39;culled_graph.info&#39;</span><span class="p">,</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">graphInfoFileName</span><span class="o">=</span><span class="s1">'culled_graph.info'</span><span class="p">,</span>
                           <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;culled_mesh.nc&#39;</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'culled_mesh.nc'</span><span class="p">)</span>
 
-        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;baroclinic_channel&#39;</span><span class="p">]</span>
-        <span class="n">use_distances</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">&#39;use_distances&#39;</span><span class="p">)</span>
-        <span class="n">gradient_width_dist</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;gradient_width_dist&#39;</span><span class="p">)</span>
-        <span class="n">gradient_width_frac</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;gradient_width_frac&#39;</span><span class="p">)</span>
-        <span class="n">bottom_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;bottom_temperature&#39;</span><span class="p">)</span>
-        <span class="n">surface_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;surface_temperature&#39;</span><span class="p">)</span>
-        <span class="n">temperature_difference</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;temperature_difference&#39;</span><span class="p">)</span>
-        <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;salinity&#39;</span><span class="p">)</span>
-        <span class="n">coriolis_parameter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;coriolis_parameter&#39;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'baroclinic_channel'</span><span class="p">]</span>
+        <span class="n">use_distances</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'use_distances'</span><span class="p">)</span>
+        <span class="n">gradient_width_dist</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'gradient_width_dist'</span><span class="p">)</span>
+        <span class="n">gradient_width_frac</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'gradient_width_frac'</span><span class="p">)</span>
+        <span class="n">bottom_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'bottom_temperature'</span><span class="p">)</span>
+        <span class="n">surface_temperature</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'surface_temperature'</span><span class="p">)</span>
+        <span class="n">temperature_difference</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'temperature_difference'</span><span class="p">)</span>
+        <span class="n">salinity</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'salinity'</span><span class="p">)</span>
+        <span class="n">coriolis_parameter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'coriolis_parameter'</span><span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">x_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">xCell</span>
         <span class="n">y_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">yCell</span>
 
-        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">&#39;vertical_grid&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom_depth&#39;</span><span class="p">)</span>
+        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'vertical_grid'</span><span class="p">,</span> <span class="s1">'bottom_depth'</span><span class="p">)</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;bottomDepth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'bottomDepth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_depth</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
 
         <span class="n">init_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
 
@@ -692,7 +692,7 @@ is quite involved:</p>
                         <span class="n">frac</span><span class="p">)</span>
 
         <span class="n">temperature</span> <span class="o">=</span> <span class="n">temp_vert</span> <span class="o">-</span> <span class="n">temperature_difference</span> <span class="o">*</span> <span class="n">frac</span>
-        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nCells&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span>
 
         <span class="c1"># Determine y_offset for 3rd crest in sin wave</span>
         <span class="n">y_offset</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
@@ -708,30 +708,30 @@ is quite involved:</p>
                        <span class="n">mask</span> <span class="o">*</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="p">((</span><span class="n">y_cell</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_mid</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">))</span> <span class="o">/</span>
                                            <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">perturb_width</span><span class="p">))))</span>
 
-        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
         <span class="n">normal_velocity</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">normal_velocity</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="p">)</span>
-        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;nEdges&#39;</span><span class="p">,</span> <span class="s1">&#39;nVertLevels&#39;</span><span class="p">)</span>
-        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">'nEdges'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span>
+        <span class="n">normal_velocity</span> <span class="o">=</span> <span class="n">normal_velocity</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;salinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;normalVelocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normal_velocity</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fCell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fEdge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;fVertex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">salinity</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">normal_velocity</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'fCell'</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x_cell</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'fEdge'</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s1">'fVertex'</span><span class="p">]</span> <span class="o">=</span> <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="p">)</span>
 
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;nx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nx</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;ny&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ny</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;dc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dc</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'nx'</span><span class="p">]</span> <span class="o">=</span> <span class="n">nx</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'ny'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ny</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'dc'</span><span class="p">]</span> <span class="o">=</span> <span class="n">dc</span>
 
-        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">&#39;initial_state.nc&#39;</span><span class="p">)</span>
+        <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'initial_state.nc'</span><span class="p">)</span>
 
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;initial_temperature.png&#39;</span><span class="p">)</span>
-        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">&#39;normalVelocity&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;initial_normal_velocity.png&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cmo.balance&#39;</span><span class="p">,</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'temperature'</span><span class="p">,</span>
+                         <span class="s1">'initial_temperature.png'</span><span class="p">)</span>
+        <span class="n">plot_horiz_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'normalVelocity'</span><span class="p">,</span>
+                         <span class="s1">'initial_normal_velocity.png'</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
                          <span class="n">show_patch_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -808,7 +808,7 @@ this case, the file name is either an absolute path or a relative path with
 respect to the step’s work directory:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
     <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;../setup_mesh/landice_grid.nc&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'../setup_mesh/landice_grid.nc'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This is not typically how <code class="docutils literal notranslate"><span class="pre">add_input_file()</span></code> is used because input files are
@@ -825,14 +825,14 @@ you to refer to a short, local name for the file rather than its full path:</p>
 
 <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
     <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;landice_grid.nc&#39;</span><span class="p">,</span>
-                        <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../setup_mesh/landice_grid.nc&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'landice_grid.nc'</span><span class="p">,</span>
+                        <span class="n">target</span><span class="o">=</span><span class="s1">'../setup_mesh/landice_grid.nc'</span><span class="p">)</span>
 
 <span class="o">...</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">test_suite</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
    <span class="o">...</span>
-   <span class="k">with</span> <span class="n">xarray</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">&#39;landice_grid.nc&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+   <span class="k">with</span> <span class="n">xarray</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s1">'landice_grid.nc'</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
        <span class="o">...</span>
 </pre></div>
 </div>
@@ -850,14 +850,14 @@ not yet known at init). Here is an example taken from
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;woa.nc&#39;</span><span class="p">,</span>
-        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc&#39;</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s1">'woa.nc'</span><span class="p">,</span>
+        <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/woa_combined.nc'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>
         <span class="n">work_dir_target</span><span class="o">=</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/&#39;</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/'</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">combine_topo_step</span><span class="o">.</span><span class="n">combined_filename</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">),</span>
     <span class="p">)</span>
 </pre></div>
@@ -870,8 +870,8 @@ shared framework:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-        <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;enthA_analy_result.mat&#39;</span><span class="p">,</span>
-        <span class="n">package</span><span class="o">=</span><span class="s1">&#39;polaris.landice.tasks.enthalpy_benchmark.A&#39;</span><span class="p">)</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s1">'enthA_analy_result.mat'</span><span class="p">,</span>
+        <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.landice.tasks.enthalpy_benchmark.A'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here, we supply the name of the package that the file is in.  The polaris
@@ -888,9 +888,9 @@ a location where they can be shared between users and reused over time.  These
 <p>To add an input file from a database, call
 <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> with the <code class="docutils literal notranslate"><span class="pre">database</span></code> argument:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;topography.nc&#39;</span><span class="p">,</span>
-    <span class="n">target</span><span class="o">=</span><span class="s1">&#39;BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc&#39;</span><span class="p">,</span>
-    <span class="n">database</span><span class="o">=</span><span class="s1">&#39;bathymetry_database&#39;</span><span class="p">)</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s1">'topography.nc'</span><span class="p">,</span>
+    <span class="n">target</span><span class="o">=</span><span class="s1">'BedMachineAntarctica_v2_and_GEBCO_2022_0.05_degree_20220729.nc'</span><span class="p">,</span>
+    <span class="n">database</span><span class="o">=</span><span class="s1">'bathymetry_database'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In this example from
@@ -903,17 +903,17 @@ the config file.  The <code class="docutils literal notranslate"><span class="pr
 of the <a class="reference internal" href="../../users_guide/machines/index.html#supported-machines"><span class="std std-ref">Supported Machines</span></a> or in the user’s config file.</p>
 <p>You can also specify the <code class="docutils literal notranslate"><span class="pre">database_component</span></code> parameter to choose to get
 files from a database belonging to another component, e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;icePresent_QU60km_polar.nc&#39;</span><span class="p">,</span>
-                    <span class="n">target</span><span class="o">=</span><span class="s1">&#39;icePresent_QU60km_polar.nc&#39;</span><span class="p">,</span>
-                    <span class="n">database</span><span class="o">=</span><span class="s1">&#39;partition&#39;</span><span class="p">,</span>
-                    <span class="n">database_component</span><span class="o">=</span><span class="s1">&#39;seaice&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'icePresent_QU60km_polar.nc'</span><span class="p">,</span>
+                    <span class="n">target</span><span class="o">=</span><span class="s1">'icePresent_QU60km_polar.nc'</span><span class="p">,</span>
+                    <span class="n">database</span><span class="o">=</span><span class="s1">'partition'</span><span class="p">,</span>
+                    <span class="n">database_component</span><span class="o">=</span><span class="s1">'seaice'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>It is also possible to download files directly from a URL and store them in
 the step’s working directory:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">step</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;dome_varres_grid.nc&#39;</span><span class="p">,</span>
-    <span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://web.lcrc.anl.gov/public/e3sm/polaris/landice/dome_varres_grid.nc&#39;</span><span class="p">)</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s1">'dome_varres_grid.nc'</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="s1">'https://web.lcrc.anl.gov/public/e3sm/polaris/landice/dome_varres_grid.nc'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We recommend against this practice except for very small files.</p>
@@ -921,10 +921,10 @@ the step’s working directory:</p>
 databases instead of downloading it into the work directory each time,
 provide both <code class="docutils literal notranslate"><span class="pre">database</span></code> and <code class="docutils literal notranslate"><span class="pre">url</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;bedmap3.nc&#39;</span><span class="p">,</span>
-    <span class="n">target</span><span class="o">=</span><span class="s1">&#39;bedmap3.nc&#39;</span><span class="p">,</span>
-    <span class="n">database</span><span class="o">=</span><span class="s1">&#39;topo&#39;</span><span class="p">,</span>
-    <span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://ramadda.data.bas.ac.uk/repository/entry/get/bedmap3.nc?entryid=...&#39;</span><span class="p">)</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s1">'bedmap3.nc'</span><span class="p">,</span>
+    <span class="n">target</span><span class="o">=</span><span class="s1">'bedmap3.nc'</span><span class="p">,</span>
+    <span class="n">database</span><span class="o">=</span><span class="s1">'topo'</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="s1">'https://ramadda.data.bas.ac.uk/repository/entry/get/bedmap3.nc?entryid=...'</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -937,8 +937,8 @@ local modifications), simply add the keyword argument <code class="docutils lite
 to <code class="docutils literal notranslate"><span class="pre">self.add_input_file()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
     <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;landice_grid.nc&#39;</span><span class="p">,</span>
-                        <span class="n">target</span><span class="o">=</span><span class="s1">&#39;../setup_mesh/landice_grid.nc&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'landice_grid.nc'</span><span class="p">,</span>
+                        <span class="n">target</span><span class="o">=</span><span class="s1">'../setup_mesh/landice_grid.nc'</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In this case, a copy of <code class="docutils literal notranslate"><span class="pre">landice_grid.nc</span></code> will be made in the step’s work
@@ -950,7 +950,7 @@ directory.</p>
 are allowed to use as inputs.  This helps us keep track of dependencies and
 will be used in the future to enable steps to run in parallel as long as they
 don’t depend on each other.  Adding an output file is pretty straightforward:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output_file.nc&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'output_file.nc'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a> can be called in a step’s
@@ -961,9 +961,9 @@ and is converted to an absolute path internally before the step is run.</p>
 <p>You can specify a list of variables to validate against a baseline (if one
 is provided) using the <code class="docutils literal notranslate"><span class="pre">validate_vars</span></code> attribute:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;output.nc&#39;</span><span class="p">,</span>
-    <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;salinity&#39;</span><span class="p">,</span> <span class="s1">&#39;layerThickness&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;normalVelocity&#39;</span><span class="p">])</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
+    <span class="n">validate_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">,</span> <span class="s1">'layerThickness'</span><span class="p">,</span>
+                   <span class="s1">'normalVelocity'</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>If a baseline is provided during <a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>, then after the step

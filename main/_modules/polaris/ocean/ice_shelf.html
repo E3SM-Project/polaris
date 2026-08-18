@@ -126,7 +126,7 @@
 <div class="viewcode-block" id="IceShelfTask">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.IceShelfTask.html#polaris.ocean.ice_shelf.IceShelfTask">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">IceShelfTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A class for tasks with domains containing ice shelves</span>
 
 <span class="sd">    Attributes</span>
@@ -139,12 +139,12 @@
 
 <span class="sd">    min_resolution : float</span>
 <span class="sd">        The resolution of the test case in km</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="IceShelfTask.__init__">
 <a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.ice_shelf.IceShelfTask.html#polaris.ocean.ice_shelf.IceShelfTask.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">min_resolution</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">sshdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Construct ice shelf task</span>
 
 <span class="sd">        Parameters</span>
@@ -164,7 +164,7 @@
 <span class="sd">        sshdir : string, optional</span>
 <span class="sd">            The directory to put the ssh_adjustment steps in. If None,</span>
 <span class="sd">            defaults to subdir.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">sshdir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">sshdir</span> <span class="o">=</span> <span class="n">subdir</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span>
@@ -184,10 +184,10 @@
         <span class="n">config_filename</span><span class="p">,</span>
         <span class="n">ForwardStep</span><span class="p">,</span>
         <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">&#39;ssh_forward.yaml&#39;</span><span class="p">,</span>
+        <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">'ssh_forward.yaml'</span><span class="p">,</span>
         <span class="n">yaml_replacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Setup ssh_forward and ssh_adjustment steps for all iterations</span>
 
 <span class="sd">        Parameters</span>
@@ -227,19 +227,19 @@
 <span class="sd">        final_step : polaris.Step</span>
 <span class="sd">            the final ssh_adjustment step that produces the input to the next</span>
 <span class="sd">            forward step</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">min_resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_resolution</span>
         <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span>
         <span class="n">sshdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sshdir</span>
 
-        <span class="n">num_iterations</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">&#39;ssh_adjustment&#39;</span><span class="p">,</span> <span class="s1">&#39;iterations&#39;</span><span class="p">)</span>
+        <span class="n">num_iterations</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'ssh_adjustment'</span><span class="p">,</span> <span class="s1">'iterations'</span><span class="p">)</span>
 
         <span class="c1"># for the first iteration, ssh_forward step is run from the initial</span>
         <span class="c1"># state</span>
         <span class="n">current_init_filename</span> <span class="o">=</span> <span class="n">init_filename</span>
         <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ssh_forward_</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sshdir</span><span class="si">}</span><span class="s1">/ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'ssh_forward_</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">'</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">sshdir</span><span class="si">}</span><span class="s1">/ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="n">ssh_forward</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
                 <span class="n">step_cls</span><span class="o">=</span><span class="n">ForwardStep</span><span class="p">,</span>
                 <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -257,11 +257,11 @@
             <span class="k">if</span> <span class="n">sshdir</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">:</span>
                 <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">ssh_forward</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
 
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ssh_adjust_</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">sshdir</span><span class="si">}</span><span class="s1">/ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'ssh_adjust_</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">'</span>
+            <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">sshdir</span><span class="si">}</span><span class="s1">/ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="n">ssh_adjust</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
                 <span class="n">step_cls</span><span class="o">=</span><span class="n">SshAdjustment</span><span class="p">,</span>
                 <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
@@ -274,11 +274,11 @@
             <span class="k">if</span> <span class="n">sshdir</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">:</span>
                 <span class="n">symlink</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">symlink</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'ssh_adjustment/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">ssh_adjust</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
             <span class="c1"># for the next iteration, ssh_forward is run from the adjusted</span>
             <span class="c1"># initial state (the output of ssh_adustment)</span>
-            <span class="n">current_init_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ssh_adjust</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc&#39;</span>
+            <span class="n">current_init_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ssh_adjust</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc'</span>
             <span class="n">final_step</span> <span class="o">=</span> <span class="n">ssh_adjust</span>
 
         <span class="k">return</span> <span class="n">final_step</span></div>

@@ -109,15 +109,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.init_state.density</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Helpers for adding density fields to an initial-state dataset.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <div class="viewcode-block" id="add_density_from_specvol">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.init_state.add_density_from_specvol.html#polaris.ocean.init_state.add_density_from_specvol">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_density_from_specvol</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add an in-situ ``Density`` field computed from ``SpecVol`` to ``ds``.</span>
 
 <span class="sd">    Parameters</span>
@@ -129,10 +129,10 @@
 <span class="sd">    -------</span>
 <span class="sd">    xarray.Dataset</span>
 <span class="sd">        Dataset with ``Density`` added.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;Density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;SpecVol&#39;</span><span class="p">]</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;in-situ density&#39;</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kg m-3&#39;</span>
+<span class="sd">    """</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s1">'Density'</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'SpecVol'</span><span class="p">]</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'in-situ density'</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'kg m-3'</span>
     <span class="k">return</span> <span class="n">ds</span></div>
 
 </pre></div>
