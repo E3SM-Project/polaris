@@ -6,6 +6,11 @@ Tasks should typically include validation of variables and/or timers.
 This validation is a critical part of running suites and comparing them
 to baselines.
 
+To set up and run both sides of a baseline comparison automatically --
+resolving two source trees, initializing submodules, building each side and
+passing the baseline work directory on with `-b` -- see
+{ref}`dev-benchmarking`.
+
 ## Validating variables against a baseline
 
 The easiest type of validation you can add is against a baseline if one is
@@ -259,3 +264,32 @@ energy_conservation_tolerance = 1e-8
 
 As shown in the previous example, we have added a mesh file with the name
 'mesh.nc' because conservation checks require the area of cells.
+
+Each call to {py:meth}`polaris.Step.add_output_file()` adds a single
+conservation comparison, defined by the keyword arguments
+`check_properties_baseline` (either `'init'` for the initial condition or a
+time index in the output file) and `check_properties_time_index_end` (the
+time index in the output file at the end of the comparison).  To check
+conservation over more than one time interval of the same output file, call
+{py:meth}`polaris.Step.add_property_check()` once per interval:
+
+```python
+self.add_output_file('output.nc')
+# between the initial condition and the first time step
+self.add_property_check('output.nc', ['mass conservation'],
+                        baseline='init', time_index_end=0)
+# between the last two time steps
+self.add_property_check('output.nc', ['mass conservation'],
+                        baseline=-2, time_index_end=-1)
+```
+
+The surface forcing fluxes are accumulated over the duration of each
+comparison and used as the expected change in the corresponding budget.
+
+The results of the checks are written to `property_check_passed.log` (which
+lists the properties that passed) or `property_check_failed.log` (which lists
+the properties that failed along with the relative error and the relative
+error tolerance) in the step's work directory.  The full details of every
+check are also written to `property_check_results.json` and stored in the
+step's `property_check_results` attribute, so that other steps can summarize
+them.

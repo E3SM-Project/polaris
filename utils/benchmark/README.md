@@ -115,6 +115,10 @@ scripted or agent-driven use:
     --test-existing /path/to/my/polaris/worktree
 ```
 
+For example prompts to hand to an AI agent, see the "Example prompts for an
+AI agent" section of the developer's guide page on benchmarking
+(`docs/developers_guide/benchmarking.md`).
+
 ## Guardrails
 
 The driver refuses to run, before anything is built, if:
