@@ -57,6 +57,8 @@ mpas-ocean:
 Omega:
   Tendencies:
     TracerVertAdvTendencyEnable: false
+    BottomDragTendency:
+      Enable: false
   IOStreams:
     History:
       Filename: output.nc
