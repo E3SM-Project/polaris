@@ -600,6 +600,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                         ds,
                         output_property,
                         dt,
+                        time_index_start=time_index_start,
                         model=config.get('ocean', 'model'),
                         config=config,
                     )

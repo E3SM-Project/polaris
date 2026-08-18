@@ -221,7 +221,9 @@ def get_elapsed_seconds(ds, time_index_start=None, time_index_end=-1):
     return end_time - start_time
 
 
-def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None, config=None):
+def compute_flux_forcing(
+    ds_mesh, ds, budget, dt, model=None, config=None, time_index_start=0
+):
     """
     Integrate the surface forcing fluxes that contribute to a given budget
     over the duration of a run, assuming the fluxes are constant in time
@@ -265,9 +267,10 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None, config=None):
         raise ValueError(f'Unknown conservation budget "{budget}"')
     area_cell = ds_mesh.areaCell
     total = 0.0
+    ds = ds.isel(Time=time_index_start)
     for var in _FLUX_VARS[budget]:
         if var in ds:
-            flux = _drop_time(ds[var])
+            flux = ds[var]
             inst_flux = float((flux * area_cell).sum(dim='nCells').values)
             total += inst_flux
 
@@ -276,7 +279,7 @@ def compute_flux_forcing(ds_mesh, ds, budget, dt, model=None, config=None):
         # thickness equation
         for var in MASS_ASSOC_SALT_FLUX_VARS:
             if var in ds:
-                flux = _drop_time(ds[var])
+                flux = ds[var]
                 inst_flux = float((flux * area_cell).sum(dim='nCells').values)
                 total += inst_flux
 
@@ -365,7 +368,7 @@ def _compute_enthalpy_forcing(
         )
 
     area_cell = ds_mesh.areaCell
-    surface_temperature = _drop_time(ds.temperature).isel(nVertLevels=0)
+    surface_temperature = ds.temperature.isel(nVertLevels=0)
 
     total = 0.0
     for var, source in active.items():
@@ -383,7 +386,7 @@ def _compute_enthalpy_forcing(
             raise ValueError(
                 f'Unknown enthalpy temperature source "{source}" for "{var}"'
             )
-        flux = _drop_time(ds[var])
+        flux = ds[var]
         inst_flux = float(
             (flux * potential_enthalpy * area_cell).sum(dim='nCells').values
         )
