@@ -1222,7 +1222,7 @@ def _add_reconstructed_variables_to_dataset(
         ):
             print(f'Failed to reconstruct {out_var_name}')
 
-        return ds
+    return ds
 
 
 def _reconstruction_weights_in_dataset(ds, vertices=False):
