@@ -15,10 +15,7 @@ fi
 
 source /opt/cray/pe/lmod/8.7.60/init/sh
 
-#SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-
 # Check if the target script exists before executing
-#TARGET_SCRIPT="$SCRIPT_DIR/run_omega_cdash.sh"
 TARGET_SCRIPT="$RUNSCRIPT_DIR/run_omega_cdash.sh"
 
 if [ -f "$TARGET_SCRIPT" ]; then
