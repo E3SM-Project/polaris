@@ -1207,15 +1207,18 @@ def _add_reconstructed_variables_to_dataset(
                 ds_mesh, ds[variable], stencil=stencil, weights=weights
             )
             if ds_mesh.attrs['on_a_sphere'] == 'NO':
-                ds[f'{out_var_name}X'] = u_x
-                ds[f'{out_var_name}Y'] = u_y
+                # on a planar mesh, the x and y axes are the "zonal" and
+                # "meridional" directions, as in MPAS-Ocean and in
+                # mpas_tools' reconstruct_variable()
+                u_zonal = u_x
+                u_merid = u_y
             else:
                 u_zonal, u_merid, _ = cartesian_to_local_geographic(
                     ds_mesh, u_x, u_y, u_z
                 )
 
-                ds[f'{out_var_name}Zonal'] = u_zonal
-                ds[f'{out_var_name}Meridional'] = u_merid
+            ds[f'{out_var_name}Zonal'] = u_zonal
+            ds[f'{out_var_name}Meridional'] = u_merid
 
         if not (
             f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds

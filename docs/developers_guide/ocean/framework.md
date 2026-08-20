@@ -29,7 +29,9 @@ respectively. The `open_model_dataset()` method also supports reconstructing
 normal vector components to their zonal and meridional equivalents by passing
 a list of variable names to
 {py:class}`mpas_tools.vector.reconstruct.reconstruct_variables`, along with the mesh and
-reconstruction coefficient files. In addition,
+reconstruction coefficient files. On planar meshes, the "zonal" and
+"meridional" components are the x and y components, respectively, following
+the convention MPAS-Ocean uses for its own reconstruction. In addition,
 `open_model_dataset()` derives `PseudoThickness` from the ocean state when it
 is not present in the dataset. This provides a way of using the same initial
 conditions for MPAS-Ocean and Omega when the geometric thickness is the state
