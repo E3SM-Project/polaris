@@ -7,10 +7,11 @@ import warnings
 from typing import Dict, List
 
 from polaris import Task, provenance
-from polaris.build.mpas_ocean import build_mpas_ocean
-from polaris.build.omega import build_omega
+from polaris.component_graph import (
+    get_components_in_use,
+    get_steps_by_component,
+)
 from polaris.config import PolarisConfigParser
-from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.io import symlink
 from polaris.job import write_job_script
 from polaris.machines import discover_machine
@@ -27,6 +28,7 @@ def setup_tasks(
     baseline_dir=None,
     component_path=None,
     suite_name='custom',
+    suite_component=None,
     cached=None,
     free_running=None,
     copy_executable=False,
@@ -38,6 +40,7 @@ def setup_tasks(
     quiet_build=None,
     cmake_flags=None,
     debug=None,
+    component_args=None,
 ):
     """
     Set up one or more tasks
@@ -73,6 +76,12 @@ def setup_tasks(
     suite_name : str, optional
         The name of the suite if tasks are being set up through a suite or
         ``'custom'`` if not
+
+    suite_component : str, optional
+        The name of the component the suite belongs to, which is where its
+        config file comes from.  A suite may contain tasks from other
+        components, so this is not necessarily the component of any of the
+        tasks.  Defaults to the component of the first task.
 
     cached : list of list of str, optional
         For each task in ``tasks``, which steps (if any) should read their
@@ -117,6 +126,12 @@ def setup_tasks(
     debug : bool, optional
         Whether to build the model in debug mode
 
+    component_args : dict of dict, optional
+        The model, component path and branch for components other than the one
+        that owns the tasks, with the component names as keys.  These come from
+        the ``--<component>_model``, ``--<component>_path`` and
+        ``--<component>_branch`` flags.
+
     Returns
     -------
     tasks : dict of polaris.Task
@@ -145,19 +160,18 @@ def setup_tasks(
     _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps)
     _add_tasks_by_name(task_list, all_tasks, cached, tasks, cached_steps)
 
-    # get the component of the first task.  We'll ensure that all tasks are
-    # for this component
+    # the unqualified command-line options apply to the component of the
+    # first task
     first_path = next(iter(tasks))
     component = tasks[first_path].component
+
+    if suite_component is None:
+        suite_component = component.name
 
     basic_config = _get_basic_config(
         config_file=config_file,
         machine=machine,
-        component_path=component_path,
-        component=component,
-        model=model,
         build=build,
-        branch=branch,
         cmake_flags=cmake_flags,
         debug=debug,
         clean_build=clean_build,
@@ -165,29 +179,46 @@ def setup_tasks(
         work_dir=work_dir,
     )
 
-    _add_suite_config(basic_config, component.name, suite_name)
+    components_in_use = get_components_in_use(tasks)
 
-    component.configure(basic_config, list(tasks.values()))
+    component_args = _get_component_args(
+        component=component,
+        components_in_use=components_in_use,
+        model=model,
+        component_path=component_path,
+        branch=branch,
+        component_args=component_args or dict(),
+    )
+
+    component_configs = _get_component_configs(
+        basic_config=basic_config,
+        components_in_use=components_in_use,
+        component_args=component_args,
+    )
+    component_config = component_configs[component.name]
+
+    steps_by_component = get_steps_by_component(tasks)
+    for component_in_use in components_in_use:
+        name = component_in_use.name
+        component_in_use.configure(
+            component_configs[name], steps_by_component[name]
+        )
+
     set_parallel_systems(tasks, basic_config)
 
     provenance.write(
         work_dir,
         tasks,
-        config=basic_config,
+        config=component_config,
         machine=machine,
         baseline_dir=baseline_dir,
     )
-    section = basic_config['build']
-    build = section.getboolean('build')
 
-    if build:
-        _build_model(
-            basic_config=basic_config,
-            component=component,
-            machine=machine,
-        )
-
-    _check_pcd_version(basic_config=basic_config, component=component)
+    _build_models(
+        components_in_use=components_in_use,
+        component_configs=component_configs,
+        machine=machine,
+    )
 
     if clean_tasks:
         print('')
@@ -196,8 +227,7 @@ def setup_tasks(
         print('')
 
     _setup_configs(
-        basic_config=basic_config,
-        component=component,
+        component_configs=component_configs,
         tasks=tasks,
         work_dir=work_dir,
         copy_executable=copy_executable,
@@ -273,8 +303,11 @@ def setup_tasks(
         print(f'minimum gpus: {max_of_min_gpus}')
 
     if machine is not None:
+        suite_config = _get_suite_config(
+            basic_config, suite_component, suite_name
+        )
         job_options = write_job_script(
-            config=basic_config,
+            config=suite_config,
             machine=machine,
             target_cores=max_cores,
             min_cores=max_of_min_cores,
@@ -291,7 +324,7 @@ def setup_tasks(
             provenance.write(
                 work_dir,
                 tasks,
-                config=basic_config,
+                config=component_config,
                 machine=machine,
                 baseline_dir=baseline_dir,
                 job_options=job_options,
@@ -553,6 +586,7 @@ def main():
         action='store_true',
         help='If the model should be built in debug mode.',
     )
+    add_component_model_args(parser)
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
@@ -601,6 +635,7 @@ def main():
         quiet_build=args.quiet_build,
         cmake_flags=args.cmake_flags,
         debug=args.debug,
+        component_args=get_component_model_args(args),
     )
 
 
@@ -653,47 +688,52 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
 
 
 def _setup_configs(
-    basic_config,
-    component,
+    component_configs,
     tasks,
     work_dir,
     copy_executable,
 ):
-    """Set up config parsers for this component"""
+    """Set up config parsers for each component in use"""
 
-    common_config = basic_config.copy()
+    common_configs = dict()
+    for name, component_config in component_configs.items():
+        common_config = component_config.copy()
 
-    if copy_executable:
-        common_config.set('setup', 'copy_executable', 'True')
+        if copy_executable:
+            common_config.set('setup', 'copy_executable', 'True')
 
-    if 'POLARIS_BRANCH' in os.environ:
-        polaris_branch = os.environ['POLARIS_BRANCH']
-        common_config.set('paths', 'polaris_branch', polaris_branch)
-    else:
-        common_config.set('paths', 'polaris_branch', os.getcwd())
+        if 'POLARIS_BRANCH' in os.environ:
+            polaris_branch = os.environ['POLARIS_BRANCH']
+            common_config.set('paths', 'polaris_branch', polaris_branch)
+        else:
+            common_config.set('paths', 'polaris_branch', os.getcwd())
 
-    initial_configs = _add_task_configs(component, tasks, common_config)
+        common_configs[name] = common_config
+
+    initial_configs = _add_task_configs(tasks, common_configs)
 
     # okay, we're finally ready to configure all the tasks and add configs
     # to the "owned" steps
     configs = _configure_tasks_and_add_step_configs(
-        tasks, initial_configs, common_config
+        tasks, initial_configs, common_configs
     )
 
-    _write_configs(common_config, configs, component.name, work_dir)
+    _write_configs(common_configs, configs, work_dir)
 
     _symlink_configs(tasks, work_dir)
 
 
-def _add_task_configs(component, tasks, common_config):
+def _add_task_configs(tasks, common_configs):
     """
     Add config parsers for tasks and steps that don't already have shared ones
     """
 
     # get a list of shared steps and add config files for tasks to the
-    # component
+    # component that owns them
     configs = dict()
+    owners = dict()
     for task in tasks.values():
+        component = task.component
         if task.config.filepath is None:
             task.config_filename = f'{task.name}.cfg'
             task.config.filepath = os.path.join(
@@ -701,18 +741,20 @@ def _add_task_configs(component, tasks, common_config):
             )
         component.add_config(task.config)
         configs[task.config.filepath] = task.config
+        owners[task.config.filepath] = component
 
-    # now go through all the configs and prepend the common config options,
-    # then run the setup() method for each in case there is some customization
-    for config in configs.values():
-        config.prepend(common_config)
+    # now go through all the configs and prepend the config options of the
+    # component that owns each one, then run the setup() method for each in
+    # case there is some customization
+    for filepath, config in configs.items():
+        config.prepend(common_configs[owners[filepath].name])
         config.setup()
 
     return configs
 
 
 def _configure_tasks_and_add_step_configs(
-    tasks, initial_configs, common_config
+    tasks, initial_configs, common_configs
 ):
     """
     Call the configure() method for each task and add configs to "owned" steps
@@ -733,8 +775,10 @@ def _configure_tasks_and_add_step_configs(
     # new steps were added
     configs = dict()
     new_configs = dict()
+    owners = dict()
     for task in tasks.values():
         configs[task.config.filepath] = task.config
+        owners[task.config.filepath] = task.component
         for step in task.steps.values():
             if step.has_shared_config:
                 if step.config.filepath is None:
@@ -742,26 +786,62 @@ def _configure_tasks_and_add_step_configs(
                     step.config.filepath = os.path.join(
                         step.component.name, step.subdir, step.config_filename
                     )
+                _check_config_owner(step, owners)
                 configs[step.config.filepath] = step.config
                 if step.config.filepath not in initial_configs:
                     new_configs[step.config.filepath] = step.config
                     step.component.add_config(step.config)
             else:
+                _check_step_component(step, task)
                 step._set_config(task.config, link=task.config_filename)
 
-    for config in new_configs.values():
-        config.prepend(common_config)
+    for filepath, config in new_configs.items():
+        config.prepend(common_configs[owners[filepath].name])
         config.setup()
 
     return configs
 
 
-def _write_configs(common_config, configs, component_name, work_dir):
+def _check_config_owner(step, owners):
+    """
+    Make sure a shared config is used by steps from only one component, and
+    keep track of which component owns it
+    """
+    filepath = step.config.filepath
+    owner = owners.get(filepath)
+    if owner is None:
+        owners[filepath] = step.component
+    elif owner is not step.component:
+        raise ValueError(
+            f'The shared config file {filepath} is used by steps from more '
+            f'than one component: {owner.name} and {step.component.name}.  A '
+            f'shared config file belongs to a single component, which '
+            f'provides its config options.'
+        )
+
+
+def _check_step_component(step, task):
+    """
+    Make sure a step that will get its config options from the task belongs to
+    the same component as the task
+    """
+    if step.component is not task.component:
+        raise ValueError(
+            f'Step {step.name} in {task.path} belongs to component '
+            f'{step.component.name} but the task belongs to component '
+            f'{task.component.name}.  A step from another component must be '
+            f'a shared step with a shared config file, so that it gets the '
+            f'config options of its own component.'
+        )
+
+
+def _write_configs(common_configs, configs, work_dir):
     """Write out all the config files"""
 
-    # add the common config at the component level
-    common_config.filepath = f'{component_name}.cfg'
-    configs[common_config.filepath] = common_config
+    # add the common config for each component at the component level
+    for name, common_config in common_configs.items():
+        common_config.filepath = f'{name}.cfg'
+        configs[common_config.filepath] = common_config
 
     # finally, write out the config files
     for config in configs.values():
@@ -905,11 +985,7 @@ def __get_machine_and_check_params(
 def _get_basic_config(
     config_file,
     machine,
-    component_path,
-    component,
-    model,
     build,
-    branch,
     cmake_flags,
     debug,
     clean_build,
@@ -917,17 +993,13 @@ def _get_basic_config(
     work_dir,
 ):
     """
-    Get a base config parser for the machine and component but not a specific
-    task
+    Get a base config parser for the machine and the command line but not for
+    any component, task or step
     """
     config = PolarisConfigParser()
 
     if config_file is not None:
         config.add_user_config(config_file)
-
-    # set the model from the command line if provided
-    if model is not None:
-        config.set(component.name, 'model', model, user=True)
 
     # start with default polaris config options
     config.add_from_package('polaris', 'default.cfg')
@@ -949,22 +1021,8 @@ def _get_basic_config(
     else:
         config.set('paths', 'polaris_branch', os.getcwd())
 
-    # add the config options for the component
-    config.add_from_package(
-        f'polaris.{component.name.replace("/", ".")}',
-        f'{component.name}.cfg',
-        exception=False,
-    )
-
-    # set the component_path path from the command line if provided
-    if component_path is not None:
-        component_path = os.path.abspath(component_path)
-        config.set('paths', 'component_path', component_path, user=True)
-
     if build is not None:
         config.set('build', 'build', str(build), user=True)
-    if branch is not None:
-        config.set('build', 'branch', os.path.abspath(branch), user=True)
     compiler = os.environ['POLARIS_COMPILER']
     mpi = os.environ['POLARIS_MPI']
     config.set('build', 'machine', machine, user=True)
@@ -996,6 +1054,293 @@ def _get_basic_config(
     config.set('paths', 'base_work_dir', work_dir, user=True)
 
     return config
+
+
+def add_component_model_args(parser):
+    """
+    Add ``--<component>_model``, ``--<component>_path`` and
+    ``--<component>_branch`` flags for each component that has a model.
+
+    The unqualified ``--model``, ``-p``/``--component_path`` and ``--branch``
+    flags apply to the component that owns the tasks being set up.  These flags
+    are how the model, path or branch of any other component is set.
+
+    Parameters
+    ----------
+    parser : argparse.ArgumentParser
+        The parser to add the flags to
+    """
+    for component in get_components(add_tasks=False):
+        if not component.has_model():
+            continue
+        name = component.name
+        prefix = name.replace('/', '_')
+        parser.add_argument(
+            f'--{prefix}_model',
+            dest=f'{prefix}_model',
+            help=f'The model to run for the {name} component.',
+        )
+        parser.add_argument(
+            f'--{prefix}_path',
+            dest=f'{prefix}_path',
+            help=f'The path where the {name} component executable and '
+            f'default namelists have been (or will be) built.',
+            metavar='PATH',
+        )
+        parser.add_argument(
+            f'--{prefix}_branch',
+            dest=f'{prefix}_branch',
+            help=f'The branch of the {name} component model to build.',
+            metavar='PATH',
+        )
+
+
+def get_component_model_args(args):
+    """
+    Get the model, component path and branch for each component they were
+    provided for on the command line
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        The parsed command-line arguments
+
+    Returns
+    -------
+    component_args : dict of dict
+        The options for each component they were provided for, with the
+        component names as keys
+    """
+    options = dict(model='model', path='component_path', branch='branch')
+
+    component_args: Dict[str, Dict[str, str]] = dict()
+    for component in get_components(add_tasks=False):
+        if not component.has_model():
+            continue
+        prefix = component.name.replace('/', '_')
+        for flag, option in options.items():
+            value = getattr(args, f'{prefix}_{flag}', None)
+            if value is not None:
+                component_args.setdefault(component.name, dict())[option] = (
+                    value
+                )
+
+    return component_args
+
+
+def _get_component_configs(basic_config, components_in_use, component_args):
+    """
+    Get the config options for each component in use: the component that owns
+    the tasks being set up, the components that own steps in those tasks and
+    the components of any dependencies of those steps.
+
+    Parameters
+    ----------
+    basic_config : polaris.config.PolarisConfigParser
+        The config options for the machine and the command line
+
+    components_in_use : list of polaris.Component
+        The components in use for the tasks being set up
+
+    component_args : dict of dict
+        The model, component path and branch from the command line for each
+        component they were provided for
+
+    Returns
+    -------
+    component_configs : dict of polaris.config.PolarisConfigParser
+        The config options for each component in use, with the component names
+        as keys
+    """
+    component_configs = dict()
+    for component in components_in_use:
+        component_configs[component.name] = _get_component_config(
+            basic_config=basic_config,
+            component=component,
+            **component_args.get(component.name, dict()),
+        )
+
+    return component_configs
+
+
+def _get_component_config(
+    basic_config, component, model=None, component_path=None, branch=None
+):
+    """
+    Get the config options for a component: the basic config options plus the
+    component's own config file.
+
+    This is the config that the component's ``configure()`` method modifies
+    and that gets prepended to the config of each task and shared step the
+    component owns.
+
+    Parameters
+    ----------
+    basic_config : polaris.config.PolarisConfigParser
+        The config options for the machine and the command line
+
+    component : polaris.Component
+        The component to get config options for
+
+    model : str, optional
+        The model to run, if provided on the command line
+
+    component_path : str, optional
+        The path to the component's build, if provided on the command line
+
+    branch : str, optional
+        The branch to build the component's model from, if provided on the
+        command line
+
+    Returns
+    -------
+    config : polaris.config.PolarisConfigParser
+        The config options for the component
+    """
+    config = PolarisConfigParser()
+    config.prepend(basic_config)
+
+    # set the model from the command line if provided
+    if model is not None:
+        config.set(component.name, 'model', model, user=True)
+
+    # add the config options for the component
+    config.add_from_package(
+        f'polaris.{component.name.replace("/", ".")}',
+        f'{component.name}.cfg',
+        exception=False,
+    )
+
+    # set the component_path from the command line if provided
+    if component_path is not None:
+        config.set(
+            'paths',
+            'component_path',
+            os.path.abspath(component_path),
+            user=True,
+        )
+
+    if branch is not None:
+        config.set('build', 'branch', os.path.abspath(branch), user=True)
+
+    return config
+
+
+def _get_component_args(
+    component, components_in_use, model, component_path, branch, component_args
+):
+    """
+    Work out which component each of the model, component path and branch
+    options from the command line applies to.
+
+    The unqualified options apply to the component that owns the tasks being
+    set up.  The ``--<component>_*`` options apply to the component they name.
+
+    Returns
+    -------
+    component_args : dict of dict
+        The model, component path and branch for each component they were
+        provided for, with the component names as keys
+    """
+    resolved: Dict[str, Dict[str, str]] = dict()
+
+    unqualified = dict(
+        model=model, component_path=component_path, branch=branch
+    )
+    unqualified = {
+        option: value
+        for option, value in unqualified.items()
+        if value is not None
+    }
+
+    if len(unqualified) > 0:
+        if not component.has_model():
+            flags = _get_model_flags(components_in_use)
+            raise ValueError(
+                f'The {component.name} component has no model, so --model, '
+                f'-p/--component_path and --branch do not apply to the tasks '
+                f'being set up.  Use the flags for the component whose model '
+                f'you mean: {flags}.'
+            )
+        resolved[component.name] = unqualified
+
+    names_in_use = [other.name for other in components_in_use]
+    for name, options in component_args.items():
+        if name not in names_in_use:
+            prefix = name.replace('/', '_')
+            raise ValueError(
+                f'--{prefix}_* was provided but the {name} component is not '
+                f'used by the tasks being set up.'
+            )
+        resolved.setdefault(name, dict()).update(options)
+
+    return resolved
+
+
+def _check_model_executables(components_in_use, component_configs):
+    """
+    Make sure no two components in use expect their model executable in the
+    same place, which would mean one of them building over the other
+    """
+    executables: Dict[str, str] = dict()
+    for component in components_in_use:
+        if not component.has_model():
+            continue
+
+        config = component_configs[component.name]
+        if not config.has_option('executables', 'component'):
+            continue
+
+        executable = config.get('executables', 'component')
+        other = executables.get(executable)
+        if other is not None:
+            other_prefix = other.replace('/', '_')
+            prefix = component.name.replace('/', '_')
+            raise ValueError(
+                f'The {other} and {component.name} components both expect '
+                f'their model executable at {executable}.  Use '
+                f'--{other_prefix}_path and --{prefix}_path to give them '
+                f'different build directories.'
+            )
+        executables[executable] = component.name
+
+
+def _build_models(components_in_use, component_configs, machine):
+    """
+    Build the model of each component that has one and whose config options
+    ask for a build, and check that each model is compatible with polaris
+    """
+    _check_model_executables(components_in_use, component_configs)
+
+    for component in components_in_use:
+        if not component.has_model():
+            continue
+
+        config = component_configs[component.name]
+        if config.getboolean('build', 'build'):
+            component.build_model(config=config, machine=machine)
+
+        component.check_model_version(config=config)
+
+
+def _get_model_flags(components_in_use):
+    """
+    Get a printable list of the per-component command-line flags for the
+    components in use that have a model
+    """
+    flags = list()
+    for component in components_in_use:
+        if not component.has_model():
+            continue
+        prefix = component.name.replace('/', '_')
+        flags.extend(
+            [f'--{prefix}_model', f'--{prefix}_path', f'--{prefix}_branch']
+        )
+
+    if len(flags) == 0:
+        return 'none of the components in use has a model'
+
+    return ', '.join(flags)
 
 
 def _add_tasks_by_number(numbers, all_tasks, tasks, cached_steps):
@@ -1086,74 +1431,34 @@ def _check_dependencies(tasks):
                     )
 
 
-def _build_model(basic_config, component, machine):
-    model = basic_config.get(component.name, 'model')
-    section = basic_config['build']
-    branch = section.get('branch')
-    clean_build = section.getboolean('clean')
-    quiet_build = section.getboolean('quiet')
-    debug = section.getboolean('debug')
-    cmake_flags = section.get('cmake_flags')
+def _get_suite_config(basic_config, component_name, suite_name):
+    """
+    Get a copy of ``basic_config`` with the suite's config options added.
 
-    build_dir = basic_config.get('paths', 'component_path')
+    The suite's config options are used only for the suite's job script.  They
+    must not be added to ``basic_config`` itself, because that would propagate
+    them to the config options of every task and step in the suite.
 
-    if basic_config.has_option('parallel', 'account'):
-        account = basic_config.get('parallel', 'account')
-    else:
-        account = None
+    Parameters
+    ----------
+    basic_config : polaris.config.PolarisConfigParser
+        The config options for the machine and the command line
 
-    if model == 'omega':
-        log_filename = os.path.join(build_dir, 'build_omega.log')
-        build_omega(
-            branch=branch,
-            build_dir=build_dir,
-            clean=clean_build,
-            quiet=quiet_build,
-            debug=debug,
-            cmake_flags=cmake_flags,
-            account=account,
-            log_filename=log_filename,
-        )
-    elif model == 'mpas-ocean':
-        section = basic_config['build']
-        compiler = section.get('compiler')
-        mpilib = section.get('mpi')
-        key = f'{compiler}_{mpilib}_target'
-        if not section.has_option(key):
-            raise ValueError(
-                f'The build target {key} is not defined in the [build] '
-                f'section of the config file for machine {machine}.'
-            )
-        make_target = section.get(key)
+    component_name : str
+        The name of the component that the suite belongs to
 
-        log_filename = os.path.join(build_dir, 'build_mpas_ocean.log')
-        build_mpas_ocean(
-            branch=branch,
-            build_dir=build_dir,
-            clean=clean_build,
-            quiet=quiet_build,
-            debug=debug,
-            make_flags=cmake_flags,
-            make_target=make_target,
-            log_filename=log_filename,
-        )
-    else:
-        raise ValueError(
-            f'Automated build is not implemented for model {model}'
-        )
+    suite_name : str
+        The name of the suite, or ``'custom'`` if tasks are not being set
+        up as part of a suite
 
-
-def _check_pcd_version(basic_config, component):
-    """Check that Polaris and branch PCD versions match when applicable."""
-    if component.name != 'ocean':
-        return
-
-    model = basic_config.get('ocean', 'model')
-    if model not in ['mpas-ocean', 'omega']:
-        return
-
-    branch = basic_config.get('build', 'branch')
-    check_pcd_version_matches_branch(branch=branch, model=model)
+    Returns
+    -------
+    suite_config : polaris.config.PolarisConfigParser
+        The config options to use for the suite's job script
+    """
+    suite_config = basic_config.copy()
+    _add_suite_config(suite_config, component_name, suite_name)
+    return suite_config
 
 
 def _add_suite_config(config, component_name, suite_name):

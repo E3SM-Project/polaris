@@ -147,8 +147,10 @@ class Task:
             The step to add if adding by Step object, not subdirectory
 
         subdir : str, optional
-            The subdirectory of the step within the component if wish to add
-            the step by path, and it has already been added to the component
+            The subdirectory of the step within this task's component if you
+            wish to add the step by path, and it has already been added to
+            that component.  A step from another component has to be added by
+            ``step``.
 
         symlink : str, optional
             A location for a symlink to the step, relative to the test case's
@@ -165,8 +167,6 @@ class Task:
         if step is not None and subdir is not None:
             raise ValueError('Only one of step or subdir should be provided.')
 
-        component = self.component
-
         if subdir is not None:
             if subdir not in self.component.steps:
                 raise ValueError(
@@ -174,7 +174,7 @@ class Task:
                     f'the component.  Add the step to the '
                     f'component first, then to the task.'
                 )
-            step = component.steps[subdir]
+            step = self.component.steps[subdir]
 
         if step.name in self.steps:
             raise ValueError(
@@ -182,8 +182,9 @@ class Task:
                 f'with name {step.name}'
             )
 
-        # add the step to the component (if it's not already there)
-        component.add_step(step)
+        # add the step to its own component (if it's not already there), which
+        # may not be the component this task belongs to
+        step.component.add_step(step)
 
         self.steps[step.name] = step
         step.tasks[self.subdir] = self
@@ -208,7 +209,7 @@ class Task:
         step.tasks.pop(self.subdir)
         if not step.tasks:
             # no tasks are using this step
-            self.component.remove_step(step)
+            step.component.remove_step(step)
         if step.name in self.step_symlinks:
             self.step_symlinks.pop(step.name)
         if step.name in self.steps_to_run:
