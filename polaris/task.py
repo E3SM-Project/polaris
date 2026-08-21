@@ -147,13 +147,24 @@ class Task:
             The step to add if adding by Step object, not subdirectory
 
         subdir : str, optional
-            The subdirectory of the step within the component if wish to add
-            the step by path, and it has already been added to the component
+            The subdirectory of the step within this task's component if you
+            wish to add the step by path, and it has already been added to
+            that component.  A step from another component has to be added by
+            ``step``.
 
         symlink : str, optional
             A location for a symlink to the step, relative to the test case's
             work directory. This is typically used for a shared step that lives
-            outside of the test case
+            outside of the test case.
+
+            A symlink that would land in the directory that already holds the
+            step is dropped, since it would sit beside what it points to and
+            only add a second name for it.  A ``get_*_steps()`` helper suggests
+            one symlink name per step for consumers whose tasks live elsewhere
+            in the tree, and a task that lives in the steps' own directory can
+            pass those through without having to filter them.  A symlink to a
+            step nested deeper under the task is kept: surfacing it under a
+            descriptive name is what symlinks are for.
 
         run_by_default : bool, optional
             Whether to add this step to the list of steps to run when the
@@ -165,8 +176,6 @@ class Task:
         if step is not None and subdir is not None:
             raise ValueError('Only one of step or subdir should be provided.')
 
-        component = self.component
-
         if subdir is not None:
             if subdir not in self.component.steps:
                 raise ValueError(
@@ -174,7 +183,7 @@ class Task:
                     f'the component.  Add the step to the '
                     f'component first, then to the task.'
                 )
-            step = component.steps[subdir]
+            step = self.component.steps[subdir]
 
         if step.name in self.steps:
             raise ValueError(
@@ -182,15 +191,28 @@ class Task:
                 f'with name {step.name}'
             )
 
-        # add the step to the component (if it's not already there)
-        component.add_step(step)
+        # add the step to its own component (if it's not already there), which
+        # may not be the component this task belongs to
+        step.component.add_step(step)
 
         self.steps[step.name] = step
         step.tasks[self.subdir] = self
-        if symlink:
+        if symlink and not self._symlink_is_beside_step(symlink, step):
             self.step_symlinks[step.name] = symlink
         if run_by_default:
             self.steps_to_run.append(step.name)
+
+    def _symlink_is_beside_step(self, symlink, step):
+        """
+        Whether a symlink would land in the directory that already holds the
+        step, making it a second name for something already in view.
+
+        Compared on the full path within the base work directory, since a step
+        may belong to another component and two components can have the same
+        subdirectory layout.
+        """
+        link_path = os.path.normpath(os.path.join(self.path, symlink))
+        return os.path.dirname(link_path) == os.path.dirname(step.path)
 
     def remove_step(self, step):
         """
@@ -208,7 +230,7 @@ class Task:
         step.tasks.pop(self.subdir)
         if not step.tasks:
             # no tasks are using this step
-            self.component.remove_step(step)
+            step.component.remove_step(step)
         if step.name in self.step_symlinks:
             self.step_symlinks.pop(step.name)
         if step.name in self.steps_to_run:

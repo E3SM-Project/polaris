@@ -386,15 +386,19 @@ def _as_converted_data_array(
 ) -> xr.DataArray:
     """
     Build a converted tracer from ``data``, keeping the dimension order of
-    ``original`` where possible and updating its ``long_name`` and ``units``.
+    ``original`` where possible and giving it the ``attrs`` of the convention
+    it was converted to.
+
+    ``original``'s attributes are dropped rather than merged: they describe
+    the tracer before conversion, so anything beyond ``long_name`` and
+    ``units`` -- a ``standard_name`` of ``sea_water_conservative_temperature``,
+    say -- would be wrong on the way out.
     """
-    new_attrs = dict(original.attrs)
-    new_attrs.update(attrs)
     data_array = xr.DataArray(
         data=data,
         dims=template.dims,
         coords=template.coords,
-        attrs=new_attrs,
+        attrs=dict(attrs),
     )
     if set(data_array.dims) == set(original.dims):
         data_array = data_array.transpose(*original.dims)

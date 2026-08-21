@@ -59,10 +59,11 @@ def update_cache(step_paths, date_string=None, dry_run=False):
         else:
             steps[component] = [step]
 
-    out_filename = f'{component.replace("/", "_")}_cached_files.json'
-
     # now, iterate over cores and steps
     for component in steps:
+        # named for the component being written, not for whichever one the
+        # loop above happened to leave bound
+        out_filename = f'{component.replace("/", "_")}_cached_files.json'
         database_root = config.get('paths', 'database_root')
         cache_root = f'{database_root}/{component}/polaris_cache'
 
@@ -110,6 +111,8 @@ def update_cache(step_paths, date_string=None, dry_run=False):
 
         with open(out_filename, 'w') as data_file:
             json.dump(cached_files, data_file, indent=4)
+            # json.dump writes no trailing newline
+            data_file.write('\n')
 
 
 def main():

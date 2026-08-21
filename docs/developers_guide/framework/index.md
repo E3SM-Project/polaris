@@ -22,8 +22,10 @@ dependencies.
 
 commands
 config
+coriolis
 logging
 io
+attrs
 mpas
 model
 build

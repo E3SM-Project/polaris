@@ -3,22 +3,27 @@
 # realistic_global
 
 The `realistic_global` task group contains tasks that use realistic global
-ocean meshes, bathymetry and forcing. It currently contains two kinds of
+ocean meshes, bathymetry and forcing. It currently contains four kinds of
 tasks:
 
 - {ref}`ocean-realistic-global-woa23`, a mesh-independent preprocessing task
   that builds a reusable World Ocean Atlas 2023 (WOA23) hydrography product on
   the native 0.25-degree latitude-longitude grid.
+- {ref}`ocean-realistic-global-jra55`, a mesh-independent preprocessing task
+  that builds a reusable wind-stress product on the native JRA55-do TL319 grid.
+- {ref}`ocean-realistic-global-init`, which creates mesh-specific ocean initial
+  conditions from that hydrography and forcing together with the culled mesh
+  from `e3sm/init`.
 - {ref}`ocean-realistic-global-analysis-members`, short forward runs on
   realistic global meshes that exercise the global-statistics analysis member
   and compare its output between MPAS-Ocean and Omega.
 
 ## supported models
 
-The `woa23` task is model-independent and does not require either MPAS-Ocean
-or Omega to be built.
+The `woa23` and `jra55` tasks are model-independent and do not require either
+MPAS-Ocean or Omega to be built.
 
-The `analysis_members` tasks support both MPAS-Ocean and Omega.
+The `init` and `analysis_members` tasks support both MPAS-Ocean and Omega.
 
 (ocean-realistic-global-woa23)=
 
@@ -117,6 +122,223 @@ Polaris colormap options described in {ref}`dev-visualization-global`.
 The local `combine` and `extrapolate` steps run serially. The
 `combine_topo` step is intended to use the cached `e3sm/init` output because
 regenerating the combined topography product is substantially more expensive.
+
+(ocean-realistic-global-jra55)=
+
+## jra55
+
+This task builds a time-invariant global wind-stress product from JRA55-do
+10-m winds.  Its purpose is narrow: standalone runs need a realistic,
+constant-in-time momentum input so that dynamic adjustment can spin down fast
+waves against a physically sensible circulation.  It is not intended as a
+climate forcing product, and it does not include surface restoring, thermal or
+freshwater fluxes, or any time variation.
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/forcing/jra55 ...
+```
+
+The source is JRA55-do v1.5.0 (`MRI-JRA55-do-1-5-0`), variables `uas` and
+`vas`: 10-m winds on the TL319 Gaussian grid, 3-hourly, distributed as
+input4MIPs on ESGF.  E3SM forces ocean-only (G-case) runs with JRA55, so the
+adjusted state is adjusted against something close to what a coupled run will
+apply.  The default time window is January 1958, the first month of the record
+and of an interannually forced G-case.
+
+:::{warning}
+Running the `stress` step downloads about 3.5 GiB of raw reanalysis into the
+`initial_condition_database`.  Once the derived product is in the Polaris
+cache database, this happens only when you deliberately regenerate it, and
+ordinary users of the `init` task get the few-MB product from the Polaris
+server instead.
+:::
+
+The stress is computed at every 3-hourly step and then time-averaged, rather
+than computing the stress of the time-mean wind.  Averaging the wind first
+discards the gust contribution and underestimates the stress in the storm
+tracks, which is why the 3-hourly data is needed at all.  The bulk formula is
+the Large and Yeager (2004, 2009) neutral 10-m drag law; the stability
+correction, the ocean-current-relative wind and any sea-ice drag distinction
+are deliberately omitted as second-order for this purpose.
+
+### steps
+
+1. `stress` downloads the raw winds and writes `jra55_stress.nc` on the native
+   TL319 grid.  Cached by default.
+2. `viz` plots global maps of the stress components and magnitude, plus a
+   zonal-mean `taux` curve.  It runs by default in this task, but is left out
+   when the wind-stress steps are pulled into other workflows as shared
+   dependencies, so the plots are not regenerated for every mesh.
+
+The zonal-mean curve is the diagnostic worth looking at.  For the default
+January window it peaks near +0.12 N m^-2 around 50S in the Southern Ocean
+westerlies, with a trade-wind minimum near -0.06 N m^-2.  Do not compare those
+against published *annual-mean* stress climatologies, which are considerably
+stronger in the Southern Ocean -- the Compass NCEP 1958-2000 annual mean peaks
+at +0.19 N m^-2 -- because the Southern Ocean westerlies are weaker in austral
+summer.  Compare like with like, or expect a January product to look weak.
+
+### config options
+
+```cfg
+# Options related to generating a reusable JRA55-do wind-stress product
+[jra55]
+
+# the input4MIPs source and version of the JRA55-do dataset
+source_id = MRI-JRA55-do-1-5-0
+version = v20200916
+
+# the year and month to average
+year = 1958
+month = 1
+
+# air density used in the bulk formula (kg m^-3)
+rho_air = 1.22
+
+# wind speeds below this value (m s^-1) are clamped before evaluating the
+# drag law, whose 2.70/U term would otherwise diverge
+min_wind_speed = 0.5
+```
+
+(ocean-realistic-global-init)=
+
+## init
+
+The `init` task creates a mesh-specific ocean initial condition (and, for
+Omega, a vertical-coordinate file) from the WOA23 hydrography and the culled
+mesh from `e3sm/init`, together with a surface forcing file from the JRA55-do
+wind stress.  One `realistic_global_init` task is registered per MPAS
+mesh; the target model (MPAS-Ocean or Omega) is set by the `[ocean] model`
+config option.
+
+### visualization
+
+The task ends in a `viz` step that runs by default and writes sanity-check
+plots and ParaView exports for the initial condition and vertical coordinate:
+an `initial_state_summary.png` figure of histograms, a
+`vertical_coordinate.png` structure figure, global maps of temperature and
+salinity at several depths (plus surface and seafloor) and of topography and
+column diagnostics, vertical transects across the major ocean basins, and
+`xdmf/` subdirectories for ParaView.  For Omega, native surface/bottom pressure
+maps and a TEOS-10 in-situ density (stratification) check are also produced.
+Global maps of the on-mesh wind stress components and magnitude are also
+written, which is where remapping artifacts near the North Pole would show up.
+
+### surface forcing
+
+The task ends with a `forcing` step that writes `forcing.nc` containing the
+wind stress on the mesh: `SfcStressZonal` and `SfcStressMeridional` for Omega,
+`windStressZonal` and `windStressMeridional` for MPAS-Ocean.  Both models take
+zonal and meridional components at cell centres and project onto edges
+themselves, so no vector rotation happens in Polaris.
+
+Only wind stress is written.  Surface restoring and the thermal and freshwater
+fluxes are future work, as are the forward-model settings that switch the
+forcing on.
+
+(ocean-realistic-global-mesh-configs)=
+
+### per-mesh config options
+
+Some config options need to differ from one mesh to the next.  These live in
+one optional file per mesh, `<mesh_name>.cfg`, under
+`polaris/tasks/ocean/realistic_global/mesh_configs`.  When a
+`realistic_global` task is set up, the options for its mesh are added *after*
+the task's own config file, so they override the defaults.  Most meshes have
+no file there at all and simply use the defaults; you can still override any
+option for a single mesh in your own user config file.
+
+These are separate from the per-mesh files in `polaris/mesh/spherical/unified`.
+The two are joined by the mesh name but have different owners: the mesh
+component describes the mesh itself (resolutions, river networks, sizing
+fields, total cell count), while the ocean component describes what the ocean
+does on that mesh.  An option specific to the ocean belongs in
+`mesh_configs`, not in the mesh component.
+
+Currently:
+
+- `qu240km`, `icos240km` and `u.oi240.lr240` replace the default 80-layer
+  vertical grid with a cheap 16-level `tanh_dz` grid with a 3000 m bottom
+  depth.  The shallow ocean is deliberate: these coarse meshes exist for fast
+  smoke-testing of E3SM, Omega and MPAS-Ocean rather than for physically
+  realistic simulations.
+- All four unified meshes set `culled_ocean_cell_count`, the approximate size
+  of the ocean + sea-ice culled mesh that the ocean model actually runs.  It is
+  used to size MPI task counts and is smaller than the full mesh, which
+  includes land and river-channel refinement that is culled away first.
+
+For example, `u.oi240.lr240.cfg` contains:
+
+```cfg
+# Ocean-specific properties of this mesh
+[realistic_global_mesh]
+
+# Approximate cell count of the ocean + sea-ice culled mesh that the ocean
+# model actually runs, used to size ocean MPI task counts (ntasks/min_tasks).
+culled_ocean_cell_count = 7500
+
+
+# Options related to the vertical grid
+[vertical_grid]
+
+# the type of vertical grid
+grid_type = tanh_dz
+
+# Number of vertical levels
+vert_levels = 16
+
+# Depth of the bottom of the ocean
+bottom_depth = 3000.0
+
+# The minimum layer thickness
+min_layer_thickness = 3.0
+
+# The maximum layer thickness
+max_layer_thickness = 500.0
+```
+
+Options the per-mesh file does not set (`coord_type`, `min_vert_levels`,
+`min_bottom_depth`, and so on) are inherited from the task's config file as
+usual.
+
+### config options
+
+```cfg
+# Options for the realistic global init visualization step
+[realistic_global_init_viz]
+
+# Projection for the global maps, must be supported by polaris.viz
+projection = Robinson
+
+# Longitude of the center of the global maps
+central_longitude = 200.
+
+# Depths (m below the surface) at which to plot global temperature/salinity
+# maps.  One vertical level is selected per depth; its actual depth may vary.
+depths = 0, 100, 500, 1000, 2000, 4000
+
+# the type of norm used in the colormaps (set per-variable at run time)
+norm_type = linear
+
+# additional arguments to provide to the colormap norm (set at run time)
+norm_args = {}
+
+
+# Vertical transects to plot, crossing relevant ocean basins.  Each named
+# transect is a list of an even number (>= 4) of values giving alternating
+# lon, lat waypoints in degrees.
+[realistic_global_init_viz_transects]
+
+# comma-separated list of transects to plot (each defined as an option below)
+transects = atlantic_meridional, pacific_meridional, indian_meridional,
+    southern_ocean_zonal
+
+atlantic_meridional = -30.0, -60.0, -30.0, 65.0
+pacific_meridional = -150.0, -60.0, -150.0, 60.0
+indian_meridional = 80.0, -60.0, 80.0, 25.0
+southern_ocean_zonal = -180.0, -60.0, -90.0, -60.0, 0.0, -60.0, 90.0, -60.0,
+    180.0, -60.0
+```
 
 (ocean-realistic-global-analysis-members)=
 

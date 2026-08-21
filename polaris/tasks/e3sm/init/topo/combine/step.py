@@ -10,6 +10,7 @@ from mpas_tools.logging import check_call
 from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
 from polaris.archive import extract_zip_member
+from polaris.attrs import set_attrs
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
 
@@ -375,7 +376,7 @@ class CombineStep(Step):
         bedmachine['base_elevation'] = bedmachine.bed
         bedmachine['ice_thickness'] = bedmachine.thickness
         bedmachine['ice_draft'] = bedmachine.surface - bedmachine.thickness
-        bedmachine.ice_draft.attrs['units'] = 'meters'
+        bedmachine.ice_draft.attrs['units'] = 'm'
         bedmachine['ice_mask'] = ice_mask
         bedmachine['grounded_mask'] = grounded_mask
         bedmachine['ocean_mask'] = ocean_mask
@@ -424,7 +425,7 @@ class CombineStep(Step):
         bedmap3['ice_draft'] = (
             bedmap3.surface_topography - bedmap3.ice_thickness
         )
-        bedmap3.ice_draft.attrs['units'] = 'meters'
+        bedmap3.ice_draft.attrs['units'] = 'm'
         bedmap3['ice_mask'] = ice_mask
         bedmap3['grounded_mask'] = grounded_mask
         bedmap3['ocean_mask'] = ocean_mask
@@ -880,8 +881,6 @@ class CombineStep(Step):
         # Add remaining Antarctic variables to combined Dataset
         for field in ['ice_draft', 'ice_thickness']:
             combined[field] = ds_antarctic[field]
-        for field in ['base_elevation', 'ice_draft', 'ice_thickness']:
-            combined[field].attrs['unit'] = 'meters'
 
         # Add masks
         for field in ['ice_mask', 'grounded_mask']:
@@ -904,6 +903,8 @@ class CombineStep(Step):
         for field, fill_val in fill_vals.items():
             valid = combined[field].notnull()
             combined[field] = combined[field].where(valid, fill_val)
+
+        _label_combined_fields(combined)
 
         # Save combined bathy to NetCDF
         _write_netcdf_with_fill_values(combined, netcdf4_filename)
@@ -933,6 +934,50 @@ class CombineStep(Step):
             os.remove(f)
 
         logger.info('  Done.')
+
+
+def _label_combined_fields(combined):
+    """
+    Give each combined topography field its own metadata.
+
+    Every field here is derived from something else -- ``base_elevation`` and
+    ``ocean_mask`` by blending with a latitude-derived ``alpha``, the ice
+    fields by renormalizing and remapping the Antarctic dataset -- and xarray
+    propagates ``attrs`` through all of that.  Left alone they inherit
+    whatever their parents carried: ``base_elevation`` picked up latitude's
+    ``axis``, ``valid_min``, ``valid_max`` and ``bounds``, ``ocean_mask``
+    claimed ``standard_name = latitude`` alongside Bedmap3's surface-type
+    ``flag_values``, and ``grounded_mask`` called itself an ice mask.
+
+    Assigning wholesale is what drops the inherited keys; setting only
+    ``units`` would leave the rest of them in place.  Everything downstream of
+    the combined topography inherits from here in turn, so this is the place
+    to get it right.
+
+    ``ice_thickness`` keeps the CF ``standard_name`` it arrives with from
+    BedMachine/Bedmap3, since that one really does describe what it holds.
+    The other five have no ``standard_name``: a couple of CF names look like
+    candidates (``bedrock_altitude``, ``sea_area_fraction``), but none has
+    been checked against the standard-name table, and an unverified one is
+    worse than none.
+    """
+    fractions = {
+        'ice_mask': 'fraction of the cell covered by ice',
+        'grounded_mask': 'fraction of the cell covered by grounded ice',
+        'ocean_mask': 'fraction of the cell covered by ocean',
+    }
+    heights = {
+        'base_elevation': 'bedrock elevation above sea level',
+        'ice_draft': 'elevation of the ice-ocean interface',
+        'ice_thickness': 'ice thickness',
+    }
+    standard_names = {'ice_thickness': 'land_ice_thickness'}
+    for field, long_name in fractions.items():
+        set_attrs(combined[field], long_name=long_name, units='1')
+    for field, long_name in heights.items():
+        set_attrs(combined[field], long_name=long_name, units='m')
+    for field, standard_name in standard_names.items():
+        combined[field].attrs['standard_name'] = standard_name
 
 
 def _write_netcdf_with_fill_values(ds, filename, format='NETCDF4'):

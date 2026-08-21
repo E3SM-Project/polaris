@@ -1,7 +1,7 @@
 import xarray as xr
 from mpas_tools.io import open_dataset
 
-from polaris.ocean.coriolis import add_coriolis_to_dataset
+from polaris.coriolis import add_coriolis_to_dataset
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.geostrophic.exact_solution import (
