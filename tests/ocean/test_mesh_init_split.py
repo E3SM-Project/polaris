@@ -525,12 +525,14 @@ def test_write_vert_coord_dataset_raises_on_missing_vars(
         component.write_vert_coord_dataset(ds, str(filename), config)
 
 
-def _make_horiz_mesh_ds(component):
+def _make_horiz_mesh_ds(component, on_a_sphere='NO'):
     """Build a minimal dataset with all horiz_mesh_vars as dummy data."""
+    attrs = {} if on_a_sphere is None else dict(on_a_sphere=on_a_sphere)
     return xr.Dataset(
         data_vars={
             v: ('nCells', [0.0, 1.0]) for v in component.horiz_mesh_vars
-        }
+        },
+        attrs=attrs,
     )
 
 
@@ -542,7 +544,10 @@ def test_write_horiz_mesh_dataset_raises_on_missing_vars(tmp_path):
     config = MagicMock()
 
     # dataset is missing most horiz_mesh_vars
-    ds = xr.Dataset(data_vars=dict(xCell=('nCells', [0.0, 1.0])))
+    ds = xr.Dataset(
+        data_vars=dict(xCell=('nCells', [0.0, 1.0])),
+        attrs=dict(on_a_sphere='NO'),
+    )
 
     filename = tmp_path / 'mesh.nc'
     with pytest.raises(ValueError, match='indexToCellID'):
@@ -563,6 +568,22 @@ def test_write_horiz_mesh_dataset_writes_mpas_ocean(tmp_path):
     ds_out = xr.open_dataset(filename)
     assert 'xCell' in ds_out
     assert 'fCell' in ds_out
+
+
+def test_write_horiz_mesh_dataset_raises_without_on_a_sphere(tmp_path):
+    """A horizontal mesh dataset without the attribute is invalid, and
+    assuming it is planar would silently skip Omega's reconstruction
+    weights."""
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    config = MagicMock()
+    ds = _make_horiz_mesh_ds(component, on_a_sphere=None)
+
+    filename = tmp_path / 'mesh.nc'
+    with pytest.raises(ValueError, match='on_a_sphere'):
+        component.write_horiz_mesh_dataset(ds, str(filename), config)
 
 
 def test_write_horiz_mesh_dataset_writes_omega(tmp_path):
