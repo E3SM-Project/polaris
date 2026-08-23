@@ -52,8 +52,20 @@ Nothing here restricts a step to a single node, and the design should not
 acquire that restriction by accident.
 
 Polaris already runs steps that span nodes: every MPI model run does. What
-is bounded to one node is a **non-MPI step running in its own process**, as
-in Phase B -- that is a property of processes, not a decision Polaris made.
+is bounded to one node is a **non-MPI step running in its own process** --
+that is a property of processes, not a decision Polaris made. A step that
+hands its work to the pool is not in that category, because the pool is
+precisely the mechanism such a step lacks.
+
+Phase A provides the property this turns on: a step declares whether its
+cores may be drawn from more than one node, defaulting to no. A step using
+the pool declares that they may, and this phase is where anything first
+does. Its cores are then a reservation rather than a placement, in the sense
+Phase A draws: Polaris launches the step's driver, which needs about one
+core, and accounts the rest against the pool's share of the allocation.
+Reading the bound off "is it an MPI step" instead would have made this phase
+begin by undoing a rule, which is why the property exists ahead of anything
+that sets it.
 
 For the pool, a computation whose data exceed one node's memory is not a
 separate problem needing separate machinery. Working in chunks and spreading
@@ -250,6 +262,15 @@ wrongly, the symptom is workers dying and work silently retrying, which
 reads as a mysterious slowdown. Worker memory limits must be derived from
 the resources the pool was actually given, and worker restarts must be
 reported, not absorbed.
+
+This is the case the memory declaration introduced in Phase A exists for.
+The pool's memory is the memory its steps declared, divided among its
+workers, and it must be taken from the declaration rather than inferred from
+the worker count: the analysis steps this phase is for are the ones whose
+memory bears no fixed relation to their cores, and deriving one from the
+other gets them wrong in the direction that hurts. Steps that reach this
+phase should be carrying measured figures rather than the proportional
+default, which is what the measurement described above is for.
 
 **Large results should not travel back through the pool.** Analysis tasks
 that produce files should write them and return paths. Returning large

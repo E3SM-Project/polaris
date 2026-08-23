@@ -93,11 +93,34 @@ Contributors:
 Polaris shall run as many ready steps as the allocation's resources allow,
 and no more.
 
-Cores, GPUs, nodes and memory shall all be accounted for. Memory matters here
-even though most steps today use little of it, because getting it wrong means
-a job that dies rather than a job that runs slowly. A step whose minimum
-requirements cannot be met by the whole allocation shall be reported as
-impossible before the run starts.
+Cores, GPUs, nodes and memory shall all be accounted for. A step whose
+minimum requirements cannot be met by the whole allocation shall be reported
+as impossible before the run starts.
+
+A step that has not said its cores may span nodes shall have them drawn from
+a single node. This is a packing constraint rather than a total: an
+allocation with cores free on several nodes and none of them holding enough
+may be unable to start such a step while showing plenty free, and the pool
+has to be able to say so rather than deadlocking or overcommitting. A step
+that may span is bounded only by what the allocation holds.
+
+Memory is accounted for differently from the rest, and the difference should
+be understood rather than smoothed over. Cores, GPUs and nodes are handed to
+the launcher, which keeps steps off each other's; memory is not, because
+nothing below Polaris will act on it. The pool's memory accounting is
+therefore admission control and nothing more: it decides what may start, and
+a step that starts and then uses more than it declared is not stopped by
+anything. This is the correct amount of mechanism, since the alternative --
+a step killed part-way through for exceeding a figure someone estimated --
+trades a rare failure for a routine one. But it means memory accounting is
+only as good as the declarations, and the design should say so rather than
+imply a guarantee it does not have.
+
+Since a step that declares no memory is taken to want its proportional share
+of the node, a run in which nothing declares memory packs exactly as it
+would with no memory accounting at all -- the two constraints reduce to the
+same inequality. Memory accounting can therefore only ever remove a
+schedule that a measured declaration says would not have fit.
 
 Where a step declares both a target and a minimum, Polaris may run it at less
 than its target in order to fit more work, but never below its minimum.
@@ -149,6 +172,38 @@ shall not prevent unrelated work from continuing.
 
 Completed steps shall still be skipped on rerun, cached steps shall still be
 honored, and a rerun after a failure shall resume from what succeeded.
+
+### Requirement: A Step Killed by the Node Is Reported as Such
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Running steps concurrently introduces a failure that serial Polaris does not
+have. Memory is not enforced by anything, so a step that uses more than it
+declared exhausts the node, and the operating system then kills whichever
+process it chooses. The step that dies need not be the step at fault, and a
+step that was correct in isolation can fail because of a neighbor.
+
+Polaris shall recognize this case rather than presenting it as an ordinary
+step failure. A step terminated by a signal rather than by its own exit
+shall be reported as terminated, and the report shall name every step that
+was resident on the same node at the time, together with what each of them
+had declared.
+
+Naming the co-resident set is the most that can honestly be said, and saying
+it is the point: the victim is identifiable and the culprit is not, so a
+report that blames only the victim sends whoever reads it to the wrong step.
+The list of neighbors and their declarations is what turns an inexplicable
+failure into a short investigation, and, in the common case where one
+neighbor's declaration is obviously too small, into an obvious fix.
+
+Polaris shall not attempt to prevent this by capping steps. Nothing measured
+so far can cap them, and even where a cap is available it converts a rare
+failure into a routine one.
 
 ### Requirement: Results Match Serial Execution
 
@@ -322,7 +377,12 @@ Contributors:
 
 - a graph builder, producing the step graph and rejecting invalid ones;
 - a resource pool, tracking free nodes, cores, GPUs and memory, and handing
-  out and taking back reservations;
+  out and taking back reservations. What it hands out is a reservation, which
+  for an ordinary step is also the placement its launch is given, and for the
+  cases described in Phase A -- memory, and a step that delegates its work --
+  is not. The pool's accounting is what keeps the machine from being
+  oversubscribed and must cover everything a step claims, whether or not any
+  of it reaches a launcher;
 - an executor, starting a step as a subprocess with its placement and
   reporting completion;
 - a scheduler, owning the loop above;
@@ -381,7 +441,25 @@ fits, a step run at its minimum rather than its target, and a step whose
 minimum exceeds the allocation, which shall be reported before the run.
 
 Memory shall be covered explicitly, including the case where cores are
-available but memory is not.
+available but memory is not, and the case where a step declares memory
+smaller than its proportional share and is packed on the smaller figure.
+
+The node-span constraint shall be covered too, in particular the case that
+distinguishes it from a simple total: enough cores free across the
+allocation, not enough on any one node, and a step that may not span. It
+shall wait rather than start, and a step that may span shall start on the
+same allocation.
+
+One property is worth testing as a property rather than as a case: a set of
+steps that all take the default declaration shall produce exactly the
+schedule that packing on cores alone produces. This is the guarantee that
+introducing memory cannot degrade an existing suite, and it is cheap to
+check against a core-only reference for a range of generated step sets.
+
+Because the co-resident report is what a developer will have to work from
+when a node runs out of memory, it shall be tested too: a step killed by a
+signal shall be reported as terminated rather than failed, and shall name
+the steps that were on its node with what they declared.
 
 ### Testing and Validation: Concurrency and Isolation
 
