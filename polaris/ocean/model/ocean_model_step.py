@@ -74,6 +74,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         min_tasks: Optional[int] = None,
         openmp_threads: Optional[int] = None,
         max_memory: Optional[int] = None,
+        min_memory: Optional[int] = None,
         cached: bool = False,
         yaml: Optional[str] = None,
         update_io_tasks: bool = True,
@@ -118,9 +119,11 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             the number of OpenMP threads to use
 
         max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+            the amount of memory in MB the step would ideally be given
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
 
         cached : bool, optional
             Whether to get all of the outputs for the step from the database of
@@ -166,6 +169,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
             max_memory=max_memory,
+            min_memory=min_memory,
             cached=cached,
             yaml=yaml,
             update_io_tasks=update_io_tasks,

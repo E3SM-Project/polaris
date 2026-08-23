@@ -195,3 +195,26 @@ def test_the_deprecated_per_task_argument_still_works():
     with pytest.warns(DeprecationWarning, match='gpus_per_task'):
         call = _run(component, ntasks=4, gpus_per_task=2)
     assert call['gpus_per_task'] == 2
+
+
+def test_a_step_declares_no_memory_by_default():
+    step = _make_step()
+    assert step.max_memory is None
+    assert step.min_memory is None
+
+
+def test_a_step_declares_memory_as_a_target_and_a_minimum():
+    step = _make_step(max_memory=8000, min_memory=2000)
+    assert step.max_memory == 8000
+    assert step.min_memory == 2000
+    step.set_resources(max_memory=16000, min_memory=4000)
+    assert step.max_memory == 16000
+    assert step.min_memory == 4000
+
+
+def test_needing_more_memory_than_it_asks_for_is_a_mistake():
+    step = _make_step(
+        ntasks=1, cpus_per_task=1, max_memory=1000, min_memory=2000
+    )
+    with pytest.raises(ValueError, match='at least 2000 MB'):
+        step.constrain_resources(_resources())

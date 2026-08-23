@@ -84,9 +84,14 @@ class Step:
             Use ``min_gpus`` instead
 
     max_memory : int
-        the amount of memory that the step is allowed to use in MB.
-        This is currently just a placeholder for later use with task
-        parallelism
+        the amount of memory in MB the step would ideally be given.  This
+        is a declaration only: nothing in Polaris acts on it yet, and no
+        supported launcher has a way to reserve memory for a job step
+
+    min_memory : int
+        the amount of memory in MB the step needs in order to run at all,
+        the minimum to ``max_memory``'s target, in the same style as
+        ``min_tasks`` and ``min_cpus_per_task``
 
     placement : mache.parallel.ResourcePlacement or None
         the part of the allocation this step is confined to -- which nodes,
@@ -205,6 +210,7 @@ class Step:
         min_tasks=1,
         openmp_threads=1,
         max_memory=None,
+        min_memory=None,
         cached=False,
         run_as_subprocess=False,
         gpus=None,
@@ -255,9 +261,11 @@ class Step:
             the number of OpenMP threads to use
 
         max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+            the amount of memory in MB the step would ideally be given
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
 
         gpus : int, optional
             the number of GPUs the step would ideally use, as a total for
@@ -310,6 +318,7 @@ class Step:
         self._min_gpus = min_gpus
         _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task)
         self.max_memory = max_memory
+        self.min_memory = min_memory
         self.placement = None
 
         self.path = os.path.join(self.component.name, self.subdir)
@@ -391,6 +400,7 @@ class Step:
         min_tasks=None,
         openmp_threads=None,
         max_memory=None,
+        min_memory=None,
         gpus=None,
         min_gpus=None,
         gpus_per_task=None,
@@ -429,9 +439,11 @@ class Step:
             the number of OpenMP threads to use
 
         max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+            the amount of memory in MB the step would ideally be given
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
 
         gpus : int, optional
             the number of GPUs the step would ideally use, as a total for
@@ -473,6 +485,8 @@ class Step:
             self.min_gpus_per_task = min_gpus_per_task
         if max_memory is not None:
             self.max_memory = max_memory
+        if min_memory is not None:
+            self.min_memory = min_memory
 
     def constrain_resources(self, available_resources):
         """
@@ -517,6 +531,16 @@ class Step:
             raise ValueError(
                 f'Available number of MPI tasks ({self.ntasks}) is below the '
                 f'minimum of {self.min_tasks} for step {self.name}'
+            )
+
+        if (
+            self.max_memory is not None
+            and self.min_memory is not None
+            and self.min_memory > self.max_memory
+        ):
+            raise ValueError(
+                f'Step {self.name} needs at least {self.min_memory} MB of '
+                f'memory but asks for only {self.max_memory} MB.'
             )
 
         self._constrain_gpus(available_resources)

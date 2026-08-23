@@ -87,6 +87,7 @@ class ModelStep(Step):
         gpus_per_task=0,
         min_gpus_per_task=0,
         max_memory=None,
+        min_memory=None,
         cached=False,
         namelist=None,
         streams=None,
@@ -151,9 +152,11 @@ class ModelStep(Step):
                 Use ``min_gpus`` instead
 
         max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+            the amount of memory in MB the step would ideally be given
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
 
         cached : bool, optional
             Whether to get all of the outputs for the step from the database of
@@ -207,6 +210,7 @@ class ModelStep(Step):
             gpus_per_task=gpus_per_task,
             min_gpus_per_task=min_gpus_per_task,
             max_memory=max_memory,
+            min_memory=min_memory,
             cached=cached,
         )
 
@@ -273,6 +277,7 @@ class ModelStep(Step):
         gpus_per_task=None,
         min_gpus_per_task=None,
         max_memory=None,
+        min_memory=None,
     ):
         """
         Update the resources for the step.  This can be done within init,
@@ -316,9 +321,11 @@ class ModelStep(Step):
                 Use ``min_gpus`` instead
 
         max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+            the amount of memory in MB the step would ideally be given
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
         """
         self.set_resources(
             cpus_per_task=openmp_threads,
@@ -331,6 +338,7 @@ class ModelStep(Step):
             gpus_per_task=gpus_per_task,
             min_gpus_per_task=min_gpus_per_task,
             max_memory=max_memory,
+            min_memory=min_memory,
         )
 
     def add_model_config_options(self, options, config_model=None):

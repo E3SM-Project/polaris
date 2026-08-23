@@ -70,6 +70,22 @@ Not every machine can confine a launch.  `mache` reports which mechanism a
 machine has through `ParallelSystem.placement_support`, decided at run time
 from the launcher that is actually installed rather than from configuration.
 
+## Memory
+
+A step can say how much memory it needs, as `max_memory` (the target) and
+`min_memory` (the least it can run in), both in MB and in the same style as
+its CPU requirements.
+
+This is a **declaration only**.  Nothing in Polaris acts on it, and no
+launcher on a supported machine has a way to reserve memory for a job step:
+`--mem-per-cpu` was measured to make no difference to whether concurrent
+steps could coexist.  Using memory to decide how many steps may run at once
+belongs to the scheduler in a later phase, and matters most for analysis
+work, where a single step may need a large fraction of a node.
+
+The only thing checked today is that a step does not declare a minimum above
+its target.
+
 ## Compiler-specific parallel configs
 
 `mache.parallel` combines options in `[parallel]` with
