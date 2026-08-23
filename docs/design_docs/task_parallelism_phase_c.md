@@ -58,11 +58,19 @@ hands its work to the pool is not in that category, because the pool is
 precisely the mechanism such a step lacks.
 
 Phase A provides the property this turns on: a step declares whether its
-cores may be drawn from more than one node, defaulting to no. A step using
-the pool declares that they may, and this phase is where anything first
-does. Its cores are then a reservation rather than a placement, in the sense
-Phase A draws: Polaris launches the step's driver, which needs about one
-core, and accounts the rest against the pool's share of the allocation.
+resources may be drawn from more than one node, defaulting to no. A step
+using the pool declares that they may, and this phase is where anything
+first does. Its cores are then a reservation rather than a placement, in the
+sense Phase A draws: Polaris launches the step's driver, which needs about
+one core, and accounts the rest against the pool's share of the allocation.
+
+The property covers GPUs on the same terms, and this is where that matters.
+A pool whose workers use GPUs draws them from the nodes those workers are
+on, so a step's GPU count is a claim against the pool exactly as its core
+count is. Nothing extra is needed to express it -- `gpus` is already a
+per-step total -- but the pool has to account for it, and a step that
+distributes GPU work should not have GPUs reserved on the node its driver
+happens to sit on.
 Reading the bound off "is it an MPI step" instead would have made this phase
 begin by undoing a rule, which is why the property exists ahead of anything
 that sets it.
