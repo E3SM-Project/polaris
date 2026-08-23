@@ -223,9 +223,9 @@ For some output files, you may wish to run checks of certain properties such as
 conservation of mass or energy. Currently, only conservation checks for the
 ocean are available.
 
-To run property checks, add a list of properties
-the keyword argument `verify_properties` to the
-:py:meth:`polaris.Step.add_output_file()` method.  As an example:
+To run property checks, pass a list of properties as the keyword argument
+`check_properties` to the {py:meth}`polaris.Step.add_output_file()` method.
+As an example:
 
 ```python
 from polaris import Step
@@ -239,7 +239,7 @@ class Forward(OceanModelStep):
             filename='mesh.nc', target='../init/culled_mesh.nc'
         )
         self.add_output_file('output.nc',
-                             verify_properties=['mass conservation'])
+                             check_properties=['mass conservation'])
 ```
 
 ## Conservation checks
@@ -265,31 +265,8 @@ energy_conservation_tolerance = 1e-8
 As shown in the previous example, we have added a mesh file with the name
 'mesh.nc' because conservation checks require the area of cells.
 
-Each call to {py:meth}`polaris.Step.add_output_file()` adds a single
-conservation comparison, defined by the keyword arguments
-`check_properties_baseline` (either `'init'` for the initial condition or a
-time index in the output file) and `check_properties_time_index_end` (the
-time index in the output file at the end of the comparison).  To check
-conservation over more than one time interval of the same output file, call
-{py:meth}`polaris.Step.add_property_check()` once per interval:
-
-```python
-self.add_output_file('output.nc')
-# between the initial condition and the first time step
-self.add_property_check('output.nc', ['mass conservation'],
-                        baseline='init', time_index_end=0)
-# between the last two time steps
-self.add_property_check('output.nc', ['mass conservation'],
-                        baseline=-2, time_index_end=-1)
-```
-
-The surface forcing fluxes are accumulated over the duration of each
-comparison and used as the expected change in the corresponding budget.
-
-The results of the checks are written to `property_check_passed.log` (which
-lists the properties that passed) or `property_check_failed.log` (which lists
-the properties that failed along with the relative error and the relative
-error tolerance) in the step's work directory.  The full details of every
-check are also written to `property_check_results.json` and stored in the
-step's `property_check_results` attribute, so that other steps can summarize
-them.
+The results of the checks are written to the step's work directory: either
+`property_check_passed.log`, which lists each property that passed along
+with its relative error, or `property_check_failed.log`, which lists each
+property that failed along with its relative error and the tolerance it
+exceeded.  A step writes one or the other, never both.
