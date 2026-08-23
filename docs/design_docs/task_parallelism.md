@@ -98,6 +98,20 @@ The conclusions that shape this design are:
   rank.** The per-rank form does not confine a step at all. This is a real
   constraint on how Polaris describes step resources, and it differs from
   how CPU resources are described today.
+- **The batch system will not manage memory for us.** Asking a launch for a
+  share of the node's memory changed nothing that was measured: it neither
+  fixed the serialization -- silence about GPUs did that -- nor, as far as
+  we can tell, reserved anything. Memory is therefore not a resource Polaris
+  can hand to the launcher and forget about. It is a budget Polaris has to
+  keep itself, by declining to start a step that will not fit, which means
+  it belongs to the scheduler in Phase B rather than to placement in Phase
+  A.
+
+  The limit of that evidence should be stated: it shows memory was not
+  causing the serialization, not that no machine anywhere applies a limit
+  when asked. Whether a launch given a small memory allowance is actually
+  killed for exceeding it has not been tested, and is worth one cheap
+  measurement while the placement testing is being done anyway.
 
 One more result is worth recording because it cost a round of testing: on
 CUDA machines the visible-device variable is renumbered for each launch, so
@@ -128,6 +142,8 @@ useful.
 Give Polaris the ability to run a step on a **named part** of its allocation
 rather than on all of it, and give steps a way to say what they need,
 including GPUs as a per-step total and memory. Still one step at a time.
+Memory is declared here and shown to the step, but it is not something the
+launcher is asked to enforce; deciding what fits is Phase B's job.
 
 This is a prerequisite for everything else, and most of the work is in
 `mache`, which owns how Polaris launches parallel work. That `mache` change

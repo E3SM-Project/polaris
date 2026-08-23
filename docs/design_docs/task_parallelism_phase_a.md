@@ -114,10 +114,32 @@ Contributors:
 A step shall be able to declare how much memory it needs, as a target and a
 minimum, in the same style as its existing CPU requirements.
 
-Phase A only requires that the declaration exist and be carried through to
-the launcher. Using it to decide how many steps may run at once belongs to
-Phase B. Memory matters most for the analysis work in Phase C, where a
-single step may need a large fraction of a node.
+Memory is unlike cores and GPUs in that the batch system will not keep it
+for us. Asking a launch for a share of the node's memory was measured to
+change nothing, so a memory figure passed to the launcher would reserve
+nothing and prevent nothing. Memory is therefore a budget Polaris keeps
+itself: the only way one step's memory is protected from another's is that
+Polaris declines to start the second step. That decision is Phase B's, and
+so is the accounting behind it.
+
+What Phase A shall provide is the declaration, its default, and its
+visibility to the step. A step that declares nothing shall be treated as
+needing memory in proportion to the cores it asked for -- the node's memory
+divided by its cores, times the step's cores. This is deliberately the value
+that makes memory-aware packing arithmetically identical to packing on cores
+alone, so that introducing memory can never make Phase B schedule worse than
+it would have without it, and so that no per-step number has to be invented
+for the steps that exist today. Steps that have been measured, which is
+mostly the analysis work in Phase C, override the default with a real
+figure and are then scheduled on it.
+
+Because a step's memory need is not enforced anywhere, an under-declaring
+step running beside others is a real failure mode, and one that did not
+exist when Polaris ran a step at a time. Phase B addresses it.
+
+Device memory needs no declaration of its own. GPUs are never divided
+between steps, so a step given a GPU is given that GPU's memory with it, and
+the GPU count already accounts for it.
 
 ### Requirement: Resource Views Describe What a Step Can Use
 
@@ -131,11 +153,70 @@ Contributors:
 The resource information given to a step shall describe the resources that
 step can actually use.
 
-A step confined to one node shall be told about one node's resources. A
-non-MPI Python step cannot use cores on other nodes without a distributed
-launcher, so telling it the allocation-wide core count invites it to size
-itself wrongly. Any resources withheld from a step shall be genuinely
-withheld, not merely subtracted from a number.
+A step confined to one node shall be told about one node's resources, and a
+step whose work may span nodes shall be told about all of the resources it
+was given. Telling a step that runs its work in its own process about cores
+on nodes it will never reach invites it to size itself wrongly; telling a
+step that distributes its work about one node's worth understates what it
+has. The view shall describe how a step's resources are distributed, not
+only how many there are, since that is the part a step sizing itself needs
+and the part a single number cannot carry.
+
+Any resources withheld from a step shall be genuinely withheld, not merely
+subtracted from a number.
+
+Memory shall be part of that view. It is the one resource where the number a
+step is told is the only thing standing between it and the node's limit,
+because nothing below Polaris will stop it, and it is the number a step that
+sizes something for itself -- a worker pool, a chunk size -- has to size
+against. A step told its cores and its memory can do that; a step told only
+its cores cannot, and the natural mistake is to derive memory from cores,
+which is wrong in exactly the case that matters.
+
+### Requirement: A Step Says Whether Its Cores May Span Nodes
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Whether a step's cores may be drawn from more than one node shall be a
+property the step declares, and shall not be inferred from whether the step
+uses MPI.
+
+The two are not the same question, and treating them as the same is what
+this requirement exists to prevent. An MPI step spans nodes because its
+launcher spreads its ranks. A single-process Python step that does its work
+in its own threads cannot span nodes, because there is no mechanism by which
+it would reach them. A single-process Python step that hands its work to a
+distributed worker pool spans nodes perfectly well -- the pool is exactly
+the mechanism the thread-based step lacks -- and it does so while remaining
+one process asking for one task. "Not MPI" covers the last two cases, which
+want opposite answers.
+
+Steps that do not say shall be treated as confined to a node, which is what
+every non-MPI step in Polaris is today. This is also the safe direction: a
+request that a node can satisfy is satisfiable on any allocation that could
+have satisfied a larger one.
+
+Where a step cannot be given what it asked for, the existing
+target-and-minimum rule shall decide what happens, with the node boundary
+as one more thing that can make a request unsatisfiable. A step confined to
+a node may be reduced silently towards its target, exactly as it may be
+today, because a step that names a minimum has said in advance which
+reductions are acceptable. A step whose *minimum* cannot be met within a
+node shall be an error when the run is set up, naming what it needs, what a
+node holds, and the property that would let it span -- not quietly reduced
+to what fits.
+
+This is deliberately the rule Polaris already follows, extended rather than
+replaced, and it leaves today's steps alone. The two steps that currently
+ask for more cores than some machines have per node both name a minimum of
+one, so they are reduced as they always were. What changes is only that the
+bound is the allocation for a step that may span, and that a step that may
+not span and cannot fit says so instead of shrinking in silence.
 
 ### Requirement: Portability Across Supported Machines
 
@@ -164,6 +245,12 @@ Contributors:
 
 `polaris serial` shall behave exactly as it does today. A step that does not
 ask to be confined shall be launched as it is now.
+
+Two of the requirements above change what a step is told or permitted rather
+than how it is launched, and both are constructed to leave existing steps
+where they are: the memory default reproduces core-only packing exactly, and
+the node-span rule reduces to today's target-and-minimum behavior for every
+step now in Polaris. Neither should show up as a difference in a run.
 
 ## Algorithm Design
 
@@ -217,14 +304,88 @@ That target-and-minimum pattern is a good one and should be kept.
 GPUs should be added as a per-step total with a matching minimum, for the
 reason given in the requirements, defaulting to none so that the great
 majority of steps need say nothing and still get an explicit "no GPUs"
-passed to the launcher on their behalf. Memory should be added the same
-way.
+passed to the launcher on their behalf.
+
+Memory follows the same target-and-minimum pattern but does not follow the
+same path afterwards. GPUs go to the launcher because the launcher acts on
+them; memory goes to the scheduler and to the step, because those are the
+only two things that act on it. It is worth being explicit that this is not
+an omission: a memory figure rendered into a launch command would be
+decoration, and worse than decoration, because it would suggest an
+enforcement that does not happen.
+
+Memory's default differs from the GPU default in kind. "No GPUs" is a true
+statement about a step that uses no GPUs. There is no equivalent true
+statement about memory -- every step uses some -- so the default has to be
+an assumption, and the assumption chosen is the step's proportional share of
+the node: cores requested, times the node's memory divided by the node's
+cores. Its merit is not that it is accurate for any particular step; it is
+that a run in which every step defaults packs exactly as a run with no
+memory accounting at all, so the mechanism is inert until someone supplies a
+measured number.
+
+An alternative was considered and rejected: converting memory into an
+equivalent number of cores and packing on cores alone, so that a step
+needing a large fraction of the node's memory reserves a matching fraction
+of its cores. It has the appeal of resting on the one resource the batch
+system does enforce. But it over-reserves whenever a step's ratio of memory
+to cores differs from the node's, and it does so worst for steps that want
+much memory and few cores, which is precisely the analysis work that
+motivated declaring memory at all. It would also hand such a step *more*
+cores than it asked for, so a step that sizes a worker pool from its cores
+would respond to needing more memory by creating more workers with less
+memory each. Tracking memory as its own quantity avoids both, and is
+consistent with the decision already made for GPUs, which this design
+likewise declines to express in CPU-shaped terms.
 
 Non-MPI steps are worth calling out. A single-process Python step has no
 meaningful "number of ranks"; what it has is a number of cores it can use
 and an amount of memory it needs. Expressing that through MPI-shaped fields
 is how Polaris ends up telling a Python step it has 192 cores across three
 nodes. Non-MPI steps should describe cores and memory directly.
+
+That matters more once such a step is allowed to span nodes. A step that
+wants two hundred cores from a distributed pool is, in MPI-shaped terms, one
+task with two hundred CPUs each -- a sentence no launcher can act on, since
+one process cannot be given two hundred cores on a node that has a hundred
+and twenty-eight. Written directly, as two hundred cores that may come from
+several nodes, it says something true and actionable. The MPI-shaped fields
+are not merely awkward here; they cannot express the case at all.
+
+### Algorithm Design: Reservations Are Not Always Placements
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+For most steps, the resources Polaris reserves and the resources it confines
+the step to are the same set, described once and used twice. An MPI step
+given ninety-six cores is launched on those ninety-six cores; reserving them
+and placing them are one act.
+
+Two cases in this design separate them. Memory is reserved and never placed,
+because no launcher acts on it. A step that delegates its work to a
+distributed pool is the mirror image: what Polaris launches is a driver
+process needing about one core, while the cores the step claims are consumed
+by pool workers, which are separate launches, started elsewhere, and shared
+with other steps. Placing two hundred cores on that driver would confine
+them to a process that will not use them, while the workers that will are
+somewhere else entirely.
+
+The distinction to carry forward is that **placement is what the launcher
+acts on and a reservation is what the scheduler tracks**. They coincide for
+ordinary steps. Where they do not, the scheduler's accounting is the one
+that has to be right, because it is what stops the machine being
+oversubscribed; the placement is only ever a description of where a
+particular launch goes.
+
+Phase A implements no delegation -- there is no pool until Phase C, and no
+scheduler until Phase B. What Phase A must not do is build the two ideas as
+one thing, because separating them afterwards means revisiting every place
+that assumed a step's cores and its launch describe the same set.
 
 ### Algorithm Design: Detecting What a Machine Supports
 
@@ -305,17 +466,48 @@ Contributors:
 - Xylar Asay-Davis
 - Claude
 
-- `Step` gains `gpus` and `min_gpus` as per-step totals, and `memory` and
-  `min_memory`. The existing `gpus_per_task` should be deprecated in favor
-  of the total, since it does not do what its name suggests when steps run
-  concurrently.
+- `Step` gains `gpus` and `min_gpus` as per-step totals. The existing
+  `gpus_per_task` should be deprecated in favor of the total, since it does
+  not do what its name suggests when steps run concurrently.
+- `Step` gains `memory` and `min_memory`. `Step` already carries a
+  `max_memory` attribute, documented as a placeholder for task parallelism
+  and unused by anything. This is that placeholder being redeemed, not a
+  second mechanism beside it, and the existing attribute should be
+  reconciled rather than left alongside. Its units, megabytes, are worth
+  keeping; its name is not, since what a step declares is what it needs and
+  not a ceiling it is held to.
 - `Step` gains a way to say how many cores and how much memory a non-MPI
   step needs, without going through MPI task counts.
+- `Step` gains a property saying whether its cores may be drawn from more
+  than one node, false by default for a non-MPI step and true for an MPI
+  one. `constrain_resources()` uses it in place of the node-sized cap it
+  applies today: a step that may span is bounded by the allocation, and a
+  step that may not and asks for more than a node holds is an error rather
+  than a silent reduction. Nothing in Polaris sets the property to true in
+  Phase A; it exists so that Phase C does not have to remove a rule.
 - The code that builds a step's parallel command passes a placement through
   to `mache` when one has been assigned, and passes none when it has not,
   preserving today's behavior.
 - The resource information handed to a step is built from its placement, so
-  that a confined step sees only what it was given.
+  that a confined step sees only what it was given, and includes memory
+  alongside cores, nodes and GPUs.
+- The per-node memory a machine has becomes a `[parallel]` configuration
+  option in `mache`, beside the `cores_per_node` and `gpus_per_node` that
+  are already there. That is a separate and much smaller change than pull
+  request #470: it describes a machine rather than altering an interface,
+  and it does not touch `ResourcePlacement`. It should be a configured
+  quantity rather than one read from the running node, both because Polaris
+  needs it before a compute node is in hand and because what belongs in it
+  is the memory a job may actually use, which is not what the operating
+  system reports.
+- Nothing about memory reaches `mache`'s `ResourcePlacement`. That type
+  describes where a launch runs -- which nodes, which cores, which GPUs --
+  and every field in it is rendered into the launch command. A memory field
+  would render to nothing on every machine Polaris supports. If the
+  enforcement question below is answered and some machine does honor a
+  memory request, adding the field then is an additive change; adding it
+  now would widen an unmerged pull request to carry something no machine
+  reads.
 
 ### Implementation: Boundaries
 
@@ -380,6 +572,21 @@ placement which is constructed correctly but not honored, and it is worth
 keeping as a small standing test rather than a one-off, since it is the
 first thing that would break if a site changed its scheduler
 configuration.
+
+While those machines are being visited, one further question should be
+settled, because it is cheap to answer there and expensive to guess at.
+Nothing in this design asks the batch system to limit a step's memory, on
+the evidence that requesting memory changed nothing observable. That
+evidence shows memory was not the cause of the serialization; it does not
+show that a memory request is inert. The test is direct: launch a step with
+a small memory allowance, have it allocate several times that, and record
+whether it is killed. Two answers matter and both are useful. If nothing
+enforces, this design is on the right footing and the co-resident reporting
+in Phase B is the whole of the answer. If some machine does enforce, then
+two consequences follow at once -- a step could be capped there, and, by the
+same argument that applies to GPUs, a step that says nothing about memory
+may be read as claiming all of it, which would be the same trap in a second
+place.
 
 ### Testing and Validation: No Regression
 
