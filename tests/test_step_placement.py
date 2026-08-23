@@ -27,6 +27,10 @@ class _RecordingSystem:
         self.gpus = 12
         self.gpus_per_node = 4
         self.mpi_allowed = True
+        self.config = {'memory_per_node': 256000}
+
+    def get_config_int(self, key, default=0):
+        return self.config.get(key, default)
 
     def get_parallel_command(
         self, args, ntasks, cpus_per_task=0, gpus_per_task=0, placement=None
@@ -144,3 +148,33 @@ def test_cores_are_capped_at_one_node_today():
     step = Step(component=component, name='step', ntasks=1, cpus_per_task=192)
     step.constrain_resources(component.get_available_resources())
     assert step.cpus_per_task == 64
+
+
+def test_the_resource_view_carries_memory():
+    """
+    Phase C sizes worker memory from this, and the mistake it prevents is
+    deriving memory from cores.
+    """
+    component = _make_component()
+    resources = component.get_available_resources()
+    assert resources['memory_per_node'] == 256000
+    assert resources['memory'] == 256000 * 3
+
+
+def test_a_placement_carries_a_share_of_the_memory_it_took():
+    """A placement has no memory of its own; no launcher acts on one."""
+    component = _make_component()
+    resources = component.get_available_resources(
+        _placement(nodes=('node0001',), cores=32)
+    )
+    # half a node's cores, so half a node's memory
+    assert resources['memory'] == 128000
+    assert resources['memory_per_node'] == 256000
+
+
+def test_memory_is_left_undeclared_where_a_machine_has_not_said():
+    component = _make_component()
+    component.parallel_system.config = {}
+    resources = component.get_available_resources()
+    assert resources['memory'] is None
+    assert resources['memory_per_node'] is None

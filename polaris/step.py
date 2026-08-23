@@ -622,8 +622,25 @@ class Step:
                 'Please switch to a compute node.'
             )
 
+        self._constrain_cores(available_resources)
+        self._constrain_memory(available_resources)
+        self._constrain_gpus(
+            available_resources, declared_ntasks, declared_gpus
+        )
+
+    def _constrain_cores(self, available_resources):
+        """
+        Constrain a step's cores to what it can be given.
+
+        Two bounds apply and they are different questions. One process
+        cannot be given cores on a node it is not running on, so
+        ``cpus_per_task`` is always held to a node. Whether the *step* may
+        draw its cores from several nodes is the step's to say, and a step
+        that may not is held to a node in total as well.
+        """
         available_cores = available_resources['cores']
         cores_per_node = available_resources['cores_per_node']
+
         self.cpus_per_task = min(
             self.cpus_per_task, min(available_cores, cores_per_node)
         )
@@ -633,7 +650,29 @@ class Step:
                 f'minimum of {self.min_cpus_per_task} for step {self.name}'
             )
 
-        available_tasks = available_cores // self.cpus_per_task
+        bound = available_cores
+        if not self.may_span_nodes:
+            bound = min(available_cores, cores_per_node)
+            if self.min_cores > cores_per_node:
+                # a reduction is not available here: the step has said it
+                # cannot run any smaller, and no node is any bigger
+                raise ValueError(
+                    f'Step {self.name} needs at least {self.min_cores} cores '
+                    f'and may not use more than one node, but a node here '
+                    f'has {cores_per_node}. If its work can be spread across '
+                    f'nodes, set may_span_nodes on the step.'
+                )
+
+        if self._cores is not None:
+            self.cores = min(self.cores, bound)
+            if self.cores < self.min_cores:
+                raise ValueError(
+                    f'Available cores ({self.cores}) is below the minimum of '
+                    f'{self.min_cores} for step {self.name}'
+                )
+            return
+
+        available_tasks = bound // self.cpus_per_task
         self.ntasks = min(self.ntasks, available_tasks)
 
         if self.ntasks < self.min_tasks:
@@ -641,6 +680,27 @@ class Step:
                 f'Available number of MPI tasks ({self.ntasks}) is below the '
                 f'minimum of {self.min_tasks} for step {self.name}'
             )
+
+    def _constrain_memory(self, available_resources):
+        """
+        Give a step that declared no memory its proportional share of a node.
+
+        Every step uses memory, so unlike GPUs there is no true statement to
+        default to and the default has to be an assumption. This one is
+        chosen for a property rather than for accuracy: a step's cores times
+        the node's memory per core means a run in which every step defaults
+        packs on memory exactly as it would have packed on cores, so nothing
+        is made worse by memory being accounted for at all. It is rounded
+        down so that the total can never exceed what the nodes hold.
+
+        A step that has been measured says what it needs and is scheduled on
+        that instead.
+        """
+        cores_per_node = available_resources['cores_per_node']
+        memory_per_node = available_resources.get('memory_per_node')
+
+        if self.memory is None and memory_per_node and cores_per_node:
+            self.memory = self.cores * memory_per_node // cores_per_node
 
         if (
             self.memory is not None
@@ -651,10 +711,6 @@ class Step:
                 f'Step {self.name} needs at least {self.min_memory} MB of '
                 f'memory but asks for only {self.memory} MB.'
             )
-
-        self._constrain_gpus(
-            available_resources, declared_ntasks, declared_gpus
-        )
 
     def _constrain_gpus(
         self, available_resources, declared_ntasks, declared_gpus
@@ -679,11 +735,31 @@ class Step:
                 f'are available on this machine.'
             )
 
+        gpus_per_node = available_resources.get('gpus_per_node')
+        if not self.may_span_nodes and gpus_per_node:
+            # a step held to one node has to find its GPUs there too, not
+            # its cores on one node and its GPUs on another
+            if self.min_gpus > gpus_per_node:
+                raise ValueError(
+                    f'Step {self.name} needs at least {self.min_gpus} GPUs '
+                    f'and may not use more than one node, but a node here '
+                    f'has {gpus_per_node}. If its work can be spread across '
+                    f'nodes, set may_span_nodes on the step.'
+                )
+            available_gpus = min(available_gpus, gpus_per_node)
+
+        # a step's GPUs are spread over its tasks, so fewer GPUs means fewer
+        # tasks -- but never fewer than one.  A single-task step asking for
+        # several GPUs has nothing to scale, and scaling it would take its
+        # task count to zero rather than trimming its GPUs.
         available_gpu_tasks = available_gpus * declared_ntasks // declared_gpus
-        ntasks = min(self.ntasks, available_gpu_tasks)
+        ntasks = min(self.ntasks, max(available_gpu_tasks, 1))
         # round up, so that scaling down the tasks never scales the GPUs
         # below what the tasks that remain still need
-        self.gpus = -(-declared_gpus * ntasks // declared_ntasks)
+        gpus = -(-declared_gpus * ntasks // declared_ntasks)
+        # and however the scaling came out, a step cannot have more GPUs
+        # than there are
+        self.gpus = min(gpus, available_gpus)
         self.ntasks = ntasks
 
         if self.gpus < self.min_gpus:

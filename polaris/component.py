@@ -96,12 +96,20 @@ class Component:
         if placement is not None:
             return _placement_resources(placement, self.parallel_system)
 
+        memory_per_node = _get_memory_per_node(self.parallel_system)
+        nodes = self.parallel_system.nodes
+        memory = None
+        if memory_per_node is not None and nodes is not None:
+            memory = memory_per_node * nodes
+
         return dict(
             cores=self.parallel_system.cores,
-            nodes=self.parallel_system.nodes,
+            nodes=nodes,
             cores_per_node=self.parallel_system.cores_per_node,
             gpus=self.parallel_system.gpus,
             gpus_per_node=self.parallel_system.gpus_per_node,
+            memory=memory,
+            memory_per_node=memory_per_node,
             mpi_allowed=self.parallel_system.mpi_allowed,
         )
 
@@ -387,11 +395,45 @@ def _placement_resources(placement, parallel_system):
     """Describe what a placement gives a step, in the usual resource terms."""
     nodes = max(len(placement.nodes), 1)
     cores_per_node = len(placement.cores)
+
+    # a placement carries no memory, because no launcher acts on one.  What
+    # a placement does imply is a share of the nodes it names, in the same
+    # proportion as the cores it took from them.
+    memory_per_node = _get_memory_per_node(parallel_system)
+    memory = None
+    machine_cores_per_node = parallel_system.cores_per_node
+    if memory_per_node is not None and machine_cores_per_node:
+        memory = (
+            cores_per_node * nodes * memory_per_node // machine_cores_per_node
+        )
+
     return dict(
         cores=cores_per_node * nodes,
         nodes=nodes,
         cores_per_node=cores_per_node,
         gpus=placement.gpus,
         gpus_per_node=placement.gpus // nodes,
+        memory=memory,
+        memory_per_node=memory_per_node,
         mpi_allowed=parallel_system.mpi_allowed,
     )
+
+
+def _get_memory_per_node(parallel_system):
+    """
+    Get the memory a node has, in MB, or ``None`` if this machine has not
+    said.
+
+    Read from the attribute where a newer mache offers one and from the
+    config option otherwise, because the option is arriving in mache while
+    this is being written and Polaris should work either side of it.  A
+    machine that says nothing leaves memory undeclared rather than guessed
+    at: a wrong figure here would propagate into every step's default.
+    """
+    memory_per_node = getattr(parallel_system, 'memory_per_node', None)
+    if memory_per_node:
+        return int(memory_per_node)
+    memory_per_node = parallel_system.get_config_int('memory_per_node')
+    if memory_per_node:
+        return int(memory_per_node)
+    return None

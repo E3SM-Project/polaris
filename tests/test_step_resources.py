@@ -18,13 +18,25 @@ def _make_step(**kwargs):
     return Step(component=Component(name='ocean'), name='step', **kwargs)
 
 
-def _resources(cores=64, cores_per_node=64, gpus=0, mpi_allowed=True):
+def _resources(
+    cores=64,
+    cores_per_node=64,
+    gpus=0,
+    gpus_per_node=None,
+    memory_per_node=None,
+    mpi_allowed=True,
+):
+    nodes = max(1, cores // cores_per_node)
+    if gpus_per_node is None:
+        gpus_per_node = gpus
     return dict(
         cores=cores,
-        nodes=max(1, cores // cores_per_node),
+        nodes=nodes,
         cores_per_node=cores_per_node,
         gpus=gpus,
-        gpus_per_node=gpus,
+        gpus_per_node=gpus_per_node,
+        memory=None if memory_per_node is None else memory_per_node * nodes,
+        memory_per_node=memory_per_node,
         mpi_allowed=mpi_allowed,
     )
 
@@ -295,3 +307,108 @@ def test_set_resources_takes_the_new_fields():
     assert step.cores == 64
     assert step.min_cores == 8
     assert step.may_span_nodes
+
+
+# ---- the memory default ----
+
+
+def test_a_step_that_says_nothing_gets_its_share_of_a_node():
+    step = _make_step(ntasks=1, cpus_per_task=8)
+    step.constrain_resources(
+        _resources(cores=64, cores_per_node=64, memory_per_node=256000)
+    )
+    assert step.memory == 8 * 256000 // 64
+
+
+def test_a_step_that_says_what_it_needs_keeps_it():
+    step = _make_step(ntasks=1, cpus_per_task=8, memory=100)
+    step.constrain_resources(
+        _resources(cores=64, cores_per_node=64, memory_per_node=256000)
+    )
+    assert step.memory == 100
+
+
+def test_no_default_where_the_machine_has_not_said_its_memory():
+    """A wrong figure here would propagate into every step's default."""
+    step = _make_step(ntasks=1, cpus_per_task=8)
+    step.constrain_resources(_resources(cores=64, cores_per_node=64))
+    assert step.memory is None
+
+
+def test_defaulting_steps_pack_on_memory_exactly_as_they_pack_on_cores():
+    """
+    The property the default exists for.
+
+    A run in which every step defaults must never be rejected by memory
+    when cores would have accepted it, or introducing memory accounting
+    would let Phase B schedule an existing suite worse than it does now.
+    """
+    cores_per_node = 64
+    memory_per_node = 253000
+    nodes = 3
+    for core_counts in ([1] * 192, [8, 16, 32, 64], [3, 5, 7, 11, 13, 64]):
+        memories = []
+        for cores in core_counts:
+            step = _make_step(ntasks=1, cpus_per_task=cores)
+            step.constrain_resources(
+                _resources(
+                    cores=cores_per_node * nodes,
+                    cores_per_node=cores_per_node,
+                    memory_per_node=memory_per_node,
+                )
+            )
+            memories.append(step.memory)
+        fits_on_cores = sum(core_counts) <= cores_per_node * nodes
+        fits_in_memory = sum(memories) <= memory_per_node * nodes
+        assert fits_on_cores == fits_in_memory, core_counts
+
+
+# ---- the node-span rule ----
+
+
+def test_a_step_that_may_not_span_is_held_to_one_node():
+    step = _make_step(cores=200, min_cores=1)
+    step.constrain_resources(_resources(cores=192, cores_per_node=64))
+    assert step.cores == 64
+
+
+def test_a_step_that_may_span_is_held_to_the_allocation():
+    step = _make_step(cores=200, min_cores=1, may_span_nodes=True)
+    step.constrain_resources(_resources(cores=192, cores_per_node=64))
+    assert step.cores == 192
+
+
+def test_a_minimum_that_no_node_can_meet_is_an_error():
+    """Not a silent reduction: the step has said it cannot run smaller."""
+    step = _make_step(cores=200, min_cores=100)
+    with pytest.raises(ValueError, match='may not use more than one node'):
+        step.constrain_resources(_resources(cores=192, cores_per_node=64))
+
+
+def test_that_same_minimum_is_fine_for_a_step_that_may_span():
+    step = _make_step(cores=200, min_cores=100, may_span_nodes=True)
+    step.constrain_resources(_resources(cores=192, cores_per_node=64))
+    assert step.cores == 192
+
+
+def test_an_mpi_step_still_spreads_across_the_allocation():
+    """The rule must leave every step Polaris has today where it was."""
+    step = _make_step(ntasks=192, min_tasks=1, cpus_per_task=1)
+    step.constrain_resources(_resources(cores=192, cores_per_node=64))
+    assert step.ntasks == 192
+
+
+def test_gpus_are_held_to_one_node_for_a_step_that_may_not_span():
+    step = _make_step(ntasks=1, cpus_per_task=1, gpus=8, min_gpus=1)
+    step.constrain_resources(
+        _resources(cores=192, cores_per_node=64, gpus=12, gpus_per_node=4)
+    )
+    assert step.gpus <= 4
+
+
+def test_needing_more_gpus_than_a_node_has_is_the_same_error():
+    step = _make_step(ntasks=1, cpus_per_task=1, gpus=8, min_gpus=8)
+    with pytest.raises(ValueError, match='may not use more than one node'):
+        step.constrain_resources(
+            _resources(cores=192, cores_per_node=64, gpus=12, gpus_per_node=4)
+        )
