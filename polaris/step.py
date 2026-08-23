@@ -83,15 +83,36 @@ class Step:
         .. deprecated:: 1.1.0
             Use ``min_gpus`` instead
 
-    max_memory : int
-        the amount of memory in MB the step would ideally be given.  This
-        is a declaration only: nothing in Polaris acts on it yet, and no
-        supported launcher has a way to reserve memory for a job step
+    cores : int
+        the number of cores the step needs in total.  A non-MPI step says
+        this directly; an MPI step says ``ntasks`` and ``cpus_per_task``
+        instead and this is their product
+
+    min_cores : int
+        the number of cores the step needs in order to run at all
+
+    memory : int
+        the amount of memory in MB the step needs.  A step that says
+        nothing is given its proportional share of a node -- its cores
+        times the node's memory per core -- which is chosen so that packing
+        steps on memory comes out the same as packing them on cores alone
 
     min_memory : int
         the amount of memory in MB the step needs in order to run at all,
-        the minimum to ``max_memory``'s target, in the same style as
+        the minimum to ``memory``'s target, in the same style as
         ``min_tasks`` and ``min_cpus_per_task``
+
+    may_span_nodes : bool
+        whether this step's resources -- its cores and its GPUs alike -- may
+        be drawn from more than one node.  True for an MPI step, whose
+        launcher spreads its ranks; false for a step that runs in one
+        process, which has no way to reach another node.
+
+        This is not the same question as whether a step uses MPI.  A single
+        process that hands its work to a distributed pool spans nodes
+        perfectly well, and one that does its work in its own threads
+        cannot; both are "not MPI".  Nothing in Polaris sets this true today
+        beyond the MPI default.
 
     placement : mache.parallel.ResourcePlacement or None
         the part of the allocation this step is confined to -- which nodes,
@@ -208,8 +229,11 @@ class Step:
         min_cpus_per_task=1,
         ntasks=1,
         min_tasks=1,
+        cores=None,
+        min_cores=None,
+        may_span_nodes=None,
         openmp_threads=1,
-        max_memory=None,
+        memory=None,
         min_memory=None,
         cached=False,
         run_as_subprocess=False,
@@ -257,10 +281,23 @@ class Step:
             few cores to accommodate the number of tasks and cores per task,
             the step will fail
 
+        cores : int, optional
+            the number of cores the step needs in total.  For a non-MPI
+            step this is the direct way to say it; an MPI step says
+            ``ntasks`` and ``cpus_per_task`` instead
+
+        min_cores : int, optional
+            the number of cores the step needs in order to run at all
+
+        may_span_nodes : bool, optional
+            whether the step's cores and GPUs may be drawn from more than
+            one node.  Defaults to whether the step has more than one MPI
+            task
+
         openmp_threads : int
             the number of OpenMP threads to use
 
-        max_memory : int, optional
+        memory : int, optional
             the amount of memory in MB the step would ideally be given
 
         min_memory : int, optional
@@ -311,13 +348,16 @@ class Step:
         self.min_cpus_per_task = min_cpus_per_task
         self.ntasks = ntasks
         self.min_tasks = min_tasks
+        self._cores = cores
+        self._min_cores = min_cores
+        self._may_span_nodes = may_span_nodes
         self.openmp_threads = openmp_threads
         self.gpus_per_task = gpus_per_task
         self.min_gpus_per_task = min_gpus_per_task
         self._gpus = gpus
         self._min_gpus = min_gpus
         _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task)
-        self.max_memory = max_memory
+        self.memory = memory
         self.min_memory = min_memory
         self.placement = None
 
@@ -356,6 +396,56 @@ class Step:
         # output caching
         self.cached = cached
         self.default_cached = False
+
+    @property
+    def cores(self):
+        """
+        int : the number of cores this step needs, in total
+
+        A non-MPI step says this directly, because it has no meaningful
+        number of ranks and expressing its cores through MPI-shaped fields
+        is how a Python step ends up being told it has three nodes' worth.
+        An MPI step says ranks and cores per rank, and this is their
+        product.
+        """
+        if self._cores is not None:
+            return self._cores
+        return self.cpus_per_task * self.ntasks
+
+    @cores.setter
+    def cores(self, value):
+        self._cores = value
+
+    @property
+    def min_cores(self):
+        """
+        int : the number of cores this step needs in order to run at all
+        """
+        if self._min_cores is not None:
+            return self._min_cores
+        return self.min_cpus_per_task * self.min_tasks
+
+    @min_cores.setter
+    def min_cores(self, value):
+        self._min_cores = value
+
+    @property
+    def may_span_nodes(self):
+        """
+        bool : whether this step's cores and GPUs may come from several nodes
+
+        Defaults to whether the step has more than one MPI task, since a
+        launcher spreading ranks is the one mechanism Polaris has today for
+        reaching another node.  A step that delegates to a distributed pool
+        will set this itself; nothing does in Phase A.
+        """
+        if self._may_span_nodes is not None:
+            return self._may_span_nodes
+        return self.ntasks is not None and self.ntasks > 1
+
+    @may_span_nodes.setter
+    def may_span_nodes(self, value):
+        self._may_span_nodes = value
 
     @property
     def gpus(self):
@@ -398,8 +488,11 @@ class Step:
         min_cpus_per_task=None,
         ntasks=None,
         min_tasks=None,
+        cores=None,
+        min_cores=None,
+        may_span_nodes=None,
         openmp_threads=None,
-        max_memory=None,
+        memory=None,
         min_memory=None,
         gpus=None,
         min_gpus=None,
@@ -435,10 +528,20 @@ class Step:
             few cores to accommodate the number of tasks and cores per task,
             the step will fail
 
+        cores : int, optional
+            the number of cores the step needs in total
+
+        min_cores : int, optional
+            the number of cores the step needs in order to run at all
+
+        may_span_nodes : bool, optional
+            whether the step's cores and GPUs may be drawn from more than
+            one node
+
         openmp_threads : int, optional
             the number of OpenMP threads to use
 
-        max_memory : int, optional
+        memory : int, optional
             the amount of memory in MB the step would ideally be given
 
         min_memory : int, optional
@@ -473,6 +576,12 @@ class Step:
             self.ntasks = ntasks
         if min_tasks is not None:
             self.min_tasks = min_tasks
+        if cores is not None:
+            self.cores = cores
+        if min_cores is not None:
+            self.min_cores = min_cores
+        if may_span_nodes is not None:
+            self.may_span_nodes = may_span_nodes
         if openmp_threads is not None:
             self.openmp_threads = openmp_threads
         if gpus is not None:
@@ -483,8 +592,8 @@ class Step:
             self.gpus_per_task = gpus_per_task
         if min_gpus_per_task is not None:
             self.min_gpus_per_task = min_gpus_per_task
-        if max_memory is not None:
-            self.max_memory = max_memory
+        if memory is not None:
+            self.memory = memory
         if min_memory is not None:
             self.min_memory = min_memory
 
@@ -534,13 +643,13 @@ class Step:
             )
 
         if (
-            self.max_memory is not None
+            self.memory is not None
             and self.min_memory is not None
-            and self.min_memory > self.max_memory
+            and self.min_memory > self.memory
         ):
             raise ValueError(
                 f'Step {self.name} needs at least {self.min_memory} MB of '
-                f'memory but asks for only {self.max_memory} MB.'
+                f'memory but asks for only {self.memory} MB.'
             )
 
         self._constrain_gpus(

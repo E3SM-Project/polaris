@@ -364,8 +364,8 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
         _symlink_load_script(step.work_dir)
 
         if machine is not None:
-            cores = step.cpus_per_task * step.ntasks
-            min_cores = step.min_cpus_per_task * step.min_tasks
+            cores = step.cores
+            min_cores = step.min_cores
             gpus = step.gpus
             min_gpus = step.min_gpus
             write_job_script(
@@ -855,8 +855,8 @@ def _get_required_resources(tasks):
                     f'The number of CPUs per task (cpus_per_task) was never '
                     f'set for {task.path} step {step_name}'
                 )
-            cores = step.cpus_per_task * step.ntasks
-            min_cores = step.min_cpus_per_task * step.min_tasks
+            cores = step.cores
+            min_cores = step.min_cores
             gpus = step.gpus
             min_gpus = step.min_gpus
             max_cores = max(max_cores, cores)

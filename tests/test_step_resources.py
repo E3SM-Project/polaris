@@ -225,22 +225,73 @@ def test_the_deprecated_per_task_argument_still_works():
 
 def test_a_step_declares_no_memory_by_default():
     step = _make_step()
-    assert step.max_memory is None
+    assert step.memory is None
     assert step.min_memory is None
 
 
 def test_a_step_declares_memory_as_a_target_and_a_minimum():
-    step = _make_step(max_memory=8000, min_memory=2000)
-    assert step.max_memory == 8000
+    step = _make_step(memory=8000, min_memory=2000)
+    assert step.memory == 8000
     assert step.min_memory == 2000
-    step.set_resources(max_memory=16000, min_memory=4000)
-    assert step.max_memory == 16000
+    step.set_resources(memory=16000, min_memory=4000)
+    assert step.memory == 16000
     assert step.min_memory == 4000
 
 
 def test_needing_more_memory_than_it_asks_for_is_a_mistake():
-    step = _make_step(
-        ntasks=1, cpus_per_task=1, max_memory=1000, min_memory=2000
-    )
+    step = _make_step(ntasks=1, cpus_per_task=1, memory=1000, min_memory=2000)
     with pytest.raises(ValueError, match='at least 2000 MB'):
         step.constrain_resources(_resources())
+
+
+def test_cores_are_the_product_when_a_step_speaks_in_ranks():
+    step = _make_step(
+        ntasks=4, min_tasks=2, cpus_per_task=8, min_cpus_per_task=4
+    )
+    assert step.cores == 32
+    assert step.min_cores == 8
+
+
+def test_a_step_can_state_its_cores_directly():
+    """A non-MPI step has no meaningful number of ranks."""
+    step = _make_step(cores=200, min_cores=16)
+    assert step.cores == 200
+    assert step.min_cores == 16
+
+
+def test_stated_cores_do_not_move_with_the_task_count():
+    step = _make_step(cores=200)
+    step.ntasks = 8
+    assert step.cores == 200
+
+
+def test_derived_cores_follow_the_task_count():
+    step = _make_step(ntasks=2, cpus_per_task=4)
+    step.ntasks = 4
+    assert step.cores == 16
+
+
+def test_an_mpi_step_may_span_nodes_by_default():
+    """A launcher spreading ranks is the one mechanism Polaris has today."""
+    assert _make_step(ntasks=4).may_span_nodes
+
+
+def test_a_single_task_step_may_not_span_by_default():
+    assert not _make_step(ntasks=1).may_span_nodes
+    assert not _make_step(cores=200).may_span_nodes
+
+
+def test_a_step_can_say_it_spans_regardless_of_ranks():
+    """What a distributed pool will set, and nothing sets in Phase A."""
+    step = _make_step(cores=200, may_span_nodes=True)
+    assert step.may_span_nodes
+    step = _make_step(ntasks=4, may_span_nodes=False)
+    assert not step.may_span_nodes
+
+
+def test_set_resources_takes_the_new_fields():
+    step = _make_step(ntasks=1)
+    step.set_resources(cores=64, min_cores=8, may_span_nodes=True)
+    assert step.cores == 64
+    assert step.min_cores == 8
+    assert step.may_span_nodes

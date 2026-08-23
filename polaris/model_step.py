@@ -86,7 +86,7 @@ class ModelStep(Step):
         min_gpus=None,
         gpus_per_task=0,
         min_gpus_per_task=0,
-        max_memory=None,
+        memory=None,
         min_memory=None,
         cached=False,
         namelist=None,
@@ -151,7 +151,7 @@ class ModelStep(Step):
             .. deprecated:: 1.1.0
                 Use ``min_gpus`` instead
 
-        max_memory : int, optional
+        memory : int, optional
             the amount of memory in MB the step would ideally be given
 
         min_memory : int, optional
@@ -209,7 +209,7 @@ class ModelStep(Step):
             min_gpus=min_gpus,
             gpus_per_task=gpus_per_task,
             min_gpus_per_task=min_gpus_per_task,
-            max_memory=max_memory,
+            memory=memory,
             min_memory=min_memory,
             cached=cached,
         )
@@ -276,7 +276,7 @@ class ModelStep(Step):
         min_gpus=None,
         gpus_per_task=None,
         min_gpus_per_task=None,
-        max_memory=None,
+        memory=None,
         min_memory=None,
     ):
         """
@@ -320,7 +320,7 @@ class ModelStep(Step):
             .. deprecated:: 1.1.0
                 Use ``min_gpus`` instead
 
-        max_memory : int, optional
+        memory : int, optional
             the amount of memory in MB the step would ideally be given
 
         min_memory : int, optional
@@ -337,7 +337,7 @@ class ModelStep(Step):
             min_gpus=min_gpus,
             gpus_per_task=gpus_per_task,
             min_gpus_per_task=min_gpus_per_task,
-            max_memory=max_memory,
+            memory=memory,
             min_memory=min_memory,
         )
 
