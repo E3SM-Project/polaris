@@ -507,14 +507,27 @@ def _check_is_polaris_repo(path):
 
 
 def _ensure_remote(repo_path, fork):
-    """Add or update a remote for ``fork`` and return its name."""
+    """
+    Add a remote for ``fork`` and return its name.
+
+    An existing remote is used but never repointed, since ``repo_path``
+    is the developer's own clone.
+    """
     url = _fork_url(repo_path, fork)
     name = _remote_name(fork)
     remotes = check_output('git remote', cwd=repo_path).split()
-    if name in remotes:
-        _git(f'remote set-url {name} {url}', cwd=repo_path)
-    else:
+    if name not in remotes:
         _git(f'remote add {name} {url}', cwd=repo_path)
+        return name
+
+    existing = check_output(f'git remote get-url {name}', cwd=repo_path)
+    if existing != url:
+        raise ValueError(
+            f'The remote "{name}" in\n  {repo_path}\npoints at\n  '
+            f'{existing}\nrather than the expected\n  {url}\nThe '
+            f'benchmark will not repoint a remote in your clone.  Rename '
+            f'the remote, or give the fork as a full URL.'
+        )
     return name
 
 

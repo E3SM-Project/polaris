@@ -58,7 +58,9 @@ benchmarked is just a matter of which refs differ between them.
    ```
 
 Always start with `--dry-run`.  It resolves every commit hash, applies every
-guardrail and prints the exact commands, but touches nothing.
+guardrail and prints the exact commands.  It creates no worktrees and
+builds and runs nothing, but resolving a fork does add a remote to
+`primary_path` and fetch into it.
 
 ## Configuration options
 
