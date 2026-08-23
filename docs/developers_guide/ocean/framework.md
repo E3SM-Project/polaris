@@ -236,15 +236,19 @@ the planar mesh.  By default, the number of MPI tasks tries to apportion 200
 cells to each core, but it will allow as many as 2000.
 
 For Omega on GPU-capable parallel configs (`gpus_per_node > 0`), dynamic
-sizing switches to GPU-based targets and sets one GPU per MPI task:
+sizing switches to GPU-based targets and asks for one GPU per MPI task.  That
+is stated as a total for the step rather than as a count per task, because a
+per-task count does not confine a step to those GPUs when steps run at the
+same time:
 
 ```python
-self.gpus_per_task = 1
-self.min_gpus_per_task = 1
 # ideally, about 8000 cells per GPU
 self.ntasks = max(1, 4 * round(cell_count / (4 * goal_cells_per_gpu)))
 # In a pinch, about 80000 cells per GPU
 self.min_tasks = max(1, 4 * round(cell_count / (4 * max_cells_per_gpu)))
+# one GPU per task, as a total for the step
+self.gpus = self.ntasks
+self.min_gpus = self.min_tasks
 ```
 
 The corresponding `[ocean]` config options are `goal_cells_per_gpu` and

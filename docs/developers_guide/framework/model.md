@@ -414,9 +414,9 @@ The number of MPI tasks that land on each node (and therefore the stride
 between IO tasks) comes from the machine's resources in
 [mache](https://github.com/E3SM-Project/mache) -- `cores_per_node`,
 `gpus_per_node` and `max_mpi_tasks_per_node` -- combined with the
-`cpus_per_task` and `gpus_per_task` the step requests.  On GPU builds, where
-there is typically one MPI task per GPU, the stride is the number of GPUs per
-node rather than the number of CPU cores per node.
+`cpus_per_task` the step requests and the `gpus` it requests in total.  On
+GPU builds, where there is typically one MPI task per GPU, the stride is the
+number of GPUs per node rather than the number of CPU cores per node.
 
 For Omega runs, these same MPAS options are mapped to `Omega/IO/IOTasks` and
 `Omega/IO/IOStride` in yaml config files.

@@ -1,6 +1,7 @@
 import importlib.resources as imp_res
 import json
 import os
+import warnings
 
 from mache.parallel import ParallelSystem, get_parallel_system
 from mpas_tools.io import open_dataset, write_netcdf
@@ -99,7 +100,8 @@ class Component:
         ntasks,
         openmp_threads,
         logger,
-        gpus_per_task=0,
+        gpus=0,
+        gpus_per_task=None,
     ):
         """
         Run a command using the active parallel system
@@ -121,13 +123,29 @@ class Component:
         logger : logging.Logger
             Logger to output command-line execution info
 
+        gpus : int, optional
+            Number of GPUs this launch needs, as a total rather than a count
+            per task
+
         gpus_per_task : int, optional
             Number of GPUs per task
+
+            .. deprecated:: 1.1.0
+                Use ``gpus`` instead
         """
         if self.parallel_system is None:
             raise ValueError(
                 f'Parallel system has not been set for component {self.name}'
             )
+
+        if gpus_per_task is not None:
+            warnings.warn(
+                'gpus_per_task is deprecated. Use gpus, which says how many '
+                'GPUs the launch needs in total.',
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            gpus = max(gpus, gpus_per_task * ntasks)
 
         env = dict(os.environ)
         env['OMP_NUM_THREADS'] = f'{openmp_threads}'
@@ -138,7 +156,7 @@ class Component:
             args=args,
             ntasks=ntasks,
             cpus_per_task=cpus_per_task,
-            gpus_per_task=gpus_per_task,
+            gpus_per_task=_gpus_per_task(gpus, ntasks),
         )
         check_call(command_line_args, logger, env=env)
 
@@ -322,3 +340,16 @@ class Component:
         except FileNotFoundError:
             # no cached files for this core
             pass
+
+
+def _gpus_per_task(gpus, ntasks):
+    """
+    Convert a launch's total GPUs into the per-task count mache asks for.
+
+    Without a placement to carry a total, mache expresses GPUs per task, so
+    a step's total has to be divided back out.  Rounding up rather than down
+    keeps a launch from being handed fewer GPUs than it asked for.
+    """
+    if gpus <= 0 or ntasks <= 0:
+        return 0
+    return -(-gpus // ntasks)

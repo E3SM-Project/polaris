@@ -42,9 +42,19 @@ parallel configuration.
 
 ## GPU resources
 
-Polaris step resources now include GPU requirements (`gpus_per_task` and
-`min_gpus_per_task`) in addition to CPU requirements. Resource constraints use
-both CPU and GPU availability when determining whether a step can run.
+Polaris step resources include GPU requirements in addition to CPU
+requirements. Resource constraints use both CPU and GPU availability when
+determining whether a step can run.
+
+A step states its GPU need as `gpus` and `min_gpus`, which are totals for
+the **step**, not counts per MPI task. A step that needs no GPUs leaves them
+at zero, which is the common case. The distinction matters once steps run at
+the same time: measurements on both GPU machines showed that asking for a
+number of GPUs per task does not confine a step to those GPUs, while asking
+for a total does.
+
+`gpus_per_task` and `min_gpus_per_task` still work and are translated into a
+total, but they are deprecated and raise a `DeprecationWarning`.
 
 For ocean model steps with dynamic sizing, Omega runs on GPU-capable compiler
 configs use:

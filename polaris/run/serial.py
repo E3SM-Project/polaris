@@ -680,7 +680,7 @@ def _run_step(
                     step.ntasks,
                     step.openmp_threads,
                     step.logger,
-                    gpus_per_task=step.gpus_per_task,
+                    gpus=step.gpus,
                 )
         else:
             step_logger.info('')

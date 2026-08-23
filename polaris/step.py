@@ -2,6 +2,7 @@ import importlib.resources as imp_res
 import logging
 import os
 import shutil
+import warnings
 
 from mache import MachineInfo
 from mache.permissions import update_permissions
@@ -61,11 +62,26 @@ class Step:
     openmp_threads : int
         the number of OpenMP threads to use
 
+    gpus : int
+        the number of GPUs the step would ideally use, as a total for the
+        step rather than a count per task.  A step uses no GPUs unless it
+        says otherwise, so 0 is the common case
+
+    min_gpus : int
+        the number of GPUs the step requires, again as a total
+
     gpus_per_task : int
         the number of GPUs per task the step would ideally use
 
+        .. deprecated:: 1.1.0
+            Use ``gpus`` instead.  A per-task count does not confine a step
+            to those GPUs when steps run at the same time; a total does
+
     min_gpus_per_task : int
         the number of GPUs per task the step requires
+
+        .. deprecated:: 1.1.0
+            Use ``min_gpus`` instead
 
     max_memory : int
         the amount of memory that the step is allowed to use in MB.
@@ -182,6 +198,8 @@ class Step:
         max_memory=None,
         cached=False,
         run_as_subprocess=False,
+        gpus=None,
+        min_gpus=None,
         gpus_per_task=0,
         min_gpus_per_task=0,
     ):
@@ -232,11 +250,25 @@ class Step:
             This is currently just a placeholder for later use with task
             parallelism
 
+        gpus : int, optional
+            the number of GPUs the step would ideally use, as a total for
+            the step rather than a count per task.  A step uses no GPUs
+            unless it says otherwise
+
+        min_gpus : int, optional
+            the number of GPUs the step requires, again as a total
+
         gpus_per_task : int, optional
             the number of GPUs per task the step would ideally use
 
+            .. deprecated:: 1.1.0
+                Use ``gpus`` instead
+
         min_gpus_per_task : int, optional
             the number of GPUs per task the step requires
+
+            .. deprecated:: 1.1.0
+                Use ``min_gpus`` instead
 
         cached : bool, optional
             Whether to get all of the outputs for the step from the database of
@@ -265,6 +297,9 @@ class Step:
         self.openmp_threads = openmp_threads
         self.gpus_per_task = gpus_per_task
         self.min_gpus_per_task = min_gpus_per_task
+        self._gpus = gpus
+        self._min_gpus = min_gpus
+        _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task)
         self.max_memory = max_memory
 
         self.path = os.path.join(self.component.name, self.subdir)
@@ -303,6 +338,41 @@ class Step:
         self.cached = cached
         self.default_cached = False
 
+    @property
+    def gpus(self):
+        """
+        int : the number of GPUs this step needs, in total
+
+        A total rather than a count per task, because a per-task count does
+        not confine a step to those GPUs when steps run at the same time.
+        Falls back to the deprecated ``gpus_per_task`` when a step has not
+        been updated to say what it needs as a total.
+        """
+        if self._gpus is not None:
+            return self._gpus
+        if self.gpus_per_task and self.ntasks:
+            return self.gpus_per_task * self.ntasks
+        return 0
+
+    @gpus.setter
+    def gpus(self, value):
+        self._gpus = value
+
+    @property
+    def min_gpus(self):
+        """
+        int : the number of GPUs this step requires, in total
+        """
+        if self._min_gpus is not None:
+            return self._min_gpus
+        if self.min_gpus_per_task and self.min_tasks:
+            return self.min_gpus_per_task * self.min_tasks
+        return 0
+
+    @min_gpus.setter
+    def min_gpus(self, value):
+        self._min_gpus = value
+
     def set_resources(
         self,
         cpus_per_task=None,
@@ -311,6 +381,8 @@ class Step:
         min_tasks=None,
         openmp_threads=None,
         max_memory=None,
+        gpus=None,
+        min_gpus=None,
         gpus_per_task=None,
         min_gpus_per_task=None,
     ):
@@ -351,12 +423,26 @@ class Step:
             This is currently just a placeholder for later use with task
             parallelism
 
+        gpus : int, optional
+            the number of GPUs the step would ideally use, as a total for
+            the step rather than a count per task
+
+        min_gpus : int, optional
+            the number of GPUs the step requires, again as a total
+
         gpus_per_task : int, optional
             the number of GPUs per task the step would ideally use
 
+            .. deprecated:: 1.1.0
+                Use ``gpus`` instead
+
         min_gpus_per_task : int, optional
             the number of GPUs per task the step requires
+
+            .. deprecated:: 1.1.0
+                Use ``min_gpus`` instead
         """
+        _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task)
         if cpus_per_task is not None:
             self.cpus_per_task = cpus_per_task
         if min_cpus_per_task is not None:
@@ -367,6 +453,10 @@ class Step:
             self.min_tasks = min_tasks
         if openmp_threads is not None:
             self.openmp_threads = openmp_threads
+        if gpus is not None:
+            self.gpus = gpus
+        if min_gpus is not None:
+            self.min_gpus = min_gpus
         if gpus_per_task is not None:
             self.gpus_per_task = gpus_per_task
         if min_gpus_per_task is not None:
@@ -412,30 +502,46 @@ class Step:
                 f'minimum of {self.min_tasks} for step {self.name}'
             )
 
+        self._constrain_gpus(available_resources)
+
+    def _constrain_gpus(self, available_resources):
+        """
+        Constrain a step's GPUs, and its tasks, to the GPUs available.
+
+        The step asks for a total, but those GPUs are still spread across its
+        tasks, so running fewer tasks means needing fewer GPUs.  The ratio
+        between the two is what is held fixed while scaling down.
+        """
+        gpus = self.gpus
+        if gpus <= 0:
+            return
+
         available_gpus = available_resources.get('gpus')
-        if self.gpus_per_task > 0:
-            if available_gpus is None or available_gpus == 0:
-                raise ValueError(
-                    f'Step {self.name} requests {self.gpus_per_task} GPUs '
-                    'per task but no GPUs are available on this machine.'
-                )
+        if not available_gpus:
+            raise ValueError(
+                f'Step {self.name} requests {gpus} GPUs but no GPUs are '
+                f'available on this machine.'
+            )
 
-            available_gpu_tasks = available_gpus // self.gpus_per_task
-            self.ntasks = min(self.ntasks, available_gpu_tasks)
+        available_gpu_tasks = available_gpus * self.ntasks // gpus
+        ntasks = min(self.ntasks, available_gpu_tasks)
+        # round up, so that scaling down the tasks never scales the GPUs
+        # below what the tasks that remain still need
+        self.gpus = -(-gpus * ntasks // self.ntasks)
+        self.ntasks = ntasks
 
-            if self.gpus_per_task < self.min_gpus_per_task:
-                raise ValueError(
-                    f'Available gpus_per_task ({self.gpus_per_task}) is '
-                    f'below the minimum of {self.min_gpus_per_task} for '
-                    f'step {self.name}'
-                )
+        if self.gpus < self.min_gpus:
+            raise ValueError(
+                f'Available GPUs ({self.gpus}) is below the minimum of '
+                f'{self.min_gpus} for step {self.name}'
+            )
 
-            if self.ntasks < self.min_tasks:
-                raise ValueError(
-                    f'Available number of MPI tasks ({self.ntasks}) is '
-                    f'below the minimum of {self.min_tasks} for step '
-                    f'{self.name} after GPU constraints are applied'
-                )
+        if self.ntasks < self.min_tasks:
+            raise ValueError(
+                f'Available number of MPI tasks ({self.ntasks}) is '
+                f'below the minimum of {self.min_tasks} for step '
+                f'{self.name} after GPU constraints are applied'
+            )
 
     def setup(self):
         """
@@ -888,3 +994,17 @@ class Step:
         input_file = os.path.abspath(input_file)
 
         return input_file, database_subdirs
+
+
+def _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task):
+    """Warn that a per-task GPU count is on its way out."""
+    if not gpus_per_task and not min_gpus_per_task:
+        return
+    warnings.warn(
+        'gpus_per_task and min_gpus_per_task are deprecated. Use gpus and '
+        'min_gpus, which say how many GPUs the step needs in total. A '
+        'per-task count does not confine a step to those GPUs when steps '
+        'run at the same time.',
+        DeprecationWarning,
+        stacklevel=3,
+    )
