@@ -40,13 +40,44 @@ If that shows analysis tasks are coarse -- minutes each, tens of them -- then
 Phase B already handles them and Phase C reduces to writing analysis steps
 that declare their resources properly. If it shows they are fine-grained --
 seconds each, hundreds or thousands -- then a pool is necessary and this
-phase proceeds as written. If it shows the largest single task does not fit
-in one node's memory, then the constraint is not concurrency at all, and the
-right response is out-of-core computation rather than more nodes.
+phase proceeds as written.
 
-This document is written for the middle case because it is the one the
+This document is written for the second case because it is the one the
 existing evidence points at, but the numbers that would size the pool are
 deliberately left unset. They should come from measurement.
+
+### A task larger than one node
+
+Nothing here restricts a step to a single node, and the design should not
+acquire that restriction by accident.
+
+Polaris already runs steps that span nodes: every MPI model run does. What
+is bounded to one node is a **non-MPI step running in its own process**, as
+in Phase B -- that is a property of processes, not a decision Polaris made.
+
+For the pool, a computation whose data exceed one node's memory is not a
+separate problem needing separate machinery. Working in chunks and spreading
+those chunks across the workers' combined memory are the same facility, and
+a pool built on a distributed array framework provides both. A step that
+needs more memory than one node has can take a lease spanning several and
+work across their combined memory, using the same submit-and-collect
+interface as any other step.
+
+The cost is not zero: moving data between nodes is slower than staying
+within one, the work has to be written in terms of array operations the
+framework can partition rather than as monolithic in-memory arrays, and
+diagnosing a distributed computation is harder than a local one. So this
+should not be the assumed shape of every analysis step, and no step should
+be written to span nodes before measurement shows it needs to. But it should
+be available, and the requirements below are written so that it is.
+
+The case that genuinely stays hard is a computation that cannot be
+partitioned at all -- one needing global, random access to a single array
+larger than a node. Neither chunking nor distribution helps there, and the
+answer is to restructure the computation. Analysis work is mostly reductions
+over dimensions that partition cleanly, so this should be rare; if the
+measurement turns one up, it is worth examining on its own rather than
+treating as a requirement on the framework.
 
 Success in Phase C means a Python step can distribute work across more than
 one node, that this is faster than the same work on one node, and that
@@ -69,6 +100,13 @@ one node of the allocation.
 This is the requirement that distinguishes Phase C from what MPAS-Analysis
 can already do. A capability limited to a single node would not address the
 problem that motivates the phase.
+
+This covers two things that should not be conflated: many independent pieces
+of work running at once on different nodes, and a single computation whose
+data are spread across the memory of several nodes. Both shall be possible.
+The second is not expected to be common, but designing it out would be a
+mistake, and a pool built on a distributed array framework gives it without
+additional machinery.
 
 ### Requirement: The Pool Occupies a Known Share
 
