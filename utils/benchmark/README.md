@@ -25,11 +25,19 @@ Each side is resolved in one of two ways:
 | `worktree` (default) | Resolve a fork and ref to a commit, create a detached `git worktree` under `work_base`, initialize submodules, and optionally check out a different fork/ref for one submodule. |
 | `existing` | Adopt a polaris worktree that already exists, exactly as it is found. |
 
-An adopted worktree is treated as **strictly read-only**.  The driver never
-runs `fetch`, `checkout`, `submodule update`, `reset` or `clean` against it.
-If a required submodule is not initialized, the driver stops and tells you
-the command to run yourself.  This lets you benchmark the branch you are
-already working in, with its existing build, without a second copy.
+The **driver** never runs `fetch`, `checkout`, `submodule update`, `reset`
+or `clean` against an adopted worktree.  If a required submodule is not
+initialized, the driver stops and tells you the command to run yourself.
+This lets you benchmark the branch you are already working in without a
+second copy.
+
+That is not the same as the worktree being left untouched.  Polaris builds
+the component from `--branch`, and for MPAS-Ocean that is an in-source
+`make` in the branch directory; both build templates also run
+`git submodule update --init --recursive` there.  Since polaris turns the
+build on by itself whenever the component is not found at `-p`, expect an
+adopted worktree to be built in place the first time each run directory is
+created.
 
 Both sections take exactly the same options, so *which* repository is being
 benchmarked is just a matter of which refs differ between them.
@@ -181,8 +189,10 @@ which repositories differ.
 | `--clean-build` | Start from a clean build directory on both sides. |
 | `--rebuild` | Force a build even if the component is already built. |
 
-By default neither is passed, so an existing build is reused — which is
-usually the point of adopting an existing worktree.
+Neither is normally needed: polaris sets the build option itself when the
+component is not found at `-p`.  Note that `-p` is inside the run
+directory, so a build is shared only by benchmarks that land in the same
+run directory, and never with an adopted worktree's own build.
 
 ## Notes
 

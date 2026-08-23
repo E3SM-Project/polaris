@@ -10,9 +10,13 @@ Two modes are supported for each side of a benchmark:
 
 ``adopt``
     Use an existing Polaris worktree (typically the one the developer is
-    already working in) exactly as it is found.  The adopted tree is
-    treated as strictly read-only: no fetch, checkout, submodule update,
-    reset or clean is ever run against it.
+    already working in) exactly as it is found.  This module never runs
+    fetch, checkout, submodule update, reset or clean against it.
+
+    Note that this is not the same as the tree being untouched.  Polaris
+    builds the component from ``--branch``, which for MPAS-Ocean is an
+    in-source ``make`` in the branch directory, and both build templates
+    run ``git submodule update --init --recursive`` there.
 """
 
 import os
@@ -243,8 +247,9 @@ def adopt(name, path, model, load_script_name, allow_dirty=False):
     """
     Validate and record the state of an existing Polaris worktree
 
-    The adopted worktree is never modified.  Only read-only ``git``
-    queries are run against it.
+    Only read-only ``git`` queries are run against the adopted worktree
+    here.  Polaris' own build still writes into it; see the note in the
+    module docstring.
 
     Parameters
     ----------

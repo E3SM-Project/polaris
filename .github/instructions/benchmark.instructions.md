@@ -18,9 +18,11 @@ These rules are specific to the benchmarking driver in
 
 ## Adopted worktrees
 
-- When a side uses `source = existing`, the adopted worktree is
-  read-only.  Never run `git fetch`, `checkout`, `submodule update`,
-  `reset`, `clean`, `rm` or any other mutating command against it.
+- When a side uses `source = existing`, never run `git fetch`,
+  `checkout`, `submodule update`, `reset`, `clean`, `rm` or any other
+  mutating command against the adopted worktree yourself.  Polaris'
+  own build does write into it, so do not tell the user the worktree is
+  left untouched.
 - If an adopted worktree is dirty or is missing an initialized
   submodule, stop and ask the user to resolve it.  Do not pass
   `--allow-dirty` without the user explicitly asking for it.

@@ -29,11 +29,17 @@ Each side is resolved with one of two `source` modes:
 | `worktree` (default) | Resolve a fork and ref to a commit, create a detached `git worktree` under `work_base`, initialize submodules, and optionally override the fork/ref of a single submodule. |
 | `existing` | Adopt a polaris worktree that already exists, exactly as it is found. |
 
-An adopted worktree is **strictly read-only**.  The driver never runs
-`fetch`, `checkout`, `submodule update`, `reset` or `clean` against it.  If
-a required submodule is not initialized, the driver stops and prints the
-command for the developer to run.  This makes it cheap to benchmark the
-branch you are already working in, reusing its existing build.
+The driver never runs `fetch`, `checkout`, `submodule update`, `reset` or
+`clean` against an adopted worktree.  If a required submodule is not
+initialized, the driver stops and prints the command for the developer to
+run.  This makes it cheap to benchmark the branch you are already working
+in without a second copy.
+
+Polaris' own build is a separate matter: it builds the component from
+`--branch`, which for MPAS-Ocean is an in-source `make` in the branch
+directory, and both build templates run
+`git submodule update --init --recursive` there.  An adopted worktree is
+therefore built in place, not left untouched.
 
 Because the `[baseline]` and `[test]` sections take exactly the same
 options, the same driver benchmarks a polaris change, an Omega change or
