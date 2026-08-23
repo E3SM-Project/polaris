@@ -91,8 +91,7 @@ driver raises an error if they do.
 | `polaris_ref` | A branch, tag or commit hash. |
 | `omega_fork`, `omega_ref` | Override the Omega submodule. |
 | `e3sm_fork`, `e3sm_ref` | Override the E3SM-Project submodule. |
-| `mali_fork`, `mali_ref` | Override the MALI-Dev submodule. |
-| `model` | The polaris `--model` value: `mpas-ocean`, `omega` or `mali`. |
+| `model` | The polaris `--model` value: `mpas-ocean` or `omega`. |
 
 A fork given as a bare owner is expanded to a URL matching the style
 (ssh or https) of the existing `origin` remote.  Fork and ref options are
@@ -128,7 +127,7 @@ The driver refuses to run, before anything is built, if:
 
 - The two sides resolve to the **same** worktree or to identical commits
   everywhere, so there would be nothing to compare.
-- They differ in **more than one** of polaris, Omega, E3SM and MALI, so a
+- They differ in **more than one** of polaris, Omega and E3SM, so a
   difference could not be attributed to a single change.
   Override with `--allow-multiple-changes`.
 - They use **different load scripts**, implying a different machine,

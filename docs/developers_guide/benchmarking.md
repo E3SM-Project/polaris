@@ -36,9 +36,9 @@ command for the developer to run.  This makes it cheap to benchmark the
 branch you are already working in, reusing its existing build.
 
 Because the `[baseline]` and `[test]` sections take exactly the same
-options, the same driver benchmarks a polaris change, an Omega change, an
-E3SM change or a MALI change; the only difference is which refs differ
-between the two sides.
+options, the same driver benchmarks a polaris change, an Omega change or
+an E3SM change; the only difference is which refs differ between the two
+sides.
 
 ## Quick start
 
@@ -83,7 +83,7 @@ The driver refuses to run, *before* anything is built, if:
 
 - the two sides resolve to the same worktree or to identical commits
   everywhere, so there would be nothing to compare;
-- they differ in more than one of polaris, Omega, E3SM and MALI, so a
+- they differ in more than one of polaris, Omega and E3SM, so a
   difference could not be attributed to a single change
   (`--allow-multiple-changes`);
 - they use different load scripts, implying a different machine, compiler

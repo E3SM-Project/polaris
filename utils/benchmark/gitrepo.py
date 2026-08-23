@@ -26,14 +26,15 @@ from shared import check_call, check_output
 SUBMODULE_PATHS = {
     'e3sm': 'e3sm_submodules/E3SM-Project',
     'omega': 'e3sm_submodules/Omega',
-    'mali': 'e3sm_submodules/MALI-Dev',
 }
 
 #: Mapping from a Polaris ``--model`` value to the submodule it is built from
+#:
+#: Only the models Polaris can build automatically belong here; see
+#: ``_build_model()`` in ``polaris/setup.py``.
 MODEL_SUBMODULES = {
     'mpas-ocean': 'e3sm',
     'omega': 'omega',
-    'mali': 'mali',
 }
 
 
@@ -455,7 +456,7 @@ def check_single_variable(baseline, test):
     Returns
     -------
     differing : list of str
-        The keys (``polaris``, ``e3sm``, ``omega``, ``mali``) that differ
+        The keys (``polaris``, ``e3sm``, ``omega``) that differ
     """
     baseline_shas = baseline.compare_shas
     test_shas = test.compare_shas

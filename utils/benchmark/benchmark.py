@@ -320,8 +320,10 @@ def _resolve_side(
     model = section['model']
     if model not in gitrepo.MODEL_SUBMODULES:
         raise ValueError(
-            f'Unknown model "{model}" in the [{name}] section; expected one '
-            f'of {", ".join(gitrepo.MODEL_SUBMODULES)}'
+            f'Unsupported model "{model}" in the [{name}] section; expected '
+            f'one of {", ".join(gitrepo.MODEL_SUBMODULES)}.  Polaris only '
+            f'builds those models automatically, which a benchmark relies '
+            f'on.'
         )
 
     source = section.get('source', fallback='worktree')
