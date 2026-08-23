@@ -33,9 +33,6 @@ from shared import get_logger, to_abs  # noqa: E402
 #: The name of the file that marks a completed benchmark work directory
 COMPLETE_MARKER = '.polaris_benchmark_complete'
 
-#: Environment variables that config files may refer to as ``${NAME}``
-CONFIG_ENV_VARS = ['USER', 'HOME', 'SCRATCH']
-
 
 def benchmark(config, config_path, args):
     """
@@ -166,19 +163,15 @@ def main():
     """Parse arguments and run a benchmark."""
     args = parse_args()
 
-    config = configparser.ConfigParser(
-        defaults=environment_defaults(),
-        interpolation=configparser.ExtendedInterpolation(),
-    )
     config_file = os.path.abspath(args.config_file)
     if not os.path.exists(config_file):
         raise FileNotFoundError(f'No such config file: {config_file}')
-    config.read(config_file)
     config_path = os.path.dirname(config_file)
 
     try:
+        config = read_config(config_file)
         manifest = benchmark(config, config_path, args)
-    except ValueError as exc:
+    except (ValueError, configparser.Error) as exc:
         print('')
         print(f'Error: {exc}')
         sys.exit(1)
@@ -190,24 +183,47 @@ def main():
     _print_summary(manifest)
 
 
-def environment_defaults():
+def read_config(config_file):
     """
-    Get the environment variables config files may substitute
+    Read a benchmark config file, substituting environment variables
 
-    ``configparser`` has no notion of environment variables, so the ones
-    in ``CONFIG_ENV_VARS`` are added as defaults.  A config file can then
-    write ``${USER}`` in a path and get the expected substitution.
+    ``configparser`` has no notion of environment variables, so any
+    ``${NAME}`` that the config file does not define as an option is
+    replaced with the environment variable of that name before the file
+    is parsed.  An option therefore always wins over a variable, and a
+    name that is neither is left alone so that interpolation reports it.
+
+    Parameters
+    ----------
+    config_file : str
+        The path to the config file
 
     Returns
     -------
-    defaults : dict
-        The environment variables that are set, keyed by name
+    config : configparser.ConfigParser
+        The parsed config options
     """
-    return {
-        name: os.environ[name]
-        for name in CONFIG_ENV_VARS
-        if name in os.environ
-    }
+    with open(config_file) as handle:
+        text = handle.read()
+
+    raw = configparser.ConfigParser(interpolation=None)
+    raw.read_string(text, source=config_file)
+    options = set()
+    for section in raw.sections():
+        options.update(raw.options(section))
+
+    for name in sorted(set(re.findall(r'\$\{([^}]+)\}', text))):
+        if ':' in name or name.lower() in options:
+            # a reference to a config option, not to a variable
+            continue
+        if name in os.environ:
+            text = text.replace(f'${{{name}}}', os.environ[name])
+
+    config = configparser.ConfigParser(
+        interpolation=configparser.ExtendedInterpolation()
+    )
+    config.read_string(text, source=config_file)
+    return config
 
 
 def parse_args():

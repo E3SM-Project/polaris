@@ -84,8 +84,10 @@ builds and runs nothing, but resolving a fork does add a remote to
 | `submit` | Submit the job script instead of running in place. |
 | `polaris_config_file` | Optional config file passed on with `-f`. |
 
-`${USER}`, `${HOME}` and `${SCRATCH}` are substituted from the
-environment anywhere in the config file, when they are set.
+Any environment variable can be substituted as `${NAME}` anywhere in the
+config file.  A name that a config option already defines wins, and one
+that is neither an option nor set in the environment is an error, so a
+typo is reported rather than silently expanding to nothing.
 
 `--model`, `--branch`, `-p`, `-w`, `-b`, `-f` and the build flags are
 appended automatically and **must not** appear in `setup_command`; the
