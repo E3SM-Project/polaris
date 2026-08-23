@@ -258,15 +258,43 @@ Contributors:
 
 `mache.parallel.ParallelSystem.get_parallel_command()` gains an optional
 placement argument, and each subclass renders it appropriately. This is the
-contract change, and it must land in `mache` and be released before Polaris
-can depend on it. Its design is
-*Design Document: parallel placement*, at `docs/design/parallel_placement.md`
-in the `mache` repository. It is a separate repository, so this cannot be a
-cross-reference.
+contract change, and it must land in `mache` before Polaris can depend on
+it. Its design is *Design Document: parallel placement*, at
+`docs/design/parallel_placement.md` in the `mache` repository. It is a
+separate repository, so this cannot be a cross-reference.
 
-Polaris should depend on the `mache` version that provides it and should
-fail clearly, at setup, if an older `mache` is present -- a run that silently
-loses placement would appear to work while oversubscribing the machine.
+That work exists: **`mache` pull request #470**, which adds a
+`ResourcePlacement` type and the optional argument, renders it for Slurm
+both before and after 20.11, for PBS with PALS and for a single node, and
+adds a test that renders a placement against every shipped machine config.
+It is not merged. Xylar's condition for merging it is that Polaris testing
+first confirms the rendered commands behave as intended on real machines,
+so Phase A and that pull request unblock each other and should be worked on
+together.
+
+Until a released `mache` provides this, Polaris must deploy against the
+pull request branch rather than a released version. `deploy.py` already
+supports this, so no change to Polaris's deployment machinery is needed:
+
+```
+./deploy.py --mache-fork xylar/mache --mache-branch parallel-placement ...
+```
+
+`deploy.py` and `deploy/cli_spec.json` are contract files shared with
+`mache` and must not be edited in Polaris to accommodate this.
+
+This is a temporary state and should be treated as one. Phase A should not
+be merged into Polaris while it depends on an unreleased branch. The order
+is: Polaris testing confirms the rendering works, `mache` merges and
+releases, Polaris pins the released version, and only then does Phase A
+land. Anything built on Phase A in the meantime is developed against a
+moving dependency and should expect to be rebased.
+
+Once a released version exists, Polaris should require at least that
+version and should fail clearly, at setup, if an older `mache` is present.
+A run that silently loses placement would appear to work while
+oversubscribing the machine, which is the worst failure mode available
+here: no error, wrong results, and slower than serial.
 
 ### Implementation: The Polaris Side
 
@@ -333,9 +361,18 @@ Contributors:
 
 The mechanisms Phase A relies on were measured on Chrysalis, Perlmutter (CPU
 and GPU), Frontier and Aurora before this design was written; the results
-are summarized in [Task Parallelism in Polaris](task_parallelism.md). Phase
-A shall be validated by showing that the commands Polaris generates produce
-the same behavior on each of those machines.
+are summarized in [Task Parallelism in Polaris](task_parallelism.md). Those
+measurements used commands written by hand. Phase A shall be validated by
+showing that the commands `mache` *renders* produce the same behavior on
+each of those machines, which is a different claim and the one that gates
+merging `mache` pull request #470.
+
+That validation does not require the rest of Phase A. Building placements,
+rendering them through `get_parallel_command()` and launching them
+concurrently is enough to confirm the rendering, and keeping it separate
+means a failure is attributable to `mache` rather than ambiguous between
+`mache` and Polaris's placement construction. It should be done first, on
+all five machines.
 
 A single confined step shall be run on each machine and shall report that it
 sees only the cores and GPUs it was given. This is the check that catches a

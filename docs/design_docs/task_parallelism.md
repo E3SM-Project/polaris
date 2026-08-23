@@ -130,7 +130,9 @@ rather than on all of it, and give steps a way to say what they need,
 including GPUs as a per-step total and memory. Still one step at a time.
 
 This is a prerequisite for everything else, and most of the work is in
-`mache`, which owns how Polaris launches parallel work.
+`mache`, which owns how Polaris launches parallel work. That `mache` change
+exists as pull request #470 and is not yet merged or released, so Phase A
+is developed against a branch rather than a released version for now.
 
 ### Phase B -- Concurrency
 
