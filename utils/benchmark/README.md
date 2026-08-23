@@ -74,6 +74,9 @@ guardrail and prints the exact commands, but touches nothing.
 | `submit` | Submit the job script instead of running in place. |
 | `polaris_config_file` | Optional config file passed on with `-f`. |
 
+`${USER}`, `${HOME}` and `${SCRATCH}` are substituted from the
+environment anywhere in the config file, when they are set.
+
 `--model`, `--branch`, `-p`, `-w`, `-b`, `-f` and the build flags are
 appended automatically and **must not** appear in `setup_command`; the
 driver raises an error if they do.

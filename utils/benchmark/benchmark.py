@@ -31,6 +31,9 @@ from shared import get_logger, to_abs  # noqa: E402
 #: The name of the file that marks a completed benchmark work directory
 COMPLETE_MARKER = '.polaris_benchmark_complete'
 
+#: Environment variables that config files may refer to as ``${NAME}``
+CONFIG_ENV_VARS = ['USER', 'HOME', 'SCRATCH']
+
 
 def benchmark(config, config_path, args):
     """
@@ -158,7 +161,8 @@ def main():
     args = parse_args()
 
     config = configparser.ConfigParser(
-        interpolation=configparser.ExtendedInterpolation()
+        defaults=environment_defaults(),
+        interpolation=configparser.ExtendedInterpolation(),
     )
     config_file = os.path.abspath(args.config_file)
     if not os.path.exists(config_file):
@@ -178,6 +182,26 @@ def main():
     print('Benchmark summary')
     print(72 * '-')
     _print_summary(manifest)
+
+
+def environment_defaults():
+    """
+    Get the environment variables config files may substitute
+
+    ``configparser`` has no notion of environment variables, so the ones
+    in ``CONFIG_ENV_VARS`` are added as defaults.  A config file can then
+    write ``${USER}`` in a path and get the expected substitution.
+
+    Returns
+    -------
+    defaults : dict
+        The environment variables that are set, keyed by name
+    """
+    return {
+        name: os.environ[name]
+        for name in CONFIG_ENV_VARS
+        if name in os.environ
+    }
 
 
 def parse_args():
