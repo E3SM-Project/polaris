@@ -491,10 +491,14 @@ supports this, so no change to Polaris's deployment machinery is needed:
 
 This is a temporary state and should be treated as one. Phase A should not
 be merged into Polaris while it depends on an unreleased branch. The order
-is: Polaris testing confirms the rendering works, `mache` merges and
-releases, Polaris pins the released version, and only then does Phase A
-land. Anything built on Phase A in the meantime is developed against a
-moving dependency and should expect to be rebased.
+is: Polaris testing confirms the rendering works and measures each machine's
+memory, `mache` takes both -- the confirmation and the corrected memory
+figures -- then merges and releases, Polaris pins the released version, and
+only then does Phase A land. Folding the memory corrections into the same
+release is worth a little care in sequencing, since the alternative is
+shipping estimates and correcting them in a second release that nothing
+forces anyone to make. Anything built on Phase A in the meantime is
+developed against a moving dependency and should expect to be rebased.
 
 Once a released version exists, Polaris should require at least that
 version and should fail clearly, at setup, if an older `mache` is present.
@@ -641,8 +645,8 @@ keeping as a small standing test rather than a one-off, since it is the
 first thing that would break if a site changed its scheduler
 configuration.
 
-While those machines are being visited, one further question should be
-settled, because it is cheap to answer there and expensive to guess at.
+While those machines are being visited, two further things should be
+settled, because both are cheap there and expensive to guess at.
 Nothing in this design asks the batch system to limit a step's memory, on
 the evidence that requesting memory changed nothing observable. That
 evidence shows memory was not the cause of the serialization; it does not
@@ -655,6 +659,50 @@ two consequences follow at once -- a step could be capped there, and, by the
 same argument that applies to GPUs, a step that says nothing about memory
 may be read as claiming all of it, which would be the same trap in a second
 place.
+
+### Testing and Validation: Measuring Each Machine's Memory
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The per-node memory `mache` reports is a number nobody has been able to
+measure. Whoever adds `memory_per_node` to the machine configs is not on
+those machines, and the figure that matters -- what a job may actually
+allocate -- is not what a vendor specification says, not what site
+documentation says, and not what a login node reports. The values that ship
+with `mache` will be estimates.
+
+Polaris's validation is the only occasion on which anyone is on all five of
+those machines with a reason to look, so measuring the real values is part
+of it. For each of Chrysalis, Perlmutter CPU, Perlmutter GPU, Frontier and
+Aurora, a job shall record what the batch system says a node has, and the
+corrections shall be returned to `mache` as a change to its machine configs.
+
+Two figures are worth recording rather than one, because they answer
+different questions. What the scheduler believes a node has is what a
+scheduler would pack against, and is what the config option should hold: on
+Slurm that is the node's real memory as `scontrol` or `sinfo` reports it,
+and on PBS it is the equivalent node attribute. What a process can actually
+allocate before it is refused is the figure that decides whether the first
+is honest. Where the two disagree, the smaller one is the one Polaris must
+not exceed, and the disagreement is itself worth reporting.
+
+Until a machine has been measured its value should be treated as
+provisional, and estimates should err low: a figure that is too high costs a
+job killed for exhausting a node, while one that is too low costs only work
+that could have been packed. Those are not comparable, so the unverified
+direction to be wrong in is downwards.
+
+This is a small task with an unusual failure mode: it is easy to omit and
+nothing fails when it is. A run with an over-estimated node memory looks
+entirely normal until a suite happens to pack tightly enough to exhaust a
+node, at which point the failure appears far from its cause and looks like a
+step's bug. Recording which machines have been measured, in the `mache`
+configs themselves, is what makes the omission visible.
 
 ### Testing and Validation: No Regression
 
