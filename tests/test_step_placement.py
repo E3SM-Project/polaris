@@ -125,10 +125,20 @@ def test_a_confined_step_is_sized_by_its_placement():
     assert step.cpus_per_task == 8
 
 
-def test_a_non_mpi_step_is_capped_at_one_node():
+def test_cores_are_capped_at_one_node_today():
     """
-    A single-process step cannot reach cores on another node without a
-    distributed launcher, so it must not be sized on the allocation.
+    Pin the behavior Polaris has always had, which is under review.
+
+    `cpus_per_task` is capped at one node's cores for every step, and for a
+    single-task step that is the whole core count, so such a step can never
+    be given more than one node's worth.  That is right for a step whose
+    parallelism is shared-memory -- `viz_combine_topo` sets numba's thread
+    count from it -- and wrong for one driving a distributed scheduler,
+    which is what the analysis work will do.  Polaris cannot currently tell
+    the two apart.
+
+    This is not an endorsement, it is a tripwire: whoever changes the cap
+    should have to change this too, deliberately.
     """
     component = _make_component()
     step = Step(component=component, name='step', ntasks=1, cpus_per_task=192)

@@ -515,13 +515,6 @@ class Step:
 
         available_cores = available_resources['cores']
         cores_per_node = available_resources['cores_per_node']
-        if self.ntasks == 1:
-            # a single-process step cannot reach cores on another node
-            # without a distributed launcher, so the cores in the rest of
-            # what it was given are not its to count.  `cpus_per_task` is
-            # capped at one node below in any case; saying it here is what
-            # keeps the task count honest too.
-            available_cores = min(available_cores, cores_per_node)
         self.cpus_per_task = min(
             self.cpus_per_task, min(available_cores, cores_per_node)
         )
