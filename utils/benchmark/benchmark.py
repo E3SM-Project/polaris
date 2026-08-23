@@ -497,9 +497,11 @@ def _get_run_dir(work_base, baseline, test):
     """
     date = datetime.now().strftime('%Y%m%d')
     parts = [date, baseline.polaris_sha[:7], test.polaris_sha[:7]]
+    baseline_shas = baseline.compare_shas
+    test_shas = test.compare_shas
     for key in gitrepo.SUBMODULE_PATHS:
-        baseline_sha = baseline.submodule_shas.get(key, '')
-        test_sha = test.submodule_shas.get(key, '')
+        baseline_sha = baseline_shas[key]
+        test_sha = test_shas[key]
         if baseline_sha != test_sha:
             parts.append(f'{key}-{baseline_sha[:7]}-{test_sha[:7]}')
     name = _slugify('-'.join(parts))
