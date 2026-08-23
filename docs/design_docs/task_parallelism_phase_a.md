@@ -75,7 +75,7 @@ The exception is machines running Slurm older than 20.11, such as Chrysalis,
 where the necessary options do not exist. There, Polaris shall fall back to
 explicit CPU binding, and shall record that it has done so.
 
-### Requirement: Steps Declare GPUs as a Per-Step Total
+### Requirement: A Step's GPU Need Is Always Stated Explicitly
 
 Date last modified: 2026/08/23
 
@@ -84,14 +84,23 @@ Contributors:
 - Xylar Asay-Davis
 - Claude
 
-A step that uses GPUs shall declare how many GPUs **the step** needs, not how
-many each MPI rank needs.
+A Polaris step uses no GPUs unless it declares otherwise. That premise does
+not change, and most steps will continue to declare nothing.
 
-This differs from how CPU resources are described today, where `ntasks` and
-`cpus_per_task` are per-rank quantities, and the difference is not
-cosmetic. Measurements on both GPU machines showed that requesting GPUs
-per-rank does not confine a step at all, while requesting a per-step total
-does. A step that does not declare GPUs shall be understood to need none.
+What must change is that Polaris shall state a step's GPU need to the
+launcher in every case, **including when it is zero**. Passing nothing is
+not the same as passing zero: the batch system treats an unstated GPU
+requirement as a claim on the node's GPUs and reserves all of them, which
+prevents any other step from starting. Because most Polaris steps use no
+GPUs, explicitly requesting none is the ordinary case rather than a special
+one.
+
+A step that does want GPUs shall declare how many **the step** needs, not
+how many each MPI rank needs. This differs from how CPU resources are
+described today, where `ntasks` and `cpus_per_task` are per-rank
+quantities, and the difference is not cosmetic: measurements on both GPU
+machines showed the per-rank form does not confine a step at all, while a
+per-step total does.
 
 ### Requirement: Steps Declare Memory
 
@@ -173,7 +182,11 @@ description is:
 
 - the nodes the step may use;
 - how many cores it may use on each;
-- how many GPUs it needs in total.
+- how many GPUs it needs in total, which is normally none.
+
+All three are always present. There is no "unspecified" for GPUs, because
+an unspecified GPU requirement is what the batch system reads as a claim on
+all of them.
 
 Each supported system can express all three, though they say it differently.
 On newer Slurm it is a matter of asking for exactly the resources requested
@@ -202,7 +215,10 @@ giving the scheduler room to run a step smaller when resources are tight.
 That target-and-minimum pattern is a good one and should be kept.
 
 GPUs should be added as a per-step total with a matching minimum, for the
-reason given in the requirements. Memory should be added the same way.
+reason given in the requirements, defaulting to none so that the great
+majority of steps need say nothing and still get an explicit "no GPUs"
+passed to the launcher on their behalf. Memory should be added the same
+way.
 
 Non-MPI steps are worth calling out. A single-process Python step has no
 meaningful "number of ranks"; what it has is a number of cores it can use

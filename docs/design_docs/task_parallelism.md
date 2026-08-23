@@ -58,14 +58,18 @@ are:
   piece of work gets its own cores, and its own GPUs, enforced by the batch
   system rather than by Polaris. This is a stronger guarantee than we
   expected to get.
-- **A piece of work claims every GPU on its node unless it says otherwise.**
-  This, and not memory or CPU contention, is what prevented concurrency on
-  the GPU machines. The fix is for each step to state how many GPUs it
-  needs.
-- **GPUs must be requested as a total per step, not as a count per MPI
-  rank.** The per-rank form does not work. This is a real constraint on how
-  Polaris describes step resources, and it differs from how CPU resources
-  are described today.
+- **Silence about GPUs is not neutral at the launcher.** Polaris steps use
+  no GPUs unless they say so, and that stays true. But if Polaris passes
+  that silence on, the batch system reads it as "give this work the node's
+  GPUs" and reserves all of them, which is what stopped concurrency on the
+  GPU machines -- not memory or CPU contention. Polaris must therefore state
+  a step's GPU need explicitly in every case, **including when it is zero**.
+  Since most Polaris steps use no GPUs at all, saying "none" is the common
+  path, not the exception.
+- **When a step does want GPUs, it must ask for a total, not a count per MPI
+  rank.** The per-rank form does not confine a step at all. This is a real
+  constraint on how Polaris describes step resources, and it differs from
+  how CPU resources are described today.
 
 The practical consequence is that no new dependency is needed. We considered
 adopting Flux, a nested scheduler that would sidestep the batch system
