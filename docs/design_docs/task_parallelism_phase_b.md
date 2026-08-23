@@ -97,12 +97,14 @@ Cores, GPUs, nodes and memory shall all be accounted for. A step whose
 minimum requirements cannot be met by the whole allocation shall be reported
 as impossible before the run starts.
 
-A step that has not said its cores may span nodes shall have them drawn from
-a single node. This is a packing constraint rather than a total: an
-allocation with cores free on several nodes and none of them holding enough
-may be unable to start such a step while showing plenty free, and the pool
-has to be able to say so rather than deadlocking or overcommitting. A step
-that may span is bounded only by what the allocation holds.
+A step that has not said its resources may span nodes shall have its cores
+and its GPUs drawn from a single node. This is a packing constraint rather
+than a total: an allocation with cores free on several nodes and none of
+them holding enough may be unable to start such a step while showing plenty
+free, and the pool has to be able to say so rather than deadlocking or
+overcommitting. The same applies to GPUs, and a step needing both must find
+both on one node rather than each somewhere. A step that may span is bounded
+only by what the allocation holds.
 
 Memory is accounted for differently from the rest, and the difference should
 be understood rather than smoothed over. Cores, GPUs and nodes are handed to
@@ -444,9 +446,10 @@ Memory shall be covered explicitly, including the case where cores are
 available but memory is not, and the case where a step declares memory
 smaller than its proportional share and is packed on the smaller figure.
 
-The node-span constraint shall be covered too, in particular the case that
-distinguishes it from a simple total: enough cores free across the
-allocation, not enough on any one node, and a step that may not span. It
+The node-span constraint shall be covered too, in particular the cases that
+distinguish it from a simple total: enough cores free across the allocation,
+not enough on any one node, and a step that may not span; and a step needing
+both cores and GPUs where each is available but not together on one node. It
 shall wait rather than start, and a step that may span shall start on the
 same allocation.
 

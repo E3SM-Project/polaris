@@ -141,6 +141,18 @@ Device memory needs no declaration of its own. GPUs are never divided
 between steps, so a step given a GPU is given that GPU's memory with it, and
 the GPU count already accounts for it.
 
+Host memory on a GPU machine is the case where the proportional default is
+most likely to be wrong, and a step author should expect to declare rather
+than rely on it. A step that wants every GPU on a node and only a handful of
+cores to drive them gets, by the proportional rule, only that handful's
+share of the node's memory -- which is unlikely to be what it needs to stage
+data for the devices. Making the default depend on GPUs as well would
+destroy the property that makes it safe, since it is exactly its being
+proportional to cores that makes memory-aware packing reduce to packing on
+cores. The default is a floor for steps nobody has measured, not an estimate
+anyone should trust for a step whose memory has nothing to do with its core
+count.
+
 ### Requirement: Resource Views Describe What a Step Can Use
 
 Date last modified: 2026/08/23
@@ -173,7 +185,7 @@ against. A step told its cores and its memory can do that; a step told only
 its cores cannot, and the natural mistake is to derive memory from cores,
 which is wrong in exactly the case that matters.
 
-### Requirement: A Step Says Whether Its Cores May Span Nodes
+### Requirement: A Step Says Whether Its Resources May Span Nodes
 
 Date last modified: 2026/08/23
 
@@ -182,12 +194,19 @@ Contributors:
 - Xylar Asay-Davis
 - Claude
 
-Whether a step's cores may be drawn from more than one node shall be a
+Whether a step's resources may be drawn from more than one node shall be a
 property the step declares, and shall not be inferred from whether the step
 uses MPI.
 
-The two are not the same question, and treating them as the same is what
-this requirement exists to prevent. An MPI step spans nodes because its
+This covers cores and GPUs together, as one property rather than two. A step
+that reaches other nodes reaches them by one mechanism, and that mechanism
+carries whatever the work needs; a step that cannot reach them cannot reach
+either. No case has been identified that wants the two to differ, and
+splitting them would invite a step to claim GPUs on nodes its cores cannot
+reach.
+
+MPI and spanning are not the same question, and treating them as the same is
+what this requirement exists to prevent. An MPI step spans nodes because its
 launcher spreads its ranks. A single-process Python step that does its work
 in its own threads cannot span nodes, because there is no mechanism by which
 it would reach them. A single-process Python step that hands its work to a
@@ -195,6 +214,12 @@ distributed worker pool spans nodes perfectly well -- the pool is exactly
 the mechanism the thread-based step lacks -- and it does so while remaining
 one process asking for one task. "Not MPI" covers the last two cases, which
 want opposite answers.
+
+Such a step's workers may use GPUs as readily as cores, and when they do,
+the GPUs come from the nodes the workers are on rather than from the node
+the step's own process happens to occupy. Nothing about a step being
+single-process confines its GPUs to one node once its work is somewhere
+else.
 
 Steps that do not say shall be treated as confined to a node, which is what
 every non-MPI step in Polaris is today. This is also the safe direction: a
@@ -209,7 +234,8 @@ today, because a step that names a minimum has said in advance which
 reductions are acceptable. A step whose *minimum* cannot be met within a
 node shall be an error when the run is set up, naming what it needs, what a
 node holds, and the property that would let it span -- not quietly reduced
-to what fits.
+to what fits. This applies to a step asking for more GPUs than a node has
+exactly as it applies to cores.
 
 This is deliberately the rule Polaris already follows, extended rather than
 replaced, and it leaves today's steps alone. The two steps that currently
@@ -251,6 +277,11 @@ than how it is launched, and both are constructed to leave existing steps
 where they are: the memory default reproduces core-only packing exactly, and
 the node-span rule reduces to today's target-and-minimum behavior for every
 step now in Polaris. Neither should show up as a difference in a run.
+
+This requirement is also what the migration of existing non-MPI steps onto
+the new fields is checked against. A step restated in different words shall
+receive the same resources and produce the same outputs, and any step for
+which that is not true has been restated wrongly.
 
 ## Algorithm Design
 
@@ -338,11 +369,23 @@ memory each. Tracking memory as its own quantity avoids both, and is
 consistent with the decision already made for GPUs, which this design
 likewise declines to express in CPU-shaped terms.
 
-Non-MPI steps are worth calling out. A single-process Python step has no
-meaningful "number of ranks"; what it has is a number of cores it can use
-and an amount of memory it needs. Expressing that through MPI-shaped fields
-is how Polaris ends up telling a Python step it has 192 cores across three
-nodes. Non-MPI steps should describe cores and memory directly.
+GPUs need no separate treatment for non-MPI steps, and it is worth saying so
+rather than leaving it to be inferred. A per-step total is already the shape
+a single-process step wants, so the same `gpus` and `min_gpus` serve both
+kinds of step and nothing further is required. The measurement that forced
+GPUs into that shape -- a per-rank count does not confine a launch -- happens
+to have put them where a step with no ranks can use them. Cores are the
+exception rather than GPUs being an omission: they are described per rank
+for historical reasons, and are the one resource a non-MPI step therefore
+cannot state.
+
+Non-MPI steps are worth calling out for that reason. A single-process Python
+step has no meaningful "number of ranks"; what it has is a number of cores
+it can use and an amount of memory it needs. Expressing that through
+MPI-shaped fields is how Polaris ends up telling a Python step it has 192
+cores across three nodes. Non-MPI steps should describe cores and memory
+directly, and their GPUs through the same per-step total every other step
+uses.
 
 That matters more once such a step is allowed to span nodes. A step that
 wants two hundred cores from a distributed pool is, in MPI-shaped terms, one
@@ -369,11 +412,13 @@ and placing them are one act.
 Two cases in this design separate them. Memory is reserved and never placed,
 because no launcher acts on it. A step that delegates its work to a
 distributed pool is the mirror image: what Polaris launches is a driver
-process needing about one core, while the cores the step claims are consumed
-by pool workers, which are separate launches, started elsewhere, and shared
-with other steps. Placing two hundred cores on that driver would confine
-them to a process that will not use them, while the workers that will are
-somewhere else entirely.
+process needing about one core, while the cores the step claims -- and the
+GPUs, where its workers use them -- are consumed by pool workers, which are
+separate launches, started elsewhere, and shared with other steps. Placing
+two hundred cores on that driver would confine them to a process that will
+not use them, while the workers that will are somewhere else entirely, and
+placing GPUs on it would reserve devices on the one node whose work is
+smallest.
 
 The distinction to carry forward is that **placement is what the launcher
 acts on and a reservation is what the scheduler tracks**. They coincide for
@@ -478,13 +523,36 @@ Contributors:
   not a ceiling it is held to.
 - `Step` gains a way to say how many cores and how much memory a non-MPI
   step needs, without going through MPI task counts.
-- `Step` gains a property saying whether its cores may be drawn from more
-  than one node, false by default for a non-MPI step and true for an MPI
-  one. `constrain_resources()` uses it in place of the node-sized cap it
-  applies today: a step that may span is bounded by the allocation, and a
-  step that may not and asks for more than a node holds is an error rather
-  than a silent reduction. Nothing in Polaris sets the property to true in
-  Phase A; it exists so that Phase C does not have to remove a rule.
+- `Step` gains a property saying whether its resources -- cores and GPUs
+  alike -- may be drawn from more than one node, false by default for a
+  non-MPI step and true for an MPI one. `constrain_resources()` uses it in
+  place of the node-sized cap it applies today: a step that may span is
+  bounded by the allocation, and a step that may not and asks for more than
+  a node holds is an error rather than a silent reduction. Nothing in
+  Polaris sets the property to true in Phase A; it exists so that Phase C
+  does not have to remove a rule.
+- No non-MPI GPU field is added, because `gpus` and `min_gpus` already are
+  one. Deprecating `gpus_per_task` is what completes this: it is the only
+  GPU field with a shape a non-MPI step cannot use.
+- The non-MPI steps that exist today are moved onto the new fields, as a
+  commit of its own at the end of the Phase A series rather than mixed into
+  the framework change. Nothing forces this: the two spellings mean the same
+  thing for a step confined to a node, and the framework should accept
+  either. It is done in Phase A anyway because Phase A is the only phase
+  whose acceptance criterion is that behavior does not change, which is
+  precisely how a translation of this kind is checked, and because leaving
+  both spellings live means the Phase B scheduler is the first thing to meet
+  them -- where a misread declaration shows up as a packing bug rather than
+  as a wrong number on a page.
+- That migration is smaller than it sounds and needs more judgment than it
+  sounds. Of the non-model steps that declare resources, most name one core
+  and one task, which is the default and can simply go. Four genuinely want
+  to state cores directly. The remainder set `ntasks=1` while being MPI
+  steps that happen to run at width one -- the WOA23 steps, the topography
+  remapping step, and the shared mapping-file step -- and moving those would
+  be wrong, since `ntasks` is the field that means what they mean. This has
+  to be decided per step rather than swept, and is the reason it is its own
+  commit and not a mechanical pass.
 - The code that builds a step's parallel command passes a placement through
   to `mache` when one has been assigned, and passes none when it has not,
   preserving today's behavior.
