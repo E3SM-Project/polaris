@@ -106,7 +106,8 @@ deliberately and noted when reporting results.
   worktrees/<ref>-<sha7>/            provisioned polaris worktrees
   baselines/<suite>_<model>_<key>_<shas>/
                                      reusable baseline work dirs
-  runs/<date>-<base sha7>-<test sha7>/
+  runs/<date>-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
+                                     one benchmark run
     benchmark.log
     manifest.json
     build_baseline/  build_test/

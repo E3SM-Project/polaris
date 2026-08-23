@@ -20,6 +20,7 @@ import configparser
 import hashlib
 import json
 import os
+import re
 import sys
 from datetime import datetime
 
@@ -484,9 +485,22 @@ def _run_baseline(
 
 
 def _get_run_dir(work_base, baseline, test):
-    """Get the deterministic run directory for this pair of sides."""
+    """
+    Get the deterministic run directory for this pair of sides.
+
+    Every repository that differs appears in the name.  Benchmarking a
+    submodule change holds polaris fixed on both sides, so the polaris
+    hashes alone would be the same for every such benchmark run on a
+    given day.
+    """
     date = datetime.now().strftime('%Y%m%d')
-    name = f'{date}-{baseline.polaris_sha[:7]}-{test.polaris_sha[:7]}'
+    parts = [date, baseline.polaris_sha[:7], test.polaris_sha[:7]]
+    for key in gitrepo.SUBMODULE_PATHS:
+        baseline_sha = baseline.submodule_shas.get(key, '')
+        test_sha = test.submodule_shas.get(key, '')
+        if baseline_sha != test_sha:
+            parts.append(f'{key}-{baseline_sha[:7]}-{test_sha[:7]}')
+    name = _slugify('-'.join(parts))
     if baseline.dirty or test.dirty:
         name = f'dirty-{name}'
     return os.path.join(work_base, 'runs', name)
@@ -530,6 +544,11 @@ def _setup_key(setup_command, polaris_config, baseline):
             parts.append(handle.read())
     text = '\n'.join(parts)
     return hashlib.sha256(text.encode('utf-8')).hexdigest()[:7]
+
+
+def _slugify(name):
+    """Get a filesystem-safe version of a run directory name."""
+    return re.sub(r'[^A-Za-z0-9_.-]', '-', name)
 
 
 def _is_complete(work_dir):
