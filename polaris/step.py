@@ -499,6 +499,13 @@ class Step:
             A dictionary containing available resources (cores, tasks, nodes
             and cores_per_node)
         """
+        # read what the step asked for before anything below changes it.
+        # GPUs are constrained in proportion to the tasks that survive, and
+        # the proportion is the one the step declared, not whatever is left
+        # after the cores have already been taken into account.
+        declared_ntasks = self.ntasks
+        declared_gpus = self.gpus
+
         mpi_allowed = available_resources['mpi_allowed']
         if not mpi_allowed and self.ntasks > 1:
             raise ValueError(
@@ -543,32 +550,38 @@ class Step:
                 f'memory but asks for only {self.max_memory} MB.'
             )
 
-        self._constrain_gpus(available_resources)
+        self._constrain_gpus(
+            available_resources, declared_ntasks, declared_gpus
+        )
 
-    def _constrain_gpus(self, available_resources):
+    def _constrain_gpus(
+        self, available_resources, declared_ntasks, declared_gpus
+    ):
         """
         Constrain a step's GPUs, and its tasks, to the GPUs available.
 
         The step asks for a total, but those GPUs are still spread across its
-        tasks, so running fewer tasks means needing fewer GPUs.  The ratio
-        between the two is what is held fixed while scaling down.
+        tasks, so running fewer tasks means needing fewer GPUs.  What is held
+        fixed while scaling down is the proportion the step *declared*: by
+        the time this runs, ``ntasks`` may already have been cut back by the
+        cores available, and measuring the proportion against that would make
+        each surviving task look like it needs more GPUs than it does.
         """
-        gpus = self.gpus
-        if gpus <= 0:
+        if declared_gpus <= 0 or not declared_ntasks:
             return
 
         available_gpus = available_resources.get('gpus')
         if not available_gpus:
             raise ValueError(
-                f'Step {self.name} requests {gpus} GPUs but no GPUs are '
-                f'available on this machine.'
+                f'Step {self.name} requests {declared_gpus} GPUs but no GPUs '
+                f'are available on this machine.'
             )
 
-        available_gpu_tasks = available_gpus * self.ntasks // gpus
+        available_gpu_tasks = available_gpus * declared_ntasks // declared_gpus
         ntasks = min(self.ntasks, available_gpu_tasks)
         # round up, so that scaling down the tasks never scales the GPUs
         # below what the tasks that remain still need
-        self.gpus = -(-gpus * ntasks // self.ntasks)
+        self.gpus = -(-declared_gpus * ntasks // declared_ntasks)
         self.ntasks = ntasks
 
         if self.gpus < self.min_gpus:

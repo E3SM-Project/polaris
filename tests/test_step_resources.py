@@ -121,6 +121,32 @@ def test_falling_below_the_minimum_tasks_fails():
         step.constrain_resources(_resources(gpus=4))
 
 
+def test_cores_cutting_the_tasks_first_does_not_cut_the_gpus_twice():
+    """
+    The GPU proportion is the one the step declared.
+
+    By the time GPUs are constrained, `ntasks` may already have been cut back
+    by the cores available.  Measuring one GPU per task against the reduced
+    count makes each surviving task look like it needs two, and cuts the
+    tasks again.
+    """
+    step = _make_step(ntasks=8, min_tasks=1, cpus_per_task=1, gpus=8)
+    step.constrain_resources(_resources(cores=4, cores_per_node=4, gpus=4))
+    assert step.ntasks == 4
+    assert step.gpus == 4
+
+
+def test_the_deprecated_form_survives_the_same_squeeze():
+    """The per-task form is the behavior the total has to reproduce."""
+    with pytest.warns(DeprecationWarning):
+        step = _make_step(
+            ntasks=8, min_tasks=1, cpus_per_task=1, gpus_per_task=1
+        )
+    step.constrain_resources(_resources(cores=4, cores_per_node=4, gpus=4))
+    assert step.ntasks == 4
+    assert step.gpus == 4
+
+
 def test_the_deprecated_form_constrains_the_same_way():
     """The translation has to leave the old behavior exactly as it was."""
     with pytest.warns(DeprecationWarning):
