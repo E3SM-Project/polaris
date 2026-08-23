@@ -45,15 +45,43 @@ what each one unblocks rather than for which matters more.
 
 Before designing anything, we measured whether the machines Polaris targets
 can actually run several placed pieces of work at once inside a single
-allocation. They can, all five of them. The details are recorded in
-`utils/launcher_spike/README.md`; the conclusions that shape this design
-are:
+allocation. They can, all five of them. The measurements were made in
+August 2026 with throwaway scripts; the results are recorded here because
+this document is where they need to survive.
 
-- **Launching work is cheap.** Between 60 and 670 launches per minute
-  depending on machine. A long-standing suspicion that Perlmutter throttles
-  launches to about one a minute turned out to describe a different problem.
-  (The measurements were taken off-peak, so this is not the last word on a
-  busy weekday.)
+In each test, four pieces of work were launched at once inside one
+allocation, each asking to be confined to its own cores and, where
+relevant, its own GPUs. Each reported back which cores and GPUs it could
+actually see and when it ran, so that genuine overlap could be told from
+work that merely queued.
+
+| machine | batch system | what confines a launch | cores | GPUs |
+| --- | --- | --- | --- | --- |
+| Chrysalis | Slurm 20.02 | explicit CPU binding | disjoint | n/a |
+| Perlmutter CPU | Slurm 25.11 | resource request | disjoint | n/a |
+| Perlmutter GPU | Slurm 25.11 | request + GPU total | disjoint | disjoint |
+| Frontier | Slurm 25.11 | request + GPU total | disjoint | disjoint |
+| Aurora | PBS with PALS | host list + core list | disjoint | disjoint |
+
+All five ran all four launches concurrently.
+
+The GPU machines were also tested at MPI width -- four concurrent two-rank
+MPI launches -- and partitioned cleanly there too. On Frontier the four
+launches received GPUs 4,5 / 6,7 / 0,1 / 2,3.
+
+The conclusions that shape this design are:
+
+- **Launching work is cheap.** Measured sequentially: roughly 60 per minute
+  on Perlmutter GPU and Aurora, 150 on Perlmutter CPU, 500-600 on Frontier
+  and Chrysalis. A long-standing suspicion that Perlmutter throttles
+  launches to about one a minute turned out to describe a different problem
+  -- concurrent launches queueing, not launches being rate limited.
+
+  Two caveats worth carrying. The tail is heavy: Frontier showed two of ten
+  launches near two seconds against a median of 0.11 s on an otherwise idle
+  system. And all of this was measured off-peak, so a busy weekday has not
+  been ruled out. If a future run finds launching unexpectedly slow, this is
+  the first thing to re-measure rather than the last.
 - **The scheduler will keep concurrent work apart, if asked properly.** Each
   piece of work gets its own cores, and its own GPUs, enforced by the batch
   system rather than by Polaris. This is a stronger guarantee than we
@@ -71,6 +99,19 @@ are:
   constraint on how Polaris describes step resources, and it differs from
   how CPU resources are described today.
 
+One more result is worth recording because it cost a round of testing: on
+CUDA machines the visible-device variable is renumbered for each launch, so
+four launches on four different GPUs all report device `0`. Anything
+verifying GPU placement must use the scheduler's global identifiers
+instead.
+
+Two approaches were tried and rejected. Allowing launches to overlap without
+constraining them gives concurrency but every launch then shares every core
+and GPU, which is oversubscription rather than scheduling. Constraining a
+launch and *also* pinning it with an explicit CPU mask fails outright on
+newer Slurm, because the two contradict each other; explicit masks remain
+the only mechanism on Slurm older than 20.11, where they work.
+
 The practical consequence is that no new dependency is needed. We considered
 adopting Flux, a nested scheduler that would sidestep the batch system
 entirely, and it is not necessary.
@@ -82,7 +123,7 @@ useful.
 
 ### Phase A -- Placement
 
-`docs/design_docs/task_parallelism_phase_a.md`
+[Task Parallelism Phase A: Placement](task_parallelism_phase_a.md)
 
 Give Polaris the ability to run a step on a **named part** of its allocation
 rather than on all of it, and give steps a way to say what they need,
@@ -93,7 +134,7 @@ This is a prerequisite for everything else, and most of the work is in
 
 ### Phase B -- Concurrency
 
-`docs/design_docs/task_parallelism_phase_b.md`
+[Task Parallelism Phase B: Concurrency](task_parallelism_phase_b.md)
 
 Build the dependency graph, the resource pool and an executor that runs each
 step in its own process. Run independent steps at the same time -- MPI and
@@ -104,7 +145,7 @@ This is where the regression-suite speedup lands.
 
 ### Phase C -- Python worker pool
 
-`docs/design_docs/task_parallelism_phase_c.md`
+[Task Parallelism Phase C: Python Worker Pool](task_parallelism_phase_c.md)
 
 Add a second executor: a pool of workers spread across the allocation's
 nodes, for Python work that is too fine-grained to give a process of its
@@ -113,7 +154,7 @@ MPAS-Analysis today, and it is the phase the analysis capability depends on.
 
 ### Phase D -- Coexistence and elasticity
 
-`docs/design_docs/task_parallelism_phase_d.md`
+[Task Parallelism Phase D: Coexistence and Elasticity](task_parallelism_phase_d.md)
 
 Let the worker pool and ordinary steps share an allocation, and let the pool
 grow and shrink as the amount of ready Python work changes, so that it does
@@ -131,8 +172,10 @@ not hold nodes idle once that work drains.
 - These documents do not cover writing the analysis capability itself. The
   properties an analysis step needs in order to be safely run concurrently
   are a separate document,
-  `docs/design_docs/task_parallel_analysis_steps.md`, which is worth
-  adopting before analysis steps are written rather than after.
+  *Task-Parallel-Safe Analysis Steps in Polaris*, which is worth adopting
+  before analysis steps are written rather than after. That document is
+  being prepared on its own branch and should land alongside these; once it
+  does, this should become a link to it.
 
 ## What success looks like
 

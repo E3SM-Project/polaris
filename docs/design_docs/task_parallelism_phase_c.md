@@ -159,7 +159,7 @@ writes to a shared path is unsafe there in a way it is not unsafe in its own
 process.
 
 The properties this requires are set out in
-`docs/design_docs/task_parallel_analysis_steps.md`, which should be adopted
+*Task-Parallel-Safe Analysis Steps in Polaris*, which should be adopted
 before analysis steps are written. Phase C depends on those rules being
 followed; it cannot enforce them after the fact.
 
