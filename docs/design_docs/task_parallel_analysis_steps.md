@@ -21,7 +21,7 @@ Whether Polaris can run analysis steps concurrently is only partly a
 property of the scheduler. It is equally a property of the steps. A step
 that changes the working directory, mutates module-level configuration or
 writes to a shared path cannot safely run beside another step in the same
-process, and cannot be dispatched to a worker on another node at all.
+process.
 
 This document sets out the properties an analysis step must have in order to
 be scheduled concurrently, and proposes adopting them as groundrules now,
@@ -29,19 +29,42 @@ while the analysis capability is still being designed. The cost of adopting
 them up front is close to zero; the cost of retrofitting them later is
 rewriting every analysis step already written.
 
-These rules are deliberately written so that a conforming step does not need
-to know which executor runs it. The same step should be runnable in the
-scheduler process, in a subprocess, or in a distributed worker on another
-node, without modification.
+### What Polaris already guarantees
 
-Existing Polaris code does not follow these rules today, and this document
-does not require it to. The framework itself does `os.chdir(step.work_dir)`
-around each step, sets `mpas_tools.io.default_format` and
-`default_engine` as process globals, and `polaris.viz` assigns
-`plt.rcParams['savefig.dpi']`. Those are safe under today's one-step-at-a-time
-execution and are called out here because they are the concrete patterns new
-analysis steps must avoid, and because the framework will have to offer
-alternatives before it can require them.
+Much of what a distributed executor would otherwise have to demand of a step
+is already true, because of how Polaris sets steps up and runs them. These
+are stated here so the requirements below do not repeat them:
+
+- **Steps are already serializable.** `polaris setup` builds the step objects
+  in one process and pickles each one to `step.pickle` in its work
+  directory; `polaris serial` unpickles it in a different process to run it.
+  A step that held an open file handle, a live connection or any other
+  unserializable state would already fail at setup today --
+  `ModelStep` clears its streams tree before pickling for exactly this
+  reason. Sending a step to a worker on another node adds no new
+  requirement.
+- **Configuration already comes from a file, not from process state.** Each
+  step's config file is written into the work directory at setup and re-read
+  with `setup_config()` immediately before the step runs. A step run in a
+  fresh process gets the same config as one run in the scheduler process.
+- **Declared inputs and outputs are already absolute paths.**
+  `Step.process_inputs_and_outputs()` resolves them against the step's work
+  directory at setup, so `self.inputs` and `self.outputs` do not depend on
+  the process working directory.
+- **Every step already has its own work directory and its own logger,** both
+  assigned by the framework.
+- **`Step.max_memory` already exists,** added as a placeholder for task
+  parallelism.
+
+What is *not* already handled is process-global state. The framework sets
+`mpas_tools.io.default_format` and `default_engine` as process globals
+before running, and `polaris.viz` assigns
+`plt.rcParams['savefig.dpi']`. Steps open bare relative filenames in
+`run()` and rely on the framework's `os.chdir(step.work_dir)` to make
+that work. Those are safe under today's one-step-at-a-time execution, and
+are called out here because they are the concrete patterns new analysis
+steps must avoid, and because the framework will have to offer alternatives
+before it can require them.
 
 Success means a newly written analysis step, following these rules, can be
 run concurrently with other steps -- including on a different node -- with no
@@ -62,31 +85,15 @@ Contributors:
 An analysis step shall not mutate state that is shared by the whole process.
 
 This includes the current working directory, environment variables,
-module-level configuration in third-party libraries, and global
-plotting state. Any of
-these makes two steps running in one process interfere with each other, and
-the interference is timing-dependent, so it surfaces as intermittent wrong
-answers rather than as a clean failure.
+module-level configuration in third-party libraries such as
+`mpas_tools.io`, and global plotting state such as `plt.rcParams` and the
+`pyplot` current figure. Any of these makes two steps running in one
+process interfere with each other, and the interference is
+timing-dependent, so it surfaces as intermittent wrong answers rather than
+as a clean failure.
 
 Where a step needs behavior that is conventionally set globally, the
 framework shall provide a scoped alternative.
-
-### Requirement: Explicit Configuration
-
-Date last modified: 2026/08/23
-
-Contributors:
-
-- Xylar Asay-Davis
-- Claude
-
-An analysis step shall obtain all of its configuration through objects
-passed to it, and shall not depend on configuration having been applied to
-the process by some earlier step or by the framework's startup.
-
-A step dispatched to a worker on another node begins in a process that never
-ran that startup, so any dependence on it is a latent failure that appears
-only once the step is scheduled remotely.
 
 ### Requirement: Working-Directory Independence
 
@@ -100,12 +107,13 @@ Contributors:
 An analysis step shall address every file by an explicit path and shall not
 depend on the process's working directory being its own work directory.
 
-The step shall continue to be given a work directory, and relative paths
-within the step's own definition of its inputs and outputs remain the normal
-way to describe them; the requirement is that resolution to an absolute path
-happen through the step rather than through `os.getcwd()`.
+Relative paths in the step's declaration of its inputs and outputs remain
+the normal way to describe them, and setup already resolves those to
+absolute paths. The requirement is about the body of `run()`: a filename
+opened there shall be resolved through the step rather than left to
+`os.getcwd()`.
 
-### Requirement: Isolated Outputs and Temporary Files
+### Requirement: Temporary Files in the Step's Work Directory
 
 Date last modified: 2026/08/23
 
@@ -114,13 +122,15 @@ Contributors:
 - Xylar Asay-Davis
 - Claude
 
-An analysis step shall write only within its own work directory, and shall
-place temporary files there rather than in a shared location.
+An analysis step shall place temporary files in its own work directory
+rather than in a shared location such as `/tmp` or the base work
+directory.
 
-Two concurrent steps must not be able to choose the same temporary path.
-Steps shall not write into another step's work directory, and shall not
-depend on being able to read a file that a concurrently running step is
-still writing.
+Each step already has a work directory of its own, so writing there is
+enough to guarantee that two concurrent steps cannot choose the same
+temporary path. A step shall likewise not write into another step's work
+directory, and shall not depend on reading a file that a concurrently
+running step is still writing.
 
 ### Requirement: Logging Through the Step's Logger
 
@@ -131,8 +141,9 @@ Contributors:
 - Xylar Asay-Davis
 - Claude
 
-An analysis step shall emit output through the logger it is given, and shall
-not write to `stdout`, `stderr` or the root logger directly.
+An analysis step shall emit output through the logger it is given in
+`self.logger`, and shall not write to `stdout`, `stderr` or the root
+logger directly.
 
 When several steps run at once, output written to shared streams interleaves,
 and the resulting log cannot be attributed to a step. This requirement is
@@ -155,40 +166,6 @@ existing Polaris steps. At high resolution an analysis step may need a large
 fraction of a node, and a scheduler that packs by cores alone will
 oversubscribe memory and fail. A step that cannot fit in a node's memory
 shall be reported as infeasible rather than attempted.
-
-### Requirement: Dispatchable to a Remote Worker
-
-Date last modified: 2026/08/23
-
-Contributors:
-
-- Xylar Asay-Davis
-- Claude
-
-An analysis step shall be able to be sent to a worker process, potentially
-on another node, and run there.
-
-Whatever the framework must transfer in order to do this shall be
-transferable. In practice this means a step shall not hold open file
-handles, live network connections, database handles or other unserializable
-state across the boundary between being defined and being run.
-
-### Requirement: Restartable and Idempotent
-
-Date last modified: 2026/08/23
-
-Contributors:
-
-- Xylar Asay-Davis
-- Claude
-
-Rerunning an analysis step that has already completed shall be safe, and
-shall produce the same result.
-
-Under concurrency a run is more likely to be interrupted partway, because
-more work is in flight when a failure or a wall-clock limit arrives. Steps
-shall not accumulate state by appending to existing outputs, and shall
-tolerate the presence of outputs from a previous partial run.
 
 ### Requirement: Bounded Process Launching
 
@@ -251,7 +228,8 @@ them -- as a core count for the step -- rather than through MPI task counts.
 Memory should be expressed as a target and a minimum, in the same style as
 the existing target-and-minimum resource fields, so that the scheduler can
 run a step in less memory when the allocation is tight and can report a
-step as infeasible when even the minimum does not fit.
+step as infeasible when even the minimum does not fit. `Step.max_memory`
+is the placeholder this should build on.
 
 The measurement needed to set these numbers sensibly is being gathered
 separately, by instrumenting a high-resolution MPAS-Analysis run for
@@ -273,10 +251,10 @@ checked mechanically, and should be.
 Working-directory independence, global-state mutation and unbounded process
 launching can be checked at runtime by running a step with the process
 working directory set somewhere unrelated, snapshotting the globals a step is
-forbidden to touch, and comparing them afterwards. Dispatchability can be
-checked by round-tripping the step through serialization before running it.
-Isolation can be checked by comparing the set of files a step wrote against
-its declared outputs and its work directory.
+forbidden to touch, and comparing them afterwards. Isolation can be checked
+by comparing the set of files a step wrote against its declared outputs and
+its work directory. Serializability needs no check of its own, since setup
+already pickles every step.
 
 These checks are cheap enough to run as part of ordinary testing, and are
 most valuable while the analysis capability is small.
@@ -302,7 +280,8 @@ the scheduler work:
   `polaris/viz/spherical.py`;
 - a step method that returns a temporary directory inside the step's work
   directory;
-- memory fields alongside the existing resource fields on `Step`.
+- target and minimum memory fields on `Step`, alongside the existing
+  `max_memory` placeholder and the other resource fields.
 
 None of these require the task-parallel scheduler to exist, and all of them
 are useful on their own.
@@ -323,7 +302,6 @@ the rules. In outline:
 def check_task_parallel_safe(step):
     """Run a step the way a remote worker would, and check it behaves."""
     before = snapshot_process_state()   # cwd, env, mpas_tools.io, rcParams
-    step = round_trip(step)             # must survive serialization
     run_from_unrelated_directory(step)
     after = snapshot_process_state()
     assert before == after
@@ -368,9 +346,8 @@ Contributors:
 
 Unit tests shall cover the conformance helper itself, using deliberately
 non-conforming steps: one that changes the working directory, one that
-mutates a forbidden global, one that writes outside its work directory, one
-that cannot be serialized and one that launches unbounded parallelism. Each
-shall be detected.
+mutates a forbidden global, one that writes outside its work directory and
+one that launches unbounded parallelism. Each shall be detected.
 
 Every new analysis step shall have a test that runs it through the
 conformance helper.
