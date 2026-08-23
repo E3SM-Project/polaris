@@ -58,10 +58,9 @@ in Phase B -- that is a property of processes, not a decision Polaris made.
 For the pool, a computation whose data exceed one node's memory is not a
 separate problem needing separate machinery. Working in chunks and spreading
 those chunks across the workers' combined memory are the same facility, and
-a pool built on a distributed array framework provides both. A step that
-needs more memory than one node has can take a lease spanning several and
-work across their combined memory, using the same submit-and-collect
-interface as any other step.
+the distributed-array layer that provides it sits on the same pool. A step
+that needs more memory than one node has can take a lease spanning several
+and work across their combined memory.
 
 The cost is not zero: moving data between nodes is slower than staying
 within one, the work has to be written in terms of array operations the
@@ -105,8 +104,8 @@ This covers two things that should not be conflated: many independent pieces
 of work running at once on different nodes, and a single computation whose
 data are spread across the memory of several nodes. Both shall be possible.
 The second is not expected to be common, but designing it out would be a
-mistake, and a pool built on a distributed array framework gives it without
-additional machinery.
+mistake, and it comes without additional machinery from the same framework
+that provides the first.
 
 ### Requirement: The Pool Occupies a Known Share
 
@@ -218,12 +217,58 @@ important for two reasons: it is one launch rather than one per piece of
 work, which is the whole point of pooling; and being confined means the rest
 of the allocation stays usable.
 
-Dask Distributed is the natural implementation. It is what the scientific
-Python ecosystem uses for this, it is what MPAS-Analysis's xarray-based work
-would already be at home in, and earlier Polaris work established that it can
-be started across an allocation's nodes. The design should not depend on that
-choice: what a step sees should be "submit work, get results", so the
-underlying mechanism can be replaced.
+Dask Distributed is the natural implementation. What matters for Polaris is
+that its core is a **general task scheduler**, not an array library: a step
+submits arbitrary Python callables and collects results, and can say which
+workers a piece of work may run on and what resources it needs. Distributed
+arrays are one thing built on top of that scheduler, available when a step
+wants them, and irrelevant when it does not. The primary use here is the
+general form -- many independent analysis tasks -- and the design should be
+read that way.
+
+Earlier Polaris work established that such a pool can be started across an
+allocation's nodes. The design should not depend on the choice of framework:
+what a step sees should be "submit work, get results", so the underlying
+mechanism can be replaced.
+
+### Algorithm Design: Where a Pool Disappoints
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The risks in adopting a pool are operational rather than conceptual, and are
+worth naming so they are designed for rather than discovered.
+
+**Worker memory is managed by the pool, not by the batch system.** Workers
+spill, pause and eventually restart themselves when they approach their
+memory limit. If a step's tasks are memory-hungry and the limits are set
+wrongly, the symptom is workers dying and work silently retrying, which
+reads as a mysterious slowdown. Worker memory limits must be derived from
+the resources the pool was actually given, and worker restarts must be
+reported, not absorbed.
+
+**Large results should not travel back through the pool.** Analysis tasks
+that produce files should write them and return paths. Returning large
+arrays moves them across the network and through the process that
+coordinates the pool, which is the classic way to turn a fast distributed
+computation into a slow one.
+
+**Pure-Python work needs separate processes, not threads.** A worker that
+runs several tasks as threads will serialize anything holding Python's
+global interpreter lock. Work that is numerical and releases the lock is
+fine; work that is Python-level loops is not. The pool's shape -- how many
+worker processes, how many threads each -- must follow from what the tasks
+actually do.
+
+**There is a floor on useful task size.** Each task carries a small
+scheduling cost. It is far below the duration of any realistic analysis
+task, so it should not matter here, but it is the reason a pool is the wrong
+answer for very short work and worth confirming against the measured task
+durations rather than assumed.
 
 ### Algorithm Design: Sizing the Pool
 
