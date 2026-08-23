@@ -228,9 +228,20 @@ def provision(
         return state
 
     add_worktree(primary_path, sha, worktree, logger=logger)
-    _git('submodule update --init', cwd=worktree, logger=logger)
 
     state.pinned_shas = _pinned_submodule_shas(worktree, 'HEAD')
+
+    # only the submodule the model is built from, plus any that are
+    # overridden, are needed; a bare `submodule update --init` would also
+    # clone E3SM, MALI-Dev and jigsaw-python for an Omega benchmark
+    needed = {MODEL_SUBMODULES[model]}
+    needed.update(submodule_specs)
+    for key in sorted(needed):
+        _git(
+            f'submodule update --init {SUBMODULE_PATHS[key]}',
+            cwd=worktree,
+            logger=logger,
+        )
 
     for key, (sub_fork, sub_ref) in submodule_specs.items():
         sub_path = _submodule_path(worktree, key)
