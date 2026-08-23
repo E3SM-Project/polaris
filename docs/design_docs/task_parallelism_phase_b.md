@@ -1,0 +1,433 @@
+# Task Parallelism Phase B: Concurrency
+
+Creation date: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+## Summary
+
+Phase B makes Polaris run independent steps at the same time.
+
+Phase A gave Polaris the ability to confine a step to part of its allocation.
+Phase B adds the parts that decide what to run and when: a graph of which
+steps depend on which, a record of which resources are in use, and an
+executor that runs each step in its own process.
+
+MPI steps and Python steps are treated the same way. This is worth stating
+plainly because earlier designs staged them separately, running Python work
+concurrently while MPI steps waited their turn. That separation existed
+because we could not confine an MPI step to part of the allocation. Phase A
+removes that reason, and with it the need for a barrier between the two kinds
+of work, the machinery to switch between modes, and the cost of switching.
+
+Each step runs in its own operating-system process. Polaris already knows how
+to do this: `polaris serial` can run a single step in a fresh process from
+its pickle file, and that is the unit the scheduler dispatches. Running a step
+in its own process means it cannot disturb another step by changing the
+working directory, setting a module-level default or writing to a global
+logger -- all of which Polaris steps legitimately do today.
+
+This is where the regression-suite speedup arrives. On a recent `omega_pr`
+run on Chrysalis, three nodes, 12:26 total: the MPI work amounts to roughly
+236 s of core-time on 192 cores, against a dependency floor of about 106 s,
+so something in the range of 2.5-3x is the expectation on the same
+allocation. That number is an estimate from one run's timings and should be
+treated as a target to measure against, not a promise.
+
+Success in Phase B means a suite's independent steps run together, results
+match serial execution exactly, a failure stops only the work that depended
+on it, and reruns still skip completed steps.
+
+## Requirements
+
+### Requirement: A Concurrent Execution Path
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Polaris shall provide a way to run a suite, task or step with concurrency,
+alongside the existing `polaris serial`.
+
+`polaris serial` shall remain available and unchanged. Setup shall provide an
+opt-in way to generate job scripts that use the concurrent path; the serial
+path shall remain the default until the concurrent one has been used enough
+to trust.
+
+### Requirement: Scheduling from Declared Dependencies
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Polaris shall decide what may run from explicitly declared step
+dependencies and from declared input and output files, not from the order in
+which steps happen to be listed.
+
+If a suite relies on listed order without declaring a real dependency, it is
+acceptable for the concurrent path to expose that as a failure. Invalid
+graphs -- cycles, or an input no selected step produces and which does not
+already exist -- shall be rejected before anything runs, rather than
+discovered partway through.
+
+Steps shared between tasks shall be recognized as one step and run once.
+
+### Requirement: Resource-Aware Scheduling
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Polaris shall run as many ready steps as the allocation's resources allow,
+and no more.
+
+Cores, GPUs, nodes and memory shall all be accounted for. Memory matters here
+even though most steps today use little of it, because getting it wrong means
+a job that dies rather than a job that runs slowly. A step whose minimum
+requirements cannot be met by the whole allocation shall be reported as
+impossible before the run starts.
+
+Where a step declares both a target and a minimum, Polaris may run it at less
+than its target in order to fit more work, but never below its minimum.
+
+### Requirement: Each Step in Its Own Process
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Each step shall run in its own process, isolated from other running steps.
+
+Polaris steps mutate process-wide state as a matter of course: the framework
+changes the working directory into each step's work directory, and sets
+library-level defaults for NetCDF output. These are correct today and would
+be races if two steps shared a process. Process isolation makes them
+harmless without requiring every existing step to be rewritten.
+
+### Requirement: Deterministic Ordering
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+When several steps could run, the choice among them shall be repeatable.
+
+Two runs of the same work with the same resources should make the same
+choices. The chosen order need not match what `polaris serial` did, but it
+must not vary from run to run, or debugging a concurrent run becomes
+guesswork.
+
+### Requirement: Failure Isolation and Restart
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+A step that fails shall prevent the steps that depend on it from running, and
+shall not prevent unrelated work from continuing.
+
+Completed steps shall still be skipped on rerun, cached steps shall still be
+honored, and a rerun after a failure shall resume from what succeeded.
+
+### Requirement: Results Match Serial Execution
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+For deterministic workflows, running concurrently shall produce the same
+final outputs as running serially.
+
+### Requirement: The Run Can Be Understood Afterwards
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+A concurrent run shall record enough to reconstruct what happened: which
+steps ran when, what resources each held, what each was waiting for, and how
+the total compares with running serially.
+
+This is not optional polish. A concurrent run that is slower than expected
+is otherwise very hard to diagnose, because the interesting question --
+why was nothing running at this moment -- cannot be answered from step logs.
+
+### Requirement: Do Not Poll the Batch System
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Polaris shall not repeatedly query the batch system to find out how running
+steps are getting on.
+
+NERSC asks that jobs keep batch-system queries to one or two a minute in
+aggregate, and a scheduler that polls per step per second would breach that
+badly at scale. Polaris shall learn that a step has finished from the process
+it started, not by asking the queue.
+
+## Algorithm Design
+
+### Algorithm Design: The Scheduling Loop
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The loop is conventional and should stay that way:
+
+1. Mark ready any step whose dependencies have all succeeded.
+2. Among ready steps, in a stable order, take each that fits in the
+   resources currently free and start it.
+3. Wait for any running step to finish.
+4. Release its resources, record the outcome, and repeat.
+
+The stable order should come from setup order -- suite, then task, then step
+within task -- which is easy to explain and close to what users already
+expect. Steps that cannot fit right now are simply skipped over until they
+can; there is no need for a more elaborate policy in Phase B, and a simple
+one is much easier to reason about when a schedule looks wrong.
+
+The one policy choice worth making deliberately is whether to hold resources
+free for a large step that cannot currently fit, rather than filling the gap
+with small ones and starving it. Phase B should not do this: it should fill
+the gap, and rely on the largest steps being started early by the stable
+order. If starvation shows up in practice, that is the point to add a rule,
+with evidence for it.
+
+### Algorithm Design: Running a Step in Its Own Process
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Polaris already has exactly the right unit. `polaris serial` run inside a
+step's work directory loads `step.pickle` and executes that one step, with
+configuration, parallel system, resources, logging and completion markers all
+handled. The scheduler starts that as a subprocess, with the step's placement
+in its environment, and waits for it.
+
+This has a property worth spelling out: the *same* mechanism serves MPI and
+non-MPI steps. An MPI step's subprocess goes on to launch its model through
+the parallel command; a Python step's subprocess simply runs Python. The
+scheduler does not need two executors, two policies or a barrier between
+them.
+
+The alternative we considered and rejected was to run steps as functions
+inside a pool of worker processes. It is a good fit for fine-grained Python
+work -- and Phase C adds exactly that, for exactly that reason -- but it is a
+poor fit for whole Polaris steps, which are coarse, mutate process state and
+launch their own subprocesses.
+
+### Algorithm Design: Building the Graph
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Edges come from two places: dependencies a step declares directly, and files
+one selected step produces that another consumes. Listed order contributes
+nothing except as the tie-break for choosing among ready steps.
+
+Steps that are already complete, or cached, participate in validation as
+satisfied nodes: their outputs are available for others to depend on, but
+they are not run.
+
+The graph should be validated before any step starts. An unsatisfiable input
+discovered at minute forty of a suite is much more expensive than the same
+error reported at second one.
+
+### Algorithm Design: Knowing When a Step Has Finished
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The scheduler waits on the processes it started. When one exits, its exit
+status says whether the step succeeded, and Polaris's existing completion
+markers confirm it. Nothing asks the batch system anything.
+
+## Implementation
+
+### Implementation: Shared Step Lifecycle
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The per-step lifecycle -- runtime input checks, dependency loading,
+`runtime_setup()`, `run()`, output checks, validation, completion markers --
+currently lives inside `polaris/run/serial.py`. It should be moved into a
+shared module that both the serial and concurrent paths call, with no change
+in behavior.
+
+This is worth landing as its own change, ahead of the scheduler, because it
+is a pure refactor and reviewable as one. Earlier task-parallel work already
+did this and the result was sound; it is the piece of that work most worth
+carrying forward.
+
+### Implementation: New Modules
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+- a graph builder, producing the step graph and rejecting invalid ones;
+- a resource pool, tracking free nodes, cores, GPUs and memory, and handing
+  out and taking back reservations;
+- an executor, starting a step as a subprocess with its placement and
+  reporting completion;
+- a scheduler, owning the loop above;
+- an event stream, recording scheduling decisions as structured records.
+
+These should be small and separately testable. The scheduler in the earlier
+attempt grew past three thousand lines, largely because worker-pool lifecycle
+and mode-switching policy lived inside it; with a subprocess executor there
+is no lifecycle to manage and the loop stays short.
+
+### Implementation: Step Eligibility
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Steps should be eligible for concurrency by default, with a way for a step
+author to mark one unsafe -- for shared mutable state outside its work
+directory, external side effects, or anything else that makes running beside
+another step wrong.
+
+This is the same metadata the analysis conformance checks in
+`task_parallel_analysis_steps.md` need, and it should be one mechanism, not
+two.
+
+## Testing
+
+### Testing and Validation: Graph and Scheduling
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Unit tests shall cover graph construction from explicit and file
+dependencies, shared steps, cycles, unsatisfiable inputs, cached and
+completed steps, and the stability of ready-step ordering. These use
+synthetic steps and need no allocation.
+
+### Testing and Validation: Resource Accounting
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Unit tests shall cover packing: steps that all fit, steps where only a subset
+fits, a step run at its minimum rather than its target, and a step whose
+minimum exceeds the allocation, which shall be reported before the run.
+
+Memory shall be covered explicitly, including the case where cores are
+available but memory is not.
+
+### Testing and Validation: Concurrency and Isolation
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Integration tests shall use synthetic steps that sleep, produce outputs,
+consume other steps' outputs and fail deliberately, and shall verify that
+independent steps genuinely overlap in time, that a failure blocks only its
+dependents, and that a rerun resumes correctly.
+
+Overlap shall be checked from recorded start and end times, not inferred
+from wall time. A test that concludes "it was faster, so it must have run
+concurrently" will pass on a machine where nothing overlapped at all.
+
+### Testing and Validation: Equivalence and Speedup
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+A representative suite shall be run concurrently and compared against a
+serial baseline; outputs shall match.
+
+Wall time shall be recorded and compared, on each supported machine, but no
+particular speedup shall be required to declare Phase B correct. Correctness
+and isolation are the bar. Speedup below expectation is a reason to look at
+the event stream, not a reason to hold the phase.
+
+### Testing and Validation: Cross-Machine
+
+Date last modified: 2026/08/23
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Validation shall cover Chrysalis, Perlmutter (CPU and GPU), Frontier and
+Aurora, since these differ in exactly the way that matters: two eras of Slurm,
+a PBS system, and GPU and non-GPU nodes. The launcher spike established that
+each can do what Phase B needs; this validation confirms Polaris does it.
