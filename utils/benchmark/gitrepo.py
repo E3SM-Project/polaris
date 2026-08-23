@@ -109,7 +109,11 @@ class SourceState:
         """
         shas = {'polaris': self.polaris_sha}
         for key in SUBMODULE_PATHS:
-            shas[key] = self.submodule_shas.get(key, '')
+            # a submodule that is not initialized is still pinned by the
+            # polaris commit, and the pin is what it would be checked out
+            # at, so report that rather than nothing
+            actual = self.submodule_shas.get(key, '')
+            shas[key] = actual or self.pinned_shas.get(key, '')
         return shas
 
     def provenance(self):
