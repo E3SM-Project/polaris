@@ -653,7 +653,16 @@ def _run_step(
         step_logger.info('')
         log_method_call(method=step.constrain_resources, logger=step_logger)
         step_logger.info('')
-        step.constrain_resources(available_resources)
+        # a step confined to part of the allocation has to be told about
+        # that part, not about the whole job.  Nothing assigns a placement
+        # yet, so this is the whole job in every case today.
+        if step.placement is not None:
+            step_resources = step.component.get_available_resources(
+                step.placement
+            )
+        else:
+            step_resources = available_resources
+        step.constrain_resources(step_resources)
 
         # runtime_setup() will perform small tasks that require knowing the
         # resources of the task before the step runs (such as creating
@@ -681,6 +690,7 @@ def _run_step(
                     step.openmp_threads,
                     step.logger,
                     gpus=step.gpus,
+                    placement=step.placement,
                 )
         else:
             step_logger.info('')

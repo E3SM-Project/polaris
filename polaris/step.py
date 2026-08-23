@@ -88,6 +88,15 @@ class Step:
         This is currently just a placeholder for later use with task
         parallelism
 
+    placement : mache.parallel.ResourcePlacement or None
+        the part of the allocation this step is confined to -- which nodes,
+        which cores on each and how many GPUs -- or ``None`` to run on the
+        whole allocation, as steps have always done.
+
+        Nothing assigns this yet.  Deciding which subset a step should get
+        needs a scheduler, and there is not one: the only caller is the
+        serial path, which assigns no placement.
+
     input_data : list of dict
         a list of dict used to define input files typically to be
         downloaded to a database and/or symlinked in the work directory
@@ -301,6 +310,7 @@ class Step:
         self._min_gpus = min_gpus
         _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task)
         self.max_memory = max_memory
+        self.placement = None
 
         self.path = os.path.join(self.component.name, self.subdir)
 
@@ -484,6 +494,13 @@ class Step:
 
         available_cores = available_resources['cores']
         cores_per_node = available_resources['cores_per_node']
+        if self.ntasks == 1:
+            # a single-process step cannot reach cores on another node
+            # without a distributed launcher, so the cores in the rest of
+            # what it was given are not its to count.  `cpus_per_task` is
+            # capped at one node below in any case; saying it here is what
+            # keeps the task count honest too.
+            available_cores = min(available_cores, cores_per_node)
         self.cpus_per_task = min(
             self.cpus_per_task, min(available_cores, cores_per_node)
         )

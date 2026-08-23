@@ -30,6 +30,46 @@ The key APIs are now:
 `ParallelSystem.get_parallel_command()` supports both CPU and GPU resources
 through `cpus_per_task` and `gpus_per_task`.
 
+## Placement
+
+A step can be confined to a **named part** of the allocation -- these nodes,
+these cores on each, this many GPUs -- rather than being launched across all
+of it.  That is what makes it possible to run two steps at once without them
+colliding or queueing behind one another.
+
+The description is machine independent.  Polaris says *where*, and `mache`
+decides which flags express it, because those differ between machines and
+even between Slurm versions on the same machine:
+
+```python
+from mache.parallel import ResourcePlacement
+
+step.placement = ResourcePlacement(
+    nodes=('nid001234',), cores=tuple(range(8)), gpus=0
+)
+```
+
+`Step.placement` is `None` by default, and a step with no placement produces
+exactly the command Polaris has always produced.  **Nothing assigns a
+placement yet.**  Deciding which subset a step should get needs a scheduler,
+which is a later phase; the only caller today is the serial path, which
+assigns none.
+
+Two consequences are worth knowing about:
+
+- A placement always states GPUs, including when the answer is zero.  A
+  launch that says nothing about GPUs is read by the batch system as a claim
+  on every GPU on the node, which stops any other step from starting.
+- {py:meth}`polaris.Component.get_available_resources` takes an optional
+  placement and, when given one, describes that subset rather than the whole
+  allocation.  A step confined to one node has to be told about one node:
+  resources withheld from a step have to be genuinely withheld, not merely
+  subtracted from a number.
+
+Not every machine can confine a launch.  `mache` reports which mechanism a
+machine has through `ParallelSystem.placement_support`, decided at run time
+from the launcher that is actually installed rather than from configuration.
+
 ## Compiler-specific parallel configs
 
 `mache.parallel` combines options in `[parallel]` with

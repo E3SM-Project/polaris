@@ -70,9 +70,18 @@ class Component:
         assert config.combined is not None
         self.parallel_system = get_parallel_system(config.combined)
 
-    def get_available_resources(self):
+    def get_available_resources(self, placement=None):
         """
         Get available resources from the active parallel system
+
+        Parameters
+        ----------
+        placement : mache.parallel.ResourcePlacement, optional
+            The part of the allocation a step is confined to.  When it is
+            given, the resources described are that subset's rather than the
+            whole allocation's, so that a confined step is told about what it
+            can actually use.  Resources withheld from a step have to be
+            genuinely withheld, not merely subtracted from a number.
 
         Returns
         -------
@@ -83,6 +92,9 @@ class Component:
             raise ValueError(
                 f'Parallel system has not been set for component {self.name}'
             )
+
+        if placement is not None:
+            return _placement_resources(placement, self.parallel_system)
 
         return dict(
             cores=self.parallel_system.cores,
@@ -101,6 +113,7 @@ class Component:
         openmp_threads,
         logger,
         gpus=0,
+        placement=None,
         gpus_per_task=None,
     ):
         """
@@ -127,6 +140,10 @@ class Component:
             Number of GPUs this launch needs, as a total rather than a count
             per task
 
+        placement : mache.parallel.ResourcePlacement, optional
+            The part of the allocation to confine this launch to.  Passing
+            none gives exactly the command Polaris has always built.
+
         gpus_per_task : int, optional
             Number of GPUs per task
 
@@ -138,7 +155,7 @@ class Component:
                 f'Parallel system has not been set for component {self.name}'
             )
 
-        if gpus_per_task is not None:
+        if gpus_per_task:
             warnings.warn(
                 'gpus_per_task is deprecated. Use gpus, which says how many '
                 'GPUs the launch needs in total.',
@@ -146,6 +163,16 @@ class Component:
                 stacklevel=2,
             )
             gpus = max(gpus, gpus_per_task * ntasks)
+
+        if placement is not None and placement.gpus != gpus:
+            # a placement carries the GPUs itself, so the two saying
+            # different things means whatever built the placement and the
+            # step have drifted apart.  Much cheaper to catch here than as
+            # silent oversubscription once the work is running.
+            raise ValueError(
+                f'This launch asks for {gpus} GPUs but its placement asks '
+                f'for {placement.gpus}. They must agree.'
+            )
 
         env = dict(os.environ)
         env['OMP_NUM_THREADS'] = f'{openmp_threads}'
@@ -157,6 +184,7 @@ class Component:
             ntasks=ntasks,
             cpus_per_task=cpus_per_task,
             gpus_per_task=_gpus_per_task(gpus, ntasks),
+            placement=placement,
         )
         check_call(command_line_args, logger, env=env)
 
@@ -353,3 +381,17 @@ def _gpus_per_task(gpus, ntasks):
     if gpus <= 0 or ntasks <= 0:
         return 0
     return -(-gpus // ntasks)
+
+
+def _placement_resources(placement, parallel_system):
+    """Describe what a placement gives a step, in the usual resource terms."""
+    nodes = max(len(placement.nodes), 1)
+    cores_per_node = len(placement.cores)
+    return dict(
+        cores=cores_per_node * nodes,
+        nodes=nodes,
+        cores_per_node=cores_per_node,
+        gpus=placement.gpus,
+        gpus_per_node=placement.gpus // nodes,
+        mpi_allowed=parallel_system.mpi_allowed,
+    )
