@@ -17,6 +17,7 @@ the exact commands that would be run without building anything.
 
 import argparse
 import configparser
+import hashlib
 import json
 import os
 import sys
@@ -67,6 +68,8 @@ def benchmark(config, config_path, args):
     polaris_config = section.get('polaris_config_file', fallback='')
     if polaris_config:
         polaris_config = to_abs(polaris_config, config_path)
+        if not os.path.exists(polaris_config):
+            raise ValueError(f'No such polaris_config_file: {polaris_config}')
     else:
         polaris_config = None
 
@@ -94,7 +97,9 @@ def benchmark(config, config_path, args):
     _check_guardrails(baseline, test, load_script_name, args)
 
     run_dir = _get_run_dir(work_base, baseline, test)
-    baseline_dir = _get_baseline_dir(work_base, baseline, setup_command)
+    baseline_dir = _get_baseline_dir(
+        work_base, baseline, setup_command, polaris_config
+    )
     test_dir = os.path.join(run_dir, 'test')
 
     logger = None
@@ -487,9 +492,12 @@ def _get_run_dir(work_base, baseline, test):
     return os.path.join(work_base, 'runs', name)
 
 
-def _get_baseline_dir(work_base, baseline, setup_command):
+def _get_baseline_dir(work_base, baseline, setup_command, polaris_config):
     """
     Get the cacheable baseline work directory.
+
+    The name covers everything a baseline depends on, so that a baseline
+    is only ever reused by a benchmark it is actually comparable with.
 
     A dirty baseline is never cached or reused, since it cannot be
     reproduced from the recorded commit hashes.
@@ -497,11 +505,31 @@ def _get_baseline_dir(work_base, baseline, setup_command):
     suite = polaris_run.get_suite_name(setup_command)
     shas = baseline.compare_shas
     parts = [suite, baseline.model]
+    parts.append(_setup_key(setup_command, polaris_config, baseline))
     parts.extend(sha[:7] for sha in shas.values() if sha)
     name = '_'.join(parts)
     if baseline.dirty:
         name = f'dirty_{name}_{datetime.now().strftime("%Y%m%d%H%M%S")}'
     return os.path.join(work_base, 'baselines', name)
+
+
+def _setup_key(setup_command, polaris_config, baseline):
+    """
+    Get a short hash of what a baseline depends on besides the commits.
+
+    ``polaris setup`` always reports the suite name ``custom``, so the
+    tasks only appear here.  The polaris config file and the load script
+    change the results too, so they are included as well.
+    """
+    parts = [
+        ' '.join(setup_command.split()),
+        os.path.basename(baseline.load_script),
+    ]
+    if polaris_config is not None:
+        with open(polaris_config) as handle:
+            parts.append(handle.read())
+    text = '\n'.join(parts)
+    return hashlib.sha256(text.encode('utf-8')).hexdigest()[:7]
 
 
 def _is_complete(work_dir):

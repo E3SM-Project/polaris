@@ -148,7 +148,8 @@ The driver refuses to run, before anything is built, if:
 ```
 <work_base>/
   worktrees/<ref>-<sha7>/            provisioned polaris worktrees
-  baselines/<suite>_<model>_<shas>/  reusable baseline work dirs
+  baselines/<suite>_<model>_<key>_<shas>/
+                                     reusable baseline work dirs
   runs/<date>-<base sha7>-<test sha7>/
     benchmark.log
     manifest.json
@@ -156,8 +157,12 @@ The driver refuses to run, before anything is built, if:
     test/
 ```
 
-A baseline work directory is keyed on the suite, model and every commit
-hash, and is marked complete when it finishes.  A later benchmark with the
+A baseline work directory is keyed on the suite, the model, every commit
+hash and a short `<key>` hashed from the setup command, the polaris config
+file and the load script.  The last of these matters because
+`polaris setup` always reports the suite name `custom`, so without it two
+different tasks would share a baseline.  A baseline is marked complete
+when it finishes.  A later benchmark with the
 same key **reuses** it instead of rerunning, which is what makes iterating
 on a test branch cheap.
 
