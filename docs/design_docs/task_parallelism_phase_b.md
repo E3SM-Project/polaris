@@ -348,8 +348,8 @@ directory, external side effects, or anything else that makes running beside
 another step wrong.
 
 This is the same metadata the analysis conformance checks in
-`task_parallel_analysis_steps.md` need, and it should be one mechanism, not
-two.
+*Task-Parallel-Safe Analysis Steps in Polaris* needs, and it should be one
+mechanism, not two.
 
 ## Testing
 
@@ -429,5 +429,7 @@ Contributors:
 
 Validation shall cover Chrysalis, Perlmutter (CPU and GPU), Frontier and
 Aurora, since these differ in exactly the way that matters: two eras of Slurm,
-a PBS system, and GPU and non-GPU nodes. The launcher spike established that
-each can do what Phase B needs; this validation confirms Polaris does it.
+a PBS system, and GPU and non-GPU nodes. Each was measured to support what
+Phase B needs, as recorded in
+[Task Parallelism in Polaris](task_parallelism.md); this validation confirms
+Polaris does it.

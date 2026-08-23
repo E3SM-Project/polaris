@@ -260,7 +260,9 @@ Contributors:
 placement argument, and each subclass renders it appropriately. This is the
 contract change, and it must land in `mache` and be released before Polaris
 can depend on it. Its design is
-`docs/design/parallel_placement.md` in the `mache` repository.
+*Design Document: parallel placement*, at `docs/design/parallel_placement.md`
+in the `mache` repository. It is a separate repository, so this cannot be a
+cross-reference.
 
 Polaris should depend on the `mache` version that provides it and should
 fail clearly, at setup, if an older `mache` is present -- a run that silently
@@ -329,15 +331,18 @@ Contributors:
 - Xylar Asay-Davis
 - Claude
 
-The launcher spike in `utils/launcher_spike/` already demonstrates that the
-underlying mechanisms work on Chrysalis, Perlmutter (CPU and GPU), Frontier
-and Aurora. Phase A shall be validated by showing that the commands Polaris
-now generates match the ones the spike proved, on each machine.
+The mechanisms Phase A relies on were measured on Chrysalis, Perlmutter (CPU
+and GPU), Frontier and Aurora before this design was written; the results
+are summarized in [Task Parallelism in Polaris](task_parallelism.md). Phase
+A shall be validated by showing that the commands Polaris generates produce
+the same behavior on each of those machines.
 
 A single confined step shall be run on each machine and shall report that it
-sees only the cores and GPUs it was given. This is the same check the spike
-payload performs, and it is the one that catches a placement that is
-constructed correctly but not honored.
+sees only the cores and GPUs it was given. This is the check that catches a
+placement which is constructed correctly but not honored, and it is worth
+keeping as a small standing test rather than a one-off, since it is the
+first thing that would break if a site changed its scheduler
+configuration.
 
 ### Testing and Validation: No Regression
 
