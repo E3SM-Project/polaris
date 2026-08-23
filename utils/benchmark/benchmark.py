@@ -534,6 +534,17 @@ def _print_summary(manifest):
         print(f'  polaris: {side["polaris_ref"]} {side["polaris_sha"][:7]}')
         for key, sha in sorted(side['submodule_shas'].items()):
             print(f'  {key}: {sha[:7]}')
+    for name in ['baseline', 'test']:
+        side = manifest[name]
+        if not side['load_script_ready']:
+            print('')
+            print(
+                f'Note: the {name} worktree does not exist yet, so its load '
+                f'script\n  {side["load_script"]}\ncannot be checked.  It '
+                f'must exist before the benchmark can run; see the load '
+                f'script notes in utils/benchmark/README.md.'
+            )
+    print('')
     print(f'differing:    {", ".join(manifest["differing_repos"])}')
     print(f'reproducible: {manifest["reproducible"]}')
     print(f'baseline dir: {manifest["baseline_dir"]}')

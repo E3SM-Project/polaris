@@ -68,6 +68,9 @@ class SourceState:
     load_script : str
         The absolute path to the load script used to activate the
         environment
+    load_script_ready : bool
+        Whether the load script exists yet.  It can be ``False`` only
+        during a dry run of a worktree that has not been created
     model : str
         The Polaris ``--model`` value for this benchmark
     """
@@ -83,6 +86,7 @@ class SourceState:
     submodule_overrides: dict = field(default_factory=dict)
     dirty: bool = False
     load_script: str = ''
+    load_script_ready: bool = True
     model: str = ''
 
     @property
@@ -124,6 +128,7 @@ class SourceState:
             'submodule_overrides': dict(self.submodule_overrides),
             'dirty': self.dirty,
             'load_script': self.load_script,
+            'load_script_ready': self.load_script_ready,
             'model': self.model,
         }
 
@@ -193,6 +198,13 @@ def provision(
         model=model,
     )
 
+    load_script = load_script_path(worktree, load_script_name)
+    # a load script we can already resolve is checked before the worktree
+    # and its submodules are created, so that a missing one fails fast
+    predictable = os.path.isabs(load_script_name) or os.path.exists(worktree)
+    if predictable:
+        _require_load_script(worktree, load_script_name)
+
     if dry_run:
         state.pinned_shas = _pinned_submodule_shas(primary_path, sha)
         state.submodule_shas = dict(state.pinned_shas)
@@ -202,7 +214,8 @@ def provision(
                 'ref': sub_ref,
             }
             state.submodule_shas[key] = f'<{sub_fork}:{sub_ref}>'
-        state.load_script = os.path.join(worktree, load_script_name)
+        state.load_script = load_script
+        state.load_script_ready = predictable
         return state
 
     add_worktree(primary_path, sha, worktree, logger=logger)
@@ -453,6 +466,29 @@ def check_single_variable(baseline, test):
     return differing
 
 
+def load_script_path(worktree, load_script_name):
+    """
+    Get the path to the load script for a worktree
+
+    An absolute ``load_script_name`` is used as it is, which is how one
+    deployment can serve several worktrees.  A bare name is taken to be
+    relative to the worktree.
+
+    Parameters
+    ----------
+    worktree : str
+        The path to the Polaris worktree
+    load_script_name : str
+        The name of, or absolute path to, the load script
+
+    Returns
+    -------
+    load_script : str
+        The absolute path to the load script
+    """
+    return os.path.join(worktree, load_script_name)
+
+
 def _check_is_polaris_repo(path):
     """Raise a ValueError if ``path`` is not a Polaris work tree."""
     if not os.path.isdir(path):
@@ -575,13 +611,15 @@ def _is_dirty(repo_path):
 
 def _require_load_script(worktree, load_script_name):
     """Get the load script in a worktree, raising if it is missing."""
-    load_script = os.path.join(worktree, load_script_name)
+    load_script = load_script_path(worktree, load_script_name)
     if not os.path.exists(load_script):
         raise ValueError(
             f'Could not find the load script\n  {load_script}\n'
-            f'Creating the Polaris environment is a developer action.  '
-            f'Please run ./deploy.py in that worktree (or point '
-            f'load_script at an existing script) and try again.'
+            f'Creating the Polaris environment is a developer action, so '
+            f'it is never done for you.  Either run ./deploy.py in that '
+            f'worktree, or set load_script to the absolute path of an '
+            f'existing load script so that one deployment serves both '
+            f'sides, and try again.'
         )
     return load_script
 

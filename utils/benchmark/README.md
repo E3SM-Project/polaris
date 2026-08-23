@@ -68,7 +68,7 @@ guardrail and prints the exact commands, but touches nothing.
 | --- | --- |
 | `work_base` | Base directory for all benchmark output. |
 | `primary_path` | The polaris clone worktrees are made from and forks are fetched into.  Defaults to the config file's directory.  Only ever fetched from. |
-| `load_script` | Name of the load script to source *within each worktree*. |
+| `load_script` | Name of the load script to source within each worktree, or an absolute path to a single shared one. |
 | `setup_command` | A `polaris setup` or `polaris suite` command. |
 | `run_command` | Usually `polaris serial`; used when `submit = False`. |
 | `submit` | Submit the job script instead of running in place. |
@@ -183,8 +183,14 @@ usually the point of adopting an existing worktree.
   `--dependency=afterok:<baseline job id>`, so the pair can be launched in
   one go.  Because completion is asynchronous, work directories are not
   marked complete (and so not reused) in this mode.
-- `NO_POLARIS_REINSTALL=true` is exported before sourcing a load script, so
-  one deployment can serve several worktrees.
+- A load script is **never created for you**; `./deploy.py` is a developer
+  action.  A freshly provisioned worktree therefore has no load script of
+  its own, since `load_*.sh` is git-ignored.  Either run `./deploy.py` in
+  the provisioned worktree once, or set `load_script` to the *absolute*
+  path of an existing load script.  In the latter case
+  `NO_POLARIS_REINSTALL=true`, which is exported before the load script is
+  sourced, lets one deployment serve several worktrees.  A `--dry-run`
+  says so when it cannot yet check a load script.
 - Collecting results and generating a report are deliberately **not** part
   of this driver yet; polaris writes its own validation output under
   `case_outputs/` in the test work directory.
