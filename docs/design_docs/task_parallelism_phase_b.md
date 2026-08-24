@@ -97,6 +97,15 @@ Cores, GPUs, nodes and memory shall all be accounted for. A step whose
 minimum requirements cannot be met by the whole allocation shall be reported
 as impossible before the run starts.
 
+The memory a node is credited with shall be what that node reports, not what
+its machine's configuration estimates. Phase A requires the allocation's
+nodes to be read at the start of a run for this reason: nodes within one
+machine have been measured to differ twofold in memory at identical core
+counts, so a single configured figure will over-admit on the smaller ones,
+and over-admitting memory is the failure that kills a job rather than the
+one that slows it. Nodes shall therefore be tracked individually where they
+differ, rather than as so many copies of one node.
+
 A step that has not said its resources may span nodes shall have its cores
 and its GPUs drawn from a single node. This is a packing constraint rather
 than a total: an allocation with cores free on several nodes and none of

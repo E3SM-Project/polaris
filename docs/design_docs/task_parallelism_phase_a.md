@@ -803,6 +803,26 @@ machine's configured figure is wrong, or that the machine has become
 heterogeneous since it was measured, and both are things a caller needs to
 learn about from a message rather than from an exhausted node.
 
+**The configured figure plans; the allocation's own nodes account.** These
+are two uses with different requirements and only one of them has to be
+predicted in advance. Sizing a job script happens before any node has been
+assigned, so it can only use a configured number. Deciding what fits happens
+inside the allocation, where the nodes are known and can simply be asked
+what they have -- which is better than any configured value, because it is
+the truth for the nodes in hand rather than an estimate of a machine.
+
+Polaris shall therefore read the memory of the nodes it was actually given,
+once, at the start of a run, and the scheduler shall account against those
+figures rather than against the configured one. Where they disagree the
+disagreement shall be reported, because it means the configuration is stale
+or the machine has changed, and neither should be discovered silently.
+
+This does not make the configured figure unnecessary; it makes it a
+planning estimate rather than a promise, which is what it can honestly be.
+It also retires heterogeneity as a thing to chase: a machine whose nodes
+differ is simply a run whose nodes differ, observed rather than predicted,
+and a configured value that has gone stale can no longer over-admit.
+
 ### Testing and Validation: No Regression
 
 Date last modified: 2026/08/23
