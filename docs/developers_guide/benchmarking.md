@@ -119,6 +119,16 @@ The driver refuses to run, *before* anything is built, if:
 Each override makes the result harder to interpret, so it should be used
 deliberately and noted when reporting results.
 
+To tell which `model` a suite needs, read its tasks rather than its name.
+`e3sm/init`, `mesh` and `seaice` never run a model; within `ocean`, what
+decides it is whether any step is an `OceanModelStep`, which is what
+`Ocean.configure()` tests before it goes looking for a build.  The suite
+file `polaris/suites/ocean/<suite>.txt` lists one task path per line, and
+`grep -rl OceanModelStep polaris/tasks/ocean/<task>` answers the question
+for each of them.  Getting it wrong is loud rather than silent: a
+`model = none` benchmark of a suite that does run the model stops during
+`polaris setup`, unable to detect an ocean model.
+
 ## Output layout
 
 ```

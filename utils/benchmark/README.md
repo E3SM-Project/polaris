@@ -146,6 +146,30 @@ nothing to build.
 
 Both sides must use the same `model`, `none` included.
 
+#### Telling which one you need
+
+The component usually settles it: `e3sm/init`, `mesh` and `seaice` run no
+model, so those are always `none`.  Only `ocean` is mixed.
+
+What decides it there is whether any step is an `OceanModelStep`, which is
+what `Ocean.configure()` tests before it looks for a build.  So read the
+tasks rather than the suite name: `polaris/suites/ocean/<suite>.txt` lists
+one task path per line, and
+
+```bash
+grep -rl OceanModelStep polaris/tasks/ocean/<task>
+```
+
+says whether that task forward-runs the model.  A suite named for a PR or
+nightly test almost certainly does; a task that only builds a mesh, remaps
+a field or checks convergence against an analytic solution may well not.
+
+Guessing wrong is cheap and loud, not silent.  `model = none` on a suite
+that does run the model fails during `polaris setup` with *"Could not
+detect ocean model; neither MPAS-Ocean nor Omega appear to be
+available"*.  The opposite mistake costs a build that is never used, and
+the driver asks for a submodule you did not need.
+
 ## Command-line overrides
 
 Every fork and ref can be set on the command line, which is convenient for
