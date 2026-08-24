@@ -775,33 +775,39 @@ node, at which point the failure appears far from its cause and looks like a
 step's bug. Recording which machines have been measured, in the `mache`
 configs themselves, is what makes the omission visible.
 
-**A machine may not have one answer.** The first measurements found
-Perlmutter CPU returning nodes of two different sizes -- roughly 257 GB and
-515 GB, at the same core count -- within what the configuration treats as
-one machine. This design previously argued that describing a machine with a
-single figure was an existing convention whose limitation memory did not
-worsen. That was wrong, and the difference is worth being precise about:
-cores are the same on both of those nodes, so one figure describes them
-correctly, while memory differs by a factor of two and one figure cannot.
+**A measurement is only as good as the label on it.** An early reading
+appeared to show Perlmutter CPU returning nodes of two different sizes
+within one machine, and this document briefly recorded that as a finding. It
+was not one. The small node was a Perlmutter *GPU* node: the run had been
+labelled from the deployment's machine name rather than from the node it
+landed on, and three hardware signals agree it was misfiled -- the job held
+four GPUs, its hyperthread siblings were 64 apart rather than 128, and its
+memory matched a GPU node. There is at present no evidence that any machine
+Polaris targets is heterogeneous in memory.
 
-Where nodes differ, the **smallest** binds, because the figure exists to say
-what a caller must not exceed. A configured value larger than the smallest
-node will over-admit whenever a step lands on a small one, which is the
-direction that kills a job rather than the one that wastes it. The measured
-values bear this out: the shipped estimate for Perlmutter CPU is close to
-twice what the smaller nodes actually have.
+The episode is worth keeping for what it says about the measurements
+generally, which is that they are labelled by configuration and confirmed by
+nothing. A harness that records what a deployment claims, while the node it
+ran on says otherwise, will mislabel silently and produce a finding that
+looks like a property of the machine. Any measurement taken this way should
+cross-check the label against the hardware -- GPUs present where the
+configuration says there are none, or a physical core count that disagrees
+with `cores_per_node` -- and refuse to record a result it cannot vouch for.
 
-That also means a single sample cannot establish the number, and most of
-the measurements taken so far are single samples. The reliable method costs
-no allocation: query every node in the partition and take the minimum,
-rather than asking one node what it has. It should be done for each machine
-before `mache` releases these values.
+Two precautions stand regardless, since neither depended on that finding.
+**Where nodes differ, the smallest binds**, because the figure exists to say
+what a caller must not exceed and a value above the smallest node
+over-admits whenever work lands on one -- the direction that kills a job
+rather than wasting it. And **a single sample cannot establish the number**:
+most measurements taken so far are single samples, and the reliable method
+costs no allocation, being to query every node in a partition and take the
+minimum rather than asking whichever node one happens to be on.
 
-A node that turns up with unexpectedly little memory should be treated as a
-finding rather than a curiosity, and reported. It means either that a
-machine's configured figure is wrong, or that the machine has become
-heterogeneous since it was measured, and both are things a caller needs to
-learn about from a message rather than from an exhausted node.
+A node that turns up with unexpectedly little memory shall be treated as a
+finding rather than a curiosity, and reported. It means a configured figure
+is wrong, or a machine has changed, or -- as here -- that something is not
+the machine it was thought to be. All three are things to learn from a
+message rather than from an exhausted node.
 
 **The configured figure plans; the allocation's own nodes account.** These
 are two uses with different requirements and only one of them has to be
@@ -819,9 +825,14 @@ or the machine has changed, and neither should be discovered silently.
 
 This does not make the configured figure unnecessary; it makes it a
 planning estimate rather than a promise, which is what it can honestly be.
-It also retires heterogeneity as a thing to chase: a machine whose nodes
-differ is simply a run whose nodes differ, observed rather than predicted,
-and a configured value that has gone stale can no longer over-admit.
+
+It also answers the class of problem the mislabelled run belongs to, rather
+than the specific one. A run that reads what its nodes actually report, and
+says so when that disagrees with what was configured, catches a stale
+figure, a machine that has changed, and a job that is not on the machine it
+was thought to be -- without anyone having to anticipate which. The
+mislabelling above went unnoticed because nothing compared the two; the
+comparison is cheap and belongs in the run rather than in a later query.
 
 ### Testing and Validation: No Regression
 
