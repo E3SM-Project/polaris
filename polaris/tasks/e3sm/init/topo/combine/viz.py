@@ -42,8 +42,8 @@ class VizCombinedStep(Step):
             component=component,
             name='viz_combine_topo',
             subdir=subdir,
-            cpus_per_task=128,
-            min_cpus_per_task=1,
+            cores=128,
+            min_cores=1,
         )
         self.default_cached = True
         self.combine_step = combine_step
@@ -183,7 +183,7 @@ class VizCombinedStep(Step):
 
         import numba
 
-        numba.set_num_threads(self.cpus_per_task)
+        numba.set_num_threads(self.cores)
 
         image_filename = f'{field_name}.png'
 

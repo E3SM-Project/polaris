@@ -48,8 +48,6 @@ class ClipRiverNetworkStep(Step):
             component=component,
             name='river_clip',
             subdir=subdir,
-            cpus_per_task=1,
-            min_cpus_per_task=1,
         )
         self.simplify_step = simplify_step
         self.coastline_step = coastline_step

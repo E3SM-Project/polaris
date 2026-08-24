@@ -55,8 +55,6 @@ class RemapCoastlineStep(Step):
             component=component,
             name='coastline_remap',
             subdir=subdir,
-            cpus_per_task=1,
-            min_cpus_per_task=1,
         )
         self.default_cached = True
         self.fine_coastline_step = fine_coastline_step

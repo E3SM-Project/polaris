@@ -213,7 +213,13 @@ def test_needing_no_gpus_says_so_explicitly(machine, compiler):
         elif isinstance(system, PbsSystem):
             variable = system.get_config('gpu_visible_devices_var')
             if variable:
-                assert f'--env={variable}=' in rendered
+                # asserted against the argument list rather than the joined
+                # string: mache moved from `--env=VAR=` to `--env VAR=`
+                # because PALS rejected the first form, and a substring
+                # match on the old spelling would have gone on passing for a
+                # command Aurora could not run
+                assert f'{variable}=' in command
+                assert '--env' in command
 
 
 @pytest.mark.parametrize('machine,compiler', _cases())
