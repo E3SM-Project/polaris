@@ -78,6 +78,28 @@ every guardrail and prints the exact commands.  It creates no worktrees
 and builds and runs nothing, but resolving a fork does add a remote to
 `primary_path` and fetch into it.
 
+## Before your first run
+
+Four things have to be true of the source trees before the driver will do
+anything, and none of them are done for you.  Each is a guardrail below,
+but settling them up front is quicker than meeting them one dry run at a
+time:
+
+1. **A load script exists.**  `load_*.sh` is git-ignored and written by
+   `./deploy.py`, which is always a developer action.  Run it once in
+   each worktree, or set `load_script` to the absolute path of one
+   existing script so that a single deployment serves both sides.
+2. **`model` matches what the suite runs.**  `model = none` needs no
+   submodule and no build; see the note under Guardrails on how to tell.
+3. **The submodule the model is built from is initialized**, on the side
+   that builds — both sides normally, the baseline only when a
+   `component_path` is shared:
+   `git -C <worktree> submodule update --init e3sm_submodules/Omega`.
+4. **Adopted worktrees are clean.**  An untracked scratch file is enough
+   to stop the run, since the benchmark could not then be reproduced from
+   the recorded hashes.  Commit it, move it aside, or decide up front to
+   pass `--allow-dirty`.
+
 Every fork and ref can also be given on the command line, which is
 convenient for scripted or agent-driven use:
 
