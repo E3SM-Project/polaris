@@ -241,7 +241,12 @@ def check_setup_command(setup_command):
 
 def get_suite_name(setup_command):
     """
-    Get the suite name implied by a Polaris setup command
+    Get the name a Polaris setup command gives its suite
+
+    ``polaris suite`` takes the name from ``-t``.  ``polaris setup`` calls
+    its suite ``custom`` unless it is given ``--suite_name``, so the name
+    is required there: it is what tells one benchmark's baseline and job
+    script apart from another's.
 
     Parameters
     ----------
@@ -251,7 +256,12 @@ def get_suite_name(setup_command):
     Returns
     -------
     suite : str
-        The suite name, which is ``custom`` for ``polaris setup``
+        The suite name
+
+    Raises
+    ------
+    ValueError
+        If the command does not name its suite
     """
     parts = setup_command.split()
     if parts[1] == 'suite':
@@ -263,7 +273,18 @@ def get_suite_name(setup_command):
         raise ValueError(
             f'Could not determine the suite name from:\n  {setup_command}'
         )
-    return 'custom'
+
+    if '--suite_name' in parts:
+        index = parts.index('--suite_name')
+        if len(parts) > index + 1:
+            return parts[index + 1]
+
+    raise ValueError(
+        f'A "polaris setup" command must name its suite with --suite_name.  '
+        f'Polaris would otherwise call it "custom", so every benchmark set '
+        f'up this way would share one baseline directory and one job script '
+        f'name.  Got:\n  {setup_command}'
+    )
 
 
 def _check_job_script(work_dir, setup_command):

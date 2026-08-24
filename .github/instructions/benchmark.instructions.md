@@ -15,6 +15,8 @@ These rules are specific to the benchmarking driver in
   overrides.  Do not hard-code paths in the driver modules.
 - Do not add `--model`, `--branch`, `-p`, `-w`, `-b`, `-f`, `--build` or
   `--clean_build` to `setup_command`; the driver appends them.
+- Do add `--suite_name` to a `polaris setup` command; the driver requires
+  it so that the benchmark is not named `custom`.
 
 ## Adopted worktrees
 

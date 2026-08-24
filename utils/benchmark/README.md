@@ -79,7 +79,7 @@ builds and runs nothing, but resolving a fork does add a remote to
 | `work_base` | Base directory for all benchmark output. |
 | `primary_path` | The polaris clone worktrees are made from and forks are fetched into.  Defaults to the config file's directory.  Only ever fetched from. |
 | `load_script` | Name of the load script to source within each worktree, or an absolute path to a single shared one. |
-| `setup_command` | A `polaris setup` or `polaris suite` command. |
+| `setup_command` | A `polaris setup` or `polaris suite` command.  A `polaris setup` command must name its suite with `--suite_name`. |
 | `run_command` | Usually `polaris serial`; used when `submit = False`. |
 | `submit` | Submit the job script instead of running in place. |
 | `wall_time` | Optional wall-clock time for both sides' job scripts. |
@@ -104,6 +104,11 @@ typo is reported rather than silently expanding to nothing.
 appended automatically and **must not** appear in `setup_command`; the
 driver raises an error if they do.  `--model` and `--branch` are left off
 entirely when `model = none`.
+
+`--suite_name` is the exception: it is *required* in a `polaris setup`
+command.  Polaris would otherwise call the suite `custom`, so every
+benchmark set up that way would share one baseline directory and one job
+script name.  `polaris suite` takes its name from `-t` instead.
 
 ### `[baseline]` and `[test]`
 
@@ -208,9 +213,9 @@ built from.
 
 A baseline work directory is keyed on the suite, the model, every commit
 hash and a short `<key>` hashed from the setup command, the polaris config
-file and the load script.  The last of these matters because
-`polaris setup` always reports the suite name `custom`, so without it two
-different tasks would share a baseline.  A baseline is marked complete
+file and the load script.  The last two matter because they change the
+results; the suite name comes from `-t` for a suite and from
+`--suite_name` for `polaris setup`.  A baseline is marked complete
 when it finishes.  A later benchmark with the
 same key **reuses** it instead of rerunning, which is what makes iterating
 on a test branch cheap.

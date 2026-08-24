@@ -57,7 +57,9 @@ sides.
    ```
 
 2. Edit `benchmark.cfg` to set `work_base`, `load_script`, `setup_command`
-   and the `[baseline]` and `[test]` sections.
+   and the `[baseline]` and `[test]` sections.  A `polaris setup` command
+   has to name its suite with `--suite_name`, since polaris would
+   otherwise call it `custom`.
 
 3. Resolve the plan without building anything:
 
