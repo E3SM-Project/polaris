@@ -527,6 +527,20 @@ consume other steps' outputs and fail deliberately, and shall verify that
 independent steps genuinely overlap in time, that a failure blocks only its
 dependents, and that a rerun resumes correctly.
 
+A placed step shall check that it received what it was given, and shall say
+so when it did not. This is the standing check on real machines that Phase A
+could not have: Phase A places nothing, so verifying placement there needed
+a harness built for the purpose, while here every step has a placement
+already and confirming it costs almost nothing. It runs on every machine on
+every run, which is what makes it useful -- the thing it guards against is a
+site changing its scheduler configuration underneath us, and that will not
+announce itself.
+
+A mismatch shall be reported rather than corrected. A step given fewer cores
+than it was promised is running in a way the scheduler's accounting does not
+describe, and continuing quietly is how a run ends up oversubscribed and
+slower than serial with nothing in the log to say why.
+
 Overlap shall be checked from recorded start and end times, not inferred
 from wall time. A test that concludes "it was faster, so it must have run
 concurrently" will pass on a machine where nothing overlapped at all.
