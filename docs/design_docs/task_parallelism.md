@@ -98,20 +98,30 @@ The conclusions that shape this design are:
   rank.** The per-rank form does not confine a step at all. This is a real
   constraint on how Polaris describes step resources, and it differs from
   how CPU resources are described today.
-- **The batch system will not manage memory for us.** Asking a launch for a
-  share of the node's memory changed nothing that was measured: it neither
-  fixed the serialization -- silence about GPUs did that -- nor, as far as
-  we can tell, reserved anything. Memory is therefore not a resource Polaris
-  can hand to the launcher and forget about. It is a budget Polaris has to
-  keep itself, by declining to start a step that will not fit, which means
-  it belongs to the scheduler in Phase B rather than to placement in Phase
-  A.
+- **The batch system will not schedule memory for us, but on newer Slurm it
+  will enforce it.** These are different things and the difference decides
+  how memory is handled. Asking a launch for a share of the node's memory
+  did not fix the serialization -- silence about GPUs did that -- and it
+  reserved nothing that any measurement could see. But a later measurement
+  on the same machines showed a memory request is not inert: a launch
+  allowed 1024 MB and told to take 4 GB is killed at 960 MB on Perlmutter
+  GPU and on Frontier, and runs to completion on Chrysalis, whose Slurm
+  predates the 20.11 change.
 
-  The limit of that evidence should be stated: it shows memory was not
-  causing the serialization, not that no machine anywhere applies a limit
-  when asked. Whether a launch given a small memory allowance is actually
-  killed for exceeding it has not been tested, and is worth one cheap
-  measurement while the placement testing is being done anyway.
+  So the launcher will not tell Polaris what fits, and deciding that remains
+  a budget Polaris keeps itself, in the scheduler in Phase B. What the
+  launcher will do, on some machines, is hold a launch to a number it was
+  given. That makes a memory figure passed to a launcher a **cap** rather
+  than a reservation, which is a thing worth doing deliberately for a step
+  that stated its own number and not worth doing to a step the framework
+  guessed at.
+
+  One worry this raised does not materialize. Silence about memory does not
+  repeat the trap that silence about GPUs sets: four concurrent launches
+  that said nothing about memory all started within 40 ms of each other and
+  ran their full duration on both machines that enforce. An unstated memory
+  requirement is not read as a claim on the node's memory. Aurora and
+  Perlmutter CPU are unmeasured on this point.
 
 One more result is worth recording because it cost a round of testing: on
 CUDA machines the visible-device variable is renumbered for each launch, so

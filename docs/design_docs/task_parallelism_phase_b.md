@@ -203,9 +203,58 @@ The list of neighbors and their declarations is what turns an inexplicable
 failure into a short investigation, and, in the common case where one
 neighbor's declaration is obviously too small, into an obvious fix.
 
-Polaris shall not attempt to prevent this by capping steps. Nothing measured
-so far can cap them, and even where a cap is available it converts a rare
-failure into a routine one.
+### Requirement: A Declared Memory Figure May Be Enforced
+
+Date last modified: 2026/08/24
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Where the machine can hold a launch to a memory figure, Polaris shall do so
+for a step that declared one, and shall not for a step that did not.
+
+Measurement settled that this is possible on newer Slurm and not on older:
+a launch allowed 1024 MB and told to take 4 GB is killed at 960 MB on
+Perlmutter GPU and on Frontier, and runs to completion on Chrysalis. PALS
+appears to offer no per-launch memory size at all, so Aurora is expected not
+to enforce either.
+
+The reason to use it is that an unenforced declaration is invisible when it
+is wrong. It does not fail; it quietly makes the scheduler's accounting a
+fiction, and the error surfaces much later as an exhausted node that someone
+has to trace back, or never surfaces while costing throughput the whole
+time. Holding a step to its own number turns that into an immediate,
+attributable failure, and the fix -- correct the number -- improves packing
+on every machine, including the ones that cannot enforce.
+
+The reason to use it only for a declared figure is that most steps will
+never declare one. They take the proportional default, which is deliberately
+a rough guess and is known to be poor for steps whose memory has little to
+do with their core count. Capping a step at the framework's estimate of it
+would not produce better estimates; it would require every step to carry a
+measured figure before it could run, which is the burden Phase A was built
+to avoid, and it would arrive as a wave of failures in steps nobody had
+touched. A step that stated a number is making a claim and can fairly be
+held to it. A step that said nothing is being guessed at, and the framework
+should carry the risk of its own guess.
+
+Enforcement will therefore be uneven across machines, and that is accepted.
+It replaces silent divergence with loud divergence, which is the better of
+the two, and it reaches only steps whose authors opted in by declaring.
+
+Polaris shall not rely on enforcement in place of its own accounting.
+Admission control works on every machine; capping does not, and the
+reporting required above is needed regardless.
+
+One question is still open and may change the shape of this. Placement on
+newer Slurm asks for exactly what a step needs rather than the job's
+resources, so a placed step may already receive a memory ceiling nobody set.
+If it does, the choice is not whether to impose a cap but whether Polaris
+names the number or lets the scheduler pick one it never reports. That
+measurement is described in Phase A and should be taken before this
+requirement is implemented.
 
 ### Requirement: Results Match Serial Execution
 
