@@ -244,13 +244,16 @@ which repositories differ.
 | `--clean-build` | Start from a clean build directory on both sides. |
 | `--rebuild` | Force a build even if the component is already built. |
 
-Polaris does **not** build unless it is asked to: `[build] build` defaults
-to `False` in `polaris/default.cfg`, and the driver only passes `--build`
-or `--clean_build` when one of these flags is given.  So a first run of a
-`mpas-ocean` or `omega` benchmark needs `--rebuild` (or a component
-already present at `-p`).  Note that `-p` is inside the run directory, so
-a build is shared only by benchmarks that land in the same run directory,
-and never with an adopted worktree's own build.
+Neither flag is needed for a first build.  `[build] build` defaults to
+`False` in `polaris/default.cfg` and the driver passes `--build` or
+`--clean_build` only when one of these flags is given, but
+`Ocean.configure()` turns the option on by itself whenever it does not
+find the model at `-p`.  Use `--rebuild` to force a build over one that
+is already there, and `--clean-build` to throw that one away first.
+
+Note that `-p` is inside the run directory, so a build is shared only by
+benchmarks that land in the same run directory, and never with an adopted
+worktree's own build.
 
 ## Notes
 
