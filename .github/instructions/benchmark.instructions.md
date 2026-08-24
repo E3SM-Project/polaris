@@ -20,12 +20,18 @@ These rules are specific to the benchmarking driver in
 
 - When a side uses `source = existing`, never run `git fetch`,
   `checkout`, `submodule update`, `reset`, `clean`, `rm` or any other
-  mutating command against the adopted worktree yourself.  Polaris'
-  own build does write into it, so do not tell the user the worktree is
-  left untouched.
+  mutating command against the adopted worktree yourself.  Polaris' own
+  build does write into it when one is requested, so do not tell the user
+  the worktree is left untouched unless nothing is being built.
 - If an adopted worktree is dirty or is missing an initialized
   submodule, stop and ask the user to resolve it.  Do not pass
-  `--allow-dirty` without the user explicitly asking for it.
+  `--allow-dirty` without the user explicitly asking for it.  Report what
+  actually made it dirty: a submodule built in place does not count, so
+  the cause is polaris-level changes, edited tracked source in the
+  submodule the model is built from, or a submodule at a commit other
+  than the pinned one.
+- A task that runs no model needs `model = none`, not an initialized
+  submodule.  Check that before asking the user to clone one.
 
 ## Guardrails
 

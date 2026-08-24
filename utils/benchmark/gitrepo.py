@@ -343,15 +343,14 @@ def adopt(name, path, model, load_script_name, allow_dirty=False):
 
     state.pinned_shas = _pinned_submodule_shas(path, 'HEAD')
     state.submodule_shas = _submodule_shas(path)
-    state.dirty = _is_dirty(path)
+    state.dirty, reason = _check_dirty(path, model)
 
     if state.dirty and not allow_dirty:
         raise ValueError(
-            f'The adopted worktree\n  {path}\nhas uncommitted or untracked '
-            f'changes, so the benchmark would not be reproducible from the '
-            f'recorded commit hashes.  Commit or stash the changes, or '
-            f'rerun with --allow-dirty to record the run as '
-            f'non-reproducible.'
+            f'The adopted worktree\n  {path}\n{reason}, so the benchmark '
+            f'would not be reproducible from the recorded commit hashes.  '
+            f'Commit or stash the changes, or rerun with --allow-dirty to '
+            f'record the run as non-reproducible.'
         )
 
     state.load_script = _require_load_script(path, load_script_name)
@@ -660,6 +659,60 @@ def _is_dirty(repo_path):
     """Whether a work tree has uncommitted or untracked changes."""
     status = check_output('git status --porcelain', cwd=repo_path)
     return status != ''
+
+
+def _check_dirty(path, model):
+    """
+    Whether a worktree has changes a benchmark could not reproduce
+
+    A submodule that has been built in place is not dirty in any sense
+    that matters here.  Build products are regenerable from the recorded
+    commit hashes, and building in place is the normal state of a polaris
+    worktree, so a worktree that has ever built MPAS-Ocean would otherwise
+    be dirty forever.  Both checks therefore use
+    ``--ignore-submodules=dirty``, which ignores a submodule's work tree
+    but still reports one checked out at a commit other than the pinned
+    one.  That matters for jigsaw-python and MALI-Dev, which affect
+    results but are not among the hashes ``compare_shas`` records.
+
+    Edited *source* in the submodule the model is built from is another
+    matter, since the build would then not match the recorded hash, so it
+    makes the whole side dirty.  Only untracked files are ignored there,
+    since those are the build products.
+
+    Parameters
+    ----------
+    path : str
+        The path to the polaris worktree
+    model : str
+        The ``model`` value for this side of the benchmark
+
+    Returns
+    -------
+    dirty : bool
+        Whether the worktree has changes that are not in a commit
+    reason : str
+        A phrase describing what was found, for the error message
+    """
+    status = check_output(
+        'git status --porcelain --ignore-submodules=dirty', cwd=path
+    )
+    if status:
+        return True, 'has uncommitted or untracked changes'
+
+    if model == NO_MODEL:
+        return False, ''
+
+    rel_path = SUBMODULE_PATHS[MODEL_SUBMODULES[model]]
+    sub_path = os.path.join(path, rel_path)
+    status = check_output(
+        'git status --porcelain --ignore-submodules=dirty '
+        '--untracked-files=no',
+        cwd=sub_path,
+    )
+    if status:
+        return True, f'has uncommitted changes to source in {rel_path}'
+    return False, ''
 
 
 def _require_load_script(worktree, load_script_name):

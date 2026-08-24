@@ -178,6 +178,13 @@ The driver refuses to run, before anything is built, if:
   with `--allow-dirty`; the run is recorded as `reproducible: false`, its
   directory is prefixed with `dirty-`, and its baseline is never cached
   or reused.
+
+`--allow-dirty` is about source that is not in a commit.  A submodule
+built in place is not dirty: build products are regenerable from the
+recorded hashes, and building in place is the normal state of a polaris
+worktree.  A submodule checked out at a commit other than the pinned one
+*is* dirty, as is edited tracked source in the submodule the model is
+built from.
 - An adopted worktree is missing the submodule needed for `model`, or its
   load script does not exist.  Creating the environment with `./deploy.py`
   is a developer action and is never done for you.  A benchmark that
