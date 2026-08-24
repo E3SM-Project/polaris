@@ -74,9 +74,9 @@ launches received GPUs 4,5 / 6,7 / 0,1 / 2,3.
 The table above was produced with commands written by hand. That establishes
 what the machines can do, not that the commands Polaris and `mache` build
 between them do it, which is a different claim and the one that gates the
-`mache` change. It was checked separately, in August 2026, by constructing
-disjoint placements, rendering each through `mache` and launching them
-together:
+`mache` change. It was checked separately, in August 2026, on all five
+machines, by constructing disjoint placements, rendering each through
+`mache` and launching them together:
 
 | machine | placement | GPUs | note |
 | --- | --- | --- | --- |
@@ -84,7 +84,7 @@ together:
 | Frontier | honored | disjoint, 0,1 / 2,3 / 4,5 / 6,7 | clean first time |
 | Perlmutter GPU | honored | disjoint, 0 / 1 / 2 / 3 | clean after a fix |
 | Aurora | exact cores | disjoint masks | clean after a fix |
-| Perlmutter CPU | not run | n/a | the remaining gap |
+| Perlmutter CPU | honored | n/a | clean first time |
 
 Two defects were found this way and both were fixed in `mache` rather than
 worked around. On Aurora, `--env-remove` is not an option the PALS

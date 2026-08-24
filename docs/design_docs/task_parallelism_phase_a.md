@@ -775,6 +775,34 @@ node, at which point the failure appears far from its cause and looks like a
 step's bug. Recording which machines have been measured, in the `mache`
 configs themselves, is what makes the omission visible.
 
+**A machine may not have one answer.** The first measurements found
+Perlmutter CPU returning nodes of two different sizes -- roughly 257 GB and
+515 GB, at the same core count -- within what the configuration treats as
+one machine. This design previously argued that describing a machine with a
+single figure was an existing convention whose limitation memory did not
+worsen. That was wrong, and the difference is worth being precise about:
+cores are the same on both of those nodes, so one figure describes them
+correctly, while memory differs by a factor of two and one figure cannot.
+
+Where nodes differ, the **smallest** binds, because the figure exists to say
+what a caller must not exceed. A configured value larger than the smallest
+node will over-admit whenever a step lands on a small one, which is the
+direction that kills a job rather than the one that wastes it. The measured
+values bear this out: the shipped estimate for Perlmutter CPU is close to
+twice what the smaller nodes actually have.
+
+That also means a single sample cannot establish the number, and most of
+the measurements taken so far are single samples. The reliable method costs
+no allocation: query every node in the partition and take the minimum,
+rather than asking one node what it has. It should be done for each machine
+before `mache` releases these values.
+
+A node that turns up with unexpectedly little memory should be treated as a
+finding rather than a curiosity, and reported. It means either that a
+machine's configured figure is wrong, or that the machine has become
+heterogeneous since it was measured, and both are things a caller needs to
+learn about from a message rather than from an exhausted node.
+
 ### Testing and Validation: No Regression
 
 Date last modified: 2026/08/23
