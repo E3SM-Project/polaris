@@ -131,6 +131,13 @@ said which reductions it will accept, and shrinking below it is not one.
 A step says how much memory it needs as `memory` and `min_memory`, both in
 MB.
 
+**A declared figure is a ceiling as well as a claim.** Asking a launch for a
+share of the node's memory was measured to be enforced on Perlmutter and
+Frontier -- a step allowed 1 GB and told to take 4 GB is killed -- and not
+enforced on Chrysalis. So a step that declares memory should declare a
+**peak with margin**, not a typical value: on a machine that enforces, the
+number it gives is the number it dies at.
+
 Memory does not go to the launcher, and that is not an omission.  Nothing
 below Polaris acts on it -- asking a launch for a share of the node's memory
 was measured to change nothing -- so a memory figure rendered into a launch
@@ -139,8 +146,17 @@ budget Polaris keeps: the only thing protecting one step's memory from
 another's is Polaris declining to start the second, which is admission
 control in a later phase.
 
-A step that declares nothing is given **its proportional share of a node**:
-its cores times the node's memory per core, rounded down.  The default is
+A step that declares nothing is given **its proportional share of a node**
+as its `memory_budget`, leaving `memory` as `None`: its cores times the
+node's memory per core, rounded down.
+
+The two are kept apart on purpose. `memory` is what the step declared and is
+the only figure that may be enforced as a cap; `memory_budget` is what to
+account for, declared or defaulted. Capping a step at the framework's own
+rough guess would make every step carry a measured number before it could
+run, which is the burden the default exists to avoid -- while leaving a
+declared figure unenforced makes it invisible when wrong, which is worse
+than a failure.  The default is
 chosen for a property rather than for accuracy.  A set of steps that fits on
 cores always fits in memory, so a run in which every step defaults packs
 exactly as it would have with no memory accounting at all, and introducing

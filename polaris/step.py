@@ -91,11 +91,28 @@ class Step:
     min_cores : int
         the number of cores the step needs in order to run at all
 
-    memory : int
-        the amount of memory in MB the step needs.  A step that says
-        nothing is given its proportional share of a node -- its cores
-        times the node's memory per core -- which is chosen so that packing
-        steps on memory comes out the same as packing them on cores alone
+    memory : int or None
+        the amount of memory in MB the step declares it needs, or ``None``
+        if it has not said.  This stays ``None`` for a step that declares
+        nothing: it is never filled in with the default, because the two
+        are treated differently.
+
+        A declared figure is a **ceiling as well as a claim**.  The
+        launcher will hold a step to a memory figure on machines that
+        enforce, so a step author should declare a peak with margin rather
+        than a typical value.
+
+    memory_budget : int or None
+        the memory in MB to account for this step: what it declared, or its
+        proportional share of a node if it declared nothing.  Resolved when
+        resources are constrained, and ``None`` where the machine has not
+        said how much memory a node has.
+
+        Use this for accounting and ``memory`` for capping.  Only a
+        declared figure may be enforced as a cap -- capping a step at the
+        framework's own rough estimate of it would make every step carry a
+        measured number before it could run, which is the burden the
+        default exists to avoid.
 
     min_memory : int
         the amount of memory in MB the step needs in order to run at all,
@@ -298,7 +315,9 @@ class Step:
             the number of OpenMP threads to use
 
         memory : int, optional
-            the amount of memory in MB the step would ideally be given
+            the amount of memory in MB the step needs.  Declaring one makes
+            it a ceiling on machines that enforce, so declare a peak with
+            margin rather than a typical value
 
         min_memory : int, optional
             the amount of memory in MB the step needs in order to run at
@@ -359,6 +378,7 @@ class Step:
         _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task)
         self.memory = memory
         self.min_memory = min_memory
+        self.memory_budget = None
         self.placement = None
 
         self.path = os.path.join(self.component.name, self.subdir)
@@ -695,21 +715,31 @@ class Step:
 
         A step that has been measured says what it needs and is scheduled on
         that instead.
+
+        The default lands in ``memory_budget`` and never in ``memory``,
+        which stays as the step declared it.  Downstream has to be able to
+        tell the two apart: a declared figure may be enforced as a cap,
+        because getting it wrong is then immediate and attributable, while
+        a defaulted one may not, since capping every step at the
+        framework's own guess would make them all carry a measured number
+        before they could run.
         """
         cores_per_node = available_resources['cores_per_node']
         memory_per_node = available_resources.get('memory_per_node')
 
-        if self.memory is None and memory_per_node and cores_per_node:
-            self.memory = self.cores * memory_per_node // cores_per_node
+        if self.memory is not None:
+            self.memory_budget = self.memory
+        elif memory_per_node and cores_per_node:
+            self.memory_budget = self.cores * memory_per_node // cores_per_node
 
         if (
-            self.memory is not None
+            self.memory_budget is not None
             and self.min_memory is not None
-            and self.min_memory > self.memory
+            and self.min_memory > self.memory_budget
         ):
             raise ValueError(
                 f'Step {self.name} needs at least {self.min_memory} MB of '
-                f'memory but asks for only {self.memory} MB.'
+                f'memory but has {self.memory_budget} MB.'
             )
 
     def _constrain_gpus(

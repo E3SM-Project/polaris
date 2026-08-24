@@ -317,7 +317,24 @@ def test_a_step_that_says_nothing_gets_its_share_of_a_node():
     step.constrain_resources(
         _resources(cores=64, cores_per_node=64, memory_per_node=256000)
     )
-    assert step.memory == 8 * 256000 // 64
+    assert step.memory_budget == 8 * 256000 // 64
+
+
+def test_a_defaulted_step_still_declares_nothing():
+    """
+    The distinction the capping decision rests on.
+
+    A declared figure may be enforced as a cap; a defaulted one may not,
+    because capping every step at the framework's own rough guess would
+    make them all carry a measured number before they could run.  Filling
+    `memory` in with the default would erase the difference.
+    """
+    step = _make_step(ntasks=1, cpus_per_task=8)
+    step.constrain_resources(
+        _resources(cores=64, cores_per_node=64, memory_per_node=256000)
+    )
+    assert step.memory is None
+    assert step.memory_budget is not None
 
 
 def test_a_step_that_says_what_it_needs_keeps_it():
@@ -326,6 +343,7 @@ def test_a_step_that_says_what_it_needs_keeps_it():
         _resources(cores=64, cores_per_node=64, memory_per_node=256000)
     )
     assert step.memory == 100
+    assert step.memory_budget == 100
 
 
 def test_no_default_where_the_machine_has_not_said_its_memory():
@@ -333,6 +351,7 @@ def test_no_default_where_the_machine_has_not_said_its_memory():
     step = _make_step(ntasks=1, cpus_per_task=8)
     step.constrain_resources(_resources(cores=64, cores_per_node=64))
     assert step.memory is None
+    assert step.memory_budget is None
 
 
 def test_defaulting_steps_pack_on_memory_exactly_as_they_pack_on_cores():
@@ -357,7 +376,7 @@ def test_defaulting_steps_pack_on_memory_exactly_as_they_pack_on_cores():
                     memory_per_node=memory_per_node,
                 )
             )
-            memories.append(step.memory)
+            memories.append(step.memory_budget)
         fits_on_cores = sum(core_counts) <= cores_per_node * nodes
         fits_in_memory = sum(memories) <= memory_per_node * nodes
         assert fits_on_cores == fits_in_memory, core_counts
