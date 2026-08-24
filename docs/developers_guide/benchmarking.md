@@ -57,9 +57,12 @@ sides.
    ```
 
 2. Edit `benchmark.cfg` to set `work_base`, `load_script`, `setup_command`
-   and the `[baseline]` and `[test]` sections.  A `polaris setup` command
-   has to name its suite with `--suite_name`, since polaris would
-   otherwise call it `custom`.
+   and the `[baseline]` and `[test]` sections.  Give the benchmark a suite
+   name: `polaris suite` takes it from `-t`, and a `polaris setup` command
+   has to supply it with `--suite_name`, which the driver requires.  The
+   suite name is what makes one benchmark distinct from another — it names
+   the baseline directory, the run directory and the job script — so
+   benchmarking one branch two ways means two suite names.
 
 3. Resolve the plan without building anything:
 
@@ -165,7 +168,7 @@ for each of them.  Getting it wrong is loud rather than silent: a
   worktrees/<ref>-<sha7>/            provisioned polaris worktrees
   baselines/<suite>_<model>_opts-<key>_polaris-<sha7>[_<repo>-<sha7>]/
                                      reusable baseline work dirs
-  runs/<date>-polaris-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
+  runs/<date>-<suite>-polaris-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
                                      one benchmark run
     benchmark.log
     manifest.json
@@ -179,6 +182,12 @@ tasks and most suites outgrow.  Set `wall_time` in the `[benchmark]`
 section to change it for both sides at once; the driver merges it with
 `polaris_config_file` into `polaris_benchmark.cfg` in the run directory,
 because `polaris setup` takes only one config file.
+
+A run directory is keyed on the suite, so that benchmarking one branch two
+ways on one day gives two run directories rather than one that overwrites
+the other.  It carries no `opts-<key>`: that hash keeps a *baseline* from
+being reused when it is not comparable, and a run directory is not a
+cache.
 
 A baseline work directory is keyed on the suite, the model, the polaris
 commit, the commit of the submodule the model is built from, and a short

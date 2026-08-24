@@ -16,7 +16,11 @@ These rules are specific to the benchmarking driver in
 - Do not add `--model`, `--branch`, `-p`, `-w`, `-b`, `-f`, `--build` or
   `--clean_build` to `setup_command`; the driver appends them.
 - Do add `--suite_name` to a `polaris setup` command; the driver requires
-  it so that the benchmark is not named `custom`.
+  it.  The suite name identifies the benchmark: it names the baseline
+  directory, the run directory and the job script.  So when setting up a
+  second benchmark of the same two branches, give it a different suite
+  name and change nothing else — that alone keeps the two apart.  Do not
+  reach for a separate `work_base` to avoid a collision.
 - When only polaris differs between the two sides, suggest
   `component_path` so that the model is built once and shared rather than
   built twice.  Neither `--rebuild` nor `--clean-build` is needed for a

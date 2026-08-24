@@ -95,7 +95,7 @@ def benchmark(config, config_path, args):
         baseline, test, load_script_name, args, shared_component_path
     )
 
-    run_dir = _get_run_dir(work_base, baseline, test)
+    run_dir = _get_run_dir(work_base, baseline, test, setup_command)
     baseline_dir = _get_baseline_dir(
         work_base,
         baseline,
@@ -701,18 +701,30 @@ def _get_setup_config(run_dir, polaris_config, wall_time, dry_run):
     return config_file
 
 
-def _get_run_dir(work_base, baseline, test):
+def _get_run_dir(work_base, baseline, test, setup_command):
     """
     Get the deterministic run directory for this pair of sides.
 
-    Every repository that differs appears in the name.  Benchmarking a
-    submodule change holds polaris fixed on both sides, so the polaris
-    hashes alone would be the same for every such benchmark run on a
-    given day.
+    The suite name comes first, since it is what tells one benchmark from
+    another: two benchmarks of the *same* pair of commits are set up under
+    different suite names and must not share a work directory.  Without
+    it, benchmarking one branch two ways on one day silently overwrote the
+    first run's test work directory, build directory, manifest and log.
+
+    The ``opts-<key>`` that names the baseline is deliberately left out.
+    A baseline is a cache, so reusing one that was built with a different
+    config file or load script would be wrong; a run directory is only
+    where this run's output lands, and the suite name already tells one
+    from another.
+
+    Every repository that differs appears next.  Benchmarking a submodule
+    change holds polaris fixed on both sides, so the polaris hashes alone
+    would be the same for every such benchmark run on a given day.
     """
     date = datetime.now().strftime('%Y%m%d')
     parts = [
         date,
+        polaris_run.get_suite_name(setup_command),
         f'polaris-{baseline.polaris_sha[:7]}-{test.polaris_sha[:7]}',
     ]
     baseline_shas = baseline.compare_shas

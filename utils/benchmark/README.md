@@ -135,10 +135,38 @@ appended automatically and **must not** appear in `setup_command`; the
 driver raises an error if they do.  `--model` and `--branch` are left off
 entirely when `model = none`.
 
-`--suite_name` is the exception: it is *required* in a `polaris setup`
-command.  Polaris would otherwise call the suite `custom`, so every
-benchmark set up that way would share one baseline directory and one job
-script name.  `polaris suite` takes its name from `-t` instead.
+### The suite name identifies the benchmark
+
+**The suite name is what makes one benchmark distinct from another.**  It
+names the cached baseline directory, the run directory and the job script,
+so two benchmarks with the same suite name are, as far as the driver is
+concerned, the same benchmark:
+
+```
+baselines/<suite>_<model>_opts-<key>_polaris-<sha7>[_<repo>-<sha7>]/
+runs/<date>-<suite>-polaris-<sha7>-<sha7>[-<repo>-<sha7>-<sha7>]/
+job_script.<suite>.sh
+```
+
+Two benchmarks of the *same* pair of commits are therefore told apart by
+their suite names.  Benchmarking one branch two ways — one suite that
+runs the model and one task that does not, say — needs two different suite
+names and nothing else.  The `opts-<key>` on the baseline is a hash of the
+setup command, the config file, the load script and any shared
+`component_path`.  It is not something you choose; it is there so that a
+cached baseline is never reused by a benchmark it is not comparable with,
+which is why it appears on the baseline and not on the run directory.
+
+Where the name comes from depends on the command:
+
+| command | the name is |
+| --- | --- |
+| `polaris suite` | the value of `-t`, e.g. `-t omega_pr` → `omega_pr` |
+| `polaris setup` | the value of `--suite_name`, which is **required** |
+
+`--suite_name` is the one flag the driver requires rather than forbids.
+Polaris would otherwise call the suite `custom`, so every benchmark set up
+that way would collide with every other.
 
 ### `[baseline]` and `[test]`
 
@@ -273,7 +301,7 @@ tracked file changing.
   worktrees/<ref>-<sha7>/            provisioned polaris worktrees
   baselines/<suite>_<model>_opts-<key>_polaris-<sha7>[_<repo>-<sha7>]/
                                      reusable baseline work dirs
-  runs/<date>-polaris-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
+  runs/<date>-<suite>-polaris-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
                                      one benchmark run
     benchmark.log
     manifest.json
@@ -281,6 +309,12 @@ tracked file changing.
     build_baseline/  build_test/
     test/
 ```
+
+A run directory is keyed on the suite, so that two benchmarks of the
+*same* pair of commits on the same day do not share one.  Every repository
+that differs follows.  It carries no `opts-<key>`: that hash is there to
+stop a *baseline* being reused when it is not comparable, and a run
+directory is not a cache.
 
 A baseline work directory is keyed on the suite, the model, the polaris
 commit, the commit of the submodule the model is built from, and a short
