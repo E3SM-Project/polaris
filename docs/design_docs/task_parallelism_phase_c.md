@@ -158,6 +158,7 @@ count is. Nothing extra is needed to express it -- `gpus` is already a
 per-step total -- but the pool has to account for it, and a step that
 distributes GPU work should not have GPUs reserved on the node its driver
 happens to sit on.
+
 Reading the bound off "is it an MPI step" instead would have made this phase
 begin by undoing a rule, which is why the property exists ahead of anything
 that sets it.
@@ -177,12 +178,32 @@ should not be the assumed shape of every analysis step, and no step should
 be written to span nodes before measurement shows it needs to. But it should
 be available, and the requirements below are written so that it is.
 
+It should be available in particular because nothing has yet demanded it,
+and that fact carries less weight than it appears to. The instrumented
+analysis run contained no Python task needing more than a node -- the
+largest held 53.9 GiB where the node had 251 -- and it would be easy to read
+that as evidence the case is hypothetical. It is not evidence of that. The
+program measured had no way to express such a task: its parallelism is
+fork-based and confined to one node, and the only work in it that spans
+nodes at all is MPI, meaning `ncclimo` and the generation of mapping files.
+Any analysis that would have needed more than a node was therefore never
+written, or was restructured until it fitted, or was handed to one of those
+two. A tool produces no examples of what it cannot express, and the absence
+of such tasks describes the tool rather than the science.
+
+So the door stays open deliberately. Every Polaris step that is not MPI has
+always been bounded by one process on one node, and this phase is the first
+opportunity to lift that bound rather than a proposal to add a capability
+nobody asked for. Declining to lift it because nothing has hit it would
+preserve a limitation by default, on the strength of a measurement that
+could not have found a counterexample.
+
 The case that genuinely stays hard is a computation that cannot be
 partitioned at all -- one needing global, random access to a single array
 larger than a node. Neither chunking nor distribution helps there, and the
 answer is to restructure the computation. Analysis work is mostly reductions
-over dimensions that partition cleanly, so this should be rare; if the
-measurement turns one up, it is worth examining on its own rather than
+over dimensions that partition cleanly, so this should be rare; if one turns
+up, it is worth examining on its own rather than
 treating as a requirement on the framework.
 
 Success in Phase C means a Python step can distribute work across more than
