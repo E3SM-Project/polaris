@@ -208,8 +208,8 @@ launcher is asked to enforce; deciding what fits is Phase B's job.
 
 This is a prerequisite for everything else, and most of the work is in
 `mache`, which owns how Polaris launches parallel work. That `mache` change
-exists as pull request #470 and is not yet merged or released, so Phase A
-is developed against a branch rather than a released version for now.
+is merged and released as `mache` 3.12.0, which Polaris requires; while it
+was unreleased Phase A was developed against the branch.
 
 ### Phase B -- Concurrency
 
