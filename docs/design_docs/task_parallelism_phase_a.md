@@ -597,12 +597,24 @@ Contributors:
   system reports.
 - Nothing about memory reaches `mache`'s `ResourcePlacement`. That type
   describes where a launch runs -- which nodes, which cores, which GPUs --
-  and every field in it is rendered into the launch command. A memory field
-  would render to nothing on every machine Polaris supports. If the
-  enforcement question below is answered and some machine does honor a
-  memory request, adding the field then is an additive change; adding it
-  now would widen an unmerged pull request to carry something no machine
-  reads.
+  and every field in it is rendered into the launch command. Memory is not
+  a location and does not belong there.
+
+  The enforcement question that was open when this was first written has
+  since been answered, and machines do honor a memory request, so a cap
+  does now reach the launcher -- as a separate optional argument to
+  `get_parallel_command()` rather than as a field on the placement. Keeping
+  the two apart is deliberate: a placement still says only where a launch
+  runs, and a cap is a different kind of statement that the signature
+  should distinguish rather than blend. `mache` reports separately whether
+  a machine can enforce one, so Polaris can say in a run log that caps are
+  not enforced here rather than quietly believe it has a safety net.
+- Polaris passes that cap for a step that declared a memory figure, and
+  omits it entirely for a step carrying the proportional default, which is
+  what makes the argument optional rather than always supplied. This is the
+  only place the declared-versus-defaulted distinction reaches outside
+  Polaris, and it is the reason Phase A must keep the two separable rather
+  than resolving the default eagerly into one number.
 
 ### Implementation: Boundaries
 
