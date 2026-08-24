@@ -248,13 +248,20 @@ Polaris shall not rely on enforcement in place of its own accounting.
 Admission control works on every machine; capping does not, and the
 reporting required above is needed regardless.
 
-One question is still open and may change the shape of this. Placement on
-newer Slurm asks for exactly what a step needs rather than the job's
-resources, so a placed step may already receive a memory ceiling nobody set.
-If it does, the choice is not whether to impose a cap but whether Polaris
-names the number or lets the scheduler pick one it never reports. That
-measurement is described in Phase A and should be taken before this
-requirement is implemented.
+A question that could have reshaped this has been answered and did not.
+Placement on newer Slurm asks for exactly what a step needs rather than the
+job's resources, so a placed step might have received a memory ceiling
+nobody set -- in which case the choice would not have been whether to cap
+but whether Polaris names the number or lets the scheduler pick one it never
+reports. It does not: on Perlmutter CPU and on Frontier, a placed
+single-core launch and an unplaced control, neither mentioning memory, both
+allocated twice what a single core's proportional share would be and neither
+was touched. The amount was chosen to be what would bite if placement scaled
+memory with cores.
+
+That bounds rather than settles -- it shows no ceiling below the amount
+tried, and Perlmutter GPU was not tested on this point -- but it removes the
+mechanism that would have forced Polaris's hand.
 
 ### Requirement: Results Match Serial Execution
 
