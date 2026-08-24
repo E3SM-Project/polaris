@@ -159,6 +159,20 @@ per-step total -- but the pool has to account for it, and a step that
 distributes GPU work should not have GPUs reserved on the node its driver
 happens to sit on.
 
+This phase is also where one open question from Phase A stops being
+harmless. On PBS with PALS, a launch that needs no GPUs is given an empty
+vendor visibility variable, and whether the runtime reads that as "no
+devices" or as "no mask, every device" has not been established -- a clean
+Aurora run does not settle it, because there the check reads back the same
+value the launcher wrote. Through Phase A and Phase B it does not matter:
+nothing on PALS reserves GPUs, so concurrency is unaffected either way and
+the worst case is a step seeing hardware it said it did not want. Here,
+where several workers on one node may each be assigned different devices,
+whether that assignment confines anything is the difference between
+isolation and two workers quietly sharing a device. It should be answered
+before pool workers are given GPUs on that machine, and answering it takes
+two commands in an allocation rather than any machinery.
+
 Reading the bound off "is it an MPI step" instead would have made this phase
 begin by undoing a rule, which is why the property exists ahead of anything
 that sets it.
