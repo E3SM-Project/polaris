@@ -298,3 +298,46 @@ def test_some_machine_actually_exercises_the_gpu_case():
     assert len(with_gpus) > 0, 'no machine config reports any GPUs'
     machines = {entry.split('/')[0] for entry in with_gpus}
     assert {'pm-gpu', 'frontier', 'aurora'} <= machines
+
+
+@pytest.mark.parametrize('machine,compiler', _cases())
+def test_polaris_reports_the_memory_mache_says_a_node_has(machine, compiler):
+    """
+    Whatever mache says a node's memory is, Polaris hands on unchanged.
+
+    A machine that says nothing leaves memory undeclared, which is the
+    correct answer rather than a guess: the figure feeds every step's
+    default, so inventing one would be worse than having none.
+    """
+    from polaris import Component
+
+    for _, system in _systems(machine, compiler):
+        component = Component(name='ocean')
+        component.parallel_system = system
+        resources = component.get_available_resources()
+
+        expected = system.get_config_int('memory_per_node') or None
+        assert resources['memory_per_node'] == expected
+        if expected is None:
+            assert resources['memory'] is None
+        else:
+            assert resources['memory'] == expected * system.nodes
+
+
+def test_the_machines_phase_a_targets_all_report_their_memory():
+    """
+    Guard against the memory plumbing above quietly testing nothing.
+
+    Each case degrades gracefully on a machine that says nothing, which is
+    right per machine and would be wrong to discover about the whole suite.
+    """
+    reported = {}
+    for machine, compiler in _cases():
+        for _, system in _systems(machine, compiler):
+            memory = system.get_config_int('memory_per_node')
+            if memory:
+                reported[machine] = memory
+            break
+    assert {'chrysalis', 'pm-cpu', 'pm-gpu', 'frontier', 'aurora'} <= set(
+        reported
+    ), f'machines missing memory_per_node: {reported}'
