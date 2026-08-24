@@ -643,10 +643,16 @@ class Step:
             )
 
         self._constrain_cores(available_resources)
-        self._constrain_memory(available_resources)
+        # GPUs before memory, because running out of GPUs can cut the task
+        # count again and the memory budget has to describe the cores the
+        # step ends up with.  Budgeting first would hand a step memory for
+        # tasks it no longer has, and break the very thing the default is
+        # chosen for -- that a memory budget stays exactly proportional to
+        # cores, so packing on either comes out the same.
         self._constrain_gpus(
             available_resources, declared_ntasks, declared_gpus
         )
+        self._constrain_memory(available_resources)
 
     def _constrain_cores(self, available_resources):
         """

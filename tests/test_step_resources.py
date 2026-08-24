@@ -8,6 +8,7 @@ steps run at the same time, while a total does.
 """
 
 import logging
+import pickle
 
 import pytest
 
@@ -431,3 +432,58 @@ def test_needing_more_gpus_than_a_node_has_is_the_same_error():
         step.constrain_resources(
             _resources(cores=192, cores_per_node=64, gpus=12, gpus_per_node=4)
         )
+
+
+def test_the_new_declarations_survive_being_pickled():
+    """
+    Polaris pickles a step at setup and unpickles it to run it.
+
+    Every field added in Phase A therefore has to round-trip, and the ones
+    backed by a property are the risk: `cores`, `min_cores`, `may_span_nodes`
+    and the GPU totals all store their value under a different name than
+    they are read by.  A unit test that never pickles would not notice, and
+    the failure would appear only in a real run, after setup had succeeded.
+    """
+    step = _make_step(
+        ntasks=1,
+        cpus_per_task=1,
+        cores=128,
+        min_cores=1,
+        memory=4096,
+        min_memory=512,
+        gpus=2,
+        min_gpus=1,
+        may_span_nodes=True,
+    )
+    step.memory_budget = 9999
+
+    restored = pickle.loads(pickle.dumps(step))
+
+    for attribute in (
+        'cores',
+        'min_cores',
+        'may_span_nodes',
+        'gpus',
+        'min_gpus',
+        'memory',
+        'min_memory',
+        'memory_budget',
+        'placement',
+    ):
+        assert getattr(restored, attribute) == getattr(step, attribute), (
+            attribute
+        )
+
+
+def test_a_pickled_step_still_constrains_the_same_way():
+    """The properties have to work after a round trip, not just read back."""
+    step = _make_step(ntasks=8, min_tasks=1, cpus_per_task=1, gpus=8)
+    restored = pickle.loads(pickle.dumps(step))
+    restored.constrain_resources(
+        _resources(cores=64, cores_per_node=64, gpus=4, memory_per_node=253000)
+    )
+    assert restored.ntasks == 4
+    assert restored.gpus == 4
+    # the budget describes the four tasks it ended up with, not the eight
+    # it asked for
+    assert restored.memory_budget == 4 * 253000 // 64
