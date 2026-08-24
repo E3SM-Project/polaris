@@ -492,42 +492,45 @@ it. Its design is *Design Document: parallel placement*, at
 `docs/design/parallel_placement.md` in the `mache` repository. It is a
 separate repository, so this cannot be a cross-reference.
 
-That work exists: **`mache` pull request #470**, which adds a
+That work was **`mache` pull request #470**, which adds a
 `ResourcePlacement` type and the optional argument, renders it for Slurm
-both before and after 20.11, for PBS with PALS and for a single node, and
-adds a test that renders a placement against every shipped machine config.
-It is not merged. Xylar's condition for merging it is that Polaris testing
-first confirms the rendered commands behave as intended on real machines,
-so Phase A and that pull request unblock each other and should be worked on
-together.
+both before and after 20.11, for PBS with PALS and for a single node, adds
+an optional memory cap, and tests the rendering against every shipped
+machine config. Its condition for merging was that Polaris testing first
+confirm the rendered commands behave as intended on real machines, so it and
+Phase A unblocked each other and were worked on together. **It is merged,
+and released as `mache` 3.12.0.**
 
-Until a released `mache` provides this, Polaris must deploy against the
-pull request branch rather than a released version. `deploy.py` already
-supports this, so no change to Polaris's deployment machinery is needed:
+The sequencing that release was held to is worth recording, because it was
+deliberate and the alternative was easy to drift into. The order was:
+Polaris testing confirms the rendering *and* measures each machine's memory,
+`mache` takes both, then merges and releases, Polaris pins that release, and
+only then does Phase A land. Folding the memory corrections into the same
+release mattered because the alternative is shipping estimates and
+correcting them in a second release that nothing forces anyone to make.
+That held: 3.12.0 carries the placement work, the memory cap, and the
+surveyed `memory_per_node` figures together.
+
+While the work was unreleased, Polaris deployed against the pull request
+branch, which `deploy.py` already supported and which therefore needed no
+change to Polaris's deployment machinery:
 
 ```
 ./deploy.py --mache-fork xylar/mache --mache-branch parallel-placement ...
 ```
 
 `deploy.py` and `deploy/cli_spec.json` are contract files shared with
-`mache` and must not be edited in Polaris to accommodate this.
+`mache` and must not be edited in Polaris to accommodate anything of this
+kind. That was always a temporary state, and it ends here: Phase A must not
+merge while depending on an unreleased branch, and no longer has to.
 
-This is a temporary state and should be treated as one. Phase A should not
-be merged into Polaris while it depends on an unreleased branch. The order
-is: Polaris testing confirms the rendering works and measures each machine's
-memory, `mache` takes both -- the confirmation and the corrected memory
-figures -- then merges and releases, Polaris pins the released version, and
-only then does Phase A land. Folding the memory corrections into the same
-release is worth a little care in sequencing, since the alternative is
-shipping estimates and correcting them in a second release that nothing
-forces anyone to make. Anything built on Phase A in the meantime is
-developed against a moving dependency and should expect to be rebased.
-
-Once a released version exists, Polaris should require at least that
-version and should fail clearly, at setup, if an older `mache` is present.
-A run that silently loses placement would appear to work while
-oversubscribing the machine, which is the worst failure mode available
-here: no error, wrong results, and slower than serial.
+Polaris shall now require `mache` 3.12.0 or later, and shall fail clearly,
+at setup, if an older one is present. Until the release existed the check
+had to be on the capability rather than on a version, because there was no
+version to name; it becomes an ordinary requirement. What it guards against
+is the reason it is stated at all: a run that silently lost placement would
+appear to work while oversubscribing the machine, which is the worst failure
+available here -- no error, wrong results, and slower than serial.
 
 ### Implementation: The Polaris Side
 
