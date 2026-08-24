@@ -15,8 +15,15 @@ from mpas_tools.viz.paraview_extractor import extract_vtk
 
 from polaris import Step
 from polaris.constants import get_constant
-from polaris.mesh.reconstruct import compute_reconstruction_weights
+from polaris.mesh.reconstruct import (
+    compute_reconstruction_weights,
+    get_reconstruction_validate_vars,
+)
 from polaris.mesh.spherical.quality import check_cell_polygon_quality
+from polaris.mesh.validate import (
+    CELL_WIDTH_VALIDATE_VARS,
+    MPAS_MESH_VALIDATE_VARS,
+)
 from polaris.model_step import make_graph_file
 
 
@@ -92,16 +99,22 @@ class SphericalBaseStep(Step):
         """
         config = self.config
         section = config['spherical_mesh']
-        for option in [
-            'jigsaw_mesh_filename',
-            'mpas_mesh_filename',
-            'cell_width_filename',
-        ]:
+        validate_vars = {
+            'jigsaw_mesh_filename': None,
+            'mpas_mesh_filename': MPAS_MESH_VALIDATE_VARS,
+            'cell_width_filename': CELL_WIDTH_VALIDATE_VARS,
+        }
+        for option, variables in validate_vars.items():
             filename = section.get(option)
-            self.add_output_file(filename=filename)
+            self.add_output_file(filename=filename, validate_vars=variables)
         if section.getboolean('generate_reconstruction_weights'):
             filename = section.get('reconstruction_weights_filename')
-            self.add_output_file(filename=filename)
+            self.add_output_file(
+                filename=filename,
+                validate_vars=get_reconstruction_validate_vars(
+                    location='cell'
+                ),
+            )
         self.add_output_file(filename='graph.info')
 
     def run(self):
