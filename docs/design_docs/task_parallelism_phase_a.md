@@ -663,10 +663,35 @@ all five machines.
 
 A single confined step shall be run on each machine and shall report that it
 sees only the cores and GPUs it was given. This is the check that catches a
-placement which is constructed correctly but not honored, and it is worth
-keeping as a small standing test rather than a one-off, since it is the
-first thing that would break if a site changed its scheduler
-configuration.
+placement which is constructed correctly but not honored, and it is the
+first thing that would break if a site changed its scheduler configuration.
+
+Something of it shall keep running after Phase A, but not the harness that
+produced it. The harness exists to answer a question and is not part of what
+Polaris ships; it is removed once the question is answered, and anything
+worth keeping has to be moved somewhere permanent **before** that rather
+than after. Two things are worth keeping, and neither needs an allocation to
+be remembered.
+
+The first is a test that needs no batch system at all. A single-node
+launcher confines a launch with ordinary process affinity, which is enough
+to build several disjoint placements, render each through `mache`, run them
+at once and read back what each could see. That exercises the rendering
+end to end and runs anywhere, so it belongs with the ordinary tests and
+guards against a rendering regression on every commit. It cannot tell
+whether a real scheduler honors a placement, which is the other tier.
+
+The second is not a test at all. Phase A assigns no placements -- the serial
+path passes none, deliberately -- so any check here has to construct one for
+itself, which makes it a diagnostic rather than an observation of Polaris
+doing its job. From Phase B onwards every placed step has a placement to
+verify, and a step that checks it received what it was given costs almost
+nothing and runs on every machine on every run. That is the standing check
+on real machines, and it should replace this one rather than sit beside it.
+
+What must not happen is an allocation-gated test that exists and is never
+run. A check that requires someone to remember to run `pytest` inside a job
+is a check that reports nothing for as long as nobody does.
 
 While those machines are being visited, two further things should be
 settled, because both are cheap there and expensive to guess at. The first

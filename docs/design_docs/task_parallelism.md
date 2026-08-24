@@ -69,6 +69,57 @@ The GPU machines were also tested at MPI width -- four concurrent two-rank
 MPI launches -- and partitioned cleanly there too. On Frontier the four
 launches received GPUs 4,5 / 6,7 / 0,1 / 2,3.
 
+### What the rendered commands did
+
+The table above was produced with commands written by hand. That establishes
+what the machines can do, not that the commands Polaris and `mache` build
+between them do it, which is a different claim and the one that gates the
+`mache` change. It was checked separately, in August 2026, by constructing
+disjoint placements, rendering each through `mache` and launching them
+together:
+
+| machine | placement | GPUs | note |
+| --- | --- | --- | --- |
+| Chrysalis | exact cores | n/a | clean first time |
+| Frontier | honored | disjoint, 0,1 / 2,3 / 4,5 / 6,7 | clean first time |
+| Perlmutter GPU | honored | disjoint, 0 / 1 / 2 / 3 | clean after a fix |
+| Aurora | exact cores | disjoint masks | clean after a fix |
+| Perlmutter CPU | not run | n/a | the remaining gap |
+
+Two defects were found this way and both were fixed in `mache` rather than
+worked around. On Aurora, `--env-remove` is not an option the PALS
+`mpiexec` accepts, and it rejected the whole command, so every placed launch
+failed to start. On Perlmutter GPU, a `gpu_bind` of `none` carried from the
+machine config alongside an explicit GPU request, and under concurrency
+three of four launches silently received no GPU at all and exited zero --
+the same class of failure as silently losing placement, and the reason this
+verification was worth doing separately from the hand-written one.
+
+One limit of the Aurora result should be carried with it. On Slurm the GPUs
+a launch can see are read from the scheduler's own variables, so the verdict
+is independent evidence. On PALS nothing assigns GPUs, so `mache` renders
+the indices the caller chose and the check reads that same value back: it
+confirms the plumbing, not that the runtime honors it. Whether Level Zero
+reads an empty mask as "no devices" or as "no mask at all" is still open,
+and a clean Aurora run does not close it.
+
+### Where measurements live, and what does not
+
+Both sets of results above were produced by harnesses written to answer a
+question. Neither harness is part of what Polaris ships, and the findings
+are recorded in this document rather than in the directories that produced
+them. This is deliberate and has already been learned once: an earlier
+version of these documents pointed at a README on a branch that was never
+going to merge, so the reference would have dangled and the evidence would
+have been lost with it.
+
+The rule worth stating, so that it does not have to be learned a third time:
+**a harness built to answer a question is not part of the deliverable, its
+findings belong in the design document, and it does not merge.** Anything
+from such a harness that deserves to keep running -- a regression test, a
+standing check -- has to be moved somewhere permanent before the harness
+goes, not after.
+
 The conclusions that shape this design are:
 
 - **Launching work is cheap.** Measured sequentially: roughly 60 per minute
