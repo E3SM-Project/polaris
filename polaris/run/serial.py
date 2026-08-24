@@ -744,6 +744,20 @@ def _write_output_for_pull_request(
 
     suite : dict
         The unpickled suite dictionary containing tasks and base work dir.
+
+    Notes
+    -----
+    The benchmarking driver in ``utils/benchmark`` uses the file this
+    writes as its signal that a run finished, which is how it can reuse a
+    baseline whose job it submitted and then stopped watching.  It is
+    written from ``run_tasks()`` just before the pass/fail exit, so it is
+    there whether the run passed or failed, which is what makes it usable
+    for that.
+
+    So renaming or removing this file would stop benchmark baselines from
+    being reused.  Nothing breaks -- an unrecognized baseline is simply
+    run again -- but it would get slower quietly, so please update
+    ``POLARIS_RUN_OUTPUT`` in ``utils/benchmark/benchmark.py`` to match.
     """
     work_dir = suite.get('work_dir', os.getcwd())
     provenance_path = os.path.join(work_dir, 'provenance')
