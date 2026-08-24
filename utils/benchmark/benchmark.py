@@ -73,6 +73,12 @@ def benchmark(config, config_path, args):
 
     wall_time = section.get('wall_time', fallback='').strip()
 
+    shared_component_path = section.get('component_path', fallback='').strip()
+    if shared_component_path:
+        shared_component_path = to_abs(shared_component_path, config_path)
+    else:
+        shared_component_path = None
+
     polaris_run.check_setup_command(setup_command)
 
     baseline = _resolve_side(
@@ -94,11 +100,17 @@ def benchmark(config, config_path, args):
         load_script_name,
     )
 
-    _check_guardrails(baseline, test, load_script_name, args)
+    _check_guardrails(
+        baseline, test, load_script_name, args, shared_component_path
+    )
 
     run_dir = _get_run_dir(work_base, baseline, test)
     baseline_dir = _get_baseline_dir(
-        work_base, baseline, setup_command, polaris_config
+        work_base,
+        baseline,
+        setup_command,
+        polaris_config,
+        shared_component_path,
     )
     test_dir = os.path.join(run_dir, 'test')
 
@@ -128,6 +140,7 @@ def benchmark(config, config_path, args):
         'wall_time': wall_time or None,
         'polaris_config_file': polaris_config,
         'setup_config_file': setup_config,
+        'component_path': shared_component_path,
         'differing_repos': gitrepo.check_single_variable(baseline, test),
         'baseline': baseline.provenance(),
         'test': test.provenance(),
@@ -137,6 +150,7 @@ def benchmark(config, config_path, args):
         baseline=baseline,
         baseline_dir=baseline_dir,
         run_dir=run_dir,
+        shared_component_path=shared_component_path,
         setup_command=setup_command,
         run_command=run_command,
         polaris_config=setup_config,
@@ -151,7 +165,9 @@ def benchmark(config, config_path, args):
         setup_command=setup_command,
         run_command=run_command,
         work_dir=test_dir,
-        component_path=os.path.join(run_dir, 'build_test'),
+        component_path=_get_component_path(
+            shared_component_path, run_dir, 'test'
+        ),
         baseline_dir=baseline_dir,
         config_file=setup_config,
         clean_build=args.clean_build,
@@ -434,7 +450,9 @@ def _check_no_fork_keys(name, section):
         )
 
 
-def _check_guardrails(baseline, test, load_script_name, args):
+def _check_guardrails(
+    baseline, test, load_script_name, args, shared_component_path
+):
     """Check the cross-cutting guardrails before anything is built."""
     if baseline.path == test.path:
         raise ValueError(
@@ -471,6 +489,33 @@ def _check_guardrails(baseline, test, load_script_name, args):
                     f'build.  Drop --clean-build and --rebuild.'
                 )
 
+    if shared_component_path is not None:
+        if baseline.model == gitrepo.NO_MODEL:
+            raise ValueError(
+                f'component_path is set, but model = {gitrepo.NO_MODEL}, so '
+                f'there is no component to build or to find.  Drop '
+                f'component_path.'
+            )
+        if args.clean_build:
+            raise ValueError(
+                f'--clean-build would delete the shared component_path '
+                f"{shared_component_path}, which is not this benchmark's "
+                f'to remove, and would then build it twice over.  Clean it '
+                f'yourself, or drop component_path to build each side in '
+                f'its own directory.'
+            )
+        key = gitrepo.MODEL_SUBMODULES[baseline.model]
+        baseline_sha = baseline.compare_shas[key]
+        test_sha = test.compare_shas[key]
+        if baseline_sha != test_sha:
+            raise ValueError(
+                f'component_path is set, so both sides would run one build '
+                f'of {baseline.model}, but they pin different {key} commits '
+                f'({baseline_sha[:7]} and {test_sha[:7]}).  One of the two '
+                f"sides would run the other's model.  Drop component_path "
+                f'so that each side builds its own.'
+            )
+
     if not args.allow_env_mismatch:
         baseline_script = os.path.basename(baseline.load_script)
         test_script = os.path.basename(test.load_script)
@@ -486,6 +531,7 @@ def _run_baseline(
     baseline,
     baseline_dir,
     run_dir,
+    shared_component_path,
     setup_command,
     run_command,
     polaris_config,
@@ -510,7 +556,9 @@ def _run_baseline(
         setup_command=setup_command,
         run_command=run_command,
         work_dir=baseline_dir,
-        component_path=os.path.join(run_dir, 'build_baseline'),
+        component_path=_get_component_path(
+            shared_component_path, run_dir, 'baseline'
+        ),
         baseline_dir=None,
         config_file=polaris_config,
         clean_build=args.clean_build,
@@ -522,6 +570,35 @@ def _run_baseline(
     if not args.dry_run and not submit:
         _mark_complete(baseline_dir)
     return job_id
+
+
+def _get_component_path(shared_component_path, run_dir, side):
+    """
+    Get the path passed to ``polaris setup`` with ``-p`` for one side
+
+    Each side builds in its own directory within the run directory unless
+    a shared ``component_path`` was configured.  Polaris builds the model
+    only when it does not find one at ``-p``, so a shared path means the
+    first side to be set up builds it and the second one finds it and
+    skips, which is the point of the option.
+
+    Parameters
+    ----------
+    shared_component_path : str or None
+        The configured ``component_path``, if there is one
+    run_dir : str
+        The run directory for this benchmark
+    side : str
+        Either ``baseline`` or ``test``
+
+    Returns
+    -------
+    component_path : str
+        The path to build the component in or find an existing build at
+    """
+    if shared_component_path is not None:
+        return shared_component_path
+    return os.path.join(run_dir, f'build_{side}')
 
 
 def _get_setup_config(run_dir, polaris_config, wall_time, dry_run):
@@ -601,7 +678,13 @@ def _get_run_dir(work_base, baseline, test):
     return os.path.join(work_base, 'runs', name)
 
 
-def _get_baseline_dir(work_base, baseline, setup_command, polaris_config):
+def _get_baseline_dir(
+    work_base,
+    baseline,
+    setup_command,
+    polaris_config,
+    shared_component_path=None,
+):
     """
     Get the cacheable baseline work directory.
 
@@ -620,10 +703,13 @@ def _get_baseline_dir(work_base, baseline, setup_command, polaris_config):
     reproduced from the recorded commit hashes.
     """
     shas = baseline.compare_shas
+    setup_key = _setup_key(
+        setup_command, polaris_config, baseline, shared_component_path
+    )
     parts = [
         polaris_run.get_suite_name(setup_command),
         baseline.model,
-        f'opts-{_setup_key(setup_command, polaris_config, baseline)}',
+        f'opts-{setup_key}',
         f'polaris-{shas["polaris"][:7]}',
     ]
     key = gitrepo.MODEL_SUBMODULES.get(baseline.model)
@@ -635,18 +721,28 @@ def _get_baseline_dir(work_base, baseline, setup_command, polaris_config):
     return os.path.join(work_base, 'baselines', name)
 
 
-def _setup_key(setup_command, polaris_config, baseline):
+def _setup_key(
+    setup_command, polaris_config, baseline, shared_component_path=None
+):
     """
     Get a short hash of what a baseline depends on besides the commits.
 
     ``polaris setup`` always reports the suite name ``custom``, so the
     tasks only appear here.  The polaris config file and the load script
     change the results too, so they are included as well.
+
+    A shared ``component_path`` is included because the driver cannot tell
+    what was built there: the directory names the submodule hash the
+    baseline pins, but the executable found at ``component_path`` was
+    built by whoever created it.  Pointing somewhere else therefore has to
+    invalidate the cached baseline rather than silently reuse it.
     """
     parts = [
         ' '.join(setup_command.split()),
         os.path.basename(baseline.load_script),
     ]
+    if shared_component_path is not None:
+        parts.append(shared_component_path)
     if polaris_config is not None:
         with open(polaris_config) as handle:
             parts.append(handle.read())
@@ -700,6 +796,14 @@ def _print_summary(manifest):
                 f'must exist before the benchmark can run; see the load '
                 f'script notes in utils/benchmark/README.md.'
             )
+    if manifest['component_path'] is not None:
+        print('')
+        print(
+            f'Both sides share one build at\n  '
+            f'{manifest["component_path"]}\nPolaris builds the model only '
+            f'when it does not find one there, so the first side set up '
+            f'builds it and the second reuses it.'
+        )
     print('')
     print(f'differing:    {", ".join(manifest["differing_repos"])}')
     print(f'reproducible: {manifest["reproducible"]}')

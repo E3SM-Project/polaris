@@ -17,6 +17,10 @@ These rules are specific to the benchmarking driver in
   `--clean_build` to `setup_command`; the driver appends them.
 - Do add `--suite_name` to a `polaris setup` command; the driver requires
   it so that the benchmark is not named `custom`.
+- When only polaris differs between the two sides, suggest
+  `component_path` so that the model is built once and shared rather than
+  built twice.  Neither `--rebuild` nor `--clean-build` is needed for a
+  first build, and `--clean-build` is refused with a `component_path`.
 
 ## Adopted worktrees
 

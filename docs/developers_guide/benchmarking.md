@@ -156,6 +156,30 @@ A baseline is marked complete when it finishes, and a later benchmark with
 the same name **reuses** it instead of rerunning, which is what makes
 iterating on a test branch cheap.
 
+## Sharing one build between the two sides
+
+Each side is given `build_baseline` or `build_test` inside the run
+directory as its `-p`, so it builds its own copy of the model.  When only
+polaris differs between the two sides, that builds the same Omega or
+MPAS-Ocean source twice.  Setting `component_path` in the `[benchmark]`
+section points both sides at one directory:
+
+```ini
+[benchmark]
+component_path = ${work_base}/build_omega
+```
+
+Polaris builds the model only when it does not already find one at `-p`,
+so the side that is set up first builds it there and the other finds it
+and skips.  No build flag is needed.
+
+The driver refuses a `component_path` when the two sides pin different
+commits of the submodule the model is built from, since one side would
+then run the other's model, and it refuses `--clean-build`, which would
+delete a directory the benchmark does not own.  The path is part of the
+key the cached baseline is named from, but what was built there is the
+developer's to keep in step with the recorded hashes.
+
 Validation results themselves are written by polaris under `case_outputs/`
 in the test work directory; collecting and reporting them is deliberately
 not part of the driver.

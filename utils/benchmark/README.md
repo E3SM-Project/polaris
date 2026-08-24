@@ -82,6 +82,7 @@ builds and runs nothing, but resolving a fork does add a remote to
 | `setup_command` | A `polaris setup` or `polaris suite` command.  A `polaris setup` command must name its suite with `--suite_name`. |
 | `run_command` | Usually `polaris serial`; used when `submit = False`. |
 | `submit` | Submit the job script instead of running in place. |
+| `component_path` | Optional build directory shared by both sides, passed on with `-p`. |
 | `wall_time` | Optional wall-clock time for both sides' job scripts. |
 | `polaris_config_file` | Optional config file passed on with `-f`. |
 
@@ -251,9 +252,37 @@ Neither flag is needed for a first build.  `[build] build` defaults to
 find the model at `-p`.  Use `--rebuild` to force a build over one that
 is already there, and `--clean-build` to throw that one away first.
 
-Note that `-p` is inside the run directory, so a build is shared only by
-benchmarks that land in the same run directory, and never with an adopted
-worktree's own build.
+## Sharing one build between the two sides
+
+By default `-p` is `build_baseline` or `build_test` inside the run
+directory, so each side builds its own copy and a run on a new day builds
+both again from scratch.
+
+When only polaris differs, that is two builds of the same source.  Set
+`component_path` in `[benchmark]` to a directory both sides should use
+instead:
+
+```ini
+[benchmark]
+component_path = ${work_base}/build_omega
+```
+
+Since polaris builds only what it cannot find at `-p`, the side that is
+set up first builds the model there and the other one finds it and skips.
+Nothing else has to be passed: no `--rebuild`, and no build flag at all.
+
+The driver refuses a `component_path` when the two sides pin **different**
+commits of the submodule the model is built from, since one side would
+then run the other's model — with `submit = True` both sides are set up
+before either runs, so whichever built last would win for both.  It also
+refuses `--clean-build`, which would delete a directory the benchmark
+does not own and then build it twice over; clean it yourself instead.
+
+`component_path` is part of the key the cached baseline is named from, so
+pointing it somewhere else starts a new baseline rather than reusing one
+built against a different executable.  The driver cannot check what was
+actually built there: the baseline directory names the submodule hash the
+baseline *pins*, and keeping the build at that hash is yours to manage.
 
 ## Notes
 
