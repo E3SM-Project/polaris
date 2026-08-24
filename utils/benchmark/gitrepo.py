@@ -88,8 +88,11 @@ class SourceState:
     submodule_overrides : dict
         Submodules explicitly checked out to a different fork/ref
     dirty : bool
-        Whether the worktree or any submodule has uncommitted or
-        untracked changes
+        Whether the worktree or any submodule has changes a benchmark
+        could not reproduce
+    untracked : list
+        Untracked paths outside the ``polaris`` package, which are
+        recorded but do not make the side dirty
     load_script : str
         The absolute path to the load script used to activate the
         environment
@@ -113,6 +116,7 @@ class SourceState:
     pinned_shas: dict = field(default_factory=dict)
     submodule_overrides: dict = field(default_factory=dict)
     dirty: bool = False
+    untracked: list = field(default_factory=list)
     load_script: str = ''
     load_script_ready: bool = True
     model: str = ''
@@ -165,6 +169,7 @@ class SourceState:
             'pinned_shas': dict(self.pinned_shas),
             'submodule_overrides': dict(self.submodule_overrides),
             'dirty': self.dirty,
+            'untracked': list(self.untracked),
             'load_script': self.load_script,
             'load_script_ready': self.load_script_ready,
             'model': self.model,
@@ -383,7 +388,7 @@ def adopt(
 
     state.pinned_shas = _pinned_submodule_shas(path, 'HEAD')
     state.submodule_shas = _submodule_shas(path)
-    state.dirty, reason = _check_dirty(path, model)
+    state.dirty, reason, state.untracked = _check_dirty(path, model)
 
     if state.dirty and not allow_dirty:
         problems.append(
@@ -758,6 +763,15 @@ def _check_dirty(path, model):
     one.  That matters for jigsaw-python and MALI-Dev, which affect
     results but are not among the hashes ``compare_shas`` records.
 
+    An untracked file outside the ``polaris`` package is not dirty
+    either.  A working polaris worktree normally carries notes, plan
+    documents and scratch output at its root, and none of that is
+    imported, registered or read by a task, so it cannot change a result.
+    Inside ``polaris`` it can: a new module is importable and a new task
+    directory is discovered, both without any tracked file changing.
+    Untracked files that are tolerated are reported and recorded rather
+    than ignored.
+
     Edited *source* in the submodule the model is built from is another
     matter, since the build would then not match the recorded hash, so it
     makes the whole side dirty.  Untracked files are ignored there only
@@ -778,15 +792,35 @@ def _check_dirty(path, model):
         Whether the worktree has changes that are not in a commit
     reason : str
         A phrase describing what was found, for the error message
+    untracked : list of str
+        Untracked paths that were tolerated, for the manifest
     """
-    status = check_output(
-        'git status --porcelain --ignore-submodules=dirty', cwd=path
+    # the two questions are asked separately rather than by parsing the
+    # prefixes of one `git status --porcelain`, whose leading space for an
+    # unstaged change does not survive being stripped
+    changed = check_output(
+        'git diff --name-only HEAD --ignore-submodules=dirty', cwd=path
     )
-    if status:
-        return True, 'has uncommitted or untracked changes'
+    tracked = [line for line in changed.split('\n') if line.strip()]
+    others = check_output('git ls-files --others --exclude-standard', cwd=path)
+    entries = [line for line in others.split('\n') if line.strip()]
+    in_package = [entry for entry in entries if _in_polaris_package(entry)]
+    untracked = [entry for entry in entries if not _in_polaris_package(entry)]
+
+    blocking = []
+    if tracked:
+        blocking.append(
+            f'uncommitted changes to tracked files ({_listed(tracked)})'
+        )
+    if in_package:
+        blocking.append(
+            f'untracked files in the polaris package ({_listed(in_package)})'
+        )
+    if blocking:
+        return True, f'has {" and ".join(blocking)}', []
 
     if model == NO_MODEL:
-        return False, ''
+        return False, '', untracked
 
     rel_path = SUBMODULE_PATHS[MODEL_SUBMODULES[model]]
     sub_path = os.path.join(path, rel_path)
@@ -794,7 +828,7 @@ def _check_dirty(path, model):
         # the model is built from the other side's submodule, so there is
         # no source here to be dirty; ``git status`` in the empty
         # directory would walk up and report on polaris again
-        return False, ''
+        return False, '', untracked
     command = 'git status --porcelain --ignore-submodules=dirty'
     kind = 'uncommitted or untracked changes'
     if model in IN_SOURCE_BUILDS:
@@ -802,8 +836,22 @@ def _check_dirty(path, model):
         kind = 'uncommitted changes to source'
     status = check_output(command, cwd=sub_path)
     if status:
-        return True, f'has {kind} in {rel_path}'
-    return False, ''
+        return True, f'has {kind} in {rel_path}', []
+    return False, '', untracked
+
+
+def _in_polaris_package(entry):
+    """Whether a path is inside the importable ``polaris`` package."""
+    entry = entry.strip('"')
+    return entry == 'polaris' or entry.startswith('polaris/')
+
+
+def _listed(entries, limit=5):
+    """List entries for an error message, cutting off a very long one."""
+    shown = ', '.join(entries[:limit])
+    if len(entries) > limit:
+        shown = f'{shown}, and {len(entries) - limit} more'
+    return shown
 
 
 def _require_load_script(worktree, load_script_name):

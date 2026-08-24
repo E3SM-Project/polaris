@@ -78,6 +78,17 @@ every guardrail and prints the exact commands.  It creates no worktrees
 and builds and runs nothing, but resolving a fork does add a remote to
 `primary_path` and fetch into it.
 
+Every fork and ref can also be given on the command line, which is
+convenient for scripted or agent-driven use:
+
+```bash
+./utils/benchmark/benchmark.py -f benchmark.cfg \
+    --test-polaris-fork cbegeman \
+    --test-polaris-ref add-surface-forcing-to-vmix
+```
+
+Full option tables are in `utils/benchmark/README.md`.
+
 ## Before your first run
 
 Four things have to be true of the source trees before the driver will do
@@ -95,21 +106,11 @@ time:
    that builds — both sides normally, the baseline only when a
    `component_path` is shared:
    `git -C <worktree> submodule update --init e3sm_submodules/Omega`.
-4. **Adopted worktrees are clean.**  An untracked scratch file is enough
-   to stop the run, since the benchmark could not then be reproduced from
-   the recorded hashes.  Commit it, move it aside, or decide up front to
-   pass `--allow-dirty`.
-
-Every fork and ref can also be given on the command line, which is
-convenient for scripted or agent-driven use:
-
-```bash
-./utils/benchmark/benchmark.py -f benchmark.cfg \
-    --test-polaris-fork cbegeman \
-    --test-polaris-ref add-surface-forcing-to-vmix
-```
-
-Full option tables are in `utils/benchmark/README.md`.
+4. **Adopted worktrees have nothing uncommitted.**  Notes and scratch
+   files at the root are fine and are simply recorded, but an uncommitted
+   change to a tracked file, or an untracked file inside `polaris`, stops
+   the run.  Commit it, move it aside, or decide up front to pass
+   `--allow-dirty`.
 
 ## Guardrails
 
@@ -123,12 +124,18 @@ The driver refuses to run, *before* anything is built, if:
 - they use different load scripts, implying a different machine, compiler
   or MPI library (`--allow-env-mismatch`);
 - they use different `model` values (`mpas-ocean`, `omega` or `none`);
-- an adopted worktree has uncommitted or untracked changes, so the run
+- an adopted worktree has changes that are not in a commit, so the run
   could not be reproduced from the recorded hashes (`--allow-dirty`, which
   records the run as `reproducible: false` and never caches its baseline).
-  A submodule built in place does *not* count; edited source in the
-  submodule the model is built from, or a submodule checked out at a
-  commit other than the pinned one, does.  Untracked files in that
+  An untracked file outside the `polaris` package does *not* count: notes,
+  plan documents and scratch output at the root of a worktree in use are
+  never imported, registered or read by a task, so they are listed and
+  recorded as `untracked` while the run stays reproducible and caches its
+  baseline as usual.  Inside `polaris` an untracked file does count, since
+  a new module is importable and a new task directory is discovered
+  without any tracked file changing.  A submodule built in place does
+  *not* count; edited source in the submodule the model is built from, or
+  a submodule checked out at a commit other than the pinned one, does.  Untracked files in that
   submodule are ignored only for `mpas-ocean`, whose in-source `make`
   leaves them behind, and not for the out-of-source Omega build;
 - an adopted worktree is missing the submodule needed for `model`, or its

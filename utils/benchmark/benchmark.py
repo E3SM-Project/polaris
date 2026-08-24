@@ -857,6 +857,17 @@ def _print_summary(manifest):
                 f'must exist before the benchmark can run; see the load '
                 f'script notes in utils/benchmark/README.md.'
             )
+    for name in ['baseline', 'test']:
+        side = manifest[name]
+        if side['untracked']:
+            listed = '\n'.join(f'    {entry}' for entry in side['untracked'])
+            print('')
+            print(
+                f'Note: the {name} worktree carries untracked files outside '
+                f'the polaris\n  package, which nothing a task runs reads, '
+                f'so they do not make it dirty:\n{listed}'
+            )
+
     if manifest['component_path'] is not None:
         print('')
         print(

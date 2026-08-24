@@ -92,10 +92,12 @@ but they are quicker to settle up front than one dry run at a time:
 
    With a shared `component_path` it is the baseline only, and the test
    side needs nothing.
-4. **Adopted worktrees are clean.**  An untracked scratch file is enough
-   to stop the run, since the benchmark could not then be reproduced from
-   the recorded hashes.  Commit it, move it aside, or decide up front to
-   pass `--allow-dirty`.
+4. **Adopted worktrees have nothing uncommitted.**  Notes and scratch
+   files at the root are fine and are simply recorded, but an uncommitted
+   change to a tracked file, or an untracked file inside `polaris`, stops
+   the run: the benchmark could not then be reproduced from the recorded
+   hashes.  Commit it, move it aside, or decide up front to pass
+   `--allow-dirty`.
 
 ## Configuration options
 
@@ -230,11 +232,23 @@ The driver refuses to run, before anything is built, if:
 - They use **different load scripts**, implying a different machine,
   compiler or MPI library.  Override with `--allow-env-mismatch`.
 - They use different `model` values.
-- An **adopted** worktree has uncommitted or untracked changes, since the
+- An **adopted** worktree has changes that are not in a commit, since the
   run could not then be reproduced from the recorded hashes.  Override
   with `--allow-dirty`; the run is recorded as `reproducible: false`, its
   directory is prefixed with `dirty-`, and its baseline is never cached
   or reused.
+
+An untracked file **outside** the `polaris` package does not count.  A
+worktree in use normally carries notes, plan documents and scratch output
+at its root, and nothing a task runs imports, registers or reads them, so
+they cannot change a result.  They are listed in the summary and recorded
+in the manifest as `untracked`, but the run stays reproducible, keeps its
+undecorated directory name and caches its baseline as usual.
+
+Inside `polaris` an untracked file *can* change a result: a new module is
+importable and a new task directory is discovered, both without any
+tracked file changing.  Those are dirty, as is any uncommitted change to
+a tracked file anywhere.
 
 `--allow-dirty` is about source that is not in a commit.  A submodule
 built in place is not dirty: build products are regenerable from the

@@ -33,9 +33,11 @@ These rules are specific to the benchmarking driver in
   submodule, stop and ask the user to resolve it.  Do not pass
   `--allow-dirty` without the user explicitly asking for it.  Report what
   actually made it dirty: a submodule built in place does not count, so
-  the cause is polaris-level changes, edited tracked source in the
-  submodule the model is built from, or a submodule at a commit other
-  than the pinned one.
+  the cause is an uncommitted change to a tracked file, an untracked file
+  inside the `polaris` package, edited tracked source in the submodule the
+  model is built from, or a submodule at a commit other than the pinned
+  one.  Untracked notes and scratch files outside `polaris` are tolerated
+  and reported, so they are never the cause.
 - A task that runs no model needs `model = none`, not an initialized
   submodule.  Check that before asking the user to clone one.
 
