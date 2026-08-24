@@ -116,15 +116,31 @@ minimum, in the same style as its existing CPU requirements.
 
 Memory is unlike cores and GPUs in that the batch system will not keep it
 for us. Asking a launch for a share of the node's memory was measured to
-change nothing, so a memory figure passed to the launcher would reserve
-nothing and prevent nothing. Memory is therefore a budget Polaris keeps
-itself: the only way one step's memory is protected from another's is that
-Polaris declines to start the second step. That decision is Phase B's, and
-so is the accounting behind it.
+reserve nothing, so nothing Polaris passes to a launcher will make room for
+a step or tell Polaris whether one fits. Memory is therefore a budget
+Polaris keeps itself: the only way one step's memory is protected from
+another's is that Polaris declines to start the second step. That decision
+is Phase B's, and so is the accounting behind it.
+
+What a memory figure passed to a launcher *does* do, on machines whose Slurm
+postdates the 20.11 change, is cap the launch: a step allowed 1024 MB and
+told to take 4 GB is killed at 960 MB on Perlmutter GPU and on Frontier,
+while the same launch runs to completion on Chrysalis. So such a figure is
+an enforced ceiling on some machines and inert on others, and is never a
+reservation anywhere. Whether Polaris should impose that ceiling is taken up
+in Phase B, and the answer there turns on the distinction the next paragraph
+draws.
 
 What Phase A shall provide is the declaration, its default, and its
-visibility to the step. A step that declares nothing shall be treated as
-needing memory in proportion to the cores it asked for -- the node's memory
+visibility to the step -- and shall keep a declared figure distinguishable
+from a defaulted one, because later phases treat them differently. A step
+that says a number has made a claim about itself and can be held to it. A
+step that says nothing is being estimated by the framework, and must not be
+held to the framework's estimate. Anything that reads a step's memory needs
+to be able to tell which it has.
+
+A step that declares nothing shall be treated as needing memory in
+proportion to the cores it asked for -- the node's memory
 divided by its cores, times the step's cores. This is deliberately the value
 that makes memory-aware packing arithmetically identical to packing on cores
 alone, so that introducing memory can never make Phase B schedule worse than
@@ -133,9 +149,16 @@ for the steps that exist today. Steps that have been measured, which is
 mostly the analysis work in Phase C, override the default with a real
 figure and are then scheduled on it.
 
-Because a step's memory need is not enforced anywhere, an under-declaring
-step running beside others is a real failure mode, and one that did not
-exist when Polaris ran a step at a time. Phase B addresses it.
+A declared figure is therefore a ceiling as well as a claim, wherever the
+machine can hold a step to one, and a step author should declare a peak with
+margin rather than a typical value. A figure that describes what a step
+usually needs will kill it on the day it needs more, on the machines that
+enforce and not on the others.
+
+An under-declaring step running beside others is a real failure mode, and
+one that did not exist when Polaris ran a step at a time. Phase B addresses
+it, and the declared-versus-defaulted distinction is what lets it do so
+without turning the framework's own estimate into a death sentence.
 
 Device memory needs no declaration of its own. GPUs are never divided
 between steps, so a step given a GPU is given that GPU's memory with it, and
@@ -646,19 +669,42 @@ first thing that would break if a site changed its scheduler
 configuration.
 
 While those machines are being visited, two further things should be
-settled, because both are cheap there and expensive to guess at.
-Nothing in this design asks the batch system to limit a step's memory, on
-the evidence that requesting memory changed nothing observable. That
-evidence shows memory was not the cause of the serialization; it does not
-show that a memory request is inert. The test is direct: launch a step with
-a small memory allowance, have it allocate several times that, and record
-whether it is killed. Two answers matter and both are useful. If nothing
-enforces, this design is on the right footing and the co-resident reporting
-in Phase B is the whole of the answer. If some machine does enforce, then
-two consequences follow at once -- a step could be capped there, and, by the
-same argument that applies to GPUs, a step that says nothing about memory
-may be read as claiming all of it, which would be the same trap in a second
-place.
+settled, because both are cheap there and expensive to guess at. The first
+has been answered and its result is recorded below; the second has not.
+The question was whether a memory request is inert. The evidence for
+assuming so showed only that memory was not the cause of the serialization,
+which is a different claim. The test was direct -- launch a step with a
+small allowance, have it allocate several times that, record whether it is
+killed -- and it has been run:
+
+| machine | 1024 MB allowed, 4 GB requested |
+| --- | --- |
+| Chrysalis (Slurm 20.02) | reached 4 GB, exited 0 -- not enforced |
+| Perlmutter GPU (Slurm 25.11) | killed at 960 MB |
+| Frontier (Slurm 25.11) | killed at 960 MB |
+
+A memory request is real on newer Slurm and inert on older. What follows for
+the design is in the requirement above and in Phase B.
+
+The second consequence that was anticipated does **not** occur, and can be
+retired rather than carried forward. By the argument that applies to GPUs, a
+step that says nothing about memory might have been read as claiming all of
+it. It is not: on both machines that enforce, four concurrent launches that
+said nothing about memory started within 40 ms of each other and ran their
+full duration. Aurora and Perlmutter CPU remain unmeasured.
+
+What is still open, and matters more than what was closed, is whether
+*placement itself* imposes a memory ceiling. The measurement above passed an
+explicit allowance. Placement on newer Slurm asks for exactly the resources
+a step needs rather than the job's, and memory is evidently a resource the
+scheduler tracks there, so a placed step may be given a share of the node's
+memory it never asked for and be killed at it -- with Polaris having said
+nothing about memory and its own accounting unaware of any limit. That would
+make placement impose a hidden ceiling that bites only the memory-hungry
+steps, which is the failure shape this design most wants to avoid. The check
+is a placed launch given no memory request at all, allocating hard, with an
+unplaced launch beside it to separate what placement causes from what the
+allocation causes. It should be added to the machine runs that remain.
 
 ### Testing and Validation: Measuring Each Machine's Memory
 
