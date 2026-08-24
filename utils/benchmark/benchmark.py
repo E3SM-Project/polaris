@@ -90,6 +90,8 @@ def benchmark(config, config_path, args):
         work_base,
         load_script_name,
     )
+    # with one shared build, only the baseline is ever the side polaris
+    # builds from, so the test side needs no model source of its own
     test = _resolve_side(
         'test',
         config,
@@ -98,7 +100,10 @@ def benchmark(config, config_path, args):
         primary_path,
         work_base,
         load_script_name,
+        needs_model_source=shared_component_path is None,
     )
+    if shared_component_path is not None:
+        test.component_source = baseline.component_branch_path or ''
 
     _check_guardrails(
         baseline, test, load_script_name, args, shared_component_path
@@ -358,6 +363,7 @@ def _resolve_side(
     primary_path,
     work_base,
     load_script_name,
+    needs_model_source=True,
 ):
     """Provision or adopt one side of the benchmark."""
     section = config[name]
@@ -382,6 +388,7 @@ def _resolve_side(
             model=model,
             load_script_name=load_script_name,
             allow_dirty=args.allow_dirty,
+            needs_model_source=needs_model_source,
         )
 
     if source == 'existing':
@@ -392,6 +399,7 @@ def _resolve_side(
             model=model,
             load_script_name=load_script_name,
             allow_dirty=args.allow_dirty,
+            needs_model_source=needs_model_source,
         )
 
     if source != 'worktree':
@@ -424,6 +432,7 @@ def _resolve_side(
         load_script_name=load_script_name,
         submodule_specs=submodule_specs,
         dry_run=args.dry_run,
+        needs_model_source=needs_model_source,
     )
 
 
@@ -784,8 +793,19 @@ def _print_summary(manifest):
         print(f'  path:    {side["path"]}')
         print(f'  polaris: {side["polaris_ref"]} {side["polaris_sha"][:7]}')
         print(f'  model:   {side["model"]}')
-        for key, sha in sorted(side['submodule_shas'].items()):
-            print(f'  {key}: {sha[:7]}')
+        # an uninitialized submodule is still pinned by the polaris
+        # commit, and that pin is what the guardrail compares, so report
+        # it rather than leaving the side looking as though it differs
+        for key in sorted(
+            set(side['submodule_shas']) | set(side['pinned_shas'])
+        ):
+            sha = side['submodule_shas'].get(key, '')
+            suffix = ''
+            if not sha:
+                sha = side['pinned_shas'].get(key, '')
+                suffix = ' (pinned, not checked out)'
+            if sha:
+                print(f'  {key}: {sha[:7]}{suffix}')
     for name in ['baseline', 'test']:
         side = manifest[name]
         if not side['load_script_ready']:
@@ -800,9 +820,11 @@ def _print_summary(manifest):
         print('')
         print(
             f'Both sides share one build at\n  '
-            f'{manifest["component_path"]}\nPolaris builds the model only '
-            f'when it does not find one there, so the first side set up '
-            f'builds it and the second reuses it.'
+            f'{manifest["component_path"]}\nbuilt from\n  '
+            f'{manifest["baseline"]["component_branch_path"]}\nPolaris '
+            f'builds the model only when it does not find one there, so '
+            f'the first side set up builds it and the second reuses it.  '
+            f'The test worktree needs no submodule of its own.'
         )
     print('')
     print(f'differing:    {", ".join(manifest["differing_repos"])}')

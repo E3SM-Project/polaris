@@ -98,6 +98,9 @@ class SourceState:
         during a dry run of a worktree that has not been created
     model : str
         The Polaris ``--model`` value for this benchmark
+    component_source : str
+        The model source to build from instead of this side's own
+        submodule, set when both sides share one build
     """
 
     name: str
@@ -113,6 +116,7 @@ class SourceState:
     load_script: str = ''
     load_script_ready: bool = True
     model: str = ''
+    component_source: str = ''
 
     @property
     def component_branch_path(self):
@@ -122,6 +126,8 @@ class SourceState:
         """
         if self.model == NO_MODEL:
             return None
+        if self.component_source:
+            return self.component_source
         key = MODEL_SUBMODULES[self.model]
         return os.path.join(self.path, SUBMODULE_PATHS[key])
 
@@ -162,6 +168,7 @@ class SourceState:
             'load_script': self.load_script,
             'load_script_ready': self.load_script_ready,
             'model': self.model,
+            'component_branch_path': self.component_branch_path,
         }
 
 
@@ -176,6 +183,7 @@ def provision(
     submodule_specs=None,
     dry_run=False,
     logger=None,
+    needs_model_source=True,
 ):
     """
     Create (or reuse) a detached worktree at the requested fork and ref
@@ -204,6 +212,11 @@ def provision(
         Whether to only resolve commits and report planned commands
     logger : logging.Logger, optional
         A logger for command output
+    needs_model_source : bool, optional
+        Whether the model is built from this worktree's own submodule.
+        It is not when both sides share one build, and cloning the
+        submodule of the side that never builds is several GB of source
+        that nothing reads.
 
     Returns
     -------
@@ -258,7 +271,7 @@ def provision(
     # overridden, are needed; a bare `submodule update --init` would also
     # clone E3SM, MALI-Dev and jigsaw-python for an Omega benchmark
     needed = set(submodule_specs)
-    if model != NO_MODEL:
+    if model != NO_MODEL and needs_model_source:
         needed.add(MODEL_SUBMODULES[model])
     for key in sorted(needed):
         _git(
@@ -282,7 +295,14 @@ def provision(
     return state
 
 
-def adopt(name, path, model, load_script_name, allow_dirty=False):
+def adopt(
+    name,
+    path,
+    model,
+    load_script_name,
+    allow_dirty=False,
+    needs_model_source=True,
+):
     """
     Validate and record the state of an existing Polaris worktree
 
@@ -303,6 +323,11 @@ def adopt(name, path, model, load_script_name, allow_dirty=False):
     allow_dirty : bool, optional
         Whether to permit uncommitted or untracked changes.  The run is
         then marked as not reproducible.
+    needs_model_source : bool, optional
+        Whether the model is built from this worktree's own submodule.
+        It is not when both sides share one build, in which case this
+        worktree is never the one ``--branch`` points at and the
+        submodule does not have to be initialized in it.
 
     Returns
     -------
@@ -334,7 +359,7 @@ def adopt(name, path, model, load_script_name, allow_dirty=False):
         model=model,
     )
 
-    if model != NO_MODEL:
+    if model != NO_MODEL and needs_model_source:
         key = MODEL_SUBMODULES[model]
         sub_path = _submodule_path(path, key)
         if not os.path.exists(os.path.join(sub_path, '.git')):
@@ -347,7 +372,10 @@ def adopt(name, path, model, load_script_name, allow_dirty=False):
                 f'  git -C {path} submodule update --init '
                 f'{SUBMODULE_PATHS[key]}\n'
                 f'If the benchmark builds no component, use '
-                f'model = {NO_MODEL} instead.'
+                f'model = {NO_MODEL} instead.  If the other side has the '
+                f'submodule and the two pin the same commit of it, a '
+                f'shared component_path builds from that side instead, '
+                f'and this one then needs no submodule at all.'
             )
 
     state.pinned_shas = _pinned_submodule_shas(path, 'HEAD')
@@ -716,6 +744,11 @@ def _check_dirty(path, model):
 
     rel_path = SUBMODULE_PATHS[MODEL_SUBMODULES[model]]
     sub_path = os.path.join(path, rel_path)
+    if not os.path.exists(os.path.join(sub_path, '.git')):
+        # the model is built from the other side's submodule, so there is
+        # no source here to be dirty; ``git status`` in the empty
+        # directory would walk up and report on polaris again
+        return False, ''
     command = 'git status --porcelain --ignore-submodules=dirty'
     kind = 'uncommitted or untracked changes'
     if model in IN_SOURCE_BUILDS:

@@ -295,6 +295,13 @@ Since polaris builds only what it cannot find at `-p`, the side that is
 set up first builds the model there and the other one finds it and skips.
 Nothing else has to be passed: no `--rebuild`, and no build flag at all.
 
+The baseline is that side, so `--branch` points at the **baseline's**
+submodule for both.  The test side is therefore never built from and does
+not need `e3sm_submodules/Omega` or `e3sm_submodules/E3SM-Project`
+initialized at all — a provisioned test worktree does not clone it, and
+an adopted one is not asked for it.  That is usually several GB of source
+that nothing would read.
+
 The driver refuses a `component_path` when the two sides pin **different**
 commits of the submodule the model is built from, since one side would
 then run the other's model — with `submit = True` both sides are set up

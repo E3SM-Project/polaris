@@ -183,6 +183,11 @@ Polaris builds the model only when it does not already find one at `-p`,
 so the side that is set up first builds it there and the other finds it
 and skips.  No build flag is needed.
 
+That side is the baseline, so `--branch` points at the baseline's
+submodule for both sides.  The test side is never built from, and so does
+not need the submodule initialized at all: a provisioned test worktree
+skips cloning it, and an adopted one is not asked for it.
+
 The driver refuses a `component_path` when the two sides pin different
 commits of the submodule the model is built from, since one side would
 then run the other's model, and it refuses `--clean-build`, which would
