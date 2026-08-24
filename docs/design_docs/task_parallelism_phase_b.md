@@ -99,12 +99,19 @@ as impossible before the run starts.
 
 The memory a node is credited with shall be what that node reports, not what
 its machine's configuration estimates. Phase A requires the allocation's
-nodes to be read at the start of a run for this reason: nodes within one
-machine have been measured to differ twofold in memory at identical core
-counts, so a single configured figure will over-admit on the smaller ones,
-and over-admitting memory is the failure that kills a job rather than the
-one that slows it. Nodes shall therefore be tracked individually where they
-differ, rather than as so many copies of one node.
+nodes to be read at the start of a run, because a configured figure is an
+estimate of a machine while the scheduler is packing particular nodes, and
+over-admitting memory is the failure that kills a job rather than the one
+that slows it. Nodes shall be tracked individually rather than as so many
+copies of one node, which costs nothing if they turn out to be identical and
+is the only correct answer if they are not.
+
+No machine Polaris targets is currently known to be heterogeneous in memory.
+This is not written for a case that has been observed; it is written because
+the configured figure is the weaker source of truth in every case, and
+reading the nodes removes a whole class of error -- a stale configuration, a
+machine that has changed, a job that is not on the machine it was thought to
+be -- without requiring any of them to be anticipated.
 
 A step that has not said its resources may span nodes shall have its cores
 and its GPUs drawn from a single node. This is a packing constraint rather
