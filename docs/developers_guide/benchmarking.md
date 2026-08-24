@@ -104,9 +104,11 @@ The driver refuses to run, *before* anything is built, if:
 - an adopted worktree has uncommitted or untracked changes, so the run
   could not be reproduced from the recorded hashes (`--allow-dirty`, which
   records the run as `reproducible: false` and never caches its baseline).
-  A submodule built in place does *not* count; edited tracked source in
-  the submodule the model is built from, or a submodule checked out at a
-  commit other than the pinned one, does;
+  A submodule built in place does *not* count; edited source in the
+  submodule the model is built from, or a submodule checked out at a
+  commit other than the pinned one, does.  Untracked files in that
+  submodule are ignored only for `mpas-ocean`, whose in-source `make`
+  leaves them behind, and not for the out-of-source Omega build;
 - an adopted worktree is missing the submodule needed for `model`, or its
   load script does not exist.  Creating the environment with `./deploy.py`
   is always a developer action.  A task or suite that runs no model

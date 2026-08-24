@@ -188,8 +188,13 @@ The driver refuses to run, before anything is built, if:
 built in place is not dirty: build products are regenerable from the
 recorded hashes, and building in place is the normal state of a polaris
 worktree.  A submodule checked out at a commit other than the pinned one
-*is* dirty, as is edited tracked source in the submodule the model is
-built from.
+*is* dirty, as is edited source in the submodule the model is built from.
+
+Untracked files in that submodule are ignored only for `mpas-ocean`,
+whose in-source `make` leaves them behind.  Omega is built out of source,
+so an untracked file there is source rather than a build product, and its
+CMakeLists globs `*.cpp`, so a new one would be compiled in without any
+tracked file changing.
 - An adopted worktree is missing the submodule needed for `model`, or its
   load script does not exist.  Creating the environment with `./deploy.py`
   is a developer action and is never done for you.  A benchmark that

@@ -41,6 +41,15 @@ MODEL_SUBMODULES = {
     'omega': 'omega',
 }
 
+#: Models whose build writes into the submodule it is built from
+#:
+#: MPAS-Ocean is an in-source ``make``, so untracked files in its
+#: submodule are build products.  Omega is configured out of source
+#: (``cmake -S <omega>/components/omega -B <build_dir>``), so an untracked
+#: file there is source, and its CMakeLists globs ``*.cpp``, so a new one
+#: is compiled in without any tracked file changing.
+IN_SOURCE_BUILDS = {'mpas-ocean'}
+
 #: The ``model`` value for a benchmark that builds no component
 #:
 #: This is not a Polaris ``--model`` value.  It says that the task or suite
@@ -677,8 +686,10 @@ def _check_dirty(path, model):
 
     Edited *source* in the submodule the model is built from is another
     matter, since the build would then not match the recorded hash, so it
-    makes the whole side dirty.  Only untracked files are ignored there,
-    since those are the build products.
+    makes the whole side dirty.  Untracked files are ignored there only
+    for a model in ``IN_SOURCE_BUILDS``, where they are build products; an
+    out-of-source build leaves none behind, so an untracked file is source
+    that the build may well pick up.
 
     Parameters
     ----------
@@ -705,13 +716,14 @@ def _check_dirty(path, model):
 
     rel_path = SUBMODULE_PATHS[MODEL_SUBMODULES[model]]
     sub_path = os.path.join(path, rel_path)
-    status = check_output(
-        'git status --porcelain --ignore-submodules=dirty '
-        '--untracked-files=no',
-        cwd=sub_path,
-    )
+    command = 'git status --porcelain --ignore-submodules=dirty'
+    kind = 'uncommitted or untracked changes'
+    if model in IN_SOURCE_BUILDS:
+        command = f'{command} --untracked-files=no'
+        kind = 'uncommitted changes to source'
+    status = check_output(command, cwd=sub_path)
     if status:
-        return True, f'has uncommitted changes to source in {rel_path}'
+        return True, f'has {kind} in {rel_path}'
     return False, ''
 
 
