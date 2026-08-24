@@ -123,9 +123,16 @@ deliberately and noted when reporting results.
                                      one benchmark run
     benchmark.log
     manifest.json
+    polaris_benchmark.cfg            written only when wall_time is set
     build_baseline/  build_test/
     test/
 ```
+
+Polaris' job scripts default to a one-hour wall-clock time, which many
+tasks and most suites outgrow.  Set `wall_time` in the `[benchmark]`
+section to change it for both sides at once; the driver merges it with
+`polaris_config_file` into `polaris_benchmark.cfg` in the run directory,
+because `polaris setup` takes only one config file.
 
 A baseline work directory is keyed on the suite, the model, every commit
 hash and a short `<key>` hashed from the setup command, the polaris config

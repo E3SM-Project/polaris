@@ -82,7 +82,18 @@ builds and runs nothing, but resolving a fork does add a remote to
 | `setup_command` | A `polaris setup` or `polaris suite` command. |
 | `run_command` | Usually `polaris serial`; used when `submit = False`. |
 | `submit` | Submit the job script instead of running in place. |
+| `wall_time` | Optional wall-clock time for both sides' job scripts. |
 | `polaris_config_file` | Optional config file passed on with `-f`. |
+
+Both of the last two shape what polaris is given with `-f`.  `wall_time`
+sets `[job] wall_time`, which otherwise defaults to `1:00:00`; since
+`polaris setup` takes a single config file, the driver merges it with
+`polaris_config_file` into `polaris_benchmark.cfg` in the run directory
+and passes that on.  A `wall_time` here wins over one in
+`polaris_config_file`, and both sides always get the same file.
+
+Changing `wall_time` does **not** invalidate a cached baseline, since it
+cannot change results.  Changing `polaris_config_file` does.
 
 Any environment variable can be substituted as `${NAME}` anywhere in the
 config file.  A name that a config option already defines wins, and one
@@ -183,6 +194,7 @@ The driver refuses to run, before anything is built, if:
                                      one benchmark run
     benchmark.log
     manifest.json
+    polaris_benchmark.cfg            written only when wall_time is set
     build_baseline/  build_test/
     test/
 ```

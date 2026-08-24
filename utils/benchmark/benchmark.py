@@ -71,6 +71,8 @@ def benchmark(config, config_path, args):
     else:
         polaris_config = None
 
+    wall_time = section.get('wall_time', fallback='').strip()
+
     polaris_run.check_setup_command(setup_command)
 
     baseline = _resolve_side(
@@ -107,6 +109,13 @@ def benchmark(config, config_path, args):
             'benchmark', os.path.join(run_dir, 'benchmark.log')
         )
 
+    setup_config = _get_setup_config(
+        run_dir=run_dir,
+        polaris_config=polaris_config,
+        wall_time=wall_time,
+        dry_run=args.dry_run,
+    )
+
     manifest = {
         'created': datetime.now().isoformat(timespec='seconds'),
         'reproducible': not (baseline.dirty or test.dirty),
@@ -116,6 +125,9 @@ def benchmark(config, config_path, args):
         'setup_command': setup_command,
         'run_command': run_command,
         'submit': submit,
+        'wall_time': wall_time or None,
+        'polaris_config_file': polaris_config,
+        'setup_config_file': setup_config,
         'differing_repos': gitrepo.check_single_variable(baseline, test),
         'baseline': baseline.provenance(),
         'test': test.provenance(),
@@ -127,7 +139,7 @@ def benchmark(config, config_path, args):
         run_dir=run_dir,
         setup_command=setup_command,
         run_command=run_command,
-        polaris_config=polaris_config,
+        polaris_config=setup_config,
         submit=submit,
         args=args,
         logger=logger,
@@ -141,7 +153,7 @@ def benchmark(config, config_path, args):
         work_dir=test_dir,
         component_path=os.path.join(run_dir, 'build_test'),
         baseline_dir=baseline_dir,
-        config_file=polaris_config,
+        config_file=setup_config,
         clean_build=args.clean_build,
         rebuild=args.rebuild,
         submit=submit,
@@ -510,6 +522,56 @@ def _run_baseline(
     if not args.dry_run and not submit:
         _mark_complete(baseline_dir)
     return job_id
+
+
+def _get_setup_config(run_dir, polaris_config, wall_time, dry_run):
+    """
+    Get the polaris config file to pass on with ``-f``
+
+    ``polaris setup`` takes a single config file, so a ``wall_time`` from
+    the benchmark config is merged with ``polaris_config_file`` into one
+    generated file in the run directory.  Both sides are given the same
+    file, since a benchmark has to compare like with like.
+
+    ``wall_time`` wins over a ``[job] wall_time`` in
+    ``polaris_config_file``, and comments do not survive the merge, so the
+    user's own file is the one recorded in the manifest.
+
+    Parameters
+    ----------
+    run_dir : str
+        The run directory, which the generated file is written to
+    polaris_config : str or None
+        The user's ``polaris_config_file``, if there is one
+    wall_time : str
+        The requested wall-clock time, or an empty string for none
+    dry_run : bool
+        Whether to report the file that would be written without writing
+        it
+
+    Returns
+    -------
+    config_file : str or None
+        The config file to pass on with ``-f``
+    """
+    if not wall_time:
+        return polaris_config
+
+    config_file = os.path.join(run_dir, 'polaris_benchmark.cfg')
+    if dry_run:
+        return config_file
+
+    # configparser rather than appending text, since polaris reads the
+    # file strictly and a [job] section may already be in it
+    config = configparser.ConfigParser(interpolation=None)
+    if polaris_config is not None:
+        config.read(polaris_config)
+    if not config.has_section('job'):
+        config.add_section('job')
+    config.set('job', 'wall_time', wall_time)
+    with open(config_file, 'w') as handle:
+        config.write(handle)
+    return config_file
 
 
 def _get_run_dir(work_base, baseline, test):
