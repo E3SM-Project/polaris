@@ -35,11 +35,13 @@ initialized, the driver stops and prints the command for the developer to
 run.  This makes it cheap to benchmark the branch you are already working
 in without a second copy.
 
-Polaris' own build is a separate matter: it builds the component from
-`--branch`, which for MPAS-Ocean is an in-source `make` in the branch
-directory, and both build templates run
-`git submodule update --init --recursive` there.  An adopted worktree is
-therefore built in place, not left untouched.
+Polaris' own build is a separate matter.  It builds only when asked
+(`--rebuild` or `--clean-build`); `[build] build` defaults to `False`.
+When it does build, it builds the component from `--branch`, which for
+MPAS-Ocean is an in-source `make` in the branch directory, and both build
+templates run `git submodule update --init --recursive` there.  An adopted
+worktree is therefore built in place rather than left untouched whenever a
+build is requested.
 
 Because the `[baseline]` and `[test]` sections take exactly the same
 options, the same driver benchmarks a polaris change, an Omega change or

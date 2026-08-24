@@ -31,13 +31,13 @@ initialized, the driver stops and tells you the command to run yourself.
 This lets you benchmark the branch you are already working in without a
 second copy.
 
-That is not the same as the worktree being left untouched.  Polaris builds
-the component from `--branch`, and for MPAS-Ocean that is an in-source
-`make` in the branch directory; both build templates also run
-`git submodule update --init --recursive` there.  Since polaris turns the
-build on by itself whenever the component is not found at `-p`, expect an
-adopted worktree to be built in place the first time each run directory is
-created.
+That is not the same as the worktree being left untouched, *if* a build is
+requested.  Polaris builds the component from `--branch`, and for
+MPAS-Ocean that is an in-source `make` in the branch directory; both build
+templates also run `git submodule update --init --recursive` there.  So
+`--rebuild` or `--clean-build` on an adopted worktree writes into it.
+Without those flags, and always with `model = none`, nothing is built and
+the worktree really is only read.
 
 Both sections take exactly the same options, so *which* repository is being
 benchmarked is just a matter of which refs differ between them.
@@ -209,10 +209,13 @@ which repositories differ.
 | `--clean-build` | Start from a clean build directory on both sides. |
 | `--rebuild` | Force a build even if the component is already built. |
 
-Neither is normally needed: polaris sets the build option itself when the
-component is not found at `-p`.  Note that `-p` is inside the run
-directory, so a build is shared only by benchmarks that land in the same
-run directory, and never with an adopted worktree's own build.
+Polaris does **not** build unless it is asked to: `[build] build` defaults
+to `False` in `polaris/default.cfg`, and the driver only passes `--build`
+or `--clean_build` when one of these flags is given.  So a first run of a
+`mpas-ocean` or `omega` benchmark needs `--rebuild` (or a component
+already present at `-p`).  Note that `-p` is inside the run directory, so
+a build is shared only by benchmarks that land in the same run directory,
+and never with an adopted worktree's own build.
 
 ## Notes
 
