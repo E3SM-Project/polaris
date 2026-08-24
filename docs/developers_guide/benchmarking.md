@@ -122,9 +122,9 @@ deliberately and noted when reporting results.
 ```
 <work_base>/
   worktrees/<ref>-<sha7>/            provisioned polaris worktrees
-  baselines/<suite>_<model>_<key>_<shas>/
+  baselines/<suite>_<model>_opts-<key>_polaris-<sha7>[_<repo>-<sha7>]/
                                      reusable baseline work dirs
-  runs/<date>-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
+  runs/<date>-polaris-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
                                      one benchmark run
     benchmark.log
     manifest.json
@@ -139,11 +139,20 @@ section to change it for both sides at once; the driver merges it with
 `polaris_config_file` into `polaris_benchmark.cfg` in the run directory,
 because `polaris setup` takes only one config file.
 
-A baseline work directory is keyed on the suite, the model, every commit
-hash and a short `<key>` hashed from the setup command, the polaris config
-file and the load script, and is marked complete when it finishes.  A later benchmark with the
-same key reuses it rather than rerunning it, which is what makes iterating
-on a test branch inexpensive.
+A baseline work directory is keyed on the suite, the model, the polaris
+commit, the commit of the submodule the model is built from, and a short
+`opts-<key>` hashed from the setup command, the polaris config file and
+the load script.  Every hash is labelled, so the directory reads without
+knowing the order.
+
+A submodule that is never built cannot change the results, so its hash is
+left out; with `model = none` the polaris commit is the only one.  The
+manifest still records every hash, and the one-variable guardrail still
+compares all of them.
+
+A baseline is marked complete when it finishes, and a later benchmark with
+the same name **reuses** it instead of rerunning, which is what makes
+iterating on a test branch cheap.
 
 Validation results themselves are written by polaris under `case_outputs/`
 in the test work directory; collecting and reporting them is deliberately

@@ -584,7 +584,10 @@ def _get_run_dir(work_base, baseline, test):
     given day.
     """
     date = datetime.now().strftime('%Y%m%d')
-    parts = [date, baseline.polaris_sha[:7], test.polaris_sha[:7]]
+    parts = [
+        date,
+        f'polaris-{baseline.polaris_sha[:7]}-{test.polaris_sha[:7]}',
+    ]
     baseline_shas = baseline.compare_shas
     test_shas = test.compare_shas
     for key in gitrepo.SUBMODULE_PATHS:
@@ -604,15 +607,28 @@ def _get_baseline_dir(work_base, baseline, setup_command, polaris_config):
 
     The name covers everything a baseline depends on, so that a baseline
     is only ever reused by a benchmark it is actually comparable with.
+    That is polaris plus the submodule the model is built from: a
+    submodule that is never built cannot change the results, so bumping
+    the hash polaris pins for it should not throw a baseline away.  The
+    manifest still records every hash, and the one-variable guardrail
+    still compares all of them.
+
+    Every hash is labelled with what it names, since the reader would
+    otherwise have to know the order they are written in.
 
     A dirty baseline is never cached or reused, since it cannot be
     reproduced from the recorded commit hashes.
     """
-    suite = polaris_run.get_suite_name(setup_command)
     shas = baseline.compare_shas
-    parts = [suite, baseline.model]
-    parts.append(_setup_key(setup_command, polaris_config, baseline))
-    parts.extend(sha[:7] for sha in shas.values() if sha)
+    parts = [
+        polaris_run.get_suite_name(setup_command),
+        baseline.model,
+        f'opts-{_setup_key(setup_command, polaris_config, baseline)}',
+        f'polaris-{shas["polaris"][:7]}',
+    ]
+    key = gitrepo.MODEL_SUBMODULES.get(baseline.model)
+    if key is not None and shas[key]:
+        parts.append(f'{key}-{shas[key][:7]}')
     name = '_'.join(parts)
     if baseline.dirty:
         name = f'dirty_{name}_{datetime.now().strftime("%Y%m%d%H%M%S")}'
