@@ -30,8 +30,10 @@ def setup_and_run(
     """
     Set up and run one side of a benchmark
 
-    The ``-p``, ``--branch``, ``-w``, ``-b``, ``-f`` and build flags are
-    appended automatically, so they must not appear in ``setup_command``.
+    The ``-p``, ``--model``, ``--branch``, ``-w``, ``-b``, ``-f`` and build
+    flags are appended automatically, so they must not appear in
+    ``setup_command``.  ``--model`` and ``--branch`` are omitted when the
+    side's model is ``none``, since there is then no component to build.
 
     Parameters
     ----------
@@ -174,22 +176,23 @@ def build_setup_command(
     """
     check_setup_command(setup_command)
 
-    command = (
-        f'{setup_command} '
-        f'--model {state.model} '
-        f'--branch {state.component_branch_path} '
-        f'-p {component_path} '
-        f'-w {work_dir}'
-    )
+    parts = [setup_command]
+    # a side that builds no component has no model and no branch to pass on
+    branch = state.component_branch_path
+    if branch is not None:
+        parts.append(f'--model {state.model}')
+        parts.append(f'--branch {branch}')
+    parts.append(f'-p {component_path}')
+    parts.append(f'-w {work_dir}')
     if baseline_dir is not None:
-        command = f'{command} -b {baseline_dir}'
+        parts.append(f'-b {baseline_dir}')
     if config_file is not None:
-        command = f'{command} -f {config_file}'
+        parts.append(f'-f {config_file}')
     if clean_build:
-        command = f'{command} --clean_build'
+        parts.append('--clean_build')
     elif rebuild:
-        command = f'{command} --build'
-    return command
+        parts.append('--build')
+    return ' '.join(parts)
 
 
 def check_setup_command(setup_command):

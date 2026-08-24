@@ -96,13 +96,16 @@ The driver refuses to run, *before* anything is built, if:
   (`--allow-multiple-changes`);
 - they use different load scripts, implying a different machine, compiler
   or MPI library (`--allow-env-mismatch`);
-- they use different `model` values;
+- they use different `model` values (`mpas-ocean`, `omega` or `none`);
 - an adopted worktree has uncommitted or untracked changes, so the run
   could not be reproduced from the recorded hashes (`--allow-dirty`, which
   records the run as `reproducible: false` and never caches its baseline);
 - an adopted worktree is missing the submodule needed for `model`, or its
   load script does not exist.  Creating the environment with `./deploy.py`
-  is always a developer action.
+  is always a developer action.  A task or suite that runs no model
+  (anything under `e3sm/init`, `mesh` or `seaice`, and some `ocean` tasks)
+  should use `model = none`, which builds nothing and so needs no
+  submodule on either side.
 
 Each override makes the result harder to interpret, so it should be used
 deliberately and noted when reporting results.

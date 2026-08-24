@@ -91,7 +91,8 @@ typo is reported rather than silently expanding to nothing.
 
 `--model`, `--branch`, `-p`, `-w`, `-b`, `-f` and the build flags are
 appended automatically and **must not** appear in `setup_command`; the
-driver raises an error if they do.
+driver raises an error if they do.  `--model` and `--branch` are left off
+entirely when `model = none`.
 
 ### `[baseline]` and `[test]`
 
@@ -103,7 +104,7 @@ driver raises an error if they do.
 | `polaris_ref` | A branch, tag or commit hash. |
 | `omega_fork`, `omega_ref` | Override the Omega submodule. |
 | `e3sm_fork`, `e3sm_ref` | Override the E3SM-Project submodule. |
-| `model` | The polaris `--model` value: `mpas-ocean` or `omega`. |
+| `model` | The polaris `--model` value: `mpas-ocean` or `omega`, or `none` for a task or suite that runs no model. |
 
 A fork given as a bare owner is expanded to a URL matching the style
 (ssh or https) of the existing `origin` remote.  Fork and ref options are
@@ -111,6 +112,22 @@ forbidden when `source = existing`, since the checkout's own fork and ref
 are *recorded* rather than requested.
 
 Any submodule not given a ref stays at the hash pinned by `polaris_ref`.
+
+### Choosing `model`
+
+`model` says which component polaris builds, not which component the task
+belongs to.  A `model` of `mpas-ocean` or `omega` means the driver passes
+`--model` and `--branch` on to `polaris setup`, and requires the matching
+submodule to be initialized on that side.
+
+Many tasks build nothing at all: everything under `e3sm/init`, `mesh` and
+`seaice` is pure Python, and so are some `ocean` tasks.  Use `model = none`
+for those.  The driver then omits `--model` and `--branch`, and neither
+side needs `e3sm_submodules/Omega` or `e3sm_submodules/E3SM-Project` to be
+initialized.  `--clean-build` and `--rebuild` are refused, since there is
+nothing to build.
+
+Both sides must use the same `model`, `none` included.
 
 ## Command-line overrides
 
@@ -152,7 +169,8 @@ The driver refuses to run, before anything is built, if:
   or reused.
 - An adopted worktree is missing the submodule needed for `model`, or its
   load script does not exist.  Creating the environment with `./deploy.py`
-  is a developer action and is never done for you.
+  is a developer action and is never done for you.  A benchmark that
+  builds nothing should use `model = none`, which needs no submodule.
 
 ## Output layout
 

@@ -41,6 +41,17 @@ MODEL_SUBMODULES = {
     'omega': 'omega',
 }
 
+#: The ``model`` value for a benchmark that builds no component
+#:
+#: This is not a Polaris ``--model`` value.  It says that the task or suite
+#: being benchmarked runs no model, as is the case for the ``e3sm/init``,
+#: ``mesh`` and ``seaice`` components, so neither ``--model`` nor
+#: ``--branch`` is passed on and no submodule is needed.
+NO_MODEL = 'none'
+
+#: The ``model`` values a side of a benchmark may use
+MODELS = list(MODEL_SUBMODULES) + [NO_MODEL]
+
 
 @dataclass
 class SourceState:
@@ -97,8 +108,11 @@ class SourceState:
     @property
     def component_branch_path(self):
         """
-        str : the path passed to ``polaris setup --branch`` for this model
+        str or None : the path passed to ``polaris setup --branch`` for this
+        model, or ``None`` when the benchmark builds no component
         """
+        if self.model == NO_MODEL:
+            return None
         key = MODEL_SUBMODULES[self.model]
         return os.path.join(self.path, SUBMODULE_PATHS[key])
 
@@ -234,8 +248,9 @@ def provision(
     # only the submodule the model is built from, plus any that are
     # overridden, are needed; a bare `submodule update --init` would also
     # clone E3SM, MALI-Dev and jigsaw-python for an Omega benchmark
-    needed = {MODEL_SUBMODULES[model]}
-    needed.update(submodule_specs)
+    needed = set(submodule_specs)
+    if model != NO_MODEL:
+        needed.add(MODEL_SUBMODULES[model])
     for key in sorted(needed):
         _git(
             f'submodule update --init {SUBMODULE_PATHS[key]}',
@@ -310,17 +325,21 @@ def adopt(name, path, model, load_script_name, allow_dirty=False):
         model=model,
     )
 
-    key = MODEL_SUBMODULES[model]
-    sub_path = _submodule_path(path, key)
-    if not os.path.exists(os.path.join(sub_path, '.git')):
-        raise ValueError(
-            f'The submodule {SUBMODULE_PATHS[key]} in the adopted worktree\n'
-            f'  {path}\n'
-            f'is not initialized.  This workflow will not modify an '
-            f'adopted worktree, so please run:\n'
-            f'  git -C {path} submodule update --init '
-            f'{SUBMODULE_PATHS[key]}'
-        )
+    if model != NO_MODEL:
+        key = MODEL_SUBMODULES[model]
+        sub_path = _submodule_path(path, key)
+        if not os.path.exists(os.path.join(sub_path, '.git')):
+            raise ValueError(
+                f'The submodule {SUBMODULE_PATHS[key]} in the adopted '
+                f'worktree\n'
+                f'  {path}\n'
+                f'is not initialized.  This workflow will not modify an '
+                f'adopted worktree, so please run:\n'
+                f'  git -C {path} submodule update --init '
+                f'{SUBMODULE_PATHS[key]}\n'
+                f'If the benchmark builds no component, use '
+                f'model = {NO_MODEL} instead.'
+            )
 
     state.pinned_shas = _pinned_submodule_shas(path, 'HEAD')
     state.submodule_shas = _submodule_shas(path)

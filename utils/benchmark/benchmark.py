@@ -334,12 +334,13 @@ def _resolve_side(
     """Provision or adopt one side of the benchmark."""
     section = config[name]
     model = section['model']
-    if model not in gitrepo.MODEL_SUBMODULES:
+    if model not in gitrepo.MODELS:
         raise ValueError(
             f'Unsupported model "{model}" in the [{name}] section; expected '
-            f'one of {", ".join(gitrepo.MODEL_SUBMODULES)}.  Polaris only '
-            f'builds those models automatically, which a benchmark relies '
-            f'on.'
+            f'one of {", ".join(gitrepo.MODELS)}.  Polaris only builds the '
+            f'models it knows about automatically, which a benchmark relies '
+            f'on.  Use "{gitrepo.NO_MODEL}" for a task or suite that runs '
+            f'no model at all.'
         )
 
     source = section.get('source', fallback='worktree')
@@ -448,6 +449,15 @@ def _check_guardrails(baseline, test, load_script_name, args):
             f'attributed to a single change.  Rerun with '
             f'--allow-multiple-changes to proceed anyway.'
         )
+
+    if args.clean_build or args.rebuild:
+        for side in [baseline, test]:
+            if side.model == gitrepo.NO_MODEL:
+                raise ValueError(
+                    f'The [{side.name}] section uses model = '
+                    f'{gitrepo.NO_MODEL}, so there is no component to '
+                    f'build.  Drop --clean-build and --rebuild.'
+                )
 
     if not args.allow_env_mismatch:
         baseline_script = os.path.basename(baseline.load_script)
@@ -599,6 +609,7 @@ def _print_summary(manifest):
         print(f'  mode:    {side["mode"]}')
         print(f'  path:    {side["path"]}')
         print(f'  polaris: {side["polaris_ref"]} {side["polaris_sha"][:7]}')
+        print(f'  model:   {side["model"]}')
         for key, sha in sorted(side['submodule_shas'].items()):
             print(f'  {key}: {sha[:7]}')
     for name in ['baseline', 'test']:
