@@ -393,8 +393,17 @@ baseline *pins*, and keeping the build at that hash is yours to manage.
 ## Notes
 
 - When `submit = True`, the test job is submitted with
-  `--dependency=afterok:<baseline job id>`, so the pair can be launched in
-  one go.  Because completion is asynchronous, work directories are not
+  `--dependency=afterany:<baseline job id>`, so the pair can be launched
+  in one go.  It is `afterany` rather than `afterok` because a polaris
+  suite exits non-zero when *any* task in it fails.  A baseline should
+  not have failures, and one that does is worth investigating — but a
+  single failed task does not invalidate the others, whose baseline
+  output is on disk and is exactly what the test side needs.  Under
+  `afterok`, one failure cost the entire comparison and left no way
+  forward but to run both sides again.  The job is also submitted with
+  `--kill-on-invalid-dep=yes`, so that a dependency that genuinely
+  cannot be satisfied removes the job rather than stranding it as
+  `DependencyNeverSatisfied`.  Because completion is asynchronous, work directories are not
   marked complete (and so not reused) in this mode.
 - A load script is **never created for you**; `./deploy.py` is a developer
   action.  A freshly provisioned worktree therefore has no load script of

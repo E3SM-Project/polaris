@@ -11,6 +11,14 @@ import re
 
 from shared import check_call, check_output, print_commands
 
+#: The job id reported for a submitted job during a dry run
+#:
+#: A dry run submits nothing, so there is no id to give the test side for
+#: its ``--dependency``.  Without a stand-in, the dry run prints an
+#: ``sbatch`` line that is not the one it would really run, which is how
+#: the dependency went unexamined long enough to ship as ``afterok``.
+DRY_RUN_JOB_ID = '<baseline job id>'
+
 
 def setup_and_run(
     state,
@@ -59,8 +67,8 @@ def setup_and_run(
     submit : bool, optional
         Whether to submit the job script rather than running in place
     dependency : str, optional
-        A Slurm job id that must complete successfully before this job
-        starts, used only when ``submit`` is set
+        A Slurm job id that must finish -- with or without failing tasks
+        -- before this job starts, used only when ``submit`` is set
     dry_run : bool, optional
         Whether to only report the commands that would be run
     logger : logging.Logger, optional
@@ -69,7 +77,10 @@ def setup_and_run(
     Returns
     -------
     job_id : str or None
-        The Slurm job id when ``submit`` is set, otherwise ``None``
+        The Slurm job id when ``submit`` is set, otherwise ``None``.  A
+        dry run submits nothing and reports ``DRY_RUN_JOB_ID``, so that
+        the ``sbatch`` line it prints for the test side is the one it
+        would really run.
     """
     full_setup = build_setup_command(
         setup_command=setup_command,
@@ -102,7 +113,20 @@ def setup_and_run(
         job_script = f'job_script.{get_suite_name(setup_command)}.sh'
         flags = ''
         if dependency is not None:
-            flags = f'--dependency=afterok:{dependency} '
+            # afterany, not afterok.  A suite exits non-zero when any
+            # task in it fails.  A baseline should not have failures, and
+            # one that does is worth fixing -- but a single failed task
+            # does not invalidate the rest, whose baseline output is on
+            # disk and comparable.  With afterok one failure cost the
+            # whole comparison, with nothing to do but run it all again.
+            #
+            # --kill-on-invalid-dep so that a dependency that can never be
+            # satisfied, as when the baseline job is cancelled, removes
+            # this job instead of leaving it queued forever.
+            flags = (
+                f'--dependency=afterany:{dependency} '
+                f'--kill-on-invalid-dep=yes '
+            )
         run_commands = (
             f'source {state.load_script} && '
             f'cd {work_dir} && '
@@ -119,7 +143,7 @@ def setup_and_run(
         logger=logger,
     )
     if dry_run:
-        return None
+        return DRY_RUN_JOB_ID if submit else None
 
     if not submit:
         check_call(run_commands, logger=logger)
