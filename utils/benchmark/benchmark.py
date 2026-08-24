@@ -81,29 +81,15 @@ def benchmark(config, config_path, args):
 
     polaris_run.check_setup_command(setup_command)
 
-    baseline = _resolve_side(
-        'baseline',
-        config,
-        config_path,
-        args,
-        primary_path,
-        work_base,
-        load_script_name,
+    baseline, test = _resolve_sides(
+        config=config,
+        config_path=config_path,
+        args=args,
+        primary_path=primary_path,
+        work_base=work_base,
+        load_script_name=load_script_name,
+        shared_component_path=shared_component_path,
     )
-    # with one shared build, only the baseline is ever the side polaris
-    # builds from, so the test side needs no model source of its own
-    test = _resolve_side(
-        'test',
-        config,
-        config_path,
-        args,
-        primary_path,
-        work_base,
-        load_script_name,
-        needs_model_source=shared_component_path is None,
-    )
-    if shared_component_path is not None:
-        test.component_source = baseline.component_branch_path or ''
 
     _check_guardrails(
         baseline, test, load_script_name, args, shared_component_path
@@ -353,6 +339,61 @@ def parse_args():
             )
 
     return parser.parse_args()
+
+
+def _resolve_sides(
+    config,
+    config_path,
+    args,
+    primary_path,
+    work_base,
+    load_script_name,
+    shared_component_path,
+):
+    """
+    Resolve both sides, reporting every problem with either of them
+
+    Neither side is built or run until both have resolved, so stopping on
+    the first problem only means the developer fixes it and meets the
+    next one on the next dry run.  Both sides are therefore resolved
+    before anything is raised.
+
+    Returns
+    -------
+    baseline, test : gitrepo.SourceState
+        The two resolved sides
+    """
+    states = {}
+    problems = []
+    # with one shared build, only the baseline is ever the side polaris
+    # builds from, so the test side needs no model source of its own
+    needs_model_source = {
+        'baseline': True,
+        'test': shared_component_path is None,
+    }
+    for name in ['baseline', 'test']:
+        try:
+            states[name] = _resolve_side(
+                name,
+                config,
+                config_path,
+                args,
+                primary_path,
+                work_base,
+                load_script_name,
+                needs_model_source=needs_model_source[name],
+            )
+        except ValueError as exc:
+            problems.append(str(exc))
+
+    if problems:
+        raise ValueError('\n\n'.join(problems))
+
+    baseline = states['baseline']
+    test = states['test']
+    if shared_component_path is not None:
+        test.component_source = baseline.component_branch_path or ''
+    return baseline, test
 
 
 def _resolve_side(

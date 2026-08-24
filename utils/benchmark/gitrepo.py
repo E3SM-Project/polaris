@@ -359,23 +359,26 @@ def adopt(
         model=model,
     )
 
+    # every problem with the worktree is collected rather than raised on
+    # the spot, so that one dry run reports all of them instead of one
+    # per attempt; none of them stops the checks that follow
+    problems = []
+
     if model != NO_MODEL and needs_model_source:
         key = MODEL_SUBMODULES[model]
         sub_path = _submodule_path(path, key)
         if not os.path.exists(os.path.join(sub_path, '.git')):
-            raise ValueError(
-                f'The submodule {SUBMODULE_PATHS[key]} in the adopted '
-                f'worktree\n'
-                f'  {path}\n'
-                f'is not initialized.  This workflow will not modify an '
-                f'adopted worktree, so please run:\n'
+            problems.append(
+                f'The submodule {SUBMODULE_PATHS[key]} is not initialized, '
+                f'and this workflow will not modify an adopted worktree, so '
+                f'please run:\n'
                 f'  git -C {path} submodule update --init '
                 f'{SUBMODULE_PATHS[key]}\n'
                 f'If the benchmark builds no component, use '
                 f'model = {NO_MODEL} instead.  If the other side has the '
-                f'submodule and the two pin the same commit of it, a '
-                f'shared component_path builds from that side instead, '
-                f'and this one then needs no submodule at all.'
+                f'submodule and the two pin the same commit of it, a shared '
+                f'component_path builds from that side instead, and this one '
+                f'then needs no submodule at all.'
             )
 
     state.pinned_shas = _pinned_submodule_shas(path, 'HEAD')
@@ -383,15 +386,58 @@ def adopt(
     state.dirty, reason = _check_dirty(path, model)
 
     if state.dirty and not allow_dirty:
-        raise ValueError(
-            f'The adopted worktree\n  {path}\n{reason}, so the benchmark '
-            f'would not be reproducible from the recorded commit hashes.  '
-            f'Commit or stash the changes, or rerun with --allow-dirty to '
-            f'record the run as non-reproducible.'
+        problems.append(
+            f'It {reason}, so the benchmark would not be reproducible from '
+            f'the recorded commit hashes.  Commit or stash the changes, or '
+            f'rerun with --allow-dirty to record the run as '
+            f'non-reproducible.'
         )
 
-    state.load_script = _require_load_script(path, load_script_name)
+    load_script = load_script_path(path, load_script_name)
+    if os.path.exists(load_script):
+        state.load_script = load_script
+    else:
+        problems.append(
+            f'There is no load script\n'
+            f'  {load_script}\n'
+            f'Creating the polaris environment is a developer action, so '
+            f'it is never done for you.  Either run ./deploy.py in that '
+            f'worktree, or set load_script to the absolute path of an '
+            f'existing load script so that one deployment serves both sides.'
+        )
+
+    if problems:
+        raise ValueError(
+            describe_problems(f'{name} worktree {path}', problems)
+        )
+
     return state
+
+
+def describe_problems(subject, problems):
+    """
+    Get one error message listing everything wrong with one subject
+
+    Parameters
+    ----------
+    subject : str
+        What the problems are with, named so that several subjects can be
+        reported together
+    problems : list of str
+        One description per problem
+
+    Returns
+    -------
+    message : str
+        The problems as a numbered list under ``subject``
+    """
+    if len(problems) == 1:
+        return f'The {subject}:\n{_indent(problems[0], "  ")}'
+    listed = '\n'.join(
+        f'  {index}. {_indent(problem, "     ").lstrip()}'
+        for index, problem in enumerate(problems, start=1)
+    )
+    return f'The {subject} has {len(problems)} problems:\n{listed}'
 
 
 def resolve(repo_path, fork, ref, fetch=True):
@@ -773,6 +819,11 @@ def _require_load_script(worktree, load_script_name):
             f'sides, and try again.'
         )
     return load_script
+
+
+def _indent(text, prefix):
+    """Indent every line of ``text`` by ``prefix``."""
+    return '\n'.join(f'{prefix}{line}' for line in text.split('\n'))
 
 
 def _git(args, cwd, logger=None):
