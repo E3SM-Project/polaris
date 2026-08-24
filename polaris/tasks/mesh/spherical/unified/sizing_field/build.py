@@ -19,6 +19,29 @@ from polaris.mesh.spherical.unified.effective_ocean import (
 from polaris.mesh.spherical.unified.resolutions import FINEST_RESOLUTION
 from polaris.step import Step
 
+#: variables always present in a sizing-field file that should be compared
+#: against a baseline
+SIZING_FIELD_VALIDATE_VARS = [
+    'cellWidth',
+    'signed_distance',
+    'background_cell_width',
+    'ocean_background_cell_width',
+    'land_river_cell_width',
+    'pre_coastline_cell_width',
+    'coastline_cell_width',
+    'coastal_transition_delta',
+    'river_channel_cell_width',
+    'active_control',
+]
+
+#: additional sizing-field variables written only when cull emulation is on
+CULL_EMULATION_VALIDATE_VARS = [
+    'effective_ocean_mask',
+    'emulated_ocean_mask',
+    'mesh_scale_ocean_fraction',
+    'passages_widened',
+]
+
 
 class BuildSizingFieldStep(Step):
     """
@@ -121,7 +144,13 @@ class BuildSizingFieldStep(Step):
             ),
         )
         self._get_mesh_family().setup_sizing_field_step(self)
-        self.add_output_file(filename=self.sizing_field_filename)
+        validate_vars = list(SIZING_FIELD_VALIDATE_VARS)
+        if self.config.getboolean('sizing_field', 'enable_cull_emulation'):
+            validate_vars.extend(CULL_EMULATION_VALIDATE_VARS)
+        self.add_output_file(
+            filename=self.sizing_field_filename,
+            validate_vars=validate_vars,
+        )
 
     def run(self):
         """

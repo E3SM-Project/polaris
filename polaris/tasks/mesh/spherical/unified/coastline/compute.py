@@ -3,6 +3,7 @@ import os
 import xarray as xr
 
 from polaris.mesh.spherical.coastline import (
+    COASTLINE_VALIDATE_VARS,
     CONVENTIONS,
     _write_netcdf_with_fill_values,
     build_coastline_dataset,
@@ -69,7 +70,9 @@ class ComputeCoastlineStep(Step):
             ),
         )
         for filename in self.output_filenames.values():
-            self.add_output_file(filename=filename)
+            self.add_output_file(
+                filename=filename, validate_vars=COASTLINE_VALIDATE_VARS
+            )
 
     def run(self):
         """

@@ -11,6 +11,7 @@ from polaris.mesh.spherical.unified.river.geojson import (
 )
 from polaris.step import Step
 from polaris.tasks.mesh.spherical.unified.river.rasterize import (
+    RIVER_NETWORK_VALIDATE_VARS,
     build_river_network_dataset,
 )
 from polaris.tasks.mesh.spherical.unified.river.simplify import (
@@ -76,7 +77,10 @@ class ClipRiverNetworkStep(Step):
             ),
         )
         self.add_output_file(filename=self.clipped_filename)
-        self.add_output_file(filename=self.masks_filename)
+        self.add_output_file(
+            filename=self.masks_filename,
+            validate_vars=RIVER_NETWORK_VALIDATE_VARS,
+        )
 
     def run(self):
         """
