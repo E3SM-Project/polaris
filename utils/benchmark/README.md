@@ -392,6 +392,21 @@ baseline *pins*, and keeping the build at that hash is yours to manage.
 
 ## Notes
 
+- A baseline is reused when its work directory looks complete.  Two
+  things can say so: the `.polaris_benchmark_complete` marker the driver
+  writes when it ran polaris in place and saw it return, or the
+  `<suite>_output_for_pr.md` that polaris writes at the end of its own
+  run.  The second is what makes reuse work for `submit = True`, where
+  the driver exits as soon as `sbatch` accepts the job and never learns
+  the outcome.
+
+  Polaris writes that file immediately before the pass/fail exit, so it
+  means the run *finished*, not that it passed — which is the right test,
+  for the same reason the test job depends on `afterany`.  Renaming or
+  removing it in polaris would quietly stop baselines from being reused;
+  it fails safe, since an unrecognized baseline is simply run again, but
+  the driver says so when it re-runs a baseline directory that already
+  exists, so the regression is visible rather than silent.
 - When `submit = True`, the test job is submitted with
   `--dependency=afterany:<baseline job id>`, so the pair can be launched
   in one go.  It is `afterany` rather than `afterok` because a polaris

@@ -33,6 +33,21 @@ from shared import get_logger, to_abs  # noqa: E402
 #: The name of the file that marks a completed benchmark work directory
 COMPLETE_MARKER = '.polaris_benchmark_complete'
 
+#: The file polaris itself writes at the end of a run, named for the suite
+#:
+#: ``_write_output_for_pull_request()`` is called from ``run_tasks()`` in
+#: ``polaris/run/serial.py`` immediately before ``_log_task_runtimes()``,
+#: which is what exits non-zero when a task fails.  So this file is there
+#: whether the run passed or failed, which is exactly the question a
+#: baseline cache has to answer: did the run *finish*.
+#:
+#: The driver relies on that, so renaming or removing this file in polaris
+#: would stop benchmark baselines from being reused.  It would fail safe --
+#: a baseline that cannot be recognized is simply run again -- but it would
+#: fail quietly, so the coupling is called out here, in the developer's
+#: guide, and in a comment beside the write in polaris itself.
+POLARIS_RUN_OUTPUT = '{suite}_output_for_pr.md'
+
 
 def benchmark(config, config_path, args):
     """
@@ -591,14 +606,22 @@ def _run_baseline(
     manifest,
 ):
     """Run the baseline unless a complete one can be reused."""
-    if _is_complete(baseline_dir):
+    suite_name = polaris_run.get_suite_name(setup_command)
+    if _is_complete(baseline_dir, suite_name):
         manifest['baseline_reused'] = True
-        message = f'Reusing the completed baseline at {baseline_dir}'
-        if logger is None:
-            print(message)
-        else:
-            logger.info(message)
+        _report(logger, f'Reusing the completed baseline at {baseline_dir}')
         return None
+
+    if os.path.exists(baseline_dir):
+        # the directory is there but nothing says the run in it finished,
+        # so it is run again.  Saying so makes the difference visible: a
+        # baseline that should have been reused and was not is otherwise
+        # just a benchmark that took longer than expected.
+        _report(
+            logger,
+            f'The baseline at {baseline_dir}\nexists but does not look '
+            f'complete, so it is being run again.',
+        )
 
     manifest['baseline_reused'] = False
     job_id = polaris_run.setup_and_run(
@@ -817,9 +840,41 @@ def _slugify(name):
     return re.sub(r'[^A-Za-z0-9_.-]', '-', name)
 
 
-def _is_complete(work_dir):
-    """Whether a work directory holds a completed run."""
-    return os.path.exists(os.path.join(work_dir, COMPLETE_MARKER))
+def _is_complete(work_dir, suite_name):
+    """
+    Whether a work directory holds a completed run
+
+    Two things can say so.  The driver writes ``COMPLETE_MARKER`` itself
+    when it runs polaris in place and sees it return.  When the run was
+    *submitted* instead, the driver is long gone by the time the job
+    finishes and never learns the outcome, so it falls back to the file
+    polaris writes at the end of its own run.
+
+    Parameters
+    ----------
+    work_dir : str
+        The work directory to test
+    suite_name : str
+        The suite the benchmark was set up under, which names polaris'
+        end-of-run file
+
+    Returns
+    -------
+    complete : bool
+        Whether the run in this directory finished
+    """
+    if os.path.exists(os.path.join(work_dir, COMPLETE_MARKER)):
+        return True
+    polaris_output = POLARIS_RUN_OUTPUT.format(suite=suite_name)
+    return os.path.exists(os.path.join(work_dir, polaris_output))
+
+
+def _report(logger, message):
+    """Log a message, or print it when there is no logger yet."""
+    if logger is None:
+        print(message)
+    else:
+        logger.info(message)
 
 
 def _mark_complete(work_dir):

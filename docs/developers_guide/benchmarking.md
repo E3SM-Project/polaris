@@ -204,6 +204,18 @@ A baseline is marked complete when it finishes, and a later benchmark with
 the same name **reuses** it instead of rerunning, which is what makes
 iterating on a test branch cheap.
 
+Completeness is read from one of two files.  The driver writes
+`.polaris_benchmark_complete` when it runs polaris in place and sees it
+return.  When the run was submitted, the driver exits as soon as `sbatch`
+accepts the job and never learns the outcome, so it falls back to the
+`<suite>_output_for_pr.md` that polaris writes at the end of its own run —
+just before the pass/fail exit, so it means the run finished rather than
+that it passed.  That is a deliberate coupling to a polaris output file:
+removing or renaming it would stop benchmark baselines from being reused.
+It fails safe, since an unrecognized baseline is run again rather than
+trusted, and the driver reports when it re-runs a baseline directory that
+already exists.
+
 ## Sharing one build between the two sides
 
 Each side is given `build_baseline` or `build_test` inside the run
