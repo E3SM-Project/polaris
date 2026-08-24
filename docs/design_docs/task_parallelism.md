@@ -170,6 +170,14 @@ nodes, for Python work that is too fine-grained to give a process of its
 own. This is what lifts the single-node ceiling that constrains
 MPAS-Analysis today, and it is the phase the analysis capability depends on.
 
+Measurement has since confirmed the premise: a high-resolution analysis run
+is fine-grained, with a median task of about five seconds and half of them
+shorter. Phase C records what else that run showed, including two of its
+headline numbers that do not mean what they appear to. It is worth stating
+here that analysis is the pool's first demanding customer and not its
+specification -- most Polaris workflows share no single large input, and a
+pool built around one would serve the general case badly.
+
 ### Phase D -- Coexistence and elasticity
 
 [Task Parallelism Phase D: Coexistence and Elasticity](task_parallelism_phase_d.md)

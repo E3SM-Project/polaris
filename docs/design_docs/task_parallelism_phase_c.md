@@ -30,21 +30,108 @@ scheduler from Phase B accounts for the pool's share as it would any other
 reservation. Making that share change as the amount of Python work changes is
 Phase D.
 
-### This phase may turn out to be unnecessary in its current form
+### What the measurement showed
 
-Whether a pool is needed at all is an empirical question, and the measurement
-is not yet in. We are instrumenting a high-resolution MPAS-Analysis run for
-per-task duration, peak memory and dependency-graph width.
+Whether a pool is needed at all was an empirical question, and it has been
+answered. A high-resolution MPAS-Analysis run was instrumented for per-task
+duration, peak memory and dependency-graph width, and run cold on one node:
+1231 tasks, none failed, 7h29m.
 
-If that shows analysis tasks are coarse -- minutes each, tens of them -- then
-Phase B already handles them and Phase C reduces to writing analysis steps
-that declare their resources properly. If it shows they are fine-grained --
-seconds each, hundreds or thousands -- then a pool is necessary and this
-phase proceeds as written.
+The question this phase turned on was whether analysis work is coarse --
+minutes each, tens of them, in which case Phase B already handles it -- or
+fine-grained, in which case a pool is needed. It is fine-grained. The median
+task is 5.2 seconds and 49% run in under five, at the resolution that
+matters. This document proceeds as written.
 
-This document is written for the second case because it is the one the
-existing evidence points at, but the numbers that would size the pool are
-deliberately left unset. They should come from measurement.
+Two of that measurement's headline numbers should not be carried into this
+design without their qualification, and the qualification is the same for
+both.
+
+**The measured ceiling on what more nodes could buy was 1.29x, and it is a
+statement about three particular tasks.** The run's critical path was 5h49m
+of a 7h29m makespan, and a single transect-remapping task was 82% of it;
+three such tasks are the whole tail. They are known not to be written for
+high resolution, and they are among the things Polaris would reimplement
+rather than inherit. Taking the reported figures at face value, and assuming
+the three are independent rather than chained, removing the largest raises
+the ceiling from about 6.5x to about 11x and removing all three to about
+36x. Those are arithmetic on someone else's summary rather than a
+reanalysis, so they should be read as an order of magnitude. The conclusion
+that survives is directional and sufficient: the measured headroom is a
+lower bound taken on the least favorable available version of the workload,
+not an estimate of what task parallelism is worth.
+
+**The reported narrowing of the dependency graph with resolution is the same
+finding again, not a second one.** Mean graph width, as reported, is
+arithmetically serial work divided by critical path -- which is the speedup
+ceiling. Both runs confirm it: 2255 minutes over 349 gives 6.46 against a
+reported width of 6.5, and the low-resolution run gives 30.4 against a
+reported 30. So "the graph got narrower as resolution rose" restates the
+serial tail and inherits its fragility. The structural comparison is peak
+width, which went from 251 to 170 -- a modest narrowing rather than a
+collapse. This matters because an intrinsically narrow graph would be a real
+argument against this phase, and the evidence does not support one.
+
+### What the measurement showed about memory
+
+The memory result is the one that bears on how a pool is built, and it
+arrived in two parts, the second correcting the first.
+
+Every task in that run inherited 7.85 GiB by forking. Taken at face value
+that is an argument for a pool on memory grounds alone -- 26 times the
+median task's own data, unaffordable per task and cheap per worker,
+independent of how long tasks run. Measured directly, the baseline splits
+into **0.40 GiB of Python imports and 7.45 GiB of data loaded before
+forking**. The import half is identical at both resolutions; the data half
+scales with the problem, which is what identifies it.
+
+Only the 0.40 GiB generalizes. It is a property of the scientific Python
+stack rather than of any workload, and every worker in any pool pays it. The
+7.45 GiB was an artifact of one program loading its inputs in a parent
+process and forking, which a reimplementation does not inherit.
+
+So the pool is still the right shape, but the reason has to be stated
+correctly rather than at its most convenient. Paying interpreter start and
+0.40 GiB of imports once per worker instead of once per task is worth it
+against a 5.2 second median; that is a claim about startup cost, and it does
+depend on the duration distribution. The stronger memory argument does not
+survive its own measurement.
+
+The correction matters a second time. Because those tasks *inherited* their
+inputs, the per-task memory figures exclude them, so they are not what a
+worker holding its own inputs would need. What a worker needs is imports,
+plus whatever of the shared inputs its work actually touches, plus its own
+data -- and the middle term was never measured because forking made it free.
+
+### Sizing a pool, and what not to assume while doing it
+
+The question that sizes a pool is therefore **how much read-only input a
+step needs resident**, and it is deliberately phrased that way rather than
+in terms of any particular kind of input. If steps can work on subsets,
+memory stops binding and a pool is limited by cores. If each step needs all
+of it, the same node supports far fewer workers than it has cores. Polaris
+can measure this as soon as it has one real step of the kind, and should,
+before choosing a pool size.
+
+Two things follow that are easy to get wrong in opposite directions.
+
+**The pool must not be designed around a shared dataset.** Analysis happens
+to be a workload where many tasks read from one large input, and it is
+tempting to build for that. Most Polaris workflows have no such thing, and a
+pool that assumes one -- in how it starts workers, in how it accounts for
+their memory, or in what it expects a task to be given -- would be a pool
+that serves one purpose well and the general case badly. Task parallelism is
+the general facility; analysis is its first demanding customer, not its
+specification.
+
+**But a worker's memory should not be assumed private either.** Where many
+tasks on a node do read the same large input, holding one copy per node
+rather than one per worker is the distributed equivalent of what forking
+gives for free, and the difference is large enough to change how many
+workers fit. This is worth leaving room for and is not worth building now:
+nothing has been measured that needs it, and the measurement that would
+justify it is the one described above. It is recorded here so that it is not
+rediscovered late, and so that nothing in the pool's design forecloses it.
 
 ### A task larger than one node
 
@@ -278,7 +365,9 @@ the worker count: the analysis steps this phase is for are the ones whose
 memory bears no fixed relation to their cores, and deriving one from the
 other gets them wrong in the direction that hurts. Steps that reach this
 phase should be carrying measured figures rather than the proportional
-default, which is what the measurement described above is for.
+default. What a step declares is what it will hold resident -- its own data
+and whatever of its inputs it keeps -- and not what an equivalent forking
+program would have needed, which is smaller for the reason given above.
 
 **Large results should not travel back through the pool.** Analysis tasks
 that produce files should write them and return paths. Returning large
@@ -318,7 +407,11 @@ a small part of a suite. It is also the thing Phase D fixes, because a pool
 sized once holds its share even after the Python work is finished.
 
 The numbers that make this concrete -- how many workers, how much memory each
--- depend on the analysis measurement described above.
+-- follow from how much read-only input a step needs resident, which is the
+open question stated above and which Polaris can answer with one real step
+of the kind. Until it is answered, a pool should be sized from what its
+steps declare and should report what it chose, rather than carrying a
+default that would be a guess dressed as a number.
 
 ### Algorithm Design: Two Executors, One Scheduler
 
@@ -437,6 +530,13 @@ ordinary Phase B steps, through the pool on one node, and through the pool on
 several. The comparison shall include the pool's own lifecycle cost.
 
 If the pool does not beat Phase B steps on the real workload, that is a
-finding, and it should be recorded rather than worked around. The measurement
-that decides this is the same instrumented MPAS-Analysis run that sizes the
-pool.
+finding, and it should be recorded rather than worked around.
+
+The measurement already in hand does not decide this, and it is worth being
+clear about why. It was taken on one program, on one node, using fork, with
+a critical path dominated by tasks that would be rewritten before they ever
+ran here. It establishes that the work is fine-grained and that a worker's
+resident inputs are the quantity to watch. It does not establish what a pool
+is worth, because the version of the workload that would run under one does
+not exist yet. The comparison has to be made against Polaris's own steps,
+and this phase should not claim a speedup it has not measured on them.
