@@ -195,13 +195,18 @@ climatology computation shall be shared between the tasks that need it.
 
 ### Requirement: data-products
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
 Every plot the suite produces shall be accompanied by a netCDF file containing
 exactly the data that were plotted, so that the values can be inspected,
 compared against other tools, or re-plotted without recomputation.
+
+Every plot and its data shall also be described in a machine-readable manifest
+naming the facets that identify it --- at minimum the field, the season, the
+vertical reduction, and the date range --- so that a reader or an index can
+find a product without knowing how the work was divided into steps.
 
 Intermediate products that are expensive to compute --- climatologies and
 reduced monthly ocean heat content in particular --- shall be written to
@@ -213,17 +218,19 @@ silent.
 
 ### Requirement: repeated-analysis
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
 Polaris shall support analyzing the same simulation repeatedly with different
 climatology and time-series date ranges.
 
-Results shall be staged in a single, range-keyed location that a reader can
-navigate without knowing anything about Polaris work directories, and that a
-web interface can serve when one is added.  Analyzing a new range shall not
-overwrite or remove the results of a range analyzed earlier.
+Results shall be published to a single location that a reader can browse
+without knowing anything about Polaris work directories, and that a web
+interface can serve when one is added.  That location shall carry an index over
+the results rather than requiring the reader to navigate directories.
+Analyzing a new range shall not overwrite or remove the results of a range
+analyzed earlier.
 
 Re-running the analysis with a changed range shall recompute the products that
 depend on that range.  It shall not be necessary to delete the work directory
@@ -234,7 +241,10 @@ Re-running with a changed range shall reuse the intermediate results that do
 not depend on the range.  Extending a time series from twenty years to forty
 shall cost twenty years of work, not forty.
 
-Re-running with an unchanged range shall recompute nothing.
+Re-running with an unchanged range shall recompute nothing by default, and it
+shall be possible to ask for the plots to be redrawn --- after a change to
+colormaps or other styling --- without recomputing the intermediate results
+behind them.
 
 ### Requirement: omega-monthly-means
 
@@ -1204,15 +1214,21 @@ checking without copying data.
 
 ### Implementation: data-products
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
 Each plotting step writes, alongside each PNG, a netCDF file with the same base
 name containing the plotted field, its coordinates, units, and the config
 options --- including the date range --- that produced it as global attributes.
-Both go in the step's range-keyed subdirectory and are symlinked into the
-staging tree, as described under `repeated-analysis`.
+Both go in the step's own subdirectory, are described in the step's manifest
+fragment, and are published into the staging tree by symlink, as described
+under `repeated-analysis`.
+
+The manifest is what carries the facets that identify a product --- field,
+season, vertical reduction, date range, and later region and observational
+reference.  Encoding those in the path instead would mean a directory level per
+facet, and a path has one dimension where the metadata has six.
 
 The expensive intermediates are:
 
@@ -1227,7 +1243,7 @@ provenance stamp that makes them safe to inherit across runs.
 
 ### Implementation: repeated-analysis
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1352,43 +1368,92 @@ pool inside the step rather than over steps.  This follows principle 3 in
 {ref}`design-ocean-analysis`, and it means the analysis gets its concurrency
 from a capability that exists today rather than from task parallelism.
 
-#### Staging results
+#### Publishing results
 
-The step directories are already range-keyed, but they are scattered across
-four products several levels down in a work directory.  Plots and their netCDF
-files are therefore also symlinked into a staging tree whose root is a config
-option, so that there is one place to browse and, later, one tree for a web
-interface to serve:
+The work tree is built for predictability, not for browsing, so results are
+published into a separate staging tree whose root is a config option.  This is
+principle 1 in {ref}`design-ocean-analysis`: two trees, two audiences.
 
 ```ini
 [ocean_analysis]
 
-# Where to stage plots and their netCDF files for browsing.  Defaults to
+# Where to publish plots and their netCDF files for browsing.  Defaults to
 # <work_dir>/analysis_output.  Point this somewhere web-servable if you want
 # to share the results.
 output_path =
 ```
 
-The tree is organized product first, then range, because the climatology range
-and the time series range are independent and a range-first tree would have to
-repeat products under two different range directories:
+**Every step writes a manifest fragment.**  Alongside its outputs, each step
+writes `manifest.json` describing every product it made and the facets that
+identify it:
+
+```json
+{"products": [
+  {"png": "temperature_ANN_-100m.png",
+   "nc": "temperature_ANN_-100m.nc",
+   "group": "climatology_maps", "field": "temperature",
+   "season": "ANN", "reduction": "-100m",
+   "start_year": 21, "end_year": 40,
+   "title": "Potential temperature at 100 m, ANN, years 21-40"}]}
+```
+
+**A `publish` step collects them.**  One cheap step per suite reads every
+fragment, symlinks each product into the staging tree, and writes an
+`index.html` over the result.  It works from the fragments rather than from
+directory structure, which is what lets the work be re-chunked later without
+disturbing output paths, links, or the gallery --- principle 2.  A product
+whose fragment is present but whose file is missing is reported rather than
+silently omitted.
+
+**The staging tree is shallow, with descriptive filenames.**  A gallery is
+generated, not navigated, and a shallow tree is easier to archive, to serve,
+and to diff between two analyses:
 
 ```none
 <output_path>/
-├── climatology_maps/0021-0040/
-├── ocean_heat_content/maps/0021-0040/
-├── ocean_heat_content/time_series/0001-0060/
-├── global_stats/0001-0060/
-└── moc/0021-0040/
+├── index.html
+├── manifest.json                                   (the merged manifest)
+└── plots/
+    ├── climatology_maps_temperature_ANN_-100m_0021-0040.png
+    ├── climatology_maps_temperature_ANN_-100m_0021-0040.nc
+    ├── climatology_maps_heat_content_ANN_0m-700m_0021-0040.png
+    ├── heat_content_series_0001-0060.png
+    └── …
 ```
 
-Range keys are the zero-padded start and end years, matching the convention
-`ncclimo` already uses in its file names.
+The filename is the facets in a fixed order, so it sorts usefully, greps
+usefully, and cannot collide between two ranges.  Range keys are the
+zero-padded start and end years, matching the convention `ncclimo` already uses
+in its file names.  This follows MPAS-Analysis, where the experience with a
+flat plot directory plus a generated gallery has been good.
 
-Writing into the step directory and symlinking, rather than writing directly
-into the staging tree, keeps every file owned by the step that produced it, so
-Polaris's output checking and provenance continue to work and the staging tree
-is a view rather than a second source of truth.
+**Products are published by symlink** from the step that owns them, so each
+file has exactly one owner, Polaris's output checking continues to work, and
+the staging tree is a view rather than a second source of truth.  Results from
+different ranges coexist because the range is in the filename.
+
+#### Replotting
+
+Re-running with an unchanged range recomputes nothing, which is what the
+requirement asks for and is usually what a user wants.  It is not what they
+want after changing a colormap.  A config option forces the plotting steps to
+run again:
+
+```ini
+[ocean_analysis]
+
+# Re-run the plotting steps even when their range is unchanged, to pick up
+# changes to colormaps and other plot styling.  Intermediate results --
+# climatologies and accumulator caches -- are still reused.
+replot = False
+```
+
+When it is set, `configure()` removes the completion markers of the steps that
+produce plots, and only those, so replotting costs the plotting and nothing
+else.  This is why plotting does not need to be split into its own step, per
+principle 10: for a map, plotting *is* the expensive part, so a separate step
+would buy nothing that this option does not.  MPAS-Analysis replots
+unconditionally, which is rarely what is wanted; the default here is not to.
 
 #### Caveats
 
@@ -1793,7 +1858,7 @@ is new in Omega and users will encounter simulations that predate it.
 
 ### Implementation: commit sequence
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1803,26 +1868,34 @@ Contributors: Xylar Asay-Davis, Claude
    elevation slicing, and elevation-range weights --- with unit tests.
 3. `polaris/ocean/heat_content.py` with unit tests.
 4. The `omega_analysis` scaffolding: the `polaris/tasks/ocean/analysis/`
-   package, `analysis.cfg`, `sim_files.py`, the range-keyed step subdirectories
-   and output staging shared by every step, the four tasks with their
-   `configure()` methods, and the `omega_analysis` suite, with steps that do
-   nothing yet.  This is the commit where the repeated-analysis structure is
-   established, so it should land before anything that depends on it.
-5. The `Climatology` step (`ncclimo`).
-6. The `ClimatologyMaps` step, including velocity reconstruction.
-7. The ocean heat content `maps` step.
-8. The `global_stats` `time_series` step, including factoring the shared
+   package, `analysis.cfg`, `sim_files.py`, the range-keyed step
+   subdirectories, the tasks with their `configure()` methods, and the
+   `omega_analysis` suite, with steps that do nothing yet.  This is the commit
+   where the repeated-analysis structure is established, so it should land
+   before anything that depends on it.
+5. The manifest writer and the `publish` step, including the generated index.
+   Early, so that every step added afterwards writes its manifest fragment as
+   a matter of course rather than being retrofitted.
+6. The `Climatology` step (`ncclimo`).
+7. The `ClimatologyMaps` step and the vertical reduction it is built on,
+   covering the read-and-slice field groups, including velocity
+   reconstruction.
+8. The `heat_content` field group of `ClimatologyMaps`.
+9. The `global_stats` time series step, including factoring the shared
    plotting function out of `StatsAnalysis`.
-9. The `Accumulator` base class and the ocean heat content time series step
-   built on it.
-10. The `moc` `plot` step and the `plot_lat_elevation_field` primitive.
-11. The offline `mixed_layer_depth` accumulator, only if Omega's in-situ
+10. The `Accumulator` base class --- seed discovery, provenance stamping, and
+    the process pool --- with unit tests, since this is the piece whose
+    failure modes are silent.
+11. The `heat_content_series` step built on it.
+12. The `moc` step and the `plot_lat_elevation_field` primitive.
+13. The offline `mixed_layer_depth` accumulator, only if Omega's in-situ
     diagnostic will not be ready in time.
-12. User's Guide documentation: a page under `docs/users_guide/ocean/tasks/`
+14. The `replot` option.
+15. User's Guide documentation: a page under `docs/users_guide/ocean/tasks/`
     describing the analysis suite and its config options, and an entry in
     `docs/users_guide/ocean/suites.md`.
 
-Commits 2, 3, and 5 through 11 are independently reviewable and each leaves the
+Commits 2, 3, and 6 through 14 are independently reviewable and each leaves the
 suite in a working state for the products delivered so far.
 
 ## Testing
