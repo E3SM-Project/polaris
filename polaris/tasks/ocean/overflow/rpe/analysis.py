@@ -6,7 +6,7 @@ from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.ocean.rpe import compute_rpe
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class Analysis(OceanIOStep):
@@ -100,67 +100,71 @@ class Analysis(OceanIOStep):
         )
         times = get_days_since_start(ds)
 
-        use_mplstyle()
-        fig = plt.figure()
-        for i in range(sim_count):
-            rpe_norm = np.divide((rpe[i, :] - rpe[i, 0]), rpe[i, 0])
-            plt.plot(times, rpe_norm, label=f'$\\nu_h=${nus[i]}')
-        plt.xlabel('Time, days')
-        plt.ylabel('RPE-RPE(0)/RPE(0)')
-        plt.legend()
-        plt.savefig('rpe_t.png')
-        plt.close(fig)
+        with mplstyle_context():
+            fig = plt.figure()
+            for i in range(sim_count):
+                rpe_norm = np.divide((rpe[i, :] - rpe[i, 0]), rpe[i, 0])
+                plt.plot(times, rpe_norm, label=f'$\\nu_h=${nus[i]}')
+            plt.xlabel('Time, days')
+            plt.ylabel('RPE-RPE(0)/RPE(0)')
+            plt.legend()
+            plt.savefig('rpe_t.png')
+            plt.close(fig)
 
-        time = section.getfloat('plot_time')
+            time = section.getfloat('plot_time')
 
-        fig, axes = plt.subplots(
-            1,
-            sim_count,
-            sharey=True,
-            figsize=(3 * sim_count, 5.0),
-            constrained_layout=True,
-        )
-        x_min = ds_mesh.xVertex.min().values
-        x_max = ds_mesh.xVertex.max().values
-        y_mid = ds_mesh.yCell.median().values
-
-        x = xr.DataArray(data=np.linspace(x_min, x_max, 2), dims=('nPoints',))
-        y = y_mid * xr.ones_like(x)
-        for row_index, nu in enumerate(nus):
-            ax = axes[row_index]
-            ds = self.open_model_dataset(
-                f'output_nu_{nu:g}.nc', config=self.config, decode_times=True
+            fig, axes = plt.subplots(
+                1,
+                sim_count,
+                sharey=True,
+                figsize=(3 * sim_count, 5.0),
+                constrained_layout=True,
             )
-            times = get_days_since_start(ds)
-            time_index = np.argmin(np.abs(times - time))
-            time = times[time_index]
-            ds_transect = compute_transect(
-                x=x,
-                y=y,
-                ds_horiz_mesh=ds_mesh,
-                layer_thickness=ds.layerThickness.isel(Time=time_index),
-                bottom_depth=ds_vert_coord.bottomDepth,
-                min_level_cell=ds_vert_coord.minLevelCell - 1,
-                max_level_cell=ds_vert_coord.maxLevelCell - 1,
-                spherical=False,
-            )
+            x_min = ds_mesh.xVertex.min().values
+            x_max = ds_mesh.xVertex.max().values
+            y_mid = ds_mesh.yCell.median().values
 
-            if row_index == len(nus) - 1:
-                colorbar_label = r'$^{\circ}$C'
-            else:
-                colorbar_label = None
-            plot_transect(
-                ds_transect,
-                mpas_field=ds.temperature.isel(Time=time_index),
-                ax=ax,
-                title='temperature at {time:.2f} days',
-                interface_color='grey',
-                vmin=min_temp,
-                vmax=max_temp,
-                colorbar_label=colorbar_label,
-                cmap='cmo.thermal',
+            x = xr.DataArray(
+                data=np.linspace(x_min, x_max, 2), dims=('nPoints',)
             )
-            ax.set_title(f'$\\nu_h=${nu:g}')
-            if row_index != 0:
-                ax.set_ylabel(None)
-        plt.savefig(output_filename)
+            y = y_mid * xr.ones_like(x)
+            for row_index, nu in enumerate(nus):
+                ax = axes[row_index]
+                ds = self.open_model_dataset(
+                    f'output_nu_{nu:g}.nc',
+                    config=self.config,
+                    decode_times=True,
+                )
+                times = get_days_since_start(ds)
+                time_index = np.argmin(np.abs(times - time))
+                time = times[time_index]
+                ds_transect = compute_transect(
+                    x=x,
+                    y=y,
+                    ds_horiz_mesh=ds_mesh,
+                    layer_thickness=ds.layerThickness.isel(Time=time_index),
+                    bottom_depth=ds_vert_coord.bottomDepth,
+                    min_level_cell=ds_vert_coord.minLevelCell - 1,
+                    max_level_cell=ds_vert_coord.maxLevelCell - 1,
+                    spherical=False,
+                )
+
+                if row_index == len(nus) - 1:
+                    colorbar_label = r'$^{\circ}$C'
+                else:
+                    colorbar_label = None
+                plot_transect(
+                    ds_transect,
+                    mpas_field=ds.temperature.isel(Time=time_index),
+                    ax=ax,
+                    title='temperature at {time:.2f} days',
+                    interface_color='grey',
+                    vmin=min_temp,
+                    vmax=max_temp,
+                    colorbar_label=colorbar_label,
+                    cmap='cmo.thermal',
+                )
+                ax.set_title(f'$\\nu_h=${nu:g}')
+                if row_index != 0:
+                    ax.set_ylabel(None)
+            plt.savefig(output_filename)

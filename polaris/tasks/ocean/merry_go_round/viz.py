@@ -11,7 +11,7 @@ from polaris.ocean.convergence import (
     get_timestep_for_task,
 )
 from polaris.ocean.model import OceanIOStep
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class Viz(OceanIOStep):
@@ -141,159 +141,162 @@ class Viz(OceanIOStep):
         model = config.get('ocean', 'model')
         section = config['merry_go_round']
 
-        use_mplstyle()
-        fig, axes = plt.subplots(
-            nrows=nres,
-            ncols=3,
-            figsize=(12, 2 * nres),
-            constrained_layout=True,
-            sharex=True,
-            sharey=True,
-        )
-
-        section = config['convergence']
-        eval_time = section.getfloat('convergence_eval_time')
-        s_per_hour = 3600.0
-        time = eval_time * s_per_hour
-
-        for i, refinement_factor in enumerate(refinement_factors):
-            timestep, _ = get_timestep_for_task(
-                config, refinement_factor, refinement=self.refinement
-            )
-            resolution = get_resolution_for_task(
-                config, refinement_factor, refinement=self.refinement
+        with mplstyle_context():
+            fig, axes = plt.subplots(
+                nrows=nres,
+                ncols=3,
+                figsize=(12, 2 * nres),
+                constrained_layout=True,
+                sharex=True,
+                sharey=True,
             )
 
-            ds_mesh = self.open_model_dataset(
-                f'mesh_r{refinement_factor:02g}.nc', config
-            )
-            ds_init = self.open_model_dataset(
-                f'init_r{refinement_factor:02g}.nc', config
-            )
-            ds_vert_coord = self.open_vert_coord_dataset(
-                ds_init,
-                vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
-            )
-            ds = self.open_model_dataset(
-                f'output_r{refinement_factor:02g}.nc',
-                config,
-                decode_times=False,
-            )
+            section = config['convergence']
+            eval_time = section.getfloat('convergence_eval_time')
+            s_per_hour = 3600.0
+            time = eval_time * s_per_hour
 
-            dz = ds_init.layerThickness.mean().values
-
-            x_min = ds_mesh.xVertex.min().values
-            x_max = ds_mesh.xVertex.max().values
-            y_mid = ds_mesh.yCell.median().values
-
-            x = xr.DataArray(
-                data=np.linspace(x_min, x_max, 2), dims=('nPoints',)
-            )
-            y = y_mid * xr.ones_like(x)
-
-            if model == 'mpas-o':
-                dt = time_since_start(ds.xtime.values)
-            else:
-                # time is seconds since the start of the simulation in Omega
-                dt = ds.Time.values
-            tidx = np.argmin(np.abs(dt - time))
-
-            ds_transect = compute_transect(
-                x=x,
-                y=y,
-                ds_horiz_mesh=ds_mesh,
-                layer_thickness=ds_init.layerThickness.isel(Time=0),
-                bottom_depth=ds_vert_coord.bottomDepth,
-                min_level_cell=ds_vert_coord.minLevelCell - 1,
-                max_level_cell=ds_vert_coord.maxLevelCell - 1,
-                spherical=False,
-            )
-
-            tracer_exact = ds_init.tracer1.isel(Time=0)
-            tracer_model = ds.tracer1.isel(Time=tidx)
-            tracer_error = tracer_model - tracer_exact
-
-            # compute norm bounds using the coarsest simulation
-            if i == 0:
-                data_min = np.min(np.abs(tracer_exact.values))
-                data_max = np.max(np.abs(tracer_exact.values))
-                error_range = np.max(np.abs(tracer_error.values))
-
-                tracer_norm = mcolors.Normalize(vmin=data_min, vmax=data_max)
-                error_norm = mcolors.Normalize(
-                    vmin=-error_range, vmax=error_range
+            for i, refinement_factor in enumerate(refinement_factors):
+                timestep, _ = get_timestep_for_task(
+                    config, refinement_factor, refinement=self.refinement
+                )
+                resolution = get_resolution_for_task(
+                    config, refinement_factor, refinement=self.refinement
                 )
 
-            plot_transect(
-                ds_transect=ds_transect,
-                mpas_field=tracer_model,
-                ax=axes[i, 0],
-                vmin=tracer_norm.vmin,
-                vmax=tracer_norm.vmax,
-                cmap='cmo.thermal',
-                color_start_and_end=False,
+                ds_mesh = self.open_model_dataset(
+                    f'mesh_r{refinement_factor:02g}.nc', config
+                )
+                ds_init = self.open_model_dataset(
+                    f'init_r{refinement_factor:02g}.nc', config
+                )
+                ds_vert_coord = self.open_vert_coord_dataset(
+                    ds_init,
+                    vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
+                )
+                ds = self.open_model_dataset(
+                    f'output_r{refinement_factor:02g}.nc',
+                    config,
+                    decode_times=False,
+                )
+
+                dz = ds_init.layerThickness.mean().values
+
+                x_min = ds_mesh.xVertex.min().values
+                x_max = ds_mesh.xVertex.max().values
+                y_mid = ds_mesh.yCell.median().values
+
+                x = xr.DataArray(
+                    data=np.linspace(x_min, x_max, 2), dims=('nPoints',)
+                )
+                y = y_mid * xr.ones_like(x)
+
+                if model == 'mpas-o':
+                    dt = time_since_start(ds.xtime.values)
+                else:
+                    # time is seconds since the start of the
+                    # simulation in Omega
+                    dt = ds.Time.values
+                tidx = np.argmin(np.abs(dt - time))
+
+                ds_transect = compute_transect(
+                    x=x,
+                    y=y,
+                    ds_horiz_mesh=ds_mesh,
+                    layer_thickness=ds_init.layerThickness.isel(Time=0),
+                    bottom_depth=ds_vert_coord.bottomDepth,
+                    min_level_cell=ds_vert_coord.minLevelCell - 1,
+                    max_level_cell=ds_vert_coord.maxLevelCell - 1,
+                    spherical=False,
+                )
+
+                tracer_exact = ds_init.tracer1.isel(Time=0)
+                tracer_model = ds.tracer1.isel(Time=tidx)
+                tracer_error = tracer_model - tracer_exact
+
+                # compute norm bounds using the coarsest simulation
+                if i == 0:
+                    data_min = np.min(np.abs(tracer_exact.values))
+                    data_max = np.max(np.abs(tracer_exact.values))
+                    error_range = np.max(np.abs(tracer_error.values))
+
+                    tracer_norm = mcolors.Normalize(
+                        vmin=data_min, vmax=data_max
+                    )
+                    error_norm = mcolors.Normalize(
+                        vmin=-error_range, vmax=error_range
+                    )
+
+                plot_transect(
+                    ds_transect=ds_transect,
+                    mpas_field=tracer_model,
+                    ax=axes[i, 0],
+                    vmin=tracer_norm.vmin,
+                    vmax=tracer_norm.vmax,
+                    cmap='cmo.thermal',
+                    color_start_and_end=False,
+                )
+
+                plot_transect(
+                    ds_transect=ds_transect,
+                    mpas_field=tracer_exact,
+                    ax=axes[i, 1],
+                    vmin=data_min,
+                    vmax=data_max,
+                    cmap='cmo.thermal',
+                    color_start_and_end=False,
+                )
+
+                plot_transect(
+                    ds_transect=ds_transect,
+                    mpas_field=tracer_error,
+                    ax=axes[i, 2],
+                    vmin=error_norm.vmin,
+                    vmax=error_norm.vmax,
+                    cmap='cmo.curl',
+                    color_start_and_end=False,
+                )
+
+                axes[i, 0].annotate(
+                    (
+                        f'$\\Delta z$={dz:g}m\n'
+                        f'$\\Delta x$={resolution * 1e3:g}m \n'
+                        f'$\\Delta t$={timestep}s'
+                    ),
+                    xy=(0, 0.5),
+                    xytext=(-axes[i, 0].yaxis.labelpad - 5, 0),
+                    xycoords=axes[i, 0].yaxis.label,
+                    textcoords='offset points',
+                    size='large',
+                    ha='right',
+                    va='center',
+                )
+
+                axes[i, 1].set_ylabel(None)
+                axes[i, 2].set_ylabel(None)
+
+                if i != 2:
+                    axes[i, 0].set_xlabel(None)
+                    axes[i, 1].set_xlabel(None)
+                    axes[i, 2].set_xlabel(None)
+
+            fig.colorbar(
+                plt.cm.ScalarMappable(norm=tracer_norm, cmap='cmo.thermal'),
+                label='Numerical solution',
+                ax=axes[:, 0],
+                location='top',
+            )
+            fig.colorbar(
+                plt.cm.ScalarMappable(norm=tracer_norm, cmap='cmo.thermal'),
+                label='Analytical solution',
+                ax=axes[:, 1],
+                location='top',
+            )
+            fig.colorbar(
+                plt.cm.ScalarMappable(norm=error_norm, cmap='cmo.curl'),
+                label='Error (Numerical - Analytical)',
+                ax=axes[:, 2],
+                location='top',
             )
 
-            plot_transect(
-                ds_transect=ds_transect,
-                mpas_field=tracer_exact,
-                ax=axes[i, 1],
-                vmin=data_min,
-                vmax=data_max,
-                cmap='cmo.thermal',
-                color_start_and_end=False,
-            )
-
-            plot_transect(
-                ds_transect=ds_transect,
-                mpas_field=tracer_error,
-                ax=axes[i, 2],
-                vmin=error_norm.vmin,
-                vmax=error_norm.vmax,
-                cmap='cmo.curl',
-                color_start_and_end=False,
-            )
-
-            axes[i, 0].annotate(
-                (
-                    f'$\\Delta z$={dz:g}m\n'
-                    f'$\\Delta x$={resolution * 1e3:g}m \n'
-                    f'$\\Delta t$={timestep}s'
-                ),
-                xy=(0, 0.5),
-                xytext=(-axes[i, 0].yaxis.labelpad - 5, 0),
-                xycoords=axes[i, 0].yaxis.label,
-                textcoords='offset points',
-                size='large',
-                ha='right',
-                va='center',
-            )
-
-            axes[i, 1].set_ylabel(None)
-            axes[i, 2].set_ylabel(None)
-
-            if i != 2:
-                axes[i, 0].set_xlabel(None)
-                axes[i, 1].set_xlabel(None)
-                axes[i, 2].set_xlabel(None)
-
-        fig.colorbar(
-            plt.cm.ScalarMappable(norm=tracer_norm, cmap='cmo.thermal'),
-            label='Numerical solution',
-            ax=axes[:, 0],
-            location='top',
-        )
-        fig.colorbar(
-            plt.cm.ScalarMappable(norm=tracer_norm, cmap='cmo.thermal'),
-            label='Analytical solution',
-            ax=axes[:, 1],
-            location='top',
-        )
-        fig.colorbar(
-            plt.cm.ScalarMappable(norm=error_norm, cmap='cmo.curl'),
-            label='Error (Numerical - Analytical)',
-            ax=axes[:, 2],
-            location='top',
-        )
-
-        fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
+            fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)

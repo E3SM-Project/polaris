@@ -5,7 +5,7 @@ import pandas as pd
 from polaris.ocean.convergence import get_resolution_for_task
 from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.resolution import resolution_to_string
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class FilamentAnalysis(OceanIOStep):
@@ -104,45 +104,47 @@ class FilamentAnalysis(OceanIOStep):
         num_tau = 21
         filament_tau = np.linspace(0, 1, num_tau)
         filament_norm = np.zeros((len(resolutions), num_tau))
-        use_mplstyle()
-        fig, ax = plt.subplots()
-        for i, refinement_factor in enumerate(self.refinement_factors):
-            mesh_name = resolution_to_string(resolutions[i])
-            ds_mesh = self.open_model_dataset(
-                f'mesh_r{refinement_factor:02g}.nc', self.config
-            )
-            ds = self.open_model_dataset(
-                f'output_r{refinement_factor:02g}.nc', self.config
-            )
-            t_days = get_days_since_start(ds)
-            time_index = np.argmin(
-                np.abs(np.subtract(t_days, eval_time * s_per_day))
-            )
-            tracer = ds[variable_name]
-            area_cell = ds_mesh['areaCell']
-            for j, tau in enumerate(filament_tau):
-                cells_above_tau = tracer[time_index, :, zidx] >= tau
-                cells_above_tau0 = tracer[0, :, zidx] >= tau
-                if np.sum(cells_above_tau0 * area_cell) == 0.0:
-                    filament_norm[i, j] = np.nan
-                else:
-                    filament_norm[i, j] = np.divide(
-                        np.sum(area_cell * cells_above_tau),
-                        np.sum(cells_above_tau0 * area_cell),
-                    )
-            plt.plot(filament_tau, filament_norm[i, :], '.-', label=mesh_name)
-        plt.plot([filament_tau[0], filament_tau[-1]], [1.0, 1.0], 'k--')
-        ax.set_xlim([filament_tau[0], filament_tau[-1]])
-        ax.set_xlabel(r'$\tau$')
-        ax.set_ylabel(r'$l_f$')
-        plt.title(f'Filament preservation diagnostic for {variable_name}')
-        plt.legend()
-        fig.savefig('filament.png', bbox_inches='tight')
+        with mplstyle_context():
+            fig, ax = plt.subplots()
+            for i, refinement_factor in enumerate(self.refinement_factors):
+                mesh_name = resolution_to_string(resolutions[i])
+                ds_mesh = self.open_model_dataset(
+                    f'mesh_r{refinement_factor:02g}.nc', self.config
+                )
+                ds = self.open_model_dataset(
+                    f'output_r{refinement_factor:02g}.nc', self.config
+                )
+                t_days = get_days_since_start(ds)
+                time_index = np.argmin(
+                    np.abs(np.subtract(t_days, eval_time * s_per_day))
+                )
+                tracer = ds[variable_name]
+                area_cell = ds_mesh['areaCell']
+                for j, tau in enumerate(filament_tau):
+                    cells_above_tau = tracer[time_index, :, zidx] >= tau
+                    cells_above_tau0 = tracer[0, :, zidx] >= tau
+                    if np.sum(cells_above_tau0 * area_cell) == 0.0:
+                        filament_norm[i, j] = np.nan
+                    else:
+                        filament_norm[i, j] = np.divide(
+                            np.sum(area_cell * cells_above_tau),
+                            np.sum(cells_above_tau0 * area_cell),
+                        )
+                plt.plot(
+                    filament_tau, filament_norm[i, :], '.-', label=mesh_name
+                )
+            plt.plot([filament_tau[0], filament_tau[-1]], [1.0, 1.0], 'k--')
+            ax.set_xlim([filament_tau[0], filament_tau[-1]])
+            ax.set_xlabel(r'$\tau$')
+            ax.set_ylabel(r'$l_f$')
+            plt.title(f'Filament preservation diagnostic for {variable_name}')
+            plt.legend()
+            fig.savefig('filament.png', bbox_inches='tight')
 
-        res_array = np.array(resolutions, dtype=float)
-        data = np.column_stack((res_array, filament_norm))
-        col_headers = ['resolution']
-        for tau in filament_tau:
-            col_headers.append(f'{tau:g}')
-        df = pd.DataFrame(data, columns=col_headers)
-        df.to_csv('filament.csv', index=False)
+            res_array = np.array(resolutions, dtype=float)
+            data = np.column_stack((res_array, filament_norm))
+            col_headers = ['resolution']
+            for tau in filament_tau:
+                col_headers.append(f'{tau:g}')
+            df = pd.DataFrame(data, columns=col_headers)
+            df.to_csv('filament.csv', index=False)

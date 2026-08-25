@@ -8,7 +8,7 @@ import numpy as np
 import xarray as xr
 
 from polaris.step import Step
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class VizSizingFieldStep(Step):
@@ -75,114 +75,125 @@ class VizSizingFieldStep(Step):
         """
         Create simple global diagnostic plots and a text summary.
         """
-        use_mplstyle()
-        dpi = self.config['sizing_field_viz'].getint('dpi')
-        cmap = self.config['sizing_field_viz'].get('cell_width_cmap')
+        with mplstyle_context():
+            dpi = self.config['sizing_field_viz'].getint('dpi')
+            cmap = self.config['sizing_field_viz'].get('cell_width_cmap')
 
-        with xr.open_dataset('sizing_field.nc') as ds:
-            lon = ds.lon.values
-            lat = ds.lat.values
-            cell_width_fields = [
-                ('cellWidth', 'Final cell width (km)'),
-                ('ocean_background_cell_width', 'Ocean background (km)'),
-                ('land_river_cell_width', 'Land/river composite (km)'),
-            ]
-            delta_field = ds.coastal_transition_delta.values
+            with xr.open_dataset('sizing_field.nc') as ds:
+                lon = ds.lon.values
+                lat = ds.lat.values
+                cell_width_fields = [
+                    ('cellWidth', 'Final cell width (km)'),
+                    ('ocean_background_cell_width', 'Ocean background (km)'),
+                    ('land_river_cell_width', 'Land/river composite (km)'),
+                ]
+                delta_field = ds.coastal_transition_delta.values
 
-            fig = plt.figure(
-                figsize=(15.0, 9.2), dpi=dpi, constrained_layout=True
-            )
-            grid = fig.add_gridspec(4, 2, height_ratios=[1.0, 1.0, 0.12, 0.14])
-            axes = np.array(
-                [
-                    fig.add_subplot(grid[0, 0], projection=ccrs.PlateCarree()),
-                    fig.add_subplot(grid[0, 1], projection=ccrs.PlateCarree()),
-                    fig.add_subplot(grid[1, 0], projection=ccrs.PlateCarree()),
-                    fig.add_subplot(grid[1, 1], projection=ccrs.PlateCarree()),
-                ]
-            )
-            delta_cax = fig.add_subplot(grid[2, 1])
-            shared_cax = fig.add_subplot(grid[3, :])
-            norm, ticks = _get_cell_width_norm_and_ticks(
-                fields=[
-                    ds[var_name].values for var_name, _ in cell_width_fields
-                ]
-            )
-            image = None
-            for ax, (var_name, title) in zip(
-                axes[:3], cell_width_fields, strict=True
-            ):
+                fig = plt.figure(
+                    figsize=(15.0, 9.2), dpi=dpi, constrained_layout=True
+                )
+                grid = fig.add_gridspec(
+                    4, 2, height_ratios=[1.0, 1.0, 0.12, 0.14]
+                )
+                axes = np.array(
+                    [
+                        fig.add_subplot(
+                            grid[0, 0], projection=ccrs.PlateCarree()
+                        ),
+                        fig.add_subplot(
+                            grid[0, 1], projection=ccrs.PlateCarree()
+                        ),
+                        fig.add_subplot(
+                            grid[1, 0], projection=ccrs.PlateCarree()
+                        ),
+                        fig.add_subplot(
+                            grid[1, 1], projection=ccrs.PlateCarree()
+                        ),
+                    ]
+                )
+                delta_cax = fig.add_subplot(grid[2, 1])
+                shared_cax = fig.add_subplot(grid[3, :])
+                norm, ticks = _get_cell_width_norm_and_ticks(
+                    fields=[
+                        ds[var_name].values
+                        for var_name, _ in cell_width_fields
+                    ]
+                )
+                image = None
+                for ax, (var_name, title) in zip(
+                    axes[:3], cell_width_fields, strict=True
+                ):
+                    image = self._plot_scalar_field(
+                        ax=ax,
+                        lon=lon,
+                        lat=lat,
+                        field=ds[var_name].values,
+                        title=title,
+                        cmap=cmap,
+                        norm=norm,
+                        add_colorbar=False,
+                    )
+                delta_norm, delta_ticks = _get_difference_norm_and_ticks(
+                    field=delta_field
+                )
+                delta_image = self._plot_scalar_field(
+                    ax=axes[3],
+                    lon=lon,
+                    lat=lat,
+                    field=delta_field,
+                    title='Coastal transition delta (km)',
+                    cmap='cmo.balance',
+                    norm=delta_norm,
+                    add_colorbar=False,
+                )
+                assert image is not None
+                colorbar = fig.colorbar(
+                    image,
+                    cax=shared_cax,
+                    orientation='horizontal',
+                    label='Cell width (km)',
+                )
+                if ticks is not None:
+                    colorbar.set_ticks(np.asarray(ticks).tolist())
+                delta_colorbar = fig.colorbar(
+                    delta_image,
+                    cax=delta_cax,
+                    orientation='horizontal',
+                    label='Final minus pre-coastline cell width (km)',
+                )
+                if delta_ticks is not None:
+                    delta_colorbar.set_ticks(delta_ticks)
+                fig.savefig('sizing_field_overview.png', bbox_inches='tight')
+                plt.close(fig)
+
+                fig = plt.figure(figsize=(11.0, 5.0), dpi=dpi)
+                ax = plt.axes(projection=ccrs.PlateCarree())
+                control_cmap = mcolors.ListedColormap(
+                    ['#3b528b', '#5ec962', '#fdae61']
+                )
+                control_norm = mcolors.BoundaryNorm(
+                    np.arange(-0.5, 3.5, 1.0), control_cmap.N
+                )
                 image = self._plot_scalar_field(
                     ax=ax,
                     lon=lon,
                     lat=lat,
-                    field=ds[var_name].values,
-                    title=title,
-                    cmap=cmap,
-                    norm=norm,
+                    field=ds.active_control.values,
+                    title='Active sizing control',
+                    cmap=control_cmap,
+                    norm=control_norm,
                     add_colorbar=False,
                 )
-            delta_norm, delta_ticks = _get_difference_norm_and_ticks(
-                field=delta_field
-            )
-            delta_image = self._plot_scalar_field(
-                ax=axes[3],
-                lon=lon,
-                lat=lat,
-                field=delta_field,
-                title='Coastal transition delta (km)',
-                cmap='cmo.balance',
-                norm=delta_norm,
-                add_colorbar=False,
-            )
-            assert image is not None
-            colorbar = fig.colorbar(
-                image,
-                cax=shared_cax,
-                orientation='horizontal',
-                label='Cell width (km)',
-            )
-            if ticks is not None:
-                colorbar.set_ticks(np.asarray(ticks).tolist())
-            delta_colorbar = fig.colorbar(
-                delta_image,
-                cax=delta_cax,
-                orientation='horizontal',
-                label='Final minus pre-coastline cell width (km)',
-            )
-            if delta_ticks is not None:
-                delta_colorbar.set_ticks(delta_ticks)
-            fig.savefig('sizing_field_overview.png', bbox_inches='tight')
-            plt.close(fig)
+                colorbar = fig.colorbar(
+                    image, ax=ax, ticks=np.arange(3), shrink=0.75
+                )
+                colorbar.ax.set_yticklabels(
+                    ['background', 'coastline', 'river channel']
+                )
+                fig.savefig('active_control.png', bbox_inches='tight')
+                plt.close(fig)
 
-            fig = plt.figure(figsize=(11.0, 5.0), dpi=dpi)
-            ax = plt.axes(projection=ccrs.PlateCarree())
-            control_cmap = mcolors.ListedColormap(
-                ['#3b528b', '#5ec962', '#fdae61']
-            )
-            control_norm = mcolors.BoundaryNorm(
-                np.arange(-0.5, 3.5, 1.0), control_cmap.N
-            )
-            image = self._plot_scalar_field(
-                ax=ax,
-                lon=lon,
-                lat=lat,
-                field=ds.active_control.values,
-                title='Active sizing control',
-                cmap=control_cmap,
-                norm=control_norm,
-                add_colorbar=False,
-            )
-            colorbar = fig.colorbar(
-                image, ax=ax, ticks=np.arange(3), shrink=0.75
-            )
-            colorbar.ax.set_yticklabels(
-                ['background', 'coastline', 'river channel']
-            )
-            fig.savefig('active_control.png', bbox_inches='tight')
-            plt.close(fig)
-
-            self._write_summary(ds)
+                self._write_summary(ds)
 
     def _plot_scalar_field(
         self,

@@ -4,7 +4,7 @@ import numpy as np
 
 from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.ocean.rpe import compute_rpe
-from polaris.viz import plot_horiz_field, use_mplstyle
+from polaris.viz import mplstyle_context, plot_horiz_field
 
 
 class Analysis(OceanIOStep):
@@ -92,42 +92,45 @@ class Analysis(OceanIOStep):
         )
         times = get_days_since_start(ds)
 
-        use_mplstyle()
-        fig = plt.figure()
-        for i in range(sim_count):
-            rpe_norm = np.divide((rpe[i, :] - rpe[i, 0]), rpe[i, 0])
-            plt.plot(times, rpe_norm, label=f'$\\nu_h=${nus[i]}')
-        plt.xlabel('Time, days')
-        plt.ylabel('RPE-RPE(0)/RPE(0)')
-        plt.legend()
-        plt.savefig('rpe_t.png')
-        plt.close(fig)
+        with mplstyle_context():
+            fig = plt.figure()
+            for i in range(sim_count):
+                rpe_norm = np.divide((rpe[i, :] - rpe[i, 0]), rpe[i, 0])
+                plt.plot(times, rpe_norm, label=f'$\\nu_h=${nus[i]}')
+            plt.xlabel('Time, days')
+            plt.ylabel('RPE-RPE(0)/RPE(0)')
+            plt.legend()
+            plt.savefig('rpe_t.png')
+            plt.close(fig)
 
-        fig, axes = plt.subplots(
-            1, sim_count, figsize=(3 * sim_count, 5.0), constrained_layout=True
-        )
-
-        for row_index, nu in enumerate(nus):
-            ax = axes[row_index]
-            ds = self.open_model_dataset(
-                f'output_nu_{nu:g}.nc', self.config, decode_times=True
+            fig, axes = plt.subplots(
+                1,
+                sim_count,
+                figsize=(3 * sim_count, 5.0),
+                constrained_layout=True,
             )
-            ds = ds.isel(nVertLevels=0)
-            times = get_days_since_start(ds)
-            time_index = np.argmin(np.abs(times - time))
 
-            cell_mask = ds_vert_coord.maxLevelCell >= 1
-            plot_horiz_field(
-                ds_mesh,
-                ds['temperature'],
-                ax=ax,
-                cmap='cmo.thermal',
-                t_index=time_index,
-                vmin=min_temp,
-                vmax=max_temp,
-                cmap_title='SST (C)',
-                field_mask=cell_mask,
-            )
-            ax.set_title(f'day {times[time_index]:g}, $\\nu_h=${nu:g}')
+            for row_index, nu in enumerate(nus):
+                ax = axes[row_index]
+                ds = self.open_model_dataset(
+                    f'output_nu_{nu:g}.nc', self.config, decode_times=True
+                )
+                ds = ds.isel(nVertLevels=0)
+                times = get_days_since_start(ds)
+                time_index = np.argmin(np.abs(times - time))
 
-        plt.savefig(output_filename)
+                cell_mask = ds_vert_coord.maxLevelCell >= 1
+                plot_horiz_field(
+                    ds_mesh,
+                    ds['temperature'],
+                    ax=ax,
+                    cmap='cmo.thermal',
+                    t_index=time_index,
+                    vmin=min_temp,
+                    vmax=max_temp,
+                    cmap_title='SST (C)',
+                    field_mask=cell_mask,
+                )
+                ax.set_title(f'day {times[time_index]:g}, $\\nu_h=${nu:g}')
+
+            plt.savefig(output_filename)

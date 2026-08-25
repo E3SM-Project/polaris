@@ -6,7 +6,7 @@ from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.mpas import time_since_start
 from polaris.ocean.model import OceanIOStep
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class Viz(OceanIOStep):
@@ -88,120 +88,124 @@ class Viz(OceanIOStep):
         model = config.get('ocean', 'model')
         section = config['merry_go_round']
 
-        use_mplstyle()
-        fig, axes = plt.subplots(
-            nrows=2,
-            ncols=2,
-            figsize=(8, 5),
-            constrained_layout=True,
-            sharex=True,
-            sharey=True,
-        )
+        with mplstyle_context():
+            fig, axes = plt.subplots(
+                nrows=2,
+                ncols=2,
+                figsize=(8, 5),
+                constrained_layout=True,
+                sharex=True,
+                sharey=True,
+            )
 
-        section = config['convergence']
-        eval_time = section.getfloat('convergence_eval_time')
-        s_per_hour = 3600.0
-        time = eval_time * s_per_hour
+            section = config['convergence']
+            eval_time = section.getfloat('convergence_eval_time')
+            s_per_hour = 3600.0
+            time = eval_time * s_per_hour
 
-        ds_mesh = self.open_model_dataset('mesh.nc', config)
-        ds_init = self.open_model_dataset('init.nc', config)
-        ds_vert_coord = self.open_vert_coord_dataset(ds_init)
-        ds = self.open_model_dataset(
-            'output.nc',
-            config,
-            mesh_filename='mesh.nc',
-            vert_filename='vert_coord.nc',
-            coeffs_filename='coeffs.nc',
-            decode_times=False,
-            reconstruct_variables=['normalVelocity'],
-            reconstruct_method='RBF',
-        )
-        x_min = ds_mesh.xVertex.min().values
-        x_max = ds_mesh.xVertex.max().values
-        y_mid = ds_mesh.yCell.median().values
+            ds_mesh = self.open_model_dataset('mesh.nc', config)
+            ds_init = self.open_model_dataset('init.nc', config)
+            ds_vert_coord = self.open_vert_coord_dataset(ds_init)
+            ds = self.open_model_dataset(
+                'output.nc',
+                config,
+                mesh_filename='mesh.nc',
+                vert_filename='vert_coord.nc',
+                coeffs_filename='coeffs.nc',
+                decode_times=False,
+                reconstruct_variables=['normalVelocity'],
+                reconstruct_method='RBF',
+            )
+            x_min = ds_mesh.xVertex.min().values
+            x_max = ds_mesh.xVertex.max().values
+            y_mid = ds_mesh.yCell.median().values
 
-        x = xr.DataArray(data=np.linspace(x_min, x_max, 2), dims=('nPoints',))
-        y = y_mid * xr.ones_like(x)
+            x = xr.DataArray(
+                data=np.linspace(x_min, x_max, 2), dims=('nPoints',)
+            )
+            y = y_mid * xr.ones_like(x)
 
-        if model == 'mpas-o':
-            dt = time_since_start(ds.xtime.values)
-        else:
-            # time is seconds since the start of the simulation in Omega
-            dt = ds.Time.values
-        tidx = np.argmin(np.abs(dt - time))
+            if model == 'mpas-o':
+                dt = time_since_start(ds.xtime.values)
+            else:
+                # time is seconds since the start of the simulation in Omega
+                dt = ds.Time.values
+            tidx = np.argmin(np.abs(dt - time))
 
-        ds_transect = compute_transect(
-            x=x,
-            y=y,
-            ds_horiz_mesh=ds_mesh,
-            layer_thickness=ds_init.layerThickness.isel(Time=0),
-            bottom_depth=ds_vert_coord.bottomDepth,
-            min_level_cell=ds_vert_coord.minLevelCell - 1,
-            max_level_cell=ds_vert_coord.maxLevelCell - 1,
-            spherical=False,
-        )
+            ds_transect = compute_transect(
+                x=x,
+                y=y,
+                ds_horiz_mesh=ds_mesh,
+                layer_thickness=ds_init.layerThickness.isel(Time=0),
+                bottom_depth=ds_vert_coord.bottomDepth,
+                min_level_cell=ds_vert_coord.minLevelCell - 1,
+                max_level_cell=ds_vert_coord.maxLevelCell - 1,
+                spherical=False,
+            )
 
-        vert_velocity = ds.vertVelocityTop.isel(Time=tidx)
-        tracer_exact = ds_init.tracer1.isel(Time=0)
-        tracer_model = ds.tracer1.isel(Time=tidx)
-        tracer_error = tracer_model - tracer_exact
+            vert_velocity = ds.vertVelocityTop.isel(Time=tidx)
+            tracer_exact = ds_init.tracer1.isel(Time=0)
+            tracer_model = ds.tracer1.isel(Time=tidx)
+            tracer_error = tracer_model - tracer_exact
 
-        data_min = np.min(np.abs(tracer_exact.values))
-        data_max = np.max(np.abs(tracer_exact.values))
-        error_range = np.max(np.abs(tracer_error.values))
+            data_min = np.min(np.abs(tracer_exact.values))
+            data_max = np.max(np.abs(tracer_exact.values))
+            error_range = np.max(np.abs(tracer_error.values))
 
-        if 'velocityX' in ds.keys():
-            horz_velocity = ds.velocityX.isel(Time=tidx)
+            if 'velocityX' in ds.keys():
+                horz_velocity = ds.velocityX.isel(Time=tidx)
+                plot_transect(
+                    ds_transect=ds_transect,
+                    mpas_field=horz_velocity,
+                    ax=axes[0, 0],
+                    vmin=-0.008,
+                    vmax=0.008,
+                    cmap='cmo.balance',
+                    colorbar_label='horizontal velocity',
+                    color_start_and_end=False,
+                )
+
             plot_transect(
                 ds_transect=ds_transect,
-                mpas_field=horz_velocity,
-                ax=axes[0, 0],
-                vmin=-0.008,
-                vmax=0.008,
+                mpas_field=vert_velocity,
+                ax=axes[0, 1],
+                vmin=-0.02,
+                vmax=0.02,
                 cmap='cmo.balance',
-                colorbar_label='horizontal velocity',
+                colorbar_label='vertical velocity',
                 color_start_and_end=False,
             )
 
-        plot_transect(
-            ds_transect=ds_transect,
-            mpas_field=vert_velocity,
-            ax=axes[0, 1],
-            vmin=-0.02,
-            vmax=0.02,
-            cmap='cmo.balance',
-            colorbar_label='vertical velocity',
-            color_start_and_end=False,
-        )
+            plot_transect(
+                ds_transect=ds_transect,
+                mpas_field=tracer_exact,
+                ax=axes[1, 0],
+                vmin=data_min,
+                vmax=data_max,
+                cmap='cmo.thermal',
+                colorbar_label='tracer1 at t=0',
+                color_start_and_end=False,
+            )
 
-        plot_transect(
-            ds_transect=ds_transect,
-            mpas_field=tracer_exact,
-            ax=axes[1, 0],
-            vmin=data_min,
-            vmax=data_max,
-            cmap='cmo.thermal',
-            colorbar_label='tracer1 at t=0',
-            color_start_and_end=False,
-        )
+            plot_transect(
+                ds_transect=ds_transect,
+                mpas_field=tracer_error,
+                ax=axes[1, 1],
+                vmin=-error_range,
+                vmax=error_range,
+                cmap='cmo.curl',
+                colorbar_label=f'delta(tracer1) at t={eval_time:g}h',
+                color_start_and_end=False,
+            )
 
-        plot_transect(
-            ds_transect=ds_transect,
-            mpas_field=tracer_error,
-            ax=axes[1, 1],
-            vmin=-error_range,
-            vmax=error_range,
-            cmap='cmo.curl',
-            colorbar_label=f'delta(tracer1) at t={eval_time:g}h',
-            color_start_and_end=False,
-        )
+            axes[0, 0].set_xlabel(None)
+            axes[0, 1].set_xlabel(None)
 
-        axes[0, 0].set_xlabel(None)
-        axes[0, 1].set_xlabel(None)
+            axes[0, 1].set_ylabel(None)
+            axes[1, 1].set_ylabel(None)
 
-        axes[0, 1].set_ylabel(None)
-        axes[1, 1].set_ylabel(None)
-
-        fig.savefig(
-            'merry_go_round_section.png', bbox_inches='tight', pad_inches=0.1
-        )
+            fig.savefig(
+                'merry_go_round_section.png',
+                bbox_inches='tight',
+                pad_inches=0.1,
+            )

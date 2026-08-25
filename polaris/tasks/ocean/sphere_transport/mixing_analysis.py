@@ -12,7 +12,7 @@ from polaris.ocean.convergence import (
 )
 from polaris.ocean.model import OceanIOStep, get_days_since_start
 from polaris.resolution import resolution_to_string
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class MixingAnalysis(OceanIOStep):
@@ -110,38 +110,42 @@ class MixingAnalysis(OceanIOStep):
         s_per_day = 86400.0
         zidx = 0
         nrows = int(ceil(len(resolutions) / 2))
-        use_mplstyle()
-        fig, axes = plt.subplots(
-            nrows=nrows, ncols=2, sharex=True, sharey=True, figsize=(5.5, 7)
-        )
-        for i, refinement_factor in enumerate(self.refinement_factors):
-            ax = axes[int(i / 2), i % 2]
-            _init_triplot_axes(ax)
-            mesh_name = resolution_to_string(resolutions[i])
-            ax.set(title=mesh_name)
-            ds = self.open_model_dataset(
-                f'output_r{refinement_factor:02g}.nc', self.config
+        with mplstyle_context():
+            fig, axes = plt.subplots(
+                nrows=nrows,
+                ncols=2,
+                sharex=True,
+                sharey=True,
+                figsize=(5.5, 7),
             )
-            if i % 2 == 0:
-                ax.set_ylabel('tracer3')
-            if int(i / 2) == nrows - 1:
-                ax.set_xlabel('tracer2')
-            t_days = get_days_since_start(ds)
-            time_index = np.argmin(
-                np.abs(np.subtract(t_days, eval_time * s_per_day))
-            )
-            ds = ds.isel(Time=time_index)
-            ds = ds.isel(nVertLevels=zidx)
-            tracer2 = ds['tracer2'].values
-            tracer3 = ds['tracer3'].values
-            ax.plot(tracer2, tracer3, '.', markersize=1)
-            ax.set_aspect('equal')
-        if i % 2 < 1:
-            ax = axes[int(i / 2), 1]
-            ax.set_axis_off()
-        plt.subplots_adjust(wspace=0.1, hspace=0.1)
-        fig.suptitle('Correlated tracers 2-d')
-        fig.savefig('triplots.png', bbox_inches='tight')
+            for i, refinement_factor in enumerate(self.refinement_factors):
+                ax = axes[int(i / 2), i % 2]
+                _init_triplot_axes(ax)
+                mesh_name = resolution_to_string(resolutions[i])
+                ax.set(title=mesh_name)
+                ds = self.open_model_dataset(
+                    f'output_r{refinement_factor:02g}.nc', self.config
+                )
+                if i % 2 == 0:
+                    ax.set_ylabel('tracer3')
+                if int(i / 2) == nrows - 1:
+                    ax.set_xlabel('tracer2')
+                t_days = get_days_since_start(ds)
+                time_index = np.argmin(
+                    np.abs(np.subtract(t_days, eval_time * s_per_day))
+                )
+                ds = ds.isel(Time=time_index)
+                ds = ds.isel(nVertLevels=zidx)
+                tracer2 = ds['tracer2'].values
+                tracer3 = ds['tracer3'].values
+                ax.plot(tracer2, tracer3, '.', markersize=1)
+                ax.set_aspect('equal')
+            if i % 2 < 1:
+                ax = axes[int(i / 2), 1]
+                ax.set_axis_off()
+            plt.subplots_adjust(wspace=0.1, hspace=0.1)
+            fig.suptitle('Correlated tracers 2-d')
+            fig.savefig('triplots.png', bbox_inches='tight')
 
 
 def _init_triplot_axes(ax):

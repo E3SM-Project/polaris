@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from polaris.ocean.model import OceanIOStep, get_days_since_start
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class Analysis(OceanIOStep):
@@ -49,85 +49,84 @@ class Analysis(OceanIOStep):
         Run this step of the test case
         """
         logger = self.logger
-        use_mplstyle()
-
-        config = self.config
-        f = config.getfloat('coriolis', 'constant_f')
-        tol = config.getfloat(
-            'single_column_inertial', 'period_tolerance_fraction'
-        )
-
-        ds = self.open_model_dataset(
-            'output.nc',
-            config=config,
-            decode_times=True,
-            mesh_filename='../init/culled_mesh.nc',
-            reconstruct_variables=['normalVelocity'],
-            reconstruct_method='RBF',
-            coeffs_filename='../forward/coeffs.nc',
-        )
-        t = get_days_since_start(ds)
-        s_per_day = 24.0 * 3600.0
-        dt = (t[1] - t[0]) * s_per_day
-        u = ds['velocityZonal'].mean(dim='nCells')
-        v = ds['velocityMeridional'].mean(dim='nCells')
-        u = ds['velocityZonal'].mean(dim='nCells')
-        u_max = u.max(dim='nVertLevels')
-        v_max = v.max(dim='nVertLevels')
-
-        # Compute the FFT of the u-component and extract the frequency with
-        # the most power
-        freq = np.fft.fftfreq(len(u_max), dt)
-        power = abs(np.fft.fft(u_max))
-        dominant_frequency = abs(freq[np.argmax(power[1:]) + 1])
-        dominant_period = (1 / dominant_frequency) / 3600.0  # in hours
-        expected_period = (2 * np.pi / f) / 3600.0  # in hours
-
-        # Plot a time series of the maximum u and v components
-        plt.figure(figsize=(8, 5))
-        ax = plt.subplot(111)
-        ax.plot(t, u_max, '-b')
-        ax.plot(t, v_max, '--b')
-        ymin, ymax = ax.get_ylim()
-        ax.plot(
-            [expected_period / 24.0, expected_period / 24.0],
-            [ymin, ymax],
-            '--g',
-            label='expected period',
-        )
-        ax.plot(
-            [dominant_period / 24.0, dominant_period / 24.0],
-            [ymin, ymax],
-            '--k',
-            label='dominant period',
-        )
-        ax.set_xlabel('Time (days)')
-        ax.set_ylabel('Maximum velocity (m/s)')
-        ax.set_ylim([ymin, ymax])
-        plt.legend()
-        plt.tight_layout(pad=0.5)
-        plt.savefig('velocity_tseries.png')
-        plt.close()
-
-        # Write out some information about the inertial oscillations
-        logger.info(f'Dominant period: {dominant_period:1.3f} (h)')
-        logger.info(
-            'Expected period for inertial oscillations: '
-            f'{expected_period:1.3f} (h)'
-        )
-
-        period_frac_diff = (
-            dominant_period - expected_period
-        ) / expected_period
-
-        # Test case fails if the oscillations have a frequency that is too
-        # different from the theoretical frequency
-        if abs(period_frac_diff) > tol:
-            logger.error(
-                'error: Discrepancy in inertial oscillation frequency '
-                f'{period_frac_diff * 1.0e2} %\n'
-                f'  max fractional tolerance {tol}'
+        with mplstyle_context():
+            config = self.config
+            f = config.getfloat('coriolis', 'constant_f')
+            tol = config.getfloat(
+                'single_column_inertial', 'period_tolerance_fraction'
             )
-            raise ValueError(
-                'Inertial oscillation falls outside expected frequency'
+
+            ds = self.open_model_dataset(
+                'output.nc',
+                config=config,
+                decode_times=True,
+                mesh_filename='../init/culled_mesh.nc',
+                reconstruct_variables=['normalVelocity'],
+                reconstruct_method='RBF',
+                coeffs_filename='../forward/coeffs.nc',
             )
+            t = get_days_since_start(ds)
+            s_per_day = 24.0 * 3600.0
+            dt = (t[1] - t[0]) * s_per_day
+            u = ds['velocityZonal'].mean(dim='nCells')
+            v = ds['velocityMeridional'].mean(dim='nCells')
+            u = ds['velocityZonal'].mean(dim='nCells')
+            u_max = u.max(dim='nVertLevels')
+            v_max = v.max(dim='nVertLevels')
+
+            # Compute the FFT of the u-component and extract the frequency with
+            # the most power
+            freq = np.fft.fftfreq(len(u_max), dt)
+            power = abs(np.fft.fft(u_max))
+            dominant_frequency = abs(freq[np.argmax(power[1:]) + 1])
+            dominant_period = (1 / dominant_frequency) / 3600.0  # in hours
+            expected_period = (2 * np.pi / f) / 3600.0  # in hours
+
+            # Plot a time series of the maximum u and v components
+            plt.figure(figsize=(8, 5))
+            ax = plt.subplot(111)
+            ax.plot(t, u_max, '-b')
+            ax.plot(t, v_max, '--b')
+            ymin, ymax = ax.get_ylim()
+            ax.plot(
+                [expected_period / 24.0, expected_period / 24.0],
+                [ymin, ymax],
+                '--g',
+                label='expected period',
+            )
+            ax.plot(
+                [dominant_period / 24.0, dominant_period / 24.0],
+                [ymin, ymax],
+                '--k',
+                label='dominant period',
+            )
+            ax.set_xlabel('Time (days)')
+            ax.set_ylabel('Maximum velocity (m/s)')
+            ax.set_ylim([ymin, ymax])
+            plt.legend()
+            plt.tight_layout(pad=0.5)
+            plt.savefig('velocity_tseries.png')
+            plt.close()
+
+            # Write out some information about the inertial oscillations
+            logger.info(f'Dominant period: {dominant_period:1.3f} (h)')
+            logger.info(
+                'Expected period for inertial oscillations: '
+                f'{expected_period:1.3f} (h)'
+            )
+
+            period_frac_diff = (
+                dominant_period - expected_period
+            ) / expected_period
+
+            # Test case fails if the oscillations have a frequency that is too
+            # different from the theoretical frequency
+            if abs(period_frac_diff) > tol:
+                logger.error(
+                    'error: Discrepancy in inertial oscillation frequency '
+                    f'{period_frac_diff * 1.0e2} %\n'
+                    f'  max fractional tolerance {tol}'
+                )
+                raise ValueError(
+                    'Inertial oscillation falls outside expected frequency'
+                )

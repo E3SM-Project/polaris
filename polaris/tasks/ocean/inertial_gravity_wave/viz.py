@@ -11,7 +11,7 @@ from polaris.ocean.model import OceanIOStep
 from polaris.tasks.ocean.inertial_gravity_wave.exact_solution import (
     ExactSolution,
 )
-from polaris.viz import plot_horiz_field, use_mplstyle
+from polaris.viz import mplstyle_context, plot_horiz_field
 
 
 class Viz(OceanIOStep):
@@ -141,103 +141,106 @@ class Viz(OceanIOStep):
 
         model = config.get('ocean', 'model')
 
-        use_mplstyle()
-        fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
-        rmse = []
-        error_range = None
-        for i, refinement_factor in enumerate(refinement_factors):
-            resolution = get_resolution_for_task(
-                config, refinement_factor, refinement=self.refinement
+        with mplstyle_context():
+            fig, axes = plt.subplots(
+                nrows=nres, ncols=3, figsize=(12, 2 * nres)
             )
-            ds_mesh = self.open_model_dataset(
-                f'mesh_r{refinement_factor:02g}.nc', config
-            )
-            ds_init = self.open_model_dataset(
-                f'init_r{refinement_factor:02g}.nc', config
-            )
-            ds_vert_coord = self.open_vert_coord_dataset(
-                ds_init,
-                vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
-            )
-            ds = self.open_model_dataset(
-                f'output_r{refinement_factor:02g}.nc', config
-            )
-            exact = ExactSolution(ds_mesh, config)
+            rmse = []
+            error_range = None
+            for i, refinement_factor in enumerate(refinement_factors):
+                resolution = get_resolution_for_task(
+                    config, refinement_factor, refinement=self.refinement
+                )
+                ds_mesh = self.open_model_dataset(
+                    f'mesh_r{refinement_factor:02g}.nc', config
+                )
+                ds_init = self.open_model_dataset(
+                    f'init_r{refinement_factor:02g}.nc', config
+                )
+                ds_vert_coord = self.open_vert_coord_dataset(
+                    ds_init,
+                    vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
+                )
+                ds = self.open_model_dataset(
+                    f'output_r{refinement_factor:02g}.nc', config
+                )
+                exact = ExactSolution(ds_mesh, config)
 
-            if model == 'mpas-o':
-                dt = time_since_start(ds.xtime.values)
-                t = float(dt[-1])
-            else:
-                # time is seconds since the start of the simulation in Omega
-                t = float(ds.Time.values[-1])
-            ssh_model = ds.ssh.values[-1, :]
-            rmse.append(
-                np.sqrt(np.mean((ssh_model - exact.ssh(t).values) ** 2))
-            )
+                if model == 'mpas-o':
+                    dt = time_since_start(ds.xtime.values)
+                    t = float(dt[-1])
+                else:
+                    # time is seconds since the start of the
+                    # simulation in Omega
+                    t = float(ds.Time.values[-1])
+                ssh_model = ds.ssh.values[-1, :]
+                rmse.append(
+                    np.sqrt(np.mean((ssh_model - exact.ssh(t).values) ** 2))
+                )
 
-            # Comparison plots
-            ds['ssh_exact'] = exact.ssh(t)
-            ds['ssh_error'] = ssh_model - exact.ssh(t)
-            if error_range is None:
-                error_range = np.max(np.abs(ds.ssh_error.values))
+                # Comparison plots
+                ds['ssh_exact'] = exact.ssh(t)
+                ds['ssh_error'] = ssh_model - exact.ssh(t)
+                if error_range is None:
+                    error_range = np.max(np.abs(ds.ssh_error.values))
 
-            cell_mask = ds_vert_coord.maxLevelCell >= 1
-            descriptor = plot_horiz_field(
-                ds_mesh,
-                ds['ssh'],
-                ax=axes[i, 0],
-                cmap='cmo.balance',
-                t_index=ds.sizes['Time'] - 1,
-                vmin=-eta0,
-                vmax=eta0,
-                cmap_title='SSH (m)',
-                field_mask=cell_mask,
-            )
-            plot_horiz_field(
-                ds_mesh,
-                ds['ssh_exact'],
-                ax=axes[i, 1],
-                cmap='cmo.balance',
-                vmin=-eta0,
-                vmax=eta0,
-                cmap_title='SSH (m)',
-                descriptor=descriptor,
-            )
-            plot_horiz_field(
-                ds_mesh,
-                ds['ssh_error'],
-                ax=axes[i, 2],
-                cmap='cmo.balance',
-                cmap_title=r'$\Delta$ SSH (m)',
-                vmin=-error_range,
-                vmax=error_range,
-                descriptor=descriptor,
-            )
+                cell_mask = ds_vert_coord.maxLevelCell >= 1
+                descriptor = plot_horiz_field(
+                    ds_mesh,
+                    ds['ssh'],
+                    ax=axes[i, 0],
+                    cmap='cmo.balance',
+                    t_index=ds.sizes['Time'] - 1,
+                    vmin=-eta0,
+                    vmax=eta0,
+                    cmap_title='SSH (m)',
+                    field_mask=cell_mask,
+                )
+                plot_horiz_field(
+                    ds_mesh,
+                    ds['ssh_exact'],
+                    ax=axes[i, 1],
+                    cmap='cmo.balance',
+                    vmin=-eta0,
+                    vmax=eta0,
+                    cmap_title='SSH (m)',
+                    descriptor=descriptor,
+                )
+                plot_horiz_field(
+                    ds_mesh,
+                    ds['ssh_error'],
+                    ax=axes[i, 2],
+                    cmap='cmo.balance',
+                    cmap_title=r'$\Delta$ SSH (m)',
+                    vmin=-error_range,
+                    vmax=error_range,
+                    descriptor=descriptor,
+                )
 
-        axes[0, 0].set_title('Numerical solution')
-        axes[0, 1].set_title('Analytical solution')
-        axes[0, 2].set_title('Error (Numerical - Analytical)')
+            axes[0, 0].set_title('Numerical solution')
+            axes[0, 1].set_title('Analytical solution')
+            axes[0, 2].set_title('Error (Numerical - Analytical)')
 
-        pad = 5
-        for ax, refinement_factor in zip(
-            axes[:, 0], refinement_factors, strict=False
-        ):
-            timestep, _ = get_timestep_for_task(
-                config, refinement_factor, refinement=self.refinement
-            )
-            resolution = get_resolution_for_task(
-                config, refinement_factor, refinement=self.refinement
-            )
+            pad = 5
+            for ax, refinement_factor in zip(
+                axes[:, 0], refinement_factors, strict=False
+            ):
+                timestep, _ = get_timestep_for_task(
+                    config, refinement_factor, refinement=self.refinement
+                )
+                resolution = get_resolution_for_task(
+                    config, refinement_factor, refinement=self.refinement
+                )
 
-            ax.annotate(
-                f'{resolution}km\n{timestep}s',
-                xy=(0, 0.5),
-                xytext=(-ax.yaxis.labelpad - pad, 0),
-                xycoords=ax.yaxis.label,
-                textcoords='offset points',
-                size='large',
-                ha='right',
-                va='center',
-            )
+                ax.annotate(
+                    f'{resolution}km\n{timestep}s',
+                    xy=(0, 0.5),
+                    xytext=(-ax.yaxis.labelpad - pad, 0),
+                    xycoords=ax.yaxis.label,
+                    textcoords='offset points',
+                    size='large',
+                    ha='right',
+                    va='center',
+                )
 
-        fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
+            fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)

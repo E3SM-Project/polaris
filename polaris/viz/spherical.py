@@ -14,7 +14,7 @@ from pyremap.descriptor.utility import interp_extrap_corner
 from ruamel.yaml import YAML
 
 from polaris.viz.helper import get_projection
-from polaris.viz.style import use_mplstyle
+from polaris.viz.style import mplstyle_context
 
 
 def plot_global_mpas_field(
@@ -107,116 +107,120 @@ def plot_global_mpas_field(
         needs to be created once per mesh file.
     """
 
-    use_mplstyle()
-    if dpi:
-        plt.rcParams['savefig.dpi'] = dpi
+    with mplstyle_context(dpi=dpi):
+        transform = cartopy.crs.Geodetic()
+        projection = get_projection(
+            projection_name, central_longitude=central_longitude
+        )
 
-    transform = cartopy.crs.Geodetic()
-    projection = get_projection(
-        projection_name, central_longitude=central_longitude
-    )
-
-    if descriptor is None:
-        if mesh_filename is None:
-            raise ValueError(
-                'Either mesh_filename or descriptor must be given'
-                ' as parameters to Descriptor'
-            )
-        mesh_ds = open_dataset(mesh_filename)
-        model = config.get('ocean', 'model')
-        if model == 'omega':
-            package = 'polaris.ocean.model'
-            filename = 'mpaso_to_omega.yaml'
-            text = imp_res.files(package).joinpath(filename).read_text()
-            yaml_data = YAML(typ='rt')
-            nested_dict = yaml_data.load(text)
-            mpaso_to_omega_dim_map = nested_dict['dimensions']
-            mpaso_to_omega_var_map = nested_dict['variables']
-            # map Omega dimension and variable names back to their
-            # MPAS-Ocean equivalents
-            rename = {
-                omega_dim: mpaso_dim
-                for mpaso_dim, omega_dim in mpaso_to_omega_dim_map.items()
-                if omega_dim in mesh_ds.dims
-            }
-            rename.update(
-                {
-                    omega_var: mpaso_var
-                    for mpaso_var, omega_var in mpaso_to_omega_var_map.items()
-                    if omega_var in mesh_ds
+        if descriptor is None:
+            if mesh_filename is None:
+                raise ValueError(
+                    'Either mesh_filename or descriptor must be given'
+                    ' as parameters to Descriptor'
+                )
+            mesh_ds = open_dataset(mesh_filename)
+            model = config.get('ocean', 'model')
+            if model == 'omega':
+                package = 'polaris.ocean.model'
+                filename = 'mpaso_to_omega.yaml'
+                text = imp_res.files(package).joinpath(filename).read_text()
+                yaml_data = YAML(typ='rt')
+                nested_dict = yaml_data.load(text)
+                mpaso_to_omega_dim_map = nested_dict['dimensions']
+                mpaso_to_omega_var_map = nested_dict['variables']
+                # map Omega dimension and variable names back to their
+                # MPAS-Ocean equivalents
+                rename = {
+                    omega_dim: mpaso_dim
+                    for mpaso_dim, omega_dim in mpaso_to_omega_dim_map.items()
+                    if omega_dim in mesh_ds.dims
                 }
+                rename.update(
+                    {
+                        omega_var: mpaso_var
+                        for mpaso_var, omega_var in (
+                            mpaso_to_omega_var_map.items()
+                        )
+                        if omega_var in mesh_ds
+                    }
+                )
+                if rename:
+                    mesh_ds = mesh_ds.rename(rename)
+            mesh_ds.attrs['is_periodic'] = 'NO'
+
+            if cell_indices is not None:
+                mesh_ds = mesh_ds.isel(nCells=cell_indices)
+            descriptor = mosaic.Descriptor(
+                mesh_ds,
+                projection=projection,
+                transform=transform,
+                use_latlon=True,
             )
-            if rename:
-                mesh_ds = mesh_ds.rename(rename)
-        mesh_ds.attrs['is_periodic'] = 'NO'
 
-        if cell_indices is not None:
-            mesh_ds = mesh_ds.isel(nCells=cell_indices)
-        descriptor = mosaic.Descriptor(
-            mesh_ds,
-            projection=projection,
-            transform=transform,
-            use_latlon=True,
+        fig, ax = plt.subplots(
+            figsize=figsize,
+            constrained_layout=True,
+            subplot_kw=dict(projection=projection),
         )
 
-    fig, ax = plt.subplots(
-        figsize=figsize,
-        constrained_layout=True,
-        subplot_kw=dict(projection=projection),
-    )
+        if title is not None:
+            fig.suptitle(title, y=0.935)
 
-    if title is not None:
-        fig.suptitle(title, y=0.935)
+        colormap, norm, ticks = setup_colormap(config, colormap_section)
 
-    colormap, norm, ticks = setup_colormap(config, colormap_section)
-
-    pcolor_kwargs = dict(cmap=colormap, norm=norm, zorder=1, edgecolors='face')
-
-    if patch_edge_color is not None:
-        pcolor_kwargs['edgecolors'] = patch_edge_color
-
-    gl = ax.gridlines(color='gray', linestyle=':', zorder=5, draw_labels=True)
-    gl.right_labels = False
-    gl.top_labels = False
-
-    if plot_land:
-        _add_land_lakes_coastline(ax)
-
-    pc = mosaic.polypcolor(ax, descriptor, da, **pcolor_kwargs)
-
-    cbar = fig.colorbar(
-        pc, ax=ax, label=colorbar_label, extend='both', shrink=0.6
-    )
-    if ds_transect is not None:
-        ax.plot(
-            ds_transect.lonNode.values,
-            ds_transect.latNode.values,
-            '.r',
-            transform=transform,
+        pcolor_kwargs = dict(
+            cmap=colormap, norm=norm, zorder=1, edgecolors='face'
         )
 
-    if enforce_aspect_ratio:
-        min_latitude = np.rad2deg(mesh_ds.latCell.min().values)
-        max_latitude = np.rad2deg(mesh_ds.latCell.max().values)
-        min_longitude = np.rad2deg(mesh_ds.lonCell.min().values)
-        max_longitude = np.rad2deg(mesh_ds.lonCell.max().values)
-        geod = Geodesic()
-        x_distance = geod.inverse(
-            [min_longitude, min_latitude], [max_longitude, min_latitude]
-        )[0, 0]
-        y_distance = geod.inverse(
-            [min_longitude, min_latitude], [min_longitude, max_latitude]
-        )[0, 0]
-        ax.set_aspect(y_distance / x_distance)
+        if patch_edge_color is not None:
+            pcolor_kwargs['edgecolors'] = patch_edge_color
 
-    if ticks is not None:
-        cbar.set_ticks(ticks)
-        cbar.set_ticklabels([f'{tick}' for tick in ticks])
+        gl = ax.gridlines(
+            color='gray', linestyle=':', zorder=5, draw_labels=True
+        )
+        gl.right_labels = False
+        gl.top_labels = False
 
-    # Let constrained_layout manage the margins; combining it with
-    # bbox_inches='tight' on a fixed-aspect GeoAxes with an attached colorbar
-    # can collapse the map axes so only part of the globe is drawn.
-    fig.savefig(out_filename)
+        if plot_land:
+            _add_land_lakes_coastline(ax)
+
+        pc = mosaic.polypcolor(ax, descriptor, da, **pcolor_kwargs)
+
+        cbar = fig.colorbar(
+            pc, ax=ax, label=colorbar_label, extend='both', shrink=0.6
+        )
+        if ds_transect is not None:
+            ax.plot(
+                ds_transect.lonNode.values,
+                ds_transect.latNode.values,
+                '.r',
+                transform=transform,
+            )
+
+        if enforce_aspect_ratio:
+            min_latitude = np.rad2deg(mesh_ds.latCell.min().values)
+            max_latitude = np.rad2deg(mesh_ds.latCell.max().values)
+            min_longitude = np.rad2deg(mesh_ds.lonCell.min().values)
+            max_longitude = np.rad2deg(mesh_ds.lonCell.max().values)
+            geod = Geodesic()
+            x_distance = geod.inverse(
+                [min_longitude, min_latitude], [max_longitude, min_latitude]
+            )[0, 0]
+            y_distance = geod.inverse(
+                [min_longitude, min_latitude], [min_longitude, max_latitude]
+            )[0, 0]
+            ax.set_aspect(y_distance / x_distance)
+
+        if ticks is not None:
+            cbar.set_ticks(ticks)
+            cbar.set_ticklabels([f'{tick}' for tick in ticks])
+
+        # Let constrained_layout manage the margins; combining it with
+        # bbox_inches='tight' on a fixed-aspect GeoAxes with an
+        # attached colorbar can collapse the map axes so only part of
+        # the globe is drawn.
+        fig.savefig(out_filename)
 
 
 def plot_global_lat_lon_field(
@@ -277,89 +281,90 @@ def plot_global_lat_lon_field(
         Label on the colorbar
     """
 
-    use_mplstyle()
+    with mplstyle_context():
+        nlat, nlon = data_array.shape
+        if lon.shape[0] == nlon:
+            lon_corner = interp_extrap_corner(lon)
+        elif lon.shape[0] == nlon + 1:
+            lon_corner = lon
+        else:
+            raise ValueError(
+                f'Unexpected length of lon {lon.shape[0]}. Should '
+                f'be either {nlon} or {nlon + 1}'
+            )
 
-    nlat, nlon = data_array.shape
-    if lon.shape[0] == nlon:
-        lon_corner = interp_extrap_corner(lon)
-    elif lon.shape[0] == nlon + 1:
-        lon_corner = lon
-    else:
-        raise ValueError(
-            f'Unexpected length of lon {lon.shape[0]}. Should '
-            f'be either {nlon} or {nlon + 1}'
+        if lat.shape[0] == nlat:
+            lat_corner = interp_extrap_corner(lat)
+        elif lat.shape[0] == nlat + 1:
+            lat_corner = lat
+        else:
+            raise ValueError(
+                f'Unexpected length of lat {lat.shape[0]}. Should '
+                f'be either {nlat} or {nlat + 1}'
+            )
+
+        figsize = (8, 4.5)
+        fig = plt.figure(figsize=figsize)
+        if title is not None:
+            fig.suptitle(title, y=0.935)
+
+        subplots = [111]
+        ref_projection = cartopy.crs.PlateCarree()
+        central_longitude = 0.5 * (lon_corner[0] + lon_corner[-1])
+        projection = cartopy.crs.PlateCarree(
+            central_longitude=central_longitude
         )
 
-    if lat.shape[0] == nlat:
-        lat_corner = interp_extrap_corner(lat)
-    elif lat.shape[0] == nlat + 1:
-        lat_corner = lat
-    else:
-        raise ValueError(
-            f'Unexpected length of lat {lat.shape[0]}. Should '
-            f'be either {nlat} or {nlat + 1}'
+        extent = [lon_corner[0], lon_corner[-1], lat_corner[0], lat_corner[-1]]
+
+        colormap, norm, ticks = setup_colormap(config, colormap_section)
+
+        ax = plt.subplot(subplots[0], projection=projection)
+
+        ax.set_extent(extent, crs=ref_projection)
+
+        gl = ax.gridlines(
+            crs=ref_projection,
+            color='gray',
+            linestyle=':',
+            zorder=5,
+            draw_labels=True,
+        )
+        gl.right_labels = False
+        gl.top_labels = False
+
+        plotHandle = ax.pcolormesh(
+            lon_corner,
+            lat_corner,
+            data_array,
+            cmap=colormap,
+            norm=norm,
+            transform=ref_projection,
+            zorder=1,
         )
 
-    figsize = (8, 4.5)
-    fig = plt.figure(figsize=figsize)
-    if title is not None:
-        fig.suptitle(title, y=0.935)
+        if plot_land:
+            _add_land_lakes_coastline(ax)
 
-    subplots = [111]
-    ref_projection = cartopy.crs.PlateCarree()
-    central_longitude = 0.5 * (lon_corner[0] + lon_corner[-1])
-    projection = cartopy.crs.PlateCarree(central_longitude=central_longitude)
+        cax = inset_axes(
+            ax,
+            width='3%',
+            height='60%',
+            loc='center right',
+            bbox_to_anchor=(0.08, 0.0, 1, 1),
+            bbox_transform=ax.transAxes,
+            borderpad=0,
+        )
 
-    extent = [lon_corner[0], lon_corner[-1], lat_corner[0], lat_corner[-1]]
+        cbar = plt.colorbar(plotHandle, cax=cax, extend='both')
+        cbar.set_label(colorbar_label)
+        if ticks is not None:
+            cbar.set_ticks(ticks)
+            cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
-    colormap, norm, ticks = setup_colormap(config, colormap_section)
+        plt.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
 
-    ax = plt.subplot(subplots[0], projection=projection)
-
-    ax.set_extent(extent, crs=ref_projection)
-
-    gl = ax.gridlines(
-        crs=ref_projection,
-        color='gray',
-        linestyle=':',
-        zorder=5,
-        draw_labels=True,
-    )
-    gl.right_labels = False
-    gl.top_labels = False
-
-    plotHandle = ax.pcolormesh(
-        lon_corner,
-        lat_corner,
-        data_array,
-        cmap=colormap,
-        norm=norm,
-        transform=ref_projection,
-        zorder=1,
-    )
-
-    if plot_land:
-        _add_land_lakes_coastline(ax)
-
-    cax = inset_axes(
-        ax,
-        width='3%',
-        height='60%',
-        loc='center right',
-        bbox_to_anchor=(0.08, 0.0, 1, 1),
-        bbox_transform=ax.transAxes,
-        borderpad=0,
-    )
-
-    cbar = plt.colorbar(plotHandle, cax=cax, extend='both')
-    cbar.set_label(colorbar_label)
-    if ticks is not None:
-        cbar.set_ticks(ticks)
-        cbar.set_ticklabels([f'{tick}' for tick in ticks])
-
-    plt.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
-
-    plt.close()
+        plt.close()
 
 
 def setup_colormap(config, colormap_section):

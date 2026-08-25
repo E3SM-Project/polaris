@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from polaris.ocean.model import OceanIOStep, get_days_since_start
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 # TODO import rho_0 from constants
 
@@ -82,157 +82,168 @@ class Viz(OceanIOStep):
         """
         Run this step of the test case
         """
-        use_mplstyle()
-        section = self.config['single_column']
-        if section.has_option('run_duration'):
-            t_target = section.getfloat('run_duration')
-        else:
-            self.logger.info(
-                'run_duration not found in config; using default plotting '
-                'time of 10 days'
-            )
-            t_target = 10.0
-
-        ds_list = []
-        time_ds = []
-        # Remove missing comparison so it won't be used later
-        comparisons = dict()
-        for comparison_name in self.comparisons.keys():
-            if os.path.exists(f'{comparison_name}.nc'):
-                comparisons[comparison_name] = self.comparisons[
-                    comparison_name
-                ]
+        with mplstyle_context():
+            section = self.config['single_column']
+            if section.has_option('run_duration'):
+                t_target = section.getfloat('run_duration')
             else:
-                continue
-            if os.path.exists('coeffs.nc'):
-                ds_comp = self.open_model_dataset(
-                    f'{comparison_name}.nc',
-                    decode_times=True,
-                    mesh_filename='mesh.nc',
-                    reconstruct_variables=['normalVelocity'],
-                    reconstruct_method='RBF',
-                    coeffs_filename='coeffs.nc',
-                    config=self.config,
+                self.logger.info(
+                    'run_duration not found in config; using default plotting '
+                    'time of 10 days'
                 )
-            else:
-                ds_comp = self.open_model_dataset(
-                    f'{comparison_name}.nc',
-                    decode_times=True,
-                    config=self.config,
-                )
-            t_arr = get_days_since_start(ds_comp)
-            t_index = np.argmin(np.abs(t_arr - t_target))
-            time_ds.append(float(t_arr[t_index]))
-            ds_list.append(ds_comp.isel(Time=t_index))
-        ds_init = self.open_model_dataset('init.nc', config=self.config)
-        ds_init = ds_init.isel(Time=0)
-        z_mid_init = ds_init['zMid'].mean(dim='nCells')
+                t_target = 10.0
 
-        z_mid_final = z_mid_init
-        self.logger.warn(
-            'Using initial zMid values; may not represent plotted state'
-        )
-
-        # Plot depth profiles of variables
-        for field_name, field_units in self.variables.items():
-            curves_plotted = 0
-            fig = plt.figure(figsize=(3, 5))
-            colors = ['k', 'b', 'r', 'darkgreen']
-            for comparison_name, ds_comp, t_days, color in zip(
-                self.comparisons.keys(), ds_list, time_ds, colors, strict=False
-            ):
-                # TODO use this line when Omega zMid is correct
-                # z_mid_final = ds_comp['zMid'].mean(dim='nCells')
-                # TODO compare with z_mid computed from layerThickness
-                # z_mid_final = depth_from_thickness(ds_comp).mean(
-                #    dim='nCells'
-                # )
-                if field_name == 'velocity':
-                    if (
-                        'velocityZonal' not in ds_comp.keys()
-                        and 'velocityMeridional' not in ds_comp.keys()
-                    ):
-                        self.logger.info(
-                            '\tvelocityZonal,Meridional not found; skipping '
-                            f'plot for {comparison_name}'
-                        )
-                        continue
-                    self.logger.info(
-                        f'Plot {field_name} for {comparison_name} at {t_days} '
-                        'days'
-                    )
-                    u_final = ds_comp['velocityZonal'].mean(dim='nCells')
-                    v_final = ds_comp['velocityMeridional'].mean(dim='nCells')
-                    plt.plot(
-                        u_final,
-                        z_mid_final,
-                        '-',
-                        color=color,
-                        label=f'u {comparison_name}, {t_days:2g} days',
-                    )
-                    plt.plot(
-                        v_final,
-                        z_mid_final,
-                        '--',
-                        color=color,
-                        label=f'v {comparison_name}, {t_days:2g} days',
-                    )
-                    curves_plotted += 1
-                else:
-                    if field_name not in ds_comp.keys():
-                        self.logger.info(
-                            f'\t{field_name} not found; skipping plot for '
-                            f'{comparison_name}'
-                        )
-                        continue
-                    var_comp = ds_comp[field_name].mean(dim='nCells')
-                    if 'nVertLevelsP1' in var_comp.dims:
-                        var_comp = var_comp.isel(nVertLevelsP1=slice(0, -1))
-                    # TODO delete this line when MPAS-O bug is fixed
-                    if field_name == 'RiTopOfCell':
-                        var_comp[0] = np.nan
-                    plt.plot(
-                        var_comp,
-                        z_mid_final,
-                        '-',
-                        color=color,
-                        label=f'{comparison_name}, {t_days:2g} days',
-                    )
-                    curves_plotted += 1
-                    # Plot initial state if available and hasn't already been
-                    # plotted
-                    existing_labels = [
-                        lbl
-                        for lbl in plt.gca().get_legend_handles_labels()[1]
-                        if isinstance(lbl, str)
+            ds_list = []
+            time_ds = []
+            # Remove missing comparison so it won't be used later
+            comparisons = dict()
+            for comparison_name in self.comparisons.keys():
+                if os.path.exists(f'{comparison_name}.nc'):
+                    comparisons[comparison_name] = self.comparisons[
+                        comparison_name
                     ]
-                    if (
-                        field_name in ds_init.keys()
-                        and 'initial' not in existing_labels
-                    ):
-                        var_init = ds_init[field_name].mean(dim='nCells')
-                        plt.plot(var_init, z_mid_init, '--k', label='initial')
-                        curves_plotted += 1
-            if curves_plotted == 0:
-                self.logger.warn(
-                    f'No data plotted for {field_name}, skipping save'
-                )
-                plt.close()
-                continue
-            plt.ylim([-100, 0])
-            if field_name == 'temperature':
-                plt.xlim([15, 25])
-            else:
-                plt.xlim(auto=True)
-            plt.xlabel(f'{field_name} ({field_units})')
-            plt.ylabel('z (m)')
-            # Place a single legend centered below the x-axis
-            fig.legend(
-                loc='upper center',
-                bbox_to_anchor=(0.5, -0.08),
-                ncol=1,
-                frameon=False,
+                else:
+                    continue
+                if os.path.exists('coeffs.nc'):
+                    ds_comp = self.open_model_dataset(
+                        f'{comparison_name}.nc',
+                        decode_times=True,
+                        mesh_filename='mesh.nc',
+                        reconstruct_variables=['normalVelocity'],
+                        reconstruct_method='RBF',
+                        coeffs_filename='coeffs.nc',
+                        config=self.config,
+                    )
+                else:
+                    ds_comp = self.open_model_dataset(
+                        f'{comparison_name}.nc',
+                        decode_times=True,
+                        config=self.config,
+                    )
+                t_arr = get_days_since_start(ds_comp)
+                t_index = np.argmin(np.abs(t_arr - t_target))
+                time_ds.append(float(t_arr[t_index]))
+                ds_list.append(ds_comp.isel(Time=t_index))
+            ds_init = self.open_model_dataset('init.nc', config=self.config)
+            ds_init = ds_init.isel(Time=0)
+            z_mid_init = ds_init['zMid'].mean(dim='nCells')
+
+            z_mid_final = z_mid_init
+            self.logger.warn(
+                'Using initial zMid values; may not represent plotted state'
             )
-            plt.savefig(f'{field_name}.png', bbox_inches='tight')
-            print(f'Plotted {field_name}')
-            plt.close()
+
+            # Plot depth profiles of variables
+            for field_name, field_units in self.variables.items():
+                curves_plotted = 0
+                fig = plt.figure(figsize=(3, 5))
+                colors = ['k', 'b', 'r', 'darkgreen']
+                for comparison_name, ds_comp, t_days, color in zip(
+                    self.comparisons.keys(),
+                    ds_list,
+                    time_ds,
+                    colors,
+                    strict=False,
+                ):
+                    # TODO use this line when Omega zMid is correct
+                    # z_mid_final = ds_comp['zMid'].mean(dim='nCells')
+                    # TODO compare with z_mid computed from layerThickness
+                    # z_mid_final = depth_from_thickness(ds_comp).mean(
+                    #    dim='nCells'
+                    # )
+                    if field_name == 'velocity':
+                        if (
+                            'velocityZonal' not in ds_comp.keys()
+                            and 'velocityMeridional' not in ds_comp.keys()
+                        ):
+                            self.logger.info(
+                                '\tvelocityZonal,Meridional not '
+                                f'found; skipping plot for '
+                                f'{comparison_name}'
+                            )
+                            continue
+                        self.logger.info(
+                            f'Plot {field_name} for '
+                            f'{comparison_name} at {t_days} days'
+                        )
+                        u_final = ds_comp['velocityZonal'].mean(dim='nCells')
+                        v_final = ds_comp['velocityMeridional'].mean(
+                            dim='nCells'
+                        )
+                        plt.plot(
+                            u_final,
+                            z_mid_final,
+                            '-',
+                            color=color,
+                            label=f'u {comparison_name}, {t_days:2g} days',
+                        )
+                        plt.plot(
+                            v_final,
+                            z_mid_final,
+                            '--',
+                            color=color,
+                            label=f'v {comparison_name}, {t_days:2g} days',
+                        )
+                        curves_plotted += 1
+                    else:
+                        if field_name not in ds_comp.keys():
+                            self.logger.info(
+                                f'\t{field_name} not found; skipping plot for '
+                                f'{comparison_name}'
+                            )
+                            continue
+                        var_comp = ds_comp[field_name].mean(dim='nCells')
+                        if 'nVertLevelsP1' in var_comp.dims:
+                            var_comp = var_comp.isel(
+                                nVertLevelsP1=slice(0, -1)
+                            )
+                        # TODO delete this line when MPAS-O bug is fixed
+                        if field_name == 'RiTopOfCell':
+                            var_comp[0] = np.nan
+                        plt.plot(
+                            var_comp,
+                            z_mid_final,
+                            '-',
+                            color=color,
+                            label=f'{comparison_name}, {t_days:2g} days',
+                        )
+                        curves_plotted += 1
+                        # Plot initial state if available and
+                        # hasn't already been plotted
+                        existing_labels = [
+                            lbl
+                            for lbl in plt.gca().get_legend_handles_labels()[1]
+                            if isinstance(lbl, str)
+                        ]
+                        if (
+                            field_name in ds_init.keys()
+                            and 'initial' not in existing_labels
+                        ):
+                            var_init = ds_init[field_name].mean(dim='nCells')
+                            plt.plot(
+                                var_init, z_mid_init, '--k', label='initial'
+                            )
+                            curves_plotted += 1
+                if curves_plotted == 0:
+                    self.logger.warn(
+                        f'No data plotted for {field_name}, skipping save'
+                    )
+                    plt.close()
+                    continue
+                plt.ylim([-100, 0])
+                if field_name == 'temperature':
+                    plt.xlim([15, 25])
+                else:
+                    plt.xlim(auto=True)
+                plt.xlabel(f'{field_name} ({field_units})')
+                plt.ylabel('z (m)')
+                # Place a single legend centered below the x-axis
+                fig.legend(
+                    loc='upper center',
+                    bbox_to_anchor=(0.5, -0.08),
+                    ncol=1,
+                    frameon=False,
+                )
+                plt.savefig(f'{field_name}.png', bbox_inches='tight')
+                print(f'Plotted {field_name}')
+                plt.close()

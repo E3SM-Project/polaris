@@ -13,7 +13,7 @@ from polaris.mesh.spherical.unified.river.distance import (
 )
 from polaris.mesh.spherical.unified.river.geojson import read_geojson
 from polaris.step import Step
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 CONUS_EXTENT = (-128.0, -65.0, 22.0, 52.0)
 
@@ -110,50 +110,50 @@ class VizRiverStep(Step):
         """
         Run this step.
         """
-        use_mplstyle()
-        config = self.config
+        with mplstyle_context():
+            config = self.config
 
-        dpi = config['viz_river_network'].getint('dpi')
-        mesh_name = config['unified_mesh'].get('mesh_name')
+            dpi = config['viz_river_network'].getint('dpi')
+            mesh_name = config['unified_mesh'].get('mesh_name')
 
-        simplified_fc = read_geojson('simplified_river_network.geojson')
-        clipped_fc = read_geojson('clipped_river_network.geojson')
+            simplified_fc = read_geojson('simplified_river_network.geojson')
+            clipped_fc = read_geojson('clipped_river_network.geojson')
 
-        with xr.open_dataset('river_network.nc') as ds_river:
-            lon = ds_river.lon.values
-            lat = ds_river.lat.values
-            river_channel_mask = ds_river.river_channel_mask.values > 0
+            with xr.open_dataset('river_network.nc') as ds_river:
+                lon = ds_river.lon.values
+                lat = ds_river.lat.values
+                river_channel_mask = ds_river.river_channel_mask.values > 0
 
-        with xr.open_dataset('coastline.nc') as ds_coastline:
-            ocean_mask = ds_coastline.ocean_mask.values > 0
-            land_mask = _get_land_mask(ds_coastline)
+            with xr.open_dataset('coastline.nc') as ds_coastline:
+                ocean_mask = ds_coastline.ocean_mask.values > 0
+                land_mask = _get_land_mask(ds_coastline)
 
-        self._plot_network_overlay(
-            lon=lon,
-            lat=lat,
-            land_mask=land_mask,
-            ocean_mask=ocean_mask,
-            simplified_fc=simplified_fc,
-            clipped_fc=clipped_fc,
-            mesh_name=mesh_name,
-            dpi=dpi,
-            out_filename='river_network_overlay.png',
-        )
-        self._plot_rasterized_network(
-            lon=lon,
-            lat=lat,
-            river_channel_mask=river_channel_mask,
-            mesh_name=mesh_name,
-            dpi=dpi,
-            out_filename='rasterized_river_network.png',
-        )
+            self._plot_network_overlay(
+                lon=lon,
+                lat=lat,
+                land_mask=land_mask,
+                ocean_mask=ocean_mask,
+                simplified_fc=simplified_fc,
+                clipped_fc=clipped_fc,
+                mesh_name=mesh_name,
+                dpi=dpi,
+                out_filename='river_network_overlay.png',
+            )
+            self._plot_rasterized_network(
+                lon=lon,
+                lat=lat,
+                river_channel_mask=river_channel_mask,
+                mesh_name=mesh_name,
+                dpi=dpi,
+                out_filename='rasterized_river_network.png',
+            )
 
-        _write_summary(
-            filename='debug_summary.txt',
-            simplified_fc=simplified_fc,
-            clipped_fc=clipped_fc,
-            river_channel_mask=river_channel_mask,
-        )
+            _write_summary(
+                filename='debug_summary.txt',
+                simplified_fc=simplified_fc,
+                clipped_fc=clipped_fc,
+                river_channel_mask=river_channel_mask,
+            )
 
     def _plot_network_overlay(
         self,
