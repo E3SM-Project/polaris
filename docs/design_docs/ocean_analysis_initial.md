@@ -235,7 +235,7 @@ Re-running with an unchanged range shall recompute nothing.
 
 ### Requirement: omega-monthly-means
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -246,9 +246,14 @@ Omega shall be able to write monthly means of a configurable list of model
 fields.  The monthly-mean output shall:
 
 - cover, at minimum, the fields needed by this analysis: conservative
-  temperature, absolute salinity, pseudo-thickness, sea surface height, normal
-  velocity (or reconstructed zonal and meridional velocity), and mixed-layer
-  depth;
+  temperature, absolute salinity, pseudo-thickness, sea surface height,
+  reconstructed zonal and meridional velocity at cell centers, and mixed-layer
+  depth.  Reconstructed velocities are preferred over `normalVelocity` as the
+  default monthly output because two cell-centered fields are smaller than one
+  edge field --- there are roughly three edges per cell --- and because
+  `normalVelocity` is not itself plotted by anything in this analysis.  Polaris
+  can reconstruct offline from `normalVelocity` if that is what a simulation
+  wrote, at the cost of carrying and reading the larger field;
 - include the **geometric vertical coordinate**, `GeomZMid` and
   `GeomZInterface`, so that Polaris does not have to reconstruct it (see the
   vertical-geometry algorithm design for why it cannot);
@@ -591,17 +596,25 @@ out-of-column cases.
 
 #### Reconstructed velocities
 
-Omega writes `normalVelocity` on edges.  Zonal and meridional velocity at cell
-centers are obtained by the least-squares reconstruction designed in
+The map steps plot zonal and meridional velocity at cell centers.  If the
+monthly means contain them, they are used directly.  If they contain
+`normalVelocity` on edges instead, the step reconstructs them with the
+least-squares reconstruction designed in
 [Vector Reconstruction](vector_reconstruction.md), whose weights are stored on
 the mesh.
 
-Reconstruction is a linear operator on the edge field, so reconstructing from a
-climatology of normal velocity gives exactly the climatology of the
-reconstructed velocity.  There is therefore no accuracy argument for doing the
-reconstruction in the model, and doing it offline avoids adding a dependency on
-Omega work.  If Omega later writes reconstructed velocities directly, the step
-uses them in preference.
+Both paths give the same answer.  Reconstruction is a linear operator on the
+edge field, so reconstructing from a climatology of normal velocity gives
+exactly the climatology of the reconstructed velocity; there is no accuracy
+argument for preferring one over the other, and having the offline path means
+this product does not block on Omega work.
+
+The preference is about output volume rather than accuracy, which is why the
+`omega-monthly-means` requirement asks for reconstructed velocities as the
+default monthly output: two cell-centered fields are about two thirds the size
+of one edge field, and nothing else in this analysis reads `normalVelocity`.
+Offline reconstruction is the fallback for simulations that wrote the edge
+field, not the intended steady state.
 
 ### Algorithm Design: mixed-layer depth (fallback only)
 
