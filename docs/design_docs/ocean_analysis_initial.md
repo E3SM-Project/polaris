@@ -475,7 +475,7 @@ Two conventions matter and are worth stating explicitly:
 
 ### Algorithm Design: repeated-analysis
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -499,6 +499,53 @@ content is the same quantity no matter which range asked for it, so it is
 computed once and reused forever.  Everything that is range-keyed is then
 either cheap to redo from those per-year products, or is the climatology
 itself.
+
+These year-keyed and range-keyed steps are **shared steps** in the sense of
+[Shared steps](shared_steps.md), created with
+`Component.get_or_create_shared_step()` at a subdirectory computed from the
+year or range.  Nothing in this design needs a caching layer of its own: reuse
+across repeated analyses is the existing rule that a shared step at a given
+subdirectory is created once and is skipped when its completion marker is
+already there.  The implementation section works through the details.
+
+#### How many steps is too many?
+
+Decomposing by year buys reuse and concurrency at the cost of step count, and
+it is worth having a number in mind before the design commits to per-year
+granularity.  For a typical decadal-to-multidecadal analysis --- a 60-year
+record with a 20-year climatology --- the suite contains roughly:
+
+| Steps | Count |
+| --- | --- |
+| Per-year ocean heat content | 60 |
+| Per-year offline mixed-layer depth (fallback only) | 60 |
+| `ncclimo` climatology | 1 |
+| Range-keyed plotting and time-series steps | ~6 |
+| **Total** | **~130** |
+
+For comparison, the existing `ocean` component builds several hundred steps
+across all of its tasks, and `polaris setup` handles that in seconds, so ~130
+steps in a single suite is not a regime we have reason to expect trouble in.
+The number scales linearly with the length of the record, so a century-long
+record with both per-year products would be ~230 steps, which is still not
+alarming.
+
+The thresholds worth naming, so that we notice if we approach them: a few
+hundred steps is ordinary; at around a thousand, `polaris setup` time and the
+size of the suite pickle become worth measuring before proceeding; well beyond
+that, the per-step overhead --- a work directory, a pickle, a config copy, a
+log file --- starts to dominate the actual computation, which for a single year
+of heat content is only seconds of work on a few GB of input.
+
+Two levers exist if we get there, and neither requires reworking the design.
+The first is to merge the per-year products: the heat content and mixed-layer
+depth year steps make the same pass over the same twelve files, so one step
+producing both halves the count.  They are kept separate here because merging
+couples two products for a saving that only matters at scale.  The second is to
+coarsen the key from a year to a decade, which divides the count by ten at the
+cost of making reuse coarser --- extending a record from 60 to 65 years would
+redo a decade rather than five years.  We should reach for merging first, since
+it costs nothing in reuse.
 
 The climatology is the one expensive computation that genuinely depends on the
 range, and it is recomputed for each new range.  In principle a climatology
