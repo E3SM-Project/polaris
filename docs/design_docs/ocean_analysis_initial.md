@@ -1759,8 +1759,19 @@ of which the loop above already accommodates:
 - its vertical reductions are the configured elevation ranges rather than the
   configured elevations.
 
-Because the layer weights depend only on the range and not on the season, they
-are computed once per season and reused across ranges within it.
+The layer weights $\tilde{w}_k$ do depend on the range, so they are not shared
+between ranges --- but everything expensive is.  The climatology of $\Theta$,
+of `PseudoThickness` and of `zInterface` is read once per season, and each
+range is then a masked weighted sum over levels, which is negligible beside the
+read.  Adding an elevation range therefore costs almost nothing, which is why
+the ranges are a loop inside this step rather than an axis of decomposition.
+
+This is also why the heat content maps have no dependency on the heat content
+accumulator: they are computed from the climatology, like every other map,
+while the accumulator exists only for the time series, where the per-month
+values *are* the product.  The asymmetry is not an inconsistency --- it is the
+difference between wanting a seasonal mean, which the climatology already is,
+and wanting a time axis, which only a pass over every month can give.
 
 The result is written to netCDF in J m⁻² and plotted in GJ m⁻² --- a range of
 $0$ to $-700$ m at a typical 10 °C is about 29 GJ m⁻², which is a readable
