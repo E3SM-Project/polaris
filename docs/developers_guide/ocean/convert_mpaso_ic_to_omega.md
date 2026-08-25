@@ -77,8 +77,31 @@ python utils/omega/convert_mpaso_ic_to_omega.py \
     --output-file /path/to/ocean.omega.nc \
     --eos-type linear
 ```
+There are two options for forcing; idealized and a 1990-2010 annual average climatology of ERA5 net surface heat flux, freshwater flux, and momentum fluxes.  The idealized forcing includes surface stress only.  A cubic spline is fit to the following specified stresses
 
-To generate a file with ERA5 based forcing, use:
+| Latitude ($^o$N) | Sfc Stress (Pa) | 
+| :--------------: | :-------------: |
+| -70              | 0.0             |
+| -45              | 0.2             |
+| -15              | -0.1            |
+| 0                | -0.02           |
+| 15               | -0.1            |
+| 45               |  0.1            |
+| 70               | 0.0             |
+
+To add this sfc stress to the omega initial condition, add the `--include-idealized-sfc-stress` to the python invocation above.
+
+To instead generate a file with ERA5 based forcing, use:
+
+```bash
+python utils/omega/convert_mpaso_ic_to_omega.py \
+  --input-file /path/to/ocean_ic_file.nc \
+  --output-file /path/to/ocean.omega.nc \
+  --eos-type teos10 \
+  --include-realistic-forcing
+```
+
+On supported machines, this will download the ERA5 forcing file and SCRIP file for interpolation.  If you are running on a non-supported machine you can download the files separately and use the following:
 
 ```bash
 python utils/omega/convert_mpaso_ic_to_omega.py \
@@ -86,10 +109,11 @@ python utils/omega/convert_mpaso_ic_to_omega.py \
     --output-file /path/to/ocean.omega.nc \
     --eos-type teos10 \
     --include-realistic-forcing \
-    --forcing-file /path/to/forcing/file.nc \
-    --forcing-scrip-file /era5_0.25deg_scrip.nc \
-    --remap-method bilinear 
+    --forcing-file /path/to/forcing_file.nc \
+    --forcing-scrip-file /path/to/era5_0.25deg_scrip.nc \
 ```
+
+The forcing file generation uses bilinear remapping by default if you wish to use another method (e.g., conservative) add `--remap-method conservative` to the command.
 
 The script appends an EOS suffix automatically unless it is already present:
 
