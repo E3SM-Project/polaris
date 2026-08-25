@@ -127,11 +127,12 @@ def setup_and_run(
                 f'--dependency=afterany:{dependency} '
                 f'--kill-on-invalid-dep=yes '
             )
-        run_commands = (
-            f'source {state.load_script} && '
-            f'cd {work_dir} && '
-            f'sbatch {flags}{job_script}'
-        )
+        # no load script: sbatch needs nothing from the polaris
+        # environment, and the job script sources it itself once the job
+        # starts.  Sourcing it here only added a way for submission to
+        # fail -- and did, when the load script's version check tripped
+        # over a worktree that was not part of the benchmark at all.
+        run_commands = f'cd {work_dir} && sbatch {flags}{job_script}'
     else:
         run_commands = (
             f'source {state.load_script} && cd {work_dir} && {run_command}'
