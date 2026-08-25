@@ -1138,11 +1138,22 @@ which already maps the vertical geometry this design depends on:
   zInterface: GeomZInterface
 ```
 
-Fields that are new to Omega and have no MPAS-Ocean counterpart --- a
-mixed-layer depth diagnostic, for instance --- get a Polaris-standard name and
-an entry in that mapping as they become available.  No analysis step branches
-on `config.get('ocean', 'model')` to choose a field or dimension name; if a
-step needs to do so, that is a signal the mapping file is missing an entry.
+The keys in that file are Polaris-standard names, which are MPAS-Ocean names
+wherever MPAS-Ocean has the field.  Fields that are new to Omega --- a
+mixed-layer depth diagnostic, for instance --- have no MPAS-Ocean name to
+borrow, so we choose a Polaris-standard name in the same style and add an entry
+mapping it to the Omega name as those names are fixed.  The entry is still
+needed: translation is a rename on read, so a field with no entry arrives under
+its Omega name and analysis code would have to know Omega's spelling.  What is
+not needed is a *counterpart* in MPAS-Ocean.
+
+The one field this design deliberately does not translate is
+`PseudoThickness`, for the reasons given under the conventions.
+
+With those two things in place, no analysis step branches on
+`config.get('ocean', 'model')` to choose a field or dimension name, except
+`get_layer_mass`, which exists precisely to be that one branch.  Anywhere else,
+a branch on the model is a signal that the mapping file is missing an entry.
 
 #### Locating input files
 
