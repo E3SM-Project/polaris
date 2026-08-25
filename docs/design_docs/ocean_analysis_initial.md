@@ -2520,7 +2520,7 @@ They are collected here rather than buried in the sections above.*
    mixed-layer depth diagnostic, averaged monthly, by September 15?  If not, we
    ship the offline fallback with its caveats.  This needs a team discussion
    rather than a decision in this document, and it affects both the Omega
-   schedule and commit 11 above.
+   schedule and work item 14 above.
 2. **`ncclimo` and Omega output.**  Whether `ncclimo` can read Omega
    monthly-mean files without the MPAS-specific processing type needs to be
    confirmed against real output as soon as Omega can produce it.  This is on
