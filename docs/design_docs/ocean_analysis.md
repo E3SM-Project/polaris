@@ -442,15 +442,51 @@ work to be re-chunked later without breaking output paths, links, or the
 gallery.  A path is a poor place to store metadata: it has one dimension and
 the metadata has six.
 
-#### 3. Steps are for caching and selection, not for parallelism
+#### 3. The step is the unit of load balancing; in-step parallelism fills in below it
 
-A step can use a process pool over its own work.  Parallelism inside a step is
-cheaper than parallelism across steps, costs no inodes, and --- unlike
-concurrency across steps --- is available today rather than when task
-parallelism lands.
+Two kinds of concurrency are available and they are not interchangeable.
 
-So the question "how fine should steps be?" is not "how much can run at once?"
-but "along which axes do we need independent invalidation?"
+**Across steps.**  Polaris's task parallelism schedules whole steps, and only
+whole steps, so a step is the smallest thing that can be sent to another node.
+This is the concurrency that scales past one node.
+
+**Inside a step.**  A step can run a process pool over its own work.  This
+costs no inodes, needs no framework support, and is available today, but it is
+confined to the node the step is running on.
+
+The temptation is to reach for the second, because it is free and it is here
+now.  Resist it past a point: **a step that absorbs the whole workload into an
+internal pool is not task-parallel at all, however parallel it is inside.**
+That is exactly MPAS-Analysis's ceiling --- it parallelizes with
+`multiprocessing.Process`, which cannot span nodes, and that ceiling is a known
+choke point at the resolutions Omega targets.  Rebuilding it in Polaris would
+defeat the purpose of task parallelism.
+
+The rule that follows:
+
+> Decompose a workload into enough steps that the scheduler has something to
+> balance, and use an in-step pool only for what is left below that
+> granularity.
+
+"Enough to balance" is a property of the machine, not of the science, so where
+a workload divides freely it should divide into a **configurable** number of
+steps rather than a number derived from the data.  A count fixed by config also
+keeps principle 9's step budget from growing with the length of a simulation.
+
+So "how fine should steps be?" has two answers that must both be satisfied:
+fine enough that the scheduler can balance them, and no finer than the axes
+along which we need independent invalidation (principle 4).  Where those pull
+in different directions, the load-balancing floor wins, because a cache that is
+coarser than ideal costs a recomputation while a step that is coarser than
+ideal costs a node.
+
+The properties a step must have to be *eligible* for concurrent scheduling ---
+no process-global state, no dependence on the working directory, temporary
+files in its own work directory, logging through its own logger, declared
+resources, and internal parallelism sized from those resources rather than from
+the machine --- are set out in
+[Task-Parallel-Safe Analysis Steps](task_parallel_analysis_steps.md).  Analysis
+steps are written to them from the start.
 
 #### 4. Decompose along the axes a user edits between runs
 
@@ -512,6 +548,17 @@ file remains owned by the step that wrote it.
 A partially written cache in the step's own directory is a valid starting point
 for a retry, so restartability comes with the pattern rather than being added
 to it.
+
+**An accumulator may be more than one step**, and usually should be, by
+principle 3.  Splitting one into shards that each cover a slice of the request
+costs nothing here, because inheritance is decided by *content* rather than by
+path: a shard asks which units it needs and which of them some earlier run
+already produced, and neither question refers to how that earlier run was
+divided.  A cheap merge step assembles the shards' results.  This is the
+property that distinguishes an accumulator from a chunk keyed by its path ---
+chunking the latter restricts what can be reused, while chunking the former is
+purely a decision about load balancing and can be changed at any time, even
+between two runs over the same record.
 
 The pattern applies wherever we own the reduction kernel, and nowhere else.
 `ncclimo` has no incremental mode, so a climatology is recomputed in full for
@@ -582,8 +629,16 @@ The targets, which later phases should hold themselves to:
 
 - a step should do at least tens of seconds of work at production resolution,
   so that Polaris's per-step overhead is a few percent at most;
+- a step should do no more than a fraction of the suite's total work, so that
+  the scheduler has something to balance --- principle 3's floor, and the
+  binding constraint for anything expensive;
 - a suite should contain steps numbering in the low hundreds, and should stay
   there as regions and observational comparisons are added.
+
+The middle target is the one most easily lost, because nothing fails when it is
+missed: the suite still runs, it just runs on one node.  A product whose cost is
+concentrated in a single step should say so explicitly and say why that is
+acceptable, rather than leaving it to be discovered.
 
 Polaris's actual per-step overhead --- setup and run of a step that does
 nothing --- should be measured once and recorded here, so that this stops being
