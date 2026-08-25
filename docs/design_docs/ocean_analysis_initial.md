@@ -2179,8 +2179,8 @@ is for any Polaris task, and is the natural way to catch an unintended change
 in a diagnostic's values.
 
 This task is also where the task-parallel conformance checks described under
-`analysis-suite` are run, since it is the only place a whole analysis suite
-exists cheaply enough to exercise every step.
+`analysis-suite` should run when they are built, since it is the only place a
+whole analysis suite exists cheaply enough to exercise every step.
 
 #### Dependency on Omega
 
@@ -2258,7 +2258,14 @@ that rules which are only written down are not adopted, and that most of these
 can be checked mechanically.  The analysis steps are the first body of code
 written to them, so they should be the first to run the checks.
 
-Applied to every step in the suite:
+**The checks themselves are not in Phase 1.**  They need harness support that
+does not exist, and nothing they protect can go wrong until steps actually run
+concurrently, which is Phase 2.  What Phase 1 does is *follow* the rules ---
+explicit paths, declared resources, temporary files in the work directory,
+logging through the step's logger, and no mutation of process globals --- since
+that costs nothing while the code is being written and is what would be
+expensive to retrofit.  The checks are listed here so that the first phase that
+needs them knows what to build:
 
 - **Working-directory independence.**  Run the step with the process working
   directory set somewhere unrelated and confirm the results are identical.
@@ -2275,9 +2282,9 @@ Applied to every step in the suite:
 - **Bounded launching.**  Confirm the step starts no more processes than
   `cpus_per_task`.
 
-These run against the coarse-resolution regression test, where a whole suite is
-cheap enough to exercise, rather than against synthetic steps --- the point is
-to check the steps we ship, not a model of them.
+They should run against the coarse-resolution regression test, where a whole
+suite is cheap enough to exercise, rather than against synthetic steps --- the
+point is to check the steps we ship, not a model of them.
 
 ### Testing and Validation: repeated-analysis
 
