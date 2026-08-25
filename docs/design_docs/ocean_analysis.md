@@ -169,6 +169,13 @@ long after setup, which is among the least informative ways for this analysis
 to go wrong.  Reading the simulation's own configuration also means the
 analysis cannot silently disagree with it about what was written.
 
+This is the principle MPAS-Analysis already works on, locating output by
+reading the MPAS-Ocean and MPAS-Seaice streams files rather than asking the
+user where each file lives.  The experience there is the argument for it: a
+known-good pattern with a decade of use, not an invention of this design.  What
+differs is only the file being read, Omega's configuration in place of a
+streams file.
+
 This requirement is met in Phase 1; see the `analysis-suite` requirement in
 {ref}`design-ocean-analysis-initial`.
 

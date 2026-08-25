@@ -1308,6 +1308,14 @@ stream is reported as such, naming the option to set by hand instead --- since
 its schema is Omega's to change and this is the one place Polaris depends on
 its shape rather than on its output.
 
+The pattern is MPAS-Analysis's, which locates MPAS-Ocean and MPAS-Seaice output
+by reading their streams files rather than asking the user where each file
+lives.  Only the file being read differs.  Worth knowing when the Omega reader
+is written, because the failure modes MPAS-Analysis hit there --- a stream
+present but empty, a template whose expansion matches nothing, a relative path
+resolved against the wrong directory --- are the ones to report clearly rather
+than discover in a traceback.
+
 Input files are symlinked into each step's work directory in `setup()` using
 `Step.add_input_file`, which gives the usual Polaris provenance and dependency
 checking without copying data.
