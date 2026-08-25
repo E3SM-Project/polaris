@@ -2,10 +2,10 @@ import os
 
 import cmocean  # noqa: F401
 import matplotlib
-import matplotlib.pyplot as plt
 import mosaic
 import numpy as np
 from matplotlib.colors import LogNorm
+from matplotlib.figure import Figure
 
 from polaris.viz.style import mplstyle_context
 
@@ -198,8 +198,10 @@ def plot_horiz_field(  # noqa: C901
             figsize = (fig_width + legend_width, fig_width / aspect_ratio)
 
         if create_fig:
-            plt.figure(figsize=figsize)
-            ax = plt.subplot(111)
+            fig = Figure(figsize=figsize)
+            ax = fig.add_subplot(111)
+        else:
+            fig = ax.get_figure()
 
         if field_mask is not None:
             if field_mask.shape != field.shape:
@@ -231,7 +233,7 @@ def plot_horiz_field(  # noqa: C901
         ax.xaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
         ax.yaxis.set_major_formatter(lambda x, pos: f'{x / 1e3:g}')
 
-        cbar = plt.colorbar(collection, extend='both', shrink=0.7, ax=ax)
+        cbar = fig.colorbar(collection, extend='both', shrink=0.7, ax=ax)
         if cmap_title is not None:
             cbar.set_label(cmap_title)
 
@@ -259,8 +261,7 @@ def plot_horiz_field(  # noqa: C901
                     markersize=transect_markersize,
                 )
         if create_fig:
-            plt.title(title)
-            plt.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)
-            plt.close()
+            ax.set_title(title)
+            fig.savefig(out_file_name, bbox_inches='tight', pad_inches=0.2)
 
         return descriptor
