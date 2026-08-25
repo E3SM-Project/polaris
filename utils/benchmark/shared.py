@@ -113,6 +113,14 @@ def check_output(args, cwd=None):
     """
     Run a command and return its stripped standard output
 
+    Standard error is captured rather than discarded, and is attached to
+    the exception raised on failure.  Capturing is not the same as
+    printing: several callers run a command they expect to fail, such as
+    probing a ref that may not exist, and would fill the terminal with
+    git errors if the stream were simply inherited.  Attaching it puts
+    the message where a caller that does *not* expect the failure can
+    report it, and leaves it unread where one does.
+
     Parameters
     ----------
     args : str
@@ -124,11 +132,29 @@ def check_output(args, cwd=None):
     -------
     output : str
         The standard output of the command with whitespace stripped
+
+    Raises
+    ------
+    subprocess.CalledProcessError
+        If the command returns a non-zero exit code, with its standard
+        output and standard error attached
     """
-    output = subprocess.check_output(
-        args, shell=True, cwd=cwd, stderr=subprocess.DEVNULL
+    process = subprocess.run(
+        args,
+        shell=True,
+        cwd=cwd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
-    return output.decode('utf-8').strip()
+    output = process.stdout.decode('utf-8', errors='replace')
+    if process.returncode != 0:
+        raise subprocess.CalledProcessError(
+            process.returncode,
+            args,
+            output=output,
+            stderr=process.stderr.decode('utf-8', errors='replace'),
+        )
+    return output.strip()
 
 
 def print_commands(commands, header=None, logger=None):

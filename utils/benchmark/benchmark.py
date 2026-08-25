@@ -21,6 +21,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 from datetime import datetime
 
@@ -208,6 +209,21 @@ def main():
     except (ValueError, configparser.Error) as exc:
         print('')
         print(f'Error: {exc}')
+        sys.exit(1)
+    except subprocess.CalledProcessError as exc:
+        # a bare CalledProcessError says only that a command failed, which
+        # is the least useful half of what is known.  The command itself
+        # reported why on standard error, so say that instead of leaving
+        # the developer to rerun it by hand to find out.
+        print('')
+        print(f'Error: a command failed with exit status {exc.returncode}:')
+        print(f'  {exc.cmd}')
+        for label, stream in [('stderr', exc.stderr), ('stdout', exc.output)]:
+            text = (stream or '').strip()
+            if text:
+                print('')
+                print(f'{label}:')
+                print(text)
         sys.exit(1)
 
     print('')
