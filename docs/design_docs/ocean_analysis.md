@@ -282,7 +282,7 @@ simulation years, and how Polaris job scripts interact with zppy's.
 
 ### Requirement: concurrent execution of independent analysis
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -315,20 +315,25 @@ Three consequences for the analysis design:
   a shared step so only one instance of it exists --- but "launches
   subprocesses" and "writes into a shared location" are exactly the properties
   the eligibility mechanism is meant to catch.
-- **The per-year decomposition is the real prize, and Phase 1 already has
-  it.**  Vertically integrated heat content and offline mixed-layer depth are
-  computed by one shared step per simulation year, a structure Phase 1 adopts
-  for reuse across date ranges rather than for parallelism.  Those steps are
-  independent, non-MPI, and numerous --- forty of them for a forty-year record
-  --- so they are exactly the workload Phase 2 of task parallelism is built to
-  overlap, and they should benefit with no restructuring at all.
+- **The largest source of concurrency is deliberately *inside* a step, not
+  across steps.**  An earlier draft decomposed the expensive passes over the
+  simulation record into one shared step per simulation year, and treated those
+  forty-odd independent non-MPI steps as the prize for task parallelism Phase
+  2.  They are now a single seeded accumulator per product, whose remaining
+  months are spread over a process pool within the step.  This is a
+  deliberate trade in favor of a capability that exists today, and it follows
+  principle 3: steps are for caching and selection, and parallelism inside a
+  step is the cheaper way to get concurrency.  The consequence for task
+  parallelism is that analysis needs it less than this document previously
+  claimed, and what it stands to gain is the coarse overlap of independent
+  products described in the first bullet.
 
 *Further details to be added* once the analysis workload has been profiled and
 task parallelism is available to measure against.
 
 ### Requirement: scalability and restartability
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -338,15 +343,33 @@ to extend an existing analysis with additional simulation years without
 recomputing what it has already computed.
 
 Phase 1 establishes the pattern the rest of the capability should follow:
-**every expensive computation is decomposed into a per-year product keyed by
-the year rather than by the requested date range**, and given its own shared
-step, so that it is computed once and reused by every later analysis.  Reuse is
-then not a caching mechanism of our own but a consequence of Polaris's ordinary
-shared-step and step-completion behavior.  Phase 1 also streams over monthly
-files rather than loading a whole record at once.
+**every expensive computation over the simulation record is a seeded
+accumulator**, as described under the organizing principles above.  One step
+per product, keyed by what the user asked for, inherits whatever earlier runs
+of the same product already computed, does only the difference, and writes a
+complete result for its own key.  Extending an analysis from twenty years to
+forty therefore costs twenty years of work.
+
+An earlier draft got this by giving each simulation year its own shared step
+and letting Polaris's step-completion behavior do the reuse.  That worked, but
+it paid a step's overhead --- a directory, a pickle, a config copy, a log file
+--- for a chunk no user ever asked for, and it made the completion marker the
+only cache-validity check there was, so a changed kernel or a changed constant
+would have been inherited silently.  An accumulator is both cheaper and safer:
+see principles 6 and 7 above.
+
+Two further properties come with the pattern rather than being added to it.  A
+partially written cache in a step's own directory is a valid starting point for
+a retry, which is most of what restartability asks for.  And because the
+accumulator's remaining work is a set of independent units inside a single
+step, it can be spread across cores with a process pool now, rather than
+waiting on concurrency across steps.
+
+Phase 1 also streams over monthly files rather than loading a whole record at
+once.
 
 *Remaining details to be added*, in particular how analysis is chunked across
-compute nodes.  Running the per-year products concurrently is covered by the
+compute nodes.  Overlapping independent products is covered by the
 task-parallelism requirement above.
 
 ## Algorithm Design
