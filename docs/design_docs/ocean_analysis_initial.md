@@ -1118,7 +1118,15 @@ proposed starting point:
 ```ini
 [ocean_analysis]
 
-# The absolute path to the directory containing the simulation's output
+# The absolute path to the simulation's Omega configuration file.  Polaris
+# reads the mesh, the output streams and their file-name templates from it, so
+# that they do not have to be restated below.  Leave empty and fill in the
+# templates by hand for MPAS-Ocean, or for a run whose config file is not
+# available.
+omega_config_filename =
+
+# The absolute path to the directory containing the simulation's output.
+# Defaults to the output directory the Omega config names.
 simulation_path =
 
 # A short name for the simulation, used in plot titles and file names
@@ -1128,7 +1136,8 @@ simulation_name = omega
 # product and date range.  Defaults to <work_dir>/analysis_output.
 output_path =
 
-# The horizontal mesh file, absolute or relative to simulation_path
+# The horizontal mesh file, absolute or relative to simulation_path.  Defaults
+# to the mesh the Omega config names.
 mesh_filename =
 
 # The vertical-coordinate file (Omega only), absolute or relative to
@@ -1137,10 +1146,11 @@ vert_coord_filename =
 
 # File-name templates for the simulation output the analysis reads, relative
 # to simulation_path.  $Y and $M are replaced by the four-digit year and
-# two-digit month.
-monthly_mean_template = ocean.hist.MonthlyMean.$Y-$M.nc
-global_stats_template = ocean.hist.GlobalStats_1MonthTimeStats.$Y.nc
-moc_template = ocean.hist.Moc_1MonthTimeStats.$Y.nc
+# two-digit month.  Each defaults to the template of the corresponding Omega
+# output stream; set one only to override what the config file says.
+monthly_mean_template =
+global_stats_template =
+moc_template =
 
 
 [ocean_analysis_climatology]
@@ -1279,6 +1289,24 @@ file-name templates over a year range into lists of files and checks that they
 exist, reporting the missing years clearly.  It is shared by every step that
 reads simulation output.  This is deliberately a separate module rather than a
 method on a step, so that it can be unit tested and reused.
+
+Where the templates come from is the point.  The user's normal input is
+`omega_config_filename`, the path to the simulation's own Omega configuration,
+and the same module reads the output streams from it: each stream gives a
+file-name template, a reduction period and a directory, which is enough to
+identify the monthly means, the `GlobalStats` output and the MOC output without
+the user restating any of it.  The mesh file is read from the same place.
+
+The explicit templates remain as overrides, and are the only way in for
+MPAS-Ocean output or a run whose configuration file is not to hand.  An option
+the user sets always wins over what the config file says, and the step logs
+which source each path came from, so that a surprising file list can be
+diagnosed without guessing.
+
+Reading Omega's configuration is done defensively --- a missing or unfamiliar
+stream is reported as such, naming the option to set by hand instead --- since
+its schema is Omega's to change and this is the one place Polaris depends on
+its shape rather than on its output.
 
 Input files are symlinked into each step's work directory in `setup()` using
 `Step.add_input_file`, which gives the usual Polaris provenance and dependency

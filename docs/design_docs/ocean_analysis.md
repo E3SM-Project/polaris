@@ -144,7 +144,7 @@ within several days of each simulation period completing.
 
 ### Requirement: analysis of simulations Polaris did not run
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -153,6 +153,21 @@ that it did not set up or run.  All information about the simulation --- where
 its output lives, which mesh it used, which period to analyze, and which fields
 to analyze --- shall come from a config file the user supplies at setup time.
 Setting up and running the analysis shall not require a model build.
+
+**Wherever the simulation already describes itself, Polaris shall read that
+description rather than ask the user to restate it.**  A completed Omega run
+has a configuration file that names its mesh, its output streams and the
+file-name templates and reduction periods of each, so the intended default is
+that the user points at that file and Polaris derives what it can.  Config
+options naming individual file-name templates remain, as overrides and for
+simulations whose configuration is unavailable or in another form, but they are
+not what a user should have to fill in.
+
+The reason is not brevity.  Anything the user restates is something they can
+restate wrongly, and a mis-typed file-name template fails as "no files found"
+long after setup, which is among the least informative ways for this analysis
+to go wrong.  Reading the simulation's own configuration also means the
+analysis cannot silently disagree with it about what was written.
 
 This requirement is met in Phase 1; see the `analysis-suite` requirement in
 {ref}`design-ocean-analysis-initial`.
