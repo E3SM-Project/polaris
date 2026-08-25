@@ -1751,7 +1751,19 @@ Notes on the arguments:
   soon as Omega can write monthly means because it is on the critical path.
 - `-p`/`-j` set the parallel mode and thread count.  `ncclimo` in `bck` mode
   runs up to twelve background processes, one per month, so the step requests
-  `cpus_per_task = 12` and `ntasks = 1`.
+  `cpus_per_task = 12` and `ntasks = 1`.  This is the worked example of bounded
+  process launching from
+  [Task-Parallel-Safe Analysis Steps](task_parallel_analysis_steps.md): the
+  step declares what it will start, and `-j` is set from `cpus_per_task` rather
+  than from the size of the machine, so a second step running beside it does
+  not find the node oversubscribed.
+- `ncclimo`'s scratch space is pointed at the step's own work directory rather
+  than being left to `TMPDIR`, so that two climatologies running at once ---
+  the model one and the mixed-layer depth one --- cannot collide on a temporary
+  path.
+- `ncclimo` is launched through Polaris's subprocess helper with the step's
+  logger, so its output is captured into the step's log rather than
+  interleaving on shared streams with whatever else is running.
 
 The output file names produced by `ncclimo` follow the pattern
 `<caseid>_<season>_<YYYYMM>_<YYYYMM>_climo.nc`.  Rather than reconstructing
