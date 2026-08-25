@@ -74,17 +74,79 @@ describes.  Both are Polaris-wide conventions rather than choices made here.
 
 **Names are MPAS-Ocean names.**  MPAS-Ocean variable and dimension names are
 Polaris's internal standard.  Analysis code refers to `temperature`,
-`salinity`, `layerThickness`, `zMid`, `zInterface`, `minLevelCell`,
-`maxLevelCell`, `bottomDepth`, and `areaCell`, and to the dimensions `nCells`,
-`nEdges`, `nVertLevels`, `nVertLevelsP1`, and `Time`, regardless of which model
-produced the data.  Omega's names --- `Temperature`, `PseudoThickness`,
-`GeomZMid`, `GeomZInterface`, `NCells`, `NVertLayers`, and so on --- are
-translated to the Polaris standard automatically when a dataset is opened with
+`salinity`, `zMid`, `zInterface`, `minLevelCell`, `maxLevelCell`,
+`bottomDepth`, and `areaCell`, and to the dimensions `nCells`, `nEdges`,
+`nVertLevels`, `nVertLevelsP1`, and `Time`, regardless of which model produced
+the data.  Omega's names --- `Temperature`, `GeomZMid`, `GeomZInterface`,
+`NCells`, `NVertLayers`, and so on --- are translated to the Polaris standard
+automatically when a dataset is opened with
 `OceanIOStep.open_model_dataset`, using the mapping in
 `polaris/ocean/model/mpaso_to_omega.yaml`.  Analysis steps therefore never
 branch on the model to get a field name, and config options that name fields
 use the MPAS-Ocean names.  Where a field is new to Omega and has no MPAS-Ocean
-counterpart, a Polaris-standard name is chosen and added to that mapping.
+counterpart, a Polaris-standard name in the same style is chosen and mapped to
+the Omega name, so that the translation on read still applies.
+
+**Pseudo-thickness is not translated.**  There is one deliberate exception to
+the rule above, and it matters enough to state up front.
+
+Omega is non-Boussinesq and prognoses **pseudo-height**, $\tilde{z}$, a
+normalized pressure with units of meters, defined in
+[Omega's governing equations](https://github.com/E3SM-Project/Omega/blob/develop/components/omega/doc/design/OmegaV1GoverningEqns.md)
+as
+
+$$
+\tilde{z} = -\frac{p}{\rho_0 g},
+\qquad\text{so that}\qquad
+d\tilde{z} = \frac{\rho}{\rho_0} \, dz
+$$
+
+with $\rho_0$ a constant reference density used purely as a normalization ---
+its presence does not make the model Boussinesq.  `PseudoThickness` is
+$\tilde{h} = \Delta \tilde{z}$, in meters, and $\tilde{h} \approx h$ only to
+the extent that $\rho \approx \rho_0$.  Two consequences follow, and analysis
+code needs both:
+
+- **Reference density times pseudo-thickness equals full density times
+  geometric thickness**,
+
+  $$
+  \rho_0 \tilde{h} = \rho h = \frac{\Delta p}{g},
+  $$
+
+  which is the **mass per unit area** of the layer, exactly, by hydrostatic
+  balance.  It needs no equation of state.
+- The **geometric** thickness is the derived quantity:
+  $h = \rho_0 \, \alpha \, \tilde{h}$, where $\alpha = 1/\rho$ is specific
+  volume, so recovering it requires the equation of state.  This is the
+  relation Omega uses to build `GeomZInterface` and `GeomZMid`.
+
+MPAS-Ocean's `layerThickness` is the other way around: it is the geometric
+thickness $h$, and because MPAS-Ocean is Boussinesq, $\rho_0 h$ is *its* mass
+per unit area.  The two variables therefore coincide in what they mean for a
+mass-weighted integral and differ in what they mean for a geometric one, so
+renaming one to the other would hide exactly the distinction that matters.
+`polaris/ocean/model/mpaso_to_omega.yaml` already declines to map them; this
+design records why.
+
+Analysis therefore never asks for "the thickness".  It asks for one of two
+things by name:
+
+- **Geometric positions and thicknesses** come from `zInterface` and `zMid`,
+  which both models write (Omega as `GeomZInterface` and `GeomZMid`) and which
+  are translated as usual.  A geometric layer thickness, where one is needed,
+  is a difference of interface elevations, not a separate variable --- which is
+  also the only way to get it offline, since $\alpha$ is not written.
+- **Mass per unit area** comes from the model's own mass-like thickness
+  variable --- `PseudoThickness` for Omega, `layerThickness` for MPAS-Ocean ---
+  read under its native name and multiplied by $\rho_0$.  A single helper,
+  `polaris.ocean.model.get_layer_mass`, returns $\rho_0 \tilde{h}$ for Omega
+  and $\rho_0 h$ for MPAS-Ocean, so this is the one place in the analysis code
+  that knows which model wrote the file.
+
+This is what makes the heat content integral below a mass integral rather than
+a volume integral scaled by a reference density, and it is the same convention
+used for evaluating conservation in Omega.
 
 **The vertical coordinate is elevation, positive up.**  All vertical positions
 in config options, algorithms, and output are elevations $z$ in meters with
@@ -444,7 +506,7 @@ already encodes the range in its output file names
 
 ### Algorithm Design: climatology-maps
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -458,17 +520,27 @@ $z^{int}_{k}$, for each column.  These are read directly from `zMid` and
 
 Polaris cannot reconstruct them from the monthly means of the other fields.
 Omega builds the geometric coordinate by accumulating upward from
-$-\mathrm{BottomGeomDepth}$ using $\mathrm{SpecVol} \times
-\mathrm{PseudoThickness}$, and it does so the same way regardless of which
-vertical coordinate the simulation uses --- the choice of z-star, p-star, or
-sigma determines how `PseudoThickness` is initialized and how it evolves, not
-how geometric elevation is computed from it.  Reconstructing $z$ offline
-therefore requires specific volume, which means evaluating the TEOS-10 equation
-of state on the monthly-mean state.  That is not the monthly mean of
-$\mathrm{SpecVol} \times \mathrm{PseudoThickness}$, so the reconstruction would
-introduce an error that has nothing to do with the diagnostic being computed.
-Having Omega write the geometric coordinate removes the problem entirely, since
-the monthly mean of $z$ is exactly the mean layer geometry we want.
+$-\mathrm{BottomGeomDepth}$ using layer thicknesses
+$h = \rho_0 \, \mathrm{SpecVol} \times \mathrm{PseudoThickness}$, and it does
+so the same way regardless of which vertical coordinate the simulation uses ---
+the choice of z-star, p-star, or sigma determines how `PseudoThickness` is
+initialized and how it evolves, not how geometric elevation is computed from
+it.  Reconstructing $z$ offline therefore requires specific volume, which means
+evaluating the TEOS-10 equation of state on the monthly-mean state.  That is
+not the monthly mean of $\mathrm{SpecVol} \times \mathrm{PseudoThickness}$, so
+the reconstruction would introduce an error that has nothing to do with the
+diagnostic being computed.  Having Omega write the geometric coordinate removes
+the problem entirely, since the monthly mean of $z$ is exactly the mean layer
+geometry we want.
+
+Note the direction of the dependence, which is the reason for the conventions
+stated at the top of this document: geometric thickness is *derived* from
+pseudo-thickness and specific volume, and it is the derived quantity that
+cannot be recovered offline.  Mass per unit area, $\rho_0 \tilde{h} = \rho h$,
+needs no equation of state at all.  That is why the heat content integral is
+written in terms of it and why only quantities that genuinely need the
+geometry --- elevation slices, and the partial layers at a heat content range
+boundary --- read `zMid` and `zInterface`.
 
 Because the input to the map steps is a climatology, the $z^{mid}_{k}$ they use
 is the climatological-mean layer geometry.  This does mean that a $-100$ m map
