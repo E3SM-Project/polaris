@@ -1583,12 +1583,9 @@ def get_z_mid_and_interface(ds):
     """Return zMid and zInterface, raising a clear error if absent."""
 
 
-def parse_elevation_spec(spec):
-    """Parse 'top', 'bottom', 'k<n>' or an elevation in m."""
-
-
 def parse_vertical_reduction(spec):
-    """Parse an elevation spec or a '<top>:<bottom>' range into a reduction."""
+    """Parse 'top', 'bottom', 'k<n>', an elevation in m, or a '<top>:<bottom>'
+    elevation range, into a vertical reduction."""
 
 
 def apply_vertical_reduction(da, reduction, z_mid, z_interface, layer_mass,
@@ -1968,12 +1965,12 @@ The test is skipped if `ncclimo` is not on the path.
 
 ### Testing and Validation: climatology-maps
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
-Unit tests on `extract_elevation_slice` with synthetic columns having known
-layer geometry, `minLevelCell`, and `maxLevelCell`:
+Unit tests on `apply_vertical_reduction`, in its slicing cases, with synthetic
+columns having known layer geometry, `minLevelCell`, and `maxLevelCell`:
 
 - `top` and `bottom` return the values at `minLevelCell` and `maxLevelCell`,
   including for a column with `minLevelCell > 0` (an ice-shelf cavity) and a
