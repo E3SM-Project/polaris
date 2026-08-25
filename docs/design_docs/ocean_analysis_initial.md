@@ -1880,9 +1880,19 @@ in the step directory is self-describing.  Range labels use `_to_` rather than
 a hyphen because the elevations are themselves negative.
 
 The plots are independent, so a step with many of them spreads them over a
-process pool rather than over steps.  Building the `mosaic` descriptor is the
-expensive part of plotting a global mesh, so it is constructed once per step
-and shared.
+process pool rather than over steps.  The pool is sized from `cpus_per_task`,
+never from the machine, per the bounded-process-launching rule.  Building the
+`mosaic` descriptor is the expensive part of plotting a global mesh, so it is
+constructed once per step and shared.
+
+Two dependencies on the framework follow from
+[Task-Parallel-Safe Analysis Steps](task_parallel_analysis_steps.md) and are
+recorded here rather than worked around.  `polaris.viz` assigns
+`plt.rcParams['savefig.dpi']`, which is process-global state and is being made
+scope-safe separately; these steps use whatever scoped form it takes.  And
+plotting in a pool means no reliance on the `pyplot` current-figure state,
+which is likewise global --- each plot creates and closes its own figure
+explicitly.
 
 Maps are plotted on the native mesh with the existing
 `polaris.viz.plot_global_mpas_field`, which is `mosaic`-based and needs no
