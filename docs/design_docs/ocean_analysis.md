@@ -351,8 +351,214 @@ task-parallelism requirement above.
 
 ## Algorithm Design
 
-*To be added as individual capabilities are designed.*  Algorithm designs for
-the Phase 1 capabilities are in {ref}`design-ocean-analysis-initial`.
+### Algorithm Design: organizing principles
+
+Date last modified: 2026/08/25
+
+Contributors: Xylar Asay-Davis, Claude
+
+Analysis is a combinatorial workload: products multiply over fields, seasons,
+elevations, date ranges, and --- later --- regions and observational
+references.  How that work is divided into steps and directories is the
+decision most likely to be regretted, because it is cheap to get wrong early
+and expensive to change once results have been archived and linked to.  The
+principles below govern that division.  Individual design documents in this
+family apply them; they do not re-litigate them.
+
+Three questions are easy to conflate, and most of the confusion in an early
+draft of {ref}`design-ocean-analysis-initial` came from answering all three
+with one mechanism:
+
+1. **What is a step?**  The unit of caching, selection, and scheduling.
+2. **What is a directory level?**  The unit of navigation.
+3. **What is a product?**  The unit a human archives, browses, and cites.
+
+#### 1. Two trees, two audiences
+
+The **work tree** is machine-facing.  One goes there to debug a step, not to
+look at results, so it should be shallow, uniform, and predictable.
+
+The **staging tree** is human-facing.  It is where plots and their netCDF files
+are published, where results from repeated analyses accumulate, and what a web
+interface serves.
+
+Neither is compromised for the other.  In particular, the work tree does not
+need to be browsable, and the staging tree does not need to mirror how the work
+was chunked.
+
+#### 2. Products are described by a manifest, not by their path
+
+Each step writes, alongside its outputs, a small manifest fragment describing
+every product it made: file, field, season, elevation, date range, region,
+group, and title.  A cheap final step collects the fragments, publishes into
+the staging tree, and generates the index.
+
+This is the connective tissue between the two trees, and it is what allows the
+work to be re-chunked later without breaking output paths, links, or the
+gallery.  A path is a poor place to store metadata: it has one dimension and
+the metadata has six.
+
+#### 3. Steps are for caching and selection, not for parallelism
+
+A step can use a process pool over its own work.  Parallelism inside a step is
+cheaper than parallelism across steps, costs no inodes, and --- unlike
+concurrency across steps --- is available today rather than when task
+parallelism lands.
+
+So the question "how fine should steps be?" is not "how much can run at once?"
+but "along which axes do we need independent invalidation?"
+
+#### 4. Decompose along the axes a user edits between runs
+
+| Axis | Edited between runs? | A step axis? |
+| --- | --- | --- |
+| Date range | yes, constantly | yes |
+| Years available, as a run is extended | yes | yes, but see principle 6 |
+| Field or plot list | yes; analysts iterate on it | yes, by field *group* |
+| Season, elevation | rarely, and bounded | no --- loop inside a step |
+| Region, observational reference | rarely, and multiplies | no --- loop inside a step |
+| Colormaps and other styling | yes, but should be cheap | no --- a replot option |
+
+The field axis is chunked by *group* rather than by variable: things computed
+together belong in one step.  Zonal and meridional velocity share a vector
+reconstruction, so they share a step.
+
+The bottom two rows matter more than they look.  Regions and observational
+references multiply against fields and seasons, so a rule that survives later
+phases cannot put them on a step axis.  One step per plot is never the answer.
+
+#### 5. Directory levels must earn their keep, and name things rather than mechanisms
+
+A level is justified by one of two things: enough siblings that clutter is
+real, or a name someone would actually navigate by.  A level that fails both is
+noise, and every level makes reaching a given depth harder.
+
+The corollary is the more useful half: **if a level's best name describes how
+the work was chunked rather than what it holds, the level is wrong.**  A
+directory called `years/`, or `offline_metrics/`, is a bucket named after a
+mechanism.  The fix is not a better bucket name; it is to make the thing inside
+a product with a name of its own, or to remove the level.
+
+#### 6. Steps cache what the user asked for; files cache what the computation needed
+
+Polaris's caching primitive is a completion marker in a step's work directory,
+so the only way to get incremental reuse from the framework alone is to create
+a directory per unit of reuse.  That is right when the unit is something a user
+asked for --- a date range, a field group.  It is wrong when the unit is an
+internal chunk of a divisible computation, such as a simulation year: it pays a
+step's overhead, a pickle, a config copy, and a log file for a chunk no user
+ever named.
+
+For those, use a **seeded accumulator**: one step, still keyed by what the user
+asked for, which
+
+- at setup, searches for cache files written by earlier runs of the same
+  product, works out which of them cover part of what is being asked for, and
+  declares them as ordinary inputs;
+- at run, computes only the difference between what is asked for and what it
+  inherited, and writes a complete cache for its own key.
+
+This needs no framework change and no manipulation of completion markers.  The
+step is still keyed by the user's request, so a new request is a new directory
+that has never run, and Polaris's ordinary skip-if-complete behavior is
+untouched.  The seed is a declared input, so provenance and input checking work
+normally and nothing reaches into another step's directory undeclared.  Every
+file remains owned by the step that wrote it.
+
+A partially written cache in the step's own directory is a valid starting point
+for a retry, so restartability comes with the pattern rather than being added
+to it.
+
+The pattern applies wherever we own the reduction kernel, and nowhere else.
+`ncclimo` has no incremental mode, so a climatology is recomputed in full for
+each new date range.
+
+#### 7. Discovery is scoped by construction and validated by content
+
+Principle 6 has software hunting for data on disk, which is worth being
+uncomfortable about.  The discomfort is resolved by separating two jobs that a
+path is often asked to do at once:
+
+> **The path establishes the search scope.  The content establishes
+> admissibility.**
+
+The scope is only ever what construction guarantees: sibling directories of the
+same product, written by the same step class with the same outputs, differing
+only in the key.  It is never widened to arbitrary locations on disk.
+
+Nothing, however, is trusted because of where it sits.  "Same location"
+guarantees less than it appears to: work-directory paths do not encode which
+simulation was analyzed, so the same directory re-used against a different
+simulation would otherwise cross-contaminate silently, as would a changed
+constant or a changed elevation range.  Every cache record therefore carries a
+provenance stamp --- the identity of the simulation, the config options that
+govern the product, and a version for the kernel that produced it --- and a
+record whose stamp does not match what is being asked for is not inherited.  It
+is recomputed, without ceremony.
+
+Three further rules keep this auditable rather than magical:
+
+- **Only a completed step is a candidate.**  A directory without a completion
+  marker is never inherited from, which also disposes of the half-written cache.
+- **Reuse is loud.**  Every run reports what it inherited and from where, and
+  the provenance travels in the output.  An auditable decision is a different
+  thing from an invisible one.
+- **Explicit mode exists.**  Reuse can be disabled outright, and an additional
+  search location can be named, for anyone who wants determinism rather than
+  discovery.  Discovery is the default, not the only option.
+
+#### 8. A cache is an intermediate product, so its form follows its consumer
+
+A cache is not a private data structure; it is an intermediate product with a
+known consumer, and it should be written in the form that consumer reads.  A
+reduced time series consumed whole by a plotting step is one file with an
+unlimited time dimension, appended to as the record grows.  A monthly field
+consumed by `ncclimo` is monthly files, because that is `ncclimo`'s interface.
+
+Two guardrails bound the space, in place of a target file size, which cannot be
+stated without becoming resolution-dependent:
+
+- never more cache files than there are input files;
+- never rewrite more than one chunk in order to append one unit.
+
+Beyond that this is deliberately **not a load-bearing decision**.  An
+accumulator exists to avoid re-reading gigabytes of three-dimensional monthly
+output, and that pass dominates cache I/O in every case we have.  Accumulators
+are for reductions, and reductions are small.
+
+#### 9. Size steps for the production case
+
+Any granularity looks absurd at the resolution of a regression test.  Step size
+is chosen against a production run --- a multi-decade, high-resolution coupled
+simulation --- where a pass over a year of three-dimensional monthly output is
+gigabytes and minutes.  A test configuration has few enough years that the
+overhead is irrelevant.
+
+The targets, which later phases should hold themselves to:
+
+- a step should do at least tens of seconds of work at production resolution,
+  so that Polaris's per-step overhead is a few percent at most;
+- a suite should contain steps numbering in the low hundreds, and should stay
+  there as regions and observational comparisons are added.
+
+Polaris's actual per-step overhead --- setup and run of a step that does
+nothing --- should be measured once and recorded here, so that this stops being
+a matter of judgment.
+
+#### 10. Split computation from plotting only where computation dominates
+
+Writing the data behind a plot is required in all cases; see the
+`plots are always accompanied by their data` requirement.  Making the
+computation a *separate step* from the plot is a different question, and it
+earns its keep only where recomputing is expensive relative to replotting.  For
+a map on the native grid, the plotting is the expensive part, so splitting buys
+nothing and costs a level and a step.  Where a plot is a cheap rendering of an
+expensive reduction, the reduction is an accumulator by principle 6 and the
+split has already happened for a better reason.
+
+*Further algorithm designs to be added as individual capabilities are
+designed.*  Algorithm designs for the Phase 1 capabilities are in
+{ref}`design-ocean-analysis-initial`.
 
 ## Implementation
 
