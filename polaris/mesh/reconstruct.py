@@ -313,20 +313,26 @@ def construct_rotation_matrix(
 
     # e.g. "cell" -> "xCell", "vertex" -> "xVertex"
     prefix = location.capitalize()
-    x_hat = ds[f'x{prefix}'] / ds.sphere_radius
-    y_hat = ds[f'y{prefix}'] / ds.sphere_radius
-    z_hat = ds[f'z{prefix}'] / ds.sphere_radius
 
     # infer the reconstruction-point dimension ("nCells" or "nVertices")
     # directly from the coordinate arrays, rather than hard-coding it
-    point_dim = x_hat.dims[0]
-    n_points = x_hat.sizes[point_dim]
+    point_coord = ds[f'x{prefix}']
+    point_dim = point_coord.dims[0]
+    n_points = point_coord.sizes[point_dim]
 
-    # return identity matrix for planar meshes
+    # A planar mesh already lies in the x-y plane, so the tangent plane at
+    # every reconstruction point is the mesh plane itself and there is no
+    # rotation to do.  This is checked before the normalization below,
+    # which planar meshes would divide by a sphere_radius of zero.
     if is_planar(ds):
         return xr.DataArray(
-            np.ones((n_points, 3, 3)), dims=(point_dim, 'd1', 'd2')
+            np.broadcast_to(np.eye(3), (n_points, 3, 3)).copy(),
+            dims=(point_dim, 'd1', 'd2'),
         )
+
+    x_hat = ds[f'x{prefix}'] / ds.sphere_radius
+    y_hat = ds[f'y{prefix}'] / ds.sphere_radius
+    z_hat = ds[f'z{prefix}'] / ds.sphere_radius
 
     c_y = np.sqrt(y_hat**2 + z_hat**2)
     s_y = x_hat
