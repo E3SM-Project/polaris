@@ -1343,7 +1343,7 @@ season, which is robust to `ncclimo` naming changes.
 
 ### Implementation: climatology-maps
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1365,21 +1365,31 @@ def extract_elevation_slice(da, spec, z_mid, min_level_cell, max_level_cell):
     """Extract a horizontal slice at the requested elevation."""
 
 
-def elevation_range_weights(z_interface, min_level_cell, max_level_cell,
-                            z_top, z_bot):
-    """Return the per-layer overlap thickness w_k for an elevation range."""
+def elevation_range_weights(z_interface, layer_mass, min_level_cell,
+                            max_level_cell, z_top, z_bot):
+    """Return the per-layer mass per unit area within an elevation range.
+
+    The geometric overlap thickness w_k is computed from ``z_interface`` and
+    used only as a fraction of the layer, which is then applied to
+    ``layer_mass``.  Passing a layer mass of ``z_interface`` differences
+    recovers the purely geometric weights, which is what the elevation-slice
+    utilities want.
+    """
 ```
 
 `polaris/ocean/heat_content.py`:
 
 ```python
-def heat_content(temperature, weights, density, specific_heat):
+def heat_content(temperature, weights, specific_heat):
     """Vertically integrated heat content per unit area [J m-2]."""
 ```
 
 `elevation_range_weights` lives with the other elevation utilities rather than
 with heat content because it is a property of the vertical coordinate, and it
-will be reused by any future vertically integrated diagnostic.
+will be reused by any future vertically integrated diagnostic.  It takes the
+layer mass rather than computing it, so that the one place that knows how each
+model spells its mass-like thickness stays
+`polaris.ocean.model.get_layer_mass`.
 
 The `ClimatologyMaps` step then loops over seasons, fields, and elevations:
 
@@ -1433,7 +1443,7 @@ cannot mistake them for an in-situ diagnostic.
 
 ### Implementation: ocean-heat-content-maps
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1441,8 +1451,10 @@ The `maps` step of the `ocean_heat_content` task reads the same climatology
 files, computes
 
 ```python
-weights = elevation_range_weights(z_interface, k_min, k_max, z_top, z_bot)
-ohc = heat_content(ds.temperature, weights, rho0, cp0)
+layer_mass = get_layer_mass(ds, self.config)
+weights = elevation_range_weights(z_interface, layer_mass, k_min, k_max,
+                                  z_top, z_bot)
+ohc = heat_content(ds.temperature, weights, cp0)
 ```
 
 for each configured elevation range and each plotted season, writes the result
@@ -1498,7 +1510,7 @@ year in the file's calendar.
 
 ### Implementation: ocean-heat-content-time-series
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1513,11 +1525,12 @@ class OceanHeatContentYear(OceanIOStep):
             ds = self.open_model_dataset(f'monthly_{month:02d}.nc',
                                          self.config)
             _, z_interface = get_z_mid_and_interface(ds)
+            layer_mass = get_layer_mass(ds, self.config)
             ohc = []
             for z_top, z_bot in elevation_ranges:
-                weights = elevation_range_weights(z_interface, k_min, k_max,
-                                                  z_top, z_bot)
-                column = heat_content(ds.temperature, weights, rho0, cp0)
+                weights = elevation_range_weights(z_interface, layer_mass,
+                                                  k_min, k_max, z_top, z_bot)
+                column = heat_content(ds.temperature, weights, cp0)
                 ohc.append((area_cell * column).sum('nCells'))
             ds_year.append(...)
         write_netcdf(xr.concat(ds_year, dim='Time'), 'ohc.nc')
@@ -1533,7 +1546,8 @@ Reading a month at a time within the year step is deliberate.  A global
 three-dimensional temperature field at 30 km resolution and 80 levels is
 roughly 150 MB per month, so a forty-year record is several tens of gigabytes;
 a month at a time bounds memory regardless of how long the record is.  Only
-`temperature`, `zInterface`, and the vertical-index fields are read.
+`temperature`, the model's mass-like thickness variable, `zInterface`, and the
+vertical-index fields are read.
 
 The plot has two panels: absolute heat content in units of 10²² J, and the
 anomaly relative to the first month, with one line per elevation range.  The
@@ -1723,19 +1737,29 @@ If the offline fallback is implemented, unit tests on synthetic profiles:
 
 ### Testing and Validation: ocean-heat-content
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
-Unit tests on `elevation_range_weights` and `heat_content`:
+Unit tests on `elevation_range_weights` and `heat_content` are written in
+pseudo-height, since that is the coordinate the
+integral is actually taken in, and every synthetic column is built with
+$\tilde{h} \ne h$ so that a formulation that confused the two would fail rather
+than coincidentally pass:
 
 - for a range aligned with layer interfaces, the weights are exactly the layer
-  thicknesses in the range and zero outside;
-- for a range boundary in the interior of a layer, the weight of that layer is
-  the exact partial thickness;
-- for a constant temperature $\Theta_0$ over a range $[z_{bot}, z_{top}]$
-  entirely within the water column, the heat content is exactly
-  $\rho_0 c_p^0 \Theta_0 (z_{top} - z_{bot})$;
+  masses $\rho_0 \tilde{h}_k$ in the range and zero outside;
+- for such a range, a constant temperature $\Theta_0$ gives heat content
+  exactly $\rho_0 c_p^0 \Theta_0 \Delta\tilde{z}$, where $\Delta\tilde{z}$ is
+  the pseudo-thickness of the range --- *not* its geometric thickness;
+- the whole-column result equals $c_p^0 \sum_k \Theta_k \rho_0 \tilde{h}_k$ and
+  is unchanged if the geometric interfaces are perturbed while pseudo-thickness
+  is held fixed, which is the property that distinguishes the mass-weighted
+  form from the geometric one;
+- for a range boundary in the interior of a layer --- the one place geometry
+  legitimately enters --- the weight of that layer is its mass scaled by the
+  exact geometric fraction $w_k/h_k$, and a range boundary swept across a layer
+  gives a result that varies linearly between the two whole-layer answers;
 - for a range extending below the seafloor, the result is truncated at the
   seafloor;
 - the whole-ocean range equals the sum of a set of ranges that partition it,
