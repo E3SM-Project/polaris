@@ -145,8 +145,14 @@ in `polaris.viz` -- and the shared building blocks have been converted:
 `polaris.viz`, `polaris.mesh.spherical`, and
 `polaris.ocean.convergence.analysis`.
 
-Most task-level analysis and visualization steps have **not** been converted;
-they still open files by bare relative name and use the `pyplot` current
-figure.  That is correct under today's one-step-at-a-time execution and will be
-addressed as the analysis capability is built out.  Do not copy those steps as
-a template for new work.
+One task-level step,
+{py:class}`polaris.tasks.seaice.single_column.standard_physics.viz.Viz`, has
+been converted as a worked example of what a conforming step looks like: it is
+small, it plots, and it reads and writes files, so it exercises most of the
+rules above in one place.
+
+Most other task-level analysis and visualization steps have **not** been
+converted; they still open files by bare relative name and use the `pyplot`
+current figure.  That is correct under today's one-step-at-a-time execution and
+will be addressed as the analysis capability is built out.  Do not copy those
+steps as a template for new work.
