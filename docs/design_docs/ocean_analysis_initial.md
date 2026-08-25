@@ -763,12 +763,6 @@ climatology period, rather than being computed from the climatology.  Computing
 it from the seasonal or annual climatology would be a second, much larger
 approximation on top of the one described next.
 
-That order --- compute per month, average afterwards --- is why this product
-does its own seasonal averaging rather than handing monthly files to `ncclimo`.
-The averaging is the last step either way; doing it ourselves keeps `ncclimo`
-on model output alone and keeps the climatology from waiting on a full-record
-pass.
-
 What this fallback does *not* capture, and what should be said on the plots and
 in the netCDF metadata:
 
@@ -1670,19 +1664,13 @@ Notes on the arguments:
 - `-a sdd` selects the seasonally discontinuous December convention discussed
   in the algorithm design.
 - `-v` restricts the climatology to the union of the fields requested for maps,
-  the fields needed for heat content (`temperature` and the model's mass-like
-  thickness), the fields needed for velocity reconstruction (`normalVelocity`,
-  when zonal and meridional velocity are requested and not written by the
-  model), and the vertical geometry (`zMid`, `zInterface`).  Building this list
-  is the reason `Climatology` needs to know which steps depend on it; the list
-  is assembled from config options at runtime rather than passed in by each
-  task, so that the step stays neutral with respect to which tasks pulled it
-  in.
-
-  Every name on that list is a field the model wrote.  Fields Polaris computes
-  offline --- mixed-layer depth in the fallback case --- form their own
-  seasonal means and never appear here, which is what keeps this mapping back
-  to Omega names well defined.
+  the fields needed for heat content (`temperature`), the fields needed for
+  velocity reconstruction (`normalVelocity`, when zonal and meridional velocity
+  are requested and not written by the model), and the vertical geometry
+  (`zMid`, `zInterface`).  Building this list is the reason `Climatology` needs
+  to know which steps depend on it; the list is assembled from config options
+  at runtime rather than passed in by each task, so that the step stays neutral
+  with respect to which tasks pulled it in.
 
   Note that `-v` takes the names as they appear *in the files*, which are Omega
   names, so the step maps its Polaris-standard list back through
@@ -1826,37 +1814,15 @@ Velocity reconstruction uses the weights on the mesh via
 the step reports that clearly and skips the zonal and meridional velocity maps
 rather than failing the whole step.
 
-If `compute_mixed_layer_depth` is set, the task adds a sharded accumulator
-structured exactly like the heat content one: its kernel computes a month of
-mixed-layer depth with `gsw` as described in the algorithm design, and its
-cache is one gridded file per month, so that inherited months are symlinked
-forward rather than copied or rewritten.
-
-**Its `merge` step forms the seasonal means itself; `ncclimo` is not involved.**
-An earlier draft handed the monthly files to `ncclimo` along with the model
-output, on the grounds that a derived monthly field is just another monthly
-field.  That was wrong on three counts:
-
-- it made the climatology --- and therefore every map step behind it --- wait
-  on a full-record pass, which is the worst possible shape under principle 3;
-- it required a Polaris-computed field to appear in `ncclimo`'s `-v` list,
-  which the step builds by mapping Polaris names back to *Omega* names.  A
-  field Omega never wrote has no Omega name to map back to;
-- it was the only thing forcing this cache's format, per principle 8, when the
-  format should follow from how the data are actually used.
-
-Averaging monthly values into seasons is a small, testable function, and the
-step reuses the same season definitions and length-of-month weighting that
-`ncclimo` is configured with, including the seasonally discontinuous December
-convention.  The regression test checks that an annual mean equals the
-appropriately weighted mean of the twelve monthly means, which is what keeps
-the two paths from drifting apart.
-
-With this, `ncclimo` consumes only model output, and the mixed-layer depth
-product is self-contained: monthly means in, seasonal maps out, independent of
-the climatology and free to run beside it.
-
-Its outputs carry an attribute recording that they were computed offline from
+If `compute_mixed_layer_depth` is set, the task adds an accumulator structured
+exactly like the heat content one: its kernel computes a month of mixed-layer
+depth with `gsw` as described in the algorithm design.  Because its consumer is
+`ncclimo`, which reads monthly files, its cache is one file per month rather
+than a single series --- principle 8 in {ref}`design-ocean-analysis` --- and
+inherited months are symlinked forward rather than copied.  The climatology
+step then averages those into the seasonal and annual means that are plotted.
+Its
+outputs carry an attribute recording that they were computed offline from
 monthly means, and the step adds a note to the plot titles, so that a reader
 cannot mistake them for an in-situ diagnostic.
 
