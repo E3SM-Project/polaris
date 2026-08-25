@@ -73,7 +73,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#setup">setup()</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#constrain-resources">constrain_resources()</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#runtime-setup">runtime_setup()</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#run">run()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run">run()</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#paths-within-run">paths within run()</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#inputs-and-outputs">inputs and outputs</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#input-files">Input files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#symlinks-to-input-files">Symlinks to input files</a></li>
@@ -747,6 +750,28 @@ task parallelism, since each such command may need to run with its own set of
 MPI, threading and memory resources.</p>
 <p>To get a feel for different types of <code class="docutils literal notranslate"><span class="pre">run()</span></code> methods, it may be best to
 explore different steps that are already implemented in Polaris.</p>
+<section id="paths-within-run">
+<span id="dev-step-work-path"></span><h3>paths within run()<a class="headerlink" href="#paths-within-run" title="Link to this heading"></a></h3>
+<p>Polaris changes the process working directory to the step’s work directory
+before calling <code class="docutils literal notranslate"><span class="pre">run()</span></code>, so a bare relative filename like <code class="docutils literal notranslate"><span class="pre">'output.nc'</span></code> works
+today.  That will not remain true once steps can run concurrently in one
+process, because the working directory is shared by the whole process.</p>
+<p>New steps – and analysis steps in particular – should instead build paths
+with <a class="reference internal" href="../generated/polaris.Step.work_path.html#polaris.Step.work_path" title="polaris.Step.work_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.work_path()</span></code></a>, which joins one or more path
+components onto the step’s own work directory and returns an absolute path:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'output.nc'</span><span class="p">))</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="o">...</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'comparison.png'</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">filename</span></code> arguments to <code class="docutils literal notranslate"><span class="pre">add_input_file()</span></code> and <code class="docutils literal notranslate"><span class="pre">add_output_file()</span></code> are
+unaffected: those are relative to the work directory by design, and setup
+already resolves them to absolute paths in <code class="docutils literal notranslate"><span class="pre">self.inputs</span></code> and <code class="docutils literal notranslate"><span class="pre">self.outputs</span></code>.</p>
+<p>See <a class="reference internal" href="../framework/task_parallelism.html#dev-task-parallelism"><span class="std std-ref">Writing task-parallel-safe steps</span></a> for this and the other properties a step needs
+in order to run concurrently with other steps.</p>
+</section>
 </section>
 <section id="inputs-and-outputs">
 <span id="dev-step-inputs-outputs"></span><h2>inputs and outputs<a class="headerlink" href="#inputs-and-outputs" title="Link to this heading"></a></h2>

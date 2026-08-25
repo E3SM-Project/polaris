@@ -1,0 +1,572 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task-Parallel-Safe Analysis Steps in Polaris</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Unified Mesh: Global Base Mesh Workflow" href="unified_base_mesh.html" />
+    <link rel="prev" title="Shared steps" href="shared_steps.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Task-Parallel-Safe Analysis Steps in Polaris</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-polaris-already-guarantees">What Polaris already guarantees</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-no-process-global-state-mutation">Requirement: No Process-Global State Mutation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-working-directory-independence">Requirement: Working-Directory Independence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-temporary-files-in-the-step-s-work-directory">Requirement: Temporary Files in the Step’s Work Directory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-logging-through-the-step-s-logger">Requirement: Logging Through the Step’s Logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-declared-resources">Requirement: Declared Resources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-bounded-process-launching">Requirement: Bounded Process Launching</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-scoped-alternatives-to-global-state">Algorithm Design: Scoped Alternatives to Global State</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-resource-declaration-for-analysis-steps">Algorithm Design: Resource Declaration for Analysis Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-making-conformance-checkable">Algorithm Design: Making Conformance Checkable</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-framework-support">Implementation: Framework Support</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-conformance-checks">Implementation: Conformance Checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-adoption">Implementation: Adoption</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-conformance">Testing and Validation: Conformance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-concurrent-execution">Testing and Validation: Concurrent Execution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-resource-declaration">Testing and Validation: Resource Declaration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Task-Parallel-Safe Analysis Steps in Polaris</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/task_parallel_analysis_steps.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="task-parallel-safe-analysis-steps-in-polaris">
+<h1>Task-Parallel-Safe Analysis Steps in Polaris<a class="headerlink" href="#task-parallel-safe-analysis-steps-in-polaris" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Polaris is adding task parallelism. The near-term driver is building
+analysis capability in Polaris equivalent to MPAS-Analysis, for Omega and
+possibly MPAS-Ocean. That work is heavily Python, and it is the workload
+that most needs to run concurrently: MPAS-Analysis implements task
+parallelism with <code class="docutils literal notranslate"><span class="pre">multiprocessing.Process</span></code>, which cannot span nodes, and
+that single-node ceiling is a known choke point at high resolution –
+exactly Omega’s target.</p>
+<p>Whether Polaris can run analysis steps concurrently is only partly a
+property of the scheduler. It is equally a property of the steps. A step
+that changes the working directory, mutates module-level configuration or
+writes to a shared path cannot safely run beside another step in the same
+process.</p>
+<p>This document sets out the properties an analysis step must have in order to
+be scheduled concurrently, and proposes adopting them as groundrules now,
+while the analysis capability is still being designed. The cost of adopting
+them up front is close to zero; the cost of retrofitting them later is
+rewriting every analysis step already written.</p>
+<section id="what-polaris-already-guarantees">
+<h3>What Polaris already guarantees<a class="headerlink" href="#what-polaris-already-guarantees" title="Link to this heading"></a></h3>
+<p>Much of what a distributed executor would otherwise have to demand of a step
+is already true, because of how Polaris sets steps up and runs them. These
+are stated here so the requirements below do not repeat them:</p>
+<ul class="simple">
+<li><p><strong>Steps are already serializable.</strong> <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> builds the step objects
+in one process and pickles each one to <code class="docutils literal notranslate"><span class="pre">step.pickle</span></code> in its work
+directory; <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> unpickles it in a different process to run it.
+A step that held an open file handle, a live connection or any other
+unserializable state would already fail at setup today –
+<code class="docutils literal notranslate"><span class="pre">ModelStep</span></code> clears its streams tree before pickling for exactly this
+reason. Sending a step to a worker on another node adds no new
+requirement.</p></li>
+<li><p><strong>Configuration already comes from a file, not from process state.</strong> Each
+step’s config file is written into the work directory at setup and re-read
+with <code class="docutils literal notranslate"><span class="pre">setup_config()</span></code> immediately before the step runs. A step run in a
+fresh process gets the same config as one run in the scheduler process.</p></li>
+<li><p><strong>Declared inputs and outputs are already absolute paths.</strong>
+<code class="docutils literal notranslate"><span class="pre">Step.process_inputs_and_outputs()</span></code> resolves them against the step’s work
+directory at setup, so <code class="docutils literal notranslate"><span class="pre">self.inputs</span></code> and <code class="docutils literal notranslate"><span class="pre">self.outputs</span></code> do not depend on
+the process working directory.</p></li>
+<li><p><strong>Every step already has its own work directory and its own logger,</strong> both
+assigned by the framework.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">Step.max_memory</span></code> already exists,</strong> added as a placeholder for task
+parallelism.</p></li>
+</ul>
+<p>What is <em>not</em> already handled is process-global state. The framework sets
+<code class="docutils literal notranslate"><span class="pre">mpas_tools.io.default_format</span></code> and <code class="docutils literal notranslate"><span class="pre">default_engine</span></code> as process globals
+before running, and <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code> assigns
+<code class="docutils literal notranslate"><span class="pre">plt.rcParams['savefig.dpi']</span></code>. Steps open bare relative filenames in
+<code class="docutils literal notranslate"><span class="pre">run()</span></code> and rely on the framework’s <code class="docutils literal notranslate"><span class="pre">os.chdir(step.work_dir)</span></code> to make
+that work. Those are safe under today’s one-step-at-a-time execution, and
+are called out here because they are the concrete patterns new analysis
+steps must avoid, and because the framework will have to offer alternatives
+before it can require them.</p>
+<p>Success means a newly written analysis step, following these rules, can be
+run concurrently with other steps – including on a different node – with no
+change to the step, no interference between steps, and identical results to
+running it alone.</p>
+</section>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-no-process-global-state-mutation">
+<h3>Requirement: No Process-Global State Mutation<a class="headerlink" href="#requirement-no-process-global-state-mutation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>An analysis step shall not mutate state that is shared by the whole process.</p>
+<p>This includes the current working directory, environment variables,
+module-level configuration in third-party libraries such as
+<code class="docutils literal notranslate"><span class="pre">mpas_tools.io</span></code>, and global plotting state such as <code class="docutils literal notranslate"><span class="pre">plt.rcParams</span></code> and the
+<code class="docutils literal notranslate"><span class="pre">pyplot</span></code> current figure. Any of these makes two steps running in one
+process interfere with each other, and the interference is
+timing-dependent, so it surfaces as intermittent wrong answers rather than
+as a clean failure.</p>
+<p>Where a step needs behavior that is conventionally set globally, the
+framework shall provide a scoped alternative.</p>
+</section>
+<section id="requirement-working-directory-independence">
+<h3>Requirement: Working-Directory Independence<a class="headerlink" href="#requirement-working-directory-independence" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>An analysis step shall address every file by an explicit path and shall not
+depend on the process’s working directory being its own work directory.</p>
+<p>Relative paths in the step’s declaration of its inputs and outputs remain
+the normal way to describe them, and setup already resolves those to
+absolute paths. The requirement is about the body of <code class="docutils literal notranslate"><span class="pre">run()</span></code>: a filename
+opened there shall be resolved through the step rather than left to
+<code class="docutils literal notranslate"><span class="pre">os.getcwd()</span></code>.</p>
+</section>
+<section id="requirement-temporary-files-in-the-step-s-work-directory">
+<h3>Requirement: Temporary Files in the Step’s Work Directory<a class="headerlink" href="#requirement-temporary-files-in-the-step-s-work-directory" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>An analysis step shall place temporary files in its own work directory
+rather than in a shared location such as <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> or the base work
+directory.</p>
+<p>Each step already has a work directory of its own, so writing there is
+enough to guarantee that two concurrent steps cannot choose the same
+temporary path. A step shall likewise not write into another step’s work
+directory, and shall not depend on reading a file that a concurrently
+running step is still writing.</p>
+</section>
+<section id="requirement-logging-through-the-step-s-logger">
+<h3>Requirement: Logging Through the Step’s Logger<a class="headerlink" href="#requirement-logging-through-the-step-s-logger" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>An analysis step shall emit output through the logger it is given in
+<code class="docutils literal notranslate"><span class="pre">self.logger</span></code>, and shall not write to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code> or the root
+logger directly.</p>
+<p>When several steps run at once, output written to shared streams interleaves,
+and the resulting log cannot be attributed to a step. This requirement is
+what makes per-step logs remain readable under concurrency.</p>
+</section>
+<section id="requirement-declared-resources">
+<h3>Requirement: Declared Resources<a class="headerlink" href="#requirement-declared-resources" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>An analysis step shall declare the resources it needs, including CPU cores
+and memory, so that the scheduler can decide how many steps may run at once.</p>
+<p>Memory is the requirement that distinguishes analysis steps from most
+existing Polaris steps. At high resolution an analysis step may need a large
+fraction of a node, and a scheduler that packs by cores alone will
+oversubscribe memory and fail. A step that cannot fit in a node’s memory
+shall be reported as infeasible rather than attempted.</p>
+</section>
+<section id="requirement-bounded-process-launching">
+<h3>Requirement: Bounded Process Launching<a class="headerlink" href="#requirement-bounded-process-launching" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>An analysis step shall not launch more parallel work than it declared.</p>
+<p>A step that internally starts its own pool of processes or threads sized to
+the whole machine will oversubscribe the node as soon as a second step runs
+beside it. Any internal parallelism shall be sized from the resources the
+step was given, not from the machine.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-scoped-alternatives-to-global-state">
+<h3>Algorithm Design: Scoped Alternatives to Global State<a class="headerlink" href="#algorithm-design-scoped-alternatives-to-global-state" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The framework should offer a scoped replacement for each global that steps
+currently rely on, so that following the rules is easier than breaking them.</p>
+<p>For NetCDF output format and engine, the framework should provide the values
+through the step rather than through <code class="docutils literal notranslate"><span class="pre">mpas_tools.io</span></code> module globals, and
+should pass them explicitly at each write. Setting the module globals inside
+a worker, as the Phase 1 task-parallel work had to do, is a workaround that
+only holds while one step runs per worker.</p>
+<p>For plotting, the framework should offer a context manager that applies
+Matplotlib settings for the duration of a plot and restores them afterwards,
+rather than steps assigning to <code class="docutils literal notranslate"><span class="pre">plt.rcParams</span></code>. Matplotlib’s own
+<code class="docutils literal notranslate"><span class="pre">plt.rc_context</span></code> is sufficient. Steps should also use the object-oriented
+Figure API rather than the implicit <code class="docutils literal notranslate"><span class="pre">pyplot</span></code> current-figure state, which is
+process-global.</p>
+<p>For temporary files, the framework should provide a helper that creates them
+under the step’s work directory, so that the natural thing to write is also
+the isolated thing.</p>
+</section>
+<section id="algorithm-design-resource-declaration-for-analysis-steps">
+<h3>Algorithm Design: Resource Declaration for Analysis Steps<a class="headerlink" href="#algorithm-design-resource-declaration-for-analysis-steps" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Analysis steps should express CPU needs the way non-MPI work actually uses
+them – as a core count for the step – rather than through MPI task counts.
+Memory should be expressed as a target and a minimum, in the same style as
+the existing target-and-minimum resource fields, so that the scheduler can
+run a step in less memory when the allocation is tight and can report a
+step as infeasible when even the minimum does not fit. <code class="docutils literal notranslate"><span class="pre">Step.max_memory</span></code>
+is the placeholder this should build on.</p>
+<p>The measurement needed to set these numbers sensibly is being gathered
+separately, by instrumenting a high-resolution MPAS-Analysis run for
+per-task duration, peak resident memory and dependency-graph width. Default
+values should not be guessed before that data exists.</p>
+</section>
+<section id="algorithm-design-making-conformance-checkable">
+<h3>Algorithm Design: Making Conformance Checkable<a class="headerlink" href="#algorithm-design-making-conformance-checkable" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Rules that are only written down are not adopted. Most of these rules can be
+checked mechanically, and should be.</p>
+<p>Working-directory independence, global-state mutation and unbounded process
+launching can be checked at runtime by running a step with the process
+working directory set somewhere unrelated, snapshotting the globals a step is
+forbidden to touch, and comparing them afterwards. Isolation can be checked
+by comparing the set of files a step wrote against its declared outputs and
+its work directory. Serializability needs no check of its own, since setup
+already pickles every step.</p>
+<p>These checks are cheap enough to run as part of ordinary testing, and are
+most valuable while the analysis capability is small.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-framework-support">
+<h3>Implementation: Framework Support<a class="headerlink" href="#implementation-framework-support" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The framework changes implied by this document are small and independent of
+the scheduler work:</p>
+<ul class="simple">
+<li><p>a scoped IO-configuration path that does not depend on
+<code class="docutils literal notranslate"><span class="pre">mpas_tools.io</span></code> module globals;</p></li>
+<li><p>a Matplotlib context manager in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>, replacing the
+assignment to <code class="docutils literal notranslate"><span class="pre">plt.rcParams['savefig.dpi']</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris/viz/spherical.py</span></code>;</p></li>
+<li><p>a step method that returns a temporary directory inside the step’s work
+directory;</p></li>
+<li><p>target and minimum memory fields on <code class="docutils literal notranslate"><span class="pre">Step</span></code>, alongside the existing
+<code class="docutils literal notranslate"><span class="pre">max_memory</span></code> placeholder and the other resource fields.</p></li>
+</ul>
+<p>None of these require the task-parallel scheduler to exist, and all of them
+are useful on their own.</p>
+</section>
+<section id="implementation-conformance-checks">
+<h3>Implementation: Conformance Checks<a class="headerlink" href="#implementation-conformance-checks" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A conformance helper should run a step under adverse conditions and assert
+the rules. In outline:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">check_task_parallel_safe</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Run a step the way a remote worker would, and check it behaves."""</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="n">snapshot_process_state</span><span class="p">()</span>   <span class="c1"># cwd, env, mpas_tools.io, rcParams</span>
+    <span class="n">run_from_unrelated_directory</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+    <span class="n">after</span> <span class="o">=</span> <span class="n">snapshot_process_state</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">before</span> <span class="o">==</span> <span class="n">after</span>
+    <span class="k">assert</span> <span class="n">files_written</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">allowed_paths</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Steps that are known not to conform yet should be marked, so the check can
+be required of new analysis steps without first fixing every existing step.
+This is the same shape as the <code class="docutils literal notranslate"><span class="pre">task_parallelism_allowed</span></code> metadata already
+proposed for the scheduler, and the two should use one mechanism rather
+than two.</p>
+</section>
+<section id="implementation-adoption">
+<h3>Implementation: Adoption<a class="headerlink" href="#implementation-adoption" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>These rules should apply to new analysis steps from the start. Existing
+Polaris steps should not be required to conform until there is a reason:
+they run one at a time today and are correct under that assumption.</p>
+<p>The order that matters is that the rules exist before the analysis
+capability is written. If the analysis steps are written first and the rules
+come later, the outcome is a port of Polaris analysis to meet the needs of
+task parallelism – which is the specific outcome this document exists to
+avoid.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-conformance">
+<h3>Testing and Validation: Conformance<a class="headerlink" href="#testing-and-validation-conformance" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Unit tests shall cover the conformance helper itself, using deliberately
+non-conforming steps: one that changes the working directory, one that
+mutates a forbidden global, one that writes outside its work directory and
+one that launches unbounded parallelism. Each shall be detected.</p>
+<p>Every new analysis step shall have a test that runs it through the
+conformance helper.</p>
+</section>
+<section id="testing-and-validation-concurrent-execution">
+<h3>Testing and Validation: Concurrent Execution<a class="headerlink" href="#testing-and-validation-concurrent-execution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Once the scheduler can run steps concurrently, a test shall run a set of
+conforming analysis steps both serially and concurrently and compare the
+outputs, which shall be identical.</p>
+<p>A test shall also run steps concurrently with deliberately interleaved
+timing, so that two steps are inside their plotting and IO code at the same
+time, since that is where shared global state would otherwise surface.</p>
+</section>
+<section id="testing-and-validation-resource-declaration">
+<h3>Testing and Validation: Resource Declaration<a class="headerlink" href="#testing-and-validation-resource-declaration" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Tests shall verify that a step declaring more memory than a node has is
+reported as infeasible rather than attempted, and that the scheduler does
+not pack steps whose combined declared memory exceeds what is available.</p>
+<p>Validation on a real workload shall compare declared memory against measured
+peak resident memory, since a declaration that is badly wrong is worse than
+no declaration: it will either waste the allocation or oversubscribe it.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="shared_steps.html" class="btn btn-neutral float-left" title="Shared steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="unified_base_mesh.html" class="btn btn-neutral float-right" title="Unified Mesh: Global Base Mesh Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

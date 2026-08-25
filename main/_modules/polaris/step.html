@@ -596,6 +596,37 @@
         <span class="k">pass</span></div>
 
 
+<div class="viewcode-block" id="Step.work_path">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.work_path.html#polaris.Step.work_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">work_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">filenames</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the absolute path to a file or directory in the step's work</span>
+<span class="sd">        directory</span>
+
+<span class="sd">        Steps should use this method (rather than a bare relative filename)</span>
+<span class="sd">        for any file they open in ``run()``, so that the step does not depend</span>
+<span class="sd">        on the process working directory being its own work directory.  See</span>
+<span class="sd">        :ref:`dev-task-parallelism`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *filenames : str</span>
+<span class="sd">            One or more path components, relative to the step's work</span>
+<span class="sd">            directory</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        path : str</span>
+<span class="sd">            The absolute path to the file or directory</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The work directory of step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> has not been set '</span>
+                <span class="sa">f</span><span class="s1">'yet, so work_path() cannot be used.'</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="o">*</span><span class="n">filenames</span><span class="p">))</span></div>
+
+
 <div class="viewcode-block" id="Step.add_input_file">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_input_file</span><span class="p">(</span>

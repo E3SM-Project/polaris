@@ -29,6 +29,7 @@
       ~RRSBaseMesh.set_shared_config
       ~RRSBaseMesh.setup
       ~RRSBaseMesh.validate_baselines
+      ~RRSBaseMesh.work_path
    
    
 

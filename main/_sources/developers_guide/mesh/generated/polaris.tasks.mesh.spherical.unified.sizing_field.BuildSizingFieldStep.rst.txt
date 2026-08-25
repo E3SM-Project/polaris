@@ -26,6 +26,7 @@
       ~BuildSizingFieldStep.set_shared_config
       ~BuildSizingFieldStep.setup
       ~BuildSizingFieldStep.validate_baselines
+      ~BuildSizingFieldStep.work_path
    
    
 

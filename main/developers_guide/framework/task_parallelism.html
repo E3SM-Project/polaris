@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Writing task-parallel-safe steps</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Validation" href="validation.html" />
+    <link rel="prev" title="Remapping" href="remapping.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build.html">Build utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel.html">Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Writing task-parallel-safe steps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-polaris-already-guarantees">What Polaris already guarantees</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-rules">The rules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#address-files-through-the-step-not-the-working-directory">Address files through the step, not the working directory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-not-mutate-process-global-state">Do not mutate process-global state</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#use-the-object-oriented-figure-api">Use the object-oriented figure API</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#keep-temporary-files-in-the-step-s-work-directory">Keep temporary files in the step’s work directory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#log-through-the-step-s-logger">Log through the step’s logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#declare-the-resources-you-need">Declare the resources you need</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#size-internal-parallelism-from-what-you-were-given">Size internal parallelism from what you were given</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#current-status">Current status</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">Writing task-parallel-safe steps</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/framework/task_parallelism.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="writing-task-parallel-safe-steps">
+<span id="dev-task-parallelism"></span><h1>Writing task-parallel-safe steps<a class="headerlink" href="#writing-task-parallel-safe-steps" title="Link to this heading"></a></h1>
+<p>Polaris runs one step at a time today, and a step that changes the process
+working directory or mutates a module-level global is correct under that
+assumption.  It stops being correct as soon as two steps run concurrently in
+one process, and the failure is timing-dependent: it shows up as intermittent
+wrong answers rather than as a clean error.</p>
+<p>Polaris is adding task parallelism so that analysis steps, which are heavily
+Python and are the workload that most needs to run concurrently, can be
+scheduled together and across nodes.  The rules below are what a step must
+satisfy to be scheduled that way.  They are cheap to follow when a step is
+first written and expensive to retrofit, so <strong>new analysis steps should follow
+them from the start</strong>.  Existing steps are being converted only where they are
+shared building blocks; see <a class="reference internal" href="#dev-task-parallelism-status"><span class="std std-ref">Current status</span></a>.</p>
+<p>The reasoning behind the rules, and the scheduler work they support, is in the
+<a class="reference internal" href="../../design_docs/index.html#design-docs"><span class="std std-ref">design documents</span></a>, under
+“Task-Parallel-Safe Analysis Steps in Polaris”.</p>
+<section id="what-polaris-already-guarantees">
+<h2>What Polaris already guarantees<a class="headerlink" href="#what-polaris-already-guarantees" title="Link to this heading"></a></h2>
+<p>Several properties a distributed executor would otherwise have to demand are
+already true, so a step does not have to do anything special about them:</p>
+<ul class="simple">
+<li><p><strong>Steps are already serializable.</strong>  <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> pickles each step to
+<code class="docutils literal notranslate"><span class="pre">step.pickle</span></code> in its work directory and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> unpickles it in a
+different process.  A step holding an open file handle or a live connection
+would already fail today.</p></li>
+<li><p><strong>Config options already come from a file.</strong>  Each step’s config file is
+written into its work directory at setup and re-read immediately before the
+step runs, so a step run in a fresh process sees the same config.</p></li>
+<li><p><strong>Declared inputs and outputs are already absolute.</strong>
+<code class="docutils literal notranslate"><span class="pre">Step.process_inputs_and_outputs()</span></code> resolves the <code class="docutils literal notranslate"><span class="pre">filename</span></code> arguments to
+<code class="docutils literal notranslate"><span class="pre">add_input_file()</span></code> and <code class="docutils literal notranslate"><span class="pre">add_output_file()</span></code> against the step’s work directory
+at setup, so <code class="docutils literal notranslate"><span class="pre">self.inputs</span></code> and <code class="docutils literal notranslate"><span class="pre">self.outputs</span></code> do not depend on the process
+working directory.</p></li>
+<li><p><strong>Every step already has its own work directory and its own logger.</strong></p></li>
+</ul>
+</section>
+<section id="the-rules">
+<h2>The rules<a class="headerlink" href="#the-rules" title="Link to this heading"></a></h2>
+<section id="address-files-through-the-step-not-the-working-directory">
+<h3>Address files through the step, not the working directory<a class="headerlink" href="#address-files-through-the-step-not-the-working-directory" title="Link to this heading"></a></h3>
+<p>Polaris changes the process working directory to the step’s work directory
+before calling <code class="docutils literal notranslate"><span class="pre">run()</span></code>, so a bare relative filename works today.  The working
+directory is process-global, so it cannot stay pointed at your step once
+another step is running beside you.</p>
+<p>Build paths with <a class="reference internal" href="../generated/polaris.Step.work_path.html#polaris.Step.work_path" title="polaris.Step.work_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.work_path()</span></code></a> instead:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'output.nc'</span><span class="p">))</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="o">...</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'comparison.png'</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This applies to paths handed to subprocesses and to third-party libraries as
+well, since those inherit or resolve against the same working directory.  The
+<code class="docutils literal notranslate"><span class="pre">filename</span></code> arguments to <code class="docutils literal notranslate"><span class="pre">add_input_file()</span></code> and <code class="docutils literal notranslate"><span class="pre">add_output_file()</span></code> are
+unaffected – they are relative by design and already resolved at setup.</p>
+</section>
+<section id="do-not-mutate-process-global-state">
+<h3>Do not mutate process-global state<a class="headerlink" href="#do-not-mutate-process-global-state" title="Link to this heading"></a></h3>
+<p>A step must not change anything shared by the whole process: the working
+directory, environment variables, module-level configuration in libraries such
+as <code class="docutils literal notranslate"><span class="pre">mpas_tools.io</span></code>, or global plotting state.  In particular:</p>
+<ul class="simple">
+<li><p>Do not assign to <code class="docutils literal notranslate"><span class="pre">plt.rcParams</span></code> or call <code class="docutils literal notranslate"><span class="pre">plt.style.use()</span></code>.  Use the
+<a class="reference internal" href="../generated/polaris.viz.mplstyle_context.html#polaris.viz.mplstyle_context" title="polaris.viz.mplstyle_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.mplstyle_context()</span></code></a> context manager, which applies the
+Polaris style (and an optional <code class="docutils literal notranslate"><span class="pre">dpi</span></code>) for the duration of a <code class="docutils literal notranslate"><span class="pre">with</span></code> block and
+restores the previous settings afterwards.</p></li>
+<li><p>Do not call <code class="docutils literal notranslate"><span class="pre">plt.switch_backend()</span></code>.  Matplotlib already selects a
+non-interactive backend where Polaris steps run, and the object-oriented
+figure API does not consult the backend at all.</p></li>
+</ul>
+</section>
+<section id="use-the-object-oriented-figure-api">
+<h3>Use the object-oriented figure API<a class="headerlink" href="#use-the-object-oriented-figure-api" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pyplot</span></code>’s “current figure” is process-global.  <code class="docutils literal notranslate"><span class="pre">plt.figure()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">plt.subplot()</span></code>, <code class="docutils literal notranslate"><span class="pre">plt.title()</span></code>, <code class="docutils literal notranslate"><span class="pre">plt.colorbar()</span></code> and <code class="docutils literal notranslate"><span class="pre">plt.savefig()</span></code> all act on
+whichever figure <code class="docutils literal notranslate"><span class="pre">pyplot</span></code> made most recently, so two steps plotting at the same
+time draw into each other’s figures.  Build the figure explicitly instead:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
+
+<span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'...'</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'my_plot.png'</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>A figure built this way is never registered with <code class="docutils literal notranslate"><span class="pre">pyplot</span></code>, so there is also
+nothing to <code class="docutils literal notranslate"><span class="pre">plt.close()</span></code>.</p>
+</section>
+<section id="keep-temporary-files-in-the-step-s-work-directory">
+<h3>Keep temporary files in the step’s work directory<a class="headerlink" href="#keep-temporary-files-in-the-step-s-work-directory" title="Link to this heading"></a></h3>
+<p>Write scratch files under the step’s own work directory rather than in <code class="docutils literal notranslate"><span class="pre">/tmp</span></code>
+or the base work directory, so that two concurrent steps cannot choose the same
+path.  A step must also not write into another step’s work directory, and must
+not read a file that a concurrently running step is still writing.</p>
+</section>
+<section id="log-through-the-step-s-logger">
+<h3>Log through the step’s logger<a class="headerlink" href="#log-through-the-step-s-logger" title="Link to this heading"></a></h3>
+<p>Emit output with <code class="docutils literal notranslate"><span class="pre">self.logger</span></code>, never with <code class="docutils literal notranslate"><span class="pre">print()</span></code> or by writing to <code class="docutils literal notranslate"><span class="pre">stdout</span></code>,
+<code class="docutils literal notranslate"><span class="pre">stderr</span></code> or the root logger.  Output written to shared streams interleaves once
+several steps run at once, and the resulting log cannot be attributed to a
+step.  Pass <code class="docutils literal notranslate"><span class="pre">self.logger</span></code> to any helper function or subprocess that produces
+output; see <a class="reference internal" href="logging.html#dev-logging"><span class="std std-ref">Logging</span></a>.</p>
+</section>
+<section id="declare-the-resources-you-need">
+<h3>Declare the resources you need<a class="headerlink" href="#declare-the-resources-you-need" title="Link to this heading"></a></h3>
+<p>A step must declare the resources it needs so that the scheduler can decide how
+many steps may run at once.  Memory is the field that distinguishes analysis
+steps from most existing Polaris steps: at high resolution an analysis step may
+need a large fraction of a node, and a scheduler that packs by cores alone will
+oversubscribe memory.</p>
+</section>
+<section id="size-internal-parallelism-from-what-you-were-given">
+<h3>Size internal parallelism from what you were given<a class="headerlink" href="#size-internal-parallelism-from-what-you-were-given" title="Link to this heading"></a></h3>
+<p>A step that starts its own pool of processes or threads must size it from the
+resources the step was given, not from the machine.  A pool sized to
+<code class="docutils literal notranslate"><span class="pre">os.cpu_count()</span></code> oversubscribes the node as soon as a second step runs beside
+it.  Use <code class="docutils literal notranslate"><span class="pre">self.cpus_per_task</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">n_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">work_items</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="current-status">
+<span id="dev-task-parallelism-status"></span><h2>Current status<a class="headerlink" href="#current-status" title="Link to this heading"></a></h2>
+<p>The framework support exists – <a class="reference internal" href="../generated/polaris.Step.work_path.html#polaris.Step.work_path" title="polaris.Step.work_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.work_path()</span></code></a>,
+<a class="reference internal" href="../generated/polaris.viz.mplstyle_context.html#polaris.viz.mplstyle_context" title="polaris.viz.mplstyle_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.mplstyle_context()</span></code></a>, and the object-oriented figure API
+in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code> – and the shared building blocks have been converted:
+<code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris.mesh.spherical</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis</span></code>.</p>
+<p>One task-level step,
+<a class="reference internal" href="../seaice/generated/polaris.tasks.seaice.single_column.standard_physics.viz.Viz.html#polaris.tasks.seaice.single_column.standard_physics.viz.Viz" title="polaris.tasks.seaice.single_column.standard_physics.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.seaice.single_column.standard_physics.viz.Viz</span></code></a>, has
+been converted as a worked example of what a conforming step looks like: it is
+small, it plots, and it reads and writes files, so it exercises most of the
+rules above in one place.</p>
+<p>Most other task-level analysis and visualization steps have <strong>not</strong> been
+converted; they still open files by bare relative name and use the <code class="docutils literal notranslate"><span class="pre">pyplot</span></code>
+current figure.  That is correct under today’s one-step-at-a-time execution and
+will be addressed as the analysis capability is built out.  Do not copy those
+steps as a template for new work.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="remapping.html" class="btn btn-neutral float-left" title="Remapping" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="validation.html" class="btn btn-neutral float-right" title="Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

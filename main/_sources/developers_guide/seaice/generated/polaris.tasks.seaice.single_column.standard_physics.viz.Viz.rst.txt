@@ -26,6 +26,7 @@
       ~Viz.set_shared_config
       ~Viz.setup
       ~Viz.validate_baselines
+      ~Viz.work_path
    
    
 

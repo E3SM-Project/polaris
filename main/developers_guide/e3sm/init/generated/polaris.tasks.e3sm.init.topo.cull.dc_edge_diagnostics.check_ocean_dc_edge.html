@@ -19,8 +19,8 @@
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="mesh" href="../../../mesh/api.html" />
-    <link rel="prev" title="polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks" href="polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks.html" />
+    <link rel="next" title="polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells" href="polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells.html" />
+    <link rel="prev" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages" href="polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages.html" />
     <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -131,7 +131,7 @@
 <h1>polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-cull-dc-edge-diagnostics-check-ocean-dc-edge" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge">
-<span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.</span></span><span class="sig-name descname"><span class="pre">check_ocean_dc_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_base_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ocean_cull_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_sizing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ocean_dc_edge_diagnostics.nc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_clusters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/dc_edge_diagnostics.html#check_ocean_dc_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.</span></span><span class="sig-name descname"><span class="pre">check_ocean_dc_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_base_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ocean_cull_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_sizing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_abs_ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ocean_dc_edge_diagnostics.nc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_clusters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/dc_edge_diagnostics.html#check_ocean_dc_edge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge" title="Link to this definition"></a></dt>
 <dd><p>Check that <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> in the ocean/sea-ice domain stays within
 bounds relative to the local ocean background cell width.</p>
 <p>Edges whose two adjacent cells are both kept by the ocean cull mask
@@ -152,17 +152,26 @@ and <code class="docutils literal notranslate"><span class="pre">cellsOnEdge</sp
 culled, 0 where they are kept as ocean/sea-ice)</p></li>
 <li><p><strong>ds_sizing</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – The unified sizing field, with <code class="docutils literal notranslate"><span class="pre">ocean_background_cell_width</span></code>
 (km) on <code class="docutils literal notranslate"><span class="pre">lat</span></code>/<code class="docutils literal notranslate"><span class="pre">lon</span></code> coordinates (degrees)</p></li>
-<li><p><strong>min_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum allowed ratio of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> to the local ocean
-background cell width</p></li>
+<li><p><strong>min_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum allowed ratio of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> to the <em>local</em> ocean
+background cell width.  This guards against land/river resolution
+leaking into the ocean, which shows up as a locally anomalous
+ratio.</p></li>
 <li><p><strong>max_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The maximum allowed ratio of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> to the local ocean
 background cell width</p></li>
+<li><p><strong>min_abs_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum allowed ratio of the <em>shortest</em> <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> anywhere in
+the domain to the <em>finest</em> ocean background cell width anywhere in
+it.  This is the CFL guard: the time step is set by the shortest
+edge globally, and a mesh is already sized for its finest intended
+resolution, so an edge that is short only relative to a coarse
+local background costs nothing.</p></li>
 <li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a>) – The logger for summary output</p></li>
 <li><p><strong>out_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the diagnostics file to write</p></li>
 <li><p><strong>max_clusters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum number of violation clusters to report</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If any ocean-interior edge violates the ratio bounds</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If any ocean-interior edge violates the ratio bounds, or if the
+    shortest edge violates the absolute bound</p>
 </dd>
 </dl>
 </dd></dl>
@@ -173,8 +182,8 @@ background cell width</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../../mesh/api.html" class="btn btn-neutral float-right" title="mesh" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

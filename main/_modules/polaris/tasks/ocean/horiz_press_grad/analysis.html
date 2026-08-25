@@ -118,7 +118,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gravity</span><span class="p">,</span> <span class="n">RhoSw</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.horiz_press_grad.reference</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReferenceColumn</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 
 <div class="viewcode-block" id="Analysis">
@@ -209,7 +209,6 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        """</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s1">'Agg'</span><span class="p">)</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
@@ -664,28 +663,30 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Plot RMS error vs. horizontal resolution with a power-law fit.</span>
 <span class="sd">    """</span>
-    <span class="n">use_mplstyle</span><span class="p">()</span>
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">fit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">slope</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'slope must be provided when fit is provided.'</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
-            <span class="n">resolution_km</span><span class="p">,</span>
-            <span class="n">fit</span><span class="p">,</span>
-            <span class="s1">'k'</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'power-law fit (slope=</span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">resolution_km</span><span class="p">,</span> <span class="n">rms_error</span><span class="p">,</span> <span class="s1">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'RMS error'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">slope</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">'slope must be provided when fit is provided.'</span>
+                <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                <span class="n">resolution_km</span><span class="p">,</span>
+                <span class="n">fit</span><span class="p">,</span>
+                <span class="s1">'k'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'power-law fit (slope=</span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">resolution_km</span><span class="p">,</span> <span class="n">rms_error</span><span class="p">,</span> <span class="s1">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'RMS error'</span><span class="p">)</span>
 
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Horizontal resolution (km)'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'lower right'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Horizontal resolution (km)'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'lower right'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 
            </div>

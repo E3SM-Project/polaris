@@ -26,6 +26,7 @@
       ~VizRemappedTopoStep.set_shared_config
       ~VizRemappedTopoStep.setup
       ~VizRemappedTopoStep.validate_baselines
+      ~VizRemappedTopoStep.work_path
    
    
 

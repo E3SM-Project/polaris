@@ -77,6 +77,7 @@
 <li class="toctree-l2"><a class="reference internal" href="parallel.html">Parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Visualization</a><ul>
@@ -147,12 +148,28 @@ own visualization scripts associated with individual tasks, the following
 shared visualization routines are provided in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>:</p>
 <section id="common-matplotlib-style">
 <span id="dev-visualization-style"></span><h2>common matplotlib style<a class="headerlink" href="#common-matplotlib-style" title="Link to this heading"></a></h2>
-<p>The function <a class="reference internal" href="../generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle" title="polaris.viz.use_mplstyle"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.use_mplstyle()</span></code></a> loads a common
+<p>The context manager <a class="reference internal" href="../generated/polaris.viz.mplstyle_context.html#polaris.viz.mplstyle_context" title="polaris.viz.mplstyle_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.mplstyle_context()</span></code></a> applies a common
 <a class="reference external" href="https://matplotlib.org/stable/users/explain/customizing.html#customizing-with-style-sheets">matplotlib style sheet</a>
-that can be used to make font sizes and other plotting options more consistent
-across Polaris.  The plotting functions described below make use of this common
-style.  Custom plotting should call <a class="reference internal" href="../generated/polaris.viz.use_mplstyle.html#polaris.viz.use_mplstyle" title="polaris.viz.use_mplstyle"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.use_mplstyle()</span></code></a>
-before creating a <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> figure.</p>
+that makes font sizes and other plotting options more consistent across
+Polaris.  The plotting functions described below make use of this common
+style.  Custom plotting should create and save its figures inside the context
+manager:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
+
+<span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="o">...</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'my_plot.png'</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>It is a context manager rather than a plain function because matplotlib’s
+<code class="docutils literal notranslate"><span class="pre">rcParams</span></code> are global to the process.  Assigning to them leaks the settings
+into every plot made afterwards, including plots made by other steps once
+steps can run concurrently in a single process.  Pass <code class="docutils literal notranslate"><span class="pre">dpi</span></code> to override the
+resolution of saved figures for the duration of the context, rather than
+setting <code class="docutils literal notranslate"><span class="pre">rcParams['savefig.dpi']</span></code> directly.  See <a class="reference internal" href="task_parallelism.html#dev-task-parallelism"><span class="std std-ref">Writing task-parallel-safe steps</span></a>
+for the other properties a step needs in order to plot safely alongside other
+steps.</p>
 </section>
 <section id="horizontal-fields-from-planar-meshes">
 <span id="dev-visualization-planar"></span><h2>horizontal fields from planar meshes<a class="headerlink" href="#horizontal-fields-from-planar-meshes" title="Link to this heading"></a></h2>

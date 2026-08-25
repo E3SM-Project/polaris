@@ -188,7 +188,7 @@
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'h'</span><span class="p">,</span> <span class="s1">'normalVelocity'</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">'Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available as an analytic '</span>
                 <span class="s1">'solution for the geostrophic test case'</span>
             <span class="p">)</span>
@@ -239,9 +239,9 @@
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'h'</span><span class="p">,</span> <span class="s1">'normalVelocity'</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available for analysis in the '</span>
-                <span class="sa">f</span><span class="s1">'geostrophic test case'</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available for analysis in '</span>
+                <span class="sa">f</span><span class="s1">'the geostrophic test case'</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'normalVelocity'</span><span class="p">:</span>

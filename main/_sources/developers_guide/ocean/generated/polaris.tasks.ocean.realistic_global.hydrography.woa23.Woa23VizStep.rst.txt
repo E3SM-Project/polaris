@@ -26,6 +26,7 @@
       ~Woa23VizStep.set_shared_config
       ~Woa23VizStep.setup
       ~Woa23VizStep.validate_baselines
+      ~Woa23VizStep.work_path
    
    
 

@@ -48,6 +48,7 @@
       ~Forward.update_namelist_eos
       ~Forward.update_namelist_pio
       ~Forward.validate_baselines
+      ~Forward.work_path
    
    
 

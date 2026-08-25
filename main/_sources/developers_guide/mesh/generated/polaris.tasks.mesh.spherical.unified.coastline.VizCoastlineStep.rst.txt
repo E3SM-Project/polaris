@@ -26,6 +26,7 @@
       ~VizCoastlineStep.set_shared_config
       ~VizCoastlineStep.setup
       ~VizCoastlineStep.validate_baselines
+      ~VizCoastlineStep.work_path
    
    
 

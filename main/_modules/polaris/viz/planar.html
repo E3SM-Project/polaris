@@ -113,12 +113,12 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>  <span class="c1"># noqa: F401</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">mosaic</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogNorm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 
 <div class="viewcode-block" id="plot_horiz_field">
@@ -251,133 +251,133 @@
             <span class="s1">'You must supply both transect_x and transect_y or neither'</span>
         <span class="p">)</span>
 
-    <span class="n">use_mplstyle</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+        <span class="n">create_fig</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">create_fig</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="n">create_fig</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">create_fig</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">create_fig</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">out_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">out_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.png'</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">out_file_name</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">pass</span>
 
-    <span class="k">if</span> <span class="n">create_fig</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">out_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">out_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.png'</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">out_file_name</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-            <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span>
 
-    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">t_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">t_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vert_dim</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">z_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">z_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">z_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">vert_dim</span><span class="p">:</span> <span class="n">z_index</span><span class="p">})</span>
 
-    <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">t_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">t_index</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="n">t_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">vert_dim</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">z_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">z_index</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="n">z_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">isel</span><span class="p">({</span><span class="n">vert_dim</span><span class="p">:</span> <span class="n">z_index</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">descriptor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">descriptor</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">Descriptor</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">descriptor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">Descriptor</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
-
-    <span class="n">pcolor_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-        <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'face'</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">cmap</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="n">cmap</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">cmap_set_under</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">cmap_set_under</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cmap_set_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cmap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="n">cmap_set_over</span><span class="p">)</span>
-
-        <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">'cmap'</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmap</span>
-
-    <span class="k">if</span> <span class="n">show_patch_edges</span><span class="p">:</span>
-        <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">'edgecolor'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'black'</span>
-        <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">'linewidth'</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.25</span>
-
-    <span class="k">if</span> <span class="n">cmap_scale</span> <span class="o">==</span> <span class="s1">'log'</span><span class="p">:</span>
-        <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">'norm'</span><span class="p">]</span> <span class="o">=</span> <span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">pcolor_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'vmin'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">pcolor_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'vmax'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">width</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">width</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">length</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">fig_width</span> <span class="o">=</span> <span class="mi">4</span>
-        <span class="n">legend_width</span> <span class="o">=</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="mi">5</span>
-        <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="n">fig_width</span> <span class="o">+</span> <span class="n">legend_width</span><span class="p">,</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="n">aspect_ratio</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">create_fig</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">field_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">field_mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'The shape of `field_mask`: </span><span class="si">{</span><span class="n">field_mask</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> '</span>
-                <span class="sa">f</span><span class="s1">'does match shape of `field array`: '</span>
-                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> make sure both arrays are defined'</span>
-                <span class="sa">f</span><span class="s1">' at the same location'</span>
-            <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">field_mask</span><span class="p">):</span>
-            <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">field_mask</span><span class="p">)</span>
-
-    <span class="n">collection</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">descriptor</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="o">**</span><span class="n">pcolor_kwargs</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'y (km)'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">'equal'</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">is_periodic</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">x_period</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">y_period</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">autoscale</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">x_period</span> <span class="ow">and</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">y_period</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">autoscale</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">autoscale</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># scale ticks to be in kilometers</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-
-    <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">cmap_title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cmap_title</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">transect_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-            <span class="n">transect_x</span><span class="p">,</span>
-            <span class="n">transect_y</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="n">transect_color</span><span class="p">,</span>
-            <span class="n">linewidth</span><span class="o">=</span><span class="n">transect_linewidth</span><span class="p">,</span>
+        <span class="n">pcolor_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'face'</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">transect_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                <span class="n">transect_x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">transect_y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="s1">'.'</span><span class="p">,</span>
-                <span class="n">color</span><span class="o">=</span><span class="n">transect_start</span><span class="p">,</span>
-                <span class="n">markersize</span><span class="o">=</span><span class="n">transect_markersize</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">transect_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                <span class="n">transect_x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                <span class="n">transect_y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                <span class="s1">'.'</span><span class="p">,</span>
-                <span class="n">color</span><span class="o">=</span><span class="n">transect_end</span><span class="p">,</span>
-                <span class="n">markersize</span><span class="o">=</span><span class="n">transect_markersize</span><span class="p">,</span>
-            <span class="p">)</span>
-    <span class="k">if</span> <span class="n">create_fig</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_file_name</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="k">return</span> <span class="n">descriptor</span></div>
+        <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">cmap</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="n">cmap</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">cmap_set_under</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">cmap_set_under</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cmap_set_over</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cmap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="n">cmap_set_over</span><span class="p">)</span>
+
+            <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">'cmap'</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmap</span>
+
+        <span class="k">if</span> <span class="n">show_patch_edges</span><span class="p">:</span>
+            <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">'edgecolor'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'black'</span>
+            <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">'linewidth'</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.25</span>
+
+        <span class="k">if</span> <span class="n">cmap_scale</span> <span class="o">==</span> <span class="s1">'log'</span><span class="p">:</span>
+            <span class="n">pcolor_kwargs</span><span class="p">[</span><span class="s1">'norm'</span><span class="p">]</span> <span class="o">=</span> <span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">pcolor_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'vmin'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">pcolor_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'vmax'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">width</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">length</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">fig_width</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="n">legend_width</span> <span class="o">=</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="mi">5</span>
+            <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="n">fig_width</span> <span class="o">+</span> <span class="n">legend_width</span><span class="p">,</span> <span class="n">fig_width</span> <span class="o">/</span> <span class="n">aspect_ratio</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">create_fig</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">field_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">field_mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'The shape of `field_mask`: </span><span class="si">{</span><span class="n">field_mask</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> '</span>
+                    <span class="sa">f</span><span class="s1">'does match shape of `field array`: '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> make sure both arrays are defined'</span>
+                    <span class="sa">f</span><span class="s1">' at the same location'</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">field_mask</span><span class="p">):</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">field_mask</span><span class="p">)</span>
+
+        <span class="n">collection</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">descriptor</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="o">**</span><span class="n">pcolor_kwargs</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'y (km)'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">'equal'</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">is_periodic</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">x_period</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">y_period</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">autoscale</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">x_period</span> <span class="ow">and</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">y_period</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">autoscale</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">autoscale</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># scale ticks to be in kilometers</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cmap_title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cmap_title</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">transect_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">transect_x</span><span class="p">,</span>
+                <span class="n">transect_y</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">transect_color</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="n">transect_linewidth</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">transect_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">transect_x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">transect_y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s1">'.'</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">transect_start</span><span class="p">,</span>
+                    <span class="n">markersize</span><span class="o">=</span><span class="n">transect_markersize</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">transect_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">transect_x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">transect_y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="s1">'.'</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">transect_end</span><span class="p">,</span>
+                    <span class="n">markersize</span><span class="o">=</span><span class="n">transect_markersize</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">create_fig</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_file_name</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">descriptor</span></div>
 
 </pre></div>
 

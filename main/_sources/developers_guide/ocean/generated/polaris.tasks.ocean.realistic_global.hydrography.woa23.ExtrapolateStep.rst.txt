@@ -26,6 +26,7 @@
       ~ExtrapolateStep.set_shared_config
       ~ExtrapolateStep.setup
       ~ExtrapolateStep.validate_baselines
+      ~ExtrapolateStep.work_path
    
    
 

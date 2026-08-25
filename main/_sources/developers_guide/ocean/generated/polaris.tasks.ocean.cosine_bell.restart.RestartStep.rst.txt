@@ -47,6 +47,7 @@
       ~RestartStep.update_namelist_eos
       ~RestartStep.update_namelist_pio
       ~RestartStep.validate_baselines
+      ~RestartStep.work_path
    
    
 

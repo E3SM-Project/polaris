@@ -26,6 +26,7 @@
       ~MappingFileStep.set_shared_config
       ~MappingFileStep.setup
       ~MappingFileStep.validate_baselines
+      ~MappingFileStep.work_path
    
    
 

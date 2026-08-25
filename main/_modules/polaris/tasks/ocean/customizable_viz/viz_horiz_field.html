@@ -227,8 +227,11 @@
                 <span class="n">lon_cell</span> <span class="o">&lt;=</span> <span class="n">max_longitude</span>
             <span class="p">)</span>
         <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">lat_mask</span> <span class="o">&amp;</span> <span class="n">lon_mask</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'min lon </span><span class="si">{</span><span class="n">min_longitude</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'min lon </span><span class="si">{</span><span class="n">min_longitude_copy</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude_copy</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'min lon </span><span class="si">{</span><span class="n">min_longitude</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'min lon </span><span class="si">{</span><span class="n">min_longitude_copy</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude_copy</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">'No cells of </span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"nCells"</span><span class="p">]</span><span class="si">}</span><span class="s1"> cells found within the'</span>
@@ -239,7 +242,7 @@
                 <span class="sa">f</span><span class="s1">'longitude </span><span class="si">{</span><span class="n">lon_cell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">lon_cell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">'</span>
                 <span class="sa">f</span><span class="s1">'min lon </span><span class="si">{</span><span class="n">min_longitude</span><span class="si">}</span><span class="s1">, max lon </span><span class="si">{</span><span class="n">max_longitude</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">'</span>
             <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">'Using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cell_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s1"> cells of '</span>
             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"nCells"</span><span class="p">]</span><span class="si">}</span><span class="s1"> cells in the mesh'</span>
         <span class="p">)</span>
@@ -254,9 +257,9 @@
                 <span class="k">if</span> <span class="n">dz</span><span class="p">[</span><span class="n">z_index</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">z_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">z_index</span> <span class="o">-=</span> <span class="mi">1</span>
                 <span class="n">z_mean</span> <span class="o">=</span> <span class="n">z_bottom</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)[</span><span class="n">z_index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-                <span class="nb">print</span><span class="p">(</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s1">'Using z_index </span><span class="si">{</span><span class="n">z_index</span><span class="si">}</span><span class="s1"> for z_target </span><span class="si">{</span><span class="n">z_target</span><span class="si">}</span><span class="s1"> '</span>
-                    <span class="sa">f</span><span class="s1">'with mean depth </span><span class="si">{</span><span class="n">z_mean</span><span class="si">}</span><span class="s1"> '</span>
+                    <span class="sa">f</span><span class="s1">'with mean depth </span><span class="si">{</span><span class="n">z_mean</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">z_index</span> <span class="o">=</span> <span class="mi">0</span>
@@ -319,12 +322,12 @@
                 <span class="k">elif</span> <span class="n">var_name</span> <span class="o">==</span> <span class="s1">'columnThickness'</span><span class="p">:</span>
                     <span class="n">ds</span><span class="p">[</span><span class="n">full_var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span> <span class="o">+</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s1">'Skipping </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">, '</span>
                         <span class="sa">f</span><span class="s1">'not found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="si">}</span><span class="s1">'</span>
                     <span class="p">)</span>
                     <span class="k">continue</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotting </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotting </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">filename_suffix</span> <span class="o">=</span> <span class="s1">''</span>
             <span class="n">mpas_field</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">full_var_name</span><span class="p">]</span>
             <span class="k">if</span> <span class="s1">'nVertLevels'</span> <span class="ow">in</span> <span class="n">mpas_field</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>

@@ -37,6 +37,7 @@
       ~VizHorizField.set_shared_config
       ~VizHorizField.setup
       ~VizHorizField.validate_baselines
+      ~VizHorizField.work_path
       ~VizHorizField.write_horiz_mesh_dataset
       ~VizHorizField.write_initial_state_dataset
       ~VizHorizField.write_model_dataset

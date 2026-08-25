@@ -116,7 +116,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span><span class="p">,</span> <span class="n">get_days_since_start</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 
 <div class="viewcode-block" id="Analysis">
@@ -170,88 +170,87 @@
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        """</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-        <span class="n">use_mplstyle</span><span class="p">()</span>
-
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'coriolis'</span><span class="p">,</span> <span class="s1">'constant_f'</span><span class="p">)</span>
-        <span class="n">tol</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="s1">'single_column_inertial'</span><span class="p">,</span> <span class="s1">'period_tolerance_fraction'</span>
-        <span class="p">)</span>
-
-        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-            <span class="s1">'output.nc'</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'../init/culled_mesh.nc'</span><span class="p">,</span>
-            <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
-            <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">'RBF'</span><span class="p">,</span>
-            <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">'../forward/coeffs.nc'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-        <span class="n">s_per_day</span> <span class="o">=</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="mf">3600.0</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">s_per_day</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-        <span class="n">u_max</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
-        <span class="n">v_max</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
-
-        <span class="c1"># Compute the FFT of the u-component and extract the frequency with</span>
-        <span class="c1"># the most power</span>
-        <span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">u_max</span><span class="p">),</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="n">power</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">u_max</span><span class="p">))</span>
-        <span class="n">dominant_frequency</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-        <span class="n">dominant_period</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">dominant_frequency</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3600.0</span>  <span class="c1"># in hours</span>
-        <span class="n">expected_period</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">f</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3600.0</span>  <span class="c1"># in hours</span>
-
-        <span class="c1"># Plot a time series of the maximum u and v components</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">u_max</span><span class="p">,</span> <span class="s1">'-b'</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v_max</span><span class="p">,</span> <span class="s1">'--b'</span><span class="p">)</span>
-        <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">expected_period</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">,</span> <span class="n">expected_period</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">],</span>
-            <span class="p">[</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">],</span>
-            <span class="s1">'--g'</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">'expected period'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">dominant_period</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">,</span> <span class="n">dominant_period</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">],</span>
-            <span class="p">[</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">],</span>
-            <span class="s1">'--k'</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">'dominant period'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Time (days)'</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Maximum velocity (m/s)'</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">])</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'velocity_tseries.png'</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-        <span class="c1"># Write out some information about the inertial oscillations</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Dominant period: </span><span class="si">{</span><span class="n">dominant_period</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1"> (h)'</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s1">'Expected period for inertial oscillations: '</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">expected_period</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1"> (h)'</span>
-        <span class="p">)</span>
-
-        <span class="n">period_frac_diff</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">dominant_period</span> <span class="o">-</span> <span class="n">expected_period</span>
-        <span class="p">)</span> <span class="o">/</span> <span class="n">expected_period</span>
-
-        <span class="c1"># Test case fails if the oscillations have a frequency that is too</span>
-        <span class="c1"># different from the theoretical frequency</span>
-        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">period_frac_diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s1">'error: Discrepancy in inertial oscillation frequency '</span>
-                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">period_frac_diff</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.0e2</span><span class="si">}</span><span class="s1"> %</span><span class="se">\n</span><span class="s1">'</span>
-                <span class="sa">f</span><span class="s1">'  max fractional tolerance </span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'coriolis'</span><span class="p">,</span> <span class="s1">'constant_f'</span><span class="p">)</span>
+            <span class="n">tol</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                <span class="s1">'single_column_inertial'</span><span class="p">,</span> <span class="s1">'period_tolerance_fraction'</span>
             <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">'Inertial oscillation falls outside expected frequency'</span>
-            <span class="p">)</span></div>
+
+            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                <span class="s1">'output.nc'</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'../init/culled_mesh.nc'</span><span class="p">,</span>
+                <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
+                <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">'RBF'</span><span class="p">,</span>
+                <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">'../forward/coeffs.nc'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+            <span class="n">s_per_day</span> <span class="o">=</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="mf">3600.0</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">s_per_day</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+            <span class="n">u_max</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+            <span class="n">v_max</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span>
+
+            <span class="c1"># Compute the FFT of the u-component and extract the frequency with</span>
+            <span class="c1"># the most power</span>
+            <span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftfreq</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">u_max</span><span class="p">),</span> <span class="n">dt</span><span class="p">)</span>
+            <span class="n">power</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">u_max</span><span class="p">))</span>
+            <span class="n">dominant_frequency</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">dominant_period</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">dominant_frequency</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3600.0</span>  <span class="c1"># in hours</span>
+            <span class="n">expected_period</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">f</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3600.0</span>  <span class="c1"># in hours</span>
+
+            <span class="c1"># Plot a time series of the maximum u and v components</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">u_max</span><span class="p">,</span> <span class="s1">'-b'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v_max</span><span class="p">,</span> <span class="s1">'--b'</span><span class="p">)</span>
+            <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">expected_period</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">,</span> <span class="n">expected_period</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">],</span>
+                <span class="s1">'--g'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">'expected period'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">dominant_period</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">,</span> <span class="n">dominant_period</span> <span class="o">/</span> <span class="mf">24.0</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">],</span>
+                <span class="s1">'--k'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">'dominant period'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Time (days)'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Maximum velocity (m/s)'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">])</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'velocity_tseries.png'</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="c1"># Write out some information about the inertial oscillations</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Dominant period: </span><span class="si">{</span><span class="n">dominant_period</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1"> (h)'</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s1">'Expected period for inertial oscillations: '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">expected_period</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1"> (h)'</span>
+            <span class="p">)</span>
+
+            <span class="n">period_frac_diff</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">dominant_period</span> <span class="o">-</span> <span class="n">expected_period</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="n">expected_period</span>
+
+            <span class="c1"># Test case fails if the oscillations have a frequency that is too</span>
+            <span class="c1"># different from the theoretical frequency</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">period_frac_diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">'error: Discrepancy in inertial oscillation frequency '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">period_frac_diff</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.0e2</span><span class="si">}</span><span class="s1"> %</span><span class="se">\n</span><span class="s1">'</span>
+                    <span class="sa">f</span><span class="s1">'  max fractional tolerance </span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s1">'</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">'Inertial oscillation falls outside expected frequency'</span>
+                <span class="p">)</span></div>
 </div>
 
 </pre></div>

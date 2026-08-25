@@ -160,6 +160,7 @@ seaice/api
    Step.setup
    Step.runtime_setup
    Step.run
+   Step.work_path
    Step.add_input_file
    Step.add_output_file
    Step.add_dependency
@@ -276,6 +277,13 @@ seaice/api
    info.is_spherical
 
    planar.compute_planar_hex_nx_ny
+
+   connectivity.active_edge_masks
+   connectivity.count_active_edges
+   connectivity.has_active_vertex
+   connectivity.transport_link_mask
+   connectivity.connected_to_seeds
+   connectivity.seed_mask_from_points
 
    spherical.SphericalBaseStep
    spherical.SphericalBaseStep.setup
@@ -438,10 +446,10 @@ seaice/api
    determine_time_variable
    get_projection
    get_viz_defaults
+   mplstyle_context
    plot_horiz_field
    plot_global_lat_lon_field
    plot_global_mpas_field
-   use_mplstyle
 ```
 
 ### yaml

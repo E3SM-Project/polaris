@@ -26,6 +26,7 @@
       ~Step.set_shared_config
       ~Step.setup
       ~Step.validate_baselines
+      ~Step.work_path
    
    
 

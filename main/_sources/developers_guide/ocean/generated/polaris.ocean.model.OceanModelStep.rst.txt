@@ -47,6 +47,7 @@
       ~OceanModelStep.update_namelist_eos
       ~OceanModelStep.update_namelist_pio
       ~OceanModelStep.validate_baselines
+      ~OceanModelStep.work_path
    
    
 

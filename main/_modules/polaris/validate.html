@@ -314,6 +314,10 @@
     <span class="n">da1</span> <span class="o">=</span> <span class="n">_rename_duplicate_dims</span><span class="p">(</span><span class="n">da1</span><span class="p">)</span>
     <span class="n">da2</span> <span class="o">=</span> <span class="n">_rename_duplicate_dims</span><span class="p">(</span><span class="n">da2</span><span class="p">)</span>
 
+    <span class="c1"># boolean arrays don't support subtraction, so compare them as integers</span>
+    <span class="n">da1</span> <span class="o">=</span> <span class="n">_as_numeric</span><span class="p">(</span><span class="n">da1</span><span class="p">)</span>
+    <span class="n">da2</span> <span class="o">=</span> <span class="n">_as_numeric</span><span class="p">(</span><span class="n">da2</span><span class="p">)</span>
+
     <span class="n">result</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">da1</span> <span class="o">-</span> <span class="n">da2</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
     <span class="c1"># skip entries where one field or both are a fill value</span>
@@ -347,6 +351,13 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">diff_str</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_numeric</span><span class="p">(</span><span class="n">da</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Convert a boolean DataArray to integers so it can be differenced"""</span>
+    <span class="k">if</span> <span class="n">da</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">da</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_rename_duplicate_dims</span><span class="p">(</span><span class="n">da</span><span class="p">):</span>

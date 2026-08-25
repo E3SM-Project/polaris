@@ -31,6 +31,7 @@
       ~IcosahedralMeshStep.set_shared_config
       ~IcosahedralMeshStep.setup
       ~IcosahedralMeshStep.validate_baselines
+      ~IcosahedralMeshStep.work_path
    
    
 

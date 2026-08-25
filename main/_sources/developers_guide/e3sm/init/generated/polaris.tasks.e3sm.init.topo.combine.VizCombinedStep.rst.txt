@@ -26,6 +26,7 @@
       ~VizCombinedStep.set_shared_config
       ~VizCombinedStep.setup
       ~VizCombinedStep.validate_baselines
+      ~VizCombinedStep.work_path
    
    
 

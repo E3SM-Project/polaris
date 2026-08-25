@@ -111,12 +111,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.seaice.single_column.standard_physics.viz</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_dataset</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 
 <div class="viewcode-block" id="Viz">
@@ -154,49 +153,51 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        """</span>
-        <span class="n">style_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">'polaris.viz'</span><span class="p">)</span> <span class="o">/</span> <span class="s1">'polaris.mplstyle'</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="n">style_filename</span><span class="p">)</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="s1">'output.2000.nc'</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'output.2000.nc'</span><span class="p">),</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">daysSinceStartOfSim</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">daysSinceStartOfSim</span><span class="o">.</span><span class="n">values</span>
         <span class="n">snowVolumeCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">snowVolumeCell</span><span class="o">.</span><span class="n">values</span>
         <span class="n">iceVolumeCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">iceVolumeCell</span><span class="o">.</span><span class="n">values</span>
         <span class="n">surfaceTemperatureCell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">surfaceTemperatureCell</span><span class="o">.</span><span class="n">values</span>
 
-        <span class="n">fig</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+            <span class="n">axis</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
 
-        <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-            <span class="n">daysSinceStartOfSim</span><span class="p">,</span>
-            <span class="n">surfaceTemperatureCell</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="s1">'green'</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">'surfaceTemperature'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Temperature (C)'</span><span class="p">)</span>
-        <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Days'</span><span class="p">)</span>
-        <span class="n">axis</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">daysSinceStartOfSim</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">axis</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'MPAS_Seaice single cell'</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">daysSinceStartOfSim</span><span class="p">,</span>
+                <span class="n">surfaceTemperatureCell</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s1">'green'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">'surfaceTemperature'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Temperature (C)'</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Days'</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">daysSinceStartOfSim</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'MPAS_Seaice single cell'</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 
-        <span class="n">axis2</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+            <span class="n">axis2</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
 
-        <span class="n">axis2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-            <span class="n">daysSinceStartOfSim</span><span class="p">,</span> <span class="n">iceVolumeCell</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'red'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'iceVolume'</span>
-        <span class="p">)</span>
-        <span class="n">axis2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-            <span class="n">daysSinceStartOfSim</span><span class="p">,</span>
-            <span class="n">snowVolumeCell</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="s1">'blue'</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="s1">'snowVolume'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">axis2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Thickness (m)'</span><span class="p">)</span>
-        <span class="n">axis2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">axis2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">daysSinceStartOfSim</span><span class="p">,</span>
+                <span class="n">iceVolumeCell</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s1">'red'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">'iceVolume'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">axis2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">daysSinceStartOfSim</span><span class="p">,</span>
+                <span class="n">snowVolumeCell</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s1">'blue'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">'snowVolume'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">axis2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Thickness (m)'</span><span class="p">)</span>
+            <span class="n">axis2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'single_cell.pdf'</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'single_cell.png'</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+            <span class="n">axis2</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'single_cell.pdf'</span><span class="p">))</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'single_cell.png'</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

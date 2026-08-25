@@ -37,6 +37,7 @@
       ~Viz.set_shared_config
       ~Viz.setup
       ~Viz.validate_baselines
+      ~Viz.work_path
       ~Viz.write_horiz_mesh_dataset
       ~Viz.write_initial_state_dataset
       ~Viz.write_model_dataset

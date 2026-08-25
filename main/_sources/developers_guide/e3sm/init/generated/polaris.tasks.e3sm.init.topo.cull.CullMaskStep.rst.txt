@@ -30,6 +30,7 @@
       ~CullMaskStep.set_shared_config
       ~CullMaskStep.setup
       ~CullMaskStep.validate_baselines
+      ~CullMaskStep.work_path
    
    
 

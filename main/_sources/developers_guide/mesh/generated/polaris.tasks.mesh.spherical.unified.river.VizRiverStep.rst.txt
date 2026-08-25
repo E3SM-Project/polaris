@@ -26,6 +26,7 @@
       ~VizRiverStep.set_shared_config
       ~VizRiverStep.setup
       ~VizRiverStep.validate_baselines
+      ~VizRiverStep.work_path
    
    
 

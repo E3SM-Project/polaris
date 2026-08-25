@@ -189,7 +189,7 @@
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">field_name</span> <span class="o">!=</span> <span class="s1">'tracer1'</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">'Variable </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not available as an analytic '</span>
                 <span class="s1">'solution for the cosine_bell test case'</span>
             <span class="p">)</span>

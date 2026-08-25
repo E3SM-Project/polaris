@@ -26,6 +26,7 @@
       ~CombineStep.set_shared_config
       ~CombineStep.setup
       ~CombineStep.validate_baselines
+      ~CombineStep.work_path
    
    
 

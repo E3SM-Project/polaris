@@ -327,8 +327,23 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks.html#polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks" title="polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_cull_topo_tasks</span></code></a>(component)</p></td>
 <td><p>Add a task to remap topography for each supported base mesh</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge.html#polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge" title="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dc_edge_diagnostics.check_ocean_dc_edge</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">consistency.check_cull_mask_consistency</span></code></a>(...)</p></td>
+<td><p>Check that the cull masks describe a consistent set of domains.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria"><code class="xref py py-obj docutils literal notranslate"><span class="pre">consistency.check_land_locked_criteria</span></code></a>(...)</p></td>
+<td><p>Check that no land-locked cells survive in either ocean domain.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">consistency.check_critical_passages</span></code></a>(...[, ...])</p></td>
+<td><p>Check that no cell on a critical ocean passage was culled from the ocean.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge.html#polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge" title="polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics.check_ocean_dc_edge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dc_edge_diagnostics.check_ocean_dc_edge</span></code></a>(...)</p></td>
 <td><p>Check that <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> in the ocean/sea-ice domain stays within bounds relative to the local ocean background cell width.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells.html#polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells" title="polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">land_locked.remove_land_locked_cells</span></code></a>(...[, ...])</p></td>
+<td><p>Refine the ocean and ocean-without-cavities domains together, removing the cells in which the ocean cannot circulate and those in which sea ice would be trapped.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.e3sm.init.topo.cull.land_locked.remove_ocean_land_locked_cells.html#polaris.tasks.e3sm.init.topo.cull.land_locked.remove_ocean_land_locked_cells" title="polaris.tasks.e3sm.init.topo.cull.land_locked.remove_ocean_land_locked_cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">land_locked.remove_ocean_land_locked_cells</span></code></a>(...)</p></td>
+<td><p>Refine the ocean domain alone, removing the cells through which a C-grid cannot circulate and those that are not connected to the open ocean.</p></td>
 </tr>
 </tbody>
 </table>

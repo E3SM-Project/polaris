@@ -28,6 +28,7 @@
       ~PStarInitStep.set_shared_config
       ~PStarInitStep.setup
       ~PStarInitStep.validate_baselines
+      ~PStarInitStep.work_path
    
    
 

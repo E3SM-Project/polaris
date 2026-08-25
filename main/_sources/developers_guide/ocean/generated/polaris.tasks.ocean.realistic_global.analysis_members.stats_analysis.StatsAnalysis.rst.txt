@@ -37,6 +37,7 @@
       ~StatsAnalysis.set_shared_config
       ~StatsAnalysis.setup
       ~StatsAnalysis.validate_baselines
+      ~StatsAnalysis.work_path
       ~StatsAnalysis.write_horiz_mesh_dataset
       ~StatsAnalysis.write_initial_state_dataset
       ~StatsAnalysis.write_model_dataset

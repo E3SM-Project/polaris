@@ -26,6 +26,7 @@
       ~VizBaseMeshStep.set_shared_config
       ~VizBaseMeshStep.setup
       ~VizBaseMeshStep.validate_baselines
+      ~VizBaseMeshStep.work_path
    
    
 

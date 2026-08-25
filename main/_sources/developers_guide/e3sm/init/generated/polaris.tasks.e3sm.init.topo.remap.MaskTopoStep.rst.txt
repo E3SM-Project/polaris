@@ -27,6 +27,7 @@
       ~MaskTopoStep.set_shared_config
       ~MaskTopoStep.setup
       ~MaskTopoStep.validate_baselines
+      ~MaskTopoStep.work_path
    
    
 

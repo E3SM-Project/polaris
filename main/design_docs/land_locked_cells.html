@@ -1,0 +1,577 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Land-Locked Cells in the Ocean and Sea-Ice Domains</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="EOS and Vertical-Coordinate Variants of the Overflow Tasks" href="overflow_nonlinear_eos.html" />
+    <link rel="prev" title="Reworked HPG Reference Solution" href="horiz_press_grad_reference.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Land-Locked Cells in the Ocean and Sea-Ice Domains</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#current-behavior">Current behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-grid-appropriate-land-locked-criteria">Requirement: grid-appropriate land-locked criteria</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-connectivity-on-the-appropriate-graph">Requirement: connectivity on the appropriate graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-consistent-domains-and-meaningful-labels">Requirement: consistent domains and meaningful labels</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-grid-appropriate-land-locked-criteria">Algorithm Design: grid-appropriate land-locked criteria</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-connectivity-on-the-appropriate-graph">Algorithm Design: connectivity on the appropriate graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-consistent-domains-and-meaningful-labels">Algorithm Design: consistent domains and meaningful labels</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-grid-appropriate-land-locked-criteria">Implementation: grid-appropriate land-locked criteria</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-connectivity-on-the-appropriate-graph">Implementation: connectivity on the appropriate graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-consistent-domains-and-meaningful-labels">Implementation: consistent domains and meaningful labels</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-grid-appropriate-land-locked-criteria">Testing and Validation: grid-appropriate land-locked criteria</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-connectivity-on-the-appropriate-graph">Testing and Validation: connectivity on the appropriate graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-consistent-domains-and-meaningful-labels">Testing and Validation: consistent domains and meaningful labels</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bedrock-zero-is-available-but-not-yet-fully-supported"><code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code> is available but not yet fully supported</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Land-Locked Cells in the Ocean and Sea-Ice Domains</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/land_locked_cells.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="land-locked-cells-in-the-ocean-and-sea-ice-domains">
+<h1>Land-Locked Cells in the Ocean and Sea-Ice Domains<a class="headerlink" href="#land-locked-cells-in-the-ocean-and-sea-ice-domains" title="Link to this heading"></a></h1>
+<p>date: 2026/08/11</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">topo/cull</span></code> mask step of the <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component removes cells in
+which sea ice would become trapped, and cells through which the ocean
+cannot circulate. It does this by calling
+<a class="reference external" href="https://mpas-dev.github.io/MPAS-Tools/master/generated/mpas_tools.ocean.coastline_alteration.add_land_locked_cells_to_mask.html#mpas_tools.ocean.coastline_alteration.add_land_locked_cells_to_mask" title="(in mpas_tools master)"><code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.ocean.coastline_alteration.add_land_locked_cells_to_mask()</span></code></a>
+twice, once for the ocean domain and once for the ocean without ice-shelf
+cavities, and following each call with a flood fill.</p>
+<p>That routine knows nothing about land ice and cannot tell the two domains
+apart, so it applies one fixed pair of criteria to both. Three consequences
+follow. The sea-ice criterion, which exists because MPAS-Seaice is a B-grid
+with velocities at vertices, is applied to ice-shelf cavities where sea ice
+never forms. The ocean criterion is applied to a domain the ocean model does
+not run on. And because both criteria act only poleward of a latitude
+threshold chosen for sea ice, dead-end ocean cells at lower latitudes are
+never examined at all: roughly fifty cells per unified mesh survive with a
+single usable edge.</p>
+<p>This design replaces the two calls with a single pass implemented in Polaris
+that computes both cull masks together, with the land-ice mask available
+throughout, and applies to each domain the criterion its model’s grid
+actually requires. It also makes the relationship between the two domains
+exact: they differ by ice-shelf cavities and by nothing else.</p>
+<p>Success means that the requirements below hold by construction on every
+supported mesh and every Antarctic boundary convention, are checked at the
+end of the mask step, and no longer depend on the behaviour of an external
+routine.</p>
+<p>This capability is implemented in Polaris rather than contributed back to
+MPAS-Tools. Other tools may continue to use
+<code class="docutils literal notranslate"><span class="pre">add_land_locked_cells_to_mask</span></code>; there is no requirement to stay in sync,
+and E3SM v4 meshes will be produced with Polaris, so their provenance is
+unambiguous.</p>
+</section>
+<section id="current-behavior">
+<h2>Current behavior<a class="headerlink" href="#current-behavior" title="Link to this heading"></a></h2>
+<p>The two grids place different demands on the mesh.</p>
+<p><strong>MPAS-Seaice is a B-grid</strong>: velocities live at vertices. A vertex is usable
+only if every cell around it is in the sea-ice domain. A cell with no usable
+vertex has no velocity point by which ice can leave it, so ice drifting in
+accumulates indefinitely.</p>
+<p><strong>MPAS-Ocean and Omega are C-grids</strong>: normal velocities live at edges. The
+ocean’s requirement is a count rather than a geometry. A cell needs two
+edges it can move water through, so that there is a way in and a way out. No
+condition on vertices applies.</p>
+<p>The B-grid criterion is strictly the stronger. An active vertex has all
+three surrounding cells in the domain, so the two edges of the cell meeting
+there are both active: one active vertex implies two active edges. The
+converse fails, since a cell may have two active edges on opposite sides and
+no active vertex at all.</p>
+<p>Measured on <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> for all three Antarctic boundary conventions, the
+current implementation leaves 51 to 55 cells per mesh with fewer than two
+active edges, every one of them equatorward of the 43-degree threshold and
+therefore never examined. All have exactly one active edge; none has zero,
+and none lies on a critical ocean passage. The vertex criterion fares
+better, with no violations anywhere it is meant to apply.</p>
+<p>Such cells do not destabilize MPAS-Ocean. A cell with one active edge is
+well posed; it simply has no through-flow, filling and draining through a
+single face. The cost is a stagnant pocket that can trap tracers and hold
+spurious local extrema, together with a wasted cell and its time-step cost.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-grid-appropriate-land-locked-criteria">
+<h3>Requirement: grid-appropriate land-locked criteria<a class="headerlink" href="#requirement-grid-appropriate-land-locked-criteria" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Every cell of the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> domain and every cell of the <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>
+domain must have at least two active edges, meaning edges shared with
+another cell of the same domain. The two edges need not be adjacent and no
+active vertex is required. This applies globally, not only poleward of the
+sea-ice latitude threshold. Removing the cavities from <code class="docutils literal notranslate"><span class="pre">ocean</span></code> can take a
+cell below two active edges, so the criterion must be enforced on
+<code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> in its own right rather than inherited.</p>
+<p>Every cell of the <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> domain poleward of the sea-ice
+latitude threshold must in addition have at least one active vertex, a
+vertex all of whose surrounding cells are in that domain.</p>
+<p>The vertex criterion must never be applied to the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> domain. Since the
+vertex criterion implies the edge criterion, the edge criterion is
+automatic on <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> poleward of the threshold and must still be
+enforced there equatorward of it.</p>
+</section>
+<section id="requirement-connectivity-on-the-appropriate-graph">
+<h3>Requirement: connectivity on the appropriate graph<a class="headerlink" href="#requirement-connectivity-on-the-appropriate-graph" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Every cell of the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> domain must be reachable from the global open
+ocean through edges shared with other cells of that domain.</p>
+<p>Sea ice must not accumulate where it cannot escape. The velocity that moves
+ice across an edge is built from the velocities at that edge’s two
+vertices, so an edge whose vertices are both inactive carries no flux and
+does not connect the cells it separates, even though they share an edge.
+Every cell of the <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> domain in which sea ice can form must
+therefore be able to reach the global open ocean over the reduced graph of
+edges having at least one active vertex.</p>
+<p>The target is the equatorward part of the sea-ice domain, not the global
+open ocean. Ice escapes by drifting to where it melts, and cells
+equatorward of <code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code> form no ice, so they cannot be
+affected by this requirement and instead serve as its seeds. Concretely,
+every cell of <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> poleward of the threshold must reach some
+cell of <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> equatorward of it.</p>
+<p>Seeding this way is what keeps the requirement from deleting whole seas.
+Transport isolation is symmetric: ice that cannot leave a basin cannot
+enter it either, so a basin that forms no ice accumulates none. On
+<code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> the Mediterranean, the Red Sea and the Sea of Marmara are all
+transport-isolated from the world ocean, because Gibraltar, Bab-el-Mandeb
+and the Dardanelles are too narrow at 30 km for any edge there to have an
+active vertex. Seeded from the equatorward band, each of them contains or
+reaches its own seeds and is kept. A basin straddling the threshold is kept
+for the right reason: ice forming in its poleward part can drift into its
+equatorward part and melt there.</p>
+<p>This also avoids a fatal difficulty with seeding the sea-ice fill from the
+<code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> ocean seed points, as the ocean fill does. Those
+points span latitudes 65 degrees south to 10 degrees north, and <strong>none lies
+poleward of 43 degrees north</strong>, so a sea-ice fill seeded from them and
+restricted to the ice-forming region would have no seed at all in the
+northern hemisphere.</p>
+<p>The step must fail if <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> has no cells equatorward of the
+threshold, which would leave this fill with no seeds and silently remove
+the entire sea-ice domain. That is only reachable by mis-setting the
+threshold, but the failure mode is severe enough to check.</p>
+</section>
+<section id="requirement-consistent-domains-and-meaningful-labels">
+<h3>Requirement: consistent domains and meaningful labels<a class="headerlink" href="#requirement-consistent-domains-and-meaningful-labels" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Every cell that is in <code class="docutils literal notranslate"><span class="pre">ocean</span></code> but not in <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> must be covered
+by land ice. A cell removed from <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> to satisfy the sea-ice
+criteria must therefore also be removed from <code class="docutils literal notranslate"><span class="pre">ocean</span></code> unless it is a cavity
+cell; the ocean does not keep an open-water embayment that sea ice cannot
+use.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> must remain a subset of <code class="docutils literal notranslate"><span class="pre">ocean</span></code>, <code class="docutils literal notranslate"><span class="pre">land</span></code> must remain the
+exact complement of <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>, and a cell removed from <code class="docutils literal notranslate"><span class="pre">ocean</span></code>
+must also be removed from <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>.</p>
+<p>A cell on a critical ocean passage must not be removed by any of the above.
+If satisfying the criteria would require removing one, that indicates a
+poorly formed critical passage: the error must name the transect
+responsible and state that it may need modification in <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code>.
+Disabling individual passages per mesh is out of scope unless it proves
+unavoidable.</p>
+<p>A cell removed for connectivity or sea-ice reasons must not thereby be
+labelled as land ice. The land-ice mask must mean land ice, and the
+ice-shelf cavity cells must be exactly <code class="docutils literal notranslate"><span class="pre">ocean</span></code> minus <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-grid-appropriate-land-locked-criteria">
+<h3>Algorithm Design: grid-appropriate land-locked criteria<a class="headerlink" href="#algorithm-design-grid-appropriate-land-locked-criteria" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>For a cell mask defining a domain, a neighbor across a local edge is active
+when it exists and belongs to the domain. The count of active edges per cell
+gives the edge criterion directly. Two edges of a cell that are adjacent in
+the cell’s edge ordering meet at a vertex, and that vertex is active when
+the neighbors across both edges are active, so the vertex criterion is the
+existence of an adjacent pair of active edges.</p>
+<p>Both are evaluated as whole-array operations over the base mesh using
+<code class="docutils literal notranslate"><span class="pre">cellsOnCell</span></code> and <code class="docutils literal notranslate"><span class="pre">nEdgesOnCell</span></code>, with the next and previous neighbor
+arrays formed by rotating the local edge index modulo <code class="docutils literal notranslate"><span class="pre">nEdgesOnCell</span></code>.</p>
+<p>Removal is iterative within a pass, since removing one cell can take a
+neighbor below its threshold, and it is monotone: cells are only ever
+removed. A pass therefore terminates.</p>
+</section>
+<section id="algorithm-design-connectivity-on-the-appropriate-graph">
+<h3>Algorithm Design: connectivity on the appropriate graph<a class="headerlink" href="#algorithm-design-connectivity-on-the-appropriate-graph" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Ocean connectivity is a flood fill over cell adjacency restricted to the
+domain. Sea-ice connectivity is the same fill over the subgraph in which an
+edge is retained only if at least one of its two vertices is active. On a
+Voronoi mesh the three cells meeting at a vertex are pairwise edge-adjacent,
+so this is equivalently a fill through active vertices. A link requires both
+of its cells to be in the domain, not only the neighbor; a graph built
+without that restriction joins separate basins through the land cells
+between them.</p>
+<p>The ocean fill starts from the <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> ocean seed points,
+replacing the hard-coded latitude and longitude boxes used inside
+<code class="docutils literal notranslate"><span class="pre">add_land_locked_cells_to_mask</span></code>, so one notion of “open ocean” serves the
+whole workflow. The sea-ice fill instead seeds itself from the sea-ice
+domain equatorward of the threshold:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">seeds</span> <span class="o">=</span> <span class="n">no_cavities</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">lat_cell</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">)</span>
+<span class="n">reachable</span> <span class="o">=</span> <span class="n">connected_to_seeds</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">no_cavities</span><span class="p">,</span> <span class="n">seeds</span><span class="p">,</span>
+    <span class="n">link_mask</span><span class="o">=</span><span class="n">transport_link_mask</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">no_cavities</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">remove</span> <span class="o">=</span> <span class="n">no_cavities</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">reachable</span>
+</pre></div>
+</div>
+<p>No latitude test is needed on <code class="docutils literal notranslate"><span class="pre">remove</span></code>: a cell equatorward of the threshold
+is a seed and is therefore always reachable, so only poleward cells can be
+removed. No region masks are needed either, which matters because
+rasterizing <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> regions onto a base mesh is expensive at
+these resolutions.</p>
+<p>Measured on <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code>, this removes no cells under any of the three
+Antarctic boundary conventions, with about 330,000 seeds in each case. The
+requirement therefore acts as a guard for future meshes rather than a
+change to existing ones.</p>
+</section>
+<section id="algorithm-design-consistent-domains-and-meaningful-labels">
+<h3>Algorithm Design: consistent domains and meaningful labels<a class="headerlink" href="#algorithm-design-consistent-domains-and-meaningful-labels" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The two domains are refined together rather than in sequence:</p>
+<ol class="arabic simple">
+<li><p>Form candidate <code class="docutils literal notranslate"><span class="pre">ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> masks, the latter being
+the former minus the land ice, both carrying the critical land blockages
+and critical ocean passages.</p></li>
+<li><p>Enforce the edge criterion on <code class="docutils literal notranslate"><span class="pre">ocean</span></code>, then ocean connectivity.</p></li>
+<li><p>Remove from <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> everything removed from <code class="docutils literal notranslate"><span class="pre">ocean</span></code>.</p></li>
+<li><p>Enforce the vertex criterion on <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> poleward of the
+threshold and the edge criterion equatorward of it, then sea-ice
+connectivity.</p></li>
+<li><p>Remove from <code class="docutils literal notranslate"><span class="pre">ocean</span></code> any cell dropped in step 4 that is not a cavity cell.</p></li>
+<li><p>Repeat from step 2 until neither domain changes.</p></li>
+<li><p>Take <code class="docutils literal notranslate"><span class="pre">land</span></code> as the complement of <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>.</p></li>
+<li><p>Leave the land-ice mask as the ice mask; the cavity cells are then
+exactly <code class="docutils literal notranslate"><span class="pre">ocean</span></code> minus <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>.</p></li>
+<li><p>Report any critical passage cell that the criteria would have removed,
+naming the transect.</p></li>
+</ol>
+<p>Step 6 terminates because every pass only removes cells. Long, narrow
+channels with no active vertices are expected to be removed, and needing
+more than one alternation to reach that state is acceptable.</p>
+<p>Under the <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> convention no cell is both ocean and land ice once
+the critical passages have been applied, so <code class="docutils literal notranslate"><span class="pre">ocean</span></code> minus
+<code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> is empty and the two domains are necessarily identical.
+The equality that the cull-mask consistency check currently verifies then
+follows from the requirements rather than from the behaviour of an external
+routine.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-grid-appropriate-land-locked-criteria">
+<h3>Implementation: grid-appropriate land-locked criteria<a class="headerlink" href="#implementation-grid-appropriate-land-locked-criteria" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A dependency-light leaf module provides the mesh-connectivity primitives as
+pure functions of a base-mesh dataset and a cell mask: active-edge counts,
+active-vertex presence, the reduced sea-ice transport graph, and a flood
+fill from seed points over a supplied graph. Nothing in it depends on
+<code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code>, so it is testable on small synthetic meshes.</p>
+</section>
+<section id="implementation-connectivity-on-the-appropriate-graph">
+<h3>Implementation: connectivity on the appropriate graph<a class="headerlink" href="#implementation-connectivity-on-the-appropriate-graph" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The flood fill is expressed as a connected-components problem on a sparse
+adjacency matrix built from <code class="docutils literal notranslate"><span class="pre">cellsOnCell</span></code>, with the retained-edge mask
+supplied by the caller. This serves both the ocean and the sea-ice graph
+without duplicating the fill itself.</p>
+<p>The sea-ice fill needs no new inputs: its seeds come from <code class="docutils literal notranslate"><span class="pre">latCell</span></code> and the
+candidate mask, both already in hand. The only new failure path is the
+empty-seed check, raised before the fill runs.</p>
+</section>
+<section id="implementation-consistent-domains-and-meaningful-labels">
+<h3>Implementation: consistent domains and meaningful labels<a class="headerlink" href="#implementation-consistent-domains-and-meaningful-labels" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A single function takes the base mesh, the candidate masks, the land-ice
+mask, the critical-transect masks and the latitude threshold, and returns
+both refined masks together with any critical-passage violations. This
+replaces both <code class="docutils literal notranslate"><span class="pre">add_land_locked_cells_to_mask</span></code> calls and both ocean flood
+fills in <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code>, along with the step that currently adds
+connectivity removals to the land-ice mask.</p>
+<p>Naming the transect responsible for a critical-passage violation requires
+the per-transect masks and <code class="docutils literal notranslate"><span class="pre">transectNames</span></code> to reach the check.
+<code class="docutils literal notranslate"><span class="pre">_create_critical_transects</span></code> currently collapses them into a single combined
+mask, so the check consults <code class="docutils literal notranslate"><span class="pre">critical_ocean_transects_widened.nc</span></code> instead.</p>
+<p>The cull-mask consistency check gains the edge and vertex criteria as
+post-conditions, and its <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> equality is re-derived from the
+domain relationship rather than asserted.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-grid-appropriate-land-locked-criteria">
+<h3>Testing and Validation: grid-appropriate land-locked criteria<a class="headerlink" href="#testing-and-validation-grid-appropriate-land-locked-criteria" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests on small synthetic meshes covering a cell with one active edge, a
+cell with two non-adjacent active edges and no active vertex, a cell with an
+adjacent pair, and a cascade in which removing one cell takes a neighbor
+below the threshold. The equatorward and poleward cases are tested
+separately so the latitude scoping is exercised.</p>
+</section>
+<section id="testing-and-validation-connectivity-on-the-appropriate-graph">
+<h3>Testing and Validation: connectivity on the appropriate graph<a class="headerlink" href="#testing-and-validation-connectivity-on-the-appropriate-graph" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests covering a pocket that is edge-connected to the seeded region but
+joined only by edges with two inactive vertices: sea-ice connectivity must
+remove it when it lies wholly poleward of the threshold and keep it when it
+straddles or lies equatorward, while ocean connectivity keeps it in every
+case. Also a region disconnected outright, which both must remove, and a
+threshold that leaves no equatorward cells, which must raise.</p>
+<p>On real meshes, the Mediterranean, Red Sea and Sea of Marmara must survive
+in both ocean domains on every convention. They are the cases this seeding
+exists to protect, and their loss would be the loudest possible signal that
+the requirement has been mis-scoped.</p>
+</section>
+<section id="testing-and-validation-consistent-domains-and-meaningful-labels">
+<h3>Testing and Validation: consistent domains and meaningful labels<a class="headerlink" href="#testing-and-validation-consistent-domains-and-meaningful-labels" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/11</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The existing cull-mask consistency tests are extended with the new
+post-conditions. On real meshes, <code class="docutils literal notranslate"><span class="pre">u.oi240.lr240</span></code> and <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> are
+culled under all three Antarctic boundary conventions and checked for the
+domain relationships, for the absence of cells with fewer than two active
+edges, and for the absence of vertex-criterion violations poleward of the
+threshold. The <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> runs must additionally show <code class="docutils literal notranslate"><span class="pre">ocean</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> identical.</p>
+<p>Because this changes which cells are culled, baseline comparisons against
+<code class="docutils literal notranslate"><span class="pre">main</span></code> will differ on every mesh, which is the expected outcome rather than
+a failure.</p>
+</section>
+</section>
+<section id="bedrock-zero-is-available-but-not-yet-fully-supported">
+<h2><code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code> is available but not yet fully supported<a class="headerlink" href="#bedrock-zero-is-available-but-not-yet-fully-supported" title="Link to this heading"></a></h2>
+<p>On <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> with <code class="docutils literal notranslate"><span class="pre">antarctic_boundary_convention</span> <span class="pre">=</span> <span class="pre">bedrock_zero</span></code>, the
+cull-mask step passes every check in this document and then fails the
+<code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> diagnostic at sixteen edges around ten cells near 69.7 degrees
+south, 140 degrees east, in Adelie Land.</p>
+<p>The ten cells are ice-shelf cavity cells: in <code class="docutils literal notranslate"><span class="pre">ocean</span></code>, out of
+<code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>, all flagged as land ice. Under <code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code> the
+ocean extends into subglacial basins below sea level, and these cells sit
+in one. They are meshed at 11 to 19 km against a 30 km ocean background,
+so their <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> ratio falls to 0.373 against a floor of 0.65.</p>
+<p>The cause predates this design. The coastline product for <code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code>
+takes its candidate ocean to be everything below sea level, which does
+include the basin, and then flood fills at the 0.125 degree coastline
+resolution, where the barrier between the basin and the sea is unbroken.
+The basin is therefore dropped, and the sizing field assigns it land or
+river resolution. The MPAS cull works at mesh scale, where the same
+barrier is diluted, so its own flood fill connects the basin and keeps it
+as ocean. That is Mechanism A of the <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> design doc,
+and <code class="docutils literal notranslate"><span class="pre">build_effective_ocean_mask</span></code> exists to compensate for it, but its
+hysteresis growth does not bridge this barrier under this convention.</p>
+<p>What changed is only that the old implementation hid it. Its land-locked
+check applied the B-grid vertex criterion to the ocean, which removed
+exactly these cells. Under the criteria set out here the ocean keeps them,
+because a C-grid needs only two active edges. The margin was already thin:
+the same mesh under the old code reported a minimum ratio of 0.654 against
+the same 0.65 floor.</p>
+<p><code class="docutils literal notranslate"><span class="pre">calving_front</span></code>, which is the default, and <code class="docutils literal notranslate"><span class="pre">grounding_line</span></code> are unaffected,
+reporting minimum ratios of 0.664 and 0.743.</p>
+<p>Fixing this means teaching the sizing field’s cull emulation to bridge
+barriers that the mesh-scale cull dilutes. That belongs to the
+<code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> subsystem: it would change the sizing field and
+therefore the base mesh of every unified mesh, which is well outside the
+scope of the land-locked criteria.</p>
+<p>The convention is therefore available but not yet ready for production
+use, and is expected to need further debugging before it is. It behaves
+correctly at 240 km, where the base mesh is uniform and no land or river
+resolution exists to leak.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="horiz_press_grad_reference.html" class="btn btn-neutral float-left" title="Reworked HPG Reference Solution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="overflow_nonlinear_eos.html" class="btn btn-neutral float-right" title="EOS and Vertical-Coordinate Variants of the Overflow Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

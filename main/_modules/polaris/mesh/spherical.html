@@ -112,10 +112,10 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cartopy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.crs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ccrs</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">jigsawpy</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">jigsawpy.savejig</span><span class="w"> </span><span class="kn">import</span> <span class="n">savejig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_dataset</span><span class="p">,</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.creation.jigsaw_to_netcdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">jigsaw_to_netcdf</span>
@@ -126,8 +126,15 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_reconstruction_weights</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compute_reconstruction_weights</span><span class="p">,</span>
+    <span class="n">get_reconstruction_validate_vars</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.quality</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cell_polygon_quality</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.validate</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CELL_WIDTH_VALIDATE_VARS</span><span class="p">,</span>
+    <span class="n">MPAS_MESH_VALIDATE_VARS</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_graph_file</span>
 
 
@@ -198,12 +205,29 @@
             <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s1">'lat'</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s1">'lon'</span><span class="p">:</span> <span class="n">lon</span><span class="p">},</span>
             <span class="n">name</span><span class="o">=</span><span class="s1">'cellWidth'</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">cell_width_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cell_width_filename'</span><span class="p">)</span>
+        <span class="n">cell_width_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cell_width_filename'</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="n">da</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">cell_width_filename</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'plot_cell_width'</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_plot_cell_width</span><span class="p">(</span><span class="n">cell_width</span><span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Make the JIGSAW file names absolute</span>
+
+<span class="sd">        JIGSAW's config file records these paths verbatim and the ``jigsaw``</span>
+<span class="sd">        executable then opens them, so they must not depend on the working</span>
+<span class="sd">        directory of whichever process happens to launch it.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'mesh_file'</span><span class="p">,</span> <span class="s1">'geom_file'</span><span class="p">,</span> <span class="s1">'jcfg_file'</span><span class="p">,</span> <span class="s1">'hfun_file'</span><span class="p">]:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 
 <div class="viewcode-block" id="SphericalBaseStep.setup">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.setup.html#polaris.mesh.SphericalBaseStep.setup">[docs]</a>
@@ -213,16 +237,22 @@
 <span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'spherical_mesh'</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="s1">'jigsaw_mesh_filename'</span><span class="p">,</span>
-            <span class="s1">'mpas_mesh_filename'</span><span class="p">,</span>
-            <span class="s1">'cell_width_filename'</span><span class="p">,</span>
-        <span class="p">]:</span>
+        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'jigsaw_mesh_filename'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">'mpas_mesh_filename'</span><span class="p">:</span> <span class="n">MPAS_MESH_VALIDATE_VARS</span><span class="p">,</span>
+            <span class="s1">'cell_width_filename'</span><span class="p">:</span> <span class="n">CELL_WIDTH_VALIDATE_VARS</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">variables</span> <span class="ow">in</span> <span class="n">validate_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">validate_vars</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'generate_reconstruction_weights'</span><span class="p">):</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'reconstruction_weights_filename'</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">validate_vars</span><span class="o">=</span><span class="n">get_reconstruction_validate_vars</span><span class="p">(</span>
+                    <span class="n">location</span><span class="o">=</span><span class="s1">'cell'</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'graph.info'</span><span class="p">)</span></div>
 
 
@@ -237,21 +267,24 @@
 
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'spherical_mesh'</span><span class="p">]</span>
         <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'mean_radius'</span><span class="p">)</span>
-        <span class="n">jigsaw_mesh_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_mesh_filename'</span><span class="p">)</span>
-        <span class="n">mpas_mesh_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mpas_mesh_filename'</span><span class="p">)</span>
+        <span class="n">jigsaw_mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_mesh_filename'</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">mpas_mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mpas_mesh_filename'</span><span class="p">))</span>
+        <span class="n">triangles_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'mesh_triangles.nc'</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Convert triangles from jigsaw format to netcdf'</span><span class="p">)</span>
         <span class="n">jigsaw_to_netcdf</span><span class="p">(</span>
             <span class="n">msh_filename</span><span class="o">=</span><span class="n">jigsaw_mesh_filename</span><span class="p">,</span>
-            <span class="n">output_name</span><span class="o">=</span><span class="s1">'mesh_triangles.nc'</span><span class="p">,</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="n">triangles_filename</span><span class="p">,</span>
             <span class="n">on_sphere</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">sphere_radius</span><span class="o">=</span><span class="n">earth_radius</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Convert from triangles to MPAS mesh'</span><span class="p">)</span>
 
-        <span class="n">tmp_mesh_filename</span> <span class="o">=</span> <span class="s1">'mpas_mesh_netcdf4.nc'</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'MpasMeshConverter.x'</span><span class="p">,</span> <span class="s1">'mesh_triangles.nc'</span><span class="p">,</span> <span class="n">tmp_mesh_filename</span><span class="p">]</span>
+        <span class="n">tmp_mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'mpas_mesh_netcdf4.nc'</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'MpasMeshConverter.x'</span><span class="p">,</span> <span class="n">triangles_filename</span><span class="p">,</span> <span class="n">tmp_mesh_filename</span><span class="p">]</span>
         <span class="n">check_call</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="c1"># open the mesh and rewrite it in the desired NetCDF format</span>
@@ -268,8 +301,8 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s1">'Compute vector-reconstruction weights at cell centers'</span>
             <span class="p">)</span>
-            <span class="n">reconstruction_weights_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s1">'reconstruction_weights_filename'</span>
+            <span class="n">reconstruction_weights_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span>
+                <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'reconstruction_weights_filename'</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">ds_weights</span> <span class="o">=</span> <span class="n">compute_reconstruction_weights</span><span class="p">(</span>
                 <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">'cell'</span>
@@ -278,7 +311,9 @@
 
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'add_mesh_density'</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Add meshDensity into the mesh file'</span><span class="p">)</span>
-            <span class="n">cell_width_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cell_width_filename'</span><span class="p">)</span>
+            <span class="n">cell_width_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span>
+                <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cell_width_filename'</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">cell_width_filename</span><span class="p">)</span>
             <span class="n">inject_spherical_meshDensity</span><span class="p">(</span>
                 <span class="n">ds</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
@@ -288,7 +323,7 @@
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'convert_to_vtk'</span><span class="p">):</span>
-            <span class="n">vtk_dir</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'vtk_dir'</span><span class="p">)</span>
+            <span class="n">vtk_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'vtk_dir'</span><span class="p">))</span>
             <span class="c1"># only use progress bars if we're not writing to a log file</span>
             <span class="n">use_progress_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_filename</span> <span class="ow">is</span> <span class="kc">None</span>
             <span class="n">lat_lon</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'vtk_lat_lon'</span><span class="p">)</span>
@@ -305,7 +340,8 @@
             <span class="p">)</span>
 
         <span class="n">make_graph_file</span><span class="p">(</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mpas_mesh_filename</span><span class="p">,</span> <span class="n">graph_filename</span><span class="o">=</span><span class="s1">'graph.info'</span>
+            <span class="n">mesh_filename</span><span class="o">=</span><span class="n">mpas_mesh_filename</span><span class="p">,</span>
+            <span class="n">graph_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'graph.info'</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
@@ -350,12 +386,12 @@
 <span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">cmap</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'cell_width_colormap'</span><span class="p">)</span>
-        <span class="n">image_filename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'cell_width_image_filename'</span>
+        <span class="n">image_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'cell_width_image_filename'</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">register_sci_viz_colormaps</span><span class="p">()</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mf">16.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">])</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mf">16.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">])</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_global</span><span class="p">()</span>
         <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
             <span class="n">cell_width</span><span class="p">,</span>
@@ -379,13 +415,15 @@
         <span class="n">gl</span><span class="o">.</span><span class="n">right_labels</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">min_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">cell_width</span><span class="p">)</span>
         <span class="n">max_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">cell_width</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">'Grid cell size, km, min: </span><span class="si">{</span><span class="n">min_width</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> max: </span><span class="si">{</span><span class="n">max_width</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.60</span><span class="p">)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">image_filename</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.60</span><span class="p">)</span>
+        <span class="c1"># Save with the default margins.  bbox_inches='tight' on a</span>
+        <span class="c1"># fixed-aspect GeoAxes with an attached colorbar collapses the map</span>
+        <span class="c1"># axes, leaving an image that is nothing but the colorbar -- the same</span>
+        <span class="c1"># failure that was fixed in plot_global_mpas_field().</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">image_filename</span><span class="p">)</span></div>
 
 
 
@@ -445,7 +483,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">hfun_hmin</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="c1"># 2-dim. simplexes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">mesh_dims</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_qlim</span> <span class="o">=</span> <span class="mf">0.9375</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="mi">1</span></div>
 
 
@@ -460,6 +497,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">geom_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_geom_filename'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_jcfg_filename'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">hfun_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_hfun_filename'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_kern</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_optm_kern'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_iter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'jigsaw_optm_iter'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_qtol</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'jigsaw_optm_qtol'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_qlim</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'jigsaw_optm_qlim'</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
 

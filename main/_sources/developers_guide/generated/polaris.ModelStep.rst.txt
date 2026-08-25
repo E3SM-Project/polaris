@@ -39,6 +39,7 @@
       ~ModelStep.update_io_tasks_config
       ~ModelStep.update_namelist_pio
       ~ModelStep.validate_baselines
+      ~ModelStep.work_path
    
    
 

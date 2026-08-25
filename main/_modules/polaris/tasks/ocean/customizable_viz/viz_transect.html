@@ -235,12 +235,12 @@
                 <span class="k">elif</span> <span class="n">var_name</span> <span class="o">==</span> <span class="s1">'columnThickness'</span><span class="p">:</span>
                     <span class="n">ds</span><span class="p">[</span><span class="n">full_var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span> <span class="o">+</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s1">'Skipping </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">, '</span>
                         <span class="sa">f</span><span class="s1">'not found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="si">}</span><span class="s1">'</span>
                     <span class="p">)</span>
                     <span class="k">continue</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotting </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotting </span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">mpas_field</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">ds_data</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">full_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">viz_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>

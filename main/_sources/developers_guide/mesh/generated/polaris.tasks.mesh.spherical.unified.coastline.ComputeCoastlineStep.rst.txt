@@ -26,6 +26,7 @@
       ~ComputeCoastlineStep.set_shared_config
       ~ComputeCoastlineStep.setup
       ~ComputeCoastlineStep.validate_baselines
+      ~ComputeCoastlineStep.work_path
    
    
 

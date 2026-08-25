@@ -39,6 +39,7 @@
       ~Analysis.set_shared_config
       ~Analysis.setup
       ~Analysis.validate_baselines
+      ~Analysis.work_path
       ~Analysis.write_horiz_mesh_dataset
       ~Analysis.write_initial_state_dataset
       ~Analysis.write_model_dataset

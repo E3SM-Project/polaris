@@ -26,6 +26,7 @@
       ~RemapCoastlineStep.set_shared_config
       ~RemapCoastlineStep.setup
       ~RemapCoastlineStep.validate_baselines
+      ~RemapCoastlineStep.work_path
    
    
 

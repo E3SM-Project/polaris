@@ -117,7 +117,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span><span class="p">,</span> <span class="n">get_days_since_start</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 <span class="c1"># TODO import rho_0 from constants</span>
 
@@ -202,160 +202,171 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        """</span>
-        <span class="n">use_mplstyle</span><span class="p">()</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'single_column'</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'run_duration'</span><span class="p">):</span>
-            <span class="n">t_target</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'run_duration'</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s1">'run_duration not found in config; using default plotting '</span>
-                <span class="s1">'time of 10 days'</span>
-            <span class="p">)</span>
-            <span class="n">t_target</span> <span class="o">=</span> <span class="mf">10.0</span>
-
-        <span class="n">ds_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">time_ds</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># Remove missing comparison so it won't be used later</span>
-        <span class="n">comparisons</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">comparison_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">):</span>
-                <span class="n">comparisons</span><span class="p">[</span><span class="n">comparison_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span><span class="p">[</span>
-                    <span class="n">comparison_name</span>
-                <span class="p">]</span>
+        <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+            <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'single_column'</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'run_duration'</span><span class="p">):</span>
+                <span class="n">t_target</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'run_duration'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'coeffs.nc'</span><span class="p">):</span>
-                <span class="n">ds_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
-                    <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
-                    <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
-                    <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">'RBF'</span><span class="p">,</span>
-                    <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
-                    <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">'run_duration not found in config; using default plotting '</span>
+                    <span class="s1">'time of 10 days'</span>
                 <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ds_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
-                    <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="n">t_arr</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds_comp</span><span class="p">)</span>
-            <span class="n">t_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t_arr</span> <span class="o">-</span> <span class="n">t_target</span><span class="p">))</span>
-            <span class="n">time_ds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t_arr</span><span class="p">[</span><span class="n">t_index</span><span class="p">]))</span>
-            <span class="n">ds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds_comp</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">))</span>
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">z_mid_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="s1">'zMid'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+                <span class="n">t_target</span> <span class="o">=</span> <span class="mf">10.0</span>
 
-        <span class="n">z_mid_final</span> <span class="o">=</span> <span class="n">z_mid_init</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s1">'Using initial zMid values; may not represent plotted state'</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Plot depth profiles of variables</span>
-        <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_units</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">curves_plotted</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-            <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'k'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="s1">'darkgreen'</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">comparison_name</span><span class="p">,</span> <span class="n">ds_comp</span><span class="p">,</span> <span class="n">t_days</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">ds_list</span><span class="p">,</span> <span class="n">time_ds</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
-            <span class="p">):</span>
-                <span class="c1"># TODO use this line when Omega zMid is correct</span>
-                <span class="c1"># z_mid_final = ds_comp['zMid'].mean(dim='nCells')</span>
-                <span class="c1"># TODO compare with z_mid computed from layerThickness</span>
-                <span class="c1"># z_mid_final = depth_from_thickness(ds_comp).mean(</span>
-                <span class="c1">#    dim='nCells'</span>
-                <span class="c1"># )</span>
-                <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'velocity'</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="p">(</span>
-                        <span class="s1">'velocityZonal'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                        <span class="ow">and</span> <span class="s1">'velocityMeridional'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                    <span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="s1">'</span><span class="se">\t</span><span class="s1">velocityZonal,Meridional not found; skipping '</span>
-                            <span class="sa">f</span><span class="s1">'plot for </span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">'</span>
-                        <span class="p">)</span>
-                        <span class="k">continue</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">'Plot </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="n">t_days</span><span class="si">}</span><span class="s1"> '</span>
-                        <span class="s1">'days'</span>
-                    <span class="p">)</span>
-                    <span class="n">u_final</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                    <span class="n">v_final</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                        <span class="n">u_final</span><span class="p">,</span>
-                        <span class="n">z_mid_final</span><span class="p">,</span>
-                        <span class="s1">'-'</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
-                        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'u </span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">t_days</span><span class="si">:</span><span class="s1">2g</span><span class="si">}</span><span class="s1"> days'</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                        <span class="n">v_final</span><span class="p">,</span>
-                        <span class="n">z_mid_final</span><span class="p">,</span>
-                        <span class="s1">'--'</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
-                        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'v </span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">t_days</span><span class="si">:</span><span class="s1">2g</span><span class="si">}</span><span class="s1"> days'</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">curves_plotted</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s1">'</span><span class="se">\t</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not found; skipping plot for '</span>
-                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">'</span>
-                        <span class="p">)</span>
-                        <span class="k">continue</span>
-                    <span class="n">var_comp</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="s1">'nVertLevelsP1'</span> <span class="ow">in</span> <span class="n">var_comp</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-                        <span class="n">var_comp</span> <span class="o">=</span> <span class="n">var_comp</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-                    <span class="c1"># TODO delete this line when MPAS-O bug is fixed</span>
-                    <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'RiTopOfCell'</span><span class="p">:</span>
-                        <span class="n">var_comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                        <span class="n">var_comp</span><span class="p">,</span>
-                        <span class="n">z_mid_final</span><span class="p">,</span>
-                        <span class="s1">'-'</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
-                        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">t_days</span><span class="si">:</span><span class="s1">2g</span><span class="si">}</span><span class="s1"> days'</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">curves_plotted</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="c1"># Plot initial state if available and hasn't already been</span>
-                    <span class="c1"># plotted</span>
-                    <span class="n">existing_labels</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="n">lbl</span>
-                        <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
-                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="n">ds_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">time_ds</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># Remove missing comparison so it won't be used later</span>
+            <span class="n">comparisons</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">comparison_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">):</span>
+                    <span class="n">comparisons</span><span class="p">[</span><span class="n">comparison_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span><span class="p">[</span>
+                        <span class="n">comparison_name</span>
                     <span class="p">]</span>
-                    <span class="k">if</span> <span class="p">(</span>
-                        <span class="n">field_name</span> <span class="ow">in</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                        <span class="ow">and</span> <span class="s1">'initial'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_labels</span>
-                    <span class="p">):</span>
-                        <span class="n">var_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">var_init</span><span class="p">,</span> <span class="n">z_mid_init</span><span class="p">,</span> <span class="s1">'--k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'initial'</span><span class="p">)</span>
-                        <span class="n">curves_plotted</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">curves_plotted</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'No data plotted for </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">, skipping save'</span>
-                <span class="p">)</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-                <span class="k">continue</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'temperature'</span><span class="p">:</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">15</span><span class="p">,</span> <span class="mi">25</span><span class="p">])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">auto</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">field_units</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'z (m)'</span><span class="p">)</span>
-            <span class="c1"># Place a single legend centered below the x-axis</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
-                <span class="n">loc</span><span class="o">=</span><span class="s1">'upper center'</span><span class="p">,</span>
-                <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.08</span><span class="p">),</span>
-                <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'coeffs.nc'</span><span class="p">):</span>
+                    <span class="n">ds_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                        <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                        <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
+                        <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">'RBF'</span><span class="p">,</span>
+                        <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ds_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                        <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">t_arr</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds_comp</span><span class="p">)</span>
+                <span class="n">t_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t_arr</span> <span class="o">-</span> <span class="n">t_target</span><span class="p">))</span>
+                <span class="n">time_ds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t_arr</span><span class="p">[</span><span class="n">t_index</span><span class="p">]))</span>
+                <span class="n">ds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds_comp</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">))</span>
+            <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">z_mid_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="s1">'zMid'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+
+            <span class="n">z_mid_final</span> <span class="o">=</span> <span class="n">z_mid_init</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s1">'Using initial zMid values; may not represent plotted state'</span>
             <span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotted </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+            <span class="c1"># Plot depth profiles of variables</span>
+            <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_units</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">curves_plotted</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+                <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'k'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="s1">'darkgreen'</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">comparison_name</span><span class="p">,</span> <span class="n">ds_comp</span><span class="p">,</span> <span class="n">t_days</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                    <span class="n">ds_list</span><span class="p">,</span>
+                    <span class="n">time_ds</span><span class="p">,</span>
+                    <span class="n">colors</span><span class="p">,</span>
+                    <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="c1"># TODO use this line when Omega zMid is correct</span>
+                    <span class="c1"># z_mid_final = ds_comp['zMid'].mean(dim='nCells')</span>
+                    <span class="c1"># TODO compare with z_mid computed from layerThickness</span>
+                    <span class="c1"># z_mid_final = depth_from_thickness(ds_comp).mean(</span>
+                    <span class="c1">#    dim='nCells'</span>
+                    <span class="c1"># )</span>
+                    <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'velocity'</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="s1">'velocityZonal'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                            <span class="ow">and</span> <span class="s1">'velocityMeridional'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                        <span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                                <span class="s1">'</span><span class="se">\t</span><span class="s1">velocityZonal,Meridional not '</span>
+                                <span class="sa">f</span><span class="s1">'found; skipping plot for '</span>
+                                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">'</span>
+                            <span class="p">)</span>
+                            <span class="k">continue</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">'Plot </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> for '</span>
+                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="n">t_days</span><span class="si">}</span><span class="s1"> days'</span>
+                        <span class="p">)</span>
+                        <span class="n">u_final</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+                        <span class="n">v_final</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                            <span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span>
+                        <span class="p">)</span>
+                        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                            <span class="n">u_final</span><span class="p">,</span>
+                            <span class="n">z_mid_final</span><span class="p">,</span>
+                            <span class="s1">'-'</span><span class="p">,</span>
+                            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'u </span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">t_days</span><span class="si">:</span><span class="s1">2g</span><span class="si">}</span><span class="s1"> days'</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                            <span class="n">v_final</span><span class="p">,</span>
+                            <span class="n">z_mid_final</span><span class="p">,</span>
+                            <span class="s1">'--'</span><span class="p">,</span>
+                            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'v </span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">t_days</span><span class="si">:</span><span class="s1">2g</span><span class="si">}</span><span class="s1"> days'</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">curves_plotted</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s1">'</span><span class="se">\t</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> not found; skipping plot for '</span>
+                                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">'</span>
+                            <span class="p">)</span>
+                            <span class="k">continue</span>
+                        <span class="n">var_comp</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="s1">'nVertLevelsP1'</span> <span class="ow">in</span> <span class="n">var_comp</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+                            <span class="n">var_comp</span> <span class="o">=</span> <span class="n">var_comp</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+                                <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="c1"># TODO delete this line when MPAS-O bug is fixed</span>
+                        <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'RiTopOfCell'</span><span class="p">:</span>
+                            <span class="n">var_comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                            <span class="n">var_comp</span><span class="p">,</span>
+                            <span class="n">z_mid_final</span><span class="p">,</span>
+                            <span class="s1">'-'</span><span class="p">,</span>
+                            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">t_days</span><span class="si">:</span><span class="s1">2g</span><span class="si">}</span><span class="s1"> days'</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">curves_plotted</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="c1"># Plot initial state if available and</span>
+                        <span class="c1"># hasn't already been plotted</span>
+                        <span class="n">existing_labels</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">lbl</span>
+                            <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                        <span class="p">]</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="n">field_name</span> <span class="ow">in</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                            <span class="ow">and</span> <span class="s1">'initial'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_labels</span>
+                        <span class="p">):</span>
+                            <span class="n">var_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+                            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                                <span class="n">var_init</span><span class="p">,</span> <span class="n">z_mid_init</span><span class="p">,</span> <span class="s1">'--k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'initial'</span>
+                            <span class="p">)</span>
+                            <span class="n">curves_plotted</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">curves_plotted</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">'No data plotted for </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">, skipping save'</span>
+                    <span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="k">continue</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'temperature'</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">15</span><span class="p">,</span> <span class="mi">25</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">auto</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">field_units</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'z (m)'</span><span class="p">)</span>
+                <span class="c1"># Place a single legend centered below the x-axis</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+                    <span class="n">loc</span><span class="o">=</span><span class="s1">'upper center'</span><span class="p">,</span>
+                    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.08</span><span class="p">),</span>
+                    <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotted </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 </div>
 
 </pre></div>

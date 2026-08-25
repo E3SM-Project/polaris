@@ -37,6 +37,7 @@
       ~MixingAnalysis.set_shared_config
       ~MixingAnalysis.setup
       ~MixingAnalysis.validate_baselines
+      ~MixingAnalysis.work_path
       ~MixingAnalysis.write_horiz_mesh_dataset
       ~MixingAnalysis.write_initial_state_dataset
       ~MixingAnalysis.write_model_dataset

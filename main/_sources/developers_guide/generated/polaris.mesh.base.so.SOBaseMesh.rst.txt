@@ -29,6 +29,7 @@
       ~SOBaseMesh.set_shared_config
       ~SOBaseMesh.setup
       ~SOBaseMesh.validate_baselines
+      ~SOBaseMesh.work_path
    
    
 

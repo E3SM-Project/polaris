@@ -1,0 +1,240 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria" href="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria.html" />
+    <link rel="prev" title="polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks" href="polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../../api.html#components">Components</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../api.html">e3sm/init</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks.html">polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../api.html#tasks">Tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../mesh/api.html">mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../ocean/api.html">ocean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../seaice/api.html">seaice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api.html#polaris-framework">polaris framework</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../api.html">API reference</a></li>
+          <li class="breadcrumb-item"><a href="../api.html">e3sm/init</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="polaris-tasks-e3sm-init-topo-cull-consistency-check-cull-mask-consistency">
+<h1>polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency<a class="headerlink" href="#polaris-tasks-e3sm-init-topo-cull-consistency-check-cull-mask-consistency" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency">
+<span class="sig-prename descclassname"><span class="pre">polaris.tasks.e3sm.init.topo.cull.consistency.</span></span><span class="sig-name descname"><span class="pre">check_cull_mask_consistency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ocean_cull_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ocean_no_cavities_cull_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">land_cull_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">land_ice_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convention</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/consistency.html#check_cull_mask_consistency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency" title="Link to this definition"></a></dt>
+<dd><p>Check that the cull masks describe a consistent set of domains.</p>
+<p>The cull masks are expected to satisfy four invariants, and a fifth
+that applies only to the <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> Antarctic boundary
+convention:</p>
+<ol class="arabic simple">
+<li><p>The ocean without ice-shelf cavities is a subset of the ocean.
+Never the reverse.</p></li>
+<li><p>The land is exactly the complement of the ocean without cavities,
+so every cell on the globe is owned by exactly one of the two.</p></li>
+<li><p>The land-ice mask is zero at every cell the ocean without cavities
+retains.  Equivalently, the ice-shelf cavity cells of the ocean
+mesh are exactly the cells the ocean retains and the ocean without
+cavities does not.</p></li>
+<li><p>Critical land blockages and critical ocean passages are applied
+identically to the ocean and to the ocean without cavities.  This
+is enforced by construction in
+<a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_ocean_cull_mask()</span></code></a>
+rather than checked here.</p></li>
+<li><p>The two ocean domains differ only by ice-shelf cavities: every cell
+in the ocean but not in the ocean without cavities carries land ice.</p></li>
+<li><p>Under <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> no cell of the ocean carries land ice, since
+that convention ends the ocean at the calving front.</p></li>
+</ol>
+<p>Invariants 1, 5 and 6 together mean the two ocean domains are identical
+under <code class="docutils literal notranslate"><span class="pre">calving_front</span></code>, without that equality having to be asserted
+directly: the cells they could differ by all carry land ice, and under
+that convention the ocean has none.</p>
+<p>The grid criteria that decide which cells are usable at all – two
+active edges per ocean cell, an active vertex per sea-ice cell where sea
+ice forms – are checked separately by
+<a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_land_locked_criteria()</span></code></a>, which needs the mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ocean_cull_mask</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a><em> or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – The ocean cull mask on base-mesh cells (1 where cells are culled,
+0 where they are kept as ocean/sea-ice)</p></li>
+<li><p><strong>ocean_no_cavities_cull_mask</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a><em> or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – The cull mask for the ocean without ice-shelf cavities</p></li>
+<li><p><strong>land_cull_mask</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a><em> or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – The land cull mask</p></li>
+<li><p><strong>land_ice_mask</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a><em> or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – The Antarctic land-ice mask (1 where land ice is present)</p></li>
+<li><p><strong>convention</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The Antarctic boundary convention the masks were built with, from
+<code class="docutils literal notranslate"><span class="pre">spherical_mesh.antarctic_boundary_convention</span></code></p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a>) – The logger for summary output</p></li>
+<li><p><strong>max_cells</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum number of offending cell indices to report per
+invariant</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If any of the invariants is violated</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks.html" class="btn btn-neutral float-left" title="polaris.tasks.e3sm.init.topo.cull.add_cull_topo_tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria.html" class="btn btn-neutral float-right" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

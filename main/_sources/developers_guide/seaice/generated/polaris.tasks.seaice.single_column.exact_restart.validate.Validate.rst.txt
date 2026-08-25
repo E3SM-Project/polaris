@@ -26,6 +26,7 @@
       ~Validate.set_shared_config
       ~Validate.setup
       ~Validate.validate_baselines
+      ~Validate.work_path
    
    
 

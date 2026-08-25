@@ -26,6 +26,7 @@
       ~RasterizeRiverLatLonStep.set_shared_config
       ~RasterizeRiverLatLonStep.setup
       ~RasterizeRiverLatLonStep.validate_baselines
+      ~RasterizeRiverLatLonStep.work_path
    
    
 

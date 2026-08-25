@@ -42,6 +42,7 @@
       ~ConvergenceAnalysis.set_shared_config
       ~ConvergenceAnalysis.setup
       ~ConvergenceAnalysis.validate_baselines
+      ~ConvergenceAnalysis.work_path
       ~ConvergenceAnalysis.write_horiz_mesh_dataset
       ~ConvergenceAnalysis.write_initial_state_dataset
       ~ConvergenceAnalysis.write_model_dataset

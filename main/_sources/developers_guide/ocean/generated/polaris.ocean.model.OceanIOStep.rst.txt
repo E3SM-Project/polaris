@@ -37,6 +37,7 @@
       ~OceanIOStep.set_shared_config
       ~OceanIOStep.setup
       ~OceanIOStep.validate_baselines
+      ~OceanIOStep.work_path
       ~OceanIOStep.write_horiz_mesh_dataset
       ~OceanIOStep.write_initial_state_dataset
       ~OceanIOStep.write_model_dataset

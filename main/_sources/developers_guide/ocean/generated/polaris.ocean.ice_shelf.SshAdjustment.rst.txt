@@ -26,6 +26,7 @@
       ~SshAdjustment.set_shared_config
       ~SshAdjustment.setup
       ~SshAdjustment.validate_baselines
+      ~SshAdjustment.work_path
    
    
 

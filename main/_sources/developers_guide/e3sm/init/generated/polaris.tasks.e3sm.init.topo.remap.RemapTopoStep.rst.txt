@@ -27,6 +27,7 @@
       ~RemapTopoStep.set_shared_config
       ~RemapTopoStep.setup
       ~RemapTopoStep.validate_baselines
+      ~RemapTopoStep.work_path
    
    
 

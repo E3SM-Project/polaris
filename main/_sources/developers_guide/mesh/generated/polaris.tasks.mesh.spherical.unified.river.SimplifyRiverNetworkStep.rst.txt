@@ -26,6 +26,7 @@
       ~SimplifyRiverNetworkStep.set_shared_config
       ~SimplifyRiverNetworkStep.setup
       ~SimplifyRiverNetworkStep.validate_baselines
+      ~SimplifyRiverNetworkStep.work_path
    
    
 

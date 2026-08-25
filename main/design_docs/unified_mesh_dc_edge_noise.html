@@ -1,0 +1,624 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Vector Reconstruction at MPAS Cell Centers" href="vector_reconstruction.html" />
+    <link rel="prev" title="Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain" href="unified_mesh_cull_leak.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#diagnosis">Diagnosis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-keep-the-mesh-size-gradient-away-from-ocean-edges">Requirement: keep the mesh-size gradient away from ocean edges</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-guard-the-quantity-that-sets-the-time-step">Requirement: guard the quantity that sets the time step</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-keep-the-mesh-size-gradient-away-from-ocean-edges">Algorithm Design: keep the mesh-size gradient away from ocean edges</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-guard-the-quantity-that-sets-the-time-step">Algorithm Design: guard the quantity that sets the time step</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-keep-the-mesh-size-gradient-away-from-ocean-edges">Implementation: keep the mesh-size gradient away from ocean edges</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-guard-the-quantity-that-sets-the-time-step">Implementation: guard the quantity that sets the time step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-supporting-changes">Implementation: supporting changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-keep-the-mesh-size-gradient-away-from-ocean-edges">Testing and Validation: keep the mesh-size gradient away from ocean edges</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-guard-the-quantity-that-sets-the-time-step">Testing and Validation: guard the quantity that sets the time step</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#findings">Findings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-threshold-this-work-started-from-rested-on-a-wrong-conclusion">The threshold this work started from rested on a wrong conclusion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#a-flat-collar-was-tried-first-and-broke-a-river-workflow-invariant">A flat collar was tried first, and broke a river-workflow invariant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-centroidal-voronoi-kernel-was-tried-and-reverted">The centroidal-Voronoi kernel was tried and reverted</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#raising-the-exponent-instead-of-the-width-does-not-work">Raising the exponent instead of the width does not work</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-river-constraints-work-as-intended">The river constraints work as intended</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#screening-a-minimum-needs-a-much-larger-sample-than-screening-a-bulk">Screening a minimum needs a much larger sample than screening a bulk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#divergence-from-the-reference-workflow">Divergence from the reference workflow</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/unified_mesh_dc_edge_noise.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="unified-mesh-raising-the-dcedge-floor-in-the-ocean-sea-ice-domain">
+<h1>Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain<a class="headerlink" href="#unified-mesh-raising-the-dcedge-floor-in-the-ocean-sea-ice-domain" title="Link to this heading"></a></h1>
+<p>date: 2026/08/09</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>The shortest edge in a culled ocean/sea-ice domain sets the forward-run time
+step. On the unified meshes that edge was shorter than intended:
+<code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> had a 3.945 km edge against a 6 km finest ocean
+background, and <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> a 19.931 km edge against 30 km — both about
+0.66 of what the mesh was designed for, costing a third of the time step.</p>
+<p>This design makes two changes:</p>
+<ol class="arabic simple">
+<li><p><strong>Shape the coastline transition.</strong> The land-side blend from the ocean
+background to the land background is raised to a power, so the mesh-size
+gradient vanishes at the coastline and steepens inland. This keeps the
+steepest part of the sizing field away from the CFL-limited ocean without
+extending how far the blend reaches inland.</p></li>
+<li><p><strong>Guard the CFL floor on absolute <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>.</strong> The existing guard compared
+each edge against its <em>local</em> ocean background, which detects leaked
+land/river resolution but is not the CFL question. A second guard
+compares the <em>shortest</em> edge against the <em>finest</em> ocean background
+anywhere in the domain, which is.</p></li>
+</ol>
+<p>Success means every unified mesh clears the new guard with margin. All four
+now do:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>mesh</p></th>
+<th class="head"><p>before</p></th>
+<th class="head"><p>after</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>u.oi240.lr240</p></td>
+<td><p>0.7991</p></td>
+<td><p>0.7991 (unchanged; uniform mesh)</p></td>
+</tr>
+<tr class="row-odd"><td><p>u.oi30.lr10</p></td>
+<td><p>0.6644</p></td>
+<td><p>0.7730</p></td>
+</tr>
+<tr class="row-even"><td><p>u.oi6to18.lr6to10</p></td>
+<td><p>0.6574</p></td>
+<td><p>0.7985</p></td>
+</tr>
+<tr class="row-odd"><td><p>u.oi.so12to30.lr10</p></td>
+<td><p>not measured</p></td>
+<td><p>0.8010</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="diagnosis">
+<h2>Diagnosis<a class="headerlink" href="#diagnosis" title="Link to this heading"></a></h2>
+<p>The short edges are not leaked land/river resolution. <code class="docutils literal notranslate"><span class="pre">dcEdge</span> <span class="pre">/</span> <span class="pre">cellWidth</span></code>
+and <code class="docutils literal notranslate"><span class="pre">dcEdge</span> <span class="pre">/</span> <span class="pre">ocean_background</span></code> are identical to four decimals for all 12
+million ocean edges of <code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code>, and <code class="docutils literal notranslate"><span class="pre">active_control</span></code> is
+<code class="docutils literal notranslate"><span class="pre">background</span></code> throughout the low tail — the sizing field prescribes the full
+ocean background at every one of them. The cull emulation from the
+<code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> design doc is doing its job.</p>
+<p>They are instead the seams of pentagon-heptagon dislocation pairs in
+JIGSAW’s hexagonal packing. Every ocean edge below 0.80 times its local
+background has a non-hexagonal neighbor cell, against a 2.85% baseline, and
+their Voronoi faces are stretched to roughly 1.6 times the ideal
+<code class="docutils literal notranslate"><span class="pre">1/sqrt(3)</span></code>.</p>
+<p>Those dislocations concentrate where the sizing field is steep. JIGSAW never
+sees a coastline — only <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> and the sphere — so any coastal signal
+has to act through the field. Defect density in ocean cells of
+<code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code>, by distance to the effective coast in units of the
+local ocean background:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>distance</p></th>
+<th class="head"><p>cells</p></th>
+<th class="head"><p>non-hexagonal</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0-2</p></td>
+<td><p>136,189</p></td>
+<td><p>6.18%</p></td>
+</tr>
+<tr class="row-odd"><td><p>2-5</p></td>
+<td><p>152,774</p></td>
+<td><p>4.27%</p></td>
+</tr>
+<tr class="row-even"><td><p>5-10</p></td>
+<td><p>207,016</p></td>
+<td><p>3.02%</p></td>
+</tr>
+<tr class="row-odd"><td><p>30+</p></td>
+<td><p>2,947,149</p></td>
+<td><p>1.15%</p></td>
+</tr>
+</tbody>
+</table>
+<p>The cause is the slope of the land-side blend,
+<code class="docutils literal notranslate"><span class="pre">|land_background</span> <span class="pre">-</span> <span class="pre">ocean_background|</span> <span class="pre">/</span> <span class="pre">coastline_transition_land_km</span></code>: 0.333
+on <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> and 0.222 on <code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code>, against an open-ocean
+background gradient near 0.001.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-keep-the-mesh-size-gradient-away-from-ocean-edges">
+<h3>Requirement: keep the mesh-size gradient away from ocean edges<a class="headerlink" href="#requirement-keep-the-mesh-size-gradient-away-from-ocean-edges" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/09</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The sizing field must not place a steep mesh-size gradient within a few cell
+widths of the ocean/sea-ice domain. Land and river refinement must still be
+reached, and reached no further inland than before: every unified config
+sets <code class="docutils literal notranslate"><span class="pre">base_mesh_clip_distance_km</span></code> equal to <code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code> so
+that river geometry begins exactly where the blend ends, and that invariant
+must hold. The control must be a config option whose neutral value
+reproduces the previous sizing field bit for bit.</p>
+</section>
+<section id="requirement-guard-the-quantity-that-sets-the-time-step">
+<h3>Requirement: guard the quantity that sets the time step<a class="headerlink" href="#requirement-guard-the-quantity-that-sets-the-time-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/09</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">topo/cull</span></code> mask step must fail when the culled ocean/sea-ice domain
+contains an edge short enough to constrain the forward-run time step beyond
+what the mesh was designed for. It must not fail on an edge that is short
+only relative to a coarse local background, since such an edge is longer
+than the mesh’s own finest intended resolution and costs nothing. Detection
+of leaked land/river resolution must be retained as a separate guard.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-keep-the-mesh-size-gradient-away-from-ocean-edges">
+<h3>Algorithm Design: keep the mesh-size gradient away from ocean edges<a class="headerlink" href="#algorithm-design-keep-the-mesh-size-gradient-away-from-ocean-edges" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/09</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Raise the land-side blending factor to a power:</p>
+<div class="math notranslate nohighlight">
+\[
+h(x) = L(x) + \alpha(s)\left(H - L(x)\right), \qquad
+s = \min\left(\frac{|d(x)|}{T},\; 1\right), \qquad
+\alpha(s) = s^{p}
+\]</div>
+<p>with <span class="math notranslate nohighlight">\(d\)</span> the distance inland from the effective coast, <span class="math notranslate nohighlight">\(L\)</span> the local ocean
+background, <span class="math notranslate nohighlight">\(H\)</span> the land background, <span class="math notranslate nohighlight">\(T\)</span> the transition width and <span class="math notranslate nohighlight">\(p\)</span> the
+exponent. The mesh-size gradient is <span class="math notranslate nohighlight">\(|H-L|\,\alpha'(s)/T\)</span>, so for <span class="math notranslate nohighlight">\(p&gt;1\)</span> both
+<span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\alpha'\)</span> vanish at the coastline: the field leaves the ocean
+flat and steepens inland, where only cells the cull removes ever feel it.
+<span class="math notranslate nohighlight">\(p=1\)</span> is the previous linear ramp exactly.</p>
+<p>The decisive property is that <span class="math notranslate nohighlight">\(p\)</span> changes the <em>shape</em> of the transition, not
+its <em>extent</em>, so the <code class="docutils literal notranslate"><span class="pre">clip</span> <span class="pre">==</span> <span class="pre">transition</span></code> invariant is preserved.</p>
+<p><strong>Choosing the transition width.</strong> Both the exponent and the width matter,
+and the width matters more than it first appears. At one ocean cell width
+inland the gradient is <span class="math notranslate nohighlight">\(p|H-L|L^{p-1}/T^{p}\)</span>; for a quadratic with <span class="math notranslate nohighlight">\(T=2L\)</span>
+this reduces to <span class="math notranslate nohighlight">\(|H-L|/2L\)</span>, which is <em>identical</em> to the linear ramp’s
+gradient there. So on a mesh with <span class="math notranslate nohighlight">\(T=2L\)</span> the shape change buys nothing at
+the scale JIGSAW resolves, and everything depends on the relative resolution
+jump <span class="math notranslate nohighlight">\(|H-L|/L\)</span>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>mesh</p></th>
+<th class="head"><p>jump</p></th>
+<th class="head"><p>gradient at one cell width</p></th>
+<th class="head"><p>result</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>u.oi6to18.lr6to10</p></td>
+<td><p>0.44</p></td>
+<td><p>0.222</p></td>
+<td><p>0.799</p></td>
+</tr>
+<tr class="row-odd"><td><p>u.oi30.lr10, T = 2L</p></td>
+<td><p>0.67</p></td>
+<td><p>0.333</p></td>
+<td><p>0.699</p></td>
+</tr>
+<tr class="row-even"><td><p>u.oi30.lr10, T = 3L</p></td>
+<td><p>0.67</p></td>
+<td><p>0.148</p></td>
+<td><p>0.773</p></td>
+</tr>
+</tbody>
+</table>
+<p>The two meshes with a 0.67 jump therefore widen <span class="math notranslate nohighlight">\(T\)</span> from 60 to 90 km, with
+<code class="docutils literal notranslate"><span class="pre">base_mesh_clip_distance_km</span></code> moved to match. A single exponent of 2 is used
+everywhere; only the per-mesh width varies, and that was already a per-mesh
+parameter.</p>
+</section>
+<section id="algorithm-design-guard-the-quantity-that-sets-the-time-step">
+<h3>Algorithm Design: guard the quantity that sets the time step<a class="headerlink" href="#algorithm-design-guard-the-quantity-that-sets-the-time-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/09</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Add <code class="docutils literal notranslate"><span class="pre">min_dc_edge_abs_ratio</span></code>, checked as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">min</span><span class="p">(</span><span class="n">dcEdge</span> <span class="n">over</span> <span class="n">ocean</span><span class="o">-</span><span class="n">interior</span> <span class="n">edges</span><span class="p">)</span>
+    <span class="o">&gt;=</span> <span class="n">min_dc_edge_abs_ratio</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">ocean</span> <span class="n">background</span> <span class="n">over</span> <span class="n">those</span> <span class="n">edges</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Both terms come from arrays the diagnostic already builds. This is the CFL
+question: the time step is set by the shortest edge globally, and a mesh is
+already sized for its own finest intended resolution.</p>
+<p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> keeps comparing each edge against its <em>local</em>
+background, which is what detects a leak, and relaxes from 0.65 to 0.45 so
+it stops gating on coarse-region blemishes. The contaminated meshes that
+motivated it reached 0.29 to 0.34; clean meshes bottom out much higher, but
+not at the 0.76 once assumed — on a 6M-cell mesh, rare packing defects in
+the open ocean reach 0.51, at a different location every build and with no
+sizing-field cause.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-keep-the-mesh-size-gradient-away-from-ocean-edges">
+<h3>Implementation: keep the mesh-size gradient away from ocean edges<a class="headerlink" href="#implementation-keep-the-mesh-size-gradient-away-from-ocean-edges" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/09</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">_apply_transition()</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/mesh/spherical/unified/sizing_field/build.py</span></code> raises the
+transition fraction to <code class="docutils literal notranslate"><span class="pre">exponent</span></code>; an exponent of 1 reproduces the previous
+expression exactly and the <code class="docutils literal notranslate"><span class="pre">transition_m</span> <span class="pre">==</span> <span class="pre">0</span></code> special case is untouched.
+<code class="docutils literal notranslate"><span class="pre">_build_coastline_candidate()</span></code> and <code class="docutils literal notranslate"><span class="pre">sizing_field_dataset()</span></code> pass it
+through, and <code class="docutils literal notranslate"><span class="pre">BuildSizingFieldStep.run()</span></code> reads the config option.</p></li>
+<li><p>New <code class="docutils literal notranslate"><span class="pre">[sizing_field]</span></code> option <code class="docutils literal notranslate"><span class="pre">coastline_transition_exponent</span></code>, default 2.0.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> and <code class="docutils literal notranslate"><span class="pre">u.oi.so12to30.lr10</span></code> widen
+<code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code> and <code class="docutils literal notranslate"><span class="pre">base_mesh_clip_distance_km</span></code> from 60 to
+90 km. <code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> and <code class="docutils literal notranslate"><span class="pre">u.oi240.lr240</span></code> are unchanged.</p></li>
+</ul>
+</section>
+<section id="implementation-guard-the-quantity-that-sets-the-time-step">
+<h3>Implementation: guard the quantity that sets the time step<a class="headerlink" href="#implementation-guard-the-quantity-that-sets-the-time-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/09</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">check_ocean_dc_edge()</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/e3sm/init/topo/cull/dc_edge_diagnostics.py</span></code> gains a
+<code class="docutils literal notranslate"><span class="pre">min_abs_ratio</span></code> argument, logs the CFL guard line unconditionally and
+raises before the ratio check when it is violated. <code class="docutils literal notranslate"><span class="pre">min_dc_edge_abs_ratio</span></code>
+is recorded in <code class="docutils literal notranslate"><span class="pre">ocean_dc_edge_diagnostics.nc</span></code>.</p></li>
+<li><p>New <code class="docutils literal notranslate"><span class="pre">[cull_mesh]</span></code> option <code class="docutils literal notranslate"><span class="pre">min_dc_edge_abs_ratio</span></code>, default 0.70;
+<code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> moves from 0.65 to 0.45.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code>’s per-mesh <code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> override is removed; no
+mesh needs one.</p></li>
+</ul>
+</section>
+<section id="implementation-supporting-changes">
+<h3>Implementation: supporting changes<a class="headerlink" href="#implementation-supporting-changes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/09</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">minimum_edge_length_ratio</span></code> in <code class="docutils literal notranslate"><span class="pre">[spherical_mesh_quality]</span></code> moves from 1e-4
+to 1e-5. River-network line constraints degrade land cell polygons by
+about two orders of magnitude, independently of anything in this design,
+leaving the old guard on two to five times margin against a floor that
+drops as meshes get finer.</p></li>
+<li><p>Four <code class="docutils literal notranslate"><span class="pre">[spherical_mesh]</span></code> options — <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_kern</span></code>, <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_iter</span></code>,
+<code class="docutils literal notranslate"><span class="pre">jigsaw_optm_qtol</span></code> and <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_qlim</span></code> — expose JIGSAW’s optimization
+settings at exactly the values <code class="docutils literal notranslate"><span class="pre">QuasiUniformSphericalMeshStep</span></code> previously
+hard-coded, so no mesh changes. No mesh overrides them.</p></li>
+</ul>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-keep-the-mesh-size-gradient-away-from-ocean-edges">
+<h3>Testing and Validation: keep the mesh-size gradient away from ocean edges<a class="headerlink" href="#testing-and-validation-keep-the-mesh-size-gradient-away-from-ocean-edges" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/09</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Unit tests in <code class="docutils literal notranslate"><span class="pre">tests/mesh/spherical/unified/test_sizing_field.py</span></code> cover the
+blend directly: an exponent of 1 reproduces the linear ramp exactly; a
+quadratic stays closer to the ocean background just inland of the coast; and
+every exponent reaches the land background at the same distance, which is
+what keeps river geometry out of the blend. Two further tests pin the
+invariants rather than the numbers — <code class="docutils literal notranslate"><span class="pre">clip</span> <span class="pre">==</span> <span class="pre">transition</span></code> on every mesh, and
+no mesh exceeding the coastal gradient of the one known to pass — so a new
+mesh with a large relative jump and a narrow transition fails at unit-test
+time rather than after a rebuild.</p>
+</section>
+<section id="testing-and-validation-guard-the-quantity-that-sets-the-time-step">
+<h3>Testing and Validation: guard the quantity that sets the time step<a class="headerlink" href="#testing-and-validation-guard-the-quantity-that-sets-the-time-step" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/09</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Tests in <code class="docutils literal notranslate"><span class="pre">tests/e3sm/init/topo/test_dc_edge_diagnostics.py</span></code> exercise the new
+guard on synthetic meshes: it fails on an edge short against the finest
+background, and passes an edge that is short only against a coarse local
+background — the <code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> case.
+<code class="docutils literal notranslate"><span class="pre">tests/e3sm/init/topo/test_unified_tasks.py</span></code> checks that every mesh resolves
+to the shared thresholds with no override.</p>
+<p>Integration validation is the rebuild of all four unified meshes on
+Chrysalis, reported in the summary table above.</p>
+</section>
+</section>
+<section id="findings">
+<h2>Findings<a class="headerlink" href="#findings" title="Link to this heading"></a></h2>
+<p>This section records what was learned along the way, including approaches
+that were tried and abandoned. None of it is part of the shipped design.</p>
+<section id="the-threshold-this-work-started-from-rested-on-a-wrong-conclusion">
+<h3>The threshold this work started from rested on a wrong conclusion<a class="headerlink" href="#the-threshold-this-work-started-from-rested-on-a-wrong-conclusion" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> previously carried a per-mesh <code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> of
+0.64, recorded as a “real, if small, resolution leak” on the grounds that
+clean jigsaw noise bottoms out near 0.76. That 0.76 came from meshes 10 to
+500 times smaller. The ratio’s 0.01-percentile is 0.810 to 0.814 on all
+three meshes measured, so the distribution does not change with mesh size —
+only the number of draws does, and the minimum falls accordingly: 0.799 at
+21 thousand ocean edges, 0.664 at 1.4 million, 0.643 at 12 million.
+<code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> was clearing the 0.65 default by luck rather than by margin.</p>
+<p>When investigating a future failure, compare <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> against <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code>
+before suspecting the sizing field. If that ratio agrees with
+<code class="docutils literal notranslate"><span class="pre">dcEdge</span> <span class="pre">/</span> <span class="pre">ocean_background</span></code>, the field is not the problem.</p>
+</section>
+<section id="a-flat-collar-was-tried-first-and-broke-a-river-workflow-invariant">
+<h3>A flat collar was tried first, and broke a river-workflow invariant<a class="headerlink" href="#a-flat-collar-was-tried-first-and-broke-a-river-workflow-invariant" title="Link to this heading"></a></h3>
+<p>The first implementation held the ocean background flat for
+<code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">x</span> <span class="pre">ocean_background</span></code> inland before starting the linear ramp. It worked on
+the dcEdge metrics — <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> went from 0.664 to 0.778 — but its reach
+is <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">+</span> <span class="pre">2L</span></code>, which pushed the blend on <code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> from 35.6 km to
+71.6 km inland and put river geometry inside it: river-mask cells held above
+1.05 times their target rose from 3.84% to 6.45%. The exponent reaches the
+same place without spending reach.</p>
+<p>Shortening <code class="docutils literal notranslate"><span class="pre">T</span></code> to pay for a collar was screened and is worse than doing
+nothing: halving the transition drove the worst ocean ratio to 0.6476 and
+doubled the near-coast tail.</p>
+</section>
+<section id="the-centroidal-voronoi-kernel-was-tried-and-reverted">
+<h3>The centroidal-Voronoi kernel was tried and reverted<a class="headerlink" href="#the-centroidal-voronoi-kernel-was-tried-and-reverted" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cvt+dqdx</span></code> optimizes the Voronoi cells that carry <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> rather than the
+triangulation, and on synthetic spheres it beat the default on both bulk and
+tail — pooled minimum 0.755 against 0.682 over 2.3M cells uniform, 0.773
+against 0.630 over 1.8M cells graded. It thinned the bulk of the real
+distribution about fourfold. It was reverted anyway: <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> failed
+the cell-polygon quality check outright, and the bulk gain never reached the
+metric that matters, since the CFL floor is set by rare defects rather than
+by the bulk.</p>
+<p>The discriminator is JIGSAW’s line-constraint geometry. Unified meshes hand
+JIGSAW the retained river network as <code class="docutils literal notranslate"><span class="pre">edge2</span></code> constraints — 122,198 vertices
+on <code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code>. Adding constraint polylines with the same
+segment-length distribution to the synthetic world reproduces the failure:
+far from any constraint, CVT with constraints reaches 0.613 and puts eight
+edges below 0.75, while CVT alone or the default kernel with constraints
+stay near 0.77. Vertices pinned on constraint edges cannot move under
+Voronoi-centroid smoothing, so the pinned network behaves as a rigid
+inclusion and the frustration relieves as defects elsewhere.</p>
+<p>The same constraints degrade cell polygons by about two orders of magnitude
+for either kernel, which is why <code class="docutils literal notranslate"><span class="pre">minimum_edge_length_ratio</span></code> moved. That
+degradation is confined to land: the minimum over ocean cells is 0.27 to
+0.40 on every mesh measured, while over land it reaches 2.2e-4 to 5.1e-4.</p>
+</section>
+<section id="raising-the-exponent-instead-of-the-width-does-not-work">
+<h3>Raising the exponent instead of the width does not work<a class="headerlink" href="#raising-the-exponent-instead-of-the-width-does-not-work" title="Link to this heading"></a></h3>
+<p>At fixed reach, higher exponents buy coastal suppression monotonically —
+near-coast worst climbs from 0.7880 at quadratic to 0.8005 at quintic — but
+the overall worst falls just as steadily, from 0.7748 to 0.7507, back to the
+linear baseline. The steeper inland kink seeds its own defects that reach
+the ocean score. Widening the transition is the lever that works.</p>
+</section>
+<section id="the-river-constraints-work-as-intended">
+<h3>The river constraints work as intended<a class="headerlink" href="#the-river-constraints-work-as-intended" title="Link to this heading"></a></h3>
+<p>Measuring the distance from constraint <em>vertices</em> to the nearest cell center
+gives a median of 1.5 km on a 6 km mesh, which looks like the constraints
+are being ignored. Measuring to the constraint <em>lines</em> instead shows about
+129,000 cells locked within 250 m — 1.06 per constraint vertex — with the
+count flat from 250 m out to 2 km. JIGSAW conforms to the constraint paths
+and redistributes vertices along them, so cell centers follow the river
+network even though the input nodes are not preserved. Nothing needs fixing
+here, and the obvious measurement gives the wrong answer.</p>
+<p>The snap tolerance is likewise correct as designed: it is half
+<code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code> on every mesh, and the median constraint edge comes out at
+0.94 of the river target. About 12% of vertex pairs sit closer than the
+tolerance because <code class="docutils literal notranslate"><span class="pre">_merge_close_centroids</span></code> does not iterate to a fixed point,
+but clipping that tail in the synthetic screen changed the polygon minimum
+from 1.65e-03 to 1.80e-03, so it is not worth fixing on mesh-quality grounds.</p>
+</section>
+<section id="screening-a-minimum-needs-a-much-larger-sample-than-screening-a-bulk">
+<h3>Screening a minimum needs a much larger sample than screening a bulk<a class="headerlink" href="#screening-a-minimum-needs-a-much-larger-sample-than-screening-a-bulk" title="Link to this heading"></a></h3>
+<p>Two methodological errors are worth recording. The first screen analyzed the
+JIGSAW triangulation and never the Voronoi polygons, so the cell-polygon
+failure mode was invisible to it. More importantly, CVT at its default 16
+iterations produced a 0.579 outlier in one of five realizations, which was
+read as under-convergence to be cured with more iterations rather than as
+evidence of a heavy extreme tail. The cull diagnostic reports a <em>minimum</em>
+over millions of edges; estimating that from a few realizations of a few
+hundred thousand edges cannot resolve a defect rate near one in a million,
+and a screen reporting only bulk percentiles will show a tail-heavy kernel as
+an unambiguous win. Pool enough realizations that the combined edge count
+approaches the target mesh, and report the pooled minimum and the counts
+below the thresholds of interest.</p>
+<p>A related trap: an identical sizing field at a point does not imply an
+identical mesh at that point. JIGSAW’s front advance and optimization are
+global, so changing the field along every coastline moves the point
+distribution everywhere, including where the field did not change.</p>
+</section>
+<section id="divergence-from-the-reference-workflow">
+<h3>Divergence from the reference workflow<a class="headerlink" href="#divergence-from-the-reference-workflow" title="Link to this heading"></a></h3>
+<p>The standalone workflow Polaris’ unified base mesh is based on,
+<a class="reference external" href="https://github.com/changliao1025/mpas_land_mesh"><code class="docutils literal notranslate"><span class="pre">mpas_land_mesh</span></code></a>, applies
+an Eikonal gradient limiter to the spacing field before meshing —
+<code class="docutils literal notranslate"><span class="pre">spac.slope</span> <span class="pre">=</span> <span class="pre">dhdx_lim</span></code> with a default of 0.25, then <code class="docutils literal notranslate"><span class="pre">jigsawpy.cmd.marche</span></code>.
+Polaris does not. This was noted but not pursued.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="unified_mesh_cull_leak.html" class="btn btn-neutral float-left" title="Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vector_reconstruction.html" class="btn btn-neutral float-right" title="Vector Reconstruction at MPAS Cell Centers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

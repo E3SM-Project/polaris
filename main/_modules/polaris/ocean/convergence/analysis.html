@@ -112,9 +112,9 @@
   <h1>Source code for polaris.ocean.convergence.analysis</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">area_for_field</span><span class="p">,</span> <span class="n">time_since_start</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -122,7 +122,7 @@
     <span class="n">get_timestep_for_task</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 
 <div class="viewcode-block" id="ConvergenceAnalysis">
@@ -294,7 +294,6 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step of the test case</span>
 <span class="sd">        """</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s1">'Agg'</span><span class="p">)</span>
         <span class="n">convergence_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence_vars</span>
         <span class="n">variables_failed</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">convergence_vars</span><span class="p">:</span>
@@ -372,7 +371,7 @@
         <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'convergence_</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">.csv'</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">refinement_array</span><span class="p">,</span> <span class="n">error_array</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">header</span><span class="p">,</span> <span class="n">error_type</span><span class="p">])</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">'convergence_</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">.csv'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="n">convergence_failed</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">refinement_array</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">error_array</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
@@ -390,82 +389,83 @@
             <span class="o">*</span> <span class="p">(</span><span class="n">refinement_array</span> <span class="o">/</span> <span class="n">refinement_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="p">)</span>
 
-        <span class="n">use_mplstyle</span><span class="p">()</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">()</span>
 
-        <span class="n">error_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'l2'</span><span class="p">:</span> <span class="s1">'L2 norm'</span><span class="p">,</span> <span class="s1">'inf'</span><span class="p">:</span> <span class="s1">'L-infinity norm'</span><span class="p">}</span>
-        <span class="n">error_title</span> <span class="o">=</span> <span class="n">error_dict</span><span class="p">[</span><span class="n">error_type</span><span class="p">]</span>
+            <span class="n">error_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'l2'</span><span class="p">:</span> <span class="s1">'L2 norm'</span><span class="p">,</span> <span class="s1">'inf'</span><span class="p">:</span> <span class="s1">'L-infinity norm'</span><span class="p">}</span>
+            <span class="n">error_title</span> <span class="o">=</span> <span class="n">error_dict</span><span class="p">[</span><span class="n">error_type</span><span class="p">]</span>
 
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
-            <span class="n">refinement_array</span><span class="p">,</span> <span class="n">order1</span><span class="p">,</span> <span class="s1">'--k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'first order'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span>
-        <span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
-            <span class="n">refinement_array</span><span class="p">,</span> <span class="n">order2</span><span class="p">,</span> <span class="s1">'k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'second order'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span>
-        <span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
-            <span class="n">refinement_array</span><span class="p">,</span>
-            <span class="n">fit</span><span class="p">,</span>
-            <span class="s1">'k'</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'linear fit (order=</span><span class="si">{</span><span class="n">convergence</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">refinement_array</span><span class="p">,</span> <span class="n">error_array</span><span class="p">,</span> <span class="s1">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'numerical'</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">baseline_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">baseline_filename</span><span class="p">):</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">baseline_filename</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">error_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">error_type</span><span class="si">}</span><span class="s1"> not available for baseline'</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">refinement_array</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">resolution</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-                    <span class="n">error_array</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">error_type</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-                    <span class="n">poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">refinement_array</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">error_array</span><span class="p">),</span> <span class="mi">1</span>
-                    <span class="p">)</span>
-                    <span class="n">base_convergence</span> <span class="o">=</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">conv_round</span> <span class="o">=</span> <span class="n">base_convergence</span>
-
-                    <span class="n">fit</span> <span class="o">=</span> <span class="n">refinement_array</span> <span class="o">**</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">poly</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
-                        <span class="n">refinement_array</span><span class="p">,</span>
-                        <span class="n">error_array</span><span class="p">,</span>
-                        <span class="s1">'o'</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="s1">'#ff7f0e'</span><span class="p">,</span>
-                        <span class="n">label</span><span class="o">=</span><span class="s1">'baseline'</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
-                        <span class="n">refinement_array</span><span class="p">,</span>
-                        <span class="n">fit</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="s1">'#ff7f0e'</span><span class="p">,</span>
-                        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'linear fit, baseline '</span>
-                        <span class="sa">f</span><span class="s1">'(order=</span><span class="si">{</span><span class="n">base_convergence</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
-                    <span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">error_title</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Error Convergence of </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'lower left'</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'convergence_</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
-            <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span>
-            <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Order of convergence for </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">conv_round</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">conv_round</span> <span class="o">&lt;</span> <span class="n">conv_thresh</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'Error: order of convergence for </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
-                <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">conv_round</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1"> &lt; min tolerance '</span>
-                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">conv_thresh</span><span class="si">}</span><span class="s1">'</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                <span class="n">refinement_array</span><span class="p">,</span> <span class="n">order1</span><span class="p">,</span> <span class="s1">'--k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'first order'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span>
             <span class="p">)</span>
-            <span class="n">convergence_failed</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                <span class="n">refinement_array</span><span class="p">,</span> <span class="n">order2</span><span class="p">,</span> <span class="s1">'k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'second order'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                <span class="n">refinement_array</span><span class="p">,</span>
+                <span class="n">fit</span><span class="p">,</span>
+                <span class="s1">'k'</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'linear fit (order=</span><span class="si">{</span><span class="n">convergence</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">refinement_array</span><span class="p">,</span> <span class="n">error_array</span><span class="p">,</span> <span class="s1">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'numerical'</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">convergence_failed</span></div>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">baseline_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">baseline_filename</span><span class="p">):</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">baseline_filename</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">error_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">error_type</span><span class="si">}</span><span class="s1"> not available for baseline'</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">refinement_array</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">resolution</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+                        <span class="n">error_array</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">error_type</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+                        <span class="n">poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">refinement_array</span><span class="p">),</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">error_array</span><span class="p">),</span>
+                            <span class="mi">1</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">base_convergence</span> <span class="o">=</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">conv_round</span> <span class="o">=</span> <span class="n">base_convergence</span>
+
+                        <span class="n">fit</span> <span class="o">=</span> <span class="n">refinement_array</span> <span class="o">**</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">poly</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                            <span class="n">refinement_array</span><span class="p">,</span>
+                            <span class="n">error_array</span><span class="p">,</span>
+                            <span class="s1">'o'</span><span class="p">,</span>
+                            <span class="n">color</span><span class="o">=</span><span class="s1">'#ff7f0e'</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="s1">'baseline'</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+                            <span class="n">refinement_array</span><span class="p">,</span>
+                            <span class="n">fit</span><span class="p">,</span>
+                            <span class="n">color</span><span class="o">=</span><span class="s1">'#ff7f0e'</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'linear fit, baseline '</span>
+                            <span class="sa">f</span><span class="s1">'(order=</span><span class="si">{</span><span class="n">base_convergence</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
+                        <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">error_title</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Error Convergence of </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'lower left'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'convergence_</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">),</span>
+                <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span>
+                <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Order of convergence for </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">conv_round</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">conv_round</span> <span class="o">&lt;</span> <span class="n">conv_thresh</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'Error: order of convergence for </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
+                    <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">conv_round</span><span class="si">:</span><span class="s1">1.3f</span><span class="si">}</span><span class="s1"> &lt; min tolerance '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">conv_thresh</span><span class="si">}</span><span class="s1">'</span>
+                <span class="p">)</span>
+                <span class="n">convergence_failed</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">return</span> <span class="n">convergence_failed</span></div>
 
 
 <div class="viewcode-block" id="ConvergenceAnalysis.compute_error">
@@ -499,7 +499,7 @@
         <span class="n">norm_type</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'l2'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">'inf'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">}</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="n">config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'mesh_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">),</span> <span class="n">config</span>
         <span class="p">)</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'convergence'</span><span class="p">]</span>
         <span class="n">eval_time</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'convergence_eval_time'</span><span class="p">)</span>
@@ -572,7 +572,7 @@
 <span class="sd">        """</span>
 
         <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'init_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="p">)</span>
         <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">zidx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -608,7 +608,9 @@
 <span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">),</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>

@@ -203,7 +203,7 @@
 <td><p>Run this step of the task</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
-<td><p>Update attributes of the step at runtime before calling the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method.</p></td>
+<td><p>Make the JIGSAW file names absolute</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_and_plot_cell_width</span></code>(lon, lat, cell_width)</p></td>
 <td><p>Save the cell width field on a lon/lat grid to <code class="docutils literal notranslate"><span class="pre">self.cell_width_filename</span></code> and plot</p></td>
@@ -219,6 +219,9 @@
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">work_path</span></code>(*filenames)</p></td>
+<td><p>Get the absolute path to a file or directory in the step's work directory</p></td>
 </tr>
 </tbody>
 </table>

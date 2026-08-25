@@ -39,6 +39,7 @@
       ~Forward.update_io_tasks_config
       ~Forward.update_namelist_pio
       ~Forward.validate_baselines
+      ~Forward.work_path
    
    
 

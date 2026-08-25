@@ -134,7 +134,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.mesh.spherical.unified.coastline.remap</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">RemapCoastlineStep</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 <span class="n">CoastlineStep</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">ComputeCoastlineStep</span><span class="p">,</span> <span class="n">RemapCoastlineStep</span><span class="p">]</span>
 
@@ -195,60 +195,63 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run this step.</span>
 <span class="sd">        """</span>
-        <span class="n">use_mplstyle</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+            <span class="n">viz_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'viz_coastline'</span><span class="p">]</span>
+            <span class="n">prepare_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'coastline'</span><span class="p">]</span>
+            <span class="n">dpi</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'dpi'</span><span class="p">)</span>
+            <span class="n">antarctic_max_latitude</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                <span class="s1">'antarctic_max_latitude'</span>
+            <span class="p">)</span>
+            <span class="n">finest_plot_stride</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'finest_plot_stride'</span><span class="p">)</span>
+            <span class="n">signed_distance_limit</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                <span class="s1">'signed_distance_limit'</span>
+            <span class="p">)</span>
+            <span class="n">plot_info</span> <span class="o">=</span> <span class="n">_get_plot_info_from_file</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">CONVENTIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                <span class="n">finest_plot_stride</span><span class="o">=</span><span class="n">finest_plot_stride</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">line_overlays</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">prepare_section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'include_critical_transects'</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">line_overlays</span> <span class="o">=</span> <span class="n">_get_critical_transect_overlays</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pragma: no cover - diagnostic fallback</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s1">'Could not load critical transects for coastline '</span>
+                        <span class="s1">'overlays.'</span><span class="p">,</span>
+                        <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
 
-        <span class="n">viz_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'viz_coastline'</span><span class="p">]</span>
-        <span class="n">prepare_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'coastline'</span><span class="p">]</span>
-        <span class="n">dpi</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'dpi'</span><span class="p">)</span>
-        <span class="n">antarctic_max_latitude</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'antarctic_max_latitude'</span><span class="p">)</span>
-        <span class="n">finest_plot_stride</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'finest_plot_stride'</span><span class="p">)</span>
-        <span class="n">signed_distance_limit</span> <span class="o">=</span> <span class="n">viz_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'signed_distance_limit'</span><span class="p">)</span>
-        <span class="n">plot_info</span> <span class="o">=</span> <span class="n">_get_plot_info_from_file</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">CONVENTIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
-            <span class="n">finest_plot_stride</span><span class="o">=</span><span class="n">finest_plot_stride</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">line_overlays</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">prepare_section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'include_critical_transects'</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">line_overlays</span> <span class="o">=</span> <span class="n">_get_critical_transect_overlays</span><span class="p">()</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pragma: no cover - diagnostic fallback</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s1">'Could not load critical transects for coastline '</span>
-                    <span class="s1">'overlays.'</span><span class="p">,</span>
-                    <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'debug_summary.txt'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">summary</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">convention</span> <span class="ow">in</span> <span class="n">CONVENTIONS</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">convention</span><span class="p">]</span>
+                    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_coastline</span><span class="p">:</span>
+                        <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                        <span class="n">signed_distance</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">values</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'debug_summary.txt'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">summary</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">convention</span> <span class="ow">in</span> <span class="n">CONVENTIONS</span><span class="p">:</span>
-                <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coastline_step</span><span class="o">.</span><span class="n">output_filenames</span><span class="p">[</span><span class="n">convention</span><span class="p">]</span>
-                <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_coastline</span><span class="p">:</span>
-                    <span class="n">ocean_mask</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">ocean_mask</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
-                    <span class="n">signed_distance</span> <span class="o">=</span> <span class="n">ds_coastline</span><span class="o">.</span><span class="n">signed_distance</span><span class="o">.</span><span class="n">values</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">_plot_binary_field</span><span class="p">(</span>
-                    <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
-                    <span class="n">field</span><span class="o">=</span><span class="n">ocean_mask</span><span class="p">,</span>
-                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1"> ocean mask'</span><span class="p">,</span>
-                    <span class="n">out_prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">_ocean_mask'</span><span class="p">,</span>
-                    <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
-                    <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
-                    <span class="n">line_overlays</span><span class="o">=</span><span class="n">line_overlays</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_plot_signed_distance</span><span class="p">(</span>
-                    <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
-                    <span class="n">signed_distance</span><span class="o">=</span><span class="n">signed_distance</span><span class="p">,</span>
-                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1"> signed distance'</span><span class="p">,</span>
-                    <span class="n">out_prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">_signed_distance'</span><span class="p">,</span>
-                    <span class="n">distance_limit</span><span class="o">=</span><span class="n">signed_distance_limit</span><span class="p">,</span>
-                    <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
-                    <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_write_convention_summary</span><span class="p">(</span>
-                    <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
-                    <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
-                    <span class="n">ocean_mask</span><span class="o">=</span><span class="n">ocean_mask</span><span class="p">,</span>
-                    <span class="n">signed_distance</span><span class="o">=</span><span class="n">signed_distance</span><span class="p">,</span>
-                <span class="p">)</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_plot_binary_field</span><span class="p">(</span>
+                        <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
+                        <span class="n">field</span><span class="o">=</span><span class="n">ocean_mask</span><span class="p">,</span>
+                        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1"> ocean mask'</span><span class="p">,</span>
+                        <span class="n">out_prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">_ocean_mask'</span><span class="p">,</span>
+                        <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+                        <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
+                        <span class="n">line_overlays</span><span class="o">=</span><span class="n">line_overlays</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_plot_signed_distance</span><span class="p">(</span>
+                        <span class="n">plot_info</span><span class="o">=</span><span class="n">plot_info</span><span class="p">,</span>
+                        <span class="n">signed_distance</span><span class="o">=</span><span class="n">signed_distance</span><span class="p">,</span>
+                        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1"> signed distance'</span><span class="p">,</span>
+                        <span class="n">out_prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">convention</span><span class="si">}</span><span class="s1">_signed_distance'</span><span class="p">,</span>
+                        <span class="n">distance_limit</span><span class="o">=</span><span class="n">signed_distance_limit</span><span class="p">,</span>
+                        <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+                        <span class="n">antarctic_max_latitude</span><span class="o">=</span><span class="n">antarctic_max_latitude</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_write_convention_summary</span><span class="p">(</span>
+                        <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
+                        <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+                        <span class="n">ocean_mask</span><span class="o">=</span><span class="n">ocean_mask</span><span class="p">,</span>
+                        <span class="n">signed_distance</span><span class="o">=</span><span class="n">signed_distance</span><span class="p">,</span>
+                    <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot_binary_field</span><span class="p">(</span>

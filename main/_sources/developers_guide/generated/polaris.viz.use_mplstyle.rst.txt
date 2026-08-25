@@ -1,6 +1,0 @@
-﻿polaris.viz.use\_mplstyle
-=========================
-
-.. currentmodule:: polaris.viz
-
-.. autofunction:: use_mplstyle

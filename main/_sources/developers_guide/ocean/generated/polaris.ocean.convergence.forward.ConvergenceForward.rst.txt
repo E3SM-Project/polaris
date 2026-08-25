@@ -47,6 +47,7 @@
       ~ConvergenceForward.update_namelist_eos
       ~ConvergenceForward.update_namelist_pio
       ~ConvergenceForward.validate_baselines
+      ~ConvergenceForward.work_path
    
    
 

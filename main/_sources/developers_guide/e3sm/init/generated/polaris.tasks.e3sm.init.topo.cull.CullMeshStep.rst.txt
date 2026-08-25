@@ -26,6 +26,7 @@
       ~CullMeshStep.set_shared_config
       ~CullMeshStep.setup
       ~CullMeshStep.validate_baselines
+      ~CullMeshStep.work_path
    
    
 

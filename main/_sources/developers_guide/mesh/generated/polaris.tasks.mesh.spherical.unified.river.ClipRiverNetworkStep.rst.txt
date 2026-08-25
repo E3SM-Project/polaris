@@ -26,6 +26,7 @@
       ~ClipRiverNetworkStep.set_shared_config
       ~ClipRiverNetworkStep.setup
       ~ClipRiverNetworkStep.validate_baselines
+      ~ClipRiverNetworkStep.work_path
    
    
 

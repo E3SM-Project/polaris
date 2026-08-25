@@ -29,6 +29,7 @@
       ~QuasiUniformSphericalMeshStep.set_shared_config
       ~QuasiUniformSphericalMeshStep.setup
       ~QuasiUniformSphericalMeshStep.validate_baselines
+      ~QuasiUniformSphericalMeshStep.work_path
    
    
 

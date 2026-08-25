@@ -37,6 +37,7 @@
       ~Init.set_shared_config
       ~Init.setup
       ~Init.validate_baselines
+      ~Init.work_path
       ~Init.write_horiz_mesh_dataset
       ~Init.write_initial_state_dataset
       ~Init.write_model_dataset

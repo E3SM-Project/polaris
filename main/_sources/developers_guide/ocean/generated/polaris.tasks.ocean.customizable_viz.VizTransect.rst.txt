@@ -37,6 +37,7 @@
       ~VizTransect.set_shared_config
       ~VizTransect.setup
       ~VizTransect.validate_baselines
+      ~VizTransect.work_path
       ~VizTransect.write_horiz_mesh_dataset
       ~VizTransect.write_initial_state_dataset
       ~VizTransect.write_model_dataset

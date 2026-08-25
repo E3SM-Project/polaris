@@ -27,6 +27,7 @@
       ~SphericalBaseStep.set_shared_config
       ~SphericalBaseStep.setup
       ~SphericalBaseStep.validate_baselines
+      ~SphericalBaseStep.work_path
    
    
 

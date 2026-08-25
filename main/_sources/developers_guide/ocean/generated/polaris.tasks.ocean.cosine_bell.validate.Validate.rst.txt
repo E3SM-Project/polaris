@@ -37,6 +37,7 @@
       ~Validate.set_shared_config
       ~Validate.setup
       ~Validate.validate_baselines
+      ~Validate.work_path
       ~Validate.write_horiz_mesh_dataset
       ~Validate.write_initial_state_dataset
       ~Validate.write_model_dataset

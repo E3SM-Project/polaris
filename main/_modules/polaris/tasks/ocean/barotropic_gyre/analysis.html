@@ -122,7 +122,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas</span><span class="w"> </span><span class="kn">import</span> <span class="n">area_for_field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_mplstyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 
 <div class="viewcode-block" id="Analysis">
@@ -217,77 +217,77 @@
 
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">Descriptor</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
 
-        <span class="n">use_mplstyle</span><span class="p">()</span>
-        <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span>
-        <span class="n">x0</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">y0</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yEdge</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
+            <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">y0</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yEdge</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
 
-        <span class="c1"># offset coordinates</span>
-        <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">x0</span>
-        <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">y0</span>
-        <span class="c1"># convert to km</span>
-        <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span> <span class="o">*=</span> <span class="mf">1.0e-3</span>
+            <span class="c1"># offset coordinates</span>
+            <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">x0</span>
+            <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">y0</span>
+            <span class="c1"># convert to km</span>
+            <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span> <span class="o">*=</span> <span class="mf">1.0e-3</span>
 
-        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 
-        <span class="n">eta0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">field_exact</span><span class="o">.</span><span class="n">values</span><span class="p">)),</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">field_mpas</span><span class="o">.</span><span class="n">values</span><span class="p">)),</span>
-        <span class="p">)</span>
+            <span class="n">eta0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">field_exact</span><span class="o">.</span><span class="n">values</span><span class="p">)),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">field_mpas</span><span class="o">.</span><span class="n">values</span><span class="p">)),</span>
+            <span class="p">)</span>
 
-        <span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">eta0</span><span class="p">,</span> <span class="n">eta0</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">cmocean</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="n">descriptor</span><span class="p">,</span>
-            <span class="n">field_mpas</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
-            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
-            <span class="n">antialiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$\psi$'</span><span class="p">)</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-            <span class="n">descriptor</span><span class="p">,</span>
-            <span class="n">field_exact</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
-            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
-            <span class="n">antialiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$\psi$'</span><span class="p">)</span>
+            <span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">eta0</span><span class="p">,</span> <span class="n">eta0</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">cmocean</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span>
+                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">descriptor</span><span class="p">,</span>
+                <span class="n">field_mpas</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
+                <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+                <span class="n">antialiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$\psi$'</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span>
+                <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">descriptor</span><span class="p">,</span>
+                <span class="n">field_exact</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
+                <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+                <span class="n">antialiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$\psi$'</span><span class="p">)</span>
 
-        <span class="n">eta0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">field_mpas</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">field_exact</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
-        <span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">eta0</span><span class="p">,</span> <span class="n">eta0</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">cmocean</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-            <span class="n">descriptor</span><span class="p">,</span>
-            <span class="n">field_mpas</span> <span class="o">-</span> <span class="n">field_exact</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
-            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
-            <span class="n">antialiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$d\psi$'</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Numerical solution'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'y (km)'</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Analytical solution'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Error (Numerical - Analytical)'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
-        <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
+            <span class="n">eta0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">field_mpas</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">field_exact</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+            <span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">eta0</span><span class="p">,</span> <span class="n">eta0</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">cmocean</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">polypcolor</span><span class="p">(</span>
+                <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="n">descriptor</span><span class="p">,</span>
+                <span class="n">field_mpas</span> <span class="o">-</span> <span class="n">field_exact</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">'cmo.balance'</span><span class="p">,</span>
+                <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span>
+                <span class="n">antialiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$d\psi$'</span><span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Numerical solution'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'y (km)'</span><span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Analytical solution'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Error (Numerical - Analytical)'</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'x (km)'</span><span class="p">)</span>
 
-        <span class="n">xmin</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">xmax</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">ymin</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">ymax</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">'equal'</span><span class="p">)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'comparison.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
+            <span class="n">xmin</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="n">xmax</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">ymin</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="n">ymax</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">vertex_patches</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">'equal'</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">'comparison.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Analysis.compute_error">

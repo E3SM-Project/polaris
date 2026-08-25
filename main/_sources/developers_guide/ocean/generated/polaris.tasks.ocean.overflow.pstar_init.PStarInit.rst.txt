@@ -39,6 +39,7 @@
       ~PStarInit.set_shared_config
       ~PStarInit.setup
       ~PStarInit.validate_baselines
+      ~PStarInit.work_path
       ~PStarInit.write_horiz_mesh_dataset
       ~PStarInit.write_initial_state_dataset
       ~PStarInit.write_model_dataset
