@@ -408,7 +408,7 @@ def compute_lstsq_weights(
         MPAS mesh dataset
     local_edge_coords: xr.DataArray (nCells or nVertices, maxEdges2/NINE, R3)
         Edge coordinate vectors projected onto the local tangent plane at the
-        the reconstruction point
+        reconstruction point and relative to it
     stencil: xr.DataArray (nCells or nVertices, maxEdges2 or NINE)
         A two level stencil of edges neighboring the reconstruction point
 
@@ -422,23 +422,9 @@ def compute_lstsq_weights(
     planar = is_planar(ds)
 
     if planar:
-        # planar: use actual distance from reconstruction point as D
-        point_dim = local_edge_coords.dims[0]
-        if point_dim in ('nCells', 'NCells'):
-            ref_point = xr.concat([ds.xCell, ds.yCell], dim='R3').T
-        elif point_dim in ('nVertices', 'NVertices'):
-            ref_point = xr.concat([ds.xVertex, ds.yVertex], dim='R3').T
-        else:
-            raise ValueError(
-                'Could not infer the reconstruction point location from '
-                f"dimension '{point_dim}'. Expected 'nCells'/'NCells' or "
-                "'nVertices'/'NVertices'."
-            )
-        D = np.sqrt(
-            ((local_edge_coords.isel(R3=[0, 1]) - ref_point) ** 2).sum(
-                dim='R3'
-            )
-        )
+        # planar: the coordinates are already relative to the
+        # reconstruction point, so D is the in-plane distance from it
+        D = np.sqrt((local_edge_coords.isel(R3=[0, 1]) ** 2).sum(dim='R3'))
     else:
         # normalize the rotated z coord onto the unit sphere to match
         # Renka (1984): z_hat = 1 at the reconstruction point and
@@ -578,6 +564,19 @@ def build_reconstruction_weights(
     local_edge_coords = project_edge_normal_to_tangent_plane(
         cartesian_edge_coords, rotation_matrix, stencil
     )
+
+    # On a sphere, the rotation above carries the reconstruction point to
+    # (0, 0, sphere_radius), so the local edge coordinates are already
+    # relative to it and the constant term of the least-squares fit below
+    # is the value at the point.  A planar mesh rotates by the identity,
+    # which leaves the coordinates absolute, so translate them here.
+    # Otherwise the fit is anchored at the mesh origin and the constant
+    # term is the field extrapolated there rather than the value at the
+    # reconstruction point.
+    if is_planar(ds):
+        local_edge_coords = local_edge_coords - _reconstruction_point_coords(
+            ds, location
+        )
 
     # weight the LSTSQ matrix following Renka (1984) pg. 422
     w = compute_lstsq_weights(ds, local_edge_coords, stencil)
@@ -852,3 +851,18 @@ def _add_reconstruct_attrs(
         attrs['units'] = units
     data_array.attrs.update(attrs)
     return data_array
+
+
+def _reconstruction_point_coords(
+    ds: xr.Dataset, location: ReconstructionType
+) -> xr.DataArray:
+    """
+    The Cartesian coordinates of each reconstruction point, shaped
+    (nCells or nVertices, R3) so they broadcast against the local edge
+    coordinates.
+    """
+    # e.g. "cell" -> "xCell", "vertex" -> "xVertex"
+    prefix = location.capitalize()
+    return xr.concat(
+        [ds[f'x{prefix}'], ds[f'y{prefix}'], ds[f'z{prefix}']], dim='R3'
+    ).T
