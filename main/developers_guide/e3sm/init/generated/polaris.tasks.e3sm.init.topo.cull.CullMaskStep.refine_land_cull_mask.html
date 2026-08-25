@@ -132,14 +132,12 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask">
 <span class="sig-prename descclassname"><span class="pre">CullMaskStep.</span></span><span class="sig-name descname"><span class="pre">refine_land_cull_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_base_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_topo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cull_mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/polaris/tasks/e3sm/init/topo/cull/mask.html#CullMaskStep.refine_land_cull_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.refine_land_cull_mask" title="Link to this definition"></a></dt>
-<dd><p>Refine the mask for culling ocean from the land.  The mask passed in
-is already the complement of the ocean without ice-shelf cavities,
-which the base class returns unaltered: someone is supposed to own
-every cell on the globe and no one is supposed to own it twice.</p>
-<p>Subclasses can override this method to define a different land
-domain, but one that breaks the complementarity must also override
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">CullMaskStep._check_mask_consistency()</span></code>, which would
-otherwise reject the resulting masks.</p>
+<dd><p>Refine the mask for culling ocean from the land. Subclasses can
+override this method to first refine the mask and then call the base
+class method to make sure that 1) ocean critical transects are excluded
+from the land and 2) all cells that are not part of the ocean (without
+ice-shelf cavities) are excluded from the land cull mask (someone
+is supposed to own every cell on the globe).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

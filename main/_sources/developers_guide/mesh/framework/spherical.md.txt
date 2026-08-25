@@ -68,12 +68,6 @@ jigsaw_hfun_filename = spac.msh
 triangles_filename = mesh_triangles.nc
 mpas_mesh_filename = base_mesh.nc
 
-# JIGSAW mesh-optimization settings
-jigsaw_optm_kern = odt+dqdx
-jigsaw_optm_iter = 16
-jigsaw_optm_qtol = 1.0e-4
-jigsaw_optm_qlim = 0.9375
-
 # options related to mesh name and resolution
 # the prefix (e.g. Icos, QU, SO, RRS)
 prefix = PREFIX
@@ -102,32 +96,6 @@ vtk_dir = base_mesh_vtk
 # whether to extract the vtk output in lat/lon space, rather than on the sphere
 vtk_lat_lon = False
 ```
-
-## JIGSAW mesh optimization
-
-`jigsaw_optm_kern`, `jigsaw_optm_iter`, `jigsaw_optm_qtol` and
-`jigsaw_optm_qlim` are passed through to JIGSAW by
-{py:class}`polaris.mesh.QuasiUniformSphericalMeshStep`. The defaults are
-the values the step used before they were configurable, which are also what
-`mpas_tools` passes, so a mesh that does not set them is unaffected.
-({py:class}`polaris.mesh.IcosahedralMeshStep` keeps its own settings and
-does not read these.)
-
-`jigsaw_optm_kern` chooses between an Optimal Delaunay Tessellation
-(`odt+dqdx`) and a Centroidal Voronoi Tessellation (`cvt+dqdx`). MPAS cells
-are the Voronoi dual of the JIGSAW triangulation, so `cvt+dqdx` optimizes
-the cells that carry `dcEdge` rather than the triangulation, and it does
-give a tighter *bulk* `dcEdge` distribution at roughly 1.8 times the
-mesh-build time.
-
-It is not currently used by any mesh, and it should not be selected without
-reading the {ref}`design doc <design-docs>` `unified_mesh_dc_edge_noise`
-first. On real unified meshes it thinned the bulk about fourfold while
-introducing rare severe defects: the minimum `dcEdge` ratio on
-`u.oi6to18.lr6to10` fell from 0.643 to 0.515, and `u.oi30.lr10` failed the
-cell-polygon quality check outright. Because the cull diagnostic reports a
-*minimum* over millions of edges, a kernel that improves the bulk and
-worsens the tail is a net loss.
 
 ## Supported Base Mesh Steps
 

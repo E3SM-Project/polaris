@@ -51,24 +51,7 @@ Two optional refinements can be enabled independently:
 Sets the target cell width at the coastline raster edge to the finest cell
 width between ocean and land backgrounds. A linear transition of width
 `coastline_transition_land_km` can be applied on the land side of the
-coastline to smooth the transition back to the land background, and
-`coastline_transition_exponent` controls the shape of that transition.
-
-The transition is by far the steepest feature in the sizing field -- its
-slope is `|land_background - ocean_background|` divided by the transition
-width, roughly a hundred times the open-ocean gradient. Where that gradient
-meets the ocean it seeds defects in JIGSAW's hexagonal packing, and those
-defects carry the shortest `dcEdge` values, which in turn cap the
-forward-run time step.
-
-An exponent of 2 (the default) makes the blending factor and its first
-derivative both vanish at the coastline, so the field leaves the ocean flat
-and does its steepening at the inland end, where only cells that get culled
-away feel it. An exponent of 1 is the plain linear ramp. Because the
-exponent changes the *shape* rather than the *extent* of the transition, it
-costs no extra inland reach: river geometry still begins exactly where the
-blend ends. See the {ref}`design doc <design-docs>`
-`unified_mesh_dc_edge_noise`.
+coastline to smooth the transition back to the land background.
 
 **River-channel refinement** (`enable_river_channel_refinement`)
 Reduces the target cell width to `river_channel_km` on rasterized river
@@ -109,10 +92,6 @@ relevant options are in the `[sizing_field]` section:
 - `coastline_transition_land_km`: width in km of the linear-transition zone
   on the land side of the coastline. Set to `0` to apply only at the
   raster edge.
-- `coastline_transition_exponent`: exponent of the land-side blending
-  factor. `1` is linear; `2` (the default) flattens the mesh-size gradient
-  at the coastline and steepens it inland without extending the
-  transition's reach.
 - `enable_river_channel_refinement`: whether to refine cells on the
   river-channel mask.
 - `river_channel_km`: target cell width in km along river channels.

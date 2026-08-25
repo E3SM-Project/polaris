@@ -128,12 +128,6 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.info.is_planar.html">polaris.mesh.info.is_planar</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.info.is_spherical.html">polaris.mesh.info.is_spherical</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html">polaris.mesh.planar.compute_planar_hex_nx_ny</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.connectivity.active_edge_masks.html">polaris.mesh.connectivity.active_edge_masks</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.connectivity.count_active_edges.html">polaris.mesh.connectivity.count_active_edges</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.connectivity.has_active_vertex.html">polaris.mesh.connectivity.has_active_vertex</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.connectivity.transport_link_mask.html">polaris.mesh.connectivity.transport_link_mask</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.connectivity.connected_to_seeds.html">polaris.mesh.connectivity.connected_to_seeds</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.connectivity.seed_mask_from_points.html">polaris.mesh.connectivity.seed_mask_from_points</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html">polaris.mesh.spherical.SphericalBaseStep</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.setup.html">polaris.mesh.spherical.SphericalBaseStep.setup</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.run.html">polaris.mesh.spherical.SphericalBaseStep.run</a></li>
@@ -621,24 +615,6 @@ documentation.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny" title="polaris.mesh.planar.compute_planar_hex_nx_ny"><code class="xref py py-obj docutils literal notranslate"><span class="pre">planar.compute_planar_hex_nx_ny</span></code></a>(lx, ly, ...)</p></td>
 <td><p>Compute number of grid cells in each direction for the uniform, hexagonal planar mesh with the given physical sizes and resolution.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.active_edge_masks.html#polaris.mesh.connectivity.active_edge_masks" title="polaris.mesh.connectivity.active_edge_masks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.active_edge_masks</span></code></a>(ds_mesh, ...)</p></td>
-<td><p>Find, for each local edge of each cell, whether the neighboring cell across that edge and across the next and previous edges around the same cell belong to the domain.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.count_active_edges.html#polaris.mesh.connectivity.count_active_edges" title="polaris.mesh.connectivity.count_active_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.count_active_edges</span></code></a>(ds_mesh, ...)</p></td>
-<td><p>Count the active edges of each cell.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.has_active_vertex.html#polaris.mesh.connectivity.has_active_vertex" title="polaris.mesh.connectivity.has_active_vertex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.has_active_vertex</span></code></a>(ds_mesh, ...)</p></td>
-<td><p>Find the cells with at least one active vertex, meaning a vertex all of whose surrounding cells are in the domain.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.transport_link_mask.html#polaris.mesh.connectivity.transport_link_mask" title="polaris.mesh.connectivity.transport_link_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.transport_link_mask</span></code></a>(ds_mesh, ...)</p></td>
-<td><p>Find the active edges across which a B-grid can move sea ice.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.connected_to_seeds.html#polaris.mesh.connectivity.connected_to_seeds" title="polaris.mesh.connectivity.connected_to_seeds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.connected_to_seeds</span></code></a>(ds_mesh, ...)</p></td>
-<td><p>Find the cells of the domain that are connected to at least one seed cell.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.connectivity.seed_mask_from_points.html#polaris.mesh.connectivity.seed_mask_from_points" title="polaris.mesh.connectivity.seed_mask_from_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connectivity.seed_mask_from_points</span></code></a>(ds_mesh, ...)</p></td>
-<td><p>Find the cells nearest to a set of seed points.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spherical.SphericalBaseStep</span></code></a>(component, name, ...)</p></td>
 <td><p>A base class for steps that create a JIGSAW spherical mesh</p></td>

@@ -119,42 +119,6 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">symlink</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.combine.step</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">COMBINE_TOPO_VALIDATE_VARS</span><span class="p">,</span>
-<span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">get_remapped_topo_validate_vars</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Get the variables in the remapped topography file that should be compared</span>
-<span class="sd">    against a baseline</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    validate_vars : list of str</span>
-<span class="sd">        The remapped topography variables and fractions, both unmasked and</span>
-<span class="sd">        masked by the ocean and land fractions</span>
-<span class="sd">    """</span>
-    <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">_frac_name</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">COMBINE_TOPO_VALIDATE_VARS</span><span class="p">]</span>
-    <span class="c1"># the ocean and land masks that the mask-topography step adds become</span>
-    <span class="c1"># fractions, too</span>
-    <span class="n">validate_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">'ocean_frac'</span><span class="p">,</span> <span class="s1">'land_frac'</span><span class="p">])</span>
-    <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'land'</span><span class="p">,</span> <span class="s1">'ocean'</span><span class="p">]:</span>
-        <span class="n">validate_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_masked_</span><span class="si">{</span><span class="n">_frac_name</span><span class="p">(</span><span class="n">var</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
-            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">COMBINE_TOPO_VALIDATE_VARS</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">validate_vars</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_frac_name</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Get the name a variable takes after remapping, where masks become</span>
-<span class="sd">    fractions</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'mask'</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span><span class="si">}</span><span class="s1">frac'</span>
-    <span class="k">return</span> <span class="n">var</span>
 
 
 <div class="viewcode-block" id="RemapTopoStep">
@@ -251,10 +215,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="o">=</span> <span class="n">smoothing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">unsmoothed_topo</span> <span class="o">=</span> <span class="n">unsmoothed_topo</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">'topography_remapped.nc'</span><span class="p">,</span>
-            <span class="n">validate_vars</span><span class="o">=</span><span class="n">get_remapped_topo_validate_vars</span><span class="p">(),</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'topography_remapped.nc'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expand_distance</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expand_factor</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_remapping</span> <span class="o">=</span> <span class="kc">True</span></div>

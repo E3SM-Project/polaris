@@ -1,6 +1,0 @@
-﻿polaris.mesh.connectivity.seed\_mask\_from\_points
-==================================================
-
-.. currentmodule:: polaris.mesh.connectivity
-
-.. autofunction:: seed_mask_from_points

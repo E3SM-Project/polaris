@@ -177,22 +177,7 @@ configuration, e.g. constant or RRS latitude-dependent);</p></li>
 Sets the target cell width at the coastline raster edge to the finest cell
 width between ocean and land backgrounds. A linear transition of width
 <code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code> can be applied on the land side of the
-coastline to smooth the transition back to the land background, and
-<code class="docutils literal notranslate"><span class="pre">coastline_transition_exponent</span></code> controls the shape of that transition.</p>
-<p>The transition is by far the steepest feature in the sizing field – its
-slope is <code class="docutils literal notranslate"><span class="pre">|land_background</span> <span class="pre">-</span> <span class="pre">ocean_background|</span></code> divided by the transition
-width, roughly a hundred times the open-ocean gradient. Where that gradient
-meets the ocean it seeds defects in JIGSAW’s hexagonal packing, and those
-defects carry the shortest <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> values, which in turn cap the
-forward-run time step.</p>
-<p>An exponent of 2 (the default) makes the blending factor and its first
-derivative both vanish at the coastline, so the field leaves the ocean flat
-and does its steepening at the inland end, where only cells that get culled
-away feel it. An exponent of 1 is the plain linear ramp. Because the
-exponent changes the <em>shape</em> rather than the <em>extent</em> of the transition, it
-costs no extra inland reach: river geometry still begins exactly where the
-blend ends. See the <a class="reference internal" href="../../../../design_docs/index.html#design-docs"><span class="std std-ref">design doc</span></a>
-<code class="docutils literal notranslate"><span class="pre">unified_mesh_dc_edge_noise</span></code>.</p>
+coastline to smooth the transition back to the land background.</p>
 <p><strong>River-channel refinement</strong> (<code class="docutils literal notranslate"><span class="pre">enable_river_channel_refinement</span></code>)
 Reduces the target cell width to <code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code> on rasterized river
 channels. This aligns mesh edges with river centerlines in the final JIGSAW
@@ -232,10 +217,6 @@ refinement.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code>: width in km of the linear-transition zone
 on the land side of the coastline. Set to <code class="docutils literal notranslate"><span class="pre">0</span></code> to apply only at the
 raster edge.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">coastline_transition_exponent</span></code>: exponent of the land-side blending
-factor. <code class="docutils literal notranslate"><span class="pre">1</span></code> is linear; <code class="docutils literal notranslate"><span class="pre">2</span></code> (the default) flattens the mesh-size gradient
-at the coastline and steepens it inland without extending the
-transition’s reach.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_river_channel_refinement</span></code>: whether to refine cells on the
 river-channel mask.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code>: target cell width in km along river channels.</p></li>

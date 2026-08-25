@@ -232,45 +232,20 @@ applies lower <code class="docutils literal notranslate"><span class="pre">ntask
 <li><p><code class="docutils literal notranslate"><span class="pre">include_critical_transects</span></code>: Whether critical land and ocean transects from
 <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code> are enforced during masking.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code>: Latitude poleward of which ocean transects are
-widened and sea ice is taken to form, so cells without a usable velocity
-vertex are removed from the sea-ice domain.</p></li>
+widened to avoid land-locked sea-ice cells.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">land_locked_cell_iterations</span></code>: Number of passes used to detect and remove
+land-locked ocean cells.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_max_latitude</span></code>: Southern latitude threshold used to classify
 critical land transects as land ice.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_min_fraction</span></code>: Minimum land-ice fraction used in south-pole flood
 filling for the land-ice mask.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_abs_ratio</span></code>: For unified meshes, the minimum allowed ratio of
-the <em>shortest</em> <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> in the culled ocean/sea-ice domain to the
-<em>finest</em> ocean background cell width anywhere in it.  This is the CFL
-guard: the time step is set by the shortest edge globally, and a mesh is
-already sized for its own finest intended resolution, so an edge that is
-short only relative to a coarse local background costs nothing.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> and <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span></code>: For unified meshes, the allowed
-range of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> relative to the <em>local</em> ocean background cell width.
-This is the leak guard: land/river resolution reaching the ocean shows up
-as a locally anomalous ratio even where the absolute edge length is
-unremarkable.  It is set to catch leaks (the contaminated meshes that
-motivated it reached 0.29 to 0.34) rather than the rare packing defects
-that reach 0.51 on the finest meshes, at a different location every
-build.  See the <a class="reference internal" href="../../../../design_docs/index.html#design-docs"><span class="std std-ref">design docs</span></a> <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code>
-and <code class="docutils literal notranslate"><span class="pre">unified_mesh_dc_edge_noise</span></code>.</p></li>
+range of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> relative to the local ocean background cell width in the
+culled ocean/sea-ice domain.  The mask step fails if resolution intended for
+the land/river domain has leaked into the CFL-limited ocean/sea-ice domain
+(see the <a class="reference internal" href="../../../../design_docs/index.html#design-docs"><span class="std std-ref">design doc</span></a> <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> for the
+motivation and choice of defaults).</p></li>
 </ul>
-<p>Cull tasks produce three culled meshes: <code class="docutils literal notranslate"><span class="pre">ocean</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> and
-<code class="docutils literal notranslate"><span class="pre">land</span></code>.  The land mesh is the exact complement of <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>, so
-every cell of the base mesh is owned by exactly one of the two, and
-<code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> is always a subset of <code class="docutils literal notranslate"><span class="pre">ocean</span></code>.  The two ocean meshes
-differ only by the ice-shelf cavity cells, so with the default
-<code class="docutils literal notranslate"><span class="pre">calving_front</span></code> convention, which leaves no cavities, they are identical.
-Critical land transects and critical ocean transects are applied to both
-ocean meshes in the same way; a cell that a critical ocean passage keeps in
-the ocean is treated as open water rather than as an ice-shelf cavity.</p>
-<p>Cells in which the models could not work are removed from both meshes: the
-ocean is a C-grid, so each of its cells needs at least two edges shared with
-another ocean cell, and sea ice is a B-grid, so each cell of
-<code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> poleward of <code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code> also needs a
-vertex whose surrounding cells are all in that mesh, or ice drifting in
-could never leave.  The mask step fails if any of this does not hold, or if
-removing such cells would close a critical ocean passage, in which case it
-names the passage.</p>
 </section>
 </section>
 </section>

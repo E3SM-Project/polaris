@@ -130,29 +130,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.unified.resolutions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FINEST_RESOLUTION</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
-<span class="c1">#: variables always present in a sizing-field file that should be compared</span>
-<span class="c1">#: against a baseline</span>
-<span class="n">SIZING_FIELD_VALIDATE_VARS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">'cellWidth'</span><span class="p">,</span>
-    <span class="s1">'signed_distance'</span><span class="p">,</span>
-    <span class="s1">'background_cell_width'</span><span class="p">,</span>
-    <span class="s1">'ocean_background_cell_width'</span><span class="p">,</span>
-    <span class="s1">'land_river_cell_width'</span><span class="p">,</span>
-    <span class="s1">'pre_coastline_cell_width'</span><span class="p">,</span>
-    <span class="s1">'coastline_cell_width'</span><span class="p">,</span>
-    <span class="s1">'coastal_transition_delta'</span><span class="p">,</span>
-    <span class="s1">'river_channel_cell_width'</span><span class="p">,</span>
-    <span class="s1">'active_control'</span><span class="p">,</span>
-<span class="p">]</span>
-
-<span class="c1">#: additional sizing-field variables written only when cull emulation is on</span>
-<span class="n">CULL_EMULATION_VALIDATE_VARS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">'effective_ocean_mask'</span><span class="p">,</span>
-    <span class="s1">'emulated_ocean_mask'</span><span class="p">,</span>
-    <span class="s1">'mesh_scale_ocean_fraction'</span><span class="p">,</span>
-    <span class="s1">'passages_widened'</span><span class="p">,</span>
-<span class="p">]</span>
-
 
 <div class="viewcode-block" id="BuildSizingFieldStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep">[docs]</a>
@@ -262,13 +239,7 @@
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_mesh_family</span><span class="p">()</span><span class="o">.</span><span class="n">setup_sizing_field_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">validate_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">SIZING_FIELD_VALIDATE_VARS</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'sizing_field'</span><span class="p">,</span> <span class="s1">'enable_cull_emulation'</span><span class="p">):</span>
-            <span class="n">validate_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">CULL_EMULATION_VALIDATE_VARS</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">,</span>
-            <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BuildSizingFieldStep.run">
@@ -314,9 +285,6 @@
                     <span class="p">),</span>
                     <span class="n">coastline_transition_land_km</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
                         <span class="s1">'coastline_transition_land_km'</span>
-                    <span class="p">),</span>
-                    <span class="n">coastline_transition_exponent</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">'coastline_transition_exponent'</span>
                     <span class="p">),</span>
                     <span class="n">enable_river_channel_refinement</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
                         <span class="s1">'enable_river_channel_refinement'</span>
@@ -452,7 +420,6 @@
     <span class="n">land_background_km</span><span class="o">=</span><span class="mf">240.0</span><span class="p">,</span>
     <span class="n">enable_coastline_refinement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">coastline_transition_land_km</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">coastline_transition_exponent</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">enable_river_channel_refinement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">river_channel_km</span><span class="o">=</span><span class="mf">240.0</span><span class="p">,</span>
 <span class="p">):</span>
@@ -491,11 +458,6 @@
 <span class="sd">        Width in km of the linear-transition zone on the land side of the</span>
 <span class="sd">        coastline; 0 means apply the ocean background only at the coastline</span>
 <span class="sd">        raster edge</span>
-
-<span class="sd">    coastline_transition_exponent : float, optional</span>
-<span class="sd">        Exponent of the land-side blending factor.  1 is linear; values</span>
-<span class="sd">        above 1 flatten the mesh-size gradient at the coastline and steepen</span>
-<span class="sd">        it at the inland end of the transition</span>
 
 <span class="sd">    enable_river_channel_refinement : bool, optional</span>
 <span class="sd">        Whether to refine cells on the river-channel mask</span>
@@ -559,7 +521,6 @@
         <span class="n">signed_distance</span><span class="o">=</span><span class="n">signed_distance</span><span class="p">,</span>
         <span class="n">enabled</span><span class="o">=</span><span class="n">enable_coastline_refinement</span><span class="p">,</span>
         <span class="n">land_transition_km</span><span class="o">=</span><span class="n">coastline_transition_land_km</span><span class="p">,</span>
-        <span class="n">transition_exponent</span><span class="o">=</span><span class="n">coastline_transition_exponent</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">final_cell_width</span> <span class="o">=</span> <span class="n">coastline_candidate</span>
 
@@ -679,7 +640,6 @@
     <span class="n">signed_distance</span><span class="p">,</span>
     <span class="n">enabled</span><span class="p">,</span>
     <span class="n">land_transition_km</span><span class="p">,</span>
-    <span class="n">transition_exponent</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build the coastline candidate field in km.</span>
@@ -698,34 +658,18 @@
         <span class="n">signed_distance</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signed_distance</span><span class="p">),</span>
         <span class="n">mask</span><span class="o">=</span><span class="n">land_side</span><span class="p">,</span>
         <span class="n">transition_m</span><span class="o">=</span><span class="n">land_transition_m</span><span class="p">,</span>
-        <span class="n">exponent</span><span class="o">=</span><span class="n">transition_exponent</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">candidate</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_apply_transition</span><span class="p">(</span>
-    <span class="n">candidate</span><span class="p">,</span>
-    <span class="n">target</span><span class="p">,</span>
-    <span class="n">background</span><span class="p">,</span>
-    <span class="n">signed_distance</span><span class="p">,</span>
-    <span class="n">mask</span><span class="p">,</span>
-    <span class="n">transition_m</span><span class="p">,</span>
-    <span class="n">exponent</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">candidate</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">signed_distance</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">transition_m</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Apply a transition from the coastline target back to background.</span>
-
-<span class="sd">    The blending factor is ``(d / transition_m) ** exponent``.  An</span>
-<span class="sd">    exponent above one makes the factor and its first derivative both</span>
-<span class="sd">    vanish at the coastline, so the mesh-size gradient is smallest</span>
-<span class="sd">    exactly where the CFL-limited ocean edges are, and steepest at the</span>
-<span class="sd">    inland end where only culled land cells feel it.  An exponent of one</span>
-<span class="sd">    is the plain linear ramp.</span>
+<span class="sd">    Apply a linear transition from the coastline target back to background.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">transition_m</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Transition widths must be nonnegative.'</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">exponent</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'The transition exponent must be positive.'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">transition_m</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="n">zero_mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">signed_distance</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
@@ -733,7 +677,7 @@
         <span class="k">return</span>
 
     <span class="n">transition_mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">signed_distance</span> <span class="o">&lt;=</span> <span class="n">transition_m</span><span class="p">)</span>
-    <span class="n">fraction</span> <span class="o">=</span> <span class="p">(</span><span class="n">signed_distance</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">transition_m</span><span class="p">)</span> <span class="o">**</span> <span class="n">exponent</span>
+    <span class="n">fraction</span> <span class="o">=</span> <span class="n">signed_distance</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">transition_m</span>
     <span class="n">candidate</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">+</span> <span class="n">fraction</span> <span class="o">*</span> <span class="p">(</span>
         <span class="n">background</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">-</span> <span class="n">target</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span>
     <span class="p">)</span>

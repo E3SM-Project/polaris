@@ -1,6 +1,0 @@
-﻿polaris.tasks.e3sm.init.topo.cull.consistency.check\_cull\_mask\_consistency
-============================================================================
-
-.. currentmodule:: polaris.tasks.e3sm.init.topo.cull.consistency
-
-.. autofunction:: check_cull_mask_consistency

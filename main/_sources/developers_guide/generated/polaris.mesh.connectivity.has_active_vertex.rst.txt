@@ -1,6 +1,0 @@
-﻿polaris.mesh.connectivity.has\_active\_vertex
-=============================================
-
-.. currentmodule:: polaris.mesh.connectivity
-
-.. autofunction:: has_active_vertex

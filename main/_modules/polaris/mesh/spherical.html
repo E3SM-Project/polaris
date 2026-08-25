@@ -126,15 +126,8 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">compute_reconstruction_weights</span><span class="p">,</span>
-    <span class="n">get_reconstruction_validate_vars</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_reconstruction_weights</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.quality</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cell_polygon_quality</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.validate</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">CELL_WIDTH_VALIDATE_VARS</span><span class="p">,</span>
-    <span class="n">MPAS_MESH_VALIDATE_VARS</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_graph_file</span>
 
 
@@ -220,22 +213,16 @@
 <span class="sd">        """</span>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'spherical_mesh'</span><span class="p">]</span>
-        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">'jigsaw_mesh_filename'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">'mpas_mesh_filename'</span><span class="p">:</span> <span class="n">MPAS_MESH_VALIDATE_VARS</span><span class="p">,</span>
-            <span class="s1">'cell_width_filename'</span><span class="p">:</span> <span class="n">CELL_WIDTH_VALIDATE_VARS</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">variables</span> <span class="ow">in</span> <span class="n">validate_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s1">'jigsaw_mesh_filename'</span><span class="p">,</span>
+            <span class="s1">'mpas_mesh_filename'</span><span class="p">,</span>
+            <span class="s1">'cell_width_filename'</span><span class="p">,</span>
+        <span class="p">]:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">validate_vars</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'generate_reconstruction_weights'</span><span class="p">):</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'reconstruction_weights_filename'</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
-                <span class="n">validate_vars</span><span class="o">=</span><span class="n">get_reconstruction_validate_vars</span><span class="p">(</span>
-                    <span class="n">location</span><span class="o">=</span><span class="s1">'cell'</span>
-                <span class="p">),</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'graph.info'</span><span class="p">)</span></div>
 
 
@@ -458,6 +445,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">hfun_hmin</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="c1"># 2-dim. simplexes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">mesh_dims</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_qlim</span> <span class="o">=</span> <span class="mf">0.9375</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="mi">1</span></div>
 
 
@@ -472,10 +460,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">geom_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_geom_filename'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_jcfg_filename'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">hfun_file</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_hfun_filename'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_kern</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'jigsaw_optm_kern'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_iter</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'jigsaw_optm_iter'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_qtol</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'jigsaw_optm_qtol'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">optm_qlim</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'jigsaw_optm_qlim'</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
 

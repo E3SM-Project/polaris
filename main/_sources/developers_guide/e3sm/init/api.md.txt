@@ -122,11 +122,6 @@
    get_cull_topo_steps
    add_cull_topo_tasks
 
-   consistency.check_cull_mask_consistency
-   consistency.check_land_locked_criteria
-   consistency.check_critical_passages
    dc_edge_diagnostics.check_ocean_dc_edge
-   land_locked.remove_land_locked_cells
-   land_locked.remove_ocean_land_locked_cells
 ```
 

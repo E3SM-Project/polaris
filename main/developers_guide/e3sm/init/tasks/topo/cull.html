@@ -141,8 +141,7 @@ a specific part of the process:</p>
 creates masks for land, ocean (with and without ice-shelf cavities), and
 Antarctic land ice. This step uses critical transects, flood-filling, and
 land-locked cell detection to ensure the masks are physically consistent
-and contiguous, and it checks the resulting masks against the invariants
-described in <a class="reference internal" href="#mask-invariants">Mask Invariants</a> below.</p></li>
+and contiguous.</p></li>
 <li><p><strong>Mesh Culling</strong>: The <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.CullMeshStep.html#polaris.tasks.e3sm.init.topo.cull.CullMeshStep" title="polaris.tasks.e3sm.init.topo.cull.CullMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.CullMeshStep</span></code></a>
 uses the generated masks to cull the MPAS base mesh, producing separate
 meshes for land, ocean/sea-ice, and ocean without ice-shelf cavities. It also
@@ -168,19 +167,16 @@ orchestrates these steps for each supported MPAS base mesh.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code>: Number of cores to use for culling.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">include_critical_transects</span></code>: Whether to use critical land and ocean
 transects from geometric_features to enforce connectivity.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code>: Latitude poleward of which transects are
-widened and sea ice is taken to form, so the B-grid vertex criterion
-applies.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code>: Latitude above which transects are widened to prevent land-locked sea-ice cells.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">land_locked_cell_iterations</span></code>: Number of passes to check for land-locked
+ocean cells.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_max_latitude</span></code>: Latitude, south of which critical land transects are
 considered to belong to land ice.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_min_fraction</span></code>: Minimum land-ice fraction for flood-filling the
 land-ice mask.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_abs_ratio</span></code>: The minimum ratio of the shortest <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> in the
-culled ocean/sea-ice domain to the finest ocean background cell width
-anywhere in it (unified meshes only).  This is the CFL guard.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> and <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span></code>: The allowed range of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>
-relative to the <em>local</em> ocean background cell width (unified meshes only).
-This is the leak guard.</p></li>
+relative to the local ocean background cell width in the culled
+ocean/sea-ice domain (unified meshes only).</p></li>
 </ul>
 <p>See <code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code> for the full set of options.</p>
 </section>
@@ -199,98 +195,9 @@ the worst violation clusters if any ratio falls outside
 no sizing field and the check is skipped. The motivation, mechanisms and
 threshold justification are documented in the <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code>
 design doc (see <a class="reference internal" href="../../../../../design_docs/index.html#design-docs"><span class="std std-ref">Design Documents</span></a>).</p>
-<p>There are two guards, and they answer different questions.
-<code class="docutils literal notranslate"><span class="pre">min_dc_edge_abs_ratio</span></code> compares the <em>shortest</em> edge in the domain against
-the <em>finest</em> ocean background anywhere in it: that is what sets the forward
-run’s time step, and since a mesh is already sized for its own finest
-intended resolution, an edge that is short only relative to a coarse local
-background costs nothing.  <code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> compares each edge against
-its <em>local</em> background, which is what detects a leak.</p>
-<p>The thresholds come from <code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code>, and a unified mesh can override them in
-its own <code class="docutils literal notranslate"><span class="pre">polaris/mesh/spherical/unified/&lt;mesh_name&gt;.cfg</span></code>, which is read after
-<code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code> when the cull config is assembled.  No mesh currently needs to:
-<code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> once overrode the ratio floor for a single edge, and that
-override went away when the CFL guard was separated out.</p>
-<p>A failure here does not by itself mean resolution has leaked.  On
-<code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> it does not: the sizing field prescribes the full ocean
-background at every edge in the low tail, and the short edges are the seams
-of pentagon-heptagon dislocation pairs in JIGSAW’s hexagonal packing.  That
-distribution is the same on every unified mesh, so the minimum falls as the
-edge count rises – 0.799 at 21 thousand ocean edges, 0.664 at 1.4 million,
-0.643 at 12 million.  When investigating a failure, first compare <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>
-against <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> rather than <code class="docutils literal notranslate"><span class="pre">ocean_background_cell_width</span></code>: if the two
-ratios agree, the sizing field is not the problem.  The
-<code class="docutils literal notranslate"><span class="pre">unified_mesh_dc_edge_noise</span></code> design doc records the diagnosis and the two
-mitigations, the coastline-transition shape in the sizing field and
-JIGSAW’s centroidal-Voronoi optimization kernel.</p>
 <p>The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow
 remains consistent with the remapped topography masks.</p>
-</section>
-<section id="mask-invariants">
-<span id="id1"></span><h2>Mask Invariants<a class="headerlink" href="#mask-invariants" title="Link to this heading"></a></h2>
-<p>The three cull masks and the land-ice mask together describe how the globe is
-divided between the components, and <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> guarantees the following,
-for every value of <code class="docutils literal notranslate"><span class="pre">antarctic_boundary_convention</span></code>:</p>
-<ol class="arabic simple">
-<li><p>The ocean without ice-shelf cavities is a subset of the ocean. Never the
-reverse.</p></li>
-<li><p>The land is exactly the complement of the ocean without cavities, so every
-cell on the globe is owned by exactly one of the two.</p></li>
-<li><p>The land-ice mask is zero at every cell the ocean without cavities retains.
-Equivalently, the ice-shelf cavity cells of the ocean mesh are exactly the
-cells the ocean retains and the ocean without cavities does not.</p></li>
-<li><p>Critical land blockages and critical ocean passages are applied identically
-to the ocean and to the ocean without cavities, and no cell of a critical
-ocean passage is culled from the ocean.</p></li>
-<li><p>The two ocean domains differ only by ice-shelf cavities: every cell in the
-ocean but not in the ocean without cavities carries land ice.</p></li>
-<li><p>Under <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> no cell of the ocean carries land ice, since that
-convention ends the ocean at the calving front.</p></li>
-<li><p>Every cell of either ocean domain has at least two active edges; every cell
-of the ocean without cavities poleward of <code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code> has
-at least one active vertex; and every cell of that domain can move sea ice
-to the part of it equatorward of the threshold, where ice melts.</p></li>
-</ol>
-<p>Invariants 1, 5 and 6 together mean the two ocean domains are identical under
-<code class="docutils literal notranslate"><span class="pre">calving_front</span></code>, so the ocean and the land partition the base mesh. That is a
-consequence of the requirements rather than a separate assertion.</p>
-<p>Invariant 4 is why <code class="docutils literal notranslate"><span class="pre">CullMaskStep._apply_critical_transects</span></code> is shared between
-<code class="docutils literal notranslate"><span class="pre">refine_ocean_cull_mask</span></code> and the ocean-without-cavities mask: removing the
-land ice from the ocean mask would otherwise undo a critical passage that had
-kept an ice-covered cell in the ocean. In the without-cavities pass the
-passage override is restricted to cells the ocean itself retains, which is
-what makes invariant 1 hold by construction.</p>
-<p>Invariant 3 is the decision that critical transects outrank the ice masks. A
-cell that a passage forces into the ocean is treated as open water rather than
-as an ice-shelf cavity. That is what makes <code class="docutils literal notranslate"><span class="pre">calving_front</span></code> genuinely
-cavity-free, and under <code class="docutils literal notranslate"><span class="pre">grounding_line</span></code> and <code class="docutils literal notranslate"><span class="pre">bedrock_zero</span></code> it keeps the
-sea-ice mesh from owning a cell that the ocean mesh models as a cavity.</p>
-<p>The land-locked-cell check is deliberately asymmetric between the two ocean
-domains, because the two models place different demands on the mesh.
-MPAS-Ocean and Omega are C-grids with velocities at edges, so an ocean cell
-needs at least two active edges: a way in and a way out. MPAS-Seaice is a
-B-grid with velocities at vertices, so a sea-ice cell needs at least one
-active vertex, or ice drifting into it has no velocity point to leave by.
-The vertex criterion is the stronger of the two and applies only to the
-ocean without cavities, and only poleward of <code class="docutils literal notranslate"><span class="pre">sea_ice_latitude_threshold</span></code>,
-where sea ice can form. The two domains are refined together by
-<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells.html#polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells" title="polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.land_locked.remove_land_locked_cells()</span></code></a>,
-alternating until neither changes, because removing a cell from one can
-strand a cell in the other. The requirements and the algorithm are set out
-in the <code class="docutils literal notranslate"><span class="pre">land_locked_cells</span></code> design doc (see <a class="reference internal" href="../../../../../design_docs/index.html#design-docs"><span class="std std-ref">Design Documents</span></a>).</p>
-<p>After all masks are written, <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> checks them. Invariants 1, 2, 3,
-5 and 6 are the province of
-<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.consistency.check_cull_mask_consistency()</span></code></a>,
-which needs only the masks; invariant 7 belongs to
-<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.consistency.check_land_locked_criteria()</span></code></a>,
-which needs the mesh as well; and the passage half of invariant 4 is checked
-by
-<a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages.html#polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages" title="polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.cull.consistency.check_critical_passages()</span></code></a>,
-which names the transect responsible so it can be fixed in
-<code class="docutils literal notranslate"><span class="pre">geometric_features</span></code>. Each raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> listing the offending cell
-indices. These are hard failures because a violation means the culled meshes
-handed downstream are wrong in a way that is hard to notice later.</p>
 </section>
 <section id="workflow">
 <h2>Workflow<a class="headerlink" href="#workflow" title="Link to this heading"></a></h2>
@@ -298,10 +205,7 @@ handed downstream are wrong in a way that is hard to notice later.</p>
 <li><p><strong>Mask Generation</strong>: The <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> creates masks for ocean, ocean
 without cavities, land, and Antarctic land ice. It uses critical transects,
 flood-filling from seed points, and land-locked cell detection to ensure the
-masks are contiguous and scientifically meaningful. The ocean and the ocean
-without cavities each get the same critical land blockages and critical
-ocean passages; the land is then the complement of the ocean without
-cavities.</p></li>
+masks are contiguous and scientifically meaningful.</p></li>
 <li><p><strong>Mesh Culling</strong>: The <code class="docutils literal notranslate"><span class="pre">CullMeshStep</span></code> uses the generated masks to cull the
 MPAS base mesh, producing separate meshes for land, ocean/sea-ice, and ocean
 without ice-shelf cavities. It also generates mapping files and graph files
@@ -364,15 +268,6 @@ updated masks as <code class="docutils literal notranslate"><span class="pre">xa
         <span class="k">return</span> <span class="n">cull_mask</span>
 </pre></div>
 </div>
-<p>Note that <code class="docutils literal notranslate"><span class="pre">refine_ocean_cull_mask</span></code> alters only the ocean domain directly. Its
-result still reaches the ocean without ice-shelf cavities, because that mask
-starts from the ocean cull mask, but the critical transects, land-locked-cell
-check and flood fill are re-run there independently.</p>
-<p><code class="docutils literal notranslate"><span class="pre">refine_land_cull_mask</span></code> receives the complement of the ocean without cavities
-and returns it unaltered in the base class, so overriding it means departing
-from invariant 2 above. A subclass that does so must also override
-<code class="docutils literal notranslate"><span class="pre">CullMaskStep._check_mask_consistency</span></code>, which would otherwise reject the
-resulting masks.</p>
 <p>You can then use your custom step in place of the default <code class="docutils literal notranslate"><span class="pre">CullMaskStep</span></code> when
 constructing your workflow.</p>
 <section id="integration">
