@@ -113,7 +113,7 @@ python utils/omega/convert_mpaso_ic_to_omega.py \
     --forcing-scrip-file /path/to/era5_0.25deg_scrip.nc \
 ```
 
-The forcing file generation uses bilinear remapping by default if you wish to use another method (e.g., conservative) add `--remap-method conservative` to the command.
+The forcing file generation uses conservative remapping by default; if you wish to use another method add `--remap-method bilinear` to the command.
 
 The script appends an EOS suffix automatically unless it is already present:
 

@@ -218,7 +218,7 @@ def convert_to_omega(
     include_realistic_forcing=False,
     forcing_file=None,
     forcing_scrip_file=None,
-    remap_method='bilinear',
+    remap_method='conserve',
     include_idealized_sfc_stress=False,
     visualization=False,
 ):
