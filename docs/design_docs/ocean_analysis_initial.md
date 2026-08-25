@@ -2182,13 +2182,20 @@ This task is also where the task-parallel conformance checks described under
 `analysis-suite` should run when they are built, since it is the only place a
 whole analysis suite exists cheaply enough to exercise every step.
 
-#### Dependency on Omega
+#### Dependency on Omega, and when this lands
 
 This task cannot run until Omega can write monthly means of full model fields.
 Until then it is set up but its forward step is expected to produce nothing the
 analysis can read, which the analysis steps report as missing fields rather
 than as failures --- the same degradation described under
 `omega-monthly-means`.  It should not go into any shared suite until it passes.
+
+That dependency also places it **after the September 15 deliverable** rather
+than within it.  By the time Omega can write what this task needs, the
+deliverable itself is due, and the products a scientist is waiting on come
+first.  This is a schedule judgment rather than a statement about its value: a
+capability that nothing we run exercises is a capability that regresses
+quietly, so this is the first thing to build once the products are out.
 
 ### Implementation: commit sequence
 
