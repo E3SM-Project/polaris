@@ -418,8 +418,10 @@ baseline *pins*, and keeping the build at that hash is yours to manage.
   forward but to run both sides again.  The job is also submitted with
   `--kill-on-invalid-dep=yes`, so that a dependency that genuinely
   cannot be satisfied removes the job rather than stranding it as
-  `DependencyNeverSatisfied`.  Because completion is asynchronous, work directories are not
-  marked complete (and so not reused) in this mode.
+  `DependencyNeverSatisfied`.  Because the driver exits as soon as
+  `sbatch` accepts the job, it never sees the run return and so never
+  writes the marker itself; a submitted baseline is recognized as
+  complete from polaris' own end-of-run file instead, as above.
 - A load script is **never created for you**; `./deploy.py` is a developer
   action.  A freshly provisioned worktree therefore has no load script of
   its own, since `load_*.sh` is git-ignored.  Either run `./deploy.py` in
