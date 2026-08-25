@@ -309,6 +309,53 @@ below.
 MPAS-Analysis's component/group/gallery structure to adopt.  Polaris already
 records provenance for a setup in `polaris/provenance.py`.
 
+### Requirement: pruning and archiving
+
+Date last modified: 2026/08/25
+
+Contributors: Xylar Asay-Davis, Claude
+
+Analysis produces far more bytes than it publishes, and repeated analysis of a
+growing simulation produces them again.  Polaris shall provide a way to reduce
+an analysis directory to what is worth keeping, without the user having to work
+out by hand which files those are.
+
+Two distinct operations, which should not be conflated:
+
+- **Prune to the published set.**  Keep the plots and data products that were
+  published, and discard the intermediates behind them --- climatologies,
+  accumulator caches, and the step directories that held them.  This is the
+  operation for an analysis that is finished and wants to be archived or
+  handed on: what survives is a self-contained, browsable result.
+- **De-duplicate intermediates.**  Keep the analysis re-runnable, but stop
+  storing the same array more than once.  Repeated analyses over overlapping
+  ranges are the main source: two climatologies covering different ranges share
+  no files, but every year they have in common has been read and reduced twice,
+  and each range's accumulator cache repeats the months it inherited.  This is
+  the operation for an analysis that is still in use on a filesystem with a
+  quota.
+
+Pruning shall be safe to the extent that it can be: it shall report what it
+would remove before removing it, and removing the intermediates shall never
+remove something that cannot be recomputed from the simulation output.
+
+Two things Phase 1 does are what make this implementable later, and neither is
+an accident:
+
+- **The manifest is the definition of "published".**  Pruning to the published
+  set is a set difference between what the merged manifest names and what is on
+  disk, rather than a heuristic over file names.  This is the second reason the
+  manifest is in Phase 1 rather than deferred with the gallery.
+- **Products are published by symlink from the step that owns them**, so every
+  file has exactly one owner and pruning never has to decide which of two
+  copies is canonical.  The gridded accumulator caches already symlink
+  inherited months forward for the same reason, which is why they are the one
+  intermediate that does not duplicate across ranges.
+
+*Details to be added.*  Open questions include whether pruning is a Polaris
+command or a step, and whether an analysis pruned to its published set should
+remain something `polaris serial` can be pointed at without confusion.
+
 ### Requirement: workflow integration
 
 Date last modified: 2026/08/11
