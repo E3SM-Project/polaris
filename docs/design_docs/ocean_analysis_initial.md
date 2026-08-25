@@ -154,7 +154,9 @@ in config options, algorithms, and output are elevations $z$ in meters with
 $z = 0$ at the resting sea surface and $z$ increasing upward, so that positions
 within the ocean are negative.  A map "at 100 m below the surface" is requested
 as `-100.0`, and the ocean heat content range conventionally called "0 to
-700 m" is written `0.0:-700.0`.  This matches `zMid` and `zInterface` as the
+700 m" is written `top:-700.0` --- `top` being the free surface of each column,
+which is what "0 m" means in that phrase, rather than the resting sea surface
+at $z = 0$.  This matches `zMid` and `zInterface` as the
 models write them and avoids sign flips scattered through the code.  Where the
 text uses the word "depth" it is describing a quantity that is positive down,
 such as `bottomDepth`, and says so.
@@ -799,7 +801,8 @@ in the kernel.*
 
 Ocean heat content per unit area is a *mass*-weighted integral of conservative
 temperature.  Over an elevation range $[z_{bot}, z_{top}]$ with
-$z_{bot} < z_{top} \le 0$,
+$z_{bot} < z_{top}$, where either boundary may be a fixed elevation, the free
+surface, or the seafloor,
 
 $$
 Q(z_{bot}, z_{top}) = c_p^0 \int_{z_{bot}}^{z_{top}} \rho \, \Theta \, dz
@@ -883,9 +886,17 @@ The $w_k$ expression handles all of the cases the requirement calls for without
 special casing: a range boundary in the interior of a layer contributes a
 partial thickness; a range extending below the seafloor is truncated because
 $z^{int}_{k_{max}+1} = -H$; a `bottom` boundary is expressed as
-$z_{bot} = -\infty$; and a column whose seafloor lies above $z_{top}$
-contributes zero.  For the conventional `0:bottom` range, every valid layer is
-whole and the geometric coordinate drops out of the answer entirely.
+$z_{bot} = -\infty$; a `top` boundary as $z_{top} = +\infty$, which resolves
+per column to the free surface $z^{int}_{k_{min}}$; and a column whose seafloor
+lies above $z_{top}$ contributes zero.
+
+Expressing the upper boundary as `top` rather than as $0.0$ matters more than
+it looks.  A range written `0.0:-700.0` would exclude the water between the
+resting sea surface and the free surface, and would exclude a different amount
+of it in each column and in each season.  `top` is what "0 to 700 m" means
+everywhere it is reported, and it makes the whole-column range `top:bottom`
+cover every valid layer, so that every layer is whole and the geometric
+coordinate drops out of that answer entirely.
 
 The globally integrated heat content used for the time series is the
 area-weighted sum
@@ -1179,7 +1190,7 @@ mixed_layer_depth_threshold = 0.03
 # <top>:<bottom> in m, positive up.  "bottom" means the seafloor.  These are
 # geometric elevations, matching the convention used by MPAS-Analysis and by
 # observational heat content products; the integral itself is mass-weighted.
-elevation_ranges = 0.0:-700.0, -700.0:-2000.0, -2000.0:bottom, 0.0:bottom
+elevation_ranges = top:-700.0, -700.0:-2000.0, -2000.0:bottom, top:bottom
 
 # The specific heat capacity used to convert conservative temperature to heat
 # content.  By default, this comes from the Physical Constants Dictionary.
@@ -1536,7 +1547,7 @@ and to diff between two analyses:
 └── plots/
     ├── climatology_maps_temperature_ANN_-100m_0021-0040.png
     ├── climatology_maps_temperature_ANN_-100m_0021-0040.nc
-    ├── climatology_maps_heat_content_ANN_0m-700m_0021-0040.png
+    ├── climatology_maps_heat_content_ANN_top_to_-700m_0021-0040.png
     ├── heat_content_series_0001-0060.png
     └── …
 ```
@@ -1795,8 +1806,9 @@ its reduction is an elevation range rather than an elevation, and both of those
 are cases the loop already handles.
 
 Output names are `<field>_<season>_<reduction_label>.png` with reduction labels
-`top`, `bottom`, `-100m`, `k10`, and `0m-700m`, so that the set of files in the
-step directory is self-describing.
+`top`, `bottom`, `-100m`, `k10`, and `top_to_-700m`, so that the set of files
+in the step directory is self-describing.  Range labels use `_to_` rather than
+a hyphen because the elevations are themselves negative.
 
 The plots are independent, so a step with many of them spreads them over a
 process pool rather than over steps.  Building the `mosaic` descriptor is the
@@ -1882,7 +1894,8 @@ The result is written to netCDF in J m⁻² and plotted in GJ m⁻² --- a range
 $0$ to $-700$ m at a typical 10 °C is about 29 GJ m⁻², which is a readable
 number.  Output names follow the same convention as the rest of the maps,
 `heat_content_<season>_<range_label>.png`, for example
-`heat_content_ANN_0m-700m.png` and `heat_content_ANN_-2000m-bottom.png`.  Plot
+`heat_content_ANN_top_to_-700m.png` and
+`heat_content_ANN_-2000m_to_bottom.png`.  Plot
 titles state the elevation range and the season explicitly, and the netCDF
 carries the range as attributes, so that a plot cannot be mistaken for a
 different range.
