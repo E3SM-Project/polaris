@@ -22,6 +22,7 @@ from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
     pseudothickness_from_ds,
 )
+from polaris.ocean.vertical.grid_1d import REF_COORD_VARS
 from polaris.ocean.vertical.ztilde import (
     geom_height_from_pseudo_height,
     get_iter_count_for_eos,
@@ -525,6 +526,14 @@ class Ocean(Component):
         ds = self.remove_horiz_mesh_vars(ds)
         if self.model == 'omega':
             ds = self.remove_vert_coord_vars(ds)
+
+            # Omega uses RefPseudoThickness, not the 1D reference depth
+            # coordinate, so drop those fields (added by the p-star init for
+            # MPAS-Ocean) from the Omega initial state.
+            drop = [v for v in REF_COORD_VARS if v in ds]
+            if drop:
+                ds = ds.drop_vars(drop)
+
             # Omega requires a surface pressure in its initial state but
             # MPAS-Ocean does not, so only add it for Omega.  This is the one
             # place the vertical_grid:surface_pressure config option is read
