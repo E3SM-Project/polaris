@@ -4,10 +4,11 @@ import importlib.resources as imp_res
 import cartopy
 import cmocean  # noqa: F401
 import matplotlib.colors as cols
-import matplotlib.pyplot as plt
 import mosaic
 import numpy as np
 from cartopy.geodesic import Geodesic
+from matplotlib import colormaps
+from matplotlib.figure import Figure
 from mpas_tools.io import open_dataset
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
@@ -158,11 +159,8 @@ def plot_global_mpas_field(
                 use_latlon=True,
             )
 
-        fig, ax = plt.subplots(
-            figsize=figsize,
-            constrained_layout=True,
-            subplot_kw=dict(projection=projection),
-        )
+        fig = Figure(figsize=figsize, constrained_layout=True)
+        ax = fig.add_subplot(111, projection=projection)
 
         if title is not None:
             fig.suptitle(title, y=0.935)
@@ -304,7 +302,7 @@ def plot_global_lat_lon_field(
             )
 
         figsize = (8, 4.5)
-        fig = plt.figure(figsize=figsize)
+        fig = Figure(figsize=figsize)
         if title is not None:
             fig.suptitle(title, y=0.935)
 
@@ -319,7 +317,7 @@ def plot_global_lat_lon_field(
 
         colormap, norm, ticks = setup_colormap(config, colormap_section)
 
-        ax = plt.subplot(subplots[0], projection=projection)
+        ax = fig.add_subplot(subplots[0], projection=projection)
 
         ax.set_extent(extent, crs=ref_projection)
 
@@ -356,15 +354,13 @@ def plot_global_lat_lon_field(
             borderpad=0,
         )
 
-        cbar = plt.colorbar(plotHandle, cax=cax, extend='both')
+        cbar = fig.colorbar(plotHandle, cax=cax, extend='both')
         cbar.set_label(colorbar_label)
         if ticks is not None:
             cbar.set_ticks(ticks)
             cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
-        plt.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
-
-        plt.close()
+        fig.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
 
 
 def setup_colormap(config, colormap_section):
@@ -406,7 +402,7 @@ def setup_colormap(config, colormap_section):
         is an array of values where ticks should be placed
     """
 
-    colormap = plt.get_cmap(config.get(colormap_section, 'colormap_name'))
+    colormap = colormaps[config.get(colormap_section, 'colormap_name')]
 
     section = config[colormap_section]
 
