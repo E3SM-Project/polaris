@@ -775,6 +775,27 @@ is explained in context in {ref}`design-ocean-analysis-initial`.
   nothing --- and record it under the organizing principles, so that the step
   sizing targets in principle 9 rest on a number rather than on judgment.
 
+Phase 1 also ships without concurrency of any kind, and without the presentation
+and verification layers designed around it.  These are deferred to Phase 2
+rather than dropped, and each is designed above or in
+{ref}`design-ocean-analysis-initial` already:
+
+- **Split accumulators into several steps**, so that the scheduler has
+  independent pieces to place.  Phase 1's heat content accumulator is a single
+  step and is the bulk of a first run, which is the one place Phase 1 knowingly
+  misses principle 9.  Splitting it costs nothing in reuse, since inheritance
+  is decided by content rather than by path, so months cached by the
+  single-step version are inherited unchanged.
+- **Process pools inside steps**, for whatever is left below step granularity.
+- **Generate a gallery over the staging tree.**  Phase 1 publishes the products
+  and the merged manifest, which is everything a generator needs; what is
+  missing is the generator.
+- **Build the mechanical conformance checks** for the task-parallel
+  groundrules.  Phase 1 follows the rules; nothing verifies that it still does.
+- **The `analysis_test` task and its suite**, which runs a short Omega
+  simulation and analyzes it.  It cannot run until Omega writes monthly means,
+  and is the first thing to build once the Phase 1 products are out.
+
 ### Implementation: design documents in this family
 
 Date last modified: 2026/08/11
