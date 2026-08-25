@@ -116,7 +116,8 @@ class UnifiedBaseMeshStep(QuasiUniformSphericalMeshStep):
         """
         Read the cell width, lon, and lat directly from sizing_field.nc.
         """
-        with xr.open_dataset(self.sizing_field_filename) as ds_sizing:
+        sizing_field_filename = self.work_path(self.sizing_field_filename)
+        with xr.open_dataset(sizing_field_filename) as ds_sizing:
             if 'cellWidth' not in ds_sizing:
                 raise ValueError(
                     'Expected variable "cellWidth" in sizing_field.nc.'
@@ -155,7 +156,7 @@ class UnifiedBaseMeshStep(QuasiUniformSphericalMeshStep):
         )
         geom = _build_unified_jigsaw_geometry(
             earth_radius=earth_radius,
-            river_network_filename=self.river_network_filename,
+            river_network_filename=self.work_path(self.river_network_filename),
             snap_tolerance_km=snap_tolerance_km,
         )
         jigsawpy.savemsh(opts.geom_file, geom)

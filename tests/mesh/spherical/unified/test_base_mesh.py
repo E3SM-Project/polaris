@@ -1,5 +1,4 @@
 import json
-import os
 
 import numpy as np
 
@@ -29,6 +28,9 @@ def test_unified_base_mesh_step_writes_river_geometry(tmp_path, monkeypatch):
         component=Component(name='mesh'),
         subdir='spherical/unified/test/base_mesh',
     )
+    # the step finds its files through its work directory, not through the
+    # process working directory
+    step.work_dir = str(tmp_path)
     step.opts.hfun_file = 'hfun.msh'
     step.opts.geom_file = 'geom.msh'
     step.opts.jcfg_file = 'jigsaw.jig'
@@ -82,12 +84,7 @@ def test_unified_base_mesh_step_writes_river_geometry(tmp_path, monkeypatch):
     cell_width = np.full((lat.size, lon.size), 30.0)
 
     step.config.set('river_network', 'base_mesh_simplify_tolerance_km', '2.0')
-    cwd = os.getcwd()
-    try:
-        os.chdir(tmp_path)
-        step.make_jigsaw_mesh(lon=lon, lat=lat, cell_width=cell_width)
-    finally:
-        os.chdir(cwd)
+    step.make_jigsaw_mesh(lon=lon, lat=lat, cell_width=cell_width)
 
     geom = saved_meshes['geom.msh']
     assert geom.edge2.size == 3
@@ -110,6 +107,9 @@ def test_unified_base_mesh_step_uses_prepared_clipped_river_geometry(
         component=Component(name='mesh'),
         subdir='spherical/unified/test/base_mesh',
     )
+    # the step finds its files through its work directory, not through the
+    # process working directory
+    step.work_dir = str(tmp_path)
     step.opts.hfun_file = 'hfun.msh'
     step.opts.geom_file = 'geom.msh'
     step.opts.jcfg_file = 'jigsaw.jig'
@@ -152,12 +152,7 @@ def test_unified_base_mesh_step_uses_prepared_clipped_river_geometry(
     cell_width = np.full((lat.size, lon.size), 30.0)
 
     step.config.set('river_network', 'base_mesh_simplify_tolerance_km', '2.0')
-    cwd = os.getcwd()
-    try:
-        os.chdir(tmp_path)
-        step.make_jigsaw_mesh(lon=lon, lat=lat, cell_width=cell_width)
-    finally:
-        os.chdir(cwd)
+    step.make_jigsaw_mesh(lon=lon, lat=lat, cell_width=cell_width)
 
     geom = saved_meshes['geom.msh']
     assert geom.edge2.size == 1
