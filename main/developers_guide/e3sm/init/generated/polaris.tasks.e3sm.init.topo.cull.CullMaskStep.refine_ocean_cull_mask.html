@@ -136,6 +136,12 @@
 the ocean. Subclasses can override this method to first refine the
 mask and then call the base class method to handle critical transects
 and land-locked cells.</p>
+<p>The base class applies the critical transects, removes the cells with
+fewer than two active edges, through which a C-grid cannot
+circulate, and discards whatever is left unconnected to the open
+ocean. The sea-ice criteria are not applied here; they belong to the
+ocean without ice-shelf cavities and are applied when the two domains
+are refined together. See the <code class="docutils literal notranslate"><span class="pre">land_locked_cells</span></code> design document.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

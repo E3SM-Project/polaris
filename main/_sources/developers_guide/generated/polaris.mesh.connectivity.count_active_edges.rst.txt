@@ -1,0 +1,6 @@
+﻿polaris.mesh.connectivity.count\_active\_edges
+==============================================
+
+.. currentmodule:: polaris.mesh.connectivity
+
+.. autofunction:: count_active_edges

@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.cull.consistency.check\_land\_locked\_criteria
+===========================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull.consistency
+
+.. autofunction:: check_land_locked_criteria
