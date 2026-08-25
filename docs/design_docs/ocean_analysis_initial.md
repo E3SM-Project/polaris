@@ -2205,49 +2205,71 @@ first.  This is a schedule judgment rather than a statement about its value: a
 capability that nothing we run exercises is a capability that regresses
 quietly, so this is the first thing to build once the products are out.
 
-### Implementation: commit sequence
+### Implementation: order of work
 
 Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
+Each entry below is a coherent, independently reviewable piece of work, not a
+single commit --- most will take several --- and each leaves the suite working
+for the products delivered so far.
+
+The order is by deliverable priority rather than by dependency depth, which is
+why the vertical machinery comes late.  Slicing by layer index needs no
+vertical geometry at all, and heat content over the whole column needs only
+`minLevelCell` and `maxLevelCell`, so both a map and a heat content drift curve
+can be on screen well before elevation interpolation exists.  The standard
+$0$--$700$ m, $700$--$2000$ m and $2000$ m--seafloor ranges then enrich a
+product that already works rather than gating it.
+
 1. This design document and the umbrella document
    {ref}`design-ocean-analysis`.
-2. `polaris/ocean/vertical/elevation.py` --- elevation specifications,
-   elevation slicing, and elevation-range weights --- with unit tests.
-3. `polaris/ocean/heat_content.py` with unit tests.
-4. The `omega_analysis` scaffolding: the `polaris/tasks/ocean/analysis/`
-   package, `analysis.cfg`, `sim_files.py`, the range-keyed step
-   subdirectories, the tasks with their `configure()` methods, and the
-   `omega_analysis` suite, with steps that do nothing yet.  This is the commit
-   where the repeated-analysis structure is established, so it should land
-   before anything that depends on it.
-5. The manifest writer and the `publish` step, including the generated index.
-   Early, so that every step added afterwards writes its manifest fragment as
-   a matter of course rather than being retrofitted.
-6. The `Climatology` step (`ncclimo`).
-7. The `ClimatologyMaps` step and the vertical reduction it is built on,
-   covering the read-and-slice field groups, including velocity
-   reconstruction.
-8. The `heat_content` field group of `ClimatologyMaps`.
-9. The `global_stats` time series step, including factoring the shared
-   plotting function out of `StatsAnalysis`.
-10. The `Accumulator` base class --- seed discovery, provenance stamping, and
-    the process pool --- with unit tests, since this is the piece whose
-    failure modes are silent.
-11. The `heat_content_series` step built on it.
+2. The `omega_analysis` scaffolding: the `polaris/tasks/ocean/analysis/`
+   package, `analysis.cfg`, `sim_files.py` including the reader for the
+   simulation's Omega configuration, the range-keyed step subdirectories, the
+   tasks with their `configure()` methods, and the `omega_analysis` suite, with
+   steps that do nothing yet.  This is where the repeated-analysis structure is
+   established, so it lands before anything that depends on it.
+3. The `global_stats` time series step, including factoring the shared plotting
+   function out of `StatsAnalysis`.  It depends on nothing above it, reads
+   Omega's `GlobalStats` output directly, and needs no vertical geometry, so it
+   is the earliest point at which the suite produces a plot a scientist wants.
+4. The `Climatology` step (`ncclimo`).  Early because it carries the most
+   external risk in the design: it shells out to NCO and depends on Omega's
+   time metadata being read correctly by a tool we do not control.  Everything
+   map-shaped is blocked on it, so we want to find out.
+5. The `ClimatologyMaps` step, restricted to fields with no vertical dimension
+   and to slicing by layer index.  The first maps on disk, and no vertical
+   geometry needed.
+6. The manifest writer and the `publish` step.  Here rather than earlier so
+   that it is built against products that exist, and here rather than later so
+   that only one step needs its manifest fragment retrofitted.
+7. `polaris/ocean/heat_content.py` and whole-column mass weights, with unit
+   tests.
+8. The `heat_content` field group of `ClimatologyMaps`, whole column only.
+9. The `Accumulator` base class --- seed discovery and provenance stamping ---
+   with unit tests, since this is the piece whose failure modes are silent.
+10. The `heat_content_series` step built on it, whole column only.  Heat content
+    drift is what a coupled run is judged on, which is why it precedes the
+    vertical machinery rather than following it.
+11. `polaris/ocean/vertical/elevation.py` --- the full vertical reduction:
+    interpolation to an elevation, the sea surface, the seafloor, and elevation
+    ranges --- with unit tests.  This enriches items 5, 8 and 10, each of which
+    already works without it.
 12. The `moc` step and the `plot_lat_elevation_field` primitive.
-13. The offline `mixed_layer_depth` accumulator, only if Omega's in-situ
-    diagnostic will not be ready in time.
-14. The `replot` option.
-15. The `analysis_test` task and the `omega_analysis_test` suite, once Omega
-    can write monthly means.
-16. User's Guide documentation: a page under `docs/users_guide/ocean/tasks/`
+13. The `replot` option.
+14. The offline `mixed_layer_depth` accumulator and its climatology, only if
+    Omega's in-situ diagnostic will not be ready in time.
+15. User's Guide documentation: a page under `docs/users_guide/ocean/tasks/`
     describing the analysis suite and its config options, and an entry in
     `docs/users_guide/ocean/suites.md`.
 
-Commits 2, 3, and 6 through 14 are independently reviewable and each leaves the
-suite in a working state for the products delivered so far.
+Deferred past this deliverable, and designed in
+{ref}`design-ocean-analysis` rather than here: splitting accumulators into
+several steps, process pools inside steps, the generated gallery over the
+staging tree, the mechanical conformance checks, and the `analysis_test` task
+and its suite.
 
 ## Testing
 
