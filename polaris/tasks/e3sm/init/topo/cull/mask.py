@@ -797,6 +797,7 @@ class CullMaskStep(Step):
         section = config['cull_mesh']
         min_ratio = section.getfloat('min_dc_edge_ratio')
         max_ratio = section.getfloat('max_dc_edge_ratio')
+        min_abs_ratio = section.getfloat('min_dc_edge_abs_ratio')
 
         ds_base_mesh = open_dataset('base_mesh.nc')
         ds_masks = open_dataset('cull_masks.nc')
@@ -808,6 +809,7 @@ class CullMaskStep(Step):
             ds_sizing=ds_sizing,
             min_ratio=min_ratio,
             max_ratio=max_ratio,
+            min_abs_ratio=min_abs_ratio,
             logger=logger,
         )
 

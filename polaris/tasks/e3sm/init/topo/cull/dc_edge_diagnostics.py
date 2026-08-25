@@ -9,6 +9,7 @@ def check_ocean_dc_edge(
     ds_sizing,
     min_ratio,
     max_ratio,
+    min_abs_ratio,
     logger,
     out_filename='ocean_dc_edge_diagnostics.nc',
     max_clusters=10,
@@ -43,12 +44,22 @@ def check_ocean_dc_edge(
         (km) on ``lat``/``lon`` coordinates (degrees)
 
     min_ratio : float
-        The minimum allowed ratio of ``dcEdge`` to the local ocean
-        background cell width
+        The minimum allowed ratio of ``dcEdge`` to the *local* ocean
+        background cell width.  This guards against land/river resolution
+        leaking into the ocean, which shows up as a locally anomalous
+        ratio.
 
     max_ratio : float
         The maximum allowed ratio of ``dcEdge`` to the local ocean
         background cell width
+
+    min_abs_ratio : float
+        The minimum allowed ratio of the *shortest* ``dcEdge`` anywhere in
+        the domain to the *finest* ocean background cell width anywhere in
+        it.  This is the CFL guard: the time step is set by the shortest
+        edge globally, and a mesh is already sized for its finest intended
+        resolution, so an edge that is short only relative to a coarse
+        local background costs nothing.
 
     logger : logging.Logger
         The logger for summary output
@@ -62,7 +73,8 @@ def check_ocean_dc_edge(
     Raises
     ------
     ValueError
-        If any ocean-interior edge violates the ratio bounds
+        If any ocean-interior edge violates the ratio bounds, or if the
+        shortest edge violates the absolute bound
     """
     dc_edge = ds_base_mesh.dcEdge.values / 1e3
     lat_edge = np.degrees(ds_base_mesh.latEdge.values)
@@ -107,6 +119,7 @@ def check_ocean_dc_edge(
     )
     ds_out.attrs['min_dc_edge_ratio'] = min_ratio
     ds_out.attrs['max_dc_edge_ratio'] = max_ratio
+    ds_out.attrs['min_dc_edge_abs_ratio'] = min_abs_ratio
     write_netcdf(ds_out, out_filename)
 
     n_ocean = int(ocean_edge.sum())
@@ -121,8 +134,34 @@ def check_ocean_dc_edge(
         f'allowed [{min_ratio}, {max_ratio}].'
     )
 
+    dc_ocean = dc_edge[ocean_edge]
+    background_ocean = background[ocean_edge]
+    finest_background = float(background_ocean.min())
+    shortest_edge = float(dc_ocean.min())
+    abs_ratio = shortest_edge / finest_background
+    logger.info(
+        f'dcEdge CFL guard: shortest ocean edge {shortest_edge:.3f} km '
+        f'against a finest ocean background of {finest_background:.3f} km, '
+        f'ratio {abs_ratio:.3f}, minimum allowed {min_abs_ratio}.'
+    )
+
     n_small = int(too_small.sum())
     n_large = int(too_large.sum())
+    if abs_ratio < min_abs_ratio:
+        index = int(np.argmin(dc_ocean))
+        lon = float(np.mod(lon_edge[ocean_edge][index] + 180.0, 360.0) - 180.0)
+        lat = float(lat_edge[ocean_edge][index])
+        message = (
+            f'The shortest edge in the culled ocean/sea-ice domain is '
+            f'{shortest_edge:.3f} km, only {abs_ratio:.3f} times the '
+            f'{finest_background:.3f} km finest ocean background, below the '
+            f'{min_abs_ratio} minimum.  This sets the forward-run time step '
+            f'(see {out_filename} and the unified_mesh_dc_edge_noise design '
+            f'doc).  Worst edge at lon={lon:.3f}, lat={lat:.3f}.'
+        )
+        logger.error(message)
+        raise ValueError(message)
+
     if n_small == 0 and n_large == 0:
         logger.info('dcEdge diagnostic passed.')
         return

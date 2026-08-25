@@ -49,9 +49,12 @@ The culling steps are configured through the `[cull_mesh]` section in the config
   considered to belong to land ice.
 - `land_ice_min_fraction`: Minimum land-ice fraction for flood-filling the
   land-ice mask.
+- `min_dc_edge_abs_ratio`: The minimum ratio of the shortest `dcEdge` in the
+  culled ocean/sea-ice domain to the finest ocean background cell width
+  anywhere in it (unified meshes only).  This is the CFL guard.
 - `min_dc_edge_ratio` and `max_dc_edge_ratio`: The allowed range of `dcEdge`
-  relative to the local ocean background cell width in the culled
-  ocean/sea-ice domain (unified meshes only).
+  relative to the *local* ocean background cell width (unified meshes only).
+  This is the leak guard.
 
 See `cull.cfg` for the full set of options.
 
@@ -70,6 +73,33 @@ the worst violation clusters if any ratio falls outside
 no sizing field and the check is skipped. The motivation, mechanisms and
 threshold justification are documented in the `unified_mesh_cull_leak`
 design doc (see {ref}`design-docs`).
+
+There are two guards, and they answer different questions.
+`min_dc_edge_abs_ratio` compares the *shortest* edge in the domain against
+the *finest* ocean background anywhere in it: that is what sets the forward
+run's time step, and since a mesh is already sized for its own finest
+intended resolution, an edge that is short only relative to a coarse local
+background costs nothing.  `min_dc_edge_ratio` compares each edge against
+its *local* background, which is what detects a leak.
+
+The thresholds come from `cull.cfg`, and a unified mesh can override them in
+its own `polaris/mesh/spherical/unified/<mesh_name>.cfg`, which is read after
+`cull.cfg` when the cull config is assembled.  No mesh currently needs to:
+`u.oi6to18.lr6to10` once overrode the ratio floor for a single edge, and that
+override went away when the CFL guard was separated out.
+
+A failure here does not by itself mean resolution has leaked.  On
+`u.oi6to18.lr6to10` it does not: the sizing field prescribes the full ocean
+background at every edge in the low tail, and the short edges are the seams
+of pentagon-heptagon dislocation pairs in JIGSAW's hexagonal packing.  That
+distribution is the same on every unified mesh, so the minimum falls as the
+edge count rises -- 0.799 at 21 thousand ocean edges, 0.664 at 1.4 million,
+0.643 at 12 million.  When investigating a failure, first compare `dcEdge`
+against `cellWidth` rather than `ocean_background_cell_width`: if the two
+ratios agree, the sizing field is not the problem.  The
+`unified_mesh_dc_edge_noise` design doc records the diagnosis and the two
+mitigations, the coastline-transition shape in the sizing field and
+JIGSAW's centroidal-Voronoi optimization kernel.
 
 The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow

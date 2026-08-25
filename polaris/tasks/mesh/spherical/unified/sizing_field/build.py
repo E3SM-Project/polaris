@@ -194,6 +194,9 @@ class BuildSizingFieldStep(Step):
                     coastline_transition_land_km=section.getfloat(
                         'coastline_transition_land_km'
                     ),
+                    coastline_transition_exponent=section.getfloat(
+                        'coastline_transition_exponent'
+                    ),
                     enable_river_channel_refinement=section.getboolean(
                         'enable_river_channel_refinement'
                     ),
@@ -324,6 +327,7 @@ def sizing_field_dataset(
     land_background_km=240.0,
     enable_coastline_refinement=True,
     coastline_transition_land_km=0.0,
+    coastline_transition_exponent=1.0,
     enable_river_channel_refinement=True,
     river_channel_km=240.0,
 ):
@@ -362,6 +366,11 @@ def sizing_field_dataset(
         Width in km of the linear-transition zone on the land side of the
         coastline; 0 means apply the ocean background only at the coastline
         raster edge
+
+    coastline_transition_exponent : float, optional
+        Exponent of the land-side blending factor.  1 is linear; values
+        above 1 flatten the mesh-size gradient at the coastline and steepen
+        it at the inland end of the transition
 
     enable_river_channel_refinement : bool, optional
         Whether to refine cells on the river-channel mask
@@ -425,6 +434,7 @@ def sizing_field_dataset(
         signed_distance=signed_distance,
         enabled=enable_coastline_refinement,
         land_transition_km=coastline_transition_land_km,
+        transition_exponent=coastline_transition_exponent,
     )
     final_cell_width = coastline_candidate
 
@@ -543,6 +553,7 @@ def _build_coastline_candidate(
     signed_distance,
     enabled,
     land_transition_km,
+    transition_exponent=1.0,
 ):
     """
     Build the coastline candidate field in km.
@@ -561,18 +572,34 @@ def _build_coastline_candidate(
         signed_distance=np.abs(signed_distance),
         mask=land_side,
         transition_m=land_transition_m,
+        exponent=transition_exponent,
     )
     return candidate
 
 
 def _apply_transition(
-    candidate, target, background, signed_distance, mask, transition_m
+    candidate,
+    target,
+    background,
+    signed_distance,
+    mask,
+    transition_m,
+    exponent=1.0,
 ):
     """
-    Apply a linear transition from the coastline target back to background.
+    Apply a transition from the coastline target back to background.
+
+    The blending factor is ``(d / transition_m) ** exponent``.  An
+    exponent above one makes the factor and its first derivative both
+    vanish at the coastline, so the mesh-size gradient is smallest
+    exactly where the CFL-limited ocean edges are, and steepest at the
+    inland end where only culled land cells feel it.  An exponent of one
+    is the plain linear ramp.
     """
     if transition_m < 0.0:
         raise ValueError('Transition widths must be nonnegative.')
+    if exponent <= 0.0:
+        raise ValueError('The transition exponent must be positive.')
 
     if transition_m == 0.0:
         zero_mask = mask & np.isclose(signed_distance, 0.0)
@@ -580,7 +607,7 @@ def _apply_transition(
         return
 
     transition_mask = mask & (signed_distance <= transition_m)
-    fraction = signed_distance[transition_mask] / transition_m
+    fraction = (signed_distance[transition_mask] / transition_m) ** exponent
     candidate[transition_mask] = target[transition_mask] + fraction * (
         background[transition_mask] - target[transition_mask]
     )
