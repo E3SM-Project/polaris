@@ -952,25 +952,33 @@ $$
                       \overline{\Theta' \tilde{h}'}
 $$
 
-The neglected term is small for heat content over fixed elevation ranges ---
-the range boundaries are fixed in $z$, so the covariance enters only through
-the partial layers at the boundaries and through the free surface --- but it is
-not identically zero, particularly in regions with a large seasonal cycle in
-sea surface height and layer thickness.  Note that this means the climatology
-must include both `PseudoThickness` and the geometric interfaces: the former
-sets the mass weight, the latter sets the partial-layer fraction at the range
-boundaries.
+This term is already dropped at every timescale shorter than a month, the
+moment the analysis works from monthly means rather than from model time steps.
+Neglecting it again from month to season is the same approximation applied over
+a longer averaging period, not a new one, so there is little sense in being
+scrupulous about the second while accepting the first in silence.
 
-The heat content time series does not have this issue, because it integrates
-each monthly mean separately and averages afterward.
+Its size settles the question.  Over a fixed elevation range the term enters
+only through the partial layers at the range boundaries and through the free
+surface, and for the $0$ to $-700$ m range a seasonal sea surface height of
+order $0.1$ m against a near-surface seasonal temperature anomaly of a few
+kelvin gives order $10^6$ J m⁻², against a total near $2.9 \times 10^{10}$
+J m⁻².  That is order $10^{-4}$ of the signal --- an order-of-magnitude sketch
+rather than a bound, but several orders below anything that would change a
+conclusion drawn from these maps.  The sub-monthly version is of similar
+magnitude and partly cancels, being eddy-driven rather than systematic.
 
-If the covariance term turns out to matter, the alternative is to compute the
-per-month vertically integrated heat content maps first, as the time series
-step already does, and then average those maps into a climatology.  That is a
-potential follow-up after September 15, not a fallback available before it: it
-costs a full pass over the three-dimensional monthly output for every season
-plotted, and the requirement asks for heat content from a climatology of
-conservative temperature.
+We therefore compute the maps from the climatology and do not plan to revisit
+it.  The alternative --- computing per-month vertically integrated maps and
+averaging those --- would cost a full pass over the three-dimensional monthly
+output for every season plotted, which is a large price for $10^{-4}$.
+
+What this does require is that the climatology include both `PseudoThickness`
+and the geometric interfaces: the former sets the mass weight, the latter the
+partial-layer fraction at the range boundaries.
+
+The heat content time series does not have the issue at all, because it
+integrates each monthly mean separately and averages afterward.
 
 ### Algorithm Design: moc-plot
 

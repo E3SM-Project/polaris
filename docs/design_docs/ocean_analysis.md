@@ -727,9 +727,6 @@ is explained in context in {ref}`design-ocean-analysis-initial`.
   Omega's in-situ density-threshold diagnostic.  A mixed-layer depth derived
   from monthly-mean profiles cannot represent deep winter mixing events and
   cannot produce a monthly maximum at all.
-- **Compute the ocean heat content climatology from per-month integrals**
-  rather than from a climatology of conservative temperature, if the neglected
-  $\overline{\Theta' h'}$ covariance term proves large enough to matter.
 - **Regional overturning**, in particular the Atlantic MOC and the standard
   maximum-AMOC-near-26.5°N metric, which arrives with the regional analysis
   described in the requirements above.
