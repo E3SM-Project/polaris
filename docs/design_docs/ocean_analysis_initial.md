@@ -264,12 +264,12 @@ fields.  The monthly-mean output shall:
 - cover, at minimum, the fields needed by this analysis: conservative
   temperature, absolute salinity, pseudo-thickness, sea surface height,
   reconstructed zonal and meridional velocity at cell centers, and mixed-layer
-  depth.  Reconstructed velocities are preferred over `normalVelocity` as the
-  default monthly output because two cell-centered fields are smaller than one
-  edge field --- there are roughly three edges per cell --- and because
-  `normalVelocity` is not itself plotted by anything in this analysis.  Polaris
-  can reconstruct offline from `normalVelocity` if that is what a simulation
-  wrote, at the cost of carrying and reading the larger field;
+  depth.  Reconstructed velocities are **required** rather than preferred: the
+  machinery to write them exists in Omega, two cell-centered fields are about
+  two thirds the size of one edge field, and `normalVelocity` is not itself
+  plotted by anything here, so there is no reason for a simulation to write the
+  larger field and no reason for Polaris to carry a reconstruction it would
+  never use;
 - include the **geometric vertical coordinate**, `GeomZMid` and
   `GeomZInterface`, so that Polaris does not have to reconstruct it (see the
   vertical-geometry algorithm design for why it cannot);
@@ -720,27 +720,25 @@ with `z_mid` set to `NaN` outside the valid range so invalid layers do not
 contribute, followed by a clip into `[k_min, k_max - 1]` and a mask for the
 out-of-column cases.
 
-#### Reconstructed velocities
+#### Velocity
 
-The map steps plot zonal and meridional velocity at cell centers.  If the
-monthly means contain them, they are used directly.  If they contain
-`normalVelocity` on edges instead, the step reconstructs them with the
-least-squares reconstruction designed in
-[Vector Reconstruction](vector_reconstruction.md), whose weights are stored on
-the mesh.
+The map steps plot zonal and meridional velocity at cell centers, read directly
+from the monthly means.  Polaris does not reconstruct them, and Phase 1 has no
+offline reconstruction path at all.
 
-Both paths give the same answer.  Reconstruction is a linear operator on the
-edge field, so reconstructing from a climatology of normal velocity gives
-exactly the climatology of the reconstructed velocity; there is no accuracy
-argument for preferring one over the other, and having the offline path means
-this product does not block on Omega work.
+An earlier draft had one, reconstructing from `normalVelocity` on edges with
+the least-squares weights designed in
+[Vector Reconstruction](vector_reconstruction.md), so that this product would
+not block on Omega work.  It is not needed: Omega already has what it needs to
+write reconstructed velocities, so they are a required output rather than a
+preferred one, and a fallback for a case that will not arise is code we would
+write, test and maintain for nothing.
 
-The preference is about output volume rather than accuracy, which is why the
-`omega-monthly-means` requirement asks for reconstructed velocities as the
-default monthly output: two cell-centered fields are about two thirds the size
-of one edge field, and nothing else in this analysis reads `normalVelocity`.
-Offline reconstruction is the fallback for simulations that wrote the edge
-field, not the intended steady state.
+The accuracy question that would otherwise decide this does not arise either.
+Reconstruction is linear, so reconstructing from a climatology of normal
+velocity gives exactly the climatology of the reconstructed velocity --- doing
+it in the model costs nothing in accuracy, and it saves writing and reading an
+edge field nothing else here wants.
 
 ### Algorithm Design: mixed-layer depth (fallback only)
 
@@ -1698,10 +1696,10 @@ Notes on the arguments:
 - `-a sdd` selects the seasonally discontinuous December convention discussed
   in the algorithm design.
 - `-v` restricts the climatology to the union of the fields requested for maps,
-  the fields needed for heat content (`temperature`), the fields needed for
-  velocity reconstruction (`normalVelocity`, when zonal and meridional velocity
-  are requested and not written by the model), and the vertical geometry
-  (`zMid`, `zInterface`).  Building this list is the reason `Climatology` needs
+  the fields needed for heat content (`temperature` and the model's mass-like
+  thickness), and the vertical geometry (`zMid`, `zInterface`).  Every name on
+  that list is a field the model wrote, which is what keeps the mapping back to
+  Omega names below well defined.  Building this list is the reason `Climatology` needs
   to know which steps depend on it; the list is assembled from config options
   at runtime rather than passed in by each task, so that the step stays neutral
   with respect to which tasks pulled it in.
@@ -1822,7 +1820,7 @@ for season in plot_seasons:
     z_mid, z_interface = get_z_mid_and_interface(ds)
     layer_mass = get_layer_mass(ds, self.config)
     for field in self.field_group.fields:
-        da = self._get_field(ds, field)   # reconstructs velocities if needed
+        da = self._get_field(ds, field)
         for reduction in self._reductions(da):
             da_map = apply_vertical_reduction(
                 da, reduction, z_mid, z_interface, layer_mass,
@@ -1868,9 +1866,8 @@ remapping.  Native-mesh plotting is not a temporary expedient: it is where
 observational comparison is headed too, with observations remapped onto the
 MPAS mesh rather than the model remapped onto a comparison grid.
 
-Velocity reconstruction uses the weights on the mesh via
-`polaris.mesh.reconstruct`.  If the mesh does not carry reconstruction weights,
-the step reports that clearly and skips the zonal and meridional velocity maps
+A field the simulation did not write --- zonal velocity from a run configured
+without it, for instance --- is reported clearly and its maps are skipped,
 rather than failing the whole step.
 
 If `compute_mixed_layer_depth` is set, the task adds an accumulator structured
