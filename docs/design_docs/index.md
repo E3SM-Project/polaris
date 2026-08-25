@@ -6,6 +6,7 @@
 :titlesonly: true
 
 horiz_press_grad_reference
+land_locked_cells
 overflow_nonlinear_eos
 pstar_init
 shared_steps
