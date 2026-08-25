@@ -69,6 +69,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tasks/index.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Mesh Framework</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Spherical Meshes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#jigsaw-mesh-optimization">JIGSAW mesh optimization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#supported-base-mesh-steps">Supported Base Mesh Steps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#approximately-uniform-spherical-meshes">Approximately Uniform Spherical Meshes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#rossby-radius-scaled-rrs-meshes">Rossby-radius Scaled (RRS) Meshes</a></li>
@@ -205,6 +206,12 @@ methods.</p>
 <span class="na">triangles_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh_triangles.nc</span>
 <span class="na">mpas_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">base_mesh.nc</span>
 
+<span class="c1"># JIGSAW mesh-optimization settings</span>
+<span class="na">jigsaw_optm_kern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">odt+dqdx</span>
+<span class="na">jigsaw_optm_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">16</span>
+<span class="na">jigsaw_optm_qtol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-4</span>
+<span class="na">jigsaw_optm_qlim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.9375</span>
+
 <span class="c1"># options related to mesh name and resolution</span>
 <span class="c1"># the prefix (e.g. Icos, QU, SO, RRS)</span>
 <span class="na">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">PREFIX</span>
@@ -234,6 +241,30 @@ methods.</p>
 <span class="na">vtk_lat_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
 </pre></div>
 </div>
+<section id="jigsaw-mesh-optimization">
+<h2>JIGSAW mesh optimization<a class="headerlink" href="#jigsaw-mesh-optimization" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">jigsaw_optm_kern</span></code>, <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_iter</span></code>, <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_qtol</span></code> and
+<code class="docutils literal notranslate"><span class="pre">jigsaw_optm_qlim</span></code> are passed through to JIGSAW by
+<a class="reference internal" href="../../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a>. The defaults are
+the values the step used before they were configurable, which are also what
+<code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code> passes, so a mesh that does not set them is unaffected.
+(<a class="reference internal" href="../../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code></a> keeps its own settings and
+does not read these.)</p>
+<p><code class="docutils literal notranslate"><span class="pre">jigsaw_optm_kern</span></code> chooses between an Optimal Delaunay Tessellation
+(<code class="docutils literal notranslate"><span class="pre">odt+dqdx</span></code>) and a Centroidal Voronoi Tessellation (<code class="docutils literal notranslate"><span class="pre">cvt+dqdx</span></code>). MPAS cells
+are the Voronoi dual of the JIGSAW triangulation, so <code class="docutils literal notranslate"><span class="pre">cvt+dqdx</span></code> optimizes
+the cells that carry <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> rather than the triangulation, and it does
+give a tighter <em>bulk</em> <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> distribution at roughly 1.8 times the
+mesh-build time.</p>
+<p>It is not currently used by any mesh, and it should not be selected without
+reading the <a class="reference internal" href="../../../design_docs/index.html#design-docs"><span class="std std-ref">design doc</span></a> <code class="docutils literal notranslate"><span class="pre">unified_mesh_dc_edge_noise</span></code>
+first. On real unified meshes it thinned the bulk about fourfold while
+introducing rare severe defects: the minimum <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> ratio on
+<code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> fell from 0.643 to 0.515, and <code class="docutils literal notranslate"><span class="pre">u.oi30.lr10</span></code> failed the
+cell-polygon quality check outright. Because the cull diagnostic reports a
+<em>minimum</em> over millions of edges, a kernel that improves the bulk and
+worsens the tail is a net loss.</p>
+</section>
 <section id="supported-base-mesh-steps">
 <h2>Supported Base Mesh Steps<a class="headerlink" href="#supported-base-mesh-steps" title="Link to this heading"></a></h2>
 <p>May Polaris tasks and steps are generated only for a set of predetermined,

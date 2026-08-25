@@ -198,7 +198,8 @@ Diagnostic variables (<code class="docutils literal notranslate"><span class="pr
 lat-lon grid);</p></li>
 <li><p>the land background (<code class="docutils literal notranslate"><span class="pre">land_background_km</span></code>);</p></li>
 <li><p>an optional coastline-proximity refinement controlled by
-<code class="docutils literal notranslate"><span class="pre">enable_coastline_refinement</span></code> and <code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code>; and</p></li>
+<code class="docutils literal notranslate"><span class="pre">enable_coastline_refinement</span></code>, <code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code> and
+<code class="docutils literal notranslate"><span class="pre">coastline_transition_exponent</span></code>; and</p></li>
 <li><p>optional river-channel refinement controlled by
 <code class="docutils literal notranslate"><span class="pre">enable_river_channel_refinement</span></code> and <code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code>.</p></li>
 </ul>
@@ -232,6 +233,10 @@ for the ocean background</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_background_km</span></code> — cell width for land cells</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_coastline_refinement</span></code> — toggle coastline-proximity refinement</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">coastline_transition_land_km</span></code> — width of the land-side transition zone</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coastline_transition_exponent</span></code> — exponent of the land-side blending
+factor; values above 1 make the mesh-size gradient vanish at the
+coastline and steepen inland, keeping it away from the CFL-limited ocean
+edges without extending the transition’s inland reach</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_river_channel_refinement</span></code> — toggle river-channel refinement</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">river_channel_km</span></code> — target cell width along river channels</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_cull_emulation</span></code> — toggle the effective ocean mask built by

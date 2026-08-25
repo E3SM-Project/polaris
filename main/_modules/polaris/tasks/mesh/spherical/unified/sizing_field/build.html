@@ -315,6 +315,9 @@
                     <span class="n">coastline_transition_land_km</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
                         <span class="s1">'coastline_transition_land_km'</span>
                     <span class="p">),</span>
+                    <span class="n">coastline_transition_exponent</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                        <span class="s1">'coastline_transition_exponent'</span>
+                    <span class="p">),</span>
                     <span class="n">enable_river_channel_refinement</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
                         <span class="s1">'enable_river_channel_refinement'</span>
                     <span class="p">),</span>
@@ -449,6 +452,7 @@
     <span class="n">land_background_km</span><span class="o">=</span><span class="mf">240.0</span><span class="p">,</span>
     <span class="n">enable_coastline_refinement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">coastline_transition_land_km</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">coastline_transition_exponent</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">enable_river_channel_refinement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">river_channel_km</span><span class="o">=</span><span class="mf">240.0</span><span class="p">,</span>
 <span class="p">):</span>
@@ -487,6 +491,11 @@
 <span class="sd">        Width in km of the linear-transition zone on the land side of the</span>
 <span class="sd">        coastline; 0 means apply the ocean background only at the coastline</span>
 <span class="sd">        raster edge</span>
+
+<span class="sd">    coastline_transition_exponent : float, optional</span>
+<span class="sd">        Exponent of the land-side blending factor.  1 is linear; values</span>
+<span class="sd">        above 1 flatten the mesh-size gradient at the coastline and steepen</span>
+<span class="sd">        it at the inland end of the transition</span>
 
 <span class="sd">    enable_river_channel_refinement : bool, optional</span>
 <span class="sd">        Whether to refine cells on the river-channel mask</span>
@@ -550,6 +559,7 @@
         <span class="n">signed_distance</span><span class="o">=</span><span class="n">signed_distance</span><span class="p">,</span>
         <span class="n">enabled</span><span class="o">=</span><span class="n">enable_coastline_refinement</span><span class="p">,</span>
         <span class="n">land_transition_km</span><span class="o">=</span><span class="n">coastline_transition_land_km</span><span class="p">,</span>
+        <span class="n">transition_exponent</span><span class="o">=</span><span class="n">coastline_transition_exponent</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">final_cell_width</span> <span class="o">=</span> <span class="n">coastline_candidate</span>
 
@@ -669,6 +679,7 @@
     <span class="n">signed_distance</span><span class="p">,</span>
     <span class="n">enabled</span><span class="p">,</span>
     <span class="n">land_transition_km</span><span class="p">,</span>
+    <span class="n">transition_exponent</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build the coastline candidate field in km.</span>
@@ -687,18 +698,34 @@
         <span class="n">signed_distance</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signed_distance</span><span class="p">),</span>
         <span class="n">mask</span><span class="o">=</span><span class="n">land_side</span><span class="p">,</span>
         <span class="n">transition_m</span><span class="o">=</span><span class="n">land_transition_m</span><span class="p">,</span>
+        <span class="n">exponent</span><span class="o">=</span><span class="n">transition_exponent</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">candidate</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_apply_transition</span><span class="p">(</span>
-    <span class="n">candidate</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">signed_distance</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">transition_m</span>
+    <span class="n">candidate</span><span class="p">,</span>
+    <span class="n">target</span><span class="p">,</span>
+    <span class="n">background</span><span class="p">,</span>
+    <span class="n">signed_distance</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">,</span>
+    <span class="n">transition_m</span><span class="p">,</span>
+    <span class="n">exponent</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Apply a linear transition from the coastline target back to background.</span>
+<span class="sd">    Apply a transition from the coastline target back to background.</span>
+
+<span class="sd">    The blending factor is ``(d / transition_m) ** exponent``.  An</span>
+<span class="sd">    exponent above one makes the factor and its first derivative both</span>
+<span class="sd">    vanish at the coastline, so the mesh-size gradient is smallest</span>
+<span class="sd">    exactly where the CFL-limited ocean edges are, and steepest at the</span>
+<span class="sd">    inland end where only culled land cells feel it.  An exponent of one</span>
+<span class="sd">    is the plain linear ramp.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">transition_m</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Transition widths must be nonnegative.'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exponent</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'The transition exponent must be positive.'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">transition_m</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="n">zero_mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">signed_distance</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
@@ -706,7 +733,7 @@
         <span class="k">return</span>
 
     <span class="n">transition_mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">signed_distance</span> <span class="o">&lt;=</span> <span class="n">transition_m</span><span class="p">)</span>
-    <span class="n">fraction</span> <span class="o">=</span> <span class="n">signed_distance</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">transition_m</span>
+    <span class="n">fraction</span> <span class="o">=</span> <span class="p">(</span><span class="n">signed_distance</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">transition_m</span><span class="p">)</span> <span class="o">**</span> <span class="n">exponent</span>
     <span class="n">candidate</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">+</span> <span class="n">fraction</span> <span class="o">*</span> <span class="p">(</span>
         <span class="n">background</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span> <span class="o">-</span> <span class="n">target</span><span class="p">[</span><span class="n">transition_mask</span><span class="p">]</span>
     <span class="p">)</span>

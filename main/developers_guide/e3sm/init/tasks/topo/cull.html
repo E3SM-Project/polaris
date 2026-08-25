@@ -175,9 +175,12 @@ applies.</p></li>
 considered to belong to land ice.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_min_fraction</span></code>: Minimum land-ice fraction for flood-filling the
 land-ice mask.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_abs_ratio</span></code>: The minimum ratio of the shortest <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> in the
+culled ocean/sea-ice domain to the finest ocean background cell width
+anywhere in it (unified meshes only).  This is the CFL guard.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> and <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span></code>: The allowed range of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>
-relative to the local ocean background cell width in the culled
-ocean/sea-ice domain (unified meshes only).</p></li>
+relative to the <em>local</em> ocean background cell width (unified meshes only).
+This is the leak guard.</p></li>
 </ul>
 <p>See <code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code> for the full set of options.</p>
 </section>
@@ -196,6 +199,30 @@ the worst violation clusters if any ratio falls outside
 no sizing field and the check is skipped. The motivation, mechanisms and
 threshold justification are documented in the <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code>
 design doc (see <a class="reference internal" href="../../../../../design_docs/index.html#design-docs"><span class="std std-ref">Design Documents</span></a>).</p>
+<p>There are two guards, and they answer different questions.
+<code class="docutils literal notranslate"><span class="pre">min_dc_edge_abs_ratio</span></code> compares the <em>shortest</em> edge in the domain against
+the <em>finest</em> ocean background anywhere in it: that is what sets the forward
+run’s time step, and since a mesh is already sized for its own finest
+intended resolution, an edge that is short only relative to a coarse local
+background costs nothing.  <code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> compares each edge against
+its <em>local</em> background, which is what detects a leak.</p>
+<p>The thresholds come from <code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code>, and a unified mesh can override them in
+its own <code class="docutils literal notranslate"><span class="pre">polaris/mesh/spherical/unified/&lt;mesh_name&gt;.cfg</span></code>, which is read after
+<code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code> when the cull config is assembled.  No mesh currently needs to:
+<code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> once overrode the ratio floor for a single edge, and that
+override went away when the CFL guard was separated out.</p>
+<p>A failure here does not by itself mean resolution has leaked.  On
+<code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> it does not: the sizing field prescribes the full ocean
+background at every edge in the low tail, and the short edges are the seams
+of pentagon-heptagon dislocation pairs in JIGSAW’s hexagonal packing.  That
+distribution is the same on every unified mesh, so the minimum falls as the
+edge count rises – 0.799 at 21 thousand ocean edges, 0.664 at 1.4 million,
+0.643 at 12 million.  When investigating a failure, first compare <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code>
+against <code class="docutils literal notranslate"><span class="pre">cellWidth</span></code> rather than <code class="docutils literal notranslate"><span class="pre">ocean_background_cell_width</span></code>: if the two
+ratios agree, the sizing field is not the problem.  The
+<code class="docutils literal notranslate"><span class="pre">unified_mesh_dc_edge_noise</span></code> design doc records the diagnosis and the two
+mitigations, the coastline-transition shape in the sizing field and
+JIGSAW’s centroidal-Voronoi optimization kernel.</p>
 <p>The Antarctic land-ice ownership mask also includes southern cells that have
 already been removed from the open-ocean cull mask, so the cull workflow
 remains consistent with the remapped topography masks.</p>

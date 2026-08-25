@@ -124,12 +124,21 @@ Common user-tunable options are:
 	critical land transects as land ice.
 - `land_ice_min_fraction`: Minimum land-ice fraction used in south-pole flood
 	filling for the land-ice mask.
+- `min_dc_edge_abs_ratio`: For unified meshes, the minimum allowed ratio of
+	the *shortest* `dcEdge` in the culled ocean/sea-ice domain to the
+	*finest* ocean background cell width anywhere in it.  This is the CFL
+	guard: the time step is set by the shortest edge globally, and a mesh is
+	already sized for its own finest intended resolution, so an edge that is
+	short only relative to a coarse local background costs nothing.
 - `min_dc_edge_ratio` and `max_dc_edge_ratio`: For unified meshes, the allowed
-	range of `dcEdge` relative to the local ocean background cell width in the
-	culled ocean/sea-ice domain.  The mask step fails if resolution intended for
-	the land/river domain has leaked into the CFL-limited ocean/sea-ice domain
-	(see the {ref}`design doc <design-docs>` `unified_mesh_cull_leak` for the
-	motivation and choice of defaults).
+	range of `dcEdge` relative to the *local* ocean background cell width.
+	This is the leak guard: land/river resolution reaching the ocean shows up
+	as a locally anomalous ratio even where the absolute edge length is
+	unremarkable.  It is set to catch leaks (the contaminated meshes that
+	motivated it reached 0.29 to 0.34) rather than the rare packing defects
+	that reach 0.51 on the finest meshes, at a different location every
+	build.  See the {ref}`design docs <design-docs>` `unified_mesh_cull_leak`
+	and `unified_mesh_dc_edge_noise`.
 
 Cull tasks produce three culled meshes: `ocean`, `ocean_no_cavities` and
 `land`.  The land mesh is the exact complement of `ocean_no_cavities`, so

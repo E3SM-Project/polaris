@@ -238,12 +238,21 @@ vertex are removed from the sea-ice domain.</p></li>
 critical land transects as land ice.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">land_ice_min_fraction</span></code>: Minimum land-ice fraction used in south-pole flood
 filling for the land-ice mask.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_abs_ratio</span></code>: For unified meshes, the minimum allowed ratio of
+the <em>shortest</em> <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> in the culled ocean/sea-ice domain to the
+<em>finest</em> ocean background cell width anywhere in it.  This is the CFL
+guard: the time step is set by the shortest edge globally, and a mesh is
+already sized for its own finest intended resolution, so an edge that is
+short only relative to a coarse local background costs nothing.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_dc_edge_ratio</span></code> and <code class="docutils literal notranslate"><span class="pre">max_dc_edge_ratio</span></code>: For unified meshes, the allowed
-range of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> relative to the local ocean background cell width in the
-culled ocean/sea-ice domain.  The mask step fails if resolution intended for
-the land/river domain has leaked into the CFL-limited ocean/sea-ice domain
-(see the <a class="reference internal" href="../../../../design_docs/index.html#design-docs"><span class="std std-ref">design doc</span></a> <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code> for the
-motivation and choice of defaults).</p></li>
+range of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> relative to the <em>local</em> ocean background cell width.
+This is the leak guard: land/river resolution reaching the ocean shows up
+as a locally anomalous ratio even where the absolute edge length is
+unremarkable.  It is set to catch leaks (the contaminated meshes that
+motivated it reached 0.29 to 0.34) rather than the rare packing defects
+that reach 0.51 on the finest meshes, at a different location every
+build.  See the <a class="reference internal" href="../../../../design_docs/index.html#design-docs"><span class="std std-ref">design docs</span></a> <code class="docutils literal notranslate"><span class="pre">unified_mesh_cull_leak</span></code>
+and <code class="docutils literal notranslate"><span class="pre">unified_mesh_dc_edge_noise</span></code>.</p></li>
 </ul>
 <p>Cull tasks produce three culled meshes: <code class="docutils literal notranslate"><span class="pre">ocean</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code> and
 <code class="docutils literal notranslate"><span class="pre">land</span></code>.  The land mesh is the exact complement of <code class="docutils literal notranslate"><span class="pre">ocean_no_cavities</span></code>, so
