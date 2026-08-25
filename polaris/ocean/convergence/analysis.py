@@ -1,8 +1,8 @@
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.figure import Figure
 
 from polaris.mpas import area_for_field, time_since_start
 from polaris.ocean.convergence import (
@@ -172,7 +172,6 @@ class ConvergenceAnalysis(OceanIOStep):
         """
         Run this step of the test case
         """
-        plt.switch_backend('Agg')
         convergence_vars = self.convergence_vars
         variables_failed = []
         for var in convergence_vars:
@@ -247,7 +246,7 @@ class ConvergenceAnalysis(OceanIOStep):
         filename = f'convergence_{variable_name}.csv'
         data = np.stack((refinement_array, error_array), axis=1)
         df = pd.DataFrame(data, columns=[header, error_type])
-        df.to_csv(f'convergence_{variable_name}.csv', index=False)
+        df.to_csv(self.work_path(filename), index=False)
 
         convergence_failed = False
         poly = np.polyfit(np.log10(refinement_array), np.log10(error_array), 1)
@@ -266,7 +265,7 @@ class ConvergenceAnalysis(OceanIOStep):
         )
 
         with mplstyle_context():
-            fig = plt.figure()
+            fig = Figure()
 
             error_dict = {'l2': 'L2 norm', 'inf': 'L-infinity norm'}
             error_title = error_dict[error_type]
@@ -326,11 +325,10 @@ class ConvergenceAnalysis(OceanIOStep):
             ax.legend(loc='lower left')
             ax.invert_xaxis()
             fig.savefig(
-                f'convergence_{variable_name}.png',
+                self.work_path(f'convergence_{variable_name}.png'),
                 bbox_inches='tight',
                 pad_inches=0.1,
             )
-            plt.close()
 
             logger.info(f'Order of convergence for {title}: {conv_round:1.3f}')
 
@@ -373,7 +371,7 @@ class ConvergenceAnalysis(OceanIOStep):
         norm_type = {'l2': None, 'inf': np.inf}
         config = self.config
         ds_mesh = self.open_model_dataset(
-            f'mesh_r{refinement_factor:02g}.nc', config
+            self.work_path(f'mesh_r{refinement_factor:02g}.nc'), config
         )
         section = config['convergence']
         eval_time = section.getfloat('convergence_eval_time')
@@ -443,7 +441,7 @@ class ConvergenceAnalysis(OceanIOStep):
         """
 
         ds_init = self.open_model_dataset(
-            f'init_r{refinement_factor:02g}.nc', self.config
+            self.work_path(f'init_r{refinement_factor:02g}.nc'), self.config
         )
         ds_init = ds_init.isel(Time=0)
         if zidx is not None:
@@ -476,7 +474,9 @@ class ConvergenceAnalysis(OceanIOStep):
         """
         config = self.config
         ds_out = self.open_model_dataset(
-            f'output_r{refinement_factor:02g}.nc', config, decode_times=False
+            self.work_path(f'output_r{refinement_factor:02g}.nc'),
+            config,
+            decode_times=False,
         )
 
         model = config.get('ocean', 'model')
