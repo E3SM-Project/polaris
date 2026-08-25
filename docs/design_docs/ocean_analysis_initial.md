@@ -28,13 +28,13 @@ completed Omega simulation through a user-supplied config file and produces:
    (MOC)** from the MOC diagnostic that Omega computes in situ.
 
 Every plot is accompanied by a netCDF file containing the data plotted, and the
-expensive intermediate products (climatologies, per-year heat content) are
-written to netCDF as well.
+expensive intermediate products (climatologies, reduced monthly heat content)
+are written to netCDF as well.
 
 The same simulation can be analyzed repeatedly over different date ranges.
 Results accumulate in a range-keyed staging tree that a web interface can serve
-later, and re-analyzing a new range reuses the per-year intermediates from
-earlier ranges instead of recomputing them.
+later, and re-analyzing a new range inherits the reduced monthly values
+earlier ranges already computed instead of recomputing them.
 
 MPAS-Analysis is the scientific reference for what each of these diagnostics
 means, but the implementation is written from scratch with Polaris and Omega in
@@ -204,9 +204,12 @@ exactly the data that were plotted, so that the values can be inspected,
 compared against other tools, or re-plotted without recomputation.
 
 Intermediate products that are expensive to compute --- climatologies and
-per-year ocean heat content in particular --- shall be written to netCDF, and a
-step that finds a complete intermediate product from a previous run shall be
-able to reuse it rather than recomputing it.
+reduced monthly ocean heat content in particular --- shall be written to
+netCDF, and a step that finds an intermediate product from a previous run shall
+be able to reuse it rather than recomputing it.  Reuse shall be conditional on
+the product having been computed for the same simulation, by the same kernel,
+under the config options that govern it, and shall be reported rather than
+silent.
 
 ### Requirement: repeated-analysis
 
@@ -400,9 +403,9 @@ drift and for the planetary energy budget while the absolute value is dominated
 by the mean state.
 
 The computation shall stream over the monthly files rather than loading the
-full record into memory, and shall write per-year intermediate results so that
+full record into memory, and shall cache the reduced monthly values so that
 extending the time series with additional simulation years does not require
-recomputing the years already processed.
+reprocessing the years already covered.
 
 ### Requirement: moc-plot
 
@@ -485,28 +488,41 @@ what does not:
 | Product | Depends on the range? | Cost |
 | --- | --- | --- |
 | Monthly means (model output) | no | read-only input |
-| Per-year ocean heat content integrals | no, keyed by year | expensive |
-| Per-year offline mixed-layer depth | no, keyed by year | expensive |
+| Reduced monthly ocean heat content | no, keyed by month | expensive |
+| Offline monthly mixed-layer depth | no, keyed by month | expensive |
 | `ncclimo` climatologies | yes | expensive |
 | Climatology and heat content maps | yes | cheap, from the climatology |
 | Global stats time series | yes | cheap |
 | MOC time average | yes | cheap |
 
-The rule that follows: **every expensive computation is decomposed into a
-per-year product keyed by the year, not by the range**, and is given its own
-step at a year-keyed subdirectory.  A given year's vertically integrated heat
-content is the same quantity no matter which range asked for it, so it is
-computed once and reused forever.  Everything that is range-keyed is then
-either cheap to redo from those per-year products, or is the climatology
-itself.
+The rows in the middle are the ones that matter.  A given month's vertically
+integrated heat content is the same quantity no matter which range asked for
+it, so it should be computed once and reused forever, while everything else is
+either cheap to redo from those monthly values or is the climatology itself.
 
-These year-keyed and range-keyed steps are **shared steps** in the sense of
+Every step is keyed by what the user asked for --- a date range --- and the
+expensive range-independent work is made incremental *inside* a step by the
+**seeded accumulator** of principle 6 in {ref}`design-ocean-analysis`.  The
+accumulator finds the cache files left by earlier runs of the same product,
+inherits the months they cover, computes only the rest, and writes a complete
+cache for its own range.
+
+An earlier draft of this design instead gave every simulation year its own
+shared step at a year-keyed subdirectory, so that reuse fell out of Polaris's
+completion markers with no machinery of our own.  That was appealing but wrong
+on two counts.  It paid a step's overhead --- a directory, a pickle, a config
+copy, a log file --- for a chunk no user ever asked for, and it turned the
+directory tree into a bucket named after a mechanism.  Worse, the completion
+marker was then the *only* validity check: change the heat content kernel or a
+constant and every one of those directories would still report itself complete.
+The accumulator is cheaper and, with the provenance stamp described below,
+safer.
+
+The steps that remain are **shared steps** in the sense of
 [Shared steps](shared_steps.md), created with
 `Component.get_or_create_shared_step()` at a subdirectory computed from the
-year or range.  Nothing in this design needs a caching layer of its own: reuse
-across repeated analyses is the existing rule that a shared step at a given
-subdirectory is created once and is skipped when its completion marker is
-already there.  The implementation section works through the details.
+range, so that the climatology for a range is built once no matter how many
+products read it.  The implementation section works through the details.
 
 #### How many steps is too many?
 
@@ -1183,13 +1199,12 @@ The expensive intermediates are:
 
 - the `ncclimo` output in `ocean/analysis/climatology/<range>/`, already a set
   of netCDF files;
-- the per-year heat content file written by each
-  `ocean/analysis/years/ocean_heat_content/<year>` step;
-- the equivalent per-year mixed-layer depth files, if it is computed offline.
+- the monthly heat content cache written by the heat content accumulator;
+- the equivalent monthly mixed-layer depth cache, if it is computed offline.
 
-Because each of these is the output of a shared step keyed by year or by range,
-reuse across repeated analyses is Polaris's ordinary step-completion behavior
-rather than a caching layer of our own.
+The climatology is a range-keyed output of a shared step, so its reuse is
+Polaris's ordinary step-completion behavior.  The accumulator caches carry the
+provenance stamp that makes them safe to inherit across runs.
 
 ### Implementation: repeated-analysis
 
@@ -1237,27 +1252,86 @@ in its work directory.  It also makes it structurally impossible to get a plot
 labeled with one range whose contents came from another, since the two ranges
 never share a directory.
 
-#### Reuse comes from per-year shared steps
+#### Reuse comes from seeded accumulators
 
-The expensive per-year work --- vertically integrated heat content, and
-mixed-layer depth if it is computed offline --- is one shared step per
-simulation year, at `years/ocean_heat_content/0021` and so on, created with
-`get_or_create_shared_step()`.  Each reads that year's twelve monthly-mean
-files and writes one small netCDF.
+The expensive range-independent work --- vertically integrated heat content,
+and mixed-layer depth if it is computed offline --- is one step per product,
+keyed by the range like everything else, which inherits what earlier runs
+already computed.
 
-Because these steps are keyed by year rather than by range, a later analysis
-over a different range asks for the same step for any year the two ranges have
-in common, finds it already complete, and skips it.  Extending a time series
-from twenty years to forty creates twenty new steps and reuses twenty existing
-ones, which is exactly the cost the requirement asks for --- and again with no
-mechanism beyond shared steps and the completion marker.
+`polaris/tasks/ocean/analysis/accumulate.py` provides the shared machinery, so
+that each product supplies only its kernel and its cache layout:
 
-A per-year step is also a well-sized unit of work: roughly 1.8 GB of monthly
-means read, one small file written.  Making these steps rather than a loop
-inside a single step has a second payoff, which is that they are embarrassingly
-parallel and become eligible for concurrent execution as soon as Polaris's task
-parallelism lands.  See the task-parallelism requirement in
-{ref}`design-ocean-analysis`.
+```python
+class Accumulator(OceanIOStep):
+    def setup(self):
+        # find cache files under sibling range directories of this product,
+        # keep those from completed steps whose provenance stamp matches,
+        # and add each as an input file
+        self.seeds = discover_seeds(self.work_dir, self.stamp())
+
+    def run(self):
+        needed = months_in_range(self.start_year, self.end_year)
+        have = inherited_months(self.seeds)
+        self.logger.info(f'inheriting {len(have)} months, '
+                         f'computing {len(needed - have)}')
+        compute(sorted(needed - have), pool_size=self.cpus_per_task)
+        publish(have, needed)
+```
+
+Four things about this are worth stating explicitly, because they are what make
+it acceptable to have software hunting for data on disk.
+
+**The search scope is what construction guarantees, and nothing wider.**  Only
+sibling directories of the same product are candidates: the same step class,
+with the same outputs, differing only in the range.  Nothing outside the
+product's own directory is searched, and no other work directory is ever
+consulted.
+
+**Admissibility comes from content, not from location.**  Each cache record
+carries a provenance stamp --- the identity of the simulation, the config
+options that govern the product, and a version integer for the kernel --- and a
+record whose stamp does not match is recomputed rather than inherited.  This
+matters because the path guarantees less than it looks like: task
+subdirectories do not encode which simulation was analyzed, so the same work
+directory pointed at a second simulation would otherwise cross-contaminate in
+silence, as would a changed elevation range or a changed constant.
+
+**Only completed steps are candidates.**  A sibling directory without
+`polaris_step_complete.log` is skipped, which also disposes of the
+half-written cache left by an interrupted run.
+
+**Reuse is reported.**  Each run logs how many months it inherited and from
+where, and the provenance travels into the output netCDF.  Two config options
+provide an explicit mode for anyone who wants determinism instead of
+discovery:
+
+```ini
+[ocean_analysis]
+
+# Inherit results from earlier analyses of the same simulation in this work
+# directory.  Set to False to recompute everything from the monthly means.
+reuse_previous = True
+
+# An additional directory to search for inheritable results, for the case
+# where an earlier analysis has been moved or copied.  Empty by default.
+reuse_search_path =
+```
+
+The pattern applies wherever we own the reduction kernel.  It does not apply to
+the climatology, because `ncclimo` has no incremental mode; a climatology is
+recomputed in full for each new range.
+
+Extending a time series from twenty years to forty therefore reads twenty years
+of monthly means, not forty.  Running a forty-year range and then a twenty-year
+sub-range inside it reads nothing at all the second time.  A partially written
+cache in the step's own directory is itself a valid starting point on a retry,
+which is most of what restartability asks for.
+
+Because the remaining months are independent, they are spread over a process
+pool inside the step rather than over steps.  This follows principle 3 in
+{ref}`design-ocean-analysis`, and it means the analysis gets its concurrency
+from a capability that exists today rather than from task parallelism.
 
 #### Staging results
 
@@ -1503,11 +1577,14 @@ Velocity reconstruction uses the weights on the mesh via
 the step reports that clearly and skips the zonal and meridional velocity maps
 rather than failing the whole step.
 
-If `compute_mixed_layer_depth` is set, the task adds a shared per-year step for
-each year of the climatology, structured exactly like the per-year heat content
-steps: each computes monthly mixed-layer depth with `gsw` as described in the
-algorithm design and writes one file for its year.  A range-keyed step then
-averages those into the seasonal and annual means that `maps` plots.  Its
+If `compute_mixed_layer_depth` is set, the task adds an accumulator structured
+exactly like the heat content one: its kernel computes a month of mixed-layer
+depth with `gsw` as described in the algorithm design.  Because its consumer is
+`ncclimo`, which reads monthly files, its cache is one file per month rather
+than a single series --- principle 8 in {ref}`design-ocean-analysis` --- and
+inherited months are symlinked forward rather than copied.  The climatology
+step then averages those into the seasonal and annual means that are plotted.
+Its
 outputs carry an attribute recording that they were computed offline from
 monthly means, and the step adds a note to the plot titles, so that a reader
 cannot mistake them for an in-situ diagnostic.
@@ -1585,54 +1662,52 @@ Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
-This product is two kinds of step.  A shared `OceanHeatContentYear` step per
-simulation year does the expensive work for that year:
+This product is a single accumulator step, `HeatContentSeries`, keyed by the
+requested range.  Its kernel reduces one month to a handful of numbers:
 
 ```python
-class OceanHeatContentYear(OceanIOStep):
-    def run(self):
-        ds_year = []
-        for month in range(1, 13):
-            ds = self.open_model_dataset(f'monthly_{month:02d}.nc',
-                                         self.config)
-            _, z_interface = get_z_mid_and_interface(ds)
-            layer_mass = get_layer_mass(ds, self.config)
-            ohc = []
-            for z_top, z_bot in elevation_ranges:
-                weights = elevation_range_weights(z_interface, layer_mass,
-                                                  k_min, k_max, z_top, z_bot)
-                column = heat_content(ds.temperature, weights, cp0)
-                ohc.append((area_cell * column).sum('nCells'))
-            ds_year.append(...)
-        write_netcdf(xr.concat(ds_year, dim='Time'), 'ohc.nc')
+class HeatContentSeries(Accumulator):
+    def compute_month(self, filename):
+        ds = self.open_model_dataset(filename, self.config)
+        _, z_interface = get_z_mid_and_interface(ds)
+        layer_mass = get_layer_mass(ds, self.config)
+        ohc = []
+        for z_top, z_bot in elevation_ranges:
+            weights = elevation_range_weights(z_interface, layer_mass,
+                                              k_min, k_max, z_top, z_bot)
+            column = heat_content(ds.temperature, weights, cp0)
+            ohc.append((area_cell * column).sum('nCells'))
+        return xr.merge(ohc)
 ```
 
-and a range-keyed `time_series` step concatenates the per-year files for the
-requested years and plots them.  The task's `configure()` creates one per-year
-step for each year in the configured range with
-`get_or_create_shared_step()`, so a year analyzed by an earlier range is reused
-rather than recomputed.
+The accumulator machinery described under `repeated-analysis` handles the rest:
+inheriting the months an earlier range already reduced, spreading the remaining
+months over a process pool, and writing the cache.
 
-Reading a month at a time within the year step is deliberate.  A global
-three-dimensional temperature field at 30 km resolution and 80 levels is
-roughly 150 MB per month, so a forty-year record is several tens of gigabytes;
-a month at a time bounds memory regardless of how long the record is.  Only
-`temperature`, the model's mass-like thickness variable, `zInterface`, and the
-vertical-index fields are read.
+The cache is a single netCDF with an unlimited `Time` dimension, appended to as
+months are added, because its consumer is the plotting in this same step, which
+reads the whole series.  This is principle 8 in {ref}`design-ocean-analysis`:
+the form follows the consumer.  Forty years of four elevation ranges is a few
+tens of kilobytes, so there is nothing here worth chunking.
+
+Reading a month at a time is deliberate.  A global three-dimensional
+temperature field at 30 km resolution and 80 levels is roughly 150 MB per
+month, so a forty-year record is several tens of gigabytes; a month at a time
+bounds memory regardless of how long the record is, and it is also what makes
+the unit of caching a month.  Only `temperature`, the model's mass-like
+thickness variable, `zInterface`, and the vertical-index fields are read.
 
 The plot has two panels: absolute heat content in units of 10²² J, and the
 anomaly relative to the first month, with one line per elevation range.  The
 concatenated time series is written to `ocean_heat_content_time_series.nc`.
 
-The per-year steps are the most expensive part of the suite.  If they prove too
-slow, there are two independent moves available: run them concurrently once
-Polaris's task parallelism lands, which needs no changes here because they are
-already independent non-MPI steps; or compute the vertical integrals in Omega
-in situ, which reduces the whole product to a concatenation.  If mixed-layer
-depth is also computed offline, its per-year steps make the same pass over the
-same monthly files and could be merged with these; they are kept separate
-because a merged step would couple two products for a saving that only matters
-if the pass proves expensive.
+This accumulator is the most expensive part of the suite on a first run, and
+nearly free on every run after it.  If a first run proves too slow, the move
+available is to compute the vertical integrals in Omega in situ, which reduces
+the whole product to a concatenation.  If mixed-layer depth is also computed
+offline, its accumulator makes the same pass over the same monthly files and
+the two could share one pass; they are kept separate because merging them would
+couple two products for a saving that only matters on a first run.
 
 ### Implementation: moc-plot
 
@@ -1686,9 +1761,10 @@ Contributors: Xylar Asay-Davis, Claude
 7. The ocean heat content `maps` step.
 8. The `global_stats` `time_series` step, including factoring the shared
    plotting function out of `StatsAnalysis`.
-9. The per-year and range-keyed ocean heat content time series steps.
+9. The `Accumulator` base class and the ocean heat content time series step
+   built on it.
 10. The `moc` `plot` step and the `plot_lat_elevation_field` primitive.
-11. The offline per-year `mixed_layer_depth` steps, only if Omega's in-situ
+11. The offline `mixed_layer_depth` accumulator, only if Omega's in-situ
     diagnostic will not be ready in time.
 12. User's Guide documentation: a page under `docs/users_guide/ocean/tasks/`
     describing the analysis suite and its config options, and an entry in
@@ -1726,11 +1802,13 @@ task, set config options, call `configure()`, and inspect the resulting steps:
 
 - the range-keyed steps land at subdirectories named for the configured range,
   and changing the range changes those subdirectories;
-- one per-year step is created for each year in the configured range, at a
-  subdirectory named for the year;
-- widening the range produces the same per-year steps for the years the two
-  ranges share --- literally the same objects, via
-  `get_or_create_shared_step()` --- plus new ones for the added years;
+- an accumulator set up over a range that overlaps an earlier one discovers
+  that earlier cache, declares it as an input, and reports the months it
+  inherited;
+- an accumulator whose provenance stamp does not match a candidate cache ---
+  a different simulation, a changed elevation range, a bumped kernel version
+  --- ignores it and recomputes;
+- a candidate directory without a completion marker is never inherited from;
 - the climatology and time series ranges are independent, so changing one does
   not disturb the other's steps.
 
@@ -1847,9 +1925,10 @@ Contributors: Xylar Asay-Davis, Claude
 The time series and MOC steps are mostly file handling and plotting, and are
 covered by:
 
-- a unit test that the per-year heat content files are reused rather than
-  recomputed when they already exist, and that adding a year extends the series
-  correctly;
+- a unit test that months already present in an inherited cache are reused
+  rather than recomputed, and that adding a year extends the series correctly;
+- a unit test that a cache written with one provenance stamp is not inherited
+  by a step asking under another;
 - a unit test on the construction of `GlobalStats` variable names from
   Polaris-standard field names and the configured statistics;
 - a unit test that a configured field or statistic missing from the dataset is
