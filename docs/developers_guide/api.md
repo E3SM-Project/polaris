@@ -160,6 +160,7 @@ seaice/api
    Step.setup
    Step.runtime_setup
    Step.run
+   Step.work_path
    Step.add_input_file
    Step.add_output_file
    Step.add_dependency

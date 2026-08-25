@@ -703,6 +703,31 @@ MPI, threading and memory resources.
 To get a feel for different types of `run()` methods, it may be best to
 explore different steps that are already implemented in Polaris.
 
+(dev-step-work-path)=
+
+### paths within run()
+
+Polaris changes the process working directory to the step's work directory
+before calling `run()`, so a bare relative filename like `'output.nc'` works
+today.  That will not remain true once steps can run concurrently in one
+process, because the working directory is shared by the whole process.
+
+New steps -- and analysis steps in particular -- should instead build paths
+with {py:meth}`polaris.Step.work_path()`, which joins one or more path
+components onto the step's own work directory and returns an absolute path:
+
+```python
+class Viz(Step):
+    def run(self):
+        with xr.open_dataset(self.work_path('output.nc')) as ds:
+            ...
+        fig.savefig(self.work_path('comparison.png'))
+```
+
+The `filename` arguments to `add_input_file()` and `add_output_file()` are
+unaffected: those are relative to the work directory by design, and setup
+already resolves them to absolute paths in `self.inputs` and `self.outputs`.
+
 (dev-step-inputs-outputs)=
 
 ## inputs and outputs

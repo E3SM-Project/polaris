@@ -465,6 +465,33 @@ class Step:
         """
         pass
 
+    def work_path(self, *filenames):
+        """
+        Get the absolute path to a file or directory in the step's work
+        directory
+
+        Steps should use this method (rather than a bare relative filename)
+        for any file they open in ``run()``, so that the step does not depend
+        on the process working directory being its own work directory.
+
+        Parameters
+        ----------
+        *filenames : str
+            One or more path components, relative to the step's work
+            directory
+
+        Returns
+        -------
+        path : str
+            The absolute path to the file or directory
+        """
+        if not self.work_dir:
+            raise ValueError(
+                f'The work directory of step {self.name} has not been set '
+                f'yet, so work_path() cannot be used.'
+            )
+        return os.path.abspath(os.path.join(self.work_dir, *filenames))
+
     def add_input_file(
         self,
         filename=None,
