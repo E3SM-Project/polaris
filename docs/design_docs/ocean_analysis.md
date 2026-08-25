@@ -247,7 +247,7 @@ MPAS-Analysis compares a run against a control run.
 
 ### Requirement: presentation and provenance
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -256,15 +256,36 @@ without a filesystem tour, and shall record enough provenance that any plot can
 be traced back to the simulation, the date range, the code version, and the
 config options that produced it.
 
-Phase 1 delivers the substrate: a staging tree, keyed by product and date
-range, into which every plot and its netCDF are published, separate from the
-Polaris work directories where the computation happens.  Results accumulate
-there across repeated analyses of different ranges.  See the
-`repeated-analysis` requirement in {ref}`design-ocean-analysis-initial`.
+By principle 1, presentation is the job of the staging tree and not of the work
+tree, and by principle 2 the two are connected by a manifest rather than by a
+shared directory structure.  Concretely:
 
-*Details of the presentation layer to be added.*  What is missing is the
-gallery or index over that tree, comparable to MPAS-Analysis's HTML output.
-Polaris already records provenance for a setup in `polaris/provenance.py`.
+- **Every step writes a manifest fragment** alongside its outputs, naming each
+  product it made and the facets that identify it: file, field, season,
+  elevation, date range, region, group, and title.
+- **A collector publishes and indexes.**  A cheap step gathers the fragments,
+  publishes each product into the staging tree, and generates the index over
+  it.  Because it works from the fragments rather than from directory
+  structure, re-chunking the work does not disturb the output.
+- **The staging tree is shallow, with descriptive filenames, plus a generated
+  index.**  A gallery is generated, not navigated, and a shallow tree is easier
+  to archive, to serve, and to diff between two analyses.  This follows
+  MPAS-Analysis, where the experience is good.
+- **Products are published by symlink** from the step that owns them, so that
+  each file has exactly one owner and Polaris's output checking continues to
+  work.  The staging tree is a view, not a second source of truth.
+
+Provenance has a second job beyond presentation, introduced by principle 7: it
+is what makes an inherited cache safe to inherit.  Phase 1 ships a minimal
+version --- the identity of the simulation, the config options that govern the
+product, and a hand-maintained version for the kernel that produced it, carried
+in each cache record and refused when it does not match.  A content-addressed
+scheme covering the full dependency graph is deferred; see the deferred items
+below.
+
+*Details of the index itself to be added*, including how much of
+MPAS-Analysis's component/group/gallery structure to adopt.  Polaris already
+records provenance for a setup in `polaris/provenance.py`.
 
 ### Requirement: workflow integration
 
@@ -587,7 +608,7 @@ designed.*  Algorithm designs for the Phase 1 capabilities are in
 
 ### Implementation: code organization
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -607,20 +628,31 @@ capability grows:
 - **Plotting primitives** live in `polaris/viz/`, extended as new plot types
   are needed rather than duplicated inside analysis steps.
 
+Two further pieces are added by Phase 1 and are expected to be reused:
+
+- **Manifest and publication** live in `polaris/tasks/ocean/analysis/`
+  alongside the steps in Phase 1, and should move to a component-neutral home
+  when a second component wants them.  Steps depend on the manifest writer, not
+  on the collector.
+- **Accumulator support** --- discovering candidate caches among sibling
+  directories, checking provenance stamps, and reporting what was inherited ---
+  is a shared helper rather than something each product reimplements, since
+  principle 7 is only as good as its least careful implementation.
+
 Analysis asks for something no existing task needed --- the same simulation
 analyzed repeatedly over different date ranges, reusing what does not depend on
 the range --- but it turns out to need no framework changes to get it.  The
 mechanism is the one the cosine bell task family already uses for resolutions:
 a task rebuilds its step list in `Task.configure()`, which runs after the
-user's config has been merged, so step subdirectories can be keyed by date
-range, and expensive per-year work can be a shared step per year created with
-`Component.get_or_create_shared_step()`.  Re-running and reuse then both follow
-from ordinary step-completion behavior.  Later phases should reach for this
-pattern before reaching for new framework capabilities.
+user's config has been merged, so step subdirectories can be keyed by the date
+range the user asked for.  Reuse across ranges is then the seeded accumulator
+of principle 6, which needs nothing from the framework beyond the ability to
+declare an input discovered at setup time.  Later phases should reach for these
+patterns before reaching for new framework capabilities.
 
 ### Implementation: items deferred from Phase 1
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -646,6 +678,17 @@ is explained in context in {ref}`design-ocean-analysis-initial`.
 - **Regional overturning**, in particular the Atlantic MOC and the standard
   maximum-AMOC-near-26.5°N metric, which arrives with the regional analysis
   described in the requirements above.
+- **A content-addressed provenance scheme for inherited caches.**  Phase 1
+  stamps each cache record with the simulation identity, the config options
+  that govern the product, and a hand-maintained kernel version integer, and
+  refuses to inherit a record whose stamp does not match.  Bumping that integer
+  by hand is the weak link: it is correct only if it is remembered.  The
+  follow-up is a stamp derived from the code and configuration themselves,
+  covering the full dependency graph of a product, so that correctness does not
+  rest on discipline.
+- **Measure Polaris's per-step overhead** --- setup and run of a step that does
+  nothing --- and record it under the organizing principles, so that the step
+  sizing targets in principle 9 rest on a number rather than on judgment.
 
 ### Implementation: design documents in this family
 
