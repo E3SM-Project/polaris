@@ -1322,23 +1322,23 @@ Every analysis step declares what it needs, so that a scheduler can decide how
 many may run at once.  Two quantities matter and they behave differently.
 
 **Cores** are declared as `cpus_per_task` with `ntasks = 1`, since nothing here
-is MPI.  The number is whatever internal parallelism the step will actually
-start --- twelve for the climatology, matching `ncclimo`'s background
-processes, and the pool size for a shard or a map step.  Any pool a step
-creates is sized from this number rather than from `os.cpu_count()`, which is
-the whole content of the bounded-process-launching rule: a step that sizes its
-pool to the machine oversubscribes the node the moment a second step runs
-beside it.
+is MPI.  The number is whatever parallelism the step will actually start, which
+in Phase 1 is one for every step except the climatology, where it is twelve to
+match `ncclimo`'s background processes.  Should a step later gain an internal
+pool, its size comes from this number and never from `os.cpu_count()`: that is
+the whole content of the bounded-process-launching rule, since a step sized to
+the machine oversubscribes the node the moment a second step runs beside it.
 
 **Memory** is the quantity that distinguishes analysis from most existing
 Polaris steps, because at high resolution a step can need a large fraction of a
 node and a scheduler packing by cores alone will oversubscribe it.  What each
 step's footprint is set by is known:
 
-- an accumulator shard holds one month of three-dimensional input per pool
-  worker, so its footprint is the pool size times a month --- which is why
-  reading a month at a time, rather than a year, is a resource decision and not
-  only a convenience;
+- an accumulator holds one month of three-dimensional input at a time, which is
+  what keeps its footprint independent of the length of the record --- reading
+  a month at a time rather than a year is a resource decision and not only a
+  convenience, and it is what lets several decades at 6to18 km be analyzed at
+  all;
 - a map step holds one season of the climatology for its field group, plus the
   `mosaic` descriptor for the mesh;
 - the climatology step's footprint is `ncclimo`'s, not ours;
@@ -1848,10 +1848,10 @@ in the step directory is self-describing.  Range labels use `_to_` rather than
 a hyphen because the elevations are themselves negative.
 
 The plots are independent, so a step with many of them spreads them over a
-process pool rather than over steps.  The pool is sized from `cpus_per_task`,
-never from the machine, per the bounded-process-launching rule.  Building the
-`mosaic` descriptor is the expensive part of plotting a global mesh, so it is
-constructed once per step and shared.
+process pool rather than over steps, but Phase 1 does not take it: plots are
+drawn one after another.  Building the `mosaic` descriptor is the expensive
+part of plotting a global mesh, so it is constructed once per step and shared,
+which is where most of the available saving is anyway.
 
 Two dependencies on the framework follow from
 [Task-Parallel-Safe Analysis Steps](task_parallel_analysis_steps.md) and are
