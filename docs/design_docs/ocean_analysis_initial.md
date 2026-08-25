@@ -313,21 +313,26 @@ the full contents of the monthly-mean files.
 
 ### Requirement: climatology-maps
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
 Polaris shall produce global maps of climatological fields on the native MPAS
 mesh, for each requested field and each requested season.
 
-For fields that have a vertical dimension, the user shall be able to request
-maps at any combination of:
+A field with a vertical dimension has to be reduced to a horizontal map before
+it can be plotted, and there is more than one useful way to do that.  Polaris
+shall provide a general **vertical reduction** for this purpose, of which the
+user shall be able to request any combination:
 
 - **the sea surface** --- the topmost valid layer of each column;
 - **a fixed geometric elevation** --- a given elevation $z$ (positive up, so
   negative within the ocean), obtained by linear interpolation in the vertical;
 - **a fixed layer index** --- a given vertical index, common to all columns;
-- **the seafloor** --- the bottommost valid layer of each column.
+- **the seafloor** --- the bottommost valid layer of each column;
+- **an integral over an elevation range** --- the mass-weighted integral of the
+  field between two elevations, which is how ocean heat content maps are
+  produced.
 
 The "topmost" and "bottommost" valid layers shall respect `minLevelCell` and
 `maxLevelCell`, so that columns under ice-shelf cavities and columns with
@@ -344,13 +349,19 @@ Polaris shall reconstruct them from the normal velocity on edges.
 
 ### Requirement: ocean-heat-content-maps
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
 Polaris shall compute ocean heat content integrated over elevation ranges from
 a climatology of conservative temperature, and shall produce a global map for
 each elevation range and each requested season.
+
+This is the elevation-range case of the vertical reduction required above, and
+is delivered as a field of the climatology maps rather than as a product of its
+own.  A heat content map is a climatology map of a field that happens to be
+derived, and separating the two would mean two code paths, two step trees, and
+two config conventions for the same operation.
 
 The elevation ranges shall be set by config options.  The defaults shall be the
 whole ocean, the surface to $-700$ m, $-700$ m to $-2000$ m, and $-2000$ m to
@@ -1506,8 +1517,20 @@ def parse_elevation_spec(spec):
     """Parse 'top', 'bottom', 'k<n>' or an elevation in m."""
 
 
-def extract_elevation_slice(da, spec, z_mid, min_level_cell, max_level_cell):
-    """Extract a horizontal slice at the requested elevation."""
+def parse_vertical_reduction(spec):
+    """Parse an elevation spec or a '<top>:<bottom>' range into a reduction."""
+
+
+def apply_vertical_reduction(da, reduction, z_mid, z_interface, layer_mass,
+                             min_level_cell, max_level_cell):
+    """Reduce a field with a vertical dimension to a horizontal map.
+
+    Slicing at an elevation, a layer index, the surface or the seafloor, and
+    integrating over an elevation range, are the cases of one operation: every
+    one of them turns ``nVertLevels`` into nothing.  Keeping them behind a
+    single entry point is what lets ocean heat content be a field of the
+    climatology maps rather than a product of its own.
+    """
 
 
 def elevation_range_weights(z_interface, layer_mass, min_level_cell,
@@ -1536,41 +1559,62 @@ layer mass rather than computing it, so that the one place that knows how each
 model spells its mass-like thickness stays
 `polaris.ocean.model.get_layer_mass`.
 
-The `ClimatologyMaps` step then loops over seasons, fields, and elevations:
+#### Chunking: one step per field group
+
+There is one `ClimatologyMaps` step per **field group**, not per field and not
+one for all of them.  Per principle 4 in {ref}`design-ocean-analysis`, the
+field list is an axis a user edits between runs --- adding a field should cost
+that field and not the others --- while seasons and elevations are bounded and
+rarely change, so they are loops inside the step.
+
+The unit is a group rather than a variable because things computed together
+belong together: zonal and meridional velocity share one vector reconstruction,
+and heat content over several elevation ranges shares one set of layer weights.
+Splitting those would repeat the expensive part.  The Phase 1 groups are
+`temperature`, `salinity`, `velocity`, `ssh`, `mixed_layer_depth`, and
+`heat_content`.
+
+Each step loops over seasons, the fields in its group, and the vertical
+reductions requested for them:
 
 ```python
 for season in plot_seasons:
     ds = self.open_model_dataset(climo_filename(season), self.config)
-    z_mid, _ = get_z_mid_and_interface(ds)
-    for field in fields:
+    z_mid, z_interface = get_z_mid_and_interface(ds)
+    layer_mass = get_layer_mass(ds, self.config)
+    for field in self.field_group.fields:
         da = self._get_field(ds, field)   # reconstructs velocities if needed
-        if 'nVertLevels' in da.dims:
-            specs = [parse_elevation_spec(spec) for spec in elevations]
-        else:
-            specs = [None]
-        for spec in specs:
-            da_slice = (da if spec is None else
-                        extract_elevation_slice(da, spec, z_mid,
-                                                k_min, k_max))
-            write_netcdf(da_slice, out_filename)
+        for reduction in self._reductions(da):
+            da_map = apply_vertical_reduction(
+                da, reduction, z_mid, z_interface, layer_mass,
+                k_min, k_max)
+            write_netcdf(da_map, out_filename)
+            self.manifest.add(da_map, field=field, season=season,
+                              reduction=reduction, filename=out_filename)
             plot_global_mpas_field(
-                da=da_slice, out_filename=..., config=self.config,
+                da=da_map, out_filename=..., config=self.config,
                 colormap_section=f'ocean_analysis_map_{field}',
                 mesh_filename='mesh.nc', ...)
 ```
 
-Output names are `<field>_<season>_<elevation_label>.png` with elevation labels
-`top`, `bottom`, `-100m`, and `k10`, so that the set of files in the step
-directory is self-describing.
+Heat content needs no branch here.  Its field is derived rather than read, and
+its reduction is an elevation range rather than an elevation, and both of those
+are cases the loop already handles.
+
+Output names are `<field>_<season>_<reduction_label>.png` with reduction labels
+`top`, `bottom`, `-100m`, `k10`, and `0m-700m`, so that the set of files in the
+step directory is self-describing.
+
+The plots are independent, so a step with many of them spreads them over a
+process pool rather than over steps.  Building the `mosaic` descriptor is the
+expensive part of plotting a global mesh, so it is constructed once per step
+and shared.
 
 Maps are plotted on the native mesh with the existing
 `polaris.viz.plot_global_mpas_field`, which is `mosaic`-based and needs no
 remapping.  Native-mesh plotting is not a temporary expedient: it is where
 observational comparison is headed too, with observations remapped onto the
 MPAS mesh rather than the model remapped onto a comparison grid.
-
-The `mosaic` descriptor is constructed once and reused across all plots, since
-building it is the expensive part of plotting a global mesh.
 
 Velocity reconstruction uses the weights on the mesh via
 `polaris.mesh.reconstruct`.  If the mesh does not carry reconstruction weights,
@@ -1595,24 +1639,27 @@ Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
-The `maps` step of the `ocean_heat_content` task reads the same climatology
-files, computes
+Heat content maps are the `heat_content` field group of `ClimatologyMaps`, not
+a step of their own.  The group differs from the others in two small ways, both
+of which the loop above already accommodates:
 
-```python
-layer_mass = get_layer_mass(ds, self.config)
-weights = elevation_range_weights(z_interface, layer_mass, k_min, k_max,
-                                  z_top, z_bot)
-ohc = heat_content(ds.temperature, weights, cp0)
-```
+- its field is derived rather than read, by
+  `heat_content(ds.temperature, weights, cp0)` where `weights` comes from
+  `elevation_range_weights`;
+- its vertical reductions are the configured elevation ranges rather than the
+  configured elevations.
 
-for each configured elevation range and each plotted season, writes the result
-to netCDF in J m⁻² and plots it in GJ m⁻² (a range of $0$ to $-700$ m at a
-typical 10 °C is about 29 GJ m⁻², which is a readable number).
+Because the layer weights depend only on the range and not on the season, they
+are computed once per season and reused across ranges within it.
 
-Output names are `ohc_<season>_<z_top>_<z_bot>.png`, for example
-`ohc_ANN_0m_-700m.png` and `ohc_ANN_-2000m_bottom.png`.  Plot titles state the
-elevation range and the season explicitly, and the netCDF carries the range as
-attributes, so that a plot cannot be mistaken for a different range.
+The result is written to netCDF in J m⁻² and plotted in GJ m⁻² --- a range of
+$0$ to $-700$ m at a typical 10 °C is about 29 GJ m⁻², which is a readable
+number.  Output names follow the same convention as the rest of the maps,
+`heat_content_<season>_<range_label>.png`, for example
+`heat_content_ANN_0m-700m.png` and `heat_content_ANN_-2000m-bottom.png`.  Plot
+titles state the elevation range and the season explicitly, and the netCDF
+carries the range as attributes, so that a plot cannot be mistaken for a
+different range.
 
 ### Implementation: global-stats-time-series
 
