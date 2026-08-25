@@ -134,8 +134,17 @@ def setup_and_run(
         # over a worktree that was not part of the benchmark at all.
         run_commands = f'cd {work_dir} && sbatch {flags}{job_script}'
     else:
+        # source the load script from the worktree it belongs to, the way
+        # the setup command above does, and only then move to the work
+        # directory.  The script's version check imports polaris from the
+        # current directory, so sourcing it from wherever the driver
+        # happened to be launched compares this side against an unrelated
+        # worktree that shadows the import.
         run_commands = (
-            f'source {state.load_script} && cd {work_dir} && {run_command}'
+            f'cd {state.path} && '
+            f'source {state.load_script} && '
+            f'cd {work_dir} && '
+            f'{run_command}'
         )
 
     print_commands(
