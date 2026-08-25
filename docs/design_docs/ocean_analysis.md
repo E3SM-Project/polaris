@@ -468,6 +468,17 @@ The rule that follows:
 > balance, and use an in-step pool only for what is left below that
 > granularity.
 
+**Phase 1 uses neither.**  It runs serially, because task parallelism will not
+exist by its deadline and it does not need to be fast --- it needs to handle
+many decades of high-resolution output without falling over, which streaming
+bounded amounts of data achieves on its own.  What matters is that both forms
+of concurrency can be added afterwards *without invalidating anything already
+computed*: splitting a product into more steps is safe because inheritance is
+decided by content rather than by path (principle 6), and adding a pool inside
+a step changes nothing a step produces.  Designing for concurrency and shipping
+without it are compatible here, and Phase 1 takes that option deliberately
+rather than by omission.
+
 "Enough to balance" is a property of the machine, not of the science, so where
 a workload divides freely it should divide into a **configurable** number of
 steps rather than a number derived from the data.  A count fixed by config also
