@@ -94,7 +94,7 @@ class Analysis(ConvergenceAnalysis):
         """
 
         if field_name != 'layerThickness' and field_name != 'normalVelocity':
-            print(
+            self.logger.info(
                 f'Variable {field_name} not available as a reference '
                 'solution for the external gravity wave test case'
             )

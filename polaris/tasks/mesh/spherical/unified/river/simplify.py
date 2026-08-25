@@ -1,3 +1,4 @@
+import logging
 import multiprocessing
 import os
 from collections import defaultdict
@@ -146,7 +147,8 @@ class SimplifyRiverNetworkStep(Step):
         """
         import time
 
-        print(f'cpus_per_task = {self.cpus_per_task}', flush=True)
+        logger = self.logger
+        logger.info(f'cpus_per_task = {self.cpus_per_task}')
 
         section = self.config['river_network']
         archive_filename = section.get('hydrorivers_archive_filename')
@@ -180,10 +182,7 @@ class SimplifyRiverNetworkStep(Step):
             shp_filename=os.path.join(shp_directory, shp_filename),
             drainage_area_threshold=drainage_area_threshold,
         )
-        print(
-            f'read shapefile (filtered): {time.time() - t0:.1f} s',
-            flush=True,
-        )
+        logger.info(f'read shapefile (filtered): {time.time() - t0:.1f} s')
 
         t0 = time.time()
         simplified_fc = simplify_river_network_feature_collection(
@@ -192,8 +191,9 @@ class SimplifyRiverNetworkStep(Step):
             branch_distance_tolerance=branch_distance_tolerance,
             tributary_area_ratio=section.getfloat('tributary_area_ratio'),
             n_cpus=self.cpus_per_task,
+            logger=logger,
         )
-        print(f'simplify: {time.time() - t0:.1f} s', flush=True)
+        logger.info(f'simplify: {time.time() - t0:.1f} s')
         simplified_fc['metadata'] = dict(
             mesh_name=self.config.get('unified_mesh', 'mesh_name'),
             resolution_latlon=self.config.getfloat(
@@ -209,7 +209,7 @@ class SimplifyRiverNetworkStep(Step):
         )
         t0 = time.time()
         write_geojson(simplified_fc, self.simplified_filename)
-        print(f'write outputs: {time.time() - t0:.1f} s', flush=True)
+        logger.info(f'write outputs: {time.time() - t0:.1f} s')
 
 
 def _unpack_hydrorivers_archive(archive_filename, data_directory):
@@ -280,6 +280,7 @@ def simplify_river_network_feature_collection(
     branch_distance_tolerance,
     tributary_area_ratio=0.05,
     n_cpus=1,
+    logger=None,
 ):
     """
     Simplify a HydroRIVERS-style feature collection.
@@ -303,6 +304,11 @@ def simplify_river_network_feature_collection(
         Number of parallel worker processes for basin traversal.
         Defaults to 1 (single-process).
 
+    logger : logging.Logger, optional
+        A logger to write progress to.  A step should pass its own
+        ``self.logger`` so that its output is not interleaved with that of
+        other steps running at the same time.
+
     Returns
     -------
     simplified_fc : dict
@@ -310,6 +316,9 @@ def simplify_river_network_feature_collection(
 
     """
     import time
+
+    if logger is None:
+        logger = logging.getLogger(__name__)
 
     t0 = time.time()
     segments = read_river_segments_from_feature_collection(feature_collection)
@@ -319,10 +328,9 @@ def simplify_river_network_feature_collection(
         for segment in segments
         if segment.drainage_area >= drainage_area_threshold
     ]
-    print(
+    logger.info(
         f'  read segments: {n_raw} raw, {len(segments)} after area filter, '
-        f'{time.time() - t0:.1f} s',
-        flush=True,
+        f'{time.time() - t0:.1f} s'
     )
     if len(segments) == 0:
         raise ValueError(
@@ -341,22 +349,18 @@ def simplify_river_network_feature_collection(
     terminal_segments = [
         segment for segment in segments if segment.next_down == 0
     ]
-    print(
-        f'  terminal basin roots: {len(terminal_segments)}',
-        flush=True,
-    )
+    logger.info(f'  terminal basin roots: {len(terminal_segments)}')
 
     t0 = time.time()
     seg_list = list(segments)
     seg_tree = STRtree([seg.geometry for seg in seg_list])
-    print(
-        f'  build STRtree ({len(seg_list)} geoms): {time.time() - t0:.1f} s',
-        flush=True,
+    logger.info(
+        f'  build STRtree ({len(seg_list)} geoms): {time.time() - t0:.1f} s'
     )
 
     retained_segments: dict[int, RiverSegment] = {}
     n_workers = min(n_cpus, len(terminal_segments))
-    print(f'  basin traversal: n_workers={n_workers}', flush=True)
+    logger.info(f'  basin traversal: n_workers={n_workers}')
     t0 = time.time()
     if n_workers > 1:
         global _WORKER_UPSTREAM_MAP, _WORKER_SEGMENT_BY_ID
@@ -395,7 +399,7 @@ def simplify_river_network_feature_collection(
                 seg_list=seg_list,
             )
 
-    print(f'  basin traversal: {time.time() - t0:.1f} s', flush=True)
+    logger.info(f'  basin traversal: {time.time() - t0:.1f} s')
 
     annotated_segments = _annotate_river_networks(
         segments=retained_segments.values(),

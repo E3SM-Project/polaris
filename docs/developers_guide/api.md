@@ -160,6 +160,7 @@ seaice/api
    Step.setup
    Step.runtime_setup
    Step.run
+   Step.work_path
    Step.add_input_file
    Step.add_output_file
    Step.add_dependency
@@ -445,10 +446,10 @@ seaice/api
    determine_time_variable
    get_projection
    get_viz_defaults
+   mplstyle_context
    plot_horiz_field
    plot_global_lat_lon_field
    plot_global_mpas_field
-   use_mplstyle
 ```
 
 ### yaml

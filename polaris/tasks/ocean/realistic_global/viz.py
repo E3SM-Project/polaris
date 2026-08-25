@@ -103,7 +103,7 @@ class Viz(OceanIOStep):
             )
 
         for var in variables_to_plot:
-            print(f'Plotting {var}')
+            self.logger.info(f'Plotting {var}')
             colormap_section = f'realistic_global_viz_{var}'
             if var not in ds_init.keys():
                 self.logger.info(f'{var} not found in init.nc')

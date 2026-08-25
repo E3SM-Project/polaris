@@ -1,8 +1,8 @@
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.figure import Figure
 
 from polaris.mpas import area_for_field, time_since_start
 from polaris.ocean.convergence import (
@@ -10,7 +10,7 @@ from polaris.ocean.convergence import (
     get_timestep_for_task,
 )
 from polaris.ocean.model import OceanIOStep
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class ConvergenceAnalysis(OceanIOStep):
@@ -172,7 +172,6 @@ class ConvergenceAnalysis(OceanIOStep):
         """
         Run this step of the test case
         """
-        plt.switch_backend('Agg')
         convergence_vars = self.convergence_vars
         variables_failed = []
         for var in convergence_vars:
@@ -247,7 +246,7 @@ class ConvergenceAnalysis(OceanIOStep):
         filename = f'convergence_{variable_name}.csv'
         data = np.stack((refinement_array, error_array), axis=1)
         df = pd.DataFrame(data, columns=[header, error_type])
-        df.to_csv(f'convergence_{variable_name}.csv', index=False)
+        df.to_csv(self.work_path(filename), index=False)
 
         convergence_failed = False
         poly = np.polyfit(np.log10(refinement_array), np.log10(error_array), 1)
@@ -265,82 +264,83 @@ class ConvergenceAnalysis(OceanIOStep):
             * (refinement_array / refinement_array[-1]) ** 2
         )
 
-        use_mplstyle()
-        fig = plt.figure()
+        with mplstyle_context():
+            fig = Figure()
 
-        error_dict = {'l2': 'L2 norm', 'inf': 'L-infinity norm'}
-        error_title = error_dict[error_type]
+            error_dict = {'l2': 'L2 norm', 'inf': 'L-infinity norm'}
+            error_title = error_dict[error_type]
 
-        ax = fig.add_subplot(111)
-        ax.loglog(
-            refinement_array, order1, '--k', label='first order', alpha=0.3
-        )
-        ax.loglog(
-            refinement_array, order2, 'k', label='second order', alpha=0.3
-        )
-        ax.loglog(
-            refinement_array,
-            fit,
-            'k',
-            label=f'linear fit (order={convergence:1.3f})',
-        )
-        ax.loglog(refinement_array, error_array, 'o', label='numerical')
-
-        if self.baseline_dir is not None:
-            baseline_filename = os.path.join(self.baseline_dir, filename)
-            if os.path.exists(baseline_filename):
-                data = pd.read_csv(baseline_filename)
-                if error_type not in data.keys():
-                    raise ValueError(
-                        f'{error_type} not available for baseline'
-                    )
-                else:
-                    refinement_array = data.resolution.to_numpy()
-                    error_array = data[error_type].to_numpy()
-                    poly = np.polyfit(
-                        np.log10(refinement_array), np.log10(error_array), 1
-                    )
-                    base_convergence = poly[0]
-                    conv_round = base_convergence
-
-                    fit = refinement_array ** poly[0] * 10 ** poly[1]
-                    ax.loglog(
-                        refinement_array,
-                        error_array,
-                        'o',
-                        color='#ff7f0e',
-                        label='baseline',
-                    )
-                    ax.loglog(
-                        refinement_array,
-                        fit,
-                        color='#ff7f0e',
-                        label=f'linear fit, baseline '
-                        f'(order={base_convergence:1.3f})',
-                    )
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(f'{error_title}')
-        ax.set_title(f'Error Convergence of {title}')
-        ax.legend(loc='lower left')
-        ax.invert_xaxis()
-        fig.savefig(
-            f'convergence_{variable_name}.png',
-            bbox_inches='tight',
-            pad_inches=0.1,
-        )
-        plt.close()
-
-        logger.info(f'Order of convergence for {title}: {conv_round:1.3f}')
-
-        if conv_round < conv_thresh:
-            logger.error(
-                f'Error: order of convergence for {title}\n'
-                f'  {conv_round:1.3f} < min tolerance '
-                f'{conv_thresh}'
+            ax = fig.add_subplot(111)
+            ax.loglog(
+                refinement_array, order1, '--k', label='first order', alpha=0.3
             )
-            convergence_failed = True
+            ax.loglog(
+                refinement_array, order2, 'k', label='second order', alpha=0.3
+            )
+            ax.loglog(
+                refinement_array,
+                fit,
+                'k',
+                label=f'linear fit (order={convergence:1.3f})',
+            )
+            ax.loglog(refinement_array, error_array, 'o', label='numerical')
 
-        return convergence_failed
+            if self.baseline_dir is not None:
+                baseline_filename = os.path.join(self.baseline_dir, filename)
+                if os.path.exists(baseline_filename):
+                    data = pd.read_csv(baseline_filename)
+                    if error_type not in data.keys():
+                        raise ValueError(
+                            f'{error_type} not available for baseline'
+                        )
+                    else:
+                        refinement_array = data.resolution.to_numpy()
+                        error_array = data[error_type].to_numpy()
+                        poly = np.polyfit(
+                            np.log10(refinement_array),
+                            np.log10(error_array),
+                            1,
+                        )
+                        base_convergence = poly[0]
+                        conv_round = base_convergence
+
+                        fit = refinement_array ** poly[0] * 10 ** poly[1]
+                        ax.loglog(
+                            refinement_array,
+                            error_array,
+                            'o',
+                            color='#ff7f0e',
+                            label='baseline',
+                        )
+                        ax.loglog(
+                            refinement_array,
+                            fit,
+                            color='#ff7f0e',
+                            label=f'linear fit, baseline '
+                            f'(order={base_convergence:1.3f})',
+                        )
+            ax.set_xlabel(x_label)
+            ax.set_ylabel(f'{error_title}')
+            ax.set_title(f'Error Convergence of {title}')
+            ax.legend(loc='lower left')
+            ax.invert_xaxis()
+            fig.savefig(
+                self.work_path(f'convergence_{variable_name}.png'),
+                bbox_inches='tight',
+                pad_inches=0.1,
+            )
+
+            logger.info(f'Order of convergence for {title}: {conv_round:1.3f}')
+
+            if conv_round < conv_thresh:
+                logger.error(
+                    f'Error: order of convergence for {title}\n'
+                    f'  {conv_round:1.3f} < min tolerance '
+                    f'{conv_thresh}'
+                )
+                convergence_failed = True
+
+            return convergence_failed
 
     def compute_error(
         self, refinement_factor, variable_name, zidx=None, error_type='l2'
@@ -371,7 +371,7 @@ class ConvergenceAnalysis(OceanIOStep):
         norm_type = {'l2': None, 'inf': np.inf}
         config = self.config
         ds_mesh = self.open_model_dataset(
-            f'mesh_r{refinement_factor:02g}.nc', config
+            self.work_path(f'mesh_r{refinement_factor:02g}.nc'), config
         )
         section = config['convergence']
         eval_time = section.getfloat('convergence_eval_time')
@@ -441,7 +441,7 @@ class ConvergenceAnalysis(OceanIOStep):
         """
 
         ds_init = self.open_model_dataset(
-            f'init_r{refinement_factor:02g}.nc', self.config
+            self.work_path(f'init_r{refinement_factor:02g}.nc'), self.config
         )
         ds_init = ds_init.isel(Time=0)
         if zidx is not None:
@@ -474,7 +474,9 @@ class ConvergenceAnalysis(OceanIOStep):
         """
         config = self.config
         ds_out = self.open_model_dataset(
-            f'output_r{refinement_factor:02g}.nc', config, decode_times=False
+            self.work_path(f'output_r{refinement_factor:02g}.nc'),
+            config,
+            decode_times=False,
         )
 
         model = config.get('ocean', 'model')

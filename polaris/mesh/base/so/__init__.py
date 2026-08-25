@@ -54,7 +54,7 @@ class SOBaseMesh(QuasiUniformSphericalMeshStep):
             lon=lon,
             high_res_km=min_res,
             low_res_km=max_res,
-            region_filename='high_res_region.geojson',
+            region_filename=self.work_path('high_res_region.geojson'),
         )
 
         return cell_width, lon, lat

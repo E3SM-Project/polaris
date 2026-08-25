@@ -6,7 +6,7 @@ import numpy as np
 from polaris.constants import get_constant
 from polaris.mpas import area_for_field
 from polaris.ocean.model import OceanIOStep, get_days_since_start
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class Analysis(OceanIOStep):
@@ -57,78 +57,87 @@ class Analysis(OceanIOStep):
         Run this step of the test case
         """
         logger = self.logger
-        use_mplstyle()
-
-        config = self.config
-        f = config.getfloat('coriolis', 'constant_f')
-        bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
-        tau_x = config.getfloat('single_column_forcing', 'wind_stress_zonal')
-        nu = config.getfloat('single_column_ekman', 'vertical_viscosity')
-        tol = config.getfloat('single_column_ekman', 'L2_error_norm_max')
-
-        ds_mesh = self.open_model_dataset('mesh.nc', config)
-        ds = self.open_model_dataset(
-            'output.nc',
-            config,
-            decode_times=True,
-            mesh_filename='mesh.nc',
-            reconstruct_variables=['normalVelocity'],
-            reconstruct_method='RBF',
-            coeffs_filename='coeffs.nc',
-        )
-
-        t_index = -1
-        ds = ds.isel(Time=t_index)
-        t_days = get_days_since_start(ds)
-        z_mid = ds.zMid.mean(dim='nCells').values
-        if 'density' in ds.keys():
-            rho_0 = ds['density'].mean(dim='nCells').isel(nVertLevels=0).values
-        elif 'SpecVol' in ds.keys():
-            rho_0 = np.divide(
-                1, ds['SpecVol'].mean(dim='nCells').isel(nVertLevels=0).values
+        with mplstyle_context():
+            config = self.config
+            f = config.getfloat('coriolis', 'constant_f')
+            bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
+            tau_x = config.getfloat(
+                'single_column_forcing', 'wind_stress_zonal'
             )
-        else:
-            rho_0 = get_constant('seawater_density_reference')
-        u = ds['velocityZonal'].mean(dim='nCells')
-        v = ds['velocityMeridional'].mean(dim='nCells')
-        z_max = bottom_depth / 3.0
-        zidx = np.argmin(np.abs(z_mid + z_max))
+            nu = config.getfloat('single_column_ekman', 'vertical_viscosity')
+            tol = config.getfloat('single_column_ekman', 'L2_error_norm_max')
 
-        u_exact, v_exact = _exact_solution(
-            z_mid[:zidx], nu, f, tau_x=tau_x / rho_0
-        )
-        normal_velocity_exact = u * np.cos(ds_mesh.angleEdge) + v * np.sin(
-            ds_mesh.angleEdge
-        )
-        diff = ds.normalVelocity - normal_velocity_exact
-        z_slice = slice(0, zidx)
-        diff = diff.isel(nVertLevels=z_slice)
-        normal_velocity_exact = normal_velocity_exact.isel(nVertLevels=z_slice)
-        error = _compute_error(ds_mesh, diff, normal_velocity_exact)
-
-        plt.figure(figsize=(3, 5))
-        ax = plt.subplot(111)
-        ax.plot(u_exact, z_mid[:zidx], '-k', label='u')
-        ax.plot(v_exact, z_mid[:zidx], '-b', label='v')
-        ax.plot(u[:zidx], z_mid[:zidx], '.k')
-        ax.plot(v[:zidx], z_mid[:zidx], '.b')
-        ax.set_xlabel('Velocity (m/s)')
-        ax.set_ylabel('z (m)')
-        ax.legend()
-        plt.tight_layout(pad=0.5)
-        plt.savefig(f'velocity_comparison_day{t_days:02g}.png')
-        plt.close()
-
-        # Write out some information about the error
-        logger.info(f'L2 norm of normal velocity: {error:1.1e}')
-
-        # Test case fails if the L2 norm exceeds some value
-        if error > tol:
-            logger.error(
-                'error: L2 norm of normal velocity '
-                f'{error:1.1e} exceeds tolerance {tol:1.1e}'
+            ds_mesh = self.open_model_dataset('mesh.nc', config)
+            ds = self.open_model_dataset(
+                'output.nc',
+                config,
+                decode_times=True,
+                mesh_filename='mesh.nc',
+                reconstruct_variables=['normalVelocity'],
+                reconstruct_method='RBF',
+                coeffs_filename='coeffs.nc',
             )
-            raise ValueError('L2 norm exceeds tolerance')
+
+            t_index = -1
+            ds = ds.isel(Time=t_index)
+            t_days = get_days_since_start(ds)
+            z_mid = ds.zMid.mean(dim='nCells').values
+            if 'density' in ds.keys():
+                rho_0 = (
+                    ds['density'].mean(dim='nCells').isel(nVertLevels=0).values
+                )
+            elif 'SpecVol' in ds.keys():
+                rho_0 = np.divide(
+                    1,
+                    ds['SpecVol']
+                    .mean(dim='nCells')
+                    .isel(nVertLevels=0)
+                    .values,
+                )
+            else:
+                rho_0 = get_constant('seawater_density_reference')
+            u = ds['velocityZonal'].mean(dim='nCells')
+            v = ds['velocityMeridional'].mean(dim='nCells')
+            z_max = bottom_depth / 3.0
+            zidx = np.argmin(np.abs(z_mid + z_max))
+
+            u_exact, v_exact = _exact_solution(
+                z_mid[:zidx], nu, f, tau_x=tau_x / rho_0
+            )
+            normal_velocity_exact = u * np.cos(ds_mesh.angleEdge) + v * np.sin(
+                ds_mesh.angleEdge
+            )
+            diff = ds.normalVelocity - normal_velocity_exact
+            z_slice = slice(0, zidx)
+            diff = diff.isel(nVertLevels=z_slice)
+            normal_velocity_exact = normal_velocity_exact.isel(
+                nVertLevels=z_slice
+            )
+            error = _compute_error(ds_mesh, diff, normal_velocity_exact)
+
+            plt.figure(figsize=(3, 5))
+            ax = plt.subplot(111)
+            ax.plot(u_exact, z_mid[:zidx], '-k', label='u')
+            ax.plot(v_exact, z_mid[:zidx], '-b', label='v')
+            ax.plot(u[:zidx], z_mid[:zidx], '.k')
+            ax.plot(v[:zidx], z_mid[:zidx], '.b')
+            ax.set_xlabel('Velocity (m/s)')
+            ax.set_ylabel('z (m)')
+            ax.legend()
+            plt.tight_layout(pad=0.5)
+            plt.savefig(f'velocity_comparison_day{t_days:02g}.png')
+            plt.close()
+
+            # Write out some information about the error
+            logger.info(f'L2 norm of normal velocity: {error:1.1e}')
+
+            # Test case fails if the L2 norm exceeds some value
+            if error > tol:
+                logger.error(
+                    'error: L2 norm of normal velocity '
+                    f'{error:1.1e} exceeds tolerance {tol:1.1e}'
+                )
+                raise ValueError('L2 norm exceeds tolerance')
 
 
 def _exact_solution(depth, nu, f, u_g=0.0, v_g=0.0, tau_x=0.0, tau_y=0.0):

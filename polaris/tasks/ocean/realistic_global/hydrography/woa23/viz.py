@@ -5,7 +5,7 @@ import pyproj
 import xarray as xr
 
 from polaris import Step
-from polaris.viz import plot_global_lat_lon_field, use_mplstyle
+from polaris.viz import mplstyle_context, plot_global_lat_lon_field
 from polaris.viz.spherical import setup_colormap
 
 
@@ -86,15 +86,14 @@ class Woa23VizStep(Step):
         """
         Plot horizontal fields at selected depths and two Antarctic transects.
         """
-        use_mplstyle()
+        with mplstyle_context():
+            with xr.open_dataset('woa.nc', decode_times=False) as ds_woa:
+                ds_woa = ds_woa.load()
+            with xr.open_dataset('topography.nc') as ds_topo:
+                ds_topo = ds_topo.load()
 
-        with xr.open_dataset('woa.nc', decode_times=False) as ds_woa:
-            ds_woa = ds_woa.load()
-        with xr.open_dataset('topography.nc') as ds_topo:
-            ds_topo = ds_topo.load()
-
-        self._plot_horizontal_maps(ds_woa=ds_woa, ds_topo=ds_topo)
-        self._plot_configured_transects(ds_woa=ds_woa, ds_topo=ds_topo)
+            self._plot_horizontal_maps(ds_woa=ds_woa, ds_topo=ds_topo)
+            self._plot_configured_transects(ds_woa=ds_woa, ds_topo=ds_topo)
 
     def _plot_horizontal_maps(self, ds_woa, ds_topo):
         logger = self.logger

@@ -68,7 +68,7 @@ class Analysis(ConvergenceAnalysis):
         """
 
         if field_name not in ['h', 'normalVelocity']:
-            print(
+            self.logger.info(
                 f'Variable {field_name} not available as an analytic '
                 'solution for the geostrophic test case'
             )
@@ -116,9 +116,9 @@ class Analysis(ConvergenceAnalysis):
         """
 
         if field_name not in ['h', 'normalVelocity']:
-            print(
-                f'Variable {field_name} not available for analysis in the '
-                f'geostrophic test case'
+            self.logger.info(
+                f'Variable {field_name} not available for analysis in '
+                f'the geostrophic test case'
             )
 
         if field_name == 'normalVelocity':

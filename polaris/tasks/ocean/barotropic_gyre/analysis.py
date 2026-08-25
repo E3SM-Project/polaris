@@ -9,7 +9,7 @@ from mpas_tools.ocean import compute_barotropic_streamfunction
 
 from polaris.mpas import area_for_field
 from polaris.ocean.model import OceanIOStep
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class Analysis(OceanIOStep):
@@ -97,77 +97,77 @@ class Analysis(OceanIOStep):
 
         descriptor = mosaic.Descriptor(ds_mesh)
 
-        use_mplstyle()
-        pad = 20
-        x0 = ds_mesh.xEdge.min().values
-        y0 = ds_mesh.yEdge.min().values
+        with mplstyle_context():
+            pad = 20
+            x0 = ds_mesh.xEdge.min().values
+            y0 = ds_mesh.yEdge.min().values
 
-        # offset coordinates
-        descriptor.vertex_patches[..., 0] -= x0
-        descriptor.vertex_patches[..., 1] -= y0
-        # convert to km
-        descriptor.vertex_patches *= 1.0e-3
+            # offset coordinates
+            descriptor.vertex_patches[..., 0] -= x0
+            descriptor.vertex_patches[..., 1] -= y0
+            # convert to km
+            descriptor.vertex_patches *= 1.0e-3
 
-        fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 2))
+            fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 2))
 
-        eta0 = max(
-            np.max(np.abs(field_exact.values)),
-            np.max(np.abs(field_mpas.values)),
-        )
+            eta0 = max(
+                np.max(np.abs(field_exact.values)),
+                np.max(np.abs(field_mpas.values)),
+            )
 
-        bounds = np.linspace(-eta0, eta0, 21)
-        norm = mcolors.BoundaryNorm(bounds, cmocean.cm.amp.N)
-        s = mosaic.polypcolor(
-            axes[0],
-            descriptor,
-            field_mpas,
-            cmap='cmo.balance',
-            norm=norm,
-            antialiased=False,
-        )
-        cbar = fig.colorbar(s, ax=axes[0])
-        cbar.ax.set_title(r'$\psi$')
-        s = mosaic.polypcolor(
-            axes[1],
-            descriptor,
-            field_exact,
-            cmap='cmo.balance',
-            norm=norm,
-            antialiased=False,
-        )
-        cbar = fig.colorbar(s, ax=axes[1])
-        cbar.ax.set_title(r'$\psi$')
+            bounds = np.linspace(-eta0, eta0, 21)
+            norm = mcolors.BoundaryNorm(bounds, cmocean.cm.amp.N)
+            s = mosaic.polypcolor(
+                axes[0],
+                descriptor,
+                field_mpas,
+                cmap='cmo.balance',
+                norm=norm,
+                antialiased=False,
+            )
+            cbar = fig.colorbar(s, ax=axes[0])
+            cbar.ax.set_title(r'$\psi$')
+            s = mosaic.polypcolor(
+                axes[1],
+                descriptor,
+                field_exact,
+                cmap='cmo.balance',
+                norm=norm,
+                antialiased=False,
+            )
+            cbar = fig.colorbar(s, ax=axes[1])
+            cbar.ax.set_title(r'$\psi$')
 
-        eta0 = np.max(np.abs(field_mpas.values - field_exact.values))
-        bounds = np.linspace(-eta0, eta0, 11)
-        norm = mcolors.BoundaryNorm(bounds, cmocean.cm.balance.N)
-        s = mosaic.polypcolor(
-            axes[2],
-            descriptor,
-            field_mpas - field_exact,
-            cmap='cmo.balance',
-            norm=norm,
-            antialiased=False,
-        )
-        cbar = fig.colorbar(s, ax=axes[2])
-        cbar.ax.set_title(r'$d\psi$')
-        axes[0].set_title('Numerical solution', pad=pad)
-        axes[0].set_ylabel('y (km)')
-        axes[0].set_xlabel('x (km)')
-        axes[1].set_title('Analytical solution', pad=pad)
-        axes[1].set_xlabel('x (km)')
-        axes[2].set_title('Error (Numerical - Analytical)', pad=pad)
-        axes[2].set_xlabel('x (km)')
+            eta0 = np.max(np.abs(field_mpas.values - field_exact.values))
+            bounds = np.linspace(-eta0, eta0, 11)
+            norm = mcolors.BoundaryNorm(bounds, cmocean.cm.balance.N)
+            s = mosaic.polypcolor(
+                axes[2],
+                descriptor,
+                field_mpas - field_exact,
+                cmap='cmo.balance',
+                norm=norm,
+                antialiased=False,
+            )
+            cbar = fig.colorbar(s, ax=axes[2])
+            cbar.ax.set_title(r'$d\psi$')
+            axes[0].set_title('Numerical solution', pad=pad)
+            axes[0].set_ylabel('y (km)')
+            axes[0].set_xlabel('x (km)')
+            axes[1].set_title('Analytical solution', pad=pad)
+            axes[1].set_xlabel('x (km)')
+            axes[2].set_title('Error (Numerical - Analytical)', pad=pad)
+            axes[2].set_xlabel('x (km)')
 
-        xmin = descriptor.vertex_patches[..., 0].min()
-        xmax = descriptor.vertex_patches[..., 0].max()
-        ymin = descriptor.vertex_patches[..., 1].min()
-        ymax = descriptor.vertex_patches[..., 1].max()
-        for ax in axes:
-            ax.set_xlim(xmin, xmax)
-            ax.set_ylim(ymin, ymax)
-            ax.set_aspect('equal')
-        fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
+            xmin = descriptor.vertex_patches[..., 0].min()
+            xmax = descriptor.vertex_patches[..., 0].max()
+            ymin = descriptor.vertex_patches[..., 1].min()
+            ymax = descriptor.vertex_patches[..., 1].max()
+            for ax in axes:
+                ax.set_xlim(xmin, xmax)
+                ax.set_ylim(ymin, ymax)
+                ax.set_aspect('equal')
+            fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
 
     def compute_error(
         self,

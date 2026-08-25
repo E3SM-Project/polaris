@@ -30,6 +30,7 @@ build
 parallel
 provenance
 remapping
+task_parallelism
 validation
 visualization
 ```

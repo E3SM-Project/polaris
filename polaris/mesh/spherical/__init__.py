@@ -1,10 +1,10 @@
 import cartopy
 import cartopy.crs as ccrs
 import jigsawpy
-import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from jigsawpy.savejig import savejig
+from matplotlib.figure import Figure
 from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
 from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
@@ -87,11 +87,28 @@ class SphericalBaseStep(Step):
             coords={'lat': lat, 'lon': lon},
             name='cellWidth',
         )
-        cell_width_filename = section.get('cell_width_filename')
+        cell_width_filename = self.work_path(
+            section.get('cell_width_filename')
+        )
         da.to_netcdf(cell_width_filename)
 
         if section.getboolean('plot_cell_width'):
             self._plot_cell_width(cell_width)
+
+    def runtime_setup(self):
+        """
+        Make the JIGSAW file names absolute
+
+        JIGSAW's config file records these paths verbatim and the ``jigsaw``
+        executable then opens them, so they must not depend on the working
+        directory of whichever process happens to launch it.
+        """
+        super().runtime_setup()
+        opts = self.opts
+        for attr in ['mesh_file', 'geom_file', 'jcfg_file', 'hfun_file']:
+            filename = getattr(opts, attr)
+            if filename is not None:
+                setattr(opts, attr, self.work_path(filename))
 
     def setup(self):
         """
@@ -126,21 +143,24 @@ class SphericalBaseStep(Step):
 
         section = config['spherical_mesh']
         earth_radius = get_constant('mean_radius')
-        jigsaw_mesh_filename = section.get('jigsaw_mesh_filename')
-        mpas_mesh_filename = section.get('mpas_mesh_filename')
+        jigsaw_mesh_filename = self.work_path(
+            section.get('jigsaw_mesh_filename')
+        )
+        mpas_mesh_filename = self.work_path(section.get('mpas_mesh_filename'))
+        triangles_filename = self.work_path('mesh_triangles.nc')
 
         logger.info('Convert triangles from jigsaw format to netcdf')
         jigsaw_to_netcdf(
             msh_filename=jigsaw_mesh_filename,
-            output_name='mesh_triangles.nc',
+            output_name=triangles_filename,
             on_sphere=True,
             sphere_radius=earth_radius,
         )
 
         logger.info('Convert from triangles to MPAS mesh')
 
-        tmp_mesh_filename = 'mpas_mesh_netcdf4.nc'
-        args = ['MpasMeshConverter.x', 'mesh_triangles.nc', tmp_mesh_filename]
+        tmp_mesh_filename = self.work_path('mpas_mesh_netcdf4.nc')
+        args = ['MpasMeshConverter.x', triangles_filename, tmp_mesh_filename]
         check_call(args=args, logger=logger)
 
         # open the mesh and rewrite it in the desired NetCDF format
@@ -157,8 +177,8 @@ class SphericalBaseStep(Step):
             logger.info(
                 'Compute vector-reconstruction weights at cell centers'
             )
-            reconstruction_weights_filename = section.get(
-                'reconstruction_weights_filename'
+            reconstruction_weights_filename = self.work_path(
+                section.get('reconstruction_weights_filename')
             )
             ds_weights = compute_reconstruction_weights(
                 ds_mesh, location='cell'
@@ -167,7 +187,9 @@ class SphericalBaseStep(Step):
 
         if section.getboolean('add_mesh_density'):
             logger.info('Add meshDensity into the mesh file')
-            cell_width_filename = section.get('cell_width_filename')
+            cell_width_filename = self.work_path(
+                section.get('cell_width_filename')
+            )
             ds = xr.open_dataset(cell_width_filename)
             inject_spherical_meshDensity(
                 ds.cellWidth.values,
@@ -177,7 +199,7 @@ class SphericalBaseStep(Step):
             )
 
         if section.getboolean('convert_to_vtk'):
-            vtk_dir = section.get('vtk_dir')
+            vtk_dir = self.work_path(section.get('vtk_dir'))
             # only use progress bars if we're not writing to a log file
             use_progress_bar = self.log_filename is None
             lat_lon = section.getboolean('vtk_lat_lon')
@@ -194,7 +216,8 @@ class SphericalBaseStep(Step):
             )
 
         make_graph_file(
-            mesh_filename=mpas_mesh_filename, graph_filename='graph.info'
+            mesh_filename=mpas_mesh_filename,
+            graph_filename=self.work_path('graph.info'),
         )
 
     def _check_cell_polygon_quality(self, ds_mesh):
@@ -238,12 +261,12 @@ class SphericalBaseStep(Step):
         """
         config = self.config
         cmap = config.get('spherical_mesh', 'cell_width_colormap')
-        image_filename = config.get(
-            'spherical_mesh', 'cell_width_image_filename'
+        image_filename = self.work_path(
+            config.get('spherical_mesh', 'cell_width_image_filename')
         )
         register_sci_viz_colormaps()
-        fig = plt.figure(figsize=[16.0, 8.0])
-        ax = plt.axes(projection=ccrs.PlateCarree())
+        fig = Figure(figsize=[16.0, 8.0])
+        ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
         ax.set_global()
         im = ax.imshow(
             cell_width,
@@ -267,13 +290,15 @@ class SphericalBaseStep(Step):
         gl.right_labels = False
         min_width = np.amin(cell_width)
         max_width = np.amax(cell_width)
-        plt.title(
+        ax.set_title(
             f'Grid cell size, km, min: {min_width:.1f} max: {max_width:.1f}'
         )
-        plt.colorbar(im, shrink=0.60)
-        fig.canvas.draw()
-        plt.savefig(image_filename, bbox_inches='tight')
-        plt.close()
+        fig.colorbar(im, ax=ax, shrink=0.60)
+        # Save with the default margins.  bbox_inches='tight' on a
+        # fixed-aspect GeoAxes with an attached colorbar collapses the map
+        # axes, leaving an image that is nothing but the colorbar -- the same
+        # failure that was fixed in plot_global_mpas_field().
+        fig.savefig(image_filename)
 
 
 class QuasiUniformSphericalMeshStep(SphericalBaseStep):

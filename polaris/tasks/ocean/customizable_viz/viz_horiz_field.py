@@ -104,8 +104,11 @@ class VizHorizField(OceanIOStep):
                 lon_cell <= max_longitude
             )
         cell_indices = np.where(lat_mask & lon_mask)
-        print(f'min lon {min_longitude}, max lon {max_longitude} \n')
-        print(f'min lon {min_longitude_copy}, max lon {max_longitude_copy} \n')
+        logger = self.logger
+        logger.info(f'min lon {min_longitude}, max lon {max_longitude}')
+        logger.info(
+            f'min lon {min_longitude_copy}, max lon {max_longitude_copy}'
+        )
         if len(cell_indices[0]) == 0:
             raise ValueError(
                 f'No cells of {ds_mesh.sizes["nCells"]} cells found within the'
@@ -116,7 +119,7 @@ class VizHorizField(OceanIOStep):
                 f'longitude {lon_cell.min().values},{lon_cell.max().values}'
                 f'min lon {min_longitude}, max lon {max_longitude} \n'
             )
-        print(
+        logger.info(
             f'Using {len(cell_indices[0])} cells of '
             f'{ds_mesh.sizes["nCells"]} cells in the mesh'
         )
@@ -131,9 +134,9 @@ class VizHorizField(OceanIOStep):
                 if dz[z_index] > 0 and z_index > 0:
                     z_index -= 1
                 z_mean = z_bottom.mean(dim='nCells')[z_index].values
-                print(
+                logger.info(
                     f'Using z_index {z_index} for z_target {z_target} '
-                    f'with mean depth {z_mean} '
+                    f'with mean depth {z_mean}'
                 )
             else:
                 z_index = 0
@@ -196,12 +199,12 @@ class VizHorizField(OceanIOStep):
                 elif var_name == 'columnThickness':
                     ds[full_var_name] = ds.bottomDepth + ds.ssh
                 else:
-                    print(
+                    logger.info(
                         f'Skipping {full_var_name}, '
                         f'not found in {self.input_file}'
                     )
                     continue
-            print(f'Plotting {full_var_name}')
+            logger.info(f'Plotting {full_var_name}')
             filename_suffix = ''
             mpas_field = ds[full_var_name]
             if 'nVertLevels' in mpas_field.sizes:

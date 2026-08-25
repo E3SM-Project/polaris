@@ -15,12 +15,30 @@ shared visualization routines are provided in `polaris.viz`:
 
 ## common matplotlib style
 
-The function {py:func}`polaris.viz.use_mplstyle()` loads a common 
+The context manager {py:func}`polaris.viz.mplstyle_context()` applies a common
 [matplotlib style sheet](https://matplotlib.org/stable/users/explain/customizing.html#customizing-with-style-sheets)
-that can be used to make font sizes and other plotting options more consistent
-across Polaris.  The plotting functions described below make use of this common
-style.  Custom plotting should call {py:func}`polaris.viz.use_mplstyle()`
-before creating a `matplotlib` figure.
+that makes font sizes and other plotting options more consistent across
+Polaris.  The plotting functions described below make use of this common
+style.  Custom plotting should create and save its figures inside the context
+manager:
+
+```python
+from polaris.viz import mplstyle_context
+
+with mplstyle_context():
+    fig, ax = plt.subplots()
+    ...
+    fig.savefig(self.work_path('my_plot.png'))
+```
+
+It is a context manager rather than a plain function because matplotlib's
+`rcParams` are global to the process.  Assigning to them leaks the settings
+into every plot made afterwards, including plots made by other steps once
+steps can run concurrently in a single process.  Pass `dpi` to override the
+resolution of saved figures for the duration of the context, rather than
+setting `rcParams['savefig.dpi']` directly.  See {ref}`dev-task-parallelism`
+for the other properties a step needs in order to plot safely alongside other
+steps.
 
 (dev-visualization-planar)=
 

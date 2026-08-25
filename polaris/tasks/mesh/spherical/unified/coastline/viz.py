@@ -23,7 +23,7 @@ from polaris.tasks.mesh.spherical.unified.coastline.compute import (
 from polaris.tasks.mesh.spherical.unified.coastline.remap import (
     RemapCoastlineStep,
 )
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 CoastlineStep: TypeAlias = Union[ComputeCoastlineStep, RemapCoastlineStep]
 
@@ -74,60 +74,63 @@ class VizCoastlineStep(Step):
         """
         Run this step.
         """
-        use_mplstyle()
+        with mplstyle_context():
+            viz_section = self.config['viz_coastline']
+            prepare_section = self.config['coastline']
+            dpi = viz_section.getint('dpi')
+            antarctic_max_latitude = viz_section.getfloat(
+                'antarctic_max_latitude'
+            )
+            finest_plot_stride = viz_section.getint('finest_plot_stride')
+            signed_distance_limit = viz_section.getfloat(
+                'signed_distance_limit'
+            )
+            plot_info = _get_plot_info_from_file(
+                self.coastline_step.output_filenames[CONVENTIONS[0]],
+                finest_plot_stride=finest_plot_stride,
+            )
+            line_overlays = None
+            if prepare_section.getboolean('include_critical_transects'):
+                try:
+                    line_overlays = _get_critical_transect_overlays()
+                except Exception:  # pragma: no cover - diagnostic fallback
+                    self.logger.warning(
+                        'Could not load critical transects for coastline '
+                        'overlays.',
+                        exc_info=True,
+                    )
 
-        viz_section = self.config['viz_coastline']
-        prepare_section = self.config['coastline']
-        dpi = viz_section.getint('dpi')
-        antarctic_max_latitude = viz_section.getfloat('antarctic_max_latitude')
-        finest_plot_stride = viz_section.getint('finest_plot_stride')
-        signed_distance_limit = viz_section.getfloat('signed_distance_limit')
-        plot_info = _get_plot_info_from_file(
-            self.coastline_step.output_filenames[CONVENTIONS[0]],
-            finest_plot_stride=finest_plot_stride,
-        )
-        line_overlays = None
-        if prepare_section.getboolean('include_critical_transects'):
-            try:
-                line_overlays = _get_critical_transect_overlays()
-            except Exception:  # pragma: no cover - diagnostic fallback
-                self.logger.warning(
-                    'Could not load critical transects for coastline '
-                    'overlays.',
-                    exc_info=True,
-                )
+            with open('debug_summary.txt', 'w') as summary:
+                for convention in CONVENTIONS:
+                    filename = self.coastline_step.output_filenames[convention]
+                    with xr.open_dataset(filename) as ds_coastline:
+                        ocean_mask = ds_coastline.ocean_mask.values > 0
+                        signed_distance = ds_coastline.signed_distance.values
 
-        with open('debug_summary.txt', 'w') as summary:
-            for convention in CONVENTIONS:
-                filename = self.coastline_step.output_filenames[convention]
-                with xr.open_dataset(filename) as ds_coastline:
-                    ocean_mask = ds_coastline.ocean_mask.values > 0
-                    signed_distance = ds_coastline.signed_distance.values
-
-                self._plot_binary_field(
-                    plot_info=plot_info,
-                    field=ocean_mask,
-                    title=f'{convention} ocean mask',
-                    out_prefix=f'{convention}_ocean_mask',
-                    dpi=dpi,
-                    antarctic_max_latitude=antarctic_max_latitude,
-                    line_overlays=line_overlays,
-                )
-                self._plot_signed_distance(
-                    plot_info=plot_info,
-                    signed_distance=signed_distance,
-                    title=f'{convention} signed distance',
-                    out_prefix=f'{convention}_signed_distance',
-                    distance_limit=signed_distance_limit,
-                    dpi=dpi,
-                    antarctic_max_latitude=antarctic_max_latitude,
-                )
-                self._write_convention_summary(
-                    summary=summary,
-                    convention=convention,
-                    ocean_mask=ocean_mask,
-                    signed_distance=signed_distance,
-                )
+                    self._plot_binary_field(
+                        plot_info=plot_info,
+                        field=ocean_mask,
+                        title=f'{convention} ocean mask',
+                        out_prefix=f'{convention}_ocean_mask',
+                        dpi=dpi,
+                        antarctic_max_latitude=antarctic_max_latitude,
+                        line_overlays=line_overlays,
+                    )
+                    self._plot_signed_distance(
+                        plot_info=plot_info,
+                        signed_distance=signed_distance,
+                        title=f'{convention} signed distance',
+                        out_prefix=f'{convention}_signed_distance',
+                        distance_limit=signed_distance_limit,
+                        dpi=dpi,
+                        antarctic_max_latitude=antarctic_max_latitude,
+                    )
+                    self._write_convention_summary(
+                        summary=summary,
+                        convention=convention,
+                        ocean_mask=ocean_mask,
+                        signed_distance=signed_distance,
+                    )
 
     def _plot_binary_field(
         self,

@@ -10,6 +10,7 @@ land_locked_cells
 overflow_nonlinear_eos
 pstar_init
 shared_steps
+task_parallel_analysis_steps
 unified_base_mesh
 unified_mesh_prepare_coastline
 unified_mesh_prepare_river_network

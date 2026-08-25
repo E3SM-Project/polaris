@@ -11,7 +11,7 @@ from polaris.ocean.model import OceanIOStep
 from polaris.tasks.ocean.manufactured_solution.exact_solution import (
     ExactSolution,
 )
-from polaris.viz import plot_horiz_field, use_mplstyle
+from polaris.viz import mplstyle_context, plot_horiz_field
 
 
 class Viz(OceanIOStep):
@@ -127,7 +127,6 @@ class Viz(OceanIOStep):
         """
         Run this step of the test case
         """
-        plt.switch_backend('Agg')
         config = self.config
         if self.refinement == 'time':
             option = 'refinement_factors_time'
@@ -142,109 +141,113 @@ class Viz(OceanIOStep):
 
         model = config.get('ocean', 'model')
 
-        use_mplstyle()
-        fig, axes = plt.subplots(nrows=nres, ncols=3, figsize=(12, 2 * nres))
-        error_range = None
-
-        section = config['convergence']
-        eval_time = section.getfloat('convergence_eval_time')
-        s_per_hour = 3600.0
-        time = eval_time * s_per_hour
-
-        for i, refinement_factor in enumerate(refinement_factors):
-            ds_mesh = self.open_model_dataset(
-                f'mesh_r{refinement_factor:02g}.nc', config
+        with mplstyle_context():
+            fig, axes = plt.subplots(
+                nrows=nres, ncols=3, figsize=(12, 2 * nres)
             )
-            ds_init = self.open_model_dataset(
-                f'init_r{refinement_factor:02g}.nc', config
-            )
-            ds_vert_coord = self.open_vert_coord_dataset(
-                ds_init,
-                vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
-            )
-            ds = self.open_model_dataset(
-                f'output_r{refinement_factor:02g}.nc',
-                config,
-                decode_times=False,
-            )
+            error_range = None
 
-            exact = ExactSolution(config, ds_mesh)
+            section = config['convergence']
+            eval_time = section.getfloat('convergence_eval_time')
+            s_per_hour = 3600.0
+            time = eval_time * s_per_hour
 
-            if model == 'mpas-o':
-                dt = time_since_start(ds.xtime.values)
-            else:
-                # time is seconds since the start of the simulation in Omega
-                dt = ds.Time.values
-            tidx = np.argmin(np.abs(dt - time))
+            for i, refinement_factor in enumerate(refinement_factors):
+                ds_mesh = self.open_model_dataset(
+                    f'mesh_r{refinement_factor:02g}.nc', config
+                )
+                ds_init = self.open_model_dataset(
+                    f'init_r{refinement_factor:02g}.nc', config
+                )
+                ds_vert_coord = self.open_vert_coord_dataset(
+                    ds_init,
+                    vert_coord_filename=f'vert_coord_r{refinement_factor:02g}.nc',
+                )
+                ds = self.open_model_dataset(
+                    f'output_r{refinement_factor:02g}.nc',
+                    config,
+                    decode_times=False,
+                )
 
-            ssh_model = ds.ssh.isel(Time=tidx)
-            if 'nVertLevels' in ssh_model.dims:
-                # Omega v0 uses stacked shallow water where ssh has nVertLevels
-                ssh_model = ssh_model.isel(nVertLevels=0)
+                exact = ExactSolution(config, ds_mesh)
 
-            # Comparison plots
-            ssh_exact = exact.ssh(time)
-            ds['ssh_exact'] = ssh_exact
-            ds['ssh_error'] = ssh_model - ssh_exact
-            if error_range is None:
-                error_range = np.max(np.abs(ds.ssh_error.values))
+                if model == 'mpas-o':
+                    dt = time_since_start(ds.xtime.values)
+                else:
+                    # time is seconds since the start of the
+                    # simulation in Omega
+                    dt = ds.Time.values
+                tidx = np.argmin(np.abs(dt - time))
 
-            cell_mask = ds_vert_coord.maxLevelCell >= 1
-            descriptor = plot_horiz_field(
-                ds_mesh,
-                ssh_model,
-                ax=axes[i, 0],
-                cmap='cmo.balance',
-                vmin=-eta0,
-                vmax=eta0,
-                cmap_title='SSH',
-                field_mask=cell_mask,
-            )
-            plot_horiz_field(
-                ds_mesh,
-                ds['ssh_exact'],
-                ax=axes[i, 1],
-                cmap='cmo.balance',
-                vmin=-eta0,
-                vmax=eta0,
-                cmap_title='SSH',
-                descriptor=descriptor,
-            )
-            plot_horiz_field(
-                ds_mesh,
-                ds['ssh_error'],
-                ax=axes[i, 2],
-                cmap='cmo.balance',
-                cmap_title='dSSH',
-                vmin=-error_range,
-                vmax=error_range,
-                descriptor=descriptor,
-            )
+                ssh_model = ds.ssh.isel(Time=tidx)
+                if 'nVertLevels' in ssh_model.dims:
+                    # Omega v0 uses stacked shallow water where ssh
+                    # has nVertLevels
+                    ssh_model = ssh_model.isel(nVertLevels=0)
 
-        axes[0, 0].set_title('Numerical solution')
-        axes[0, 1].set_title('Analytical solution')
-        axes[0, 2].set_title('Error (Numerical - Analytical)')
+                # Comparison plots
+                ssh_exact = exact.ssh(time)
+                ds['ssh_exact'] = ssh_exact
+                ds['ssh_error'] = ssh_model - ssh_exact
+                if error_range is None:
+                    error_range = np.max(np.abs(ds.ssh_error.values))
 
-        pad = 5
-        for ax, refinement_factor in zip(
-            axes[:, 0], refinement_factors, strict=False
-        ):
-            timestep, _ = get_timestep_for_task(
-                config, refinement_factor, refinement=self.refinement
-            )
-            resolution = get_resolution_for_task(
-                config, refinement_factor, refinement=self.refinement
-            )
+                cell_mask = ds_vert_coord.maxLevelCell >= 1
+                descriptor = plot_horiz_field(
+                    ds_mesh,
+                    ssh_model,
+                    ax=axes[i, 0],
+                    cmap='cmo.balance',
+                    vmin=-eta0,
+                    vmax=eta0,
+                    cmap_title='SSH',
+                    field_mask=cell_mask,
+                )
+                plot_horiz_field(
+                    ds_mesh,
+                    ds['ssh_exact'],
+                    ax=axes[i, 1],
+                    cmap='cmo.balance',
+                    vmin=-eta0,
+                    vmax=eta0,
+                    cmap_title='SSH',
+                    descriptor=descriptor,
+                )
+                plot_horiz_field(
+                    ds_mesh,
+                    ds['ssh_error'],
+                    ax=axes[i, 2],
+                    cmap='cmo.balance',
+                    cmap_title='dSSH',
+                    vmin=-error_range,
+                    vmax=error_range,
+                    descriptor=descriptor,
+                )
 
-            ax.annotate(
-                f'{resolution}km\n{timestep}s',
-                xy=(0, 0.5),
-                xytext=(-ax.yaxis.labelpad - pad, 0),
-                xycoords=ax.yaxis.label,
-                textcoords='offset points',
-                size='large',
-                ha='right',
-                va='center',
-            )
+            axes[0, 0].set_title('Numerical solution')
+            axes[0, 1].set_title('Analytical solution')
+            axes[0, 2].set_title('Error (Numerical - Analytical)')
 
-        fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)
+            pad = 5
+            for ax, refinement_factor in zip(
+                axes[:, 0], refinement_factors, strict=False
+            ):
+                timestep, _ = get_timestep_for_task(
+                    config, refinement_factor, refinement=self.refinement
+                )
+                resolution = get_resolution_for_task(
+                    config, refinement_factor, refinement=self.refinement
+                )
+
+                ax.annotate(
+                    f'{resolution}km\n{timestep}s',
+                    xy=(0, 0.5),
+                    xytext=(-ax.yaxis.labelpad - pad, 0),
+                    xycoords=ax.yaxis.label,
+                    textcoords='offset points',
+                    size='large',
+                    ha='right',
+                    va='center',
+                )
+
+            fig.savefig('comparison.png', bbox_inches='tight', pad_inches=0.1)

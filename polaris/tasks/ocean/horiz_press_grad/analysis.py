@@ -5,7 +5,7 @@ import xarray as xr
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 from polaris.tasks.ocean.horiz_press_grad.reference import ReferenceColumn
-from polaris.viz import use_mplstyle
+from polaris.viz import mplstyle_context
 
 
 class Analysis(OceanIOStep):
@@ -86,7 +86,6 @@ class Analysis(OceanIOStep):
         """
         Run this step of the test case
         """
-        plt.switch_backend('Agg')
         logger = self.logger
         config = self.config
 
@@ -539,25 +538,27 @@ def _plot_errors(
     """
     Plot RMS error vs. horizontal resolution with a power-law fit.
     """
-    use_mplstyle()
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    with mplstyle_context():
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
 
-    if fit is not None:
-        if slope is None:
-            raise ValueError('slope must be provided when fit is provided.')
-        ax.loglog(
-            resolution_km,
-            fit,
-            'k',
-            label=f'power-law fit (slope={slope:1.3f})',
-        )
-    ax.loglog(resolution_km, rms_error, 'o', label='RMS error')
+        if fit is not None:
+            if slope is None:
+                raise ValueError(
+                    'slope must be provided when fit is provided.'
+                )
+            ax.loglog(
+                resolution_km,
+                fit,
+                'k',
+                label=f'power-law fit (slope={slope:1.3f})',
+            )
+        ax.loglog(resolution_km, rms_error, 'o', label='RMS error')
 
-    ax.set_xlabel('Horizontal resolution (km)')
-    ax.set_ylabel(y_label)
-    ax.set_title(title)
-    ax.legend(loc='lower right')
-    ax.invert_xaxis()
-    fig.savefig(output, bbox_inches='tight', pad_inches=0.1)
-    plt.close()
+        ax.set_xlabel('Horizontal resolution (km)')
+        ax.set_ylabel(y_label)
+        ax.set_title(title)
+        ax.legend(loc='lower right')
+        ax.invert_xaxis()
+        fig.savefig(output, bbox_inches='tight', pad_inches=0.1)
+        plt.close()
