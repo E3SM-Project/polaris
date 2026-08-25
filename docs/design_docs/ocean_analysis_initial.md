@@ -589,7 +589,7 @@ climatology --- this design produces:
 | `ncclimo` climatology | 1 |
 | Climatology maps, one per field group | 6 |
 | Heat content series: shards plus merge | 9 |
-| Offline mixed-layer depth, shards plus merge (fallback only) | 9 |
+| Offline mixed-layer depth, shards plus its climatology (fallback only) | 9 |
 | Global stats, MOC | 2 |
 | **Total** | **27** |
 
@@ -1046,7 +1046,7 @@ ocean/analysis/
 │   └── heat_content/
 ├── mixed_layer_depth/0021-0040/              (only if computed offline)
 │   ├── 0021-0023/ … 0038-0040/               (accumulator shards)
-│   └── merge/
+│   └── climatology/                          (second ncclimo call)
 ├── heat_content_series/0001-0060/
 │   ├── 0001-0008/ … 0053-0060/               (accumulator shards)
 │   └── merge/
@@ -1814,15 +1814,43 @@ Velocity reconstruction uses the weights on the mesh via
 the step reports that clearly and skips the zonal and meridional velocity maps
 rather than failing the whole step.
 
-If `compute_mixed_layer_depth` is set, the task adds an accumulator structured
-exactly like the heat content one: its kernel computes a month of mixed-layer
-depth with `gsw` as described in the algorithm design.  Because its consumer is
-`ncclimo`, which reads monthly files, its cache is one file per month rather
-than a single series --- principle 8 in {ref}`design-ocean-analysis` --- and
-inherited months are symlinked forward rather than copied.  The climatology
-step then averages those into the seasonal and annual means that are plotted.
-Its
-outputs carry an attribute recording that they were computed offline from
+If `compute_mixed_layer_depth` is set, the task adds a sharded accumulator
+structured exactly like the heat content one: its kernel computes a month of
+mixed-layer depth with `gsw` as described in the algorithm design.  Its cache
+is one gridded file per month, so inherited months are symlinked forward rather
+than copied or rewritten --- and, per principle 8 in
+{ref}`design-ocean-analysis`, because that is the form its consumer reads.
+
+#### A second climatology
+
+That consumer is `ncclimo`, run a second time over the accumulator's monthly
+files.  It is a second instance of the same `Climatology` step class, at
+`mixed_layer_depth/<range>/climatology`, taking the shards' outputs as inputs
+and a variable list of one.
+
+Doing the seasonal averaging with `ncclimo` rather than ourselves keeps a
+single implementation of what a season is.  The seasonally discontinuous
+December convention, the length-of-month weighting, and the set of seasons are
+then the same for a derived field as for a model field by construction rather
+than by test, and there is no second averaging path to keep in step.
+
+The cost is that the usual pattern --- one `ncclimo` call per component, once
+and for all, plus perhaps a reference climatology --- does not hold here.  A
+derived field arrives in its own files, written by a different step, with a
+different variable list, and not until an expensive pass over the record has
+finished, so it cannot join the call that covers model output.  This is a
+deliberate departure and the only one in the design: a second call, for the one
+product Polaris computes rather than reads.
+
+The scheduling consequence is worth being explicit about, since a serial chain
+behind an expensive step is what principle 3 warns against.  It is confined to
+this product: the main climatology reads model output only and does not wait on
+the accumulator, so every other map step is free to run beside it.  Only the
+mixed-layer depth maps sit behind the chain of shards, second climatology, and
+maps --- and only in the fallback case, which exists precisely because we would
+rather Omega computed this diagnostic in situ.
+
+Its outputs carry an attribute recording that they were computed offline from
 monthly means, and the step adds a note to the plot titles, so that a reader
 cannot mistake them for an in-situ diagnostic.
 
