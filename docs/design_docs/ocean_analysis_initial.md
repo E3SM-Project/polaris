@@ -450,6 +450,35 @@ Polaris shall not compute the MOC itself.  The overturning streamfunction
 requires the full three-dimensional velocity field at every time step to be
 computed correctly, and Omega computes it in situ for exactly that reason.
 
+### Requirement: regression-test
+
+Date last modified: 2026/08/25
+
+Contributors: Xylar Asay-Davis, Claude
+
+Polaris shall provide a regression test that runs a short Omega simulation and
+then analyzes its output, so that the analysis capability is exercised
+end-to-end by something we run ourselves.
+
+Everything else in this document consumes output from a simulation Polaris did
+not run, on a machine where that simulation happens to live.  That is the point
+of the capability, and it is also why nothing in it would otherwise be covered
+by a suite: a regression that broke the climatology, the vertical reduction, or
+the accumulator would be found by a person analyzing a coupled run, which is
+the most expensive place to find it.
+
+The test shall run a coarse-resolution Omega forward run configured to write
+the monthly-mean output this analysis reads, and shall then run the analysis
+products against it.  It shall be a suite of its own rather than an addition to
+`omega_pr` or `omega_nightly`, since it costs a forward run and it is blocked
+on Omega capabilities that the PR suite must not be blocked on.  Adding it to
+`omega_nightly` once it is stable and its cost is known is the expected
+follow-up.
+
+The test verifies that the products are produced and are self-consistent, not
+that they are scientifically meaningful: a simulation short enough to run in a
+test is too short for the diagnostics to say anything.
+
 ## Algorithm Design
 
 ### Algorithm Design: climatology
@@ -1853,6 +1882,81 @@ elevations, produces a clear message naming the expected file and the Omega
 config option that produces it, rather than a traceback --- the MOC capability
 is new in Omega and users will encounter simulations that predate it.
 
+### Implementation: regression-test
+
+Date last modified: 2026/08/25
+
+Contributors: Xylar Asay-Davis, Claude
+
+The task is `ocean/analysis_test/QU240`, in
+`polaris/tasks/ocean/analysis_test/`, and the suite is
+`polaris/suites/ocean/omega_analysis_test.txt` containing only it.
+
+#### What it runs
+
+An init chain and a forward run at QU240, reusing the existing
+`realistic_global` QU240 machinery rather than adding another mesh, with an
+Omega YAML fragment that turns on monthly-mean output of the fields this
+analysis reads.  That fragment is the same one described under
+`omega-monthly-means`, which is what makes this test worth having: it exercises
+the Omega-side configuration, not just the Polaris-side code.
+
+**One simulated year**, which is the shortest run that exercises the whole
+chain.  `ncclimo` needs whole years to form seasonal and annual climatologies,
+so a one- or two-month run would cover the accumulator and the maps but would
+skip the climatology entirely --- and the climatology is the step with the
+most external surface area, since it shells out to NCO and depends on Omega's
+time metadata being read correctly by a tool we do not control.  A year at
+QU240 is a small forward run, and the analysis over it is seconds.
+
+The analysis products then run over years 1 to 1: the climatology, the
+climatology maps for each field group, the heat content series, the global
+stats time series, and the MOC plot if the simulation wrote MOC output.
+
+#### How the analysis steps are pointed at it
+
+The analysis steps read a simulation through the file-name templates in
+`[ocean_analysis]`, so the task sets those templates to the forward step's
+output and creates its own instances of the same step classes at
+`ocean/analysis_test/QU240/`.  No step class learns anything about being under
+test.
+
+The one addition is ordering: the forward step's monthly-mean outputs are
+declared as inputs of the analysis steps, so Polaris runs them in the right
+order and reports a missing file as a missing dependency rather than as a
+mystery.
+
+#### What it checks
+
+Beyond running without error, the step that closes the task checks the
+properties that do not depend on the simulation being long enough to be
+meaningful:
+
+- every product named in the merged manifest exists, and every published
+  symlink resolves;
+- each plot has its netCDF companion, and the netCDF carries the date range
+  the plot is labeled with;
+- the global heat content time series has twelve months, is finite, and is
+  positive for every elevation range;
+- the annual-mean climatology of a field equals the mean of its twelve monthly
+  climatologies to round-off, which exercises `ncclimo`'s weighting and our
+  reading of it;
+- a map at the sea surface equals the top valid layer of the same field, which
+  exercises the vertical reduction against the climatology rather than against
+  synthetic data.
+
+Baseline comparison against a previous run of the same suite is available as it
+is for any Polaris task, and is the natural way to catch an unintended change
+in a diagnostic's values.
+
+#### Dependency on Omega
+
+This task cannot run until Omega can write monthly means of full model fields.
+Until then it is set up but its forward step is expected to produce nothing the
+analysis can read, which the analysis steps report as missing fields rather
+than as failures --- the same degradation described under
+`omega-monthly-means`.  It should not go into any shared suite until it passes.
+
 ### Implementation: commit sequence
 
 Date last modified: 2026/08/25
@@ -1888,7 +1992,9 @@ Contributors: Xylar Asay-Davis, Claude
 13. The offline `mixed_layer_depth` accumulator, only if Omega's in-situ
     diagnostic will not be ready in time.
 14. The `replot` option.
-15. User's Guide documentation: a page under `docs/users_guide/ocean/tasks/`
+15. The `analysis_test` task and the `omega_analysis_test` suite, once Omega
+    can write monthly means.
+16. User's Guide documentation: a page under `docs/users_guide/ocean/tasks/`
     describing the analysis suite and its config options, and an entry in
     `docs/users_guide/ocean/suites.md`.
 
