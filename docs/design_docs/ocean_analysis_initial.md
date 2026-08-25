@@ -2187,6 +2187,10 @@ Baseline comparison against a previous run of the same suite is available as it
 is for any Polaris task, and is the natural way to catch an unintended change
 in a diagnostic's values.
 
+This task is also where the task-parallel conformance checks described under
+`analysis-suite` are run, since it is the only place a whole analysis suite
+exists cheaply enough to exercise every step.
+
 #### Dependency on Omega
 
 This task cannot run until Omega can write monthly means of full model fields.
@@ -2243,7 +2247,7 @@ suite in a working state for the products delivered so far.
 
 ### Testing and Validation: analysis-suite and data-products
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -2255,6 +2259,34 @@ Unit tests under `tests/ocean/` cover the parts that do not need a simulation:
   input and the `top`, `bottom`, and `k<n>` keywords;
 - that every plotting step registers a netCDF output for each PNG output, which
   keeps the data-products requirement from quietly regressing.
+
+#### Conformance with the task-parallel groundrules
+
+[Task-Parallel-Safe Analysis Steps](task_parallel_analysis_steps.md) observes
+that rules which are only written down are not adopted, and that most of these
+can be checked mechanically.  The analysis steps are the first body of code
+written to them, so they should be the first to run the checks.
+
+Applied to every step in the suite:
+
+- **Working-directory independence.**  Run the step with the process working
+  directory set somewhere unrelated and confirm the results are identical.
+  This is the check that would have caught the bare relative filenames this
+  design carried until recently, which is a fair indication of how easily the
+  rule is broken by writing ordinary-looking code.
+- **No process-global state mutation.**  Snapshot the globals a step is
+  forbidden to touch --- the working directory, `mpas_tools.io.default_format`
+  and `default_engine`, `plt.rcParams` --- before and after `run()`, and
+  compare.
+- **Isolation.**  Compare the set of files the step wrote against its declared
+  outputs and its own work directory, which catches both undeclared outputs and
+  writes into a shared location.
+- **Bounded launching.**  Confirm the step starts no more processes than
+  `cpus_per_task`.
+
+These run against the coarse-resolution regression test, where a whole suite is
+cheap enough to exercise, rather than against synthetic steps --- the point is
+to check the steps we ship, not a model of them.
 
 ### Testing and Validation: repeated-analysis
 
