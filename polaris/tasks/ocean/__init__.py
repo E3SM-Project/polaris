@@ -10,6 +10,7 @@ from ruamel.yaml import YAML
 
 from polaris import Component
 from polaris.constants import get_constant
+from polaris.mesh.info import is_planar, is_spherical
 from polaris.mesh.reconstruct import (
     cartesian_to_local_geographic,
     tangential_reconstruction,
@@ -304,9 +305,9 @@ class Ocean(Component):
             self._read_var_map()
         assert self.horiz_mesh_vars is not None
 
-        is_spherical = ds.attrs.get('on_a_sphere', 'NO') == 'YES'
+        spherical = is_spherical(ds)
 
-        if self.model == 'omega' and is_spherical:
+        if self.model == 'omega' and spherical:
             recon_filename = 'reconstruction_weights.nc'
             if not os.path.exists(recon_filename):
                 raise FileNotFoundError(
@@ -321,7 +322,7 @@ class Ocean(Component):
             ds = ds.merge(ds_recon)
         ds = self.map_to_native_model_vars(ds)
         horiz_mesh_vars = self.horiz_mesh_vars
-        if self.model == 'omega' and not is_spherical:
+        if self.model == 'omega' and not spherical:
             # planar meshes never have reconstruction weights and don't
             # need them (least-squares vector reconstruction is only used
             # on spherical meshes)
@@ -1096,17 +1097,11 @@ def _lon_lat_for_tracer_conversion(
     if lon is not None:
         return lon, lat
 
-    on_a_sphere = ds.attrs.get('on_a_sphere')
-    if on_a_sphere is None:
-        if strict:
-            raise ValueError(
-                'A tracer conversion needs to know whether the mesh is on a '
-                'sphere but the mesh dataset has no on_a_sphere attribute'
-            )
-        on_a_sphere = 'NO'
-
-    on_a_sphere = str(on_a_sphere).strip().lower()
-    if on_a_sphere == 'yes':
+    # a mesh dataset without the attribute is invalid, but an initial
+    # condition being assembled by a step may not have picked it up, in
+    # which case it is planar
+    default = None if strict else False
+    if is_spherical(ds, default=default):
         # planar meshes carry meaningless lonCell/latCell, so they may only
         # be used when the mesh really is on a sphere
         missing = [name for name in ('lonCell', 'latCell') if name not in ds]
@@ -1206,23 +1201,26 @@ def _add_reconstructed_variables_to_dataset(
             u_x, u_y, u_z = tangential_reconstruction(
                 ds_mesh, ds[variable], stencil=stencil, weights=weights
             )
-            if ds_mesh.attrs['on_a_sphere'] == 'NO':
-                ds[f'{out_var_name}X'] = u_x
-                ds[f'{out_var_name}Y'] = u_y
+            if is_planar(ds_mesh):
+                # on a planar mesh, the x and y axes are the "zonal" and
+                # "meridional" directions, as in MPAS-Ocean and in
+                # mpas_tools' reconstruct_variable()
+                u_zonal = u_x
+                u_merid = u_y
             else:
                 u_zonal, u_merid, _ = cartesian_to_local_geographic(
                     ds_mesh, u_x, u_y, u_z
                 )
 
-                ds[f'{out_var_name}Zonal'] = u_zonal
-                ds[f'{out_var_name}Meridional'] = u_merid
+            ds[f'{out_var_name}Zonal'] = u_zonal
+            ds[f'{out_var_name}Meridional'] = u_merid
 
         if not (
             f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds
         ):
             print(f'Failed to reconstruct {out_var_name}')
 
-        return ds
+    return ds
 
 
 def _reconstruction_weights_in_dataset(ds, vertices=False):

@@ -3,6 +3,7 @@ from mpas_tools.io import open_dataset, write_netcdf
 
 from polaris import Step
 from polaris.constants import get_constant
+from polaris.mesh.info import is_spherical
 from polaris.ocean.vertical import update_layer_thickness
 
 
@@ -86,7 +87,7 @@ class SshAdjustment(Step):
         ds_init = ds_init.isel(Time=0)
         ds_final = ds_final.isel(Time=-1)
 
-        on_a_sphere = ds_out.attrs['on_a_sphere'].lower() == 'yes'
+        on_a_sphere = is_spherical(ds_out)
 
         if 'minLevelCell' in ds_final:
             min_level_cell = ds_final.minLevelCell - 1

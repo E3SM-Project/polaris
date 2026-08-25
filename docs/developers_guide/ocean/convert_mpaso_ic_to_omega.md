@@ -22,8 +22,9 @@ The converter performs the following operations:
 1. It loads the MPAS-Ocean initial condition from `--input-file`.
 2. It writes a zero-velocity MPAS-style companion file with the suffix
    `.mpas.nc`.
-3. It rescales spherical coordinates and areas to the Polaris Earth radius
-   from `pcd.yaml`.
+3. On a spherical mesh (`on_a_sphere = 'YES'`), it rescales coordinates and
+   areas to the Polaris Earth radius from `pcd.yaml`.  Planar meshes are left
+   alone.
 4. It converts tracers according to `--eos-type`:
 
    - `teos10` converts potential temperature to conservative temperature and
@@ -41,7 +42,7 @@ The converter performs the following operations:
 
 If `--visualization` is supplied, the script also writes diagnostic figures for
 the converted temperature and salinity fields before the final rename to Omega
-variable names.  The temperature diagnostic is an absolute difference
+variable names.  Figures are only produced on spherical meshes.  The temperature diagnostic is an absolute difference
 (`Omega - MPAS-Ocean`) and the salinity diagnostic is a percent difference.
 
 ## Command-Line Interface

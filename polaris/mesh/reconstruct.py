@@ -4,6 +4,7 @@ from typing import Literal
 import numpy as np
 import xarray as xr
 
+from polaris.mesh.info import is_planar
 from polaris.mesh.vector import compute_edge_normal_vec
 
 # TODO: when python 3.11 is dropped add type alias
@@ -297,7 +298,7 @@ def construct_rotation_matrix(
     n_points = x_hat.sizes[point_dim]
 
     # return identity matrix for planar meshes
-    if ds.attrs['on_a_sphere'] == 'NO':
+    if is_planar(ds):
         return xr.DataArray(
             np.ones((n_points, 3, 3)), dims=(point_dim, 'd1', 'd2')
         )
@@ -387,7 +388,7 @@ def compute_lstsq_weights(
     """
     stencil_dim = _stencil_dim(stencil)
     valid = stencil != 0
-    planar = ds.attrs['on_a_sphere'] == 'NO'
+    planar = is_planar(ds)
 
     if planar:
         # planar: use actual distance from reconstruction point as D

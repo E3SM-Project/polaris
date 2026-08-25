@@ -11,6 +11,7 @@ from ruamel.yaml import YAML
 from scipy.interpolate import CubicSpline
 
 from polaris.constants import get_constant
+from polaris.mesh.info import is_spherical
 
 
 def parse_args():
@@ -56,7 +57,7 @@ def parse_args():
             'Generate temperature/salinity difference slices and '
             'surface wind stress visualizations figures and save '
             'next to the output NetCDF file. Figures are not '
-            'generated for planar meshes (i.e., on_a_sphere = 0).'
+            "generated for planar meshes (i.e., on_a_sphere = 'NO')."
         ),
     )
     return parser.parse_args()
@@ -72,6 +73,9 @@ def convert_to_omega(
     with xr.open_dataset(input_file, decode_times=False) as ds_in:
         ds_input = ds_in.load()
 
+    spherical = is_spherical(ds_input)
+    _check_sphere_radius(ds_input, spherical)
+
     output_file = _append_eos_suffix(output_file, eos_type)
 
     input_path = Path(input_file)
@@ -79,7 +83,7 @@ def convert_to_omega(
 
     ds_mpas_zero = ds_input.copy(deep=True)
     mpas_velocity_fields = _zero_velocity_fields(ds_mpas_zero)
-    if ds_mpas_zero.attrs['sphere_radius'] > 0.0:
+    if spherical:
         _rescale_sphere_radius(ds_mpas_zero)
     if include_wind_stress:
         _add_wind_stress(
@@ -96,10 +100,11 @@ def convert_to_omega(
         engine='netcdf4',
     )
     print(f'Wrote {zero_velocity_mpas_file}')
-    print(
-        'Rescaled MPAS earth radius, coordinates, and areas based on '
-        'earth radius in pcd.yaml'
-    )
+    if spherical:
+        print(
+            'Rescaled MPAS earth radius, coordinates, and areas based on '
+            'earth radius in pcd.yaml'
+        )
     if include_wind_stress:
         print('Added windStressZonal and windStressMeridional fields')
     if mpas_velocity_fields:
@@ -137,7 +142,7 @@ def convert_to_omega(
 
     _add_pseudo_thickness(ds_omega, valid, spec_vol)
     velocity_fields = _zero_velocity_fields(ds_omega)
-    if ds_omega.attrs['sphere_radius'] > 0.0:
+    if spherical:
         _rescale_sphere_radius(ds_omega)
     if include_wind_stress:
         _add_wind_stress(
@@ -146,7 +151,7 @@ def convert_to_omega(
             meridional_name='SfcStressMeridional',
         )
     _add_surface_pressure(ds_omega)
-    if visualization and ds_omega.attrs.get('sphere_radius', 0.0) > 0.0:
+    if visualization and spherical:
         _save_percent_difference_visualizations(
             ds_original=ds_mpas_zero,
             ds_omega=ds_omega,
@@ -433,6 +438,23 @@ def _compute_linear_spec_vol(ds, valid):
     spec_vol[mask] = 1.0 / density[mask]
 
     return spec_vol
+
+
+def _check_sphere_radius(ds, spherical):
+    """
+    Check that ``sphere_radius`` agrees with ``on_a_sphere``.  A spherical
+    mesh with an invalid ``sphere_radius`` is an error, but
+    ``_rescale_sphere_radius()`` raises it, so only the planar case is worth
+    mentioning here.  Either way, ``on_a_sphere`` is what decides whether the
+    mesh is spherical: a planar mesh is not guaranteed to have
+    ``sphere_radius = 0``.
+    """
+    sphere_radius = float(ds.attrs.get('sphere_radius', 0.0))
+    if not spherical and sphere_radius > 0.0:
+        print(
+            f"Warning: the mesh is planar (on_a_sphere = 'NO') but "
+            f'sphere_radius = {sphere_radius}; ignoring it'
+        )
 
 
 def _rescale_sphere_radius(ds):

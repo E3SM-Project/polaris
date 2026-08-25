@@ -10,4 +10,5 @@ creating spherical and planar mesh steps.
 
 spherical
 planar
+info
 ```
