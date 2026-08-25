@@ -125,6 +125,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#mesh">mesh</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.info.is_planar.html">polaris.mesh.info.is_planar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.info.is_spherical.html">polaris.mesh.info.is_spherical</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html">polaris.mesh.planar.compute_planar_hex_nx_ny</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.html">polaris.mesh.spherical.SphericalBaseStep</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mesh.spherical.SphericalBaseStep.setup.html">polaris.mesh.spherical.SphericalBaseStep.setup</a></li>
@@ -605,6 +607,12 @@ documentation.</p>
 <h3>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.info.is_planar.html#polaris.mesh.info.is_planar" title="polaris.mesh.info.is_planar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info.is_planar</span></code></a>(ds[, default])</p></td>
+<td><p>Whether an MPAS mesh is planar, based on the <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> global attribute of <code class="docutils literal notranslate"><span class="pre">ds</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.mesh.info.is_spherical.html#polaris.mesh.info.is_spherical" title="polaris.mesh.info.is_spherical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info.is_spherical</span></code></a>(ds[, default])</p></td>
+<td><p>Whether an MPAS mesh is on a sphere, based on the <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> global attribute of <code class="docutils literal notranslate"><span class="pre">ds</span></code></p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mesh.planar.compute_planar_hex_nx_ny.html#polaris.mesh.planar.compute_planar_hex_nx_ny" title="polaris.mesh.planar.compute_planar_hex_nx_ny"><code class="xref py py-obj docutils literal notranslate"><span class="pre">planar.compute_planar_hex_nx_ny</span></code></a>(lx, ly, ...)</p></td>
 <td><p>Compute number of grid cells in each direction for the uniform, hexagonal planar mesh with the given physical sizes and resolution.</p></td>
 </tr>

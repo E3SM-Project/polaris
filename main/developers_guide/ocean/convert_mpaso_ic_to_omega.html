@@ -146,8 +146,9 @@ existing NetCDF file on disk.</p>
 <li><p>It loads the MPAS-Ocean initial condition from <code class="docutils literal notranslate"><span class="pre">--input-file</span></code>.</p></li>
 <li><p>It writes a zero-velocity MPAS-style companion file with the suffix
 <code class="docutils literal notranslate"><span class="pre">.mpas.nc</span></code>.</p></li>
-<li><p>It rescales spherical coordinates and areas to the Polaris Earth radius
-from <code class="docutils literal notranslate"><span class="pre">pcd.yaml</span></code>.</p></li>
+<li><p>On a spherical mesh (<code class="docutils literal notranslate"><span class="pre">on_a_sphere</span> <span class="pre">=</span> <span class="pre">'YES'</span></code>), it rescales coordinates and
+areas to the Polaris Earth radius from <code class="docutils literal notranslate"><span class="pre">pcd.yaml</span></code>.  Planar meshes are left
+alone.</p></li>
 <li><p>It converts tracers according to <code class="docutils literal notranslate"><span class="pre">--eos-type</span></code>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">teos10</span></code> converts potential temperature to conservative temperature and
@@ -166,7 +167,7 @@ density, and specific volume.</p></li>
 </ol>
 <p>If <code class="docutils literal notranslate"><span class="pre">--visualization</span></code> is supplied, the script also writes diagnostic figures for
 the converted temperature and salinity fields before the final rename to Omega
-variable names.  The temperature diagnostic is an absolute difference
+variable names.  Figures are only produced on spherical meshes.  The temperature diagnostic is an absolute difference
 (<code class="docutils literal notranslate"><span class="pre">Omega</span> <span class="pre">-</span> <span class="pre">MPAS-Ocean</span></code>) and the salinity diagnostic is a percent difference.</p>
 </section>
 <section id="command-line-interface">

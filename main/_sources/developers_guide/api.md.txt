@@ -272,6 +272,9 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
+   info.is_planar
+   info.is_spherical
+
    planar.compute_planar_hex_nx_ny
 
    spherical.SphericalBaseStep

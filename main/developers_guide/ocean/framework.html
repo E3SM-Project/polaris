@@ -163,8 +163,12 @@ care of of the mapping in addition to writing and opening a dataset,
 respectively. The <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code> method also supports reconstructing
 normal vector components to their zonal and meridional equivalents by passing
 a list of variable names to
-<code class="xref py py-class docutils literal notranslate"><span class="pre">mpas_tools.vector.reconstruct.reconstruct_variables</span></code>, along with the mesh and
-reconstruction coefficient files. In addition,
+<code class="xref py py-func docutils literal notranslate"><span class="pre">mpas_tools.vector.reconstruct.reconstruct_variable()</span></code>, along with
+the mesh and reconstruction coefficient files. On planar meshes, the “zonal”
+and “meridional” components are the x and y components, respectively,
+following the convention MPAS-Ocean uses for its own reconstruction (as of
+<code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code> 2.1.0, <code class="docutils literal notranslate"><span class="pre">reconstruct_variable()</span></code> follows this convention itself
+when the mesh has <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span> <span class="pre">=</span> <span class="pre">'NO'</span></code>). In addition,
 <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code> derives <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> from the ocean state when it
 is not present in the dataset. This provides a way of using the same initial
 conditions for MPAS-Ocean and Omega when the geometric thickness is the state

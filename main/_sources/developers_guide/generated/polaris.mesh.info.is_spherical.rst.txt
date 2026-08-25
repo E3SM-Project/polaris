@@ -1,0 +1,6 @@
+﻿polaris.mesh.info.is\_spherical
+===============================
+
+.. currentmodule:: polaris.mesh.info
+
+.. autofunction:: is_spherical

@@ -121,6 +121,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.info</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_planar</span><span class="p">,</span> <span class="n">is_spherical</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">cartesian_to_local_geographic</span><span class="p">,</span>
     <span class="n">tangential_reconstruction</span><span class="p">,</span>
@@ -429,9 +430,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_var_map</span><span class="p">()</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
-        <span class="n">is_spherical</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'on_a_sphere'</span><span class="p">,</span> <span class="s1">'NO'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'YES'</span>
+        <span class="n">spherical</span> <span class="o">=</span> <span class="n">is_spherical</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="n">is_spherical</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="n">spherical</span><span class="p">:</span>
             <span class="n">recon_filename</span> <span class="o">=</span> <span class="s1">'reconstruction_weights.nc'</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">recon_filename</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
@@ -446,7 +447,7 @@
             <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ds_recon</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_to_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="n">horiz_mesh_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_spherical</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">spherical</span><span class="p">:</span>
             <span class="c1"># planar meshes never have reconstruction weights and don't</span>
             <span class="c1"># need them (least-squares vector reconstruction is only used</span>
             <span class="c1"># on spherical meshes)</span>
@@ -1231,17 +1232,11 @@
     <span class="k">if</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
 
-    <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'on_a_sphere'</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">on_a_sphere</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">'A tracer conversion needs to know whether the mesh is on a '</span>
-                <span class="s1">'sphere but the mesh dataset has no on_a_sphere attribute'</span>
-            <span class="p">)</span>
-        <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="s1">'NO'</span>
-
-    <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">on_a_sphere</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">on_a_sphere</span> <span class="o">==</span> <span class="s1">'yes'</span><span class="p">:</span>
+    <span class="c1"># a mesh dataset without the attribute is invalid, but an initial</span>
+    <span class="c1"># condition being assembled by a step may not have picked it up, in</span>
+    <span class="c1"># which case it is planar</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">strict</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">is_spherical</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">):</span>
         <span class="c1"># planar meshes carry meaningless lonCell/latCell, so they may only</span>
         <span class="c1"># be used when the mesh really is on a sphere</span>
         <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'lonCell'</span><span class="p">,</span> <span class="s1">'latCell'</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
@@ -1341,23 +1336,26 @@
             <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span> <span class="o">=</span> <span class="n">tangential_reconstruction</span><span class="p">(</span>
                 <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="n">stencil</span><span class="o">=</span><span class="n">stencil</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'on_a_sphere'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'NO'</span><span class="p">:</span>
-                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">X'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_x</span>
-                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Y'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_y</span>
+            <span class="k">if</span> <span class="n">is_planar</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
+                <span class="c1"># on a planar mesh, the x and y axes are the "zonal" and</span>
+                <span class="c1"># "meridional" directions, as in MPAS-Ocean and in</span>
+                <span class="c1"># mpas_tools' reconstruct_variable()</span>
+                <span class="n">u_zonal</span> <span class="o">=</span> <span class="n">u_x</span>
+                <span class="n">u_merid</span> <span class="o">=</span> <span class="n">u_y</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_merid</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cartesian_to_local_geographic</span><span class="p">(</span>
                     <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span>
                 <span class="p">)</span>
 
-                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_zonal</span>
-                <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_merid</span>
+            <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_zonal</span>
+            <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_merid</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span> <span class="ow">in</span> <span class="n">ds</span>
         <span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Failed to reconstruct </span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">ds</span>
+    <span class="k">return</span> <span class="n">ds</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_reconstruction_weights_in_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">vertices</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>

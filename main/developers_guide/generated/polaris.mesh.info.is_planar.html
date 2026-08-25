@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.mesh.spherical.SphericalBaseStep.run</title>
+  <title>polaris.mesh.info.is_planar</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width" href="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html" />
-    <link rel="prev" title="polaris.mesh.spherical.SphericalBaseStep.setup" href="polaris.mesh.spherical.SphericalBaseStep.setup.html" />
+    <link rel="next" title="polaris.mesh.info.is_spherical" href="polaris.mesh.info.is_spherical.html" />
+    <link rel="prev" title="polaris.constants.pcd.check_pcd_version_matches_branch" href="polaris.constants.pcd.check_pcd_version_matches_branch.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -86,12 +86,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#logging">logging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#constants">constants</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#mesh">mesh</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="polaris.mesh.info.is_planar.html">polaris.mesh.info.is_planar</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.mesh.info.is_planar</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.mesh.info.is_spherical.html">polaris.mesh.info.is_spherical</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.mesh.planar.compute_planar_hex_nx_ny.html">polaris.mesh.planar.compute_planar_hex_nx_ny</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.mesh.spherical.SphericalBaseStep.html">polaris.mesh.spherical.SphericalBaseStep</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.mesh.spherical.SphericalBaseStep.setup.html">polaris.mesh.spherical.SphericalBaseStep.setup</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.mesh.spherical.SphericalBaseStep.run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.mesh.spherical.SphericalBaseStep.run.html">polaris.mesh.spherical.SphericalBaseStep.run</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html">polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.mesh.QuasiUniformSphericalMeshStep.html">polaris.mesh.QuasiUniformSphericalMeshStep</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.mesh.QuasiUniformSphericalMeshStep.setup.html">polaris.mesh.QuasiUniformSphericalMeshStep.setup</a></li>
@@ -149,9 +149,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
-      <li class="breadcrumb-item active">polaris.mesh.spherical.SphericalBaseStep.run</li>
+      <li class="breadcrumb-item active">polaris.mesh.info.is_planar</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/developers_guide/generated/polaris.mesh.spherical.SphericalBaseStep.run.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/developers_guide/generated/polaris.mesh.info.is_planar.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -159,12 +159,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-mesh-spherical-sphericalbasestep-run">
-<h1>polaris.mesh.spherical.SphericalBaseStep.run<a class="headerlink" href="#polaris-mesh-spherical-sphericalbasestep-run" title="Link to this heading"></a></h1>
-<dl class="py method">
-<dt class="sig sig-object py" id="polaris.mesh.spherical.SphericalBaseStep.run">
-<span class="sig-prename descclassname"><span class="pre">SphericalBaseStep.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/mesh/spherical.html#SphericalBaseStep.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.spherical.SphericalBaseStep.run" title="Link to this definition"></a></dt>
-<dd><p>Finish up the step. Run this after the subclass’s run() method</p>
+  <section id="polaris-mesh-info-is-planar">
+<h1>polaris.mesh.info.is_planar<a class="headerlink" href="#polaris-mesh-info-is-planar" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="polaris.mesh.info.is_planar">
+<span class="sig-prename descclassname"><span class="pre">polaris.mesh.info.</span></span><span class="sig-name descname"><span class="pre">is_planar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../../_modules/polaris/mesh/info.html#is_planar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.mesh.info.is_planar" title="Link to this definition"></a></dt>
+<dd><p>Whether an MPAS mesh is planar, based on the <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> global
+attribute of <code class="docutils literal notranslate"><span class="pre">ds</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – A dataset with the <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> attribute, which MPAS meshes
+always give as <code class="docutils literal notranslate"><span class="pre">'YES'</span></code> or <code class="docutils literal notranslate"><span class="pre">'NO'</span></code></p></li>
+<li><p><strong>default</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – The value to return if <code class="docutils literal notranslate"><span class="pre">ds</span></code> has no <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> attribute.  By
+default, a missing attribute is an error; see
+<a class="reference internal" href="polaris.mesh.info.is_spherical.html#polaris.mesh.info.is_spherical" title="polaris.mesh.info.is_spherical"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.info.is_spherical()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>planar</strong> (<em>bool</em>) – Whether the mesh is planar</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">ds</span></code> has no <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> attribute and no <code class="docutils literal notranslate"><span class="pre">default</span></code> was
+    given, or if the attribute is neither <code class="docutils literal notranslate"><span class="pre">'YES'</span></code> nor <code class="docutils literal notranslate"><span class="pre">'NO'</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -173,8 +192,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.mesh.spherical.SphericalBaseStep.setup.html" class="btn btn-neutral float-left" title="polaris.mesh.spherical.SphericalBaseStep.setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width.html" class="btn btn-neutral float-right" title="polaris.mesh.spherical.SphericalBaseStep.save_and_plot_cell_width" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.constants.pcd.check_pcd_version_matches_branch.html" class="btn btn-neutral float-left" title="polaris.constants.pcd.check_pcd_version_matches_branch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.mesh.info.is_spherical.html" class="btn btn-neutral float-right" title="polaris.mesh.info.is_spherical" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

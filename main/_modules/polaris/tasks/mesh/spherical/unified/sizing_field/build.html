@@ -130,6 +130,29 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.unified.resolutions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FINEST_RESOLUTION</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
+<span class="c1">#: variables always present in a sizing-field file that should be compared</span>
+<span class="c1">#: against a baseline</span>
+<span class="n">SIZING_FIELD_VALIDATE_VARS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'cellWidth'</span><span class="p">,</span>
+    <span class="s1">'signed_distance'</span><span class="p">,</span>
+    <span class="s1">'background_cell_width'</span><span class="p">,</span>
+    <span class="s1">'ocean_background_cell_width'</span><span class="p">,</span>
+    <span class="s1">'land_river_cell_width'</span><span class="p">,</span>
+    <span class="s1">'pre_coastline_cell_width'</span><span class="p">,</span>
+    <span class="s1">'coastline_cell_width'</span><span class="p">,</span>
+    <span class="s1">'coastal_transition_delta'</span><span class="p">,</span>
+    <span class="s1">'river_channel_cell_width'</span><span class="p">,</span>
+    <span class="s1">'active_control'</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: additional sizing-field variables written only when cull emulation is on</span>
+<span class="n">CULL_EMULATION_VALIDATE_VARS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'effective_ocean_mask'</span><span class="p">,</span>
+    <span class="s1">'emulated_ocean_mask'</span><span class="p">,</span>
+    <span class="s1">'mesh_scale_ocean_fraction'</span><span class="p">,</span>
+    <span class="s1">'passages_widened'</span><span class="p">,</span>
+<span class="p">]</span>
+
 
 <div class="viewcode-block" id="BuildSizingFieldStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep.html#polaris.tasks.mesh.spherical.unified.sizing_field.BuildSizingFieldStep">[docs]</a>
@@ -239,7 +262,13 @@
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_mesh_family</span><span class="p">()</span><span class="o">.</span><span class="n">setup_sizing_field_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">)</span></div>
+        <span class="n">validate_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">SIZING_FIELD_VALIDATE_VARS</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'sizing_field'</span><span class="p">,</span> <span class="s1">'enable_cull_emulation'</span><span class="p">):</span>
+            <span class="n">validate_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">CULL_EMULATION_VALIDATE_VARS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">,</span>
+            <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BuildSizingFieldStep.run">

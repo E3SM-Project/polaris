@@ -134,6 +134,14 @@
     <span class="n">check_ocean_dc_edge</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="c1">#: variables in the cull-masks file to compare against a baseline</span>
+<span class="n">CULL_MASKS_VALIDATE_VARS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'oceanCullMask'</span><span class="p">,</span>
+    <span class="s1">'oceanNoCavitiesCullMask'</span><span class="p">,</span>
+    <span class="s1">'landCullMask'</span><span class="p">,</span>
+    <span class="s1">'landIceMask'</span><span class="p">,</span>
+<span class="p">]</span>
+
 
 <div class="viewcode-block" id="CullMaskStep">
 <a class="viewcode-back" href="../../../../../../../developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.cull.CullMaskStep.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep">[docs]</a>
@@ -212,7 +220,10 @@
             <span class="n">package</span><span class="o">=</span><span class="s1">'polaris.tasks.e3sm.init.topo.cull.mask'</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'cull_masks.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'cull_masks.nc'</span><span class="p">,</span>
+            <span class="n">validate_vars</span><span class="o">=</span><span class="n">CULL_MASKS_VALIDATE_VARS</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_critical_transects</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 

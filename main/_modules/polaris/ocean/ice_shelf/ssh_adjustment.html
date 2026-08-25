@@ -115,6 +115,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.info</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_spherical</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_layer_thickness</span>
 
 
@@ -205,7 +206,7 @@
         <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">ds_final</span> <span class="o">=</span> <span class="n">ds_final</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'on_a_sphere'</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'yes'</span>
+        <span class="n">on_a_sphere</span> <span class="o">=</span> <span class="n">is_spherical</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s1">'minLevelCell'</span> <span class="ow">in</span> <span class="n">ds_final</span><span class="p">:</span>
             <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">ds_final</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
