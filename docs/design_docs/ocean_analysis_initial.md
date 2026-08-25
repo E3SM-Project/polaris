@@ -84,8 +84,9 @@ automatically when a dataset is opened with
 `polaris/ocean/model/mpaso_to_omega.yaml`.  Analysis steps therefore never
 branch on the model to get a field name, and config options that name fields
 use the MPAS-Ocean names.  Where a field is new to Omega and has no MPAS-Ocean
-counterpart, a Polaris-standard name in the same style is chosen and mapped to
-the Omega name, so that the translation on read still applies.
+counterpart --- and is not expected to gain one --- it keeps its Omega name, and
+there is no entry to add: a mapping exists to reconcile two spellings of the
+same quantity, not to assign names.
 
 **Pseudo-thickness is not translated.**  There is one deliberate exception to
 the rule above, and it matters enough to state up front.
@@ -1212,22 +1213,35 @@ which already maps the vertical geometry this design depends on:
   zInterface: GeomZInterface
 ```
 
-The keys in that file are Polaris-standard names, which are MPAS-Ocean names
-wherever MPAS-Ocean has the field.  Fields that are new to Omega --- a
-mixed-layer depth diagnostic, for instance --- have no MPAS-Ocean name to
-borrow, so we choose a Polaris-standard name in the same style and add an entry
-mapping it to the Omega name as those names are fixed.  The entry is still
-needed: translation is a rename on read, so a field with no entry arrives under
-its Omega name and analysis code would have to know Omega's spelling.  What is
-not needed is a *counterpart* in MPAS-Ocean.
+**The mapping reconciles two spellings; it is not a naming authority.**  An
+entry exists when both models write the same quantity under different names,
+and only then.  Three cases follow from that, and they cover everything this
+design needs:
 
-The one field this design deliberately does not translate is
-`PseudoThickness`, for the reasons given under the conventions.
+- **Both models have the field.**  It is mapped, and analysis uses the
+  MPAS-Ocean name --- `temperature`, `zMid`, `areaCell`.
+- **Only Omega has the field.**  A mixed-layer depth diagnostic, for instance.
+  There is nothing to reconcile, so there is no entry and analysis uses the
+  Omega name as written.  Inventing an MPAS-Ocean-styled synonym would put a
+  name in the codebase that no model ever writes, and the entry recording it
+  would be a rename in appearance only.
+- **Both models have a similar name for different quantities.**
+  `layerThickness` and `PseudoThickness` are the case in point.  There is no
+  entry, deliberately, for the reasons given under the conventions.
 
-With those two things in place, no analysis step branches on
-`config.get('ocean', 'model')` to choose a field or dimension name, except
-`get_layer_mass`, which exists precisely to be that one branch.  Anywhere else,
-a branch on the model is a signal that the mapping file is missing an entry.
+The practical consequence of the middle case is that Omega's spelling appears
+in analysis code and in config section names for fields Omega alone provides,
+which is a small inconsistency of style and an accurate one: those fields come
+from Omega and from nowhere else.  If such a field later gains an MPAS-Ocean
+counterpart, or Omega renames it, that is the point at which an entry earns its
+keep --- and adding one then is a one-line change, so there is nothing to be
+gained by adding it in advance.
+
+No analysis step branches on `config.get('ocean', 'model')` to choose a field
+or dimension name, except `get_layer_mass`, which exists precisely to be that
+one branch.  Anywhere else, a branch on the model means either that the mapping
+is missing an entry, or that a field one model does not have is being read
+unconditionally.
 
 #### Locating input files
 
