@@ -586,13 +586,15 @@ climatology --- this design produces:
 | --- | --- |
 | `ncclimo` climatology | 1 |
 | Climatology maps, one per field group | 6 |
-| Offline mixed-layer depth accumulator (fallback only) | 1 |
-| Heat content series accumulator | 1 |
+| Heat content series: shards plus merge | 9 |
+| Offline mixed-layer depth, shards plus merge (fallback only) | 9 |
 | Global stats, MOC | 2 |
-| **Total** | **11** |
+| **Total** | **27** |
 
 The count is **independent of the length of the record**, which is the property
-worth having.  An earlier draft, with one shared step per simulation year, gave
+worth having.  The accumulator shard count is a config option, so the largest
+term in that table is set by how much concurrency the machine can use rather
+than by how long the simulation ran.  An earlier draft, with one shared step per simulation year, gave
 about 130 steps for the same analysis and grew linearly, so a century-long
 record would have given about 230.  That was never going to break Polaris --- a
 few hundred steps is ordinary, and the existing `ocean` component builds
@@ -601,12 +603,17 @@ user has no control over, which is the wrong shape even when the numbers are
 small.
 
 Step *size* is the other half, and it is now comfortable at both ends.  On a
-first run the heat content accumulator reads the whole record, which is minutes
-to hours at 30 km; on a re-run over an overlapping range it reads only the new
-months.  A climatology map step plots the seasons and reductions of one field
-group, which is seconds to minutes per plot at production resolution.  Neither
-is close to the regime where a step's overhead --- a work directory, a pickle,
-a config copy, a log file --- would be a meaningful fraction of its runtime.
+first run each heat content shard reads its slice of the record, which is
+minutes at 30 km for an eighth of a multi-decade record; on a re-run over an
+overlapping range it reads only the new months in its slice.  A climatology map
+step plots the seasons and reductions of one field group, which is seconds to
+minutes per plot at production resolution.  Neither is close to the regime
+where a step's overhead --- a work directory, a pickle, a config copy, a log
+file --- would be a meaningful fraction of its runtime.
+
+Nor is any single step now a large fraction of the suite, which is principle
+9's other target: the most expensive product is split into shards that the
+scheduler can place independently.
 
 The count grows with the number of field groups and, in later phases, with
 whatever new products are added --- not with the record, the seasons, the
@@ -1018,8 +1025,12 @@ ocean/analysis/
 │   ├── temperature/ salinity/ velocity/      (one step per field group)
 │   ├── ssh/ mixed_layer_depth/
 │   └── heat_content/
-├── mixed_layer_depth_monthly/0021-0040/      (only if computed offline)
+├── mixed_layer_depth/0021-0040/              (only if computed offline)
+│   ├── 0021-0023/ … 0038-0040/               (accumulator shards)
+│   └── merge/
 ├── heat_content_series/0001-0060/
+│   ├── 0001-0008/ … 0053-0060/               (accumulator shards)
+│   └── merge/
 ├── global_stats/0001-0060/
 └── moc/0021-0040/
 ```
@@ -1333,9 +1344,9 @@ never share a directory.
 #### Reuse comes from seeded accumulators
 
 The expensive range-independent work --- vertically integrated heat content,
-and mixed-layer depth if it is computed offline --- is one step per product,
-keyed by the range like everything else, which inherits what earlier runs
-already computed.
+and mixed-layer depth if it is computed offline --- is a set of steps per
+product, keyed by the range like everything else, which inherit what earlier
+runs already computed.
 
 `polaris/tasks/ocean/analysis/accumulate.py` provides the shared machinery, so
 that each product supplies only its kernel and its cache layout:
@@ -1346,7 +1357,7 @@ class Accumulator(OceanIOStep):
         # find cache files under sibling range directories of this product,
         # keep those from completed steps whose provenance stamp matches,
         # and add each as an input file
-        self.seeds = discover_seeds(self.work_dir, self.stamp())
+        self.seeds = discover_seeds(self.product_dir, self.stamp())
 
     def run(self):
         needed = months_in_range(self.start_year, self.end_year)
@@ -1356,6 +1367,58 @@ class Accumulator(OceanIOStep):
         compute(sorted(needed - have), pool_size=self.cpus_per_task)
         publish(have, needed)
 ```
+
+#### An accumulator is several steps, not one
+
+A single accumulator step would be the largest piece of work in the suite and
+would be invisible to the scheduler: however many cores its pool used, it would
+run on one node.  That is the ceiling principle 3 in
+{ref}`design-ocean-analysis` exists to avoid, so the requested range is split
+into a configurable number of **shards**, each an independent accumulator over
+its slice, followed by a cheap `merge` step:
+
+```none
+heat_content_series/0001-0060/
+├── 0001-0008/ … 0053-0060/   (shards: reduce these years)
+└── merge/                    (concatenate, plot, publish)
+```
+
+```ini
+[ocean_analysis]
+
+# The number of steps an accumulator is split into, so that the scheduler has
+# independent pieces to balance.  Raise it when analyzing a long record in a
+# large allocation.  Clamped to the number of months to be processed, so that a
+# short record does not produce trivial steps.
+accumulator_steps = 8
+```
+
+Three properties of this split are worth stating, because they are what make it
+a knob rather than a commitment.
+
+**Sharding costs nothing in reuse.**  A shard asks which months it needs and
+which of them some earlier run already produced; neither question refers to how
+that earlier run was divided.  The shard count can therefore differ between two
+analyses of the same record and everything is still inherited.  This is exactly
+what a chunk keyed by its path could not do, and it is why the count is free to
+be a tuning parameter.
+
+**The count comes from config, not from the data or the allocation.**  Deriving
+it from the length of the record would put the step budget back on a growth
+curve.  Deriving it from the allocation is not possible even in principle here:
+the step tree is fixed by `polaris setup`, while the allocation is whatever job
+later runs `polaris serial`.  A config option is the honest form, it is recorded
+in the config file for provenance, and it is what a user would change when
+moving from a workstation to a batch job.
+
+**Shards split the requested range, not the missing work.**  Splitting the
+missing months instead would balance better on an incremental run, but setup
+would have to read the filesystem to decide how many steps exist and what each
+covers, so two setups with identical config could produce different step trees.
+Determinism is worth more than balance here, and the imbalance only appears on
+the incremental run --- the case where there is little work to balance.  On a
+first run, where all the cost is, equal slices of the range are equal slices of
+the work.
 
 Four things about this are worth stating explicitly, because they are what make
 it acceptable to have software hunting for data on disk.
@@ -1830,11 +1893,12 @@ Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
-This product is a single accumulator step, `HeatContentSeries`, keyed by the
-requested range.  Its kernel reduces one month to a handful of numbers:
+This product is a set of `HeatContentShard` accumulator steps and a
+`HeatContentMerge` step, all under the requested range.  The shard kernel
+reduces one month to a handful of numbers:
 
 ```python
-class HeatContentSeries(Accumulator):
+class HeatContentShard(Accumulator):
     def compute_month(self, filename):
         ds = self.open_model_dataset(filename, self.config)
         _, z_interface = get_z_mid_and_interface(ds)
@@ -1850,13 +1914,20 @@ class HeatContentSeries(Accumulator):
 
 The accumulator machinery described under `repeated-analysis` handles the rest:
 inheriting the months an earlier range already reduced, spreading the remaining
-months over a process pool, and writing the cache.
+months of this shard's slice over a process pool, and writing the cache.
 
-The cache is a single netCDF with an unlimited `Time` dimension, appended to as
-months are added, because its consumer is the plotting in this same step, which
-reads the whole series.  This is principle 8 in {ref}`design-ocean-analysis`:
-the form follows the consumer.  Forty years of four elevation ranges is a few
-tens of kilobytes, so there is nothing here worth chunking.
+Each shard's cache is a single netCDF with an unlimited `Time` dimension,
+appended to as months are added, because its consumer reads the whole slice.
+This is principle 8 in {ref}`design-ocean-analysis`: the form follows the
+consumer.  Forty years of four elevation ranges is a few tens of kilobytes in
+total, so there is nothing here worth chunking further.
+
+`HeatContentMerge` concatenates the shards' caches along `Time`, writes
+`ocean_heat_content_time_series.nc`, plots, and records the products in its
+manifest fragment.  It is cheap by construction: everything expensive happened
+in the shards, and merging a few tens of kilobytes costs nothing.  Splitting it
+out is not the compute-versus-plot split that principle 10 warns against --- it
+is the join that a fan-out requires.
 
 Reading a month at a time is deliberate.  A global three-dimensional
 temperature field at 30 km resolution and 80 levels is roughly 150 MB per
@@ -1869,13 +1940,15 @@ The plot has two panels: absolute heat content in units of 10²² J, and the
 anomaly relative to the first month, with one line per elevation range.  The
 concatenated time series is written to `ocean_heat_content_time_series.nc`.
 
-This accumulator is the most expensive part of the suite on a first run, and
-nearly free on every run after it.  If a first run proves too slow, the move
-available is to compute the vertical integrals in Omega in situ, which reduces
-the whole product to a concatenation.  If mixed-layer depth is also computed
-offline, its accumulator makes the same pass over the same monthly files and
-the two could share one pass; they are kept separate because merging them would
-couple two products for a saving that only matters on a first run.
+These shards are the most expensive part of the suite on a first run, and
+nearly free on every run after it.  Raising `accumulator_steps` is the first
+response to a slow first run, since the shards are independent and non-MPI.
+Beyond that, the move available is to compute the vertical integrals in Omega
+in situ, which reduces the whole product to a concatenation.  If mixed-layer
+depth is also computed offline, its shards make the same pass over the same
+monthly files and the two could share one pass; they are kept separate because
+merging them would couple two products for a saving that only matters on a
+first run.
 
 ### Implementation: moc-plot
 
