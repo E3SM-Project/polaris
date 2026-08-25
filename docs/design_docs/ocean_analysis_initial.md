@@ -1285,6 +1285,31 @@ Input files are symlinked into each step's work directory in `setup()` using
 `Step.add_input_file`, which gives the usual Polaris provenance and dependency
 checking without copying data.
 
+#### Every path is explicit
+
+Polaris changes the process working directory into each step's work directory
+before running it, so a step may open a bare filename and get the right file.
+Analysis steps do not rely on that, per
+[Task-Parallel-Safe Analysis Steps](task_parallel_analysis_steps.md): a step
+that depends on the process working directory cannot run beside another step in
+one process and cannot be sent to a worker on another node at all.
+
+Declaring inputs and outputs by relative name stays exactly as it is --- setup
+already resolves those against the step's work directory.  The rule is about
+the body of `run()`, and it is met with one helper on the step:
+
+```python
+def path(self, filename):
+    """Resolve a filename against this step's work directory."""
+    return os.path.join(self.work_dir, filename)
+```
+
+Every `open`, `open_model_dataset`, `write_netcdf` and output filename in the
+pseudocode below goes through it.  The pseudocode is written that way rather
+than being cleaned up later, because this is precisely the habit that is cheap
+to adopt while the code is being written and expensive to retrofit once there
+are dozens of steps.
+
 ### Implementation: data-products
 
 Date last modified: 2026/08/25
@@ -1375,7 +1400,8 @@ class Accumulator(OceanIOStep):
     def setup(self):
         # find cache files under sibling range directories of this product,
         # keep those from completed steps whose provenance stamp matches,
-        # and add each as an input file
+        # and add each as an input file.  product_dir is an absolute path
+        # resolved at setup, not a path relative to the process cwd
         self.seeds = discover_seeds(self.product_dir, self.stamp())
 
     def run(self):
@@ -1771,7 +1797,8 @@ reductions requested for them:
 
 ```python
 for season in plot_seasons:
-    ds = self.open_model_dataset(climo_filename(season), self.config)
+    ds = self.open_model_dataset(self.path(climo_filename(season)),
+                                 self.config)
     z_mid, z_interface = get_z_mid_and_interface(ds)
     layer_mass = get_layer_mass(ds, self.config)
     for field in self.field_group.fields:
@@ -1780,13 +1807,15 @@ for season in plot_seasons:
             da_map = apply_vertical_reduction(
                 da, reduction, z_mid, z_interface, layer_mass,
                 k_min, k_max)
-            write_netcdf(da_map, out_filename)
+            basename = f'{field}_{season}_{reduction.label}'
+            write_netcdf(da_map, self.path(f'{basename}.nc'))
             self.manifest.add(da_map, field=field, season=season,
-                              reduction=reduction, filename=out_filename)
+                              reduction=reduction, filename=f'{basename}.nc')
             plot_global_mpas_field(
-                da=da_map, out_filename=..., config=self.config,
+                da=da_map, out_filename=self.path(f'{basename}.png'),
+                config=self.config,
                 colormap_section=f'ocean_analysis_map_{field}',
-                mesh_filename='mesh.nc', ...)
+                mesh_filename=self.path('mesh.nc'), ...)
 ```
 
 Heat content needs no branch here.  Its field is derived rather than read, and
@@ -1949,7 +1978,7 @@ reduces one month to a handful of numbers:
 ```python
 class HeatContentShard(Accumulator):
     def compute_month(self, filename):
-        ds = self.open_model_dataset(filename, self.config)
+        ds = self.open_model_dataset(self.path(filename), self.config)
         _, z_interface = get_z_mid_and_interface(ds)
         layer_mass = get_layer_mass(ds, self.config)
         ohc = []
