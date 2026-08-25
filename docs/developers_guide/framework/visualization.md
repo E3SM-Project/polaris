@@ -36,7 +36,9 @@ It is a context manager rather than a plain function because matplotlib's
 into every plot made afterwards, including plots made by other steps once
 steps can run concurrently in a single process.  Pass `dpi` to override the
 resolution of saved figures for the duration of the context, rather than
-setting `rcParams['savefig.dpi']` directly.
+setting `rcParams['savefig.dpi']` directly.  See {ref}`dev-task-parallelism`
+for the other properties a step needs in order to plot safely alongside other
+steps.
 
 (dev-visualization-planar)=
 

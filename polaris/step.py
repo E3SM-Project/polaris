@@ -472,7 +472,8 @@ class Step:
 
         Steps should use this method (rather than a bare relative filename)
         for any file they open in ``run()``, so that the step does not depend
-        on the process working directory being its own work directory.
+        on the process working directory being its own work directory.  See
+        :ref:`dev-task-parallelism`.
 
         Parameters
         ----------

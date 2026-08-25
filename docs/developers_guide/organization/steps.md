@@ -728,6 +728,9 @@ The `filename` arguments to `add_input_file()` and `add_output_file()` are
 unaffected: those are relative to the work directory by design, and setup
 already resolves them to absolute paths in `self.inputs` and `self.outputs`.
 
+See {ref}`dev-task-parallelism` for this and the other properties a step needs
+in order to run concurrently with other steps.
+
 (dev-step-inputs-outputs)=
 
 ## inputs and outputs
