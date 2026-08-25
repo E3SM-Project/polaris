@@ -23,6 +23,14 @@ from polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics import (
     check_ocean_dc_edge,
 )
 
+#: variables in the cull-masks file to compare against a baseline
+CULL_MASKS_VALIDATE_VARS = [
+    'oceanCullMask',
+    'oceanNoCavitiesCullMask',
+    'landCullMask',
+    'landIceMask',
+]
+
 
 class CullMaskStep(Step):
     """
@@ -97,7 +105,10 @@ class CullMaskStep(Step):
             package='polaris.tasks.e3sm.init.topo.cull.mask',
         )
 
-        self.add_output_file(filename='cull_masks.nc')
+        self.add_output_file(
+            filename='cull_masks.nc',
+            validate_vars=CULL_MASKS_VALIDATE_VARS,
+        )
         self._critical_transects = None
 
     def setup(self):

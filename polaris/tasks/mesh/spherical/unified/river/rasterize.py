@@ -15,6 +15,9 @@ from polaris.tasks.mesh.spherical.unified.river.simplify import (
     read_river_segments_from_feature_collection,
 )
 
+#: variables in a rasterized river-network file to compare against a baseline
+RIVER_NETWORK_VALIDATE_VARS = ['river_channel_mask']
+
 
 class RasterizeRiverLatLonStep(Step):
     """
@@ -70,7 +73,10 @@ class RasterizeRiverLatLonStep(Step):
                 self.coastline_step.output_filenames[convention],
             ),
         )
-        self.add_output_file(filename=self.masks_filename)
+        self.add_output_file(
+            filename=self.masks_filename,
+            validate_vars=RIVER_NETWORK_VALIDATE_VARS,
+        )
 
     def run(self):
         """

@@ -8,6 +8,42 @@ from pyremap import MpasCellMeshDescriptor
 
 from polaris import Step
 from polaris.io import symlink
+from polaris.tasks.e3sm.init.topo.combine.step import (
+    COMBINE_TOPO_VALIDATE_VARS,
+)
+
+
+def get_remapped_topo_validate_vars():
+    """
+    Get the variables in the remapped topography file that should be compared
+    against a baseline
+
+    Returns
+    -------
+    validate_vars : list of str
+        The remapped topography variables and fractions, both unmasked and
+        masked by the ocean and land fractions
+    """
+    validate_vars = [_frac_name(var) for var in COMBINE_TOPO_VALIDATE_VARS]
+    # the ocean and land masks that the mask-topography step adds become
+    # fractions, too
+    validate_vars.extend(['ocean_frac', 'land_frac'])
+    for prefix in ['land', 'ocean']:
+        validate_vars.extend(
+            f'{prefix}_masked_{_frac_name(var)}'
+            for var in COMBINE_TOPO_VALIDATE_VARS
+        )
+    return validate_vars
+
+
+def _frac_name(var):
+    """
+    Get the name a variable takes after remapping, where masks become
+    fractions
+    """
+    if var.endswith('mask'):
+        return f'{var[:-4]}frac'
+    return var
 
 
 class RemapTopoStep(Step):
@@ -100,7 +136,10 @@ class RemapTopoStep(Step):
         self.smoothing = smoothing
         self.unsmoothed_topo = unsmoothed_topo
 
-        self.add_output_file(filename='topography_remapped.nc')
+        self.add_output_file(
+            filename='topography_remapped.nc',
+            validate_vars=get_remapped_topo_validate_vars(),
+        )
         self.expand_distance = 0.0
         self.expand_factor = 1.0
         self.do_remapping = True

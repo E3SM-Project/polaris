@@ -50,6 +50,31 @@ _RECONSTRUCTION_INPUT_VARS: dict[ReconstructionType, tuple[str, ...]] = {
 }
 
 
+def get_reconstruction_validate_vars(
+    location: ReconstructionType = 'cell',
+) -> list[str]:
+    """
+    Get the variables in a reconstruction-weights file that should be
+    compared against a baseline
+
+    Parameters
+    ----------
+    location : {'cell', 'vertex'}, optional
+        The location the reconstruction weights were computed at
+
+    Returns
+    -------
+    validate_vars : list of str
+        The names of the reconstruction variables at ``location``
+    """
+    field_names = _RECONSTRUCTION_FIELD_NAMES[location]
+    return [
+        field_names['n_edges'],
+        field_names['stencil'],
+        field_names['weights'],
+    ]
+
+
 def select_reconstruction_vars(
     ds: xr.Dataset, location: ReconstructionType = 'cell'
 ) -> xr.Dataset:

@@ -4,6 +4,28 @@ import xarray as xr
 
 from polaris import Step
 from polaris.mesh.spherical.coastline import CONVENTIONS
+from polaris.tasks.e3sm.init.topo.combine.step import (
+    COMBINE_TOPO_VALIDATE_VARS,
+)
+
+
+def get_masked_topo_validate_vars():
+    """
+    Get the variables in the masked topography file that should be compared
+    against a baseline
+
+    Returns
+    -------
+    validate_vars : list of str
+        The ocean and land masks along with the masked topography variables
+        that :py:class:`MaskTopoStep` adds to the combined topography
+    """
+    validate_vars = ['ocean_mask', 'land_mask']
+    for prefix in ['land', 'ocean']:
+        validate_vars.extend(
+            f'{prefix}_masked_{var}' for var in COMBINE_TOPO_VALIDATE_VARS
+        )
+    return validate_vars
 
 
 class MaskTopoStep(Step):
@@ -38,7 +60,10 @@ class MaskTopoStep(Step):
         """
         super().__init__(component, name=name, subdir=subdir)
         self.combine_topo_step = combine_topo_step
-        self.add_output_file(filename='topography_masked.nc')
+        self.add_output_file(
+            filename='topography_masked.nc',
+            validate_vars=get_masked_topo_validate_vars(),
+        )
 
     def setup(self):
         """

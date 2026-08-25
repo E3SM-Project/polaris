@@ -13,6 +13,20 @@ from polaris.archive import extract_zip_member
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
 
+#: variables in a combined topography file to compare against a baseline.
+#: ``ocean_mask`` is deliberately left out.  The combine step writes it, but
+#: the cached combined topography files that tasks use by default were
+#: generated before it was added, so it is absent from the file a run
+#: actually reads and from everything derived from it.  Add it back here
+#: once those cached files have been regenerated.
+COMBINE_TOPO_VALIDATE_VARS = [
+    'base_elevation',
+    'ice_draft',
+    'ice_thickness',
+    'ice_mask',
+    'grounded_mask',
+]
+
 
 class CombineStep(Step):
     """
@@ -300,6 +314,7 @@ class CombineStep(Step):
 
         # Start over with empty outputs
         self.outputs = []
+        self.validate_vars = dict()
 
         # Build output filenames
         res_name = self.resolution_name
@@ -318,7 +333,10 @@ class CombineStep(Step):
             self.exodus_filename = None
 
         self.add_output_file(filename=self.dst_scrip_filename)
-        self.add_output_file(filename=self.combined_filename)
+        self.add_output_file(
+            filename=self.combined_filename,
+            validate_vars=COMBINE_TOPO_VALIDATE_VARS,
+        )
         if self.exodus_filename is not None:
             self.add_output_file(filename=self.exodus_filename)
 

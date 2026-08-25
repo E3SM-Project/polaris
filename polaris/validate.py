@@ -200,6 +200,10 @@ def _compute_norms(
     da1 = _rename_duplicate_dims(da1)
     da2 = _rename_duplicate_dims(da2)
 
+    # boolean arrays don't support subtraction, so compare them as integers
+    da1 = _as_numeric(da1)
+    da2 = _as_numeric(da2)
+
     result = True
     diff = np.abs(da1 - da2).values.ravel()
     # skip entries where one field or both are a fill value
@@ -233,6 +237,13 @@ def _compute_norms(
         print(diff_str)
 
     return result
+
+
+def _as_numeric(da):
+    """Convert a boolean DataArray to integers so it can be differenced"""
+    if da.dtype == bool:
+        da = da.astype(int)
+    return da
 
 
 def _rename_duplicate_dims(da):

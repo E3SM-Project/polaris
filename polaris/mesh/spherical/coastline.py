@@ -12,6 +12,9 @@ from polaris.mesh.spherical.critical_transects import CriticalTransects
 CONVENTIONS = ('calving_front', 'grounding_line', 'bedrock_zero')
 EARTH_RADIUS = get_constant('mean_radius')
 
+#: variables in a coastline file to compare against a baseline
+COASTLINE_VALIDATE_VARS = ['ocean_mask', 'signed_distance']
+
 
 def build_coastline_datasets(
     ds_topo,

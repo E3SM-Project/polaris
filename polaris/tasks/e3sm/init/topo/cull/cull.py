@@ -9,11 +9,22 @@ from mpas_tools.mesh.cull import map_culled_to_base
 from pyremap import MpasCellMeshDescriptor
 
 from polaris import Step
-from polaris.mesh.reconstruct import compute_reconstruction_weights
+from polaris.mesh.reconstruct import (
+    compute_reconstruction_weights,
+    get_reconstruction_validate_vars,
+)
+from polaris.mesh.validate import MPAS_MESH_VALIDATE_VARS
 from polaris.model_step import make_graph_file
 
 CULL_PREFIXES = ['ocean', 'ocean_no_cavities', 'land']
 SCRIP_PREFIXES = ['ocean', 'ocean_no_cavities', 'land']
+
+#: variables in a culled-to-base map file to compare against a baseline
+MAP_CULLED_TO_BASE_VALIDATE_VARS = [
+    'mapCulledToBaseCell',
+    'mapCulledToBaseEdge',
+    'mapCulledToBaseVertex',
+]
 
 
 class CullMeshStep(Step):
@@ -69,14 +80,23 @@ class CullMeshStep(Step):
         self.cull_mask_step = cull_mask_step
 
         for prefix in CULL_PREFIXES:
-            self.add_output_file(filename=f'culled_{prefix}_mesh.nc')
-            self.add_output_file(filename=f'{prefix}_map_culled_to_base.nc')
+            self.add_output_file(
+                filename=f'culled_{prefix}_mesh.nc',
+                validate_vars=MPAS_MESH_VALIDATE_VARS,
+            )
+            self.add_output_file(
+                filename=f'{prefix}_map_culled_to_base.nc',
+                validate_vars=MAP_CULLED_TO_BASE_VALIDATE_VARS,
+            )
             if prefix in SCRIP_PREFIXES:
                 self.add_output_file(filename=f'culled_{prefix}_mesh.scrip.nc')
             if prefix.startswith('ocean'):
                 self.add_output_file(filename=f'culled_{prefix}_graph.info')
                 self.add_output_file(
-                    filename=f'culled_{prefix}_reconstruction_weights.nc'
+                    filename=f'culled_{prefix}_reconstruction_weights.nc',
+                    validate_vars=get_reconstruction_validate_vars(
+                        location='cell'
+                    ),
                 )
 
     def setup(self):
