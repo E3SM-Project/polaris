@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import subprocess
 from pathlib import Path
 
@@ -11,9 +12,12 @@ from mpas_tools.io import write_netcdf
 from ruamel.yaml import YAML
 from scipy.interpolate import CubicSpline
 
+from polaris.config import PolarisConfigParser
 from polaris.constants import get_constant
+from polaris.io import download
 from polaris.mesh.info import is_spherical
 
+# These should probably move to a config file
 FORCING_VARIABLES = [
     'windStressZonal',
     'windStressMeridional',
@@ -70,16 +74,16 @@ def parse_args():
         '--forcing-file',
         default=None,
         help=(
-            'Time-averaged ERA5 forcing file.  Required with '
-            '--include-realistic-forcing.'
+            'Optional local ERA5 forcing file. If not supplied, the file is '
+            'downloaded from the Polaris data repository.'
         ),
     )
     parser.add_argument(
         '--forcing-scrip-file',
         default=None,
         help=(
-            'SCRIP file describing the ERA5 forcing grid.  Required with '
-            '--include-realistic-forcing.'
+            'Optional local ERA5 SCRIP file. If not supplied, the file is '
+            'downloaded from the Polaris data repository.'
         ),
     )
     parser.add_argument(
@@ -101,95 +105,177 @@ def parse_args():
     return parser.parse_args()
 
 
-def convert_to_omega(
-    input_file,
+def _print_summary(
     output_file,
     eos_type,
-    include_realistic_forcing=False,
-    include_idealized_sfc_stress=False,
-    forcing_file=None,
-    forcing_scrip_file=None,
-    remap_method='conserve',
-    visualization=False,
+    velocity_fields,
+    include_idealized_sfc_stress,
+    visualization,
 ):
-    _check_forcing_args(
-        include_realistic_forcing,
-        include_idealized_sfc_stress,
-        forcing_file,
-        forcing_scrip_file,
+    """Handles all the long-form stdout reporting for Omega."""
+    print(f'Wrote {output_file}')
+
+    if eos_type == 'teos10':
+        print(
+            'Converted to Omega TEOS-10 temperature: '
+            'potential -> conservative\n'
+            'Converted to Omega TEOS-10 salinity: '
+            'practical -> absolute'
+        )
+    else:
+        print(
+            'Kept temperature and salinity unchanged '
+            '(potential temp/practical salinity)'
+        )
+
+    v_msg = (
+        f'Zeroed velocity fields: {", ".join(velocity_fields)}'
+        if velocity_fields
+        else 'No velocity fields found to zero'
+    )
+    sfc_msg = (
+        'Added SfcStressZonal and SfcStressMeridional fields'
+        if include_idealized_sfc_stress
+        else 'Skipped SfcStressZonal and SfcStressMeridional fields'
     )
 
-    with xr.open_dataset(input_file, decode_times=False) as ds_in:
-        ds_input = ds_in.load()
+    print(
+        f'Added Omega variable PseudoThickness\n'
+        f'Rescaled Omega earth radius, coordinates, and areas\n'
+        f'{v_msg}\n'
+        f'Renamed variables to Omega names based on '
+        f'mpaso_to_omega.yaml\n'
+        f'Renamed refLayerThickness to RefPseudoThickness for '
+        f'Omega output\n'
+        f'{sfc_msg}\n'
+        f'Added SurfacePressure field\n'
+        f'Removed unnecessary global attributes'
+    )
 
-    spherical = is_spherical(ds_input)
-    _check_sphere_radius(ds_input, spherical)
+    if visualization:
+        print('Saved temperature/salinity percent-difference visualizations')
 
-    output_file = _append_eos_suffix(output_file, eos_type)
 
+def _prepare_mpas_zero(
+    ds_input,
+    input_file,
+    spherical,
+    include_realistic_forcing,
+    ds_forcing,
+    include_idealized_sfc_stress,
+):
+    """Generates and writes the baseline zero-velocity MPAS dataset."""
     input_path = Path(input_file)
     zero_velocity_mpas_file = str(input_path.with_suffix('')) + '.mpas.nc'
 
     ds_mpas_zero = ds_input.copy(deep=True)
     mpas_velocity_fields = _zero_velocity_fields(ds_mpas_zero)
+
     if spherical:
         _rescale_sphere_radius(ds_mpas_zero)
-    if include_realistic_forcing:
-        ds_forcing = _remap_forcing_to_mpas(
-            mpas_file=input_file,
-            forcing_file=forcing_file,
-            forcing_scrip_file=forcing_scrip_file,
-            remap_method=remap_method,
-        )
-    else:
-        ds_forcing = None
-    _apply_surface_forcing(
-        ds_mpas_zero, ds_forcing, include_idealized_sfc_stress
-    )
-    _keep_selected_global_attrs(ds_mpas_zero)
 
+    if include_realistic_forcing:
+        _add_surface_forcing(ds_mpas_zero, ds_forcing)
+    elif include_idealized_sfc_stress:
+        _add_sfc_stress(
+            ds_mpas_zero,
+            zonal_name='SfcStressZonal',
+            meridional_name='SfcStressMeridional',
+        )
+
+    _keep_selected_global_attrs(ds_mpas_zero)
     write_netcdf(
         ds_mpas_zero,
         zero_velocity_mpas_file,
         format='NETCDF3_64BIT_DATA',
         engine='netcdf4',
     )
+
     print(f'Wrote {zero_velocity_mpas_file}')
     if spherical:
         print(
-            'Rescaled MPAS earth radius, coordinates, and areas based on '
-            'earth radius in pcd.yaml'
+            'Rescaled MPAS earth radius, coordinates, and areas '
+            'based on earth radius in pcd.yaml'
         )
     if include_idealized_sfc_stress:
         print('Added SfcStressZonal and SfcStressMeridional fields')
-    if mpas_velocity_fields:
-        print(f'Zeroed velocity fields: {", ".join(mpas_velocity_fields)}')
-    else:
-        print('No velocity fields found to zero')
+
+    v_msg = (
+        f'Zeroed velocity fields: {", ".join(mpas_velocity_fields)}'
+        if mpas_velocity_fields
+        else 'No velocity fields found to zero'
+    )
+    print(v_msg)
     print('Removed unnecessary global attributes')
 
-    required_vars = ['layerThickness']
-    missing = [
-        name for name in required_vars if name not in ds_input.variables
-    ]
-    if missing:
-        raise ValueError(f'Missing required variables: {missing}')
+    return ds_mpas_zero
 
-    # Keep the original input dataset untouched; all Omega transforms
-    # happen on a separate working copy.
-    ds_omega = ds_input.copy(deep=True)
 
-    # Create valid mask with shape (Time, nCells, nVertLevels)
-    layer_thickness_valid = ds_omega['layerThickness'].values > 0.0
-    if layer_thickness_valid.ndim == 2:
-        # Broadcast (nCells, nVertLevels) to (nTime, nCells, nVertLevels)
-        valid = np.tile(
-            layer_thickness_valid[np.newaxis, :, :],
-            (ds_omega.sizes['Time'], 1, 1),
+def convert_to_omega(
+    input_file,
+    output_file,
+    eos_type,
+    include_realistic_forcing=False,
+    forcing_file=None,
+    forcing_scrip_file=None,
+    remap_method='bilinear',
+    include_idealized_sfc_stress=False,
+    visualization=False,
+):
+    """Main function with low complexity and strict 79 line limits."""
+    _check_forcing_args(
+        include_realistic_forcing, include_idealized_sfc_stress
+    )
+
+    # 1. Setup forcing dependencies up front
+    ds_forcing = None
+    if include_realistic_forcing:
+        if forcing_file is None or forcing_scrip_file is None:
+            downloaded = _get_realistic_forcing_files()
+            downloaded_forcing, downloaded_scrip = downloaded
+            forcing_file = forcing_file or downloaded_forcing
+            forcing_scrip_file = forcing_scrip_file or downloaded_scrip
+
+        ds_forcing = _remap_forcing_to_mpas(
+            mpas_file=input_file,
+            forcing_file=forcing_file,
+            forcing_scrip_file=forcing_scrip_file,
+            remap_method=remap_method,
         )
-    else:
-        valid = layer_thickness_valid
 
+    # 2. Load and validate
+    with xr.open_dataset(input_file, decode_times=False) as ds_in:
+        ds_input = ds_in.load()
+
+    if 'layerThickness' not in ds_input.variables:
+        raise ValueError("Missing required variables: ['layerThickness']")
+
+    spherical = is_spherical(ds_input)
+    _check_sphere_radius(ds_input, spherical)
+
+    output_file = _append_eos_suffix(output_file, eos_type)
+
+    # 3. Create baseline dataset
+    ds_mpas_zero = _prepare_mpas_zero(
+        ds_input,
+        input_file,
+        spherical,
+        include_realistic_forcing,
+        ds_forcing,
+        include_idealized_sfc_stress,
+    )
+
+    # 4. Initialize working copy and broadcast mask
+    ds_omega = ds_input.copy(deep=True)
+    lt_vals = ds_omega['layerThickness'].values > 0.0
+    valid = (
+        np.tile(lt_vals[np.newaxis, :, :], (ds_omega.sizes['Time'], 1, 1))
+        if lt_vals.ndim == 2
+        else lt_vals
+    )
+
+    # 5. Physics and state transitions
+    spec_vol = None
     if eos_type == 'teos10':
         spec_vol = _convert_teos10_tracers(ds_omega, valid)
     elif eos_type == 'linear':
@@ -197,9 +283,19 @@ def convert_to_omega(
 
     _add_pseudo_thickness(ds_omega, valid, spec_vol)
     velocity_fields = _zero_velocity_fields(ds_omega)
+
     if spherical:
         _rescale_sphere_radius(ds_omega)
-    _apply_surface_forcing(ds_omega, ds_forcing, include_idealized_sfc_stress)
+
+    # 6. Apply surface stresses
+    if include_realistic_forcing:
+        _add_surface_forcing(ds_omega, ds_forcing)
+    elif include_idealized_sfc_stress:
+        _add_sfc_stress(
+            ds_omega,
+            zonal_name='SfcStressZonal',
+            meridional_name='SfcStressMeridional',
+        )
 
     _add_surface_pressure(ds_omega)
 
@@ -210,76 +306,36 @@ def convert_to_omega(
             output_file=output_file,
         )
 
+    # 7. Map variables and export final netCDF
     ds_omega = _map_mpaso_to_omega(ds_omega)
     ds_omega = _rename_resting_thickness_for_omega(ds_omega)
     _keep_selected_global_attrs(ds_omega)
 
     write_netcdf(
-        ds_omega, output_file, format='NETCDF3_64BIT_DATA', engine='netcdf4'
+        ds_omega,
+        output_file,
+        format='NETCDF3_64BIT_DATA',
+        engine='netcdf4',
     )
 
-    print(f'Wrote {output_file}')
-    if eos_type == 'teos10':
-        print(
-            'Converted to Omega TEOS-10 temperature: potential -> conservative'
-        )
-        print('Converted to Omega TEOS-10 salinity: practical -> absolute')
-    else:
-        print(
-            'Kept temperature and salinity unchanged '
-            '(potential temperature and practical salinity)'
-        )
-    print('Added Omega variable PseudoThickness')
-    print(
-        'Rescaled Omega earth radius, coordinates, and areas based on '
-        'earth radius in pcd.yaml'
+    # 8. Report execution summary
+    _print_summary(
+        output_file,
+        eos_type,
+        velocity_fields,
+        include_idealized_sfc_stress,
+        visualization,
     )
-    if velocity_fields:
-        print(f'Zeroed velocity fields: {", ".join(velocity_fields)}')
-    else:
-        print('No velocity fields found to zero')
-    print(
-        'Renamed variables to Omega names based on mpaso_to_omega.yaml mapping'
-    )
-    print('Renamed refLayerThickness to RefPseudoThickness for Omega output')
-    if include_idealized_sfc_stress:
-        print('Added SfcStressZonal and SfcStressMeridional fields')
-    else:
-        print('Skipped SfcStressZonal and SfcStressMeridional fields')
-    print('Added SurfacePressure field')
-    print('Removed unnecessary global attributes')
-    if visualization:
-        print('Saved temperature/salinity percent-difference visualizations')
-
-
-def _apply_surface_forcing(ds, ds_forcing, include_idealized_sfc_stress):
-    if ds_forcing is not None:
-        _add_surface_forcing(ds, ds_forcing)
-    elif include_idealized_sfc_stress:
-        _add_sfc_stress(
-            ds,
-            zonal_name='SfcStressZonal',
-            meridional_name='SfcStressMeridional',
-        )
 
 
 def _check_forcing_args(
     include_realistic_forcing,
     include_idealized_sfc_stress,
-    forcing_file,
-    forcing_scrip_file,
 ):
-    if not include_realistic_forcing:
-        return
-    if include_idealized_sfc_stress:
+    if include_realistic_forcing and include_idealized_sfc_stress:
         raise ValueError(
             'Only one of include_realistic_forcing and '
             'include_idealized_sfc_stress may be requested'
-        )
-    if forcing_file is None or forcing_scrip_file is None:
-        raise ValueError(
-            'include_realistic_forcing requires both forcing_file and '
-            'forcing_scrip_file'
         )
 
 
@@ -291,6 +347,77 @@ def _to_degrees(angle):
     if max_abs <= 2.0 * get_constant('pi') + 1.0e-12:
         return angle * get_constant('radian')
     return angle
+
+
+def _get_polaris_config():
+    config = PolarisConfigParser()
+    config.add_from_package('polaris', 'default.cfg')
+
+    machine = os.environ.get('POLARIS_MACHINE')
+    if machine is not None:
+        config.add_from_package(
+            'mache.machines',
+            f'{machine}.cfg',
+            exception=False,
+        )
+        config.add_from_package(
+            'polaris.machines',
+            f'{machine}.cfg',
+            exception=False,
+        )
+
+    if not config.has_option('paths', 'database_root'):
+        raise ValueError(
+            'No Polaris database_root is configured. Source a Polaris '
+            'machine load script or provide local --forcing-file and '
+            '--forcing-scrip-file arguments.'
+        )
+    return config
+
+
+def _get_realistic_forcing_files():
+
+    config = _get_polaris_config()
+
+    database_root = config.get('paths', 'database_root')
+    base_url = config.get('download', 'server_base_url')
+
+    database_path = os.path.join(
+        database_root,
+        'ocean/realistic_global/forcing',
+    )
+
+    forcing_path = os.path.join(
+        database_path,
+        'era5_forcing_1990-2010_average_0.25x0.25_degree.20260820.nc',
+    )
+    scrip_path = os.path.join(
+        database_path,
+        'era5_0.25x0.25_degree_scrip.20260820.nc',
+    )
+
+    forcing_url = (
+        f'{base_url}/ocean/realistic_global/forcing/era5_forcing_'
+        '1990-2010_average_0.25x0.25_degree.20260820.nc'
+    )
+    scrip_url = (
+        f'{base_url}/ocean/realistic_global/forcing/'
+        'era5_0.25x0.25_degree_scrip.20260820.nc'
+    )
+
+    forcing_file = download(
+        forcing_url,
+        forcing_path,
+        config,
+    )
+
+    forcing_scrip_file = download(
+        scrip_url,
+        scrip_path,
+        config,
+    )
+
+    return forcing_file, forcing_scrip_file
 
 
 def _append_eos_suffix(output_file, eos_type):
