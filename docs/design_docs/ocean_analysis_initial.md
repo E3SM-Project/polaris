@@ -649,7 +649,7 @@ follow-up after September 15 if the fallback is what ships.
 
 ### Algorithm Design: ocean-heat-content
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -657,16 +657,56 @@ Contributors: Xylar Asay-Davis, Claude
 series; the two differ in what they integrate over and in what they read, not
 in the kernel.*
 
-Ocean heat content per unit area, integrated over an elevation range
-$[z_{bot}, z_{top}]$ with $z_{bot} < z_{top} \le 0$, is
+Ocean heat content per unit area is a *mass*-weighted integral of conservative
+temperature.  Over an elevation range $[z_{bot}, z_{top}]$ with
+$z_{bot} < z_{top} \le 0$,
 
 $$
-Q(z_{bot}, z_{top}) = \rho_0 c_p^0 \int_{z_{bot}}^{z_{top}} \Theta \, dz
-            \approx \rho_0 c_p^0 \sum_k \Theta_k \, w_k
+Q(z_{bot}, z_{top}) = c_p^0 \int_{z_{bot}}^{z_{top}} \rho \, \Theta \, dz
+                    = \rho_0 c_p^0 \int_{\tilde{z}_{bot}}^{\tilde{z}_{top}}
+                      \Theta \, d\tilde{z}
+                    \approx \rho_0 c_p^0 \sum_k \Theta_k \, \tilde{w}_k
 $$
 
-where $\Theta$ is conservative temperature and $w_k$ is the thickness of the
-overlap between layer $k$ and the requested range:
+where $\Theta$ is conservative temperature, $\rho$ is in-situ density, and
+$\tilde{w}_k$ is the pseudo-thickness of the overlap between layer $k$ and the
+requested range.
+
+The middle step is the change of variable $\rho \, dz = \rho_0 \, d\tilde{z}$
+from the conventions, and it is an identity, not an approximation: a
+mass-weighted integral in $z$ is a plain integral in $\tilde{z}$ scaled by
+$\rho_0$.  The final step is the layer quadrature, so the only error is the
+usual one of treating $\Theta$ as uniform within a layer.
+
+In particular, the reference density in the discrete sum is **not** a
+Boussinesq approximation.  Since $\rho_0 \tilde{h}_k = \rho_k h_k$ is the mass
+per unit area of layer $k$ exactly --- for Omega by the definition of
+pseudo-height, for MPAS-Ocean because it is Boussinesq --- a range covering
+whole layers gives the mass-weighted integral with no reference-density error
+at all.  This is the substantive difference from the MPAS-Analysis
+formulation, which weights $\Theta$ by a *geometric* thickness and multiplies
+by a reference density, and so carries an in-situ-versus-reference density
+error of a few tenths of a percent.
+
+The geometric coordinate enters only through the partial layers at the range
+boundaries, because the range is specified in $z$ while the integral is in
+$\tilde{z}$.
+
+That the range is specified in geometric elevation is a deliberate choice
+rather than an oversight.  "Ocean heat content, 0 to 700 m" means 700
+*geometric* meters in MPAS-Analysis, in the observational products this
+diagnostic is compared against, and in the literature, and the same is true of
+a map "at 100 m".  Specifying ranges in pseudo-depth instead would be more
+natural for a mass-conserving model --- a fixed $\tilde{z}$ range is a fixed
+pressure range and therefore exactly a fixed mass per unit area, which is a
+cleaner control volume for a heat budget --- and it would remove the geometric
+coordinate from this algorithm entirely.  We do not do it, because it would
+silently redefine a number everyone else reports geometrically, for a
+difference that is a fraction of a percent in the upper ocean and one to two
+percent at abyssal depths.  Config options are documented as geometric
+elevations, and the conversion happens here, in one place.
+
+Let
 
 $$
 w_k = \max\left(0, \;
@@ -674,13 +714,38 @@ w_k = \max\left(0, \;
       \max\left(z^{int}_{k+1}, z_{bot}\right)\right)
 $$
 
-for layers within `[minLevelCell, maxLevelCell]` and $w_k = 0$ elsewhere.  This
-expression handles all of the cases the requirement calls for without special
-casing: a range boundary in the interior of a layer contributes a partial
-thickness; a range extending below the seafloor is truncated because
+be the geometric thickness of the overlap, for layers within
+`[minLevelCell, maxLevelCell]` and $w_k = 0$ elsewhere, and let
+$h_k = z^{int}_{k} - z^{int}_{k+1}$ be the layer's geometric thickness.  Then
+
+$$
+\tilde{w}_k = \frac{w_k}{h_k} \, \tilde{h}_k
+$$
+
+is the pseudo-thickness of the overlap, and $\tilde{w}_k = \tilde{h}_k$
+whenever the layer lies entirely within the range.
+
+Splitting a layer by a geometric fraction rather than by a pseudo-height
+fraction is exact with respect to the model's own discretization, not a further
+approximation: within a layer Omega uses a single specific volume
+$\alpha_{i,k}$, so $h = \rho_0 \alpha \tilde{h}$ makes $z$ linear in
+$\tilde{z}$ across the layer and the two fractions are equal.  For MPAS-Ocean
+the question does not arise, since `layerThickness` is the geometric thickness
+and $\tilde{w}_k$ reduces to $w_k$.
+
+Where these weights are formed from a *climatology* rather than from a single
+month, the ratio $w_k/h_k$ is a ratio of monthly means rather than a mean of
+ratios.  This is second order --- it affects only the two boundary layers of a
+range, and only through the seasonal cycle of layer thickness --- and it is one
+face of the covariance term discussed below.
+
+The $w_k$ expression handles all of the cases the requirement calls for without
+special casing: a range boundary in the interior of a layer contributes a
+partial thickness; a range extending below the seafloor is truncated because
 $z^{int}_{k_{max}+1} = -H$; a `bottom` boundary is expressed as
 $z_{bot} = -\infty$; and a column whose seafloor lies above $z_{top}$
-contributes zero.
+contributes zero.  For the conventional `0:bottom` range, every valid layer is
+whole and the geometric coordinate drops out of the answer entirely.
 
 The globally integrated heat content used for the time series is the
 area-weighted sum
@@ -706,38 +771,55 @@ MPAS-Analysis uses.  The specific heat capacity differs from the TEOS-10
 constant by 0.1%, which is small compared to other uncertainties but is a
 systematic offset in any comparison.
 
-**Decision:** Phase 1 uses the PCD values.  $c_p^0$ is not in the PCD today,
-and adding a constant to it is not something we can complete by September 15,
-so using the PCD is what keeps Polaris consistent with the constants the rest
-of E3SM is using in the meantime.  Both constants are exposed as config options
-so that a user can experiment with the TEOS-10 value without a code change.
+**Decision:** Phase 1 uses the PCD value for $c_p^0$.  The TEOS-10 constant is
+not in the PCD today, and adding a constant to it is not something we can
+complete by September 15, so using the PCD is what keeps Polaris consistent
+with the constants the rest of E3SM is using in the meantime.  It is exposed as
+a config option so that a user can experiment with the TEOS-10 value without a
+code change.
 
 In the long run we do want $c_p^0$: because Omega carries conservative
-temperature, $\rho_0 c_p^0 \Theta$ is the definition of heat content rather
-than an approximation to it.  Adding $c_p^0$ to the PCD and switching to it is
-recorded as a deferred item in {ref}`design-ocean-analysis`.
+temperature, $c_p^0 \Theta$ is potential enthalpy per unit mass by definition,
+so the mass-weighted integral above is the heat content rather than an
+approximation to it.  Adding $c_p^0$ to the PCD and switching to it is recorded
+as a deferred item in {ref}`design-ocean-analysis`.
 
-A constant reference density is used rather than in-situ density.  This is the
-MPAS-Analysis convention and keeps the diagnostic comparable; the difference is
-a few tenths of a percent and is nearly uniform, so it affects the absolute
-heat content much more than the anomaly, which is the quantity of interest.
+**$\rho_0$ is not a free parameter.**  Unlike $c_p^0$, the reference density in
+the discrete sum is not a modeling choice we are making --- it is the constant
+that *defines* pseudo-height in Omega, and the Boussinesq reference density in
+MPAS-Ocean.  Using any other value would make $\rho_0 \tilde{h}$ something
+other than the layer's mass per unit area.  It must therefore be the same
+$\rho_0$ the model used, and it is not exposed as a config option.  Polaris already takes that value from the PCD's
+`seawater_density_reference` when it builds Omega's p-star vertical coordinate
+in `polaris/ocean/vertical/pstar.py`, so the analysis reads it from the same
+place; if Omega's `RhoSw` ever diverges from the PCD value, that is a bug in
+Polaris's vertical coordinate before it is a bug in this diagnostic.
+
+The practical consequence of the mass-weighted form, noted above, is that the
+in-situ-versus-reference density error in the MPAS-Analysis formulation ---
+a few tenths of a percent, nearly uniform, so it biased the absolute heat
+content much more than the anomaly --- is gone at no cost, since the model
+already writes the mass-like thickness we need.
 
 #### Heat content from a climatology versus from monthly means
 
 The heat content maps are computed from the climatology of $\Theta$ and of the
-layer geometry, per the requirement.  Because heat content is a product of
+layer thicknesses, per the requirement.  Because heat content is a product of
 those two, this omits the covariance term:
 
 $$
-\overline{\Theta h} = \overline{\Theta}\,\overline{h} +
-                      \overline{\Theta' h'}
+\overline{\Theta \tilde{h}} = \overline{\Theta}\,\overline{\tilde{h}} +
+                      \overline{\Theta' \tilde{h}'}
 $$
 
 The neglected term is small for heat content over fixed elevation ranges ---
 the range boundaries are fixed in $z$, so the covariance enters only through
 the partial layers at the boundaries and through the free surface --- but it is
 not identically zero, particularly in regions with a large seasonal cycle in
-sea surface height and layer thickness.
+sea surface height and layer thickness.  Note that this means the climatology
+must include both `PseudoThickness` and the geometric interfaces: the former
+sets the mass weight, the latter sets the partial-layer fraction at the range
+boundaries.
 
 The heat content time series does not have this issue, because it integrates
 each monthly mean separately and averages afterward.
@@ -792,7 +874,7 @@ open questions.
 
 ### Implementation: analysis-suite
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -934,13 +1016,14 @@ mixed_layer_depth_threshold = 0.03
 [ocean_analysis_ohc]
 
 # The elevation ranges over which heat content is integrated, given as
-# <top>:<bottom> in m, positive up.  "bottom" means the seafloor.
+# <top>:<bottom> in m, positive up.  "bottom" means the seafloor.  These are
+# geometric elevations, matching the convention used by MPAS-Analysis and by
+# observational heat content products; the integral itself is mass-weighted.
 elevation_ranges = 0.0:-700.0, -700.0:-2000.0, -2000.0:bottom, 0.0:bottom
 
-# The reference density and specific heat capacity used to convert
-# conservative temperature to heat content.  By default, these come from the
-# Physical Constants Dictionary.
-#seawater_density = 1026.0
+# The specific heat capacity used to convert conservative temperature to heat
+# content.  By default, this comes from the Physical Constants Dictionary.
+# The reference density is not a config option; see the algorithm design.
 #seawater_specific_heat_capacity = 3996.0
 
 
