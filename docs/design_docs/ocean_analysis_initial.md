@@ -1310,6 +1310,46 @@ than being cleaned up later, because this is precisely the habit that is cheap
 to adopt while the code is being written and expensive to retrofit once there
 are dozens of steps.
 
+Temporary files go in the step's work directory for the same reason, never in
+`/tmp` or the base work directory: each step already has a directory of its
+own, so writing there is enough to guarantee that two concurrent steps cannot
+choose the same temporary path.
+
+#### Declared resources
+
+Every analysis step declares what it needs, so that a scheduler can decide how
+many may run at once.  Two quantities matter and they behave differently.
+
+**Cores** are declared as `cpus_per_task` with `ntasks = 1`, since nothing here
+is MPI.  The number is whatever internal parallelism the step will actually
+start --- twelve for the climatology, matching `ncclimo`'s background
+processes, and the pool size for a shard or a map step.  Any pool a step
+creates is sized from this number rather than from `os.cpu_count()`, which is
+the whole content of the bounded-process-launching rule: a step that sizes its
+pool to the machine oversubscribes the node the moment a second step runs
+beside it.
+
+**Memory** is the quantity that distinguishes analysis from most existing
+Polaris steps, because at high resolution a step can need a large fraction of a
+node and a scheduler packing by cores alone will oversubscribe it.  What each
+step's footprint is set by is known:
+
+- an accumulator shard holds one month of three-dimensional input per pool
+  worker, so its footprint is the pool size times a month --- which is why
+  reading a month at a time, rather than a year, is a resource decision and not
+  only a convenience;
+- a map step holds one season of the climatology for its field group, plus the
+  `mosaic` descriptor for the mesh;
+- the climatology step's footprint is `ncclimo`'s, not ours;
+- the merge and publish steps hold kilobytes.
+
+The *numbers* are deliberately not guessed here.  Sensible values need
+measurement at production resolution, which is being gathered separately for
+exactly this purpose, and a guessed default that is too large wastes a node
+while one that is too small fails late.  What this design commits to is that
+each step declares the quantity, and that the declaration is derived from the
+list above rather than from a spot measurement of one configuration.
+
 ### Implementation: data-products
 
 Date last modified: 2026/08/25
