@@ -1494,8 +1494,8 @@ silence, as would a changed elevation range or a changed constant.
 half-written cache left by an interrupted run.
 
 **Reuse is reported.**  Each run logs how many months it inherited and from
-where, and the provenance travels into the output netCDF.  Two config options
-provide an explicit mode for anyone who wants determinism instead of
+where, and the provenance travels into the output netCDF.  One config option
+provides an explicit mode for anyone who wants determinism instead of
 discovery:
 
 ```ini
@@ -1505,9 +1505,6 @@ discovery:
 # directory.  Set to False to recompute everything from the monthly means.
 reuse_previous = True
 
-# An additional directory to search for inheritable results, for the case
-# where an earlier analysis has been moved or copied.  Empty by default.
-reuse_search_path =
 ```
 
 The pattern applies wherever we own the reduction kernel.  It does not apply to
@@ -1555,20 +1552,24 @@ identify it:
 ```
 
 **A `publish` step collects them.**  One cheap step per suite reads every
-fragment, symlinks each product into the staging tree, and writes an
-`index.html` over the result.  It works from the fragments rather than from
-directory structure, which is what lets the work be re-chunked later without
-disturbing output paths, links, or the gallery --- principle 2.  A product
-whose fragment is present but whose file is missing is reported rather than
-silently omitted.
+fragment, symlinks each product into the staging tree, and writes the merged
+manifest.  It works from the fragments rather than from directory structure,
+which is what lets the work be re-chunked later without disturbing output
+paths, links, or a gallery --- principle 2.  A product whose fragment is
+present but whose file is missing is reported rather than silently omitted.
 
-**The staging tree is shallow, with descriptive filenames.**  A gallery is
-generated, not navigated, and a shallow tree is easier to archive, to serve,
-and to diff between two analyses:
+**Generating an index over that tree is not in Phase 1.**  A flat directory of
+PNGs and netCDF is enough for the Ocean Team to work from, and the gallery is
+Phase 2 in {ref}`design-ocean-analysis`.  What Phase 1 owes it is the merged
+manifest, which is everything a gallery generator needs and is the reason it
+can be added later without touching a single step.
+
+**The staging tree is shallow, with descriptive filenames.**  A shallow tree is
+easier to archive, to serve, and to diff between two analyses, and it is what a
+generated index wants underneath it when one arrives:
 
 ```none
 <output_path>/
-├── index.html
 ├── manifest.json                                   (the merged manifest)
 └── plots/
     ├── climatology_maps_temperature_ANN_-100m_0021-0040.png
