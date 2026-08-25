@@ -90,7 +90,6 @@ class Analysis(OceanIOStep):
             ds_vert_coord=ds_vert_coord,
         )
 
-        plt.switch_backend('Agg')
         sim_count = len(nus)
         min_temp = section.getfloat('min_temp')
         max_temp = section.getfloat('max_temp')

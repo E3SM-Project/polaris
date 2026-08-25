@@ -88,7 +88,6 @@ class FilamentAnalysis(OceanIOStep):
         """
         Run this step of the test case
         """
-        plt.switch_backend('Agg')
         resolutions = list()
         for refinement_factor in self.refinement_factors:
             resolution = get_resolution_for_task(

@@ -82,7 +82,6 @@ class Viz(OceanIOStep):
         """
         Run this step of the test case
         """
-        plt.switch_backend('Agg')
         config = self.config
 
         model = config.get('ocean', 'model')

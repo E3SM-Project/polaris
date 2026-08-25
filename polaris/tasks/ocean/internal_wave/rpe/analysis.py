@@ -78,7 +78,6 @@ class Analysis(OceanIOStep):
             ds_vert_coord=ds_vert_coord,
         )
 
-        plt.switch_backend('Agg')
         sim_count = len(nus)
         time = section.getfloat('plot_time')
         min_temp = section.getfloat('min_temp')

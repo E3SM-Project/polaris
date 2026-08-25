@@ -126,7 +126,6 @@ class Viz(OceanIOStep):
         """
         Run this step of the test case
         """
-        plt.switch_backend('Agg')
         config = self.config
         if self.refinement == 'time':
             option = 'refinement_factors_time'

@@ -86,7 +86,6 @@ class Analysis(OceanIOStep):
         """
         Run this step of the test case
         """
-        plt.switch_backend('Agg')
         logger = self.logger
         config = self.config
 
