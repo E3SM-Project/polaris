@@ -69,7 +69,7 @@ class Analysis(ConvergenceAnalysis):
         """
 
         if field_name != 'tracer1':
-            print(
+            self.logger.info(
                 f'Variable {field_name} not available as an analytic '
                 'solution for the cosine_bell test case'
             )

@@ -112,12 +112,12 @@ class VizTransect(OceanIOStep):
                 elif var_name == 'columnThickness':
                     ds[full_var_name] = ds.bottomDepth + ds.ssh
                 else:
-                    print(
+                    self.logger.info(
                         f'Skipping {full_var_name}, '
                         f'not found in {self.input_file}'
                     )
                     continue
-            print(f'Plotting {full_var_name}')
+            self.logger.info(f'Plotting {full_var_name}')
             mpas_field = ds[f'{full_var_name}']
             data = ds_data[f'{full_var_name}']
             if var_name in viz_dict.keys():

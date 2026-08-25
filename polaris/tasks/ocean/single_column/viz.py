@@ -245,5 +245,5 @@ class Viz(OceanIOStep):
                     frameon=False,
                 )
                 plt.savefig(f'{field_name}.png', bbox_inches='tight')
-                print(f'Plotted {field_name}')
+                self.logger.info(f'Plotted {field_name}')
                 plt.close()
