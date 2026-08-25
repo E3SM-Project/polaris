@@ -535,44 +535,44 @@ The steps that remain are **shared steps** in the sense of
 range, so that the climatology for a range is built once no matter how many
 products read it.  The implementation section works through the details.
 
-#### How many steps is too many?
+#### How many steps, and how much do they do?
 
-Decomposing by year buys reuse and concurrency at the cost of step count, and
-it is worth having a number in mind before the design commits to per-year
-granularity.  For a typical decadal-to-multidecadal analysis --- a 60-year
-record with a 20-year climatology --- the suite contains roughly:
+Principle 9 in {ref}`design-ocean-analysis` asks for step counts in the low
+hundreds and for steps that do at least tens of seconds of work at production
+resolution.  For a typical analysis --- a 60-year record with a 20-year
+climatology --- this design produces:
 
 | Steps | Count |
 | --- | --- |
-| Per-year ocean heat content | 60 |
-| Per-year offline mixed-layer depth (fallback only) | 60 |
 | `ncclimo` climatology | 1 |
-| Range-keyed plotting and time-series steps | ~6 |
-| **Total** | **~130** |
+| Climatology maps, one per field group | 6 |
+| Offline mixed-layer depth accumulator (fallback only) | 1 |
+| Heat content series accumulator | 1 |
+| Global stats, MOC | 2 |
+| **Total** | **11** |
 
-For comparison, the existing `ocean` component builds several hundred steps
-across all of its tasks, and `polaris setup` handles that in seconds, so ~130
-steps in a single suite is not a regime we have reason to expect trouble in.
-The number scales linearly with the length of the record, so a century-long
-record with both per-year products would be ~230 steps, which is still not
-alarming.
+The count is **independent of the length of the record**, which is the property
+worth having.  An earlier draft, with one shared step per simulation year, gave
+about 130 steps for the same analysis and grew linearly, so a century-long
+record would have given about 230.  That was never going to break Polaris --- a
+few hundred steps is ordinary, and the existing `ocean` component builds
+several hundred across all its tasks --- but the count grew with something the
+user has no control over, which is the wrong shape even when the numbers are
+small.
 
-The thresholds worth naming, so that we notice if we approach them: a few
-hundred steps is ordinary; at around a thousand, `polaris setup` time and the
-size of the suite pickle become worth measuring before proceeding; well beyond
-that, the per-step overhead --- a work directory, a pickle, a config copy, a
-log file --- starts to dominate the actual computation, which for a single year
-of heat content is only seconds of work on a few GB of input.
+Step *size* is the other half, and it is now comfortable at both ends.  On a
+first run the heat content accumulator reads the whole record, which is minutes
+to hours at 30 km; on a re-run over an overlapping range it reads only the new
+months.  A climatology map step plots the seasons and reductions of one field
+group, which is seconds to minutes per plot at production resolution.  Neither
+is close to the regime where a step's overhead --- a work directory, a pickle,
+a config copy, a log file --- would be a meaningful fraction of its runtime.
 
-Two levers exist if we get there, and neither requires reworking the design.
-The first is to merge the per-year products: the heat content and mixed-layer
-depth year steps make the same pass over the same twelve files, so one step
-producing both halves the count.  They are kept separate here because merging
-couples two products for a saving that only matters at scale.  The second is to
-coarsen the key from a year to a decade, which divides the count by ten at the
-cost of making reuse coarser --- extending a record from 60 to 65 years would
-redo a decade rather than five years.  We should reach for merging first, since
-it costs nothing in reuse.
+The count grows with the number of field groups and, in later phases, with
+whatever new products are added --- not with the record, the seasons, the
+elevations, or the regions.  That is what principle 4 is protecting: the
+dimensions that multiply are loops inside steps, so adding regional analysis
+multiplies the *plots* without multiplying the *steps*.
 
 The climatology is the one expensive computation that genuinely depends on the
 range, and it is recomputed for each new range.  In principle a climatology
@@ -973,45 +973,53 @@ work-directory layout is:
 
 ```none
 ocean/analysis/
-├── climatology/
-│   └── 0021-0040/                (shared step: ncclimo, per range)
-├── years/                        (shared per-year steps, range-independent)
-│   ├── ocean_heat_content/0021/ … 0060/
-│   └── mixed_layer_depth/0021/ … 0060/   (only if computed offline)
-├── climatology_maps/             (task)
-│   └── maps/0021-0040/           (step, per range)
-├── ocean_heat_content/           (task)
-│   ├── maps/0021-0040/           (step, from the climatology)
-│   └── time_series/0001-0060/    (step, from the per-year steps)
-├── global_stats/                 (task)
-│   └── time_series/0001-0060/    (step)
-└── moc/                          (task)
-    └── plot/0021-0040/           (step)
+├── climatology/0021-0040/                    (shared: ncclimo)
+├── climatology_maps/0021-0040/
+│   ├── temperature/ salinity/ velocity/      (one step per field group)
+│   ├── ssh/ mixed_layer_depth/
+│   └── heat_content/
+├── mixed_layer_depth_monthly/0021-0040/      (only if computed offline)
+├── heat_content_series/0001-0060/
+├── global_stats/0001-0060/
+└── moc/0021-0040/
 ```
 
-Step subdirectories are keyed by the date range they cover, and the expensive
-per-year work lives in shared steps keyed by year rather than by range.  The
-`repeated-analysis` implementation below explains why, and why this structure
-is what makes re-running with a new range work.
+The layout follows one rule --- **`<product>/<period>/[<field group>]`** ---
+and the third level exists only for the one product that is chunked.  This is
+the work tree, so it is built for predictability and for finding a step's log,
+not for browsing; browsing is the staging tree's job.  See principles 1 and 5
+in {ref}`design-ocean-analysis`.
 
-The `climatology` and `years` steps are shared steps in the sense of
-[Shared steps](shared_steps.md): the climatology for a given range is used by
-`climatology_maps/maps` and by `ocean_heat_content/maps`, and both sit at
-`ocean/analysis`, the highest level at or below which all of the tasks that use
-them live.  Each runs once no matter how many of the tasks are run.
+Two levels from an earlier draft are gone, and it is worth saying why, since
+the reasoning generalizes:
 
-Ocean heat content is one task with two steps rather than two tasks: the maps
-and the time series share the elevation ranges and the heat content kernel, and
-are one product from the reader's point of view even though they read different
-inputs.  Running only one of them is still possible with `polaris serial
---steps`.
+- **`years/`**, which held one shared step per simulation year, is gone because
+  those steps are gone --- the expensive per-year work is now a seeded
+  accumulator inside a single step.  Renaming the level would not have helped:
+  a directory whose best name describes how the work was chunked is a level
+  that should not exist.
+- **`maps/`, `time_series/`, and `plot/`**, the single-step levels between a
+  product and its period, are gone because a level with one child and a name
+  that repeats its parent earns nothing and costs a level of depth on every
+  path.
+
+Every step is a shared step in the sense of [Shared steps](shared_steps.md),
+created at `ocean/analysis`, the highest level at or below which all of the
+tasks that use them live.  This matters most for the climatology, which every
+field group of `climatology_maps` reads and which therefore runs once no matter
+how many of them are run.
+
+Tasks are a thin grouping over these steps and no longer introduce directory
+levels of their own: `climatology_maps` is one task with a step per field
+group, and `heat_content_series`, `global_stats`, and `moc` are one task with
+one step each.  Running a subset is `polaris serial --steps`.
 
 The suite is `polaris/suites/ocean/omega_analysis.txt`, named to match the
 existing `omega_pr` and `omega_nightly` suites:
 
 ```none
 ocean/analysis/climatology_maps
-ocean/analysis/ocean_heat_content
+ocean/analysis/heat_content_series
 ocean/analysis/global_stats
 ocean/analysis/moc
 ```
@@ -1251,8 +1259,8 @@ resolutions.
 #### Re-running comes from range-keyed step subdirectories
 
 Every range-dependent step lives at a subdirectory named for the range it
-covers: `climatology/0021-0040`, `climatology_maps/maps/0021-0040`,
-`global_stats/time_series/0001-0060`.  A setup with a new range therefore
+covers: `climatology/0021-0040`, `climatology_maps/0021-0040/temperature`,
+`global_stats/0001-0060`.  A setup with a new range therefore
 creates *new steps in new directories*, which have never run and so are not
 complete, and they run.  A setup with the same range lands on the same
 directories, which are complete, and nothing is recomputed.
@@ -1391,15 +1399,12 @@ outputs, and completion markers --- so re-running an earlier range means
 re-running setup with that range's config, after which everything it needs is
 already complete except whatever it is being asked to redo.
 
-Analyzing many ranges accumulates step directories and climatology files.  This
-is deliberate, since it is what makes re-analyzing an earlier range nearly
-free, but it is worth knowing about on a filesystem with a quota.
-
-Per-year steps also mean a suite with a forty-year time series contains forty
-extra steps per per-year product.  That is a larger step count than existing
-Polaris tasks produce, though not by orders of magnitude, and it is worth a
-look at setup time on a long record before committing to per-year rather than,
-say, per-decade granularity.
+Analyzing many ranges accumulates step directories, climatology files, and
+accumulator caches.  This is deliberate, since it is what makes re-analyzing an
+earlier range nearly free, but it is worth knowing about on a filesystem with a
+quota.  The climatology files dominate: an accumulator cache for a reduced
+series is kilobytes, while a full set of `ncclimo` output is a copy of the
+requested fields for every season.
 
 ### Implementation: omega-monthly-means
 
