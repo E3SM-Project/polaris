@@ -1335,13 +1335,10 @@ one process and cannot be sent to a worker on another node at all.
 
 Declaring inputs and outputs by relative name stays exactly as it is --- setup
 already resolves those against the step's work directory.  The rule is about
-the body of `run()`, and it is met with one helper on the step:
-
-```python
-def path(self, filename):
-    """Resolve a filename against this step's work directory."""
-    return os.path.join(self.work_dir, filename)
-```
+the body of `run()`, and the framework now provides what it needs:
+`Step.work_path()`, which joins path components onto the step's own work
+directory and returns an absolute path, raising rather than guessing if the
+work directory is not set.
 
 Every `open`, `open_model_dataset`, `write_netcdf` and output filename in the
 pseudocode below goes through it.  The pseudocode is written that way rather
@@ -1892,7 +1889,7 @@ reductions requested for them:
 
 ```python
 for season in plot_seasons:
-    ds = self.open_model_dataset(self.path(climo_filename(season)),
+    ds = self.open_model_dataset(self.work_path(climo_filename(season)),
                                  self.config)
     z_mid, z_interface = get_z_mid_and_interface(ds)
     layer_mass = get_layer_mass(ds, self.config)
@@ -1903,14 +1900,14 @@ for season in plot_seasons:
                 da, reduction, z_mid, z_interface, layer_mass,
                 k_min, k_max)
             basename = f'{field}_{season}_{reduction.label}'
-            write_netcdf(da_map, self.path(f'{basename}.nc'))
+            write_netcdf(da_map, self.work_path(f'{basename}.nc'))
             self.manifest.add(da_map, field=field, season=season,
                               reduction=reduction, filename=f'{basename}.nc')
             plot_global_mpas_field(
-                da=da_map, out_filename=self.path(f'{basename}.png'),
+                da=da_map, out_filename=self.work_path(f'{basename}.png'),
                 config=self.config,
                 colormap_section=f'ocean_analysis_map_{field}',
-                mesh_filename=self.path('mesh.nc'), ...)
+                mesh_filename=self.work_path('mesh.nc'), ...)
 ```
 
 Heat content needs no branch here.  Its field is derived rather than read, and
@@ -2081,7 +2078,7 @@ requested range.  Its kernel reduces one month to a handful of numbers:
 ```python
 class HeatContentSeries(Accumulator):
     def compute_month(self, filename):
-        ds = self.open_model_dataset(self.path(filename), self.config)
+        ds = self.open_model_dataset(self.work_path(filename), self.config)
         _, z_interface = get_z_mid_and_interface(ds)
         layer_mass = get_layer_mass(ds, self.config)
         ohc = []
