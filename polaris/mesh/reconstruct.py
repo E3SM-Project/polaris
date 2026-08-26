@@ -5,7 +5,10 @@ import numpy as np
 import xarray as xr
 
 from polaris.mesh.info import is_planar
-from polaris.mesh.vector import compute_edge_normal_vec
+from polaris.mesh.vector import (
+    compute_edge_normal_vec,
+    get_coordinate_matrix,
+)
 
 # TODO: when python 3.11 is dropped add type alias
 ReconstructionType = Literal['cell', 'vertex']
@@ -23,7 +26,11 @@ _RECONSTRUCTION_FIELD_NAMES: dict[ReconstructionType, dict[str, str]] = {
     },
 }
 
-# variables read by build_reconstruction_weights() for each location
+# Variables read by build_reconstruction_weights() for each location.  Both
+# locations need the cell coordinates and cellsOnEdge, because the edge-normal
+# vectors point from cell to cell.  Every connectivity array's dimension
+# (nCells, nEdges, nVertices) must also be reachable from these variables so
+# that fix_out_of_bounds_indices() can find its size.
 _RECONSTRUCTION_INPUT_VARS: dict[ReconstructionType, tuple[str, ...]] = {
     'cell': (
         'xCell',
@@ -40,6 +47,9 @@ _RECONSTRUCTION_INPUT_VARS: dict[ReconstructionType, tuple[str, ...]] = {
         'xVertex',
         'yVertex',
         'zVertex',
+        'xCell',
+        'yCell',
+        'zCell',
         'xEdge',
         'yEdge',
         'zEdge',
@@ -269,7 +279,9 @@ def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
         output_dtypes=[conn.dtype],
     )
 
-    # union of edgesOnVertex over the two-ring edge stencil for target vertex
+    # union of edgesOnVertex over that one-ring of vertices, which is the
+    # two-ring edge stencil for the target vertex
+    conn = ds.edgesOnVertex[neighbor_vertices - 1]
     conn = conn.where(neighbor_vertices != 0, 0)
 
     return xr.apply_ufunc(
@@ -313,20 +325,26 @@ def construct_rotation_matrix(
 
     # e.g. "cell" -> "xCell", "vertex" -> "xVertex"
     prefix = location.capitalize()
-    x_hat = ds[f'x{prefix}'] / ds.sphere_radius
-    y_hat = ds[f'y{prefix}'] / ds.sphere_radius
-    z_hat = ds[f'z{prefix}'] / ds.sphere_radius
 
     # infer the reconstruction-point dimension ("nCells" or "nVertices")
     # directly from the coordinate arrays, rather than hard-coding it
-    point_dim = x_hat.dims[0]
-    n_points = x_hat.sizes[point_dim]
+    point_coord = ds[f'x{prefix}']
+    point_dim = point_coord.dims[0]
+    n_points = point_coord.sizes[point_dim]
 
-    # return identity matrix for planar meshes
+    # A planar mesh already lies in the x-y plane, so the tangent plane at
+    # every reconstruction point is the mesh plane itself and there is no
+    # rotation to do.  This is checked before the normalization below,
+    # which planar meshes would divide by a sphere_radius of zero.
     if is_planar(ds):
         return xr.DataArray(
-            np.ones((n_points, 3, 3)), dims=(point_dim, 'd1', 'd2')
+            np.broadcast_to(np.eye(3), (n_points, 3, 3)).copy(),
+            dims=(point_dim, 'd1', 'd2'),
         )
+
+    x_hat = ds[f'x{prefix}'] / ds.sphere_radius
+    y_hat = ds[f'y{prefix}'] / ds.sphere_radius
+    z_hat = ds[f'z{prefix}'] / ds.sphere_radius
 
     c_y = np.sqrt(y_hat**2 + z_hat**2)
     s_y = x_hat
@@ -402,7 +420,7 @@ def compute_lstsq_weights(
         MPAS mesh dataset
     local_edge_coords: xr.DataArray (nCells or nVertices, maxEdges2/NINE, R3)
         Edge coordinate vectors projected onto the local tangent plane at the
-        the reconstruction point
+        reconstruction point and relative to it
     stencil: xr.DataArray (nCells or nVertices, maxEdges2 or NINE)
         A two level stencil of edges neighboring the reconstruction point
 
@@ -416,23 +434,9 @@ def compute_lstsq_weights(
     planar = is_planar(ds)
 
     if planar:
-        # planar: use actual distance from reconstruction point as D
-        point_dim = local_edge_coords.dims[0]
-        if point_dim in ('nCells', 'NCells'):
-            ref_point = xr.concat([ds.xCell, ds.yCell], dim='R3').T
-        elif point_dim in ('nVertices', 'NVertices'):
-            ref_point = xr.concat([ds.xVertex, ds.yVertex], dim='R3').T
-        else:
-            raise ValueError(
-                'Could not infer the reconstruction point location from '
-                f"dimension '{point_dim}'. Expected 'nCells'/'NCells' or "
-                "'nVertices'/'NVertices'."
-            )
-        D = np.sqrt(
-            ((local_edge_coords.isel(R3=[0, 1]) - ref_point) ** 2).sum(
-                dim='R3'
-            )
-        )
+        # planar: the coordinates are already relative to the
+        # reconstruction point, so D is the in-plane distance from it
+        D = np.sqrt((local_edge_coords.isel(R3=[0, 1]) ** 2).sum(dim='R3'))
     else:
         # normalize the rotated z coord onto the unit sphere to match
         # Renka (1984): z_hat = 1 at the reconstruction point and
@@ -559,10 +563,7 @@ def build_reconstruction_weights(
 
     # compute the normal vector for each edge in Cartesian coordinates
     cartesian_normal_vector = compute_edge_normal_vec(ds)
-    # build the edge coord vec (nEdges, R3)
-    cartesian_edge_coords = xr.concat(
-        [ds.xEdge, ds.yEdge, ds.zEdge], dim='R3'
-    ).T
+    cartesian_edge_coords = get_coordinate_matrix(ds, 'edge')
 
     # project the normal vector onto the tangent plane at the cell center
     local_normal_vector = project_edge_normal_to_tangent_plane(
@@ -572,6 +573,19 @@ def build_reconstruction_weights(
     local_edge_coords = project_edge_normal_to_tangent_plane(
         cartesian_edge_coords, rotation_matrix, stencil
     )
+
+    # On a sphere, the rotation above carries the reconstruction point to
+    # (0, 0, sphere_radius), so the local edge coordinates are already
+    # relative to it and the constant term of the least-squares fit below
+    # is the value at the point.  A planar mesh rotates by the identity,
+    # which leaves the coordinates absolute, so translate them here.
+    # Otherwise the fit is anchored at the mesh origin and the constant
+    # term is the field extrapolated there rather than the value at the
+    # reconstruction point.
+    if is_planar(ds):
+        local_edge_coords = local_edge_coords - get_coordinate_matrix(
+            ds, location
+        )
 
     # weight the LSTSQ matrix following Renka (1984) pg. 422
     w = compute_lstsq_weights(ds, local_edge_coords, stencil)

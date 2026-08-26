@@ -1,5 +1,36 @@
+from typing import Literal
+
 import numpy as np
 import xarray as xr
+
+# TODO: when python 3.11 is dropped add type alias
+VariableLocationType = Literal['cell', 'edge', 'vertex']
+
+
+def get_coordinate_matrix(
+    ds: xr.Dataset, location: VariableLocationType = 'cell'
+) -> xr.DataArray:
+    """
+    Get the Cartesian coordinates of the mesh elements at a given location
+    as a single array
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        MPAS mesh Dataset
+    location : {'cell', 'edge', 'vertex'}, optional
+        The mesh location to get the coordinates of
+
+    Returns
+    -------
+    xr.DataArray (nCells or nEdges or nVertices, R3)
+        The Cartesian coordinates of each element at ``location``
+    """
+    # e.g. "cell" -> "xCell", "vertex" -> "xVertex"
+    suffix = location.capitalize()
+    return xr.concat(
+        [ds[f'x{suffix}'], ds[f'y{suffix}'], ds[f'z{suffix}']], dim='R3'
+    ).T
 
 
 def compute_edge_normal_vec(ds: xr.Dataset) -> xr.DataArray:
@@ -25,8 +56,8 @@ def compute_edge_normal_vec(ds: xr.Dataset) -> xr.DataArray:
         # formulas below are correct for non-periodic meshes as well
         period = np.array([0.0, 0.0, 0.0])
 
-    vec_cell = xr.concat([ds.xCell, ds.yCell, ds.zCell], dim='R3').T
-    vec_edge = xr.concat([ds.xEdge, ds.yEdge, ds.zEdge], dim='R3').T
+    vec_cell = get_coordinate_matrix(ds, 'cell')
+    vec_edge = get_coordinate_matrix(ds, 'edge')
 
     cell_1 = ds.cellsOnEdge.isel(TWO=0) - 1
     cell_2 = ds.cellsOnEdge.isel(TWO=1) - 1
