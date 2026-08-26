@@ -733,10 +733,25 @@ offline reconstruction path at all.
 An earlier draft had one, reconstructing from `normalVelocity` on edges with
 the least-squares weights designed in
 [Vector Reconstruction](vector_reconstruction.md), so that this product would
-not block on Omega work.  It is not needed: Omega already has what it needs to
-write reconstructed velocities, so they are a required output rather than a
-preferred one, and a fallback for a case that will not arise is code we would
-write, test and maintain for nothing.
+not block on Omega work.  It is not needed: the Omega side is in progress in
+[Omega #525](https://github.com/E3SM-Project/Omega/pull/525), which adds
+velocity-component reconstruction for I/O, so reconstructed velocities become a
+required output rather than a preferred one, and a fallback for a case that
+will not arise is code we would write, test and maintain for nothing.
+
+That work is still a draft, so this is the one place the design depends on
+something not yet landed upstream.  The consequence is contained: until it
+does, the mock-up files carry `NormalVelocity` and no components, so the
+velocity maps are the one product that reports missing fields and skips, in the
+way described under `omega-monthly-means`.  Nothing else waits on it.  Writing
+the offline path against that gap would cost more than the wait, and would
+leave us maintaining two ways to obtain the same field.
+
+Polaris's reconstruction itself is not going away and is being fixed
+independently --- [Polaris #721](https://github.com/E3SM-Project/polaris/pull/721)
+corrects vector reconstruction on planar meshes, found while doing the Omega
+work.  It stays available for tasks that need it; this analysis simply does not
+read edge velocities.
 
 The accuracy question that would otherwise decide this does not arise either.
 Reconstruction is linear, so reconstructing from a climatology of normal
