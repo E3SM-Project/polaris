@@ -212,7 +212,7 @@ def construct_edgesOnVerticesOnCell(ds: xr.Dataset) -> xr.DataArray:
     """Build a stencil of the unique edges on the vertices of each cell.
 
     This stencil is used for cell-centered reconstruction of edge-normal vector
-    field, as described by Piexoto and Barros (2014); see Figure 5(a).
+    field, as described by Peixoto and Barros (2014); see Figure 5(a).
 
     Parameters
     ----------
@@ -246,7 +246,7 @@ def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
     """Build a stencil of the unique edges on the vertices of each vertex.
 
     This stencil is used for vertex-centered reconstruction of edge-normal
-    vector field, as described by Piexoto and Barros (2014); see Figure
+    vector field, as described by Peixoto and Barros (2014); see Figure
     5(b).
 
     Parameters
@@ -501,7 +501,7 @@ def rotate_local_to_cartesian(
     )
 
 
-def solve_psuedo_inverse(M: xr.DataArray) -> xr.DataArray:
+def solve_pseudo_inverse(M: xr.DataArray) -> xr.DataArray:
     """
     Solve the batched pseudo-inverse of a matrix M using numpy.linalg.pinv
 
@@ -590,7 +590,7 @@ def build_reconstruction_weights(
     # weight the LSTSQ matrix following Renka (1984) pg. 422
     w = compute_lstsq_weights(ds, local_edge_coords, stencil)
 
-    # Build Eqn. 20 from Piexoto and Barros (2014)
+    # Build Eqn. 20 from Peixoto and Barros (2014)
     matrix = xr.concat(
         [local_normal_vector.isel(R3=[0, 1])] * 3, dim='R3'
     ).rename({'R3': 'SIX'})
@@ -604,7 +604,7 @@ def build_reconstruction_weights(
     # apply the weights to the matrix
     matrix *= np.sqrt(w)
     # solve pseudo-inverse of the matrix to get the reconstruction weights
-    weights = solve_psuedo_inverse(matrix)
+    weights = solve_pseudo_inverse(matrix)
     weights *= np.sqrt(w)
 
     # Because we only support reconstruction at the reconstruction points
