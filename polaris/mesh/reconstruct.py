@@ -5,7 +5,10 @@ import numpy as np
 import xarray as xr
 
 from polaris.mesh.info import is_planar
-from polaris.mesh.vector import compute_edge_normal_vec
+from polaris.mesh.vector import (
+    compute_edge_normal_vec,
+    get_coordinate_matrix,
+)
 
 # TODO: when python 3.11 is dropped add type alias
 ReconstructionType = Literal['cell', 'vertex']
@@ -551,10 +554,7 @@ def build_reconstruction_weights(
 
     # compute the normal vector for each edge in Cartesian coordinates
     cartesian_normal_vector = compute_edge_normal_vec(ds)
-    # build the edge coord vec (nEdges, R3)
-    cartesian_edge_coords = xr.concat(
-        [ds.xEdge, ds.yEdge, ds.zEdge], dim='R3'
-    ).T
+    cartesian_edge_coords = get_coordinate_matrix(ds, 'edge')
 
     # project the normal vector onto the tangent plane at the cell center
     local_normal_vector = project_edge_normal_to_tangent_plane(
@@ -574,7 +574,7 @@ def build_reconstruction_weights(
     # term is the field extrapolated there rather than the value at the
     # reconstruction point.
     if is_planar(ds):
-        local_edge_coords = local_edge_coords - _reconstruction_point_coords(
+        local_edge_coords = local_edge_coords - get_coordinate_matrix(
             ds, location
         )
 
@@ -851,18 +851,3 @@ def _add_reconstruct_attrs(
         attrs['units'] = units
     data_array.attrs.update(attrs)
     return data_array
-
-
-def _reconstruction_point_coords(
-    ds: xr.Dataset, location: ReconstructionType
-) -> xr.DataArray:
-    """
-    The Cartesian coordinates of each reconstruction point, shaped
-    (nCells or nVertices, R3) so they broadcast against the local edge
-    coordinates.
-    """
-    # e.g. "cell" -> "xCell", "vertex" -> "xVertex"
-    prefix = location.capitalize()
-    return xr.concat(
-        [ds[f'x{prefix}'], ds[f'y{prefix}'], ds[f'z{prefix}']], dim='R3'
-    ).T
