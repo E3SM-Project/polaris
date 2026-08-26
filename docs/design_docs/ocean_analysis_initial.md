@@ -273,9 +273,13 @@ fields.  The monthly-mean output shall:
 - include the **geometric vertical coordinate**, `GeomZMid` and
   `GeomZInterface`, so that Polaris does not have to reconstruct it (see the
   vertical-geometry algorithm design for why it cannot);
-- carry CF-compliant time metadata, with a time coordinate and time bounds that
-  identify the averaging period, so that standard tools can identify the month
-  each average represents;
+- carry CF-compliant time metadata: a `time` coordinate with `units`,
+  `calendar` and a `bounds` attribute, and a **`time_bnds` variable holding the
+  start and end of the averaging period**.  This is not a formality --- it is
+  the specific thing `ncclimo` needs in order to read Omega output at all, and
+  it has to hold the right values, not merely be present.  See the
+  implementation section, where this is now confirmed against real output
+  rather than assumed;
 - use a file-name convention that encodes the year and month, or that groups
   whole years into one file, and that is stable across a simulation.
 
@@ -1667,14 +1671,16 @@ requested fields for every season.
 
 ### Implementation: omega-monthly-means
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/25
 
 Contributors: Xylar Asay-Davis, Claude
 
 This is Omega work and is implemented in the Omega repository, not in Polaris.
 What Polaris needs to do:
 
-- add config options for the monthly-mean file-name template, as above;
+- add config options for the monthly-mean file-name template, as above ---
+  though the templates normally come from the simulation's Omega configuration
+  rather than from the user, so these are overrides;
 - add any new Omega fields, including a mixed-layer depth diagnostic, to
   `polaris/ocean/model/mpaso_to_omega.yaml` once their Omega names are fixed;
 - add an Omega YAML fragment that turns on monthly-mean output of the required
@@ -1682,15 +1688,49 @@ What Polaris needs to do:
   analysis, in the same way `analysis_members.cfg` and `forward.yaml` configure
   `GlobalStats` today.
 
-Development of the Polaris side proceeds against Omega output as each Omega
-capability lands, rather than against MPAS-Ocean output.  MPAS-Ocean would be a
-misleading development target: its variable and dimension names differ, its
-time metadata is not CF compliant, and its monthly means come from a different
-analysis member with different conventions, so code that works against
-MPAS-Ocean output tells us little about whether it will work against Omega's.
-Before Omega can write monthly means at all, development is limited to the
-shared kernels, which are exercised by unit tests on synthetic data and do not
-need model output of either kind.
+#### A mock-up already exists to develop against
+
+Development proceeds against Omega output rather than MPAS-Ocean output.
+MPAS-Ocean would be a misleading target: its variable and dimension names
+differ, its time metadata is not CF compliant, and its monthly means come from
+a different analysis member with different conventions, so code that works
+against it tells us little about whether it will work against Omega's.
+
+That would have limited early work to the shared kernels, but no longer does.
+A one-year QU240 Omega simulation has been run for this purpose on the
+`mockup-realistic-global-analysis-run` branch, and a mock-up set of
+monthly-averaged files derived from it is staged at
+
+```none
+<test_dir>/qu240-one-year-analysis-mockup/monthly_means/ocn.hist.0001-01.nc … 0001-12.nc
+```
+
+one month per file, carrying `Temperature`, `Salinity`, `PseudoThickness`,
+`GeomZMid`, `GeomZInterface`, `SshCell`, `SpecVol`, `KineticEnergyCell` and
+`NormalVelocity`, on dimensions `time`, `NCells`, `NVertLayers`,
+`NVertLayersP1` and `NEdges`, with `time` in `seconds since 0000-12-01` on a
+`noleap` calendar and `time_bnds` giving each month's bounds.
+
+Every product in this design except mixed-layer depth and the reconstructed
+velocity components can be developed and tested against these files today.
+They are what the order of work assumes: the steps are built against real Omega
+output from the start rather than against synthetic data with a later
+integration step.
+
+#### `ncclimo` reads Omega output --- confirmed
+
+The open question about whether `ncclimo` could read Omega monthly means
+without the MPAS-specific `-P mpaso` processing type is **settled, and the
+answer is yes** --- provided `time_bnds` is present and holds the expected
+values.  That was established against the mock-up files above, and it is why
+the requirement now names `time_bnds` specifically rather than asking for
+"time bounds" in general.
+
+This was the item on the critical path, so it is worth being clear about what
+was and was not shown: that `ncclimo` accepts the files and produces
+climatologies, at QU240, from a mock-up.  It has not been exercised at high
+resolution, over multiple years, or against output Omega's own monthly
+reduction wrote rather than a mock-up of it.
 
 The steps are written so that they degrade gracefully: a step whose input
 fields are not yet available reports which fields are missing from which file
@@ -2521,10 +2561,13 @@ They are collected here rather than buried in the sections above.*
    ship the offline fallback with its caveats.  This needs a team discussion
    rather than a decision in this document, and it affects both the Omega
    schedule and work item 14 above.
-2. **`ncclimo` and Omega output.**  Whether `ncclimo` can read Omega
-   monthly-mean files without the MPAS-specific processing type needs to be
-   confirmed against real output as soon as Omega can produce it.  This is on
-   the critical path.
+2. *(Settled.)*  **`ncclimo` and Omega output.**  `ncclimo` reads Omega
+   monthly-mean files without the MPAS-specific `-P mpaso` processing type,
+   provided `time_bnds` is present with the expected values.  Confirmed against
+   the QU240 mock-up described under `omega-monthly-means`.  Recorded here
+   because it was the item on the critical path; what remains is to repeat it
+   at high resolution and against Omega's own monthly reduction rather than a
+   mock-up of it.
 3. **Omega MOC output conventions.**  The variable, dimension, and coordinate
    names, and whether the mean interface elevations are written alongside the
    streamfunction, need to be confirmed against the MOC implementation.  This
