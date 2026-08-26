@@ -26,7 +26,11 @@ _RECONSTRUCTION_FIELD_NAMES: dict[ReconstructionType, dict[str, str]] = {
     },
 }
 
-# variables read by build_reconstruction_weights() for each location
+# Variables read by build_reconstruction_weights() for each location.  Both
+# locations need the cell coordinates and cellsOnEdge, because the edge-normal
+# vectors point from cell to cell.  Every connectivity array's dimension
+# (nCells, nEdges, nVertices) must also be reachable from these variables so
+# that fix_out_of_bounds_indices() can find its size.
 _RECONSTRUCTION_INPUT_VARS: dict[ReconstructionType, tuple[str, ...]] = {
     'cell': (
         'xCell',
@@ -43,6 +47,9 @@ _RECONSTRUCTION_INPUT_VARS: dict[ReconstructionType, tuple[str, ...]] = {
         'xVertex',
         'yVertex',
         'zVertex',
+        'xCell',
+        'yCell',
+        'zCell',
         'xEdge',
         'yEdge',
         'zEdge',
@@ -272,7 +279,9 @@ def construct_edgesOnVerticesOnVertex(ds: xr.Dataset) -> xr.DataArray:
         output_dtypes=[conn.dtype],
     )
 
-    # union of edgesOnVertex over the two-ring edge stencil for target vertex
+    # union of edgesOnVertex over that one-ring of vertices, which is the
+    # two-ring edge stencil for the target vertex
+    conn = ds.edgesOnVertex[neighbor_vertices - 1]
     conn = conn.where(neighbor_vertices != 0, 0)
 
     return xr.apply_ufunc(
