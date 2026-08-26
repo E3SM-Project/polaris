@@ -1925,14 +1925,19 @@ drawn one after another.  Building the `mosaic` descriptor is the expensive
 part of plotting a global mesh, so it is constructed once per step and shared,
 which is where most of the available saving is anyway.
 
-Two dependencies on the framework follow from
-[Task-Parallel-Safe Analysis Steps](task_parallel_analysis_steps.md) and are
-recorded here rather than worked around.  `polaris.viz` assigns
-`plt.rcParams['savefig.dpi']`, which is process-global state and is being made
-scope-safe separately; these steps use whatever scoped form it takes.  And
-plotting in a pool means no reliance on the `pyplot` current-figure state,
-which is likewise global --- each plot creates and closes its own figure
-explicitly.
+Both framework dependencies this used to have are now met.  `polaris.viz` no
+longer assigns `plt.rcParams` from inside a step: `mplstyle_context()` scopes
+the style and DPI to a `with` block, and the spherical and planar plotting
+functions use matplotlib's object-oriented `Figure` API rather than the
+`pyplot` current-figure state.  Both landed with the task-parallel groundrules.
+These steps therefore need no workaround and no special pleading --- they call
+`polaris.viz` as it now is.
+
+Step authors should follow
+[the task parallelism page](../developers_guide/framework/task_parallelism.md)
+in the Developer's Guide, which is the practical form of the rules; the design
+behind them is
+[Task-Parallel-Safe Analysis Steps](task_parallel_analysis_steps.md).
 
 Maps are plotted on the native mesh with the existing
 `polaris.viz.plot_global_mpas_field`, which is `mosaic`-based and needs no
