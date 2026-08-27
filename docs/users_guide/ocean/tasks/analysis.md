@@ -1,0 +1,207 @@
+(ocean-analysis)=
+
+# analysis
+
+The `analysis` task group analyzes a simulation that has **already been run**,
+rather than running one.  Its tasks are pointed at a completed Omega
+simulation through a config file and produce plots and the netCDF data behind
+them.
+
+This makes it unlike the other pages in this section.  There is no mesh, no
+vertical grid, no initial condition, no forcing and no time step to describe,
+because no model is run: everything the analysis needs it reads from the
+simulation's own output.
+
+Analysis products are added over time; {ref}`ocean-analysis-products` lists
+what is available so far.
+
+## supported models
+
+**Omega only.**  The analysis locates a simulation's output by reading the
+simulation's own Omega configuration file, which is also how it learns the
+mesh, the vertical coordinate and the output streams.  MPAS-Ocean describes
+its output with namelists and streams files instead, and reading those would
+require a translator into the same form, which does not exist.  A setup with
+`[ocean] model` set to `mpas-ocean` reports that rather than failing later.
+
+Neither an Omega nor an MPAS-Ocean build is needed, since no model is run.
+
+(ocean-analysis-config)=
+
+## pointing the analysis at a simulation
+
+The user supplies a config file describing the simulation to analyze.  In the
+common case it needs three things: where the simulation is, and the two ranges
+of simulation years to analyze.
+
+```cfg
+[ocean_analysis]
+
+# the simulation's own Omega configuration file
+omega_config_filename = /path/to/run/omega.yml
+
+# a short name used in plot titles and file names
+simulation_name = my_run
+
+
+[ocean_analysis_climatology]
+
+# the first and last year of the climatology, inclusive
+start_year = 21
+end_year = 40
+
+
+[ocean_analysis_time_series]
+
+# the first and last year of the time series, inclusive
+start_year = 1
+end_year = 60
+```
+
+`omega_config_filename` is **required** and is the only description of where
+the simulation's output lives.  Polaris reads the mesh, the vertical
+coordinate and the output streams from it, so none of them have to be restated
+by hand.  An Omega run always writes this file; it is in the run directory.
+
+The two year ranges are independent.  The climatology range governs the
+map-view products and the MOC; the time-series range governs the global
+statistics and ocean heat content time series.  Changing one does not disturb
+the other.
+
+A few further options in `[ocean_analysis]` are worth knowing about, though
+most simulations need none of them:
+
+`simulation_path`
+: The directory that relative file names in the Omega configuration are
+  resolved against.  Defaults to the directory containing that file, which is
+  the run directory.  Set it if the output has moved since the run.
+
+`mesh_filename`, `vert_coord_filename`
+: The horizontal mesh and vertical-coordinate files, absolute or relative to
+  `simulation_path`.  Each defaults to the file the Omega configuration names.
+  Set one if it has moved.
+
+`output_path`
+: Where plots and their netCDF files are published for browsing.  Defaults to
+  `<work_dir>/analysis_output`.  Point it somewhere web-servable to share the
+  results.
+
+The remaining sections --- `[ocean_analysis_climatology]`,
+`[ocean_analysis_ohc]`, `[ocean_analysis_time_series]` and
+`[ocean_analysis_moc]` --- describe what each product computes and plots.  See
+the comments in `polaris/tasks/ocean/analysis/analysis.cfg` for the full list
+with its defaults.
+
+## running the analysis
+
+```bash
+polaris suite -c ocean -t omega_analysis -w <work_dir> -f analysis.cfg \
+    --model omega
+polaris serial
+```
+
+Two things about that command differ from most Polaris suites:
+
+- **`--model omega` is required** (or `model = omega` in an `[ocean]` section
+  of the config file).  Polaris normally detects the model by finding a build,
+  and there is no build here.
+- **No `-p`/`--component_path`**, for the same reason.
+
+The suite can be run on the machine where the simulation output lives, without
+copying that output.
+
+To run a single product rather than the whole suite, set up that task on its
+own:
+
+```bash
+polaris setup -t ocean/analysis/global_stats -w <work_dir> -f analysis.cfg \
+    --model omega
+```
+
+## where the results go
+
+Two directory trees, with two audiences.
+
+The **work directory** is built for predictability and for finding a step's
+log, not for browsing.  It follows one rule, `<product>/<period>`, with a
+third level only for the one product that is chunked by field group:
+
+```none
+ocean/analysis/
+├── climatology/0021-0040/                (shared: ncclimo)
+├── climatology_maps/0021-0040/
+│   ├── temperature/ salinity/ velocity/
+│   ├── ssh/ mixed_layer_depth/
+│   └── heat_content/
+├── heat_content_series/0001-0060/
+├── global_stats/0001-0060/
+└── moc/0021-0040/
+```
+
+The range in each path is the zero-padded first and last year, matching the
+convention `ncclimo` uses in its own file names.
+
+The **staging tree** under `output_path` is where results are published for
+browsing, with descriptive file names that carry the product, the field, the
+season, the vertical reduction and the range.
+
+## analyzing the same simulation more than once
+
+Every product lives at a directory named for the range it covers, and that is
+what makes re-analysis behave sensibly:
+
+- **A new range recomputes.**  It creates steps in directories that have never
+  run, so they run.  Nothing has to be deleted and no flag has to be passed.
+- **An unchanged range recomputes nothing.**  Those directories are already
+  complete.
+- **An earlier range's results survive.**  Two ranges never share a directory,
+  so analyzing years 21--40 leaves the results for years 1--20 in place.  This
+  also makes it impossible to get a plot labelled with one range whose
+  contents came from another.
+
+Re-running `polaris setup` rewrites the suite pickle at the root of the work
+directory, so the range most recently set up is the one `polaris serial` will
+run.  Step directories from earlier ranges are untouched, so returning to an
+earlier range means re-running setup with that range's config.
+
+Analyzing many ranges accumulates step directories and intermediate files,
+which is what makes re-analyzing an earlier range nearly free.  It is worth
+knowing about on a filesystem with a quota; the climatology files dominate.
+
+(ocean-analysis-products)=
+
+## products
+
+The suite is being built up product by product.  What exists so far:
+
+| task | product | status |
+| --- | --- | --- |
+| `climatology_maps` | map-view climatologies, one step per field group | not yet implemented |
+| `global_stats` | time series of the simulation's global statistics | not yet implemented |
+| `heat_content_series` | time series of globally integrated ocean heat content | not yet implemented |
+| `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
+
+Each task currently resolves the simulation files it will read, links them
+into its work directory and reports them in its log, which is enough to check
+that a simulation is being located correctly.
+
+The `moc` task additionally depends on a diagnostic that Omega computes in
+situ and does not yet provide.  A simulation without it is an ordinary case:
+the step reports that no MOC output was written and produces nothing, rather
+than failing the suite.
+
+## troubleshooting
+
+**`invalid interpolation syntax`** while reading the config file.  Polaris
+config files use extended interpolation, so a bare `$` in a value is an error.
+File-name templates containing `$Y` and `$M` belong in the simulation's Omega
+configuration, not in a Polaris config file, and there is no option that takes
+one.
+
+**Missing input files at setup.**  The analysis checks that every file it will
+read exists before anything runs, and reports the years and months that are
+absent together with the Omega stream that named them.  The usual cause is a
+year range that reaches beyond the simulation.
+
+**`Could not detect ocean model`.**  `--model omega` was not passed and there
+is no `[ocean] model` option in the config file.
