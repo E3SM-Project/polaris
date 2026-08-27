@@ -51,11 +51,16 @@
    climatology.Climatology
    climatology.Climatology.setup
    climatology.Climatology.run
+   climatology.get_climatology_variables
+   climatology.find_climatology_file
 
    climatology_maps.ClimatologyMaps
    climatology_maps.ClimatologyMaps.setup
    climatology_maps.ClimatologyMaps.run
    climatology_maps.get_field_groups
+
+   config_sections.camel_to_snake
+   config_sections.map_section
 
    global_stats.GlobalStatsTimeSeries
    global_stats.GlobalStatsTimeSeries.setup
@@ -844,6 +849,11 @@
    vertical.diagnostics.pseudothickness_from_ds
    vertical.diagnostics.get_z_mid_and_interface
    vertical.diagnostics.depth_from_thickness
+   vertical.elevation.VerticalReduction
+   vertical.elevation.parse_vertical_reduction
+   vertical.elevation.apply_vertical_reduction
+   vertical.elevation.get_valid_level_range
+   vertical.elevation.elevation_label
    vertical.grid_1d.generate_1d_grid
    vertical.grid_1d.write_1d_grid
    vertical.partial_cells.alter_bottom_depth
