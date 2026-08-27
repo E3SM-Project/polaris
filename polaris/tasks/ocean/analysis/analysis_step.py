@@ -73,7 +73,13 @@ class AnalysisStep(OceanIOStep):
         sim_files : polaris.tasks.ocean.analysis.sim_files.SimulationFiles
             The files of the simulation being analyzed
         """
-        return SimulationFiles(self.config)
+        sim_files = SimulationFiles(self.config)
+        print(
+            f'{self.name} ({self.start_year}-{self.end_year}): simulation at '
+            f'{sim_files.simulation_path} '
+            f'(from {sim_files.simulation_path_source})'
+        )
+        return sim_files
 
     def add_sim_input_file(self, path, filename=None):
         """

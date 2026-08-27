@@ -405,6 +405,9 @@ class SimulationFiles:
     simulation_path : str
         The directory that relative file names are resolved against
 
+    simulation_path_source : str
+        Where ``simulation_path`` came from, for reporting
+
     simulation_name : str
         A short name for the simulation, used in plot titles and file names
     """
@@ -438,8 +441,6 @@ class SimulationFiles:
                 'Omega run always writes one.'
             )
         self.omega_config = read_omega_config(omega_config_filename)
-        self.log(f'simulation configuration: {self.omega_config.filename}')
-
         self.simulation_path = self._resolve_simulation_path()
         self.simulation_name = section.get('simulation_name')
 
@@ -582,9 +583,8 @@ class SimulationFiles:
         else:
             simulation_path = os.path.dirname(self.omega_config.filename)
             source = 'the directory of the Omega configuration file'
-        simulation_path = os.path.abspath(simulation_path)
-        self.log(f'simulation path: {simulation_path} (from {source})')
-        return simulation_path
+        self.simulation_path_source = source
+        return os.path.abspath(simulation_path)
 
     def _resolve_stream_path(self, option_name, stream_name, description):
         """
@@ -619,7 +619,7 @@ class SimulationFiles:
         value = self.omega_config.stream_filename(stream_name)
         assert value is not None
         self.log(
-            f'{description}: {value} '
+            f'  {description}: {value} '
             f"(from the Omega config's {stream_name} stream)"
         )
         return value
@@ -638,7 +638,7 @@ class SimulationFiles:
             else:
                 kind = 'time-mean' if stream.is_reduction else 'snapshot'
                 self.log(
-                    f'{description}: {stream.filename} (from the Omega '
+                    f'  {description}: {stream.filename} (from the Omega '
                     f"config's {group_name} group, the {stream.period} "
                     f'{kind} stream)'
                 )
@@ -649,7 +649,7 @@ class SimulationFiles:
                 f'The analysis needs the {description} of the simulation, '
                 f'but {reason}.'
             )
-        self.log(f'no {description} output: {reason}')
+        self.log(f'  no {description} output: {reason}')
         return None
 
     def _analysis_group_problem(self, group_name):
