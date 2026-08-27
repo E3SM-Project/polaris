@@ -1720,9 +1720,12 @@ Contributors: Xylar Asay-Davis, Claude
 This is Omega work and is implemented in the Omega repository, not in Polaris.
 What Polaris needs to do:
 
-- nothing for the monthly-mean file names: they come from the `History` stream
-  of the simulation's own Omega configuration, so a change to the stream is
-  picked up without a Polaris change;
+- name the stream the monthly means are written to.  The file names come from
+  the simulation's own Omega configuration, so a change to the stream's file
+  name, frequency or directory needs no Polaris change --- but which stream to
+  read is Polaris's to say, and the expectation is that monthly means will get
+  a stream of their own rather than staying in `History`, which is where the
+  mock-up has them.  That is a one-line change here when the stream exists;
 - add any new Omega fields, including a mixed-layer depth diagnostic, to
   `polaris/ocean/model/mpaso_to_omega.yaml` once their Omega names are fixed;
 - add an Omega YAML fragment that turns on monthly-mean output of the required
@@ -1752,6 +1755,13 @@ one month per file, carrying `Temperature`, `Salinity`, `PseudoThickness`,
 `NormalVelocity`, on dimensions `time`, `NCells`, `NVertLayers`,
 `NVertLayersP1` and `NEdges`, with `time` in `seconds since 0000-12-01` on a
 `noleap` calendar and `time_bnds` giving each month's bounds.
+
+These files are reached by pointing `simulation_path` at a directory whose
+`output/` is a symlink to `monthly_means/`, since the run's own Omega
+configuration names `output/` and the mock-up is not what Omega will actually
+write.  That is a fixture, deliberately, and not something the analysis has
+code for: the mock-up exists to be developed against and then discarded, and
+the monthly means are expected to arrive in their own stream in any case.
 
 Every product in this design except mixed-layer depth and the reconstructed
 velocity components can be developed and tested against these files today.
