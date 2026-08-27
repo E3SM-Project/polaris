@@ -51,6 +51,50 @@ class VerticalReduction(NamedTuple):
 IMPLEMENTED_KINDS = ('top', 'bottom', 'index')
 
 
+def get_valid_level_range(ds):
+    """
+    Get the zero-based indices of the topmost and bottommost valid layer of
+    each column
+
+    Both models write ``minLevelCell`` and ``maxLevelCell`` with the one-based
+    indexing of MPAS-Ocean's Fortran, so this is the one place that converts
+    them to the zero-based indices the reductions use.
+
+    A data set with no ``minLevelCell`` has no ice-shelf cavities, so the
+    topmost valid layer is the topmost layer of the grid.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The vertical coordinate, with MPAS-Ocean names
+
+    Returns
+    -------
+    min_level_cell : xarray.DataArray
+        The zero-based index of the topmost valid layer of each column
+
+    max_level_cell : xarray.DataArray
+        The zero-based index of the bottommost valid layer of each column
+
+    Raises
+    ------
+    ValueError
+        If the data set has no ``maxLevelCell``, without which a column has
+        no seafloor
+    """
+    if 'maxLevelCell' not in ds:
+        raise ValueError(
+            'The vertical coordinate has no maxLevelCell, so there is no '
+            'way to tell the valid layers of a column from the rest.'
+        )
+    max_level_cell = ds.maxLevelCell - 1
+    if 'minLevelCell' in ds:
+        min_level_cell = ds.minLevelCell - 1
+    else:
+        min_level_cell = xr.zeros_like(max_level_cell)
+    return min_level_cell, max_level_cell
+
+
 def parse_vertical_reduction(spec):
     """
     Parse one entry of the ``elevations`` config option

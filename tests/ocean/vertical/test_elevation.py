@@ -13,6 +13,7 @@ import xarray as xr
 
 from polaris.ocean.vertical.elevation import (
     apply_vertical_reduction,
+    get_valid_level_range,
     parse_vertical_reduction,
 )
 
@@ -131,3 +132,31 @@ def _reduce(ds, spec, raw=False):
         max_level_cell=ds.maxLevelCell,
     )
     return da_map if raw else da_map.values
+
+
+def test_the_valid_level_range_is_converted_from_one_based_indices():
+    """Both models write minLevelCell and maxLevelCell the way MPAS-Ocean's
+    Fortran indexes them."""
+    ds = xr.Dataset(
+        dict(
+            minLevelCell=('nCells', np.array([1, 4])),
+            maxLevelCell=('nCells', np.array([6, 6])),
+        )
+    )
+    min_level_cell, max_level_cell = get_valid_level_range(ds)
+    np.testing.assert_array_equal(min_level_cell.values, [0, 3])
+    np.testing.assert_array_equal(max_level_cell.values, [5, 5])
+
+
+def test_a_column_with_no_cavities_starts_at_the_top_of_the_grid():
+    """A simulation without ice-shelf cavities need not write
+    minLevelCell."""
+    ds = xr.Dataset(dict(maxLevelCell=('nCells', np.array([6, 3]))))
+    min_level_cell, max_level_cell = get_valid_level_range(ds)
+    np.testing.assert_array_equal(min_level_cell.values, [0, 0])
+    np.testing.assert_array_equal(max_level_cell.values, [5, 2])
+
+
+def test_a_column_with_no_seafloor_is_reported():
+    with pytest.raises(ValueError, match='no maxLevelCell'):
+        get_valid_level_range(xr.Dataset())
