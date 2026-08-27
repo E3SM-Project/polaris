@@ -167,6 +167,27 @@ models write them and avoids sign flips scattered through the code.  Where the
 text uses the word "depth" it is describing a quantity that is positive down,
 such as `bottomDepth`, and says so.
 
+**Attributes are the CF ones.**  Omega writes each variable attribute twice:
+once in its own capitalized spelling --- `Units`, `Name`, `StdName`,
+`Description`, `ValidMin`, `ValidMax` --- and once in the CF spelling ---
+`units`, `name`, `standard_name`, `long_name`, `valid_min`, `valid_max`.
+Analysis reads **only** the CF form and ignores the capitalized one entirely.
+
+This is not a stylistic preference.  The CF attributes are the ones every tool
+in the stack already understands: `xarray` ingests them, uses `units` and
+`calendar` to decode times, and writes them back out.  The capitalized
+duplicates are understood by nothing, so code that reads them works on files
+Omega wrote and fails on every other file --- including one that has merely
+been through `xarray`, which moves `units` into `.encoding` on decoding while
+leaving `Units` sitting in `.attrs`.  A dependence on the capitalized form is
+therefore invisible until it is tested against a file we wrote ourselves,
+which is exactly when it is most expensive to find.
+
+`polaris.ocean.model.time.get_days_since_start` has such a dependence today,
+in `ds['Time'].Units`.  It predates this design and is used across the ocean
+component, so fixing it is framework work rather than analysis work, but no
+new analysis code should follow it.
+
 ## Requirements
 
 ### Requirement: analysis-suite
@@ -2097,7 +2118,7 @@ different range.
 
 ### Implementation: global-stats-time-series
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/27
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -2132,10 +2153,24 @@ used by both the existing `StatsAnalysis` step and the new one.  This keeps the
 `realistic_global` task's behavior unchanged while avoiding a second copy of
 the plotting logic.
 
-The time axis is converted to simulation years from the CF time coordinate.
-`polaris.ocean.model.time.get_days_since_start` provides the days-since-start
-conversion already used elsewhere; the new code divides by the length of the
-year in the file's calendar.
+The time axis is the simulation year, derived from the decoded CF time
+coordinate as the calendar year plus the fraction of the year elapsed, using
+the calendar the file declares.
+
+It is worth being explicit about why this is not
+`polaris.ocean.model.time.get_days_since_start` divided by the length of a
+year, which an earlier draft of this design proposed.  That helper returns
+days since the *file's reference date*, which is whatever `units` happens to
+say --- `seconds since 0000-12-01` in the QU240 mock-up.  Dividing that by a
+year length gives a number that coincides with the simulation year only when
+the reference date happens to sit at the start of year zero, so a series over
+years 21--40 would be labelled correctly by luck rather than by construction.
+
+Taking the year from the decoded date instead has no such dependence, and it
+makes the axis agree with the two other places the same year appears: the `$Y`
+in the file names the analysis expanded to find these files, and the range key
+in the step's own directory.  Those three have to mean the same year, and this
+is what makes them.
 
 ### Implementation: ocean-heat-content-time-series
 
