@@ -7,7 +7,9 @@ analysis step that reads simulation output.
 """
 
 import os
-from typing import NamedTuple, Optional
+from typing import List, NamedTuple, Optional
+
+from polaris.yaml import PolarisYaml
 
 
 class SimFile(NamedTuple):
@@ -165,6 +167,222 @@ def check_files_exist(sim_files, description, option_name):
     raise FileNotFoundError('\n'.join(lines))
 
 
+class AnalysisStream(NamedTuple):
+    """
+    One output stream of an Omega analysis group
+
+    Attributes
+    ----------
+    filename : str
+        The file-name template Omega builds for the stream, which may contain
+        ``$Y`` and ``$M``
+
+    period : str
+        The period of the time reduction or of the snapshots, e.g. ``'1Month'``
+
+    is_reduction : bool
+        Whether the stream holds time means rather than snapshots
+    """
+
+    filename: str
+    period: str
+    is_reduction: bool
+
+
+class OmegaConfig:
+    """
+    The configuration file of the simulation being analyzed
+
+    Polaris reads the simulation's own Omega configuration so that the mesh,
+    the output streams and their file-name templates do not have to be
+    restated by hand.  This is the one place Polaris depends on the *shape* of
+    Omega's configuration rather than on its output, so every method here
+    reports what it did not find rather than raising from deep inside a
+    lookup.
+
+    Attributes
+    ----------
+    filename : str
+        The absolute path to the Omega configuration file
+
+    streams : dict
+        The contents of the ``IOStreams`` section
+
+    options : dict
+        The remaining options under the ``Omega`` section
+    """
+
+    def __init__(self, filename, streams, options):
+        self.filename = filename
+        self.streams = streams
+        self.options = options
+
+    def stream_status(self, stream_name):
+        """
+        Report whether an ``IOStreams`` entry can supply a file name
+
+        Parameters
+        ----------
+        stream_name : str
+            The name of the stream, e.g. ``'History'``
+
+        Returns
+        -------
+        status : str
+            ``'ok'``, ``'missing'`` if there is no such stream, or
+            ``'no_filename'`` if the stream is there but names no file (a
+            stream that uses a pointer file, for instance)
+        """
+        if stream_name not in self.streams:
+            return 'missing'
+        if not self.streams[stream_name].get('Filename'):
+            return 'no_filename'
+        return 'ok'
+
+    def stream_filename(self, stream_name):
+        """
+        Get the file name or file-name template of an ``IOStreams`` entry
+
+        Parameters
+        ----------
+        stream_name : str
+            The name of the stream, e.g. ``'History'``
+
+        Returns
+        -------
+        filename : str or None
+            The file name, or ``None`` if the stream is absent or names no
+            file
+        """
+        if self.stream_status(stream_name) != 'ok':
+            return None
+        return str(self.streams[stream_name]['Filename'])
+
+    def analysis_group_status(self, group_name):
+        """
+        Report whether an analysis group is writing output
+
+        Parameters
+        ----------
+        group_name : str
+            The name of the analysis group, e.g. ``'GlobalStats'``
+
+        Returns
+        -------
+        status : str
+            ``'ok'``, ``'missing'`` if the simulation has no such group, or
+            ``'disabled'`` if it has one that is turned off
+        """
+        groups = self.options.get('Analysis', {})
+        if group_name not in groups:
+            return 'missing'
+        if not groups[group_name].get('Enable', True):
+            return 'disabled'
+        return 'ok'
+
+    def analysis_streams(self, group_name):
+        """
+        Get the output streams an analysis group writes
+
+        The file names are reconstructed the way Omega's analysis manager
+        builds them, as ``<prefix>_<period><TimeStats|Instants><template>``.
+        Time reductions come first, since a time mean is what analysis wants
+        when a group writes both.
+
+        Parameters
+        ----------
+        group_name : str
+            The name of the analysis group, e.g. ``'GlobalStats'``
+
+        Returns
+        -------
+        streams : list of AnalysisStream
+            The streams the group writes, empty if the group is absent or
+            disabled
+        """
+        if self.analysis_group_status(group_name) != 'ok':
+            return []
+
+        group = self.options['Analysis'][group_name]
+        filename = group.get('Filename')
+        if not filename:
+            return []
+
+        streams: List[AnalysisStream] = []
+        for period in group.get('ReductionPeriod', []) or []:
+            streams.append(
+                AnalysisStream(
+                    filename=_omega_analysis_filename(
+                        str(filename), str(period), is_reduction=True
+                    ),
+                    period=str(period),
+                    is_reduction=True,
+                )
+            )
+        for period in group.get('SnapshotPeriod', []) or []:
+            streams.append(
+                AnalysisStream(
+                    filename=_omega_analysis_filename(
+                        str(filename), str(period), is_reduction=False
+                    ),
+                    period=str(period),
+                    is_reduction=False,
+                )
+            )
+        return streams
+
+
+def read_omega_config(filename):
+    """
+    Read the configuration file of the simulation being analyzed
+
+    Parameters
+    ----------
+    filename : str
+        The path to the simulation's Omega configuration file
+
+    Returns
+    -------
+    omega_config : OmegaConfig
+        The parsed configuration
+
+    Raises
+    ------
+    FileNotFoundError
+        If there is no file at ``filename``
+
+    ValueError
+        If the file does not look like an Omega configuration
+    """
+    filename = os.path.abspath(filename)
+    if not os.path.exists(filename):
+        raise FileNotFoundError(
+            f'No Omega configuration file at {filename}.  Set the '
+            f'[ocean_analysis] omega_config_filename option to the '
+            f'configuration file of the simulation being analyzed, or leave '
+            f'it empty and set the mesh and file-name template options by '
+            f'hand.'
+        )
+
+    try:
+        yaml = PolarisYaml.read(filename, streams_section='IOStreams')
+    except Exception as exception:
+        raise ValueError(
+            f'Could not parse {filename} as an Omega configuration file: '
+            f'{exception}'
+        ) from exception
+
+    if yaml.model != 'Omega':
+        raise ValueError(
+            f'{filename} does not look like an Omega configuration file: its '
+            f'top-level section is "{yaml.model}" rather than "Omega".'
+        )
+
+    return OmegaConfig(
+        filename=filename, streams=yaml.streams, options=yaml.configs
+    )
+
+
 def _exists(sim_file):
     """Whether a simulation file is present, following any symlink"""
     return os.path.exists(sim_file.path)
@@ -201,3 +419,30 @@ def _check_template(template):
             f'Only $Y and $M are supported, since the analysis reads output '
             f'written no more often than monthly.'
         )
+
+
+def _omega_analysis_filename(filename, period, is_reduction):
+    """
+    Build the file name Omega's analysis manager gives an output stream
+
+    This mirrors ``AnalysisGroup::createAnalysisGroupStreams()`` in Omega,
+    which splits the configured name at the first ``$``, absorbing a trailing
+    ``.`` or ``_`` from the prefix into the timestamp template, and then
+    inserts the period and the kind of output between the two.
+    """
+    position = filename.find('$')
+    if position == -1:
+        prefix = filename
+        template = ''
+    elif position == 0:
+        prefix = ''
+        template = filename
+    elif filename[position - 1] in ('.', '_'):
+        prefix = filename[: position - 1]
+        template = filename[position - 1 :]
+    else:
+        prefix = filename[:position]
+        template = filename[position:]
+
+    kind = 'TimeStats' if is_reduction else 'Instants'
+    return f'{prefix}_{period}{kind}{template}'

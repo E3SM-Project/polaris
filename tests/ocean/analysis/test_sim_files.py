@@ -5,6 +5,7 @@ import pytest
 from polaris.tasks.ocean.analysis.sim_files import (
     check_files_exist,
     expand_template,
+    read_omega_config,
     year_range_key,
 )
 
@@ -119,3 +120,105 @@ def test_check_files_exist_reports_an_undated_file_by_path(tmp_path):
             sim_files, 'global statistics', 'global_stats_template'
         )
     assert 'global_stats_1DayInstants' in str(excinfo.value)
+
+
+OMEGA_CONFIG = """\
+Omega:
+  IOStreams:
+    HorzMeshIn:
+      Filename: mesh.nc
+      Mode: read
+    InitialVertCoord:
+      Filename: vert_coord.nc
+      Mode: read
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ocn.pointer
+      Mode: read
+    History:
+      Filename: output/ocn.hist.$Y-$M.nc
+      Mode: write
+      Freq: 1
+      FreqUnits: months
+  Analysis:
+    GlobalStats:
+      Enable: true
+      Filename: global_stats
+      ReductionPeriod: [1Month]
+      SnapshotPeriod: [1Day]
+    Moc:
+      Enable: false
+      Filename: moc
+      ReductionPeriod: [1Month]
+    Timeseries:
+      Enable: true
+      Filename: analysis.$Y.$M
+      ReductionPeriod: [1Month]
+"""
+
+
+def _write_omega_config(tmp_path, text=OMEGA_CONFIG):
+    filename = tmp_path / 'omega.yml'
+    filename.write_text(text)
+    return str(filename)
+
+
+def test_read_omega_config_finds_streams(tmp_path):
+    """The mesh, vertical coordinate and monthly means come from the config."""
+    omega_config = read_omega_config(_write_omega_config(tmp_path))
+    assert omega_config.stream_filename('HorzMeshIn') == 'mesh.nc'
+    assert omega_config.stream_filename('InitialVertCoord') == 'vert_coord.nc'
+    assert (
+        omega_config.stream_filename('History') == 'output/ocn.hist.$Y-$M.nc'
+    )
+
+
+def test_read_omega_config_reports_what_it_cannot_supply(tmp_path):
+    """An absent stream and a pointer-file stream are told apart."""
+    omega_config = read_omega_config(_write_omega_config(tmp_path))
+    assert omega_config.stream_status('History') == 'ok'
+    assert omega_config.stream_status('Moc') == 'missing'
+    assert omega_config.stream_status('RestartRead') == 'no_filename'
+    assert omega_config.stream_filename('Moc') is None
+    assert omega_config.stream_filename('RestartRead') is None
+
+
+def test_read_omega_config_missing_file_names_the_option(tmp_path):
+    with pytest.raises(FileNotFoundError, match='omega_config_filename'):
+        read_omega_config(str(tmp_path / 'not_there.yml'))
+
+
+def test_read_omega_config_rejects_a_foreign_file(tmp_path):
+    filename = tmp_path / 'not_omega.yml'
+    filename.write_text('mpas-ocean:\n  streams: {}\n')
+    with pytest.raises(ValueError, match='does not look like an Omega'):
+        read_omega_config(str(filename))
+
+
+def test_analysis_group_status(tmp_path):
+    """A group can be absent, turned off, or writing."""
+    omega_config = read_omega_config(_write_omega_config(tmp_path))
+    assert omega_config.analysis_group_status('GlobalStats') == 'ok'
+    assert omega_config.analysis_group_status('Moc') == 'disabled'
+    assert omega_config.analysis_group_status('Bogus') == 'missing'
+    assert omega_config.analysis_streams('Moc') == []
+    assert omega_config.analysis_streams('Bogus') == []
+
+
+def test_analysis_streams_reconstruct_omega_file_names(tmp_path):
+    """Time reductions come first, and snapshots are named differently."""
+    omega_config = read_omega_config(_write_omega_config(tmp_path))
+    streams = omega_config.analysis_streams('GlobalStats')
+    assert [stream.filename for stream in streams] == [
+        'global_stats_1MonthTimeStats',
+        'global_stats_1DayInstants',
+    ]
+    assert [stream.is_reduction for stream in streams] == [True, False]
+    assert [stream.period for stream in streams] == ['1Month', '1Day']
+
+
+def test_analysis_streams_keep_a_timestamp_template(tmp_path):
+    """The separator before the first $ moves into the timestamp template."""
+    omega_config = read_omega_config(_write_omega_config(tmp_path))
+    streams = omega_config.analysis_streams('Timeseries')
+    assert streams[0].filename == 'analysis_1MonthTimeStats.$Y.$M'
