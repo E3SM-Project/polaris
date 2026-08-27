@@ -576,16 +576,19 @@ class Ocean(Component):
         If the model is Omega, rename variables from their Omega names to
         the MPAS-Ocean equivalent
 
+        A variable with no entry in the map keeps its own name, which is the
+        right answer for a field only Omega has.
+
         Parameters
         ----------
         var_list : list of str
-            A list of MPAS-Ocean variable names
+            A list of variable names native to the ocean model being run
 
         Returns
         -------
         renamed_vars : list of str
-            The same list with variables renamed as appropriate for the
-            ocean model being run
+            The same list, in the same order, with variables renamed to their
+            MPAS-Ocean equivalents
         """
         renamed_vars = var_list
         model = self.model
@@ -593,11 +596,10 @@ class Ocean(Component):
             # switch keys and values in mpaso_to_omega maps to get
             # omega to mpaso maps
             assert self.mpaso_to_omega_var_map is not None
-            renamed_vars = [
-                v
-                for v, k in self.mpaso_to_omega_var_map.items()
-                if k in var_list
-            ]
+            omega_to_mpaso = {
+                k: v for v, k in self.mpaso_to_omega_var_map.items()
+            }
+            renamed_vars = [omega_to_mpaso.get(v, v) for v in var_list]
         return renamed_vars
 
     def open_model_dataset(
