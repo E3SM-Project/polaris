@@ -229,10 +229,14 @@ def print_and_run(commands, get_output=False):
     print_commands = commands.replace(' && ', '\n  ')
     print(f'  {print_commands}\n\n')
     if get_output:
-        output_raw = subprocess.check_output(commands, shell=True)
+        output_raw = subprocess.check_output(
+            commands, shell=True, executable='/bin/bash'
+        )
         output = output_raw.decode('utf-8').strip('\n')
     else:
-        subprocess.run(commands, check=True, shell=True)
+        subprocess.run(
+            commands, check=True, shell=True, executable='/bin/bash'
+        )
         output = None
 
     return output
