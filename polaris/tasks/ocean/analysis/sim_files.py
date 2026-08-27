@@ -129,7 +129,7 @@ def expand_template(template, start_year, end_year, simulation_path=None):
     return sim_files
 
 
-def check_files_exist(sim_files, description, option_name):
+def check_files_exist(sim_files, description, source):
     """
     Check that every expanded file exists, reporting the missing years and
     months rather than a bare list of paths
@@ -143,9 +143,10 @@ def check_files_exist(sim_files, description, option_name):
         A short description of what the files are, used in the error message,
         e.g. ``'monthly-mean'``
 
-    option_name : str
-        The name of the config option in ``[ocean_analysis]`` that sets the
-        template these files came from, so that the error says what to fix
+    source : str
+        A description of where the file-name template came from, so that the
+        error says where to look, e.g. ``'the History stream in
+        /path/omega.yml'``
 
     Raises
     ------
@@ -161,8 +162,8 @@ def check_files_exist(sim_files, description, option_name):
     ]
     lines.extend(_describe_missing(missing))
     lines.append(
-        f'Check the year range and the [ocean_analysis] {option_name} '
-        f'option (or the Omega configuration file it defaults to).'
+        f'They are named by {source}.  Check the year range and that the '
+        f'simulation wrote this output for those years.'
     )
     raise FileNotFoundError('\n'.join(lines))
 
@@ -383,6 +384,314 @@ def read_omega_config(filename):
     )
 
 
+class SimulationFiles:
+    """
+    The files of the simulation being analyzed
+
+    The simulation's own Omega configuration is the analysis' description of
+    where its output lives: the mesh, the vertical coordinate and every output
+    stream are read from it, so that none of them have to be restated in a
+    Polaris config file.  An Omega run always writes one, so its absence is an
+    error rather than a case to fall back from.
+
+    Attributes
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options for the analysis
+
+    omega_config : OmegaConfig
+        The simulation's Omega configuration
+
+    simulation_path : str
+        The directory that relative file names are resolved against
+
+    simulation_name : str
+        A short name for the simulation, used in plot titles and file names
+    """
+
+    def __init__(self, config, log=print):
+        """
+        Resolve the simulation's paths from its Omega configuration
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            The config options for the analysis
+
+        log : callable, optional
+            Where to report each resolved path and its source.  The default,
+            ``print``, is what a step wants during ``setup()``, where it has
+            no logger yet; at run time a step passes ``self.logger.info``.
+        """
+        self.config = config
+        self.log = log
+
+        _check_model(config)
+
+        section = config['ocean_analysis']
+        omega_config_filename = section.get('omega_config_filename').strip()
+        if not omega_config_filename:
+            raise ValueError(
+                'Set the [ocean_analysis] omega_config_filename option to '
+                "the simulation's Omega configuration file.  It is how the "
+                'analysis finds the mesh and the output streams, and an '
+                'Omega run always writes one.'
+            )
+        self.omega_config = read_omega_config(omega_config_filename)
+        self.log(f'simulation configuration: {self.omega_config.filename}')
+
+        self.simulation_path = self._resolve_simulation_path()
+        self.simulation_name = section.get('simulation_name')
+
+    def mesh_filename(self):
+        """
+        Get the horizontal mesh file
+
+        Returns
+        -------
+        filename : str
+            The absolute path to the mesh file
+        """
+        return self._resolve_stream_path(
+            option_name='mesh_filename',
+            stream_name='HorzMeshIn',
+            description='horizontal mesh',
+        )
+
+    def vert_coord_filename(self):
+        """
+        Get the vertical-coordinate file
+
+        Returns
+        -------
+        filename : str
+            The absolute path to the vertical-coordinate file
+        """
+        return self._resolve_stream_path(
+            option_name='vert_coord_filename',
+            stream_name='InitialVertCoord',
+            description='vertical coordinate',
+        )
+
+    def monthly_mean_files(self, start_year, end_year):
+        """
+        Get the monthly-mean output files covering a range of years
+
+        Parameters
+        ----------
+        start_year : int
+            The first year of the range, inclusive
+
+        end_year : int
+            The last year of the range, inclusive
+
+        Returns
+        -------
+        sim_files : list of SimFile
+            The monthly-mean files, which are known to exist
+        """
+        template = self._stream_template(
+            stream_name='History', description='monthly means'
+        )
+        return self._expand_and_check(
+            template=template,
+            start_year=start_year,
+            end_year=end_year,
+            description='monthly-mean',
+            source=f'the History stream in {self.omega_config.filename}',
+        )
+
+    def global_stats_files(self, start_year, end_year):
+        """
+        Get the global statistics output files covering a range of years
+
+        Parameters
+        ----------
+        start_year : int
+            The first year of the range, inclusive
+
+        end_year : int
+            The last year of the range, inclusive
+
+        Returns
+        -------
+        sim_files : list of SimFile
+            The global statistics files, which are known to exist
+        """
+        template = self._analysis_template(
+            group_name='GlobalStats',
+            description='global statistics',
+            required=True,
+        )
+        assert template is not None
+        return self._expand_and_check(
+            template=template,
+            start_year=start_year,
+            end_year=end_year,
+            description='global statistics',
+            source=(
+                f'the GlobalStats analysis group in '
+                f'{self.omega_config.filename}'
+            ),
+        )
+
+    def moc_files(self, start_year, end_year):
+        """
+        Get the meridional overturning circulation output files covering a
+        range of years
+
+        Omega's MOC diagnostic is new, so a simulation that does not write it
+        is an ordinary case rather than an error.
+
+        Parameters
+        ----------
+        start_year : int
+            The first year of the range, inclusive
+
+        end_year : int
+            The last year of the range, inclusive
+
+        Returns
+        -------
+        sim_files : list of SimFile or None
+            The MOC files, which are known to exist, or ``None`` if the
+            simulation does not write MOC output
+        """
+        template = self._analysis_template(
+            group_name='Moc',
+            description='meridional overturning circulation',
+            required=False,
+        )
+        if template is None:
+            return None
+        return self._expand_and_check(
+            template=template,
+            start_year=start_year,
+            end_year=end_year,
+            description='MOC',
+            source=f'the Moc analysis group in {self.omega_config.filename}',
+        )
+
+    def _resolve_simulation_path(self):
+        """Get the directory that relative file names are resolved against"""
+        simulation_path = self.config.get(
+            'ocean_analysis', 'simulation_path'
+        ).strip()
+        if simulation_path:
+            source = '[ocean_analysis] simulation_path'
+        else:
+            simulation_path = os.path.dirname(self.omega_config.filename)
+            source = 'the directory of the Omega configuration file'
+        simulation_path = os.path.abspath(simulation_path)
+        self.log(f'simulation path: {simulation_path} (from {source})')
+        return simulation_path
+
+    def _resolve_stream_path(self, option_name, stream_name, description):
+        """
+        Resolve a single file, either from a config option or from an Omega
+        ``IOStreams`` entry
+        """
+        value = self.config.get('ocean_analysis', option_name).strip()
+        if value:
+            self.log(
+                f'{description}: {value} (from [ocean_analysis] {option_name})'
+            )
+        else:
+            value = self._stream_template(stream_name, description)
+        return self._absolute(value)
+
+    def _stream_template(self, stream_name, description):
+        """Get a file name or template from an Omega ``IOStreams`` entry"""
+        status = self.omega_config.stream_status(stream_name)
+        if status == 'missing':
+            raise ValueError(
+                f'{self.omega_config.filename} has no {stream_name} stream, '
+                f'so the analysis cannot find the {description} of the '
+                f'simulation.'
+            )
+        if status == 'no_filename':
+            raise ValueError(
+                f'The {stream_name} stream in '
+                f'{self.omega_config.filename} names no file, so the '
+                f'analysis cannot find the {description} of the simulation.'
+            )
+
+        value = self.omega_config.stream_filename(stream_name)
+        assert value is not None
+        self.log(
+            f'{description}: {value} '
+            f"(from the Omega config's {stream_name} stream)"
+        )
+        return value
+
+    def _analysis_template(self, group_name, description, required):
+        """Get a file-name template from an Omega analysis group"""
+        reason = self._analysis_group_problem(group_name)
+        if reason is None:
+            streams = self.omega_config.analysis_streams(group_name)
+            stream = _preferred_analysis_stream(streams)
+            if stream is None:
+                reason = (
+                    f'the {group_name} analysis group in '
+                    f'{self.omega_config.filename} writes no output streams'
+                )
+            else:
+                kind = 'time-mean' if stream.is_reduction else 'snapshot'
+                self.log(
+                    f'{description}: {stream.filename} (from the Omega '
+                    f"config's {group_name} group, the {stream.period} "
+                    f'{kind} stream)'
+                )
+                return stream.filename
+
+        if required:
+            raise ValueError(
+                f'The analysis needs the {description} of the simulation, '
+                f'but {reason}.'
+            )
+        self.log(f'no {description} output: {reason}')
+        return None
+
+    def _analysis_group_problem(self, group_name):
+        """
+        Describe why an analysis group cannot supply a template, if it cannot
+        """
+        status = self.omega_config.analysis_group_status(group_name)
+        if status == 'missing':
+            return (
+                f'{self.omega_config.filename} has no {group_name} analysis '
+                f'group, so the simulation wrote no such output'
+            )
+        if status == 'disabled':
+            return (
+                f'the {group_name} analysis group in '
+                f'{self.omega_config.filename} is turned off, so the '
+                f'simulation wrote no such output'
+            )
+        return None
+
+    def _expand_and_check(
+        self, template, start_year, end_year, description, source
+    ):
+        """Expand a template over a year range and check that it all exists"""
+        sim_files = expand_template(
+            template=template,
+            start_year=start_year,
+            end_year=end_year,
+            simulation_path=self.simulation_path,
+        )
+        check_files_exist(
+            sim_files=sim_files, description=description, source=source
+        )
+        return sim_files
+
+    def _absolute(self, filename):
+        """Resolve a file name against the simulation path"""
+        if not os.path.isabs(filename):
+            filename = os.path.join(self.simulation_path, filename)
+        return os.path.abspath(filename)
+
+
 def _exists(sim_file):
     """Whether a simulation file is present, following any symlink"""
     return os.path.exists(sim_file.path)
@@ -446,3 +755,35 @@ def _omega_analysis_filename(filename, period, is_reduction):
 
     kind = 'TimeStats' if is_reduction else 'Instants'
     return f'{prefix}_{period}{kind}{template}'
+
+
+def _preferred_analysis_stream(streams):
+    """
+    Pick the analysis stream to read: a time mean if the group wrote one,
+    otherwise a snapshot
+    """
+    for stream in streams:
+        if stream.is_reduction:
+            return stream
+    if streams:
+        return streams[0]
+    return None
+
+
+def _check_model(config):
+    """
+    Complain unless the simulation was run with Omega
+
+    MPAS-Ocean output is not supported.  Reading it would need a translator
+    from its namelists and streams into the form this module reads, which is
+    a separate piece of work.
+    """
+    model = config.get('ocean', 'model')
+    if model != 'omega':
+        raise ValueError(
+            f'The analysis suite reads Omega output, but [ocean] model is '
+            f'"{model}".  Set --model omega at setup if the simulation was '
+            f'run with Omega.  MPAS-Ocean output is not supported: reading '
+            f'it would need a translator from its namelists and streams '
+            f'into the form the analysis reads.'
+        )

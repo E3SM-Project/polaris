@@ -2,7 +2,9 @@ import os
 
 import pytest
 
+from polaris.config import PolarisConfigParser
 from polaris.tasks.ocean.analysis.sim_files import (
+    SimulationFiles,
     check_files_exist,
     expand_template,
     read_omega_config,
@@ -91,7 +93,7 @@ def test_check_files_exist_passes_when_they_do(tmp_path):
     sim_files = expand_template(
         'ocn.hist.$Y-$M.nc', 1, 1, simulation_path=str(tmp_path)
     )
-    check_files_exist(sim_files, 'monthly-mean', 'monthly_mean_template')
+    check_files_exist(sim_files, 'monthly-mean', 'the History stream')
 
 
 def test_check_files_exist_names_the_missing_months(tmp_path):
@@ -103,12 +105,12 @@ def test_check_files_exist_names_the_missing_months(tmp_path):
         'ocn.hist.$Y-$M.nc', 1, 2, simulation_path=str(tmp_path)
     )
     with pytest.raises(FileNotFoundError) as excinfo:
-        check_files_exist(sim_files, 'monthly-mean', 'monthly_mean_template')
+        check_files_exist(sim_files, 'monthly-mean', 'the History stream')
     message = str(excinfo.value)
     assert '11 of 24 monthly-mean files are missing' in message
     assert 'year 0002: months 02, 03, 04' in message
     assert 'year 0001' not in message
-    assert 'monthly_mean_template' in message
+    assert 'the History stream' in message
 
 
 def test_check_files_exist_reports_an_undated_file_by_path(tmp_path):
@@ -117,7 +119,7 @@ def test_check_files_exist_reports_an_undated_file_by_path(tmp_path):
     )
     with pytest.raises(FileNotFoundError) as excinfo:
         check_files_exist(
-            sim_files, 'global statistics', 'global_stats_template'
+            sim_files, 'global statistics', 'the GlobalStats group'
         )
     assert 'global_stats_1DayInstants' in str(excinfo.value)
 
@@ -222,3 +224,143 @@ def test_analysis_streams_keep_a_timestamp_template(tmp_path):
     omega_config = read_omega_config(_write_omega_config(tmp_path))
     streams = omega_config.analysis_streams('Timeseries')
     assert streams[0].filename == 'analysis_1MonthTimeStats.$Y.$M'
+
+
+def _make_config(model='omega', **options):
+    """Build a config with the analysis defaults and the given overrides."""
+    config = PolarisConfigParser()
+    config.add_from_package('polaris.ocean', 'ocean.cfg')
+    config.add_from_package('polaris.tasks.ocean.analysis', 'analysis.cfg')
+    config.set('ocean', 'model', model)
+    for option, value in options.items():
+        config.set('ocean_analysis', option, value)
+    return config
+
+
+def _make_simulation(tmp_path, text=OMEGA_CONFIG):
+    """Write an Omega config and the output files it names."""
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    omega_config_filename = _write_omega_config(tmp_path, text)
+    (tmp_path / 'mesh.nc').touch()
+    (tmp_path / 'vert_coord.nc').touch()
+    (tmp_path / 'output').mkdir()
+    for month in range(1, 13):
+        (tmp_path / 'output' / f'ocn.hist.0001-{month:02d}.nc').touch()
+    (tmp_path / 'global_stats_1MonthTimeStats').touch()
+    return omega_config_filename
+
+
+def test_simulation_files_come_from_the_omega_config(tmp_path):
+    """The Omega config is the only description of where the output lives."""
+    omega_config_filename = _make_simulation(tmp_path)
+    config = _make_config(omega_config_filename=omega_config_filename)
+    messages: list = []
+    sim = SimulationFiles(config, log=messages.append)
+
+    assert sim.simulation_path == str(tmp_path)
+    assert sim.mesh_filename() == str(tmp_path / 'mesh.nc')
+    assert sim.vert_coord_filename() == str(tmp_path / 'vert_coord.nc')
+    monthly = sim.monthly_mean_files(1, 1)
+    assert len(monthly) == 12
+    assert monthly[0].path == str(tmp_path / 'output' / 'ocn.hist.0001-01.nc')
+    stats = sim.global_stats_files(1, 1)
+    assert [sim_file.path for sim_file in stats] == [
+        str(tmp_path / 'global_stats_1MonthTimeStats')
+    ]
+    assert any('HorzMeshIn stream' in message for message in messages)
+    assert any('1Month time-mean stream' in message for message in messages)
+
+
+def test_a_mesh_option_beats_the_omega_config(tmp_path):
+    """A mesh that has moved since the run can be pointed at by hand."""
+    omega_config_filename = _make_simulation(tmp_path)
+    elsewhere = tmp_path / 'elsewhere'
+    elsewhere.mkdir()
+    (elsewhere / 'moved_mesh.nc').touch()
+    config = _make_config(
+        omega_config_filename=omega_config_filename,
+        mesh_filename=str(elsewhere / 'moved_mesh.nc'),
+    )
+    messages: list = []
+    sim = SimulationFiles(config, log=messages.append)
+
+    assert sim.mesh_filename() == str(elsewhere / 'moved_mesh.nc')
+    assert any(
+        'from [ocean_analysis] mesh_filename' in message
+        for message in messages
+    )
+
+
+def test_simulation_path_can_be_set_by_hand(tmp_path):
+    """Output that has moved away from the config file is still reachable."""
+    config_dir = tmp_path / 'config'
+    config_dir.mkdir()
+    omega_config_filename = _write_omega_config(config_dir)
+    _make_simulation(tmp_path / 'run')
+    config = _make_config(
+        omega_config_filename=omega_config_filename,
+        simulation_path=str(tmp_path / 'run'),
+    )
+    sim = SimulationFiles(config, log=lambda message: None)
+    assert sim.mesh_filename() == str(tmp_path / 'run' / 'mesh.nc')
+
+
+def test_missing_moc_output_is_reported_not_raised(tmp_path):
+    """A simulation that predates Omega's MOC diagnostic is an ordinary
+    case."""
+    text = OMEGA_CONFIG.replace(
+        '    Moc:\n      Enable: false\n'
+        '      Filename: moc\n      ReductionPeriod: [1Month]\n',
+        '',
+    )
+    omega_config_filename = _make_simulation(tmp_path, text)
+    config = _make_config(omega_config_filename=omega_config_filename)
+    messages: list = []
+    sim = SimulationFiles(config, log=messages.append)
+
+    assert sim.moc_files(1, 1) is None
+    assert any(
+        'no meridional overturning circulation output' in message
+        for message in messages
+    )
+    assert any('no Moc analysis group' in message for message in messages)
+
+
+def test_a_disabled_moc_group_is_reported_not_raised(tmp_path):
+    omega_config_filename = _make_simulation(tmp_path)
+    config = _make_config(omega_config_filename=omega_config_filename)
+    messages: list = []
+    sim = SimulationFiles(config, log=messages.append)
+
+    assert sim.moc_files(1, 1) is None
+    assert any('is turned off' in message for message in messages)
+
+
+def test_missing_global_stats_output_is_an_error(tmp_path):
+    """Global statistics are required, so their absence is reported loudly."""
+    text = OMEGA_CONFIG.replace(
+        'GlobalStats:\n      Enable: true', 'GlobalStats:\n      Enable: false'
+    )
+    omega_config_filename = _make_simulation(tmp_path, text)
+    config = _make_config(omega_config_filename=omega_config_filename)
+    sim = SimulationFiles(config, log=lambda message: None)
+    with pytest.raises(ValueError, match='is turned off'):
+        sim.global_stats_files(1, 1)
+
+
+def test_an_omega_config_is_required(tmp_path):
+    """An Omega run always writes one, so its absence is an error."""
+    config = _make_config()
+    with pytest.raises(ValueError, match='omega_config_filename'):
+        SimulationFiles(config, log=lambda message: None)
+
+
+def test_mpas_ocean_is_not_supported(tmp_path):
+    """Reading MPAS-Ocean output would need a translator we have not
+    written."""
+    omega_config_filename = _make_simulation(tmp_path)
+    config = _make_config(
+        model='mpas-ocean', omega_config_filename=omega_config_filename
+    )
+    with pytest.raises(ValueError, match='MPAS-Ocean output is not'):
+        SimulationFiles(config, log=lambda message: None)
