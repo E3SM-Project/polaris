@@ -1,3 +1,4 @@
+from polaris.tasks.ocean.analysis import add_analysis_tasks
 from polaris.tasks.ocean.baroclinic_channel import add_baroclinic_channel_tasks
 from polaris.tasks.ocean.barotropic_channel import add_barotropic_channel_tasks
 from polaris.tasks.ocean.barotropic_gyre import add_barotropic_gyre_tasks
@@ -50,6 +51,9 @@ def add_ocean_tasks(component):
 
     # single column tasks
     add_single_column_tasks(component=component)
+
+    # analysis of a completed simulation, which runs no model
+    add_analysis_tasks(component=component)
 
     # spherical tasks
     add_customizable_viz_tasks(component=component)
