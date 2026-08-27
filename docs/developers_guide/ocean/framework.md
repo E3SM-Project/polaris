@@ -946,7 +946,7 @@ in `rpe.csv` and also returned as a numpy array for plotting and analysis.
 The package `polaris.tasks.ocean.analysis` contains the tasks of the
 `omega_analysis` suite, which analyze a simulation that has already been run
 rather than running one.  {ref}`ocean-analysis` describes the suite from a
-user's point of view.  Three pieces of it are shared machinery that a new
+user's point of view.  Four pieces of it are shared machinery that a new
 analysis product builds on.
 
 ### Locating the simulation's files
@@ -982,6 +982,40 @@ Two details are worth knowing before adding a product:
   returns each stream with its period and whether it is a time reduction, and
   the caller must not assume either spelling.
 
+### Naming the models' global statistics
+
+Both ocean models write one variable per (field, statistic) pair in their
+global statistics output and name it after the two, so
+`polaris.ocean.global_stats_names` builds the names rather than listing them.
+It is a leaf module for the same reason `sim_files` is, and it lives under
+`polaris.ocean` rather than under the analysis package because the
+`realistic_global` `analysis_members` task reads the same kind of output from
+a forward step in its own task.
+
+Three things about it are worth knowing:
+
+- **The names are built, not mapped.**  `mpaso_to_omega.yaml` needs an entry
+  only for the field itself --- `ssh: SshCell` --- and the statistic and,
+  for one of Omega's time reductions, the period are appended.  Mapping the
+  composite names instead would take an entry per (field, statistic) and,
+  once Omega writes time means, one per (field, statistic, period).
+- **The two models do not compute the same statistics.**  MPAS-Ocean writes
+  a root-mean-square where Omega writes a standard deviation, and those are
+  different quantities, so neither model's list in
+  {py:data}`polaris.ocean.global_stats_names.GLOBAL_STATS` has an entry for
+  the other's.  A step that wants a standard deviation from MPAS-Ocean
+  derives one from the root-mean-square and the mean, which is a conversion
+  and belongs in the step.
+- **A step should not assume what a run wrote.**
+  {py:func}`polaris.ocean.global_stats_names.select_global_stats` intersects
+  the (field, statistic) pairs a step asks for with what a dataset holds,
+  reports each one that is absent and drops it, and raises only when *none*
+  of them is present --- which is a step reading the wrong thing rather than
+  a simulation writing a subset.
+  {py:func}`polaris.ocean.global_stats_names.discover_fields` goes the other
+  way, giving the fields a file holds statistics for, which is what a config
+  option that names no fields falls back to.
+
 ### Steps
 
 {py:class}`polaris.tasks.ocean.analysis.analysis_step.AnalysisStep` extends
@@ -998,6 +1032,13 @@ particular, every file a step opens in `run()` goes through
 temporary files go in the step's own work directory, and a step declares the
 parallelism it will actually start as `cpus_per_task` rather than sizing
 itself to the machine.
+
+Which products an analysis step makes is usually not known until it has read
+the simulation, since a run writes some subset of the fields that were asked
+for.  Such a step declares no per-field outputs at setup and instead calls
+{py:meth}`polaris.ocean.model.OceanIOStep.add_produced_file` as it writes
+each one.  That is also what keeps a plot and the netCDF file beside it from
+getting out of step with each other, since they are registered together.
 
 ### Range-keyed steps
 
