@@ -251,7 +251,7 @@ The suite is being built up product by product.  What exists so far:
 
 | task | product | status |
 | --- | --- | --- |
-| `climatology_maps` | map-view climatologies, one step per field group | not yet implemented |
+| `climatology_maps` | map-view climatologies, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
 | `global_stats` | time series of the simulation's global statistics | {ref}`available <ocean-analysis-global-stats>` |
 | `heat_content_series` | time series of globally integrated ocean heat content | not yet implemented |
 | `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
@@ -267,6 +267,120 @@ The `moc` task additionally depends on a diagnostic that Omega computes in
 situ and does not yet provide.  A simulation without it is an ordinary case:
 the step reports that no MOC output was written and produces nothing, rather
 than failing the suite.
+
+(ocean-analysis-climatology-maps)=
+
+### climatology maps
+
+The `climatology_maps` task computes a climatology of the simulation's
+monthly-mean output and plots global maps from it, on the native MPAS mesh.
+Nothing is remapped anywhere in the analysis.
+
+It has a **shared climatology step** and then **one step per field group**.
+The climatology runs once for a range of years no matter how many field
+groups read it, and the groups are `temperature`, `salinity`, `velocity`,
+`ssh`, `mixed_layer_depth` and `heat_content`.  A group is the unit of work
+so that adding a field costs that field and not the others.
+
+#### the climatology
+
+The climatology is computed with `ncclimo` from the NCO package, which is what
+the rest of the E3SM post-processing workflow uses, so that these
+climatologies are comparable with the ones zppy produces.  It writes the
+twelve monthly climatologies and one file per season in `seasons`, into
+`ocean/analysis/climatology/<range>/`.
+
+Two conventions are worth knowing:
+
+- Seasons are weighted by the length of each month in the simulation's own
+  calendar, and the annual mean is the same weighting over all twelve months.
+- `DJF` takes its December from the same calendar year as its January and
+  February, so every year in the range contributes exactly one December and
+  no data from outside the range are needed.  This is what MPAS-Analysis
+  does.
+
+Only the variables the analysis needs are averaged, so the cost scales with
+what is being plotted rather than with the size of the monthly means.  A
+variable the simulation did not write is reported in the step's log and left
+out.
+
+#### the maps
+
+Each field group's step writes, for every combination of season, field and
+vertical reduction it was asked for, a PNG and a netCDF file with the same
+base name holding exactly what was plotted:
+
+```none
+temperature_ANN_top.png     temperature_ANN_top.nc
+temperature_DJF_bottom.png  temperature_DJF_bottom.nc
+ssh_ANN.png                 ssh_ANN.nc
+```
+
+A field with no vertical dimension, such as `ssh`, is already a map, so its
+files carry no reduction label.  The netCDF files carry the simulation name,
+the field, the season, the vertical reduction and the range of years as
+global attributes, so a plot cannot be mistaken for a different one.
+
+#### the config options that govern it
+
+All of these are in `[ocean_analysis_climatology]`:
+
+`start_year`, `end_year`
+: The range of years the climatology covers.  It is also the directory the
+  results land in, so a different range recomputes rather than overwriting.
+
+`seasons`
+: The seasons to compute, beyond the twelve monthly climatologies, which are
+  always computed.
+
+`plot_seasons`
+: The seasons to plot, which may include the monthly climatologies as `JAN`
+  through `DEC`.  Every season here has to be one the climatology computed.
+
+`fields`
+: The fields to map, using MPAS-Ocean names whatever model produced the
+  output.  This is what decides which field group steps exist.
+
+`elevations`
+: How to reduce a field with a vertical dimension to a map.  `top` and
+  `bottom` are the topmost and bottommost valid layer of each column, so they
+  respect ice-shelf cavities and partial bottom cells; `k<index>` is a fixed,
+  zero-based vertical index, masked in columns where it falls outside the
+  valid range; and a number is an elevation in m, positive up, so `-100.0` is
+  100 m below the sea surface.
+
+An elevation is interpolated linearly between the midpoints of the two layers
+it falls between, using the layer elevations the simulation wrote.  Because
+the input is a climatology, a `-100.0` map is a map on the climatological-mean
+position of the -100 m surface rather than the time mean of maps on its
+instantaneous position; the two differ only where the seasonal cycle in layer
+thickness is large.
+
+Two ends of a column are worth knowing about.  Above the midpoint of its
+topmost layer the topmost value is used rather than the map being masked,
+which is what makes `0.0` and `-5.0` mean what a near-surface map is asked
+for; likewise below the midpoint of the bottommost layer, down to the
+seafloor.  Below the seafloor the map is masked, so a column with partial
+bottom cells ending at -97 m is blank at `-100.0` while `k9` still has a value
+in it.
+
+The colors come from one config section per field, so the color map and its
+range can be set for each field independently.  A section is named for its
+field with the field name in lower case with underscores, so `velocityZonal`
+is configured by `[ocean_analysis_map_velocity_zonal]`.
+
+#### what is not there yet
+
+Two fields in the config file are asked for and reported as skipped rather
+than silently dropped.  Each says so in the step's log:
+
+- **`velocityZonal` and `velocityMeridional`** are not written by Omega yet.
+  Polaris does not reconstruct them from the edge-normal velocity; the
+  reconstruction belongs in the model, where it costs nothing in accuracy.
+- **`mixedLayerDepth`** is likewise a diagnostic Omega does not compute yet.
+
+The `heat_content` field group exists but derives nothing yet, so it produces
+no maps.
 
 (ocean-analysis-global-stats)=
 
@@ -320,6 +434,13 @@ two cases.  Polaris reads the simulation's Omega configuration to find out
 which it wrote, so this needs no option of its own.
 
 ## troubleshooting
+
+**`The data set has no zMid, zInterface`.**  The simulation did not write the
+elevation of its layers, which every map at an elevation is a position in.
+Polaris cannot reconstruct it: geometric thickness is derived from
+pseudo-thickness through specific volume, and the monthly mean of that product
+is not the product of the monthly means.  A run without it is out of spec
+rather than merely configured without a field.
 
 **`invalid interpolation syntax`** while reading the config file.  Polaris
 config files use extended interpolation, so a bare `$` in a value is an error.
