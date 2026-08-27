@@ -5,6 +5,7 @@ import xarray as xr
 from polaris.ocean.global_stats_names import (
     GLOBAL_STATS,
     available_stats,
+    discover_fields,
     global_stats_var_names,
     select_global_stats,
 )
@@ -224,3 +225,67 @@ def test_default_stats_are_all_ones_omega_computes():
     """The stats in analysis.cfg are all ones Omega computes."""
     for stat in ['mean', 'min', 'max', 'std']:
         assert stat in GLOBAL_STATS['omega']
+
+
+def test_discover_omega_fields():
+    """The fields of the QU240 mock-up, found from the names alone."""
+    ds = make_dataset(
+        [
+            'KineticEnergyCell_SpatialMax',
+            'KineticEnergyCell_SpatialMean',
+            'SshCell_SpatialMean',
+            'Temperature_SpatialStdDev',
+        ]
+    )
+    assert discover_fields(ds, model='omega') == [
+        'KineticEnergyCell',
+        'SshCell',
+        'Temperature',
+    ]
+
+
+def test_discover_mpas_ocean_fields():
+    """Variables the analysis member writes that are not statistics."""
+    ds = make_dataset(
+        [
+            'daysSinceStartOfSim',
+            'CFLNumberGlobal',
+            'temperatureAvg',
+            'temperatureRms',
+            'layerThicknessMin',
+        ]
+    )
+    assert discover_fields(ds, model='mpas-ocean') == [
+        'temperature',
+        'layerThickness',
+    ]
+
+
+def test_discover_does_not_mix_snapshots_and_time_means():
+    """A run that writes both is searched for the one that was asked for."""
+    ds = make_dataset(
+        [
+            'Temperature_SpatialMean',
+            'Salinity_SpatialMean_TimeMean1Month',
+        ]
+    )
+    assert discover_fields(ds, model='omega') == ['Temperature']
+    assert discover_fields(ds, model='omega', time_mean_period='1Month') == [
+        'Salinity'
+    ]
+
+
+def test_no_stats_means_every_one_the_model_computes():
+    """An empty config option asks for whatever the simulation wrote."""
+    ds = make_dataset(['Temperature_SpatialMean', 'Temperature_SpatialStdDev'])
+    found = select_global_stats(
+        ds=ds,
+        fields=['temperature'],
+        stats=None,
+        model='omega',
+        field_map=OMEGA_FIELDS,
+    )
+    assert found['temperature'] == {
+        'mean': 'Temperature_SpatialMean',
+        'std': 'Temperature_SpatialStdDev',
+    }

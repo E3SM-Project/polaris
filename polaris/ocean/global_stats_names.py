@@ -139,6 +139,51 @@ def global_stats_var_names(
     return var_names
 
 
+def discover_fields(ds, model, time_mean_period=None):
+    """
+    Get the fields a dataset holds global statistics for
+
+    This is the inverse of the name construction: a variable whose name ends
+    in one of the statistics the model computes is a statistic of whatever
+    comes before it.  It is what lets a step plot what a simulation wrote
+    rather than what someone thought it would write.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The global statistics, with the names the model gave them
+
+    model : {'mpas-ocean', 'omega'}
+        The ocean model that wrote the output
+
+    time_mean_period : str, optional
+        The period of the time reduction to look for.  The default finds the
+        snapshots, and a dataset holding both is not searched for the wrong
+        one.
+
+    Returns
+    -------
+    fields : list of str
+        The model's own name for each field, in the order its variables
+        appear in the dataset, without repeats
+    """
+    # raises for a model Polaris does not know about
+    available_stats(model)
+    stat_names = GLOBAL_STATS[model]
+
+    fields = []
+    for var_name in ds.data_vars:
+        field = _field_name(
+            var_name=str(var_name),
+            stat_names=stat_names.values(),
+            model=model,
+            time_mean_period=time_mean_period,
+        )
+        if field is not None and field not in fields:
+            fields.append(field)
+    return fields
+
+
 def select_global_stats(
     ds,
     fields,
@@ -165,8 +210,12 @@ def select_global_stats(
     ds : xarray.Dataset
         The global statistics, with the names the model gave them
 
-    fields, stats, model, field_map, time_mean_period
+    fields, model, field_map, time_mean_period
         As for :py:func:`global_stats_var_names`
+
+    stats : list of str or None
+        The statistics to look for, or ``None`` for every statistic this
+        model computes
 
     log : callable, optional
         Where to report each pair that was dropped, typically
@@ -190,6 +239,8 @@ def select_global_stats(
     ValueError
         If none of the requested variables is in ``ds``
     """
+    if not stats:
+        stats = available_stats(model)
     var_names = global_stats_var_names(
         fields=fields,
         stats=stats,
@@ -245,3 +296,21 @@ def _var_name(model_field, stat_name, model, time_mean_period):
             name = f'{name}_TimeMean{time_mean_period}'
         return name
     return f'{model_field}{stat_name}'
+
+
+def _field_name(var_name, stat_names, model, time_mean_period):
+    """Get the field one global statistics variable is a statistic of"""
+    if model == 'omega':
+        suffix = (
+            '' if time_mean_period is None else f'_TimeMean{time_mean_period}'
+        )
+        for stat_name in stat_names:
+            ending = f'_{stat_name}{suffix}'
+            if var_name.endswith(ending):
+                return var_name[: -len(ending)]
+        return None
+
+    for stat_name in stat_names:
+        if var_name.endswith(stat_name):
+            return var_name[: -len(stat_name)]
+    return None
