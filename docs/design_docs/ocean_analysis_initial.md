@@ -40,8 +40,14 @@ MPAS-Analysis is the scientific reference for what each of these diagnostics
 means, but the implementation is written from scratch with Polaris and Omega in
 mind rather than ported.  The reasoning is in {ref}`design-ocean-analysis`.
 
-Three things are deliberately **out of scope** for this deliverable:
+Four things are deliberately **out of scope** for this deliverable:
 
+- **Analyzing MPAS-Ocean output.**  The analysis locates a simulation's output
+  by reading the simulation's own Omega configuration, and MPAS-Ocean describes
+  its output with namelists and streams files instead.  Supporting it means
+  writing a translator from those into the same form, which is separate work.
+  This costs the deliverable nothing, since the design already develops against
+  Omega output for the reasons given under `omega-monthly-means`.
 - **Integration with zppy.**  For September 15, the analysis is run by hand by
   members of the Ocean Team, who make the results available to the coupled
   group within several days of each simulation period completing.  MPAS-Seaice
@@ -165,18 +171,19 @@ such as `bottomDepth`, and says so.
 
 ### Requirement: analysis-suite
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/27
 
 Contributors: Xylar Asay-Davis, Claude
 
 Polaris shall provide a suite that computes all of the analysis in this
-document for a single simulation.
+document for a single Omega simulation, run standalone or within E3SM.
+Analyzing MPAS-Ocean output is out of scope for this deliverable.
 
 The user shall supply a config file that provides:
 
-- the path to the E3SM or Omega standalone simulation to be analyzed, together
-  with enough information to find its mesh, vertical coordinate, and output
-  files;
+- the path to the simulation's own Omega configuration file, from which the
+  mesh, the vertical coordinate and the output files shall be found without
+  the user restating any of them;
 - the start and end dates of the climatology;
 - the fields for which climatology maps should be produced (if different from
   the defaults);
@@ -1047,7 +1054,7 @@ open questions.
 
 ### Implementation: analysis-suite
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/27
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1137,15 +1144,17 @@ proposed starting point:
 ```ini
 [ocean_analysis]
 
-# The absolute path to the simulation's Omega configuration file.  Polaris
+# The absolute path to the simulation's Omega configuration file.  This is the
+# analysis' only description of where the simulation's output lives: Polaris
 # reads the mesh, the output streams and their file-name templates from it, so
-# that they do not have to be restated below.  Leave empty and fill in the
-# templates by hand for MPAS-Ocean, or for a run whose config file is not
-# available.
+# that none of them have to be restated here.  It is required, since an Omega
+# run always has one.  MPAS-Ocean output is not supported; reading it would
+# need a translator from its namelists and streams into the same form.
 omega_config_filename =
 
 # The absolute path to the directory containing the simulation's output.
-# Defaults to the output directory the Omega config names.
+# Defaults to the directory containing the Omega configuration file, which is
+# what its relative file names are resolved against.
 simulation_path =
 
 # A short name for the simulation, used in plot titles and file names
@@ -1163,14 +1172,6 @@ mesh_filename =
 # simulation_path
 vert_coord_filename =
 
-# File-name templates for the simulation output the analysis reads, relative
-# to simulation_path.  $Y and $M are replaced by the four-digit year and
-# two-digit month.  Each defaults to the template of the corresponding Omega
-# output stream; set one only to override what the config file says.
-monthly_mean_template =
-global_stats_template =
-moc_template =
-
 
 [ocean_analysis_climatology]
 
@@ -1186,7 +1187,7 @@ plot_seasons = ANN, DJF, JJA
 
 # The fields for which climatology maps are produced, using MPAS-Ocean
 # (Polaris standard) names
-fields = temperature, salinity, velocityZonal, velocityMeridional,
+fields = temperature, salinity, velocityZonal, velocityMeridional, ssh,
          mixedLayerDepth
 
 # The elevations at which fields with a vertical dimension are plotted.
@@ -1309,23 +1310,52 @@ exist, reporting the missing years clearly.  It is shared by every step that
 reads simulation output.  This is deliberately a separate module rather than a
 method on a step, so that it can be unit tested and reused.
 
-Where the templates come from is the point.  The user's normal input is
+Where the templates come from is the point.  The user's input is
 `omega_config_filename`, the path to the simulation's own Omega configuration,
 and the same module reads the output streams from it: each stream gives a
 file-name template, a reduction period and a directory, which is enough to
 identify the monthly means, the `GlobalStats` output and the MOC output without
-the user restating any of it.  The mesh file is read from the same place.
+the user restating any of it.  The mesh and the vertical coordinate are read
+from the same place.
 
-The explicit templates remain as overrides, and are the only way in for
-MPAS-Ocean output or a run whose configuration file is not to hand.  An option
-the user sets always wins over what the config file says, and the step logs
-which source each path came from, so that a surprising file list can be
-diagnosed without guessing.
+**The templates are not config options, and the Omega configuration is
+required.**  An earlier draft had `monthly_mean_template` and its siblings as
+config options overriding what the Omega configuration says, which cannot
+work: Polaris config files use `ExtendedInterpolation`, so a bare `$Y` in a
+value raises `invalid interpolation syntax` and takes down the whole config
+combine, not merely that option.  Escaping it as `$$Y` would work and would be
+a trap, since a template pasted out of `omega.yml` would then fail
+confusingly.
 
-Reading Omega's configuration is done defensively --- a missing or unfamiliar
-stream is reported as such, naming the option to set by hand instead --- since
-its schema is Omega's to change and this is the one place Polaris depends on
-its shape rather than on its output.
+Removing the override layer rather than escaping it is the better trade in any
+case.  An Omega run always writes an `omega.yml`, so there is no case where the
+configuration is genuinely unavailable and the fallback would earn its keep;
+making it required removes the precedence rules, the reporting of which source
+won, and the one path by which a `$` could reach a config value.  What remains
+in the config file are plain paths with no templating in them ---
+`simulation_path`, `mesh_filename` and `vert_coord_filename` --- for output or
+a mesh that has moved since the run.  Each may be absolute or relative to
+`simulation_path`, and the step reports which of the two sources each path came
+from, so that a surprising file list can be diagnosed without guessing.
+
+**MPAS-Ocean output is therefore not supported, and says so.**  Reading it
+needs a translator from its namelists and streams into the form this module
+reads, which is separate work and is not in scope here.  This costs the
+deliverable nothing: the design already develops against Omega output rather
+than MPAS-Ocean output, for the reasons given under `omega-monthly-means`.  A
+step set up against a simulation whose `[ocean] model` is `mpas-ocean` reports
+that rather than failing obscurely later.
+
+Reading Omega's configuration is done defensively --- a missing stream, a
+stream that names no file, and an analysis group that is turned off are told
+apart and reported as such --- since its schema is Omega's to change and this
+is the one place Polaris depends on its shape rather than on its output.  The
+names of an analysis group's output streams have to be reconstructed the way
+Omega's analysis manager builds them, as
+`<prefix>_<period><TimeStats|Instants><template>`.  A group can write both time
+means and snapshots, under different names, and today's simulations write only
+snapshots, so neither spelling can be assumed: the time mean is preferred where
+there is one.
 
 The pattern is MPAS-Analysis's, which locates MPAS-Ocean and MPAS-Seaice output
 by reading their streams files rather than asking the user where each file
@@ -1683,16 +1713,16 @@ requested fields for every season.
 
 ### Implementation: omega-monthly-means
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/27
 
 Contributors: Xylar Asay-Davis, Claude
 
 This is Omega work and is implemented in the Omega repository, not in Polaris.
 What Polaris needs to do:
 
-- add config options for the monthly-mean file-name template, as above ---
-  though the templates normally come from the simulation's Omega configuration
-  rather than from the user, so these are overrides;
+- nothing for the monthly-mean file names: they come from the `History` stream
+  of the simulation's own Omega configuration, so a change to the stream is
+  picked up without a Polaris change;
 - add any new Omega fields, including a mixed-layer depth diagnostic, to
   `polaris/ocean/model/mpaso_to_omega.yaml` once their Omega names are fixed;
 - add an Omega YAML fragment that turns on monthly-mean output of the required
@@ -2148,11 +2178,11 @@ products for a saving that only matters on a first run.
 
 ### Implementation: moc-plot
 
-Date last modified: 2026/08/11
+Date last modified: 2026/08/27
 
 Contributors: Xylar Asay-Davis, Claude
 
-The `moc/plot` step reads Omega's global MOC output over the climatology years,
+The `moc` step reads Omega's global MOC output over the climatology years,
 averages over time weighted by the length of each reduction period, and plots
 the result as filled contours with overlaid contour lines against the interface
 elevations Omega provides.
