@@ -6,6 +6,11 @@ Tasks should typically include validation of variables and/or timers.
 This validation is a critical part of running suites and comparing them
 to baselines.
 
+To set up and run both sides of a baseline comparison automatically --
+resolving two source trees, initializing submodules, building each side and
+passing the baseline work directory on with `-b` -- see
+{ref}`dev-benchmarking`.
+
 ## Validating variables against a baseline
 
 The easiest type of validation you can add is against a baseline if one is
@@ -218,9 +223,9 @@ For some output files, you may wish to run checks of certain properties such as
 conservation of mass or energy. Currently, only conservation checks for the
 ocean are available.
 
-To run property checks, add a list of properties
-the keyword argument `verify_properties` to the
-:py:meth:`polaris.Step.add_output_file()` method.  As an example:
+To run property checks, pass a list of properties as the keyword argument
+`check_properties` to the {py:meth}`polaris.Step.add_output_file()` method.
+As an example:
 
 ```python
 from polaris import Step
@@ -234,7 +239,7 @@ class Forward(OceanModelStep):
             filename='mesh.nc', target='../init/culled_mesh.nc'
         )
         self.add_output_file('output.nc',
-                             verify_properties=['mass conservation'])
+                             check_properties=['mass conservation'])
 ```
 
 ## Conservation checks
@@ -259,3 +264,9 @@ energy_conservation_tolerance = 1e-8
 
 As shown in the previous example, we have added a mesh file with the name
 'mesh.nc' because conservation checks require the area of cells.
+
+The results of the checks are written to the step's work directory: either
+`property_check_passed.log`, which lists each property that passed along
+with its relative error, or `property_check_failed.log`, which lists each
+property that failed along with its relative error and the tolerance it
+exceeded.  A step writes one or the other, never both.
