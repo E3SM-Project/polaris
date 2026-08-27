@@ -1369,6 +1369,17 @@ Input files are symlinked into each step's work directory in `setup()` using
 `Step.add_input_file`, which gives the usual Polaris provenance and dependency
 checking without copying data.
 
+**Where that reporting goes is not settled, and today's answer is temporary.**
+It is written to stdout during `setup()`, because a step has no logger until
+the run harness attaches one, and it earns its place while the reader is new:
+it is how a wrong file list gets diagnosed at the moment.  It cannot stay
+there.  Polaris deliberately writes almost nothing during setup, so that what
+the user sees is the suite being set up rather than the internals of individual
+steps, and ten analysis steps each reporting their inputs dilutes exactly that.
+Before the deliverable, this moves into each step's own log at run time, where
+`self.logger` exists and where a reader looking into one step's behavior will
+go for it, leaving setup with only what it already prints.
+
 #### Every path is explicit
 
 Polaris changes the process working directory into each step's work directory
