@@ -46,6 +46,28 @@ These instructions apply to the whole repository unless a deeper
 - Prefer starting from the existing template instead of creating task
   documentation pages from scratch.
 
+## GitHub pull requests and issues
+
+- Do not hard-wrap. Write each paragraph and each bullet as a single
+  line, however long. GitHub wraps them for display, and hard breaks
+  make later edits show up as reflowed paragraphs in the diff.
+- Start with a paragraph summarizing what the pull request or issue is
+  about, then use sections for the detail.
+- Keep the description in a file at the root of the worktree for the
+  branch it describes, and never commit it. It is a draft to paste into
+  GitHub, not part of the branch's content.
+- Follow `.github/pull_request_template.md`: the description goes at
+  the top, keep only the checklist lines that apply, and use closing
+  keywords for any issue the pull request fixes.
+- Do not list individual commits in a pull request description. The
+  commits are already on the pull request; describe what the change
+  accomplishes as a whole instead.
+- Do not describe testing in a pull request description. Testing goes
+  in its own `Testing` comment on the pull request, which is what the
+  template's checklist asks for.
+- An issue should say what happens, what was expected instead, and
+  enough about the configuration and commands used to reproduce it.
+
 ## Supported machines
 
 - `docs/developers_guide/supported_machines.yaml` is the source of the

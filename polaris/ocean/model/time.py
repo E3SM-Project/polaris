@@ -1,3 +1,4 @@
+import re
 import time
 
 import cftime
@@ -24,7 +25,7 @@ def get_days_since_start(ds):
         if 'Time' in ds['Time'].coords:
             t_arr = cftime.date2num(
                 ds['Time'].values,
-                units=ds['Time'].Units.replace('seconds', 'days'),
+                units=_get_days_since_units(ds['Time']),
                 calendar=ds['Time'].dt.calendar,
                 has_year_zero=True,
             )
@@ -70,3 +71,41 @@ def get_time_interval_string(days=None, seconds=None):
     seconds_str = time.strftime('%H:%M:%S', time.gmtime(sec_part))
     time_str = f'{day_part:04d}_{seconds_str}.{int(sec_decimal * 1e3):03d}'
     return time_str
+
+
+def _get_days_since_units(da):
+    """
+    Get CF time units of the form ``days since <reference>`` for a time
+    variable, taking the reference date from the CF ``units`` attribute
+    whatever units it is expressed in.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        A time variable.  When times have been decoded, xarray has moved
+        ``units`` from ``attrs`` into ``encoding``, so both are checked.
+
+    Returns
+    -------
+    units : str
+        The CF units with the time unit replaced by ``days``
+    """
+    name = da.name if da.name is not None else 'time'
+    if 'units' in da.encoding:
+        units = da.encoding['units']
+    elif 'units' in da.attrs:
+        units = da.attrs['units']
+    else:
+        raise ValueError(
+            f"Could not find CF 'units' for time variable '{name}' in "
+            f'either its encoding or its attributes'
+        )
+
+    match = re.match(r'\s*\S+\s+since\s+(?P<reference>.+)', units)
+    if match is None:
+        raise ValueError(
+            f"CF 'units' for time variable '{name}' are not of the form "
+            f"'<units> since <reference>': '{units}'"
+        )
+
+    return f'days since {match.group("reference").strip()}'
