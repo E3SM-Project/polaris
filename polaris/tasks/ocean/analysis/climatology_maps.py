@@ -253,11 +253,12 @@ class ClimatologyMaps(AnalysisStep):
         Read a few named fields from a file of the simulation, translating
         their names but nothing else
 
-        The mesh and the vertical coordinate are both the simulation's
-        initial condition, which carries a full model state.  Opening either
-        as a model data set would derive specific volume from that state ---
-        an equation-of-state solve --- to get a handful of fields that are
-        already there, so the names are translated and nothing else is done.
+        The mesh and the vertical coordinate a simulation names are often
+        its initial condition, which carries a full model state.  Opening one
+        as a model data set would then derive specific volume from that
+        state --- an equation-of-state solve --- to get a handful of fields
+        that are already there, so the names are translated and nothing else
+        is done.
 
         Parameters
         ----------
