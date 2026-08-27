@@ -33,6 +33,24 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         self._resolve_model_file_placeholders()
         super().process_inputs_and_outputs()
 
+    def add_produced_file(self, filename):
+        """
+        Register a file the step has just written as one of its outputs
+
+        Most outputs are known at setup, but a step that plots what a
+        simulation wrote does not know which plots it will make until it has
+        read the simulation, since a run writes some subset of the fields it
+        was asked for.  Such a step registers each product as it writes it,
+        which also keeps a plot and the data beside it from getting out of
+        step with each other.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file, relative to the step's work directory
+        """
+        self.outputs.append(self.work_path(filename))
+
     def add_output_files_for_ocean_model_input(
         self,
         horiz_mesh_filename=None,
