@@ -1,9 +1,8 @@
-import matplotlib.pyplot as plt
 import numpy as np
 
+from polaris.ocean.analysis_plots import plot_global_stats
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.model.time import get_days_since_start
-from polaris.viz import mplstyle_context
 
 
 class StatsAnalysis(OceanIOStep):
@@ -43,50 +42,29 @@ class StatsAnalysis(OceanIOStep):
             self.add_output_file(f'{variable_name}_stats.png')
 
     def run(self):
-        with mplstyle_context():
-            model = self.config.get('ocean', 'model')
-            ds = self.open_model_dataset('output.nc', self.config)
-            if 'Scalar' in ds.dims:
-                ds = ds.isel(Scalar=0)
-            time = get_days_since_start(ds)
-            for variable_name in self.variables:
-                fig, axes = plt.subplots(
-                    nrows=2, ncols=1, sharex=True, sharey=False, figsize=(5, 8)
-                )
-                suffix = 'Min'
-                var = ds[f'{variable_name}{suffix}']
-                axes[0].plot(time, var, ':k', label=suffix)
-                axes[1].plot(time, var - var[0], ':k', label=suffix)
-                suffix = 'Max'
-                var = ds[f'{variable_name}{suffix}']
-                axes[0].plot(time, var, '--k', label=suffix)
-                axes[1].plot(time, var - var[0], '--k', label=suffix)
-                suffix = 'Avg'
-                var_mean = ds[f'{variable_name}{suffix}']
-                axes[0].plot(time, var_mean, '-k', label=suffix)
-                axes[1].plot(time, var_mean - var_mean[0], '-k', label=suffix)
-                suffix = 'Rms'
-                if model == 'omega':
-                    var_std = ds[f'{variable_name}{suffix}'].values
-                else:
-                    var_rms = ds[f'{variable_name}{suffix}']
-                    var_std = np.sqrt(
-                        var_rms.values**2.0 - var_mean.values**2.0
-                    )
-                axes[0].fill_between(
-                    time,
-                    var_mean.values + var_std,
-                    var_mean.values - var_std,
-                    color='k',
-                    alpha=0.5,
-                    label='SD',
-                )
-                axes[0].legend()
-                axes[1].legend()
-                axes[0].set_xlabel('Days')
-                axes[1].set_xlabel('Days')
-                axes[0].set_ylabel(variable_name)
-                axes[1].set_ylabel(f'{variable_name} - {variable_name} at t=0')
-                axes[0].set_xlim([min(time), max(time)])
-                fig.savefig(f'{variable_name}_stats.png', bbox_inches='tight')
-                plt.close(fig)
+        model = self.config.get('ocean', 'model')
+        ds = self.open_model_dataset('output.nc', self.config)
+        if 'Scalar' in ds.dims:
+            ds = ds.isel(Scalar=0)
+        time = get_days_since_start(ds)
+        for variable_name in self.variables:
+            var_mean = ds[f'{variable_name}Avg'].values
+            var_rms = ds[f'{variable_name}Rms'].values
+            if model == 'omega':
+                # Omega's Rms is mapped from SpatialStdDev, so it already is
+                # a standard deviation
+                var_std = var_rms
+            else:
+                var_std = np.sqrt(var_rms**2.0 - var_mean**2.0)
+            stats = {
+                'min': ds[f'{variable_name}Min'].values,
+                'max': ds[f'{variable_name}Max'].values,
+                'mean': var_mean,
+                'std': var_std,
+            }
+            plot_global_stats(
+                time=time,
+                stats=stats,
+                field_name=variable_name,
+                out_filename=f'{variable_name}_stats.png',
+            )
