@@ -134,9 +134,14 @@ one; because model config data is processed in the order it was added, the
 task's overrides win.  It also rejects any model other than Omega, since the
 failure being tested cannot arise in MPAS-Ocean.
 
-`runtime_setup()` creates the `restarts` directory shared by both segments,
+`runtime_setup()` creates the restart directory this segment writes into,
 which Omega does not create itself, and, for a continuing segment, copies the
-previous segment's `output.nc` into place.  The copy is what makes the test
+previous segment's `output.nc` into place.  Each segment gets a directory of
+its own under the task's `restarts`, named for the step, and a continuing
+segment reads its predecessor's.  A single shared directory would mean a
+segment's own end-of-run restart replaced the pointer file it had just read
+from, so re-running that step alone would silently continue from the wrong
+time.  The copy is what makes the test
 meaningful: it reproduces what a continuation run finds on disk, a history
 file that already holds the earlier frames.  It is a copy rather than a
 symlink so that appending to it cannot reach back into the previous segment's

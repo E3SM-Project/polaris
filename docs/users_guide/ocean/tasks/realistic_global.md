@@ -257,11 +257,11 @@ The task contains four steps:
 4. `validate` compares the history of the restart chain with the history of
    the full run.
 
-The two segments read and write restarts through a `restarts` directory
-shared by the whole task.  `second_segment` starts from a copy of
-`first_segment`'s `output.nc`, so that it finds on disk what a continuation
-run would find: a history file that already holds the earlier frames and has
-to be appended to.
+Each segment writes its restart into a directory of its own under the task's
+`restarts` directory, and a continuing segment reads its predecessor's.
+`second_segment` starts from a copy of `first_segment`'s `output.nc`, so that
+it finds on disk what a continuation run would find: a history file that
+already holds the earlier frames and has to be appended to.
 
 `validate` checks two things, because a restart can go wrong in two ways.  The
 time axis has to hold every frame of the whole period, in increasing order,
