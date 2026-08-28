@@ -32,6 +32,7 @@ class Forward(OceanModelStep):
         enable_restoring=False,
         constant_diff=False,
         conservation_intervals=None,
+        run_duration_steps=None,
     ):
         """
         Create a new test case
@@ -139,6 +140,7 @@ class Forward(OceanModelStep):
                 time_index_end=time_index_end,
             )
 
+        self.run_duration_steps = run_duration_steps
         self.resources_fixed = ntasks is not None
 
         self.task_name = task_name
@@ -171,25 +173,28 @@ class Forward(OceanModelStep):
 
         config = self.config
         section = config['single_column']
-        time_integrator = section.get('time_integrator')
         time_step = section.getfloat('time_step')
-        run_duration_steps = section.getint('run_duration_steps')
-        if run_duration_steps > 0:
-            # run for a given number of time steps, with output every step
-            duration_seconds = run_duration_steps * time_step
-            output_interval_seconds = time_step
+        if self.run_duration_steps is not None:
+            if self.run_duration_steps > 0:
+                # run for a given number of time steps, with output every step
+                duration_seconds = self.run_duration_steps * time_step
+                output_interval_seconds = time_step
+            else:
+                raise ValueError(
+                    'run_duration_steps must be >0 but was '
+                    f'{self.run_duration_steps}'
+                )
         else:
             duration_seconds = section.getfloat('run_duration') * 86400.0
             output_interval_seconds = section.getfloat('output_interval')
         model = config.get('ocean', 'model')
-        if model == 'omega':
-            duration_str = get_time_interval_string(seconds=duration_seconds)
-        else:
-            duration_str = str(duration_seconds)
+        duration_str = get_time_interval_string(seconds=duration_seconds)
         dt_str = get_time_interval_string(seconds=time_step)
         output_interval_str = get_time_interval_string(
             seconds=output_interval_seconds
         )
+
+        time_integrator = section.get('time_integrator')
         time_integrator_map = dict([('RK4', 'RungeKutta4')])
         if model == 'omega':
             if time_integrator in time_integrator_map.keys():
@@ -200,8 +205,6 @@ class Forward(OceanModelStep):
                     f'{time_integrator} to omega not found, '
                     'retaining name given in config'
                 )
-        else:
-            duration_str = str(duration_seconds)
 
         # the task's yaml file may use these to set the output interval
         self.add_yaml_file(
