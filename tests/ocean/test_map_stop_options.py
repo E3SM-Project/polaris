@@ -60,10 +60,24 @@ def test_stop_time_becomes_a_time_criterion():
     assert options['StopCriterion'] == '0001-01-02_00:00:00'
 
 
-def test_run_duration_wins_when_both_are_given():
-    """MPAS-Ocean prefers the duration, and Omega used to do the same"""
+def test_setting_both_criteria_is_an_error():
+    """
+    Omega holds one stop criterion, so asking for both says nothing it can
+    act on.  MPAS-Ocean would prefer the duration and Omega used to do the
+    same, but that rule went with the options it applied to, so rather than
+    quietly honouring an order the models no longer share, refuse it.
+    """
+    with pytest.raises(ValueError, match='both set'):
+        _map(
+            config_stop_time='0001-01-02_00:00:00',
+            config_run_duration='0000_00:20:00',
+        )
+
+
+def test_an_unset_criterion_is_not_both():
+    """The usual case: a duration alongside an explicitly unset stop time"""
     options = _map(
-        config_stop_time='0001-01-02_00:00:00',
+        config_stop_time='none',
         config_run_duration='0000_00:20:00',
     )
 
