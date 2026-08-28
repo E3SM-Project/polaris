@@ -2,7 +2,8 @@ Omega:
   TimeIntegration:
     TimeStep: 0000_00:00:01
     StartTime: 0001-01-01_00:00:00
-    StopTime: 0001-01-01_00:00:01
+    StopType: AtTime
+    StopCriterion: 0001-01-01_00:00:01
   Tendencies:
     ThicknessFluxTendencyEnable: false
     PVTendencyEnable: false
