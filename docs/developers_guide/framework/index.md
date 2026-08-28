@@ -22,6 +22,7 @@ dependencies.
 
 commands
 config
+coriolis
 logging
 io
 mpas
