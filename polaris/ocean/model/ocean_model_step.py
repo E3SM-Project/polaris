@@ -11,6 +11,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
+    cast,
 )
 
 from ruamel.yaml import YAML
@@ -46,6 +47,15 @@ ConfigsType = Dict[
         Dict[str, Dict[str, Dict[str, Dict[str, OptionValue]]]],
     ],
 ]
+
+#: MPAS-Ocean spellings for a time option that has deliberately been left
+#: unset, which a task uses to say "stop on the other criterion, not this one"
+UNSET_TIME_VALUES = frozenset({'', 'none', 'None'})
+
+
+def _is_set(value: OptionValue) -> bool:
+    """Whether a time option holds a value, as opposed to being left unset"""
+    return str(value).strip() not in UNSET_TIME_VALUES
 
 
 class OceanModelStep(OceanModelFilesMixin, ModelStep):
@@ -815,6 +825,8 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
 
         self._warn_not_found(not_found)
 
+        self._map_stop_options(out_configs)
+
         return out_configs
 
     def _map_mpaso_to_omega_section_option(
@@ -871,6 +883,42 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         out_option, out_value = self._map_handle_not(out_option, value)
 
         return out_sections, out_option, out_value
+
+    @staticmethod
+    def _map_stop_options(configs: ConfigsType) -> None:
+        """
+        Translate MPAS-Ocean's stop time and run duration into Omega's stop
+        type and criterion, in place.
+
+        MPAS-Ocean says when a run ends with two options, either of which may
+        be unset: ``config_run_duration``, which wins when both are given, and
+        ``config_stop_time``.  Omega says the same thing with a ``StopType``
+        naming which kind of criterion is in use and a single
+        ``StopCriterion`` holding the value.  That is one option becoming two,
+        which the option-name map in ``mpaso_to_omega.yaml`` cannot express,
+        so the map carries the values across under their MPAS-Ocean names and
+        this turns them into the pair Omega reads.
+
+        A stop option that is absent or unset is left out entirely rather than
+        written as ``none``, so that Omega falls back to its own default
+        instead of being handed a criterion it cannot parse.
+        """
+        raw = configs.get('TimeIntegration')
+        if not isinstance(raw, dict):
+            return
+        # TimeIntegration holds options, not nested sections
+        section = cast(Dict[str, OptionValue], raw)
+
+        # these are the MPAS-Ocean names, carried across by the option map
+        duration = section.pop('RunDuration', None)
+        stop_time = section.pop('StopTime', None)
+
+        if duration is not None and _is_set(duration):
+            section['StopType'] = 'AfterDuration'
+            section['StopCriterion'] = duration
+        elif stop_time is not None and _is_set(stop_time):
+            section['StopType'] = 'AtTime'
+            section['StopCriterion'] = stop_time
 
     @staticmethod
     def _warn_not_found(not_found: List[str]) -> None:
