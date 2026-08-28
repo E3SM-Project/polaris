@@ -51,6 +51,11 @@ mpas-ocean:
       - layerThickness
 
 Omega:
+  TimeIntegration:
+    # Whether a restart is read is decided here rather than by keeping
+    # RestartRead out of the way with a start time it never reaches, which is
+    # what Omega's UseStartEnd sentinel used to be for.
+    StartType: {{ start_type }}
   IO:
     IOStride: 1
   Advection:
@@ -70,9 +75,9 @@ Omega:
       UseStartEnd: false
       Contents:
       - InitVertCoord
-    # InitialState should only be used when starting from scratch.
-    # For restart runs, the frequency units should be changed from
-    # "OnStartup" to "never" so that the initial state file is not read.
+    # InitialState is read only when TimeIntegration StartType is StartUp,
+    # so a restart run switches the frequency units from "OnStartup" to
+    # "never" as well, to keep the stream out of the way.
     InitialState:
       UsePointerFile: false
       Filename: init.nc
@@ -91,9 +96,7 @@ Omega:
       Precision: double
       Freq: 1
       FreqUnits: OnStartup
-      UseStartEnd: {{ not_restart }}
-      StartTime: {{ restart_start_time }}
-      EndTime: 99999-12-31_00:00:00
+      UseStartEnd: false
       Contents:
       - Restart
     RestartWrite:

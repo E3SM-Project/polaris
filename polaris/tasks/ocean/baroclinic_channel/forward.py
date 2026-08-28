@@ -287,12 +287,11 @@ class Forward(OceanModelStep):
 
         if self.do_restart:
             init_freq = 'never'
-            restart_start_time = start_str
+            start_type = 'Continue'
             mpaso_options['config_do_restart'] = True
         else:
             init_freq = 'OnStartup'
-            # The restart start time must be >= simulation start time
-            restart_start_time = '0001-01-01_00:00:01'
+            start_type = 'StartUp'
 
         if self.nu is not None:
             # update the viscosity to the requested value *after* loading
@@ -313,8 +312,7 @@ class Forward(OceanModelStep):
         replacements = dict(
             init_freq=init_freq,
             restart_filename=restart_filename,
-            restart_start_time=restart_start_time,
-            not_restart=not self.do_restart,
+            start_type=start_type,
             output_freq=f'{output_freq}',
             output_freq_units=output_freq_units,
             time_integrator=time_integrator,
