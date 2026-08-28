@@ -93,6 +93,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
@@ -142,6 +143,10 @@
 <p>Tasks should typically include validation of variables and/or timers.
 This validation is a critical part of running suites and comparing them
 to baselines.</p>
+<p>To set up and run both sides of a baseline comparison automatically –
+resolving two source trees, initializing submodules, building each side and
+passing the baseline work directory on with <code class="docutils literal notranslate"><span class="pre">-b</span></code> – see
+<a class="reference internal" href="../benchmarking.html#dev-benchmarking"><span class="std std-ref">Benchmarking a branch against a baseline</span></a>.</p>
 <section id="validating-variables-against-a-baseline">
 <h2>Validating variables against a baseline<a class="headerlink" href="#validating-variables-against-a-baseline" title="Link to this heading"></a></h2>
 <p>The easiest type of validation you can add is against a baseline if one is
@@ -344,9 +349,9 @@ circumstances.</p>
 <p>For some output files, you may wish to run checks of certain properties such as
 conservation of mass or energy. Currently, only conservation checks for the
 ocean are available.</p>
-<p>To run property checks, add a list of properties
-the keyword argument <code class="docutils literal notranslate"><span class="pre">verify_properties</span></code> to the
-:py:meth:<code class="docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code> method.  As an example:</p>
+<p>To run property checks, pass a list of properties as the keyword argument
+<code class="docutils literal notranslate"><span class="pre">check_properties</span></code> to the <a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a> method.
+As an example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
 
@@ -358,7 +363,7 @@ the keyword argument <code class="docutils literal notranslate"><span class="pre
             <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/culled_mesh.nc'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="s1">'output.nc'</span><span class="p">,</span>
-                             <span class="n">verify_properties</span><span class="o">=</span><span class="p">[</span><span class="s1">'mass conservation'</span><span class="p">])</span>
+                             <span class="n">check_properties</span><span class="o">=</span><span class="p">[</span><span class="s1">'mass conservation'</span><span class="p">])</span>
 </pre></div>
 </div>
 <section id="conservation-checks">
@@ -381,6 +386,11 @@ tolerance given in</p>
 </div>
 <p>As shown in the previous example, we have added a mesh file with the name
 ‘mesh.nc’ because conservation checks require the area of cells.</p>
+<p>The results of the checks are written to the step’s work directory: either
+<code class="docutils literal notranslate"><span class="pre">property_check_passed.log</span></code>, which lists each property that passed along
+with its relative error, or <code class="docutils literal notranslate"><span class="pre">property_check_failed.log</span></code>, which lists each
+property that failed along with its relative error and the tolerance it
+exceeded.  A step writes one or the other, never both.</p>
 </section>
 </section>
 

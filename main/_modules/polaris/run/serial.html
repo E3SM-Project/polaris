@@ -65,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
@@ -862,6 +863,20 @@
 
 <span class="sd">    suite : dict</span>
 <span class="sd">        The unpickled suite dictionary containing tasks and base work dir.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The benchmarking driver in ``utils/benchmark`` uses the file this</span>
+<span class="sd">    writes as its signal that a run finished, which is how it can reuse a</span>
+<span class="sd">    baseline whose job it submitted and then stopped watching.  It is</span>
+<span class="sd">    written from ``run_tasks()`` just before the pass/fail exit, so it is</span>
+<span class="sd">    there whether the run passed or failed, which is what makes it usable</span>
+<span class="sd">    for that.</span>
+
+<span class="sd">    So renaming or removing this file would stop benchmark baselines from</span>
+<span class="sd">    being reused.  Nothing breaks -- an unrecognized baseline is simply</span>
+<span class="sd">    run again -- but it would get slower quietly, so please update</span>
+<span class="sd">    ``POLARIS_RUN_OUTPUT`` in ``utils/benchmark/benchmark.py`` to match.</span>
 <span class="sd">    """</span>
     <span class="n">work_dir</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'work_dir'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
     <span class="n">provenance_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'provenance'</span><span class="p">)</span>
