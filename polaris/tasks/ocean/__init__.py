@@ -214,16 +214,19 @@ class Ocean(Component):
             variables are present in the dataset after mapping.
         """
         if self.model == 'omega':
-            # fields to be converted from geometric to pseudo thickness
+            # fields to be converted from geometric to pseudo thickness.
+            # RefPseudoThickness is deliberately absent: it belongs to the
+            # vertical coordinate, and write_vert_coord_dataset() derives it
+            # from restingThickness at zero surface pressure, which is the
+            # only correct way to do it.
             mpas_to_omega_vars = {
                 'layerThickness': 'PseudoThickness',
-                'restingThickness': 'RefPseudoThickness',
                 'vertAleTransportTop': 'TotalVerticalPseudoVelocity',
                 'vertVelocityTop': 'VerticalPseudoVelocity',
             }
             for mpas_var, omega_var in mpas_to_omega_vars.items():
                 if mpas_var in ds.keys() and omega_var not in ds.keys():
-                    if mpas_var in ['layerThickness', 'restingThickness']:
+                    if mpas_var == 'layerThickness':
                         pseudothickness, spec_vol = pseudothickness_from_ds(
                             ds, config=config, src_var_name=mpas_var
                         )
@@ -232,10 +235,7 @@ class Ocean(Component):
                             and spec_vol is not None
                         ):
                             ds[omega_var] = pseudothickness
-                            if (
-                                'SpecVol' not in ds.keys()
-                                and mpas_var == 'layerThickness'
-                            ):
+                            if 'SpecVol' not in ds.keys():
                                 ds['SpecVol'] = spec_vol
                     elif mpas_var in [
                         'vertVelocityTop',

@@ -755,8 +755,10 @@ p-star coordinate for one outer iteration.  It expects ``BottomPressure`` and
 ``SurfacePressure`` (both in Pa with dimension ``nCells``) to already be
 present in the mesh dataset, and adds ``RefPseudoThickness``,
 ``PseudoThickness``, ``ZTildeInterface``, ``ZTildeMid``, ``cellMask``,
-``minLevelCell``, ``maxLevelCell``, and ``vertCoordMovementWeights``.
-``BottomPressure`` is updated in place to the post-partial-cell-snap value.
+``minLevelCell``, ``maxLevelCell``, and ``vertCoordMovementWeights``, each
+with its own ``long_name`` and, where meaningful, ``units`` (see
+{ref}`dev-attrs`).  ``BottomPressure`` is updated in place to the
+post-partial-cell-snap value, keeping the attributes the caller gave it.
 The reference 1-D grid (in pseudo-height) is controlled by the same
 ``vertical_grid`` config options used by the z-star and z-level coordinates.
 Unlike those coordinates, the p-star coordinate cannot be constructed via

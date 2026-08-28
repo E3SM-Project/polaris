@@ -8,8 +8,12 @@ from polaris.ocean.init_state import (
     layer_thickness_from_geom_interfaces,
 )
 
+# Attributes that ride in from the combined topography and must not survive
+# onto anything derived from a geometric height.
+TOPO_ATTRS = {'unit': 'meters', 'cell_measures': 'area: area'}
 
-def _make_geom_ds():
+
+def _make_geom_ds(geom_attrs=None):
     """A 2-cell, 3-layer dataset where the second cell only has 2 valid
     layers."""
     geom_z_inter = np.array(
@@ -23,7 +27,7 @@ def _make_geom_ds():
             [True, True, False],
         ]
     )
-    return xr.Dataset(
+    ds = xr.Dataset(
         data_vars=dict(
             GeomZInterface=(
                 ('Time', 'nCells', 'nVertLevelsP1'),
@@ -32,6 +36,9 @@ def _make_geom_ds():
             cellMask=(('nCells', 'nVertLevels'), cell_mask),
         )
     )
+    if geom_attrs is not None:
+        ds.GeomZInterface.attrs = dict(geom_attrs)
+    return ds
 
 
 def test_layer_thickness_from_geom_interfaces():
@@ -48,6 +55,23 @@ def test_layer_thickness_from_geom_interfaces():
     assert ds.restingThickness.dims == ('Time', 'nCells', 'nVertLevels')
     assert ds.restingThickness.attrs['units'] == 'm'
     assert ds.layerThickness.attrs['long_name'] == 'layer thickness'
+
+
+def test_layer_thickness_does_not_inherit_geom_attrs():
+    """The thicknesses say only what they mean.
+
+    They are computed by differencing GeomZInterface, which arrives carrying
+    whatever the topography chain put on it.
+    """
+    ds = _make_geom_ds(geom_attrs=TOPO_ATTRS)
+    ds = layer_thickness_from_geom_interfaces(ds)
+
+    expected = {
+        'restingThickness': 'resting layer thickness',
+        'layerThickness': 'layer thickness',
+    }
+    for var, long_name in expected.items():
+        assert ds[var].attrs == {'long_name': long_name, 'units': 'm'}
 
 
 def test_add_quiescent_normal_velocity():

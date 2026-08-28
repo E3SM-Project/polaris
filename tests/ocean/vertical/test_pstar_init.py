@@ -15,6 +15,28 @@ import xarray as xr
 from polaris.ocean.vertical.pstar_init import PStarInitStep
 from polaris.ocean.vertical.ztilde import Gravity, RhoSw
 
+# every variable run_pstar_init() is expected to write
+OUTPUT_VARS = [
+    'temperature',
+    'salinity',
+    'SpecVol',
+    'pressure',
+    'GeomZMid',
+    'GeomZInterface',
+    'bottomDepth',
+    'ssh',
+    'SurfacePressure',
+    'BottomPressure',
+    'PseudoThickness',
+    'ZTildeMid',
+    'ZTildeInterface',
+    'cellMask',
+    'minLevelCell',
+    'maxLevelCell',
+    'RefPseudoThickness',
+    'vertCoordMovementWeights',
+]
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -180,28 +202,54 @@ def test_minimal_subclass_returns_complete_dataset():
 
     ds = step.run_pstar_init(ds_mesh, geom_z_bot)
 
-    required = [
-        'temperature',
-        'salinity',
-        'SpecVol',
-        'pressure',
-        'GeomZMid',
-        'GeomZInterface',
-        'bottomDepth',
-        'ssh',
-        'SurfacePressure',
-        'BottomPressure',
-        'PseudoThickness',
-        'ZTildeMid',
-        'ZTildeInterface',
-        'cellMask',
-        'minLevelCell',
-        'maxLevelCell',
-        'RefPseudoThickness',
-        'vertCoordMovementWeights',
-    ]
-    for var in required:
+    for var in OUTPUT_VARS:
         assert var in ds, f'{var!r} missing from output dataset'
+
+
+def test_every_output_variable_is_labelled():
+    """Every variable the base class writes says what it is.
+
+    RefPseudoThickness and vertCoordMovementWeights used to reach the output
+    file with no attributes at all.
+    """
+    config = _make_config()
+    step = _make_step(_ConstantTracerPStarStep, config)
+
+    ncells = 1
+    ds_mesh = _make_ds_mesh(ncells)
+    geom_z_bot = xr.DataArray(np.full(ncells, -500.0), dims=['nCells'])
+
+    ds = step.run_pstar_init(ds_mesh, geom_z_bot)
+
+    for var in OUTPUT_VARS:
+        assert ds[var].attrs.get('long_name'), f'{var} has no long_name'
+
+
+def test_output_does_not_inherit_topography_attrs():
+    """No output field carries metadata in from the target bathymetry.
+
+    ``geom_z_bot`` is derived from ``bottomDepth``, which arrives from the
+    combined topography carrying a non-standard ``unit`` and a
+    ``cell_measures`` naming a variable that no longer exists.  xarray
+    propagates both through everything computed from it.
+    """
+    config = _make_config()
+    step = _make_step(_ConstantTracerPStarStep, config)
+
+    ncells = 1
+    ds_mesh = _make_ds_mesh(ncells)
+    geom_z_bot = xr.DataArray(
+        np.full(ncells, -500.0),
+        dims=['nCells'],
+        attrs={'unit': 'meters', 'cell_measures': 'area: area'},
+    )
+
+    ds = step.run_pstar_init(ds_mesh, geom_z_bot)
+
+    for var in OUTPUT_VARS:
+        attrs = ds[var].attrs
+        assert 'unit' not in attrs, f'{var} inherited unit'
+        assert 'cell_measures' not in attrs, f'{var} inherited cell_measures'
 
 
 def test_constant_density_converges_cleanly(caplog):
