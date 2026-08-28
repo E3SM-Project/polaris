@@ -285,6 +285,18 @@ seaice/api
    connectivity.connected_to_seeds
    connectivity.seed_mask_from_points
 
+   vector.get_coordinate_matrix
+   vector.compute_edge_normal_vec
+
+   reconstruct.compute_reconstruction_weights
+   reconstruct.add_reconstruction_weights_to_dataset
+   reconstruct.tangential_reconstruction
+   reconstruct.cartesian_to_local_geographic
+   reconstruct.get_reconstruction_validate_vars
+
+   validate.MPAS_MESH_VALIDATE_VARS
+   validate.CELL_WIDTH_VALIDATE_VARS
+
    spherical.SphericalBaseStep
    spherical.SphericalBaseStep.setup
    spherical.SphericalBaseStep.run
@@ -303,6 +315,12 @@ seaice/api
    IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon
    IcosahedralMeshStep.get_subdivisions
    IcosahedralMeshStep.get_cell_width
+
+   spherical.recompute_angle_edge
+   spherical.calc_edge_normal_vector
+   spherical.calc_vector_east_north
+
+   spherical.quality.check_cell_polygon_quality
 ```
 
 ### Spherical Base Meshes
@@ -313,12 +331,107 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
+   BASE_MESH_DEFINITIONS
+   BaseMeshDefinition
    add_spherical_base_mesh_step
+   get_base_mesh_definition
+   get_base_mesh_step_names
    get_base_mesh_steps
+   parse_mesh_filepath
    rrs.RRSBaseMesh
    rrs.RRSBaseMesh.build_cell_width_lat_lon
    so.SOBaseMesh
    so.SOBaseMesh.build_cell_width_lat_lon
+   so.background.build_southern_ocean_background
+```
+
+### Coastlines and Critical Transects
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.coastline
+
+.. autosummary::
+   :toctree: generated/
+
+   CONVENTIONS
+   COASTLINE_VALIDATE_VARS
+   build_coastline_datasets
+   build_coastline_dataset
+   signed_distance_from_ocean_mask
+   rasterize_critical_transects
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.critical_transects
+
+.. autosummary::
+   :toctree: generated/
+
+   CRITICAL_LAND_BLOCKAGE_TAG
+   CRITICAL_PASSAGE_TAG
+   CriticalTransects
+   load_default_critical_transects
+```
+
+### Unified Meshes
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. autosummary::
+   :toctree: generated/
+
+   UNIFIED_MESH_NAMES
+   LAT_LON_TARGET_GRID_RESOLUTIONS
+   RIVER_CONFIG_FILENAME
+   get_unified_mesh_config
+   get_unified_mesh_family
+   get_unified_background_cell_width
+   get_unified_finest_cell_width
+
+   UnifiedBaseMeshStep
+   UnifiedBaseMeshStep.setup
+   UnifiedBaseMeshStep.build_cell_width_lat_lon
+   UnifiedBaseMeshStep.make_jigsaw_mesh
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.unified.families
+
+.. autosummary::
+   :toctree: generated/
+
+   UnifiedMeshFamily
+   UnifiedMeshFamily.setup_sizing_field_step
+   UnifiedMeshFamily.build_ocean_background
+   default.DefaultUnifiedMeshFamily
+   default.build_ocean_background_from_mode
+   so_region.SORegionUnifiedMeshFamily
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.unified.effective_ocean
+
+.. autosummary::
+   :toctree: generated/
+
+   build_effective_ocean_mask
+   block_average
+   variable_box_average
+   widen_passages
+   flood_fill_from_seeds
+   hysteresis_grow
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.unified.river
+
+.. autosummary::
+   :toctree: generated/
+
+   distance.haversine_distance
+   geojson.read_geojson
+   geojson.write_geojson
 ```
 
 ### model_step
