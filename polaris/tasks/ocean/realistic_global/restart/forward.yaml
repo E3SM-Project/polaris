@@ -25,17 +25,21 @@ Omega:
     History:
       Freq: {{ output_freq }}
       FreqUnits: {{ output_freq_units }}
-    # Both segments read and write through one shared directory, so that the
-    # second picks up what the first wrote.  The pointer file names the
-    # restart to read, so the reading segment needs no start time of its own;
-    # whether a restart is read at all is decided by StartType above.
+    # Each segment writes its restart into a directory of its own under the
+    # task's shared ``restarts``, and a continuing segment reads the previous
+    # segment's directory.  Sharing one directory instead would mean the
+    # second segment's own restart replaced the pointer it had just read, so
+    # re-running that step alone would silently continue from the wrong time.
+    # The pointer file names the restart to read, so the reading segment
+    # needs no start time of its own; whether a restart is read at all is
+    # decided by StartType above.
     RestartRead:
       UsePointerFile: true
-      PointerFilename: ../restarts/ocn.pointer
+      PointerFilename: {{ restart_read_dir }}/ocn.pointer
       UseStartEnd: false
     RestartWrite:
       UsePointerFile: true
-      PointerFilename: ../restarts/ocn.pointer
-      Filename: ../restarts/ocn.restart.$Y-$M-$D_$h.$m.$s
+      PointerFilename: {{ restart_write_dir }}/ocn.pointer
+      Filename: {{ restart_write_dir }}/ocn.restart.$Y-$M-$D_$h.$m.$s
       Freq: 1
       FreqUnits: OnShutdown

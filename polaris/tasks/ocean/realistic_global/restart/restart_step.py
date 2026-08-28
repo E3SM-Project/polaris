@@ -114,10 +114,16 @@ class RestartStep(Forward):
 
         super().setup()
 
+        replacements = dict(
+            self.replacements,
+            restart_read_dir=self.restart_read_target(),
+            restart_write_dir=self.restart_write_target(),
+        )
+
         self.add_yaml_file(
             package=PACKAGE,
             yaml='forward.yaml',
-            template_replacements=self.replacements,
+            template_replacements=replacements,
         )
 
     def runtime_setup(self):
@@ -127,7 +133,7 @@ class RestartStep(Forward):
         """
         super().runtime_setup()
 
-        os.makedirs(self._restart_dir(), exist_ok=True)
+        os.makedirs(self.restart_write_dir(), exist_ok=True)
 
         if self.previous_step is None:
             return
@@ -141,6 +147,29 @@ class RestartStep(Forward):
             os.path.join(self.work_dir, 'output.nc'),
         )
 
-    def _restart_dir(self):
-        """The restart directory shared by both segments of the chain"""
-        return os.path.normpath(os.path.join(self.work_dir, '..', 'restarts'))
+    def restart_write_dir(self):
+        """
+        The absolute path of the directory this segment writes its restart
+        into
+        """
+        return os.path.normpath(
+            os.path.join(self.work_dir, self.restart_write_target())
+        )
+
+    def restart_write_target(self):
+        """
+        The path, relative to the step's work directory, that this segment
+        writes its restart into.  Each segment gets one of its own, so that
+        a segment's own restart cannot replace the pointer it read from.
+        """
+        return f'../restarts/{self.name}'
+
+    def restart_read_target(self):
+        """
+        The path, relative to the step's work directory, that this segment
+        reads a restart from.  A segment that starts from an initial state
+        never opens it, so it is pointed at its own directory.
+        """
+        if self.previous_step is None:
+            return self.restart_write_target()
+        return f'../restarts/{self.previous_step.name}'
