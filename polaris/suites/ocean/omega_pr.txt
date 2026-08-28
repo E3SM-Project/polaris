@@ -20,5 +20,6 @@ ocean/planar/seamount/nonlinear/sigma/short
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 ocean/spherical/realistic_global/QU.240km/analysis_members_test
+ocean/spherical/realistic_global/QU.240km/restart
 ocean/column/ekman
 ocean/column/inertial

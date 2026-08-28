@@ -1,0 +1,41 @@
+# Overrides applied on top of realistic_global/forward.yaml by the steps of
+# the restart task.  The base file already writes history as a single
+# appended, multi-frame output.nc (IfExists: append with a FileFreq far longer
+# than any run), which is the arrangement Omega #482 was reported against, so
+# only the run length, the restart streams and the start type are set here.
+
+ocean:
+  time_management:
+    config_stop_time: none
+    config_run_duration: {{ run_duration }}
+
+Omega:
+  TimeIntegration:
+    StartType: {{ start_type }}
+    # The simulation start, deliberately *not* the start of this segment.
+    # Omega measures the history time axis from the clock's start time, so a
+    # segment that moves the start time restarts that axis at zero and its
+    # first frame collides with the first frame already in the file, which is
+    # what silently overwrote earlier frames in Omega #482.  On a Continue the
+    # clock's current time comes from the restart file instead.
+    StartTime: {{ sim_start_time }}
+    StopType: AfterDuration
+    StopCriterion: {{ run_duration }}
+  IOStreams:
+    History:
+      Freq: {{ output_freq }}
+      FreqUnits: {{ output_freq_units }}
+    # Both segments read and write through one shared directory, so that the
+    # second picks up what the first wrote.  The pointer file names the
+    # restart to read, so the reading segment needs no start time of its own;
+    # whether a restart is read at all is decided by StartType above.
+    RestartRead:
+      UsePointerFile: true
+      PointerFilename: ../restarts/ocn.pointer
+      UseStartEnd: false
+    RestartWrite:
+      UsePointerFile: true
+      PointerFilename: ../restarts/ocn.pointer
+      Filename: ../restarts/ocn.restart.$Y-$M-$D_$h.$m.$s
+      Freq: 1
+      FreqUnits: OnShutdown
