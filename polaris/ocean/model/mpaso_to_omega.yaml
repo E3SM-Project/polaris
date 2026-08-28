@@ -3,6 +3,8 @@ dimensions:
   nCells: NCells
   nEdges: NEdges
   nVertices: NVertices
+  nRegions: NRegions
+  nTransects: NTransects
   nTracers: NTracers
   maxEdges: MaxEdges
   maxEdges2: MaxEdges2
