@@ -1862,28 +1862,53 @@ later without disturbing output paths, links, or the gallery --- principle 2.
 A product whose fragment is present but whose file is missing is reported
 rather than silently omitted.
 
-It runs after everything it reads because it is wired to.  The `publish` step
-declares every step that writes a fragment as a dependency, through
-`Step.add_dependency()`.  That method exists for exactly this case: what the
-step consumes is not known at setup, since the fragments name themselves from
-facets that config options decide.  Ordering by dependency rather than by
-position in the suite is what keeps the step correct when the work is
-re-chunked, which principle 2 promises it can be.
+**The step never discovers its inputs by looking at the filesystem.**  It
+would be easy to walk the work directory for anything named `manifest.json`,
+and it would be wrong: Polaris steps declare what they read and write at setup
+so that the framework can check it and a scheduler can order it, and a step
+that crawls for its own inputs is invisible to both.  The groundrules in the
+task-parallel analysis steps design rest on the same declaration.
 
-Those dependencies cross task boundaries --- the `publish` step belongs to
-its own task and depends on the steps of every other analysis task.  Polaris
-allows this, and the cost is small and worth stating: each dependency pickles
-itself after it runs, and the `publish` step's directory gains one symlink per
-dependency under `dependencies/`.  Neither changes how steps are listed or
-run.
+The fragments need nothing more than that declaration, because their paths are
+known at setup: the filename is a constant and each step's `path` is fixed when
+the suite is constructed.  So the `publish` step declares one input per
+fragment-writing step, pointing at that step's work directory:
 
-One consequence needs deciding before the step is written.  A dependency's
-pickle is an input file of the step that depends on it, so a `publish` step
-that lists every analysis step cannot run until all of them have.  Running the
-whole suite is fine, and running a single product task is fine because
-`publish` is not in it.  What is not yet settled is the case in between ---
-asking for the gallery after only some products have been computed, which is
-what a developer iterating on one plot would want.
+```python
+self.add_input_file(
+    filename=f'fragments/{name}.json',
+    work_dir_target=f'{step.path}/{FRAGMENT_FILENAME}',
+)
+```
+
+This is the idiom the convergence and `baroclinic_channel` visualization steps
+already use for their dependencies' outputs.  It gives the step a complete and
+explicit input list, and Polaris checks before running any step that every
+declared input exists, naming the ones that do not.
+
+`Step.add_dependency()` is the fallback for what that cannot reach, and the
+`publish` step also declares each of those steps as a dependency.  It buys two
+things.  Anything resolvable only after a step has run is readable from the
+dependency's post-run pickle, which the framework loads back into
+`self.dependencies[name]` before `run()`, so an attribute the plotting step
+set is simply there.  And a dependency that did not run is reported as such,
+by name, rather than producing an empty gallery.  The cost is one pickle and
+one symlink per dependency; neither changes how steps are listed or run.
+
+Those dependencies cross task boundaries --- the `publish` step is in its own
+task and depends on the steps of every other analysis task --- which Polaris
+allows.
+
+Neither mechanism reorders anything: steps run in the order the suite lists
+them, so `publish` goes last.  What the declarations buy is that running it
+too early fails, and says why.
+
+One question is left open deliberately.  If every analysis step must write a
+fragment, then a step that made no products writes an empty one, and a suite
+run with some products skipped fails on a missing input.  If fragments are
+instead optional, `publish` reports what it did not find and publishes the
+rest, which is what a developer iterating on a single plot wants.  Which of
+those two is right should be settled when the step is written.
 
 Because it is the only step that knows how results are presented, everything in
 the two sections below can change without a single plotting step changing.
