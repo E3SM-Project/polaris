@@ -558,7 +558,9 @@
 <span class="sd">    """</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">fill_values</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">default_fillvals</span>
-    <span class="n">encoding</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># a value of None means "write no _FillValue attribute for this</span>
+    <span class="c1"># variable", which xarray accepts alongside the numeric fill values</span>
+    <span class="n">encoding</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">vars_and_coords</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">vars_and_coords</span><span class="p">:</span>
         <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'_FillValue'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>

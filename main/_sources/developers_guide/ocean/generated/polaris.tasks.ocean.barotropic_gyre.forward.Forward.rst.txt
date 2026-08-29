@@ -59,6 +59,7 @@
    .. autosummary::
    
       ~Forward.component
+      ~Forward.write_coeffs_reconstruct
       ~Forward.config
       ~Forward.input_data
    

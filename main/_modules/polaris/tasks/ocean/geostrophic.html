@@ -283,11 +283,10 @@
             <span class="n">option</span> <span class="o">=</span> <span class="s1">'refinement_factors_time'</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">option</span> <span class="o">=</span> <span class="s1">'refinement_factors_space'</span>
-        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+        <span class="n">factor_strings</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
             <span class="s1">'spherical_convergence'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span>
         <span class="p">)</span>
-        <span class="n">refinement_factors</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">refinement_factors</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'convergence'</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">refinement_factors</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'convergence'</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">factor_strings</span><span class="p">))</span>
         <span class="n">refinement_factors</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'convergence'</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
         <span class="n">base_resolution</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>

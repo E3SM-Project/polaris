@@ -58,6 +58,7 @@
    .. autosummary::
    
       ~SshForward.component
+      ~SshForward.write_coeffs_reconstruct
       ~SshForward.config
       ~SshForward.input_data
    

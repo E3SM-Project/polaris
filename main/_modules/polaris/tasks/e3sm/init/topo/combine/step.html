@@ -113,6 +113,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">netCDF4</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -641,17 +642,17 @@
             <span class="n">lon_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">lon_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nlon</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">lon_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">lat_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">*</span><span class="n">lat_indices</span><span class="p">)</span>
-        <span class="n">lon_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">*</span><span class="n">lon_indices</span><span class="p">)</span>
+        <span class="n">lat_index_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">*</span><span class="n">lat_indices</span><span class="p">)</span>
+        <span class="n">lon_index_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">*</span><span class="n">lon_indices</span><span class="p">)</span>
 
         <span class="c1"># Duplicate top and bottom rows to account for poles</span>
         <span class="k">if</span> <span class="n">lat_tile</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">lat_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">lat_indices</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">lat_index_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">lat_index_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">lat_tile</span> <span class="o">==</span> <span class="n">lat_tiles</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">lat_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lat_indices</span><span class="p">,</span> <span class="n">lat_indices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">lat_index_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lat_index_array</span><span class="p">,</span> <span class="n">lat_index_array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="c1"># Select tile from dataset</span>
-        <span class="n">tile</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">lat</span><span class="o">=</span><span class="n">lat_indices</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon_indices</span><span class="p">)</span>
+        <span class="n">tile</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">lat</span><span class="o">=</span><span class="n">lat_index_array</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon_index_array</span><span class="p">)</span>
         <span class="n">lat</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">lat_attrs</span> <span class="o">=</span> <span class="n">tile</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># xarray may expose coordinate views from ``isel()`` as read-only.</span>
@@ -1090,7 +1091,9 @@
 <span class="w">    </span><span class="sd">"""Write an xarray Dataset with NetCDF4 fill values where needed"""</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">fill_values</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">default_fillvals</span>
-    <span class="n">encoding</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1"># a value of None means "write no _FillValue attribute for this</span>
+    <span class="c1"># variable", which xarray accepts alongside the numeric fill values</span>
+    <span class="n">encoding</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="nb">vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
         <span class="c1"># If there's already a fill value attribute, drop it</span>

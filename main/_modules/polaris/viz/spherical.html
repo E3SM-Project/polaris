@@ -528,6 +528,7 @@
 
     <span class="n">kwargs</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getnumpy</span><span class="p">(</span><span class="s1">'norm_args'</span><span class="p">)</span>
 
+    <span class="n">norm</span><span class="p">:</span> <span class="n">cols</span><span class="o">.</span><span class="n">Normalize</span>
     <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s1">'symlog'</span><span class="p">:</span>
         <span class="n">norm</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">SymLogNorm</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s1">'log'</span><span class="p">:</span>

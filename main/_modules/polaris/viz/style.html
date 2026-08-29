@@ -113,6 +113,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.style</span>
@@ -144,8 +145,13 @@
     <span class="n">_register_colormaps</span><span class="p">()</span>
 
     <span class="n">style_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">'polaris.viz'</span><span class="p">)</span> <span class="o">/</span> <span class="s1">'polaris.mplstyle'</span><span class="p">)</span>
-    <span class="n">overrides</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">dpi</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{</span><span class="s1">'savefig.dpi'</span><span class="p">:</span> <span class="n">dpi</span><span class="p">}</span>
-    <span class="k">with</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">style_filename</span><span class="p">),</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">(</span><span class="n">overrides</span><span class="p">):</span>
+    <span class="n">overrides</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">dpi</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{</span><span class="s1">'savefig.dpi'</span><span class="p">:</span> <span class="n">dpi</span><span class="p">}</span>
+    <span class="c1"># rc_context is typed with a Literal of every rcParam name; 'savefig.dpi'</span>
+    <span class="c1"># is one of them, but the key is built here rather than written inline</span>
+    <span class="k">with</span> <span class="p">(</span>
+        <span class="n">matplotlib</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">style_filename</span><span class="p">),</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">Any</span><span class="p">,</span> <span class="n">overrides</span><span class="p">)),</span>
+    <span class="p">):</span>
         <span class="k">yield</span></div>
 
 

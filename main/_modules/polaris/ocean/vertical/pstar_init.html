@@ -355,13 +355,16 @@
 
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s1">: p_mid = </span><span class="si">{</span><span class="n">p_mid</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
-            <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">compute_specvol</span><span class="p">(</span>
+            <span class="c1"># compute_specvol() returns a scalar for scalar inputs; this</span>
+            <span class="c1"># workflow only ever hands it DataArrays</span>
+            <span class="n">new_spec_vol</span> <span class="o">=</span> <span class="n">compute_specvol</span><span class="p">(</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="n">temperature</span><span class="o">=</span><span class="n">ct</span><span class="p">,</span>
                 <span class="n">salinity</span><span class="o">=</span><span class="n">sa</span><span class="p">,</span>
                 <span class="n">pressure</span><span class="o">=</span><span class="n">p_mid</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec_vol</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_spec_vol</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+            <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">new_spec_vol</span>
 
             <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span>

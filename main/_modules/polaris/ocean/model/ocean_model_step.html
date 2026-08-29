@@ -166,11 +166,17 @@
 <span class="sd">    graph_target : str</span>
 <span class="sd">        The name of the graph partition file to link to (relative to the base</span>
 <span class="sd">        working directory)</span>
+
+<span class="sd">    write_coeffs_reconstruct : bool</span>
+<span class="sd">        Whether to write the coefficients for reconstructing vector</span>
+<span class="sd">        quantities during the forward run</span>
 <span class="sd">    """</span>
 
     <span class="c1"># make sure component is of type Ocean, using a string to avoid circular</span>
     <span class="c1"># imports</span>
     <span class="n">component</span><span class="p">:</span> <span class="s1">'Ocean'</span>
+
+    <span class="n">write_coeffs_reconstruct</span><span class="p">:</span> <span class="nb">bool</span>
 
 <div class="viewcode-block" id="OceanModelStep.__init__">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep.__init__">[docs]</a>
@@ -361,12 +367,9 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_eos</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_namelist_eos</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'write_coeffs_reconstruct'</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_coeffs_reconstruct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'write_coeffs_reconstruct'</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_coeffs_reconstruct</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_coeffs_reconstruct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
+            <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'write_coeffs_reconstruct'</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_coeffs_reconstruct</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>

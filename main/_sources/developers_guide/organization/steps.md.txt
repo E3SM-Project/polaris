@@ -312,7 +312,7 @@ namelists, streams or YAML files to be read later if the task in question gets
 set up, so each takes a negligible amount of time.
 
 If this is a shared step with its own config options, it is also okay to call
-{py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()` from the
+{py:meth}`tranche.Tranche.add_from_package()` from the
 constructor.
 
 The following is from

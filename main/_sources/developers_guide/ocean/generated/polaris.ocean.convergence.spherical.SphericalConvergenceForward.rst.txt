@@ -58,6 +58,7 @@
    .. autosummary::
    
       ~SphericalConvergenceForward.component
+      ~SphericalConvergenceForward.write_coeffs_reconstruct
       ~SphericalConvergenceForward.config
       ~SphericalConvergenceForward.input_data
    

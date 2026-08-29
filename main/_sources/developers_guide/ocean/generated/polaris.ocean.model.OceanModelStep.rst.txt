@@ -58,6 +58,7 @@
    .. autosummary::
    
       ~OceanModelStep.component
+      ~OceanModelStep.write_coeffs_reconstruct
       ~OceanModelStep.config
       ~OceanModelStep.input_data
    

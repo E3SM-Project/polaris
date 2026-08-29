@@ -191,12 +191,12 @@ file for the particular machine we’re on, and that’s fine:</p>
 </pre></div>
 </div>
 <p>If there isn’t a config file for this machine, nothing will happen.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">MpasConfigParser</span></code> class also includes methods for adding a user
-config file and other config files by file name, but these are largely intended
-for use by the framework rather than individual tasks.</p>
-<p>Other methods for the <code class="docutils literal notranslate"><span class="pre">MpasConfigParser</span></code> are similar to those for
-<a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.ConfigParser</span></code></a>.  In addition to <code class="docutils literal notranslate"><span class="pre">get()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">getinteger()</span></code>, <code class="docutils literal notranslate"><span class="pre">getfloat()</span></code> and <code class="docutils literal notranslate"><span class="pre">getboolean()</span></code> methods, this class
+<p>The <a class="reference internal" href="../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.config.PolarisConfigParser</span></code></a> class also includes methods
+for adding a user config file and other config files by file name, but these
+are largely intended for use by the framework rather than individual tasks.</p>
+<p>Its other methods are similar to those for
+<a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">configparser.ConfigParser</span></code></a>.  In addition to <code class="docutils literal notranslate"><span class="pre">get()</span></code>, <code class="docutils literal notranslate"><span class="pre">getint()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">getfloat()</span></code> and <code class="docutils literal notranslate"><span class="pre">getboolean()</span></code> methods, this class
 implements <a class="reference external" href="https://xylar.github.io/tranche/api/tranche.html#tranche.Tranche.getlist" title="(in tranche)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">tranche.Tranche.getlist()</span></code></a>, which
 can be used to parse a config value separated by spaces and/or commas into
 a list of strings, floats, integers, booleans, etc. Other useful methods

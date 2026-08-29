@@ -58,6 +58,7 @@
    .. autosummary::
    
       ~RestartStep.component
+      ~RestartStep.write_coeffs_reconstruct
       ~RestartStep.config
       ~RestartStep.input_data
    

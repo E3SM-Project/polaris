@@ -171,8 +171,9 @@
 
     <span class="n">p_top</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
     <span class="n">p_bot</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-    <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
-    <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'nVertLevelsP1'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">]</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'nVertLevelsP1'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">dims</span>
+    <span class="p">]</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
         <span class="p">(</span><span class="n">p_bot</span> <span class="o">-</span> <span class="n">p_top</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">),</span>
         <span class="n">dims</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
@@ -375,12 +376,17 @@
     <span class="n">prev_spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span>
 
     <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iter_count</span><span class="p">):</span>
-        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">compute_specvol</span><span class="p">(</span>
+        <span class="c1"># compute_specvol() returns a scalar for scalar inputs; this</span>
+        <span class="c1"># workflow only ever hands it DataArrays, so check that rather than</span>
+        <span class="c1"># widening spec_vol for the rest of the function</span>
+        <span class="n">new_spec_vol</span> <span class="o">=</span> <span class="n">compute_specvol</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
             <span class="n">salinity</span><span class="o">=</span><span class="n">salinity</span><span class="p">,</span>
             <span class="n">pressure</span><span class="o">=</span><span class="n">p_mid</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_spec_vol</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">new_spec_vol</span>
 
         <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">delta_spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span> <span class="o">-</span> <span class="n">prev_spec_vol</span>
