@@ -265,7 +265,7 @@ class SphericalBaseStep(Step):
             config.get('spherical_mesh', 'cell_width_image_filename')
         )
         register_sci_viz_colormaps()
-        fig = Figure(figsize=[16.0, 8.0])
+        fig = Figure(figsize=(16.0, 8.0))
         ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
         ax.set_global()
         im = ax.imshow(

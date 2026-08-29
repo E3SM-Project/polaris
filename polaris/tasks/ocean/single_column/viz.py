@@ -230,9 +230,9 @@ class Viz(OceanIOStep):
                     )
                     plt.close()
                     continue
-                plt.ylim([-100, 0])
+                plt.ylim(-100, 0)
                 if field_name == 'temperature':
-                    plt.xlim([15, 25])
+                    plt.xlim(15, 25)
                 else:
                     plt.xlim(auto=True)
                 plt.xlabel(f'{field_name} ({field_units})')

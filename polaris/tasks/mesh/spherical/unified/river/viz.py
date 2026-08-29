@@ -1,10 +1,12 @@
 import os
+from typing import cast
 
 import cartopy.crs as ccrs
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+from cartopy.mpl.geoaxes import GeoAxes
 from matplotlib.lines import Line2D
 from shapely.geometry import LineString, MultiLineString, box, shape
 
@@ -213,7 +215,7 @@ class VizRiverStep(Step):
         Plot the rasterized river-channel mask.
         """
         fig = plt.figure(figsize=(11.0, 5.0), dpi=dpi)
-        ax = plt.axes(projection=ccrs.PlateCarree())
+        ax = cast(GeoAxes, plt.axes(projection=ccrs.PlateCarree()))
         ax.set_global()
         plot_mask, stride = _aggregate_mask_for_plot(river_channel_mask)
         channel = np.where(plot_mask, 1.0, np.nan)
@@ -239,12 +241,16 @@ def _setup_axes_with_inset(dpi):
     Create a global Robinson plot with a CONUS inset.
     """
     fig = plt.figure(figsize=(16.0, 9.0), dpi=dpi)
-    ax = fig.add_axes([0.03, 0.12, 0.68, 0.78], projection=ccrs.Robinson())
+    ax = cast(
+        GeoAxes,
+        fig.add_axes((0.03, 0.12, 0.68, 0.78), projection=ccrs.Robinson()),
+    )
     ax.set_global()
     ax.coastlines(linewidth=0.45, color=COAST_COLOR)
 
-    inset_ax = fig.add_axes(
-        [0.63, 0.17, 0.34, 0.38], projection=ccrs.PlateCarree()
+    inset_ax = cast(
+        GeoAxes,
+        fig.add_axes((0.63, 0.17, 0.34, 0.38), projection=ccrs.PlateCarree()),
     )
     inset_ax.set_extent(CONUS_EXTENT, crs=ccrs.PlateCarree())
     inset_ax.coastlines(linewidth=0.45, color=COAST_COLOR)

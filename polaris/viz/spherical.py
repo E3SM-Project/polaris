@@ -410,6 +410,7 @@ def setup_colormap(config, colormap_section):
 
     kwargs = section.getnumpy('norm_args')
 
+    norm: cols.Normalize
     if norm_type == 'symlog':
         norm = cols.SymLogNorm(**kwargs)
     elif norm_type == 'log':
