@@ -58,8 +58,9 @@ def pseudothickness_from_pressure(
 
     p_top = p.isel(nVertLevelsP1=slice(0, -1))
     p_bot = p.isel(nVertLevelsP1=slice(1, None))
-    dims = list(p.dims)
-    dims = [item.replace('nVertLevelsP1', 'nVertLevels') for item in dims]
+    dims = [
+        str(item).replace('nVertLevelsP1', 'nVertLevels') for item in p.dims
+    ]
     h = xr.DataArray(
         (p_bot - p_top) / (RhoSw * Gravity),
         dims=tuple(dims),

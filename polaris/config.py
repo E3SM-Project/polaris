@@ -65,6 +65,7 @@ class PolarisConfigParser(Tranche):
         sections are absolute paths
         """
         config = self.combined
+        assert config is not None  # combine() has just set it
         for section in ['paths', 'namelists', 'streams', 'executables']:
             if not config.has_section(section):
                 continue

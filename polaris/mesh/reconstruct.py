@@ -150,7 +150,8 @@ def fix_out_of_bounds_indices(ds: xr.Dataset) -> xr.Dataset:
 
     def _is_connectivity_array(da: xr.DataArray) -> bool:
         # uncapitalize the name
-        name = da.name[0].lower() + da.name[1:]
+        name = str(da.name)
+        name = name[0].lower() + name[1:]
         is_int = da.dtype.kind in ('i', 'u')
 
         return 'On' in name and is_int and name.startswith(('c', 'e', 'v'))
@@ -158,9 +159,10 @@ def fix_out_of_bounds_indices(ds: xr.Dataset) -> xr.Dataset:
     for var in ds:
         if _is_connectivity_array(ds[var]):
             # supports both MPASO and Omega naming conventions
-            prefix = 'N' if var[0].isupper() else 'n'
+            var_name = str(var)
+            prefix = 'N' if var_name[0].isupper() else 'n'
             # get the dimension name for the connectivity array
-            dim = prefix + var.split('On')[0].title()
+            dim = prefix + var_name.split('On')[0].title()
             # get the maximum valid size for the array to be indexed too
             max_size = ds.sizes[dim]
             # get mask of where index is out bounds

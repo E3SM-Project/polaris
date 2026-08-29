@@ -130,7 +130,7 @@ class VizHorizField(OceanIOStep):
                 h_rest = ds_mesh.restingThickness
                 z_bottom = h_rest.cumsum(dim='nVertLevels')
                 dz = z_bottom.mean(dim='nCells') - z_target
-                z_index = np.argmin(np.abs(dz.values))
+                z_index = int(np.argmin(np.abs(dz.values)))
                 if dz[z_index] > 0 and z_index > 0:
                     z_index -= 1
                 z_mean = z_bottom.mean(dim='nCells')[z_index].values

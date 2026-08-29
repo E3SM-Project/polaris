@@ -510,17 +510,17 @@ class CombineStep(Step):
             lon_indices[1] = max([lon_indices[1], nlon])
         else:
             lon_indices[1] += 1
-        lat_indices = np.arange(*lat_indices)
-        lon_indices = np.arange(*lon_indices)
+        lat_index_array = np.arange(*lat_indices)
+        lon_index_array = np.arange(*lon_indices)
 
         # Duplicate top and bottom rows to account for poles
         if lat_tile == 0:
-            lat_indices = np.insert(lat_indices, 0, 0)
+            lat_index_array = np.insert(lat_index_array, 0, 0)
         if lat_tile == lat_tiles - 1:
-            lat_indices = np.append(lat_indices, lat_indices[-1])
+            lat_index_array = np.append(lat_index_array, lat_index_array[-1])
 
         # Select tile from dataset
-        tile = ds.isel(lat=lat_indices, lon=lon_indices)
+        tile = ds.isel(lat=lat_index_array, lon=lon_index_array)
         lat = tile.lat.values.copy()
         lat_attrs = tile.lat.attrs.copy()
         # xarray may expose coordinate views from ``isel()`` as read-only.
