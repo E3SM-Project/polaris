@@ -1862,6 +1862,29 @@ later without disturbing output paths, links, or the gallery --- principle 2.
 A product whose fragment is present but whose file is missing is reported
 rather than silently omitted.
 
+It runs after everything it reads because it is wired to.  The `publish` step
+declares every step that writes a fragment as a dependency, through
+`Step.add_dependency()`.  That method exists for exactly this case: what the
+step consumes is not known at setup, since the fragments name themselves from
+facets that config options decide.  Ordering by dependency rather than by
+position in the suite is what keeps the step correct when the work is
+re-chunked, which principle 2 promises it can be.
+
+Those dependencies cross task boundaries --- the `publish` step belongs to
+its own task and depends on the steps of every other analysis task.  Polaris
+allows this, and the cost is small and worth stating: each dependency pickles
+itself after it runs, and the `publish` step's directory gains one symlink per
+dependency under `dependencies/`.  Neither changes how steps are listed or
+run.
+
+One consequence needs deciding before the step is written.  A dependency's
+pickle is an input file of the step that depends on it, so a `publish` step
+that lists every analysis step cannot run until all of them have.  Running the
+whole suite is fine, and running a single product task is fine because
+`publish` is not in it.  What is not yet settled is the case in between ---
+asking for the gallery after only some products have been computed, which is
+what a developer iterating on one plot would want.
+
 Because it is the only step that knows how results are presented, everything in
 the two sections below can change without a single plotting step changing.
 
