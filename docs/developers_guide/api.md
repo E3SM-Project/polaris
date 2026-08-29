@@ -195,6 +195,66 @@ seaice/api
    ModelStep.partition
 ```
 
+### analysis
+
+#### analysis.manifest
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.manifest
+
+.. autosummary::
+   :toctree: generated/
+
+   Product
+   Product.to_dict
+   Product.from_dict
+
+   Manifest
+   Manifest.add
+   Manifest.write
+
+   range_key
+   read_fragment
+```
+
+#### analysis.publish
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.publish
+
+.. autosummary::
+   :toctree: generated/
+
+   publish
+   published_basename
+   write_merged_manifest
+```
+
+#### analysis.thumbnail
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.thumbnail
+
+.. autosummary::
+   :toctree: generated/
+
+   make_thumbnail
+   thumbnail_name
+   image_size
+```
+
+#### analysis.site
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.site
+
+.. autosummary::
+   :toctree: generated/
+
+   generate_site
+   gallery_filename
+```
+
 ### config
 
 ```{eval-rst}
@@ -383,6 +443,7 @@ seaice/api
    :toctree: generated/
 
    write
+   get_summary
 ```
 
 
