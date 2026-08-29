@@ -785,9 +785,45 @@ of principle 6, which needs nothing from the framework beyond the ability to
 declare an input discovered at setup time.  Later phases should reach for these
 patterns before reaching for new framework capabilities.
 
+#### How this work is divided into branches
+
+Date last modified: 2026/08/29
+
+This capability is built as a series of branches rather than one, and the
+division has been settled once here so that each new piece of work does not
+reopen it.
+
+**Design documents change only on the design branch.**  Every edit to the
+documents in this family lands on `add-analysis-designs`, and never on a
+branch that implements one of them.  The design is then one reviewable thing
+whose history reads as a design discussion, implementation branches rebase onto
+it, and a reviewer is never asked to judge a design change and the code that
+assumes it in the same diff.
+
+**Each work item is a branch, and carries everything that item needs to be
+complete.**  A branch holds its code, its unit tests, and its User's Guide
+documentation.  Documentation is not a separate work item to be swept up at the
+end: a capability that ships undocumented is not finished, and the moment its
+behavior is fresh is the moment to write it down.
+
+**Within a branch, each piece of code is followed by its tests, and the
+documentation comes last.**  This is the order the branches built so far
+already follow --- a kernel, then the tests for that kernel, then the step that
+uses it, then the tests for the step, then the page that documents the result.
+It keeps every commit reviewable on its own and keeps a test from being
+attributed to code it did not accompany.
+
+**A branch is cut from the branch it actually depends on.**  Where two items
+are independent they branch from the same parent and stay independent rather
+than being stacked for convenience; where one needs another, it is cut from it.
+Shared infrastructure is therefore cut low, below its consumers, even when the
+consumers were written first --- which is why publication branches from the
+scaffolding rather than from the products, as described in
+{ref}`design-ocean-analysis-initial`.
+
 ### Implementation: items deferred from Phase 1
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
