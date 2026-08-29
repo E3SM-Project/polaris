@@ -1788,15 +1788,17 @@ its own manifest fragments.
 # web-servable if you want to share the results.
 output_path =
 
-# The width in pixels of the thumbnail generated for each plot.  Thumbnails
-# are what make a few hundred plots browsable, and their total size is what
-# decides whether a gallery page loads over a throttled link, so this is the
-# first thing to reduce if pages are slow to appear.
-thumbnail_width = 320
+# The maximum width and height in pixels of the thumbnail generated for each
+# plot.  A thumbnail is scaled to fit inside this box, so that a portrait plot
+# and a landscape one cost about the same and sit in the same grid.
+# Thumbnails are what make a few hundred plots browsable, and their total size
+# is what decides whether a gallery page loads over a throttled link, so this
+# is the first thing to reduce if pages are slow to appear.
+thumbnail_size = 320, 240
 
-# The image format for thumbnails, jpeg or webp.  webp is roughly a quarter
-# smaller at the same quality and every current browser reads it; jpeg is the
-# safer default.
+# The image format for thumbnails, jpeg or webp.  webp is between a third and
+# a half smaller at the same quality and every current browser reads it; jpeg
+# is the safer default.
 thumbnail_format = jpeg
 
 # The compression quality of thumbnails, from 1 to 100.  Above about 80 the
@@ -1825,6 +1827,14 @@ Three rules keep this from growing into a format that needs a specification.
 published name and the thumbnail are added by the collector when it publishes,
 so a step never has to know the staging tree's layout, and a change to that
 layout is a change to one step.
+
+**A product is declared once.**  The steps already call
+`OceanIOStep.add_produced_file()` to register each plot and netCDF as they are
+written, because a step that plots what a simulation wrote does not know at
+setup which plots it will make.  Describing a product to the manifest is the
+same event, so it happens in the same call rather than in a second one a step
+can forget --- which is what would otherwise make a product real to Polaris's
+output checking but invisible to the gallery.
 
 **Only `group` and `gallery` shape the site.**  Every other facet is caption
 material today and filter material later.  This is the hinge that makes the
@@ -1897,23 +1907,34 @@ hundred.
 #### Thumbnails
 
 Each thumbnail is made from the published PNG with `pillow`: the image is
-flattened onto white, since the plots are written with an alpha channel and
-neither JPEG nor a gallery wants transparency, scaled to `thumbnail_width`
-preserving aspect ratio, and written in `thumbnail_format` at
-`thumbnail_quality`.
+flattened onto white, scaled to fit inside `thumbnail_size` preserving aspect
+ratio, and written in `thumbnail_format` at `thumbnail_quality`.  The flatten
+is not defensive --- the plots really are written RGBA, and without it JPEG
+renders the transparent background black.
+
+**Thumbnails are bounded in both dimensions, not in width alone**, and the two
+products that exist show why.  A climatology map is 4000x2250, so at 320 px
+wide it is 320x180 and 12.2 kB.  A `global_stats` figure stacks its statistics
+vertically and is 2383x3941, so the same width rule makes it 320x519 --- taller
+than it is wide, three times the pixels of the map, 23.3 kB, and destructive to
+any uniform grid it is placed in.  Bounded to 320x240 instead it is 148x240 and
+**6.7 kB**.  Constraining width alone quietly charges the most for exactly the
+plots that need a thumbnail least.
 
 Making them here rather than in the plotting steps is deliberate.  It keeps the
 plotting steps ignorant of presentation, it keeps the policy in one place where
 changing it re-renders everything consistently, and it means a thumbnail can be
 regenerated from what was published without re-running any analysis.
 
-The measured cost, on the three-panel MPAS-Analysis figure used for the
-comparison below, is 20 ms per image to decode, scale, and encode.  A default
-Phase 1 analysis is on the order of a hundred products, so the whole pass is a
-few seconds.  Memory is one image at a time.  The loop is embarrassingly
-parallel and is an obvious candidate for principle 3's in-step pool if the
-product count ever grows enough to matter; Phase 1 runs it serially with
-`cpus_per_task = 1`.
+The measured cost is **156 ms per image** to decode, flatten, scale, and
+encode, on the real output of the two steps that exist.  That is far more than
+a trivial pass because the source PNGs are large --- a climatology map is
+4000x2250 and 1.3 to 2.1 MB on disk --- and it is dominated by decoding them.
+A hundred products is therefore around fifteen seconds, and a thousand would be
+minutes.  Memory is one image at a time.  The loop is embarrassingly parallel
+and is the clearest candidate in this design for principle 3's in-step pool;
+Phase 1 runs it serially with `cpus_per_task = 1`, which is defensible at the
+Phase 1 product count and would not stay so.
 
 #### The generated site
 
@@ -1958,23 +1979,38 @@ is about **75 MB in 1641 requests** before the page settles.  Its thumbnails
 are 480 px wide and lightly compressed.  This is the behavior that stalls on a
 throttled link.
 
-Against a single global map panel of that figure --- a stand-in for the
-single-panel maps this suite produces, since no Polaris analysis has been
-published yet --- a thumbnail at the defaults above is **about 13 kB** as JPEG
-at 320 px and quality 75, or about 10 kB as WebP.  This should be confirmed on
-real output rather than trusted; the point it is making, that the reference's
-thumbnails are several times larger than they need to be, is not sensitive to
-the exact figure.  With the default field and season lists a climatology-map
-gallery holds roughly fifteen products, so a gallery page is a ~10 kB document
-plus ~200 kB of thumbnails, of which lazy loading fetches only the visible rows
---- on the order of **100 kB** before the page is usable.  The landing page
-carries one thumbnail per gallery, so it is of the same order.
+Ours is measured on the real output of the two steps that produce plots today
+--- the QU240 climatology-map and `global_stats` mock-ups --- at the defaults
+above:
+
+| | full PNG | thumbnail, JPEG | thumbnail, WebP |
+| --- | --- | --- | --- |
+| climatology map (4000x2250) | 1.3-2.1 MB | 12.2 kB | 8.5 kB |
+| `global_stats` (2383x3941) | 0.33-0.56 MB | 6.7 kB | 3.6 kB |
+
+A thumbnail is therefore **one to two hundred times smaller** than the plot it
+stands for, and about a quarter the size of the reference's.  With the default
+field and season lists a climatology-map gallery holds roughly fifteen
+products, so a gallery page is a ~10 kB document plus ~180 kB of thumbnails, of
+which lazy loading fetches only the visible rows --- on the order of **50 kB**
+before the page is usable.  The landing page carries one thumbnail per gallery
+and is of the same order.
 
 The three levers act independently, which is why all three are used: small
-thumbnails cut the bytes per image by a factor of three or four against the
-reference, gallery pages cut the images per page by two orders of magnitude,
-and lazy loading cuts what is fetched before the page settles to the handful
-that are visible.  A single page never asks for a full PNG.
+thumbnails cut the bytes per image by a factor of four against the reference,
+gallery pages cut the images per page by two orders of magnitude, and lazy
+loading cuts what is fetched before the page settles to the handful that are
+visible.  A single page never asks for a full PNG.
+
+One number here is worth noticing for a different reason.  The full plots are
+1.3 to 2.1 MB each, because they are written at 4000x2250, so *clicking* a
+thumbnail costs about as much as an entire gallery page.  That is acceptable
+--- it is one image, deliberately requested --- but it means the plot size and
+resolution the steps write at are themselves a lever on what browsing costs,
+and one this design does not currently touch.  If full images prove painful to
+open over the portal, the answer is a mid-size image between the thumbnail and
+the full plot, which is the same generated-derivative machinery with a second
+size.
 
 What is *not* known is whether the LCRC portal throttles bytes or requests.
 Everything above helps with either, but the remedies differ if requests are the
