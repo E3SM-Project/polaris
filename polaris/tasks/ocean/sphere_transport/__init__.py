@@ -191,11 +191,10 @@ class SphereTransport(Task):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = config.getlist(
+        factor_strings = config.getlist(
             'spherical_convergence', f'{prefix}_{option}', dtype=str
         )
-        refinement_factors = ', '.join(refinement_factors)
-        config.set('convergence', option, value=refinement_factors)
+        config.set('convergence', option, value=', '.join(factor_strings))
         refinement_factors = config.getlist('convergence', option, dtype=float)
 
         base_resolution = config.getfloat(
@@ -215,7 +214,7 @@ class SphereTransport(Task):
 
         sph_trans_dir = f'spherical/{prefix}/{case_name}'
 
-        analysis_dependencies: Dict[str, Dict[str, Step]] = dict(
+        analysis_dependencies: Dict[str, Dict[float, Step]] = dict(
             mesh=dict(), init=dict(), forward=dict()
         )
         timesteps = list()

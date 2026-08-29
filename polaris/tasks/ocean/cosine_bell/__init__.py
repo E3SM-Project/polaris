@@ -181,7 +181,7 @@ class CosineBell(Task):
 
         component = self.component
 
-        analysis_dependencies: Dict[str, Dict[str, Step]] = dict(
+        analysis_dependencies: Dict[str, Dict[float, Step]] = dict(
             mesh=dict(), init=dict(), forward=dict()
         )
 
@@ -278,11 +278,10 @@ class CosineBell(Task):
 def _set_convergence_configs(config, prefix):
     for refinement in ['space', 'time']:
         option = f'refinement_factors_{refinement}'
-        refinement_factors = config.getlist(
+        factor_strings = config.getlist(
             'spherical_convergence', f'{prefix}_{option}', dtype=str
         )
-        refinement_factors = ', '.join(refinement_factors)
-        config.set('convergence', option, value=refinement_factors)
+        config.set('convergence', option, value=', '.join(factor_strings))
 
         base_resolution = config.getfloat(
             'spherical_convergence', f'{prefix}_base_resolution'
