@@ -2,6 +2,7 @@
 
 import argparse
 from pathlib import Path
+from typing import cast
 
 import gsw
 import numpy as np
@@ -688,6 +689,7 @@ def _save_percent_difference_visualizations(
         import matplotlib.colors as mcolors
         import matplotlib.pyplot as plt
         import mosaic
+        from cartopy.mpl.geoaxes import GeoAxes
     except ImportError as exc:
         raise ImportError(
             'Visualization requires cartopy, cmocean, matplotlib, and mosaic.'
@@ -856,13 +858,17 @@ def _save_percent_difference_visualizations(
         if not np.any(valid):
             return
 
-        fig, ax = plt.subplots(
+        fig, axis = plt.subplots(
             1,
             1,
             figsize=(14, 8),
             subplot_kw=dict(projection=salinity_projection),
             constrained_layout=True,
         )
+        # a projection makes this a GeoAxes, which is where add_feature(),
+        # gridlines() and set_global() come from; matplotlib's signature
+        # cannot know that
+        ax = cast(GeoAxes, axis)
 
         da = xr.DataArray(field, dims=['nCells'])
         norm = mcolors.TwoSlopeNorm(vmin=-0.2, vcenter=0.0, vmax=0.2)
