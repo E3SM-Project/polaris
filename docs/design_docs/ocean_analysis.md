@@ -269,7 +269,7 @@ MPAS-Analysis compares a run against a control run.
 
 ### Requirement: presentation and provenance
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -285,10 +285,12 @@ shared directory structure.  Concretely:
 - **Every step writes a manifest fragment** alongside its outputs, naming each
   product it made and the facets that identify it: file, field, season,
   elevation, date range, region, group, and title.
-- **A collector publishes and indexes.**  A cheap step gathers the fragments,
-  publishes each product into the staging tree, and generates the index over
-  it.  Because it works from the fragments rather than from directory
-  structure, re-chunking the work does not disturb the output.
+- **A collector publishes and indexes.**  One step gathers the fragments,
+  publishes each product into the staging tree, renders a thumbnail for it, and
+  generates the index over the result.  Because it works from the fragments
+  rather than from directory structure, re-chunking the work does not disturb
+  the output.  It is the only place that knows how results are presented, so
+  changing the presentation changes one step and no others.
 - **The staging tree is shallow, with descriptive filenames, plus a generated
   index.**  A gallery is generated, not navigated, and a shallow tree is easier
   to archive, to serve, and to diff between two analyses.  This follows
@@ -305,13 +307,67 @@ in each cache record and refused when it does not match.  A content-addressed
 scheme covering the full dependency graph is deferred; see the deferred items
 below.
 
-*Details of the index itself to be added*, including how much of
-MPAS-Analysis's component/group/gallery structure to adopt.  Polaris already
-records provenance for a setup in `polaris/provenance.py`.
+Polaris already records provenance for a setup in `polaris/provenance.py`.
+
+#### The index is a generated static site, and it must be cheap to serve
+
+The index shall be a set of static HTML pages generated from the merged
+manifest, needing no server-side code, no build step, and no network access of
+its own, so that the same staging tree can be opened from a local filesystem,
+served by `python -m http.server`, or copied to a web portal unchanged.
+
+Two properties of that site are requirements rather than styling choices,
+because they are what decide whether a large result set is usable at all.
+
+**Every plot shall have a thumbnail, and thumbnails shall be small.**  A few
+hundred plots cannot be triaged by reading file names, and thumbnails are what
+let a reader decide which full images to open --- often answering the question
+without opening any.  This is not negotiable, and it is not satisfied by
+scaling the full image down in the browser, which costs the full image's bytes.
+Thumbnails are therefore separate, lossy, and deliberately small files.
+
+**No page shall require more bytes or more requests than the link can
+deliver.**  Analysis results are hosted on the LCRC public web portal, which
+throttles, and the failure mode is not a slow page but a stalled one.  The
+scale is real and measured: one page of the MPAS-Analysis output linked below
+carries 1641 thumbnails at roughly 46 kB each, all fetched eagerly, which is
+about 75 MB in 1641 requests before the page settles.  The presentation layer
+shall therefore bound what a page costs --- by keeping thumbnails small, by
+bounding how many appear on one page, and by not fetching images the reader has
+not scrolled to.  The design shall keep the levers for this in config rather
+than in code, since the binding constraint is a property of the host and not of
+the analysis.
+
+#### What to take from the two references, and what not to
+
+Two existing E3SM viewers are the relevant prior art, and the useful position
+is not to pick one but to take the strength of each.
+
+**MPAS-Analysis** organizes results as components, gallery groups, and
+galleries of captioned thumbnails, and that layout has worked well for the
+people who will read our output --- it is what they already know how to
+navigate, which is reason enough to follow it rather than invent.  What it does
+not do is bound the cost of a page, as the numbers above show.  We take the
+layout and fix the cost.
+
+**E3SM-Diags** provides, for each figure, a page carrying the metadata and the
+code that reproduces that figure.  That is genuinely valuable and is something
+MPAS-Analysis cannot offer.  Its weakness is the near-absence of thumbnails,
+which makes finding the figure you want harder than it should be.  We take the
+per-figure page as the eventual target of clicking a thumbnail, and keep the
+thumbnails.
+
+Beyond that, how results are best displayed --- what a reader wants to compare
+side by side, how facets should be filtered, how run-to-run comparison should
+read --- deserves deliberate thought against what our users are accustomed to
+and what other tools do.  This document records the constraints that any such
+design must satisfy; the display design itself is Phase 2 work and is listed
+among the deferred items below.  What Phase 1 owes it is that nothing in the
+steps, the manifest, or the published paths has to change when it arrives.
 
 ### Requirement: pruning and archiving
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -345,7 +401,11 @@ an accident:
 - **The manifest is the definition of "published".**  Pruning to the published
   set is a set difference between what the merged manifest names and what is on
   disk, rather than a heuristic over file names.  This is the second reason the
-  manifest is in Phase 1 rather than deferred with the gallery.
+  manifest is in Phase 1 rather than deferred with the gallery.  The thumbnails
+  and the generated pages are derived from the published set rather than being
+  members of it, so pruning keeps them --- they are most of what makes the
+  surviving result browsable --- and re-publishing regenerates them from the
+  manifest if they are ever lost.
 - **Products are published by symlink from the step that owns them**, so every
   file has exactly one owner and pruning never has to decide which of two
   copies is canonical.  The gridded accumulator caches already symlink
@@ -466,7 +526,7 @@ task-parallelism requirement above.
 
 ### Algorithm Design: organizing principles
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -498,6 +558,11 @@ interface serves.
 Neither is compromised for the other.  In particular, the work tree does not
 need to be browsable, and the staging tree does not need to mirror how the work
 was chunked.
+
+The staging tree is also the only part of this design that is read over a
+network we do not control, which makes the cost of *serving* it a design
+constraint rather than a detail of presentation.  That constraint is developed
+under `presentation and provenance` below.
 
 #### 2. Products are described by a manifest, not by their path
 
@@ -743,7 +808,7 @@ designed.*  Algorithm designs for the Phase 1 capabilities are in
 
 ### Implementation: code organization
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -765,10 +830,17 @@ capability grows:
 
 Two further pieces are added by Phase 1 and are expected to be reused:
 
-- **Manifest and publication** live in `polaris/tasks/ocean/analysis/`
-  alongside the steps in Phase 1, and should move to a component-neutral home
-  when a second component wants them.  Steps depend on the manifest writer, not
-  on the collector.
+- **Manifest and publication** are three pieces, and the split matters more
+  than where they live: the **manifest writer** that steps call, the
+  **collector** that merges fragments and publishes, and the **site generator**
+  that renders the index.  Steps depend on the writer and never on the other
+  two, so how results are presented can change without touching a step.  None
+  of the three contains anything ocean-specific --- the writer takes arbitrary
+  facets and the generator renders whatever the manifest holds --- so they go
+  in a component-neutral `polaris/analysis/` package from the start, beside
+  `polaris/viz/`, rather than under `polaris/tasks/ocean/analysis/` to be moved
+  later.  Only the vocabulary of facets is the ocean suite's, and that lives in
+  the steps that emit it.
 - **Accumulator support** --- discovering candidate caches among sibling
   directories, checking provenance stamps, and reporting what was inherited ---
   is a shared helper rather than something each product reimplements, since
@@ -870,9 +942,25 @@ rather than dropped, and each is designed above or in
   is decided by content rather than by path, so months cached by the
   single-step version are inherited unchanged.
 - **Process pools inside steps**, for whatever is left below step granularity.
-- **Generate a gallery over the staging tree.**  Phase 1 publishes the products
-  and the merged manifest, which is everything a generator needs; what is
-  missing is the generator.
+- **Design how results are best displayed.**  Phase 1 ships a working gallery
+  that follows MPAS-Analysis's layout because that is what our readers know,
+  and deliberately spends no time on visual design beyond that.  What is
+  deferred is the considered version: what a reader wants side by side, how
+  facets are filtered and searched, and how run-to-run comparison reads.  The
+  Phase 1 site is a set of templates over the merged manifest, so this is a
+  rewrite of templates and CSS rather than of anything upstream of them.
+- **Per-product pages carrying provenance and a recipe.**  E3SM-Diags's best
+  idea --- each figure accompanied by the code that reproduces it --- needs a
+  per-product page and a manifest field to hold the recipe.  Phase 1 links a
+  thumbnail straight to its full image, which is the one link target that has
+  to change.
+- **Reduce what a gallery page costs, if measurement says it is still too
+  much.**  Phase 1's levers are small lossy thumbnails, bounded page size, and
+  not fetching what has not been scrolled to, which address a throttle on
+  bytes.  If the LCRC portal turns out to throttle on requests instead, the
+  answers are different --- combining thumbnails into a sprite sheet, or
+  inlining them in the page --- and which applies should be settled by
+  measuring against the portal rather than by guessing.
 - **Build the mechanical conformance checks** for the task-parallel
   groundrules.  Phase 1 follows the rules; nothing verifies that it still does.
 - **The `analysis_test` task and its suite**, which runs a short Omega
