@@ -52,7 +52,7 @@ repos:
         verbose: true
         additional_dependencies:
           - 'types-requests'
-          - 'tranche>=0.6.0'
+          - 'tranche>=0.6.1'
           - 'numpy>=2.0,<3.0'
           - 'xarray'
           - 'matplotlib>=3.9.0'
