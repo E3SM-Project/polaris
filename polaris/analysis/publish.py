@@ -92,10 +92,12 @@ def publish(
         One entry per published product, as written to the merged manifest
 
     missing : list of str
-        The paths that are not on disk: a fragment that was declared but not
-        written, or a file a fragment named.  These are reported rather than
-        silently omitted, and do not appear in the merged manifest, which is
-        what defines the published set.
+        The paths that are not on disk: first the fragments that were
+        declared but never written, then the files a fragment named.  Both
+        are reported rather than silently omitted, and neither appears in the
+        merged manifest, which is what defines the published set.  A step
+        that wrote no fragment is only worth a message; a step that promised
+        a file and did not write it is worth a warning.
     """
     plots_path = os.path.join(output_path, PLOTS_DIRNAME)
     thumbnails_path = os.path.join(output_path, THUMBNAILS_DIRNAME)
@@ -103,10 +105,11 @@ def publish(
     os.makedirs(thumbnails_path, exist_ok=True)
 
     published: list[dict] = []
+    unwritten: list[str] = []
     missing: list[str] = []
     for fragment_filename in fragment_filenames:
         if not os.path.exists(fragment_filename):
-            missing.append(fragment_filename)
+            unwritten.append(fragment_filename)
             continue
         manifest = read_fragment(fragment_filename)
         step_path = os.path.dirname(os.path.abspath(fragment_filename))
@@ -129,9 +132,9 @@ def publish(
         quality=thumbnail_quality,
     )
 
-    _report(published, missing, rendered, logger)
+    _report(published, unwritten, missing, rendered, logger)
     write_merged_manifest(published, output_path)
-    return published, missing
+    return published, unwritten + missing
 
 
 def write_merged_manifest(published, output_path):
@@ -211,13 +214,21 @@ def _add_thumbnails(published, output_path, size, image_format, quality):
     return rendered
 
 
-def _report(published, missing, rendered, logger):
+def _report(published, unwritten, missing, rendered, logger):
     """Say what was published, and name anything that was not"""
     if logger is None:
         return
     logger.info(
         f'published {len(published)} products, rendering {rendered} thumbnails'
     )
+    if unwritten:
+        # not an error: a step that makes no products writes no manifest
+        logger.info(
+            f'{len(unwritten)} steps wrote no manifest, so they published '
+            f'nothing:'
+        )
+        for filename in unwritten:
+            logger.info(f'  {filename}')
     if missing:
         logger.warning(
             f'{len(missing)} products were described by a manifest but their '

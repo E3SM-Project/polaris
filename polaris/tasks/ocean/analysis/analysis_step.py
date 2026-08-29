@@ -25,6 +25,13 @@ class AnalysisStep(OceanIOStep):
         work directory, in the order they were added
     """
 
+    #: Whether this step makes products for the published gallery, and so
+    #: writes a manifest fragment describing them.  A step that only computes
+    #: intermediate results for other steps to plot sets this to ``False``,
+    #: which keeps the ``publish`` step from depending on it and from
+    #: reporting the fragment it was never going to write.
+    makes_products = True
+
     def __init__(
         self, component, name, subdir, start_year, end_year, **kwargs
     ):

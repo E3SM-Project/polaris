@@ -12,6 +12,7 @@ from polaris.tasks.ocean.analysis.heat_content_series import (
     HeatContentSeries as HeatContentSeries,
 )
 from polaris.tasks.ocean.analysis.moc import Moc as Moc
+from polaris.tasks.ocean.analysis.publish import Publish as Publish
 from polaris.tasks.ocean.analysis.sim_files import year_range_key
 
 
@@ -28,13 +29,26 @@ def add_analysis_tasks(component):
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.tasks.ocean.analysis', 'analysis.cfg')
 
-    for task_cls in [
-        ClimatologyMapsTask,
-        GlobalStatsTask,
-        HeatContentSeriesTask,
-        MocTask,
-    ]:
-        component.add_task(task_cls(component=component, config=config))
+    tasks = [
+        task_cls(component=component, config=config)
+        for task_cls in [
+            ClimatologyMapsTask,
+            GlobalStatsTask,
+            HeatContentSeriesTask,
+            MocTask,
+        ]
+    ]
+
+    # the publish step depends on the steps of every other analysis task, so
+    # the task that carries it is created once those steps exist, and each of
+    # those tasks is told to have it rebuilt whenever they rebuild
+    publish_task = PublishTask(component=component, config=config, tasks=tasks)
+    for task in tasks:
+        task.publish_task = publish_task
+    tasks.append(publish_task)
+
+    for task in tasks:
+        component.add_task(task)
 
 
 class AnalysisTask(Task):
@@ -52,6 +66,10 @@ class AnalysisTask(Task):
     range_section : str
         The config section holding the ``start_year`` and ``end_year`` this
         task's steps are keyed on
+
+    publish_task : polaris.tasks.ocean.analysis.PublishTask or None
+        The task that publishes this task's products, which has to rebuild
+        its step whenever this one rebuilds its steps
     """
 
     def __init__(self, component, config, name, range_section):
@@ -78,6 +96,7 @@ class AnalysisTask(Task):
             component=component, name=name, subdir=f'analysis/{name}'
         )
         self.range_section = range_section
+        self.publish_task = None
         self.set_shared_config(config, link='analysis.cfg')
         self._setup_steps()
 
@@ -88,9 +107,18 @@ class AnalysisTask(Task):
         ``polaris setup`` merges the user's config into the task and then
         calls this before adding configs to steps, precisely so that steps
         created here are handled.
+
+        The tasks sharing a config are configured in an arbitrary order --
+        they are held in a set -- so a task that has just rebuilt its steps
+        tells the task that publishes them to rebuild its own.  Whichever
+        task is configured last therefore leaves the ``publish`` step
+        depending on the steps that are really set up, rather than on the
+        ones some earlier config asked for.
         """
         super().configure()
         self._setup_steps()
+        if self.publish_task is not None:
+            self.publish_task.rebuild_steps()
 
     def year_range(self):
         """
@@ -291,3 +319,74 @@ class MocTask(AnalysisTask):
             start_year=start_year,
             end_year=end_year,
         )
+
+
+class PublishTask(AnalysisTask):
+    """
+    A task that publishes the results of the other analysis tasks
+
+    It carries the one ``publish`` step of the suite, which depends on every
+    step that makes products.  Nothing about the suite makes that step run
+    last on its own, so the suite lists it last.
+
+    Attributes
+    ----------
+    analysis_tasks : list of polaris.tasks.ocean.analysis.AnalysisTask
+        The tasks whose steps make the products that are published
+    """
+
+    def __init__(self, component, config, tasks):
+        """
+        Create the publish task
+
+        Parameters
+        ----------
+        component : polaris.tasks.ocean.Ocean
+            The ocean component the task belongs to
+
+        config : polaris.config.PolarisConfigParser
+            The config parser shared by every analysis task
+
+        tasks : list of polaris.tasks.ocean.analysis.AnalysisTask
+            The tasks whose steps make products.  They are built before this
+            one so that their steps exist, and rebuilt before this task is
+            configured so that the steps this one depends on are the ones the
+            user's config asked for.
+        """
+        self.analysis_tasks = tasks
+        super().__init__(
+            component=component,
+            config=config,
+            name='publish',
+            range_section='ocean_analysis_climatology',
+        )
+
+    def rebuild_steps(self):
+        """
+        Build the publish step again, now that a task it depends on has
+        rebuilt its steps
+
+        A dependency is a step object rather than a path, and Polaris checks
+        that the object it was given is one that was set up, so the step has
+        to be rewired whenever a task discards its steps and builds new ones.
+        """
+        self._setup_steps()
+
+    def _setup_steps(self):
+        self._remove_all_steps()
+        step = Publish(
+            component=self.component,
+            subdir='analysis/publish',
+            product_steps=self._product_steps(),
+        )
+        step.set_shared_config(self.config, link=self.config_filename)
+        self.add_step(step)
+
+    def _product_steps(self):
+        """The steps of the other tasks that make products, in suite order"""
+        steps = {}
+        for task in self.analysis_tasks:
+            for step in task.steps.values():
+                if step.makes_products:
+                    steps[step.subdir] = step
+        return list(steps.values())

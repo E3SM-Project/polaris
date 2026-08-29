@@ -4,12 +4,14 @@ from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.analysis import add_analysis_tasks
 from polaris.tasks.ocean.analysis.climatology_maps import get_field_groups
 
-TASK_SUBDIRS = [
+PRODUCT_TASK_SUBDIRS = [
     'analysis/climatology_maps',
     'analysis/global_stats',
     'analysis/heat_content_series',
     'analysis/moc',
 ]
+
+TASK_SUBDIRS = PRODUCT_TASK_SUBDIRS + ['analysis/publish']
 
 FIELD_GROUPS = [
     'temperature',
@@ -43,7 +45,7 @@ def _set_range(component, section, start_year, end_year):
         component.tasks[task_subdir].configure()
 
 
-def test_the_suite_has_one_task_per_product():
+def test_the_suite_has_one_task_per_product_and_one_to_publish():
     component = _make_component()
     assert sorted(component.tasks) == sorted(TASK_SUBDIRS)
 

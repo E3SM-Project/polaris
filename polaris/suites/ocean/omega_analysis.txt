@@ -2,3 +2,4 @@ ocean/analysis/climatology_maps
 ocean/analysis/heat_content_series
 ocean/analysis/global_stats
 ocean/analysis/moc
+ocean/analysis/publish
