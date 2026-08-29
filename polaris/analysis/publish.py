@@ -2,6 +2,14 @@ import json
 import os
 
 from polaris.analysis.manifest import FRAGMENT_FILENAME, read_fragment
+from polaris.analysis.thumbnail import (
+    DEFAULT_FORMAT,
+    DEFAULT_QUALITY,
+    DEFAULT_SIZE,
+    THUMBNAILS_DIRNAME,
+    make_thumbnail,
+    thumbnail_name,
+)
 
 #: The subdirectory of the staging tree holding the published products
 PLOTS_DIRNAME = 'plots'
@@ -61,7 +69,14 @@ def published_basename(product, filename):
     return f'{"_".join(parts)}{suffix}'
 
 
-def publish(fragment_filenames, output_path, logger=None):
+def publish(
+    fragment_filenames,
+    output_path,
+    logger=None,
+    thumbnail_size=DEFAULT_SIZE,
+    thumbnail_format=DEFAULT_FORMAT,
+    thumbnail_quality=DEFAULT_QUALITY,
+):
     """
     Publish every product the fragments describe into the staging tree
 
@@ -82,6 +97,15 @@ def publish(fragment_filenames, output_path, logger=None):
     logger : logging.Logger, optional
         A logger for reporting what was published and what was missing
 
+    thumbnail_size : tuple of int, optional
+        The bounding box in pixels each thumbnail is scaled to fit inside
+
+    thumbnail_format : {'jpeg', 'webp'}, optional
+        The format thumbnails are written in
+
+    thumbnail_quality : int, optional
+        The compression quality of thumbnails, from 1 to 100
+
     Returns
     -------
     published : list of dict
@@ -93,7 +117,9 @@ def publish(fragment_filenames, output_path, logger=None):
         merged manifest, which is what defines the published set.
     """
     plots_path = os.path.join(output_path, PLOTS_DIRNAME)
+    thumbnails_path = os.path.join(output_path, THUMBNAILS_DIRNAME)
     os.makedirs(plots_path, exist_ok=True)
+    os.makedirs(thumbnails_path, exist_ok=True)
 
     published: list[dict] = []
     missing: list[str] = []
@@ -111,7 +137,15 @@ def publish(fragment_filenames, output_path, logger=None):
             if entry is not None:
                 published.append(entry)
 
-    _report(published, missing, logger)
+    rendered = _add_thumbnails(
+        published=published,
+        output_path=output_path,
+        size=thumbnail_size,
+        image_format=thumbnail_format,
+        quality=thumbnail_quality,
+    )
+
+    _report(published, missing, rendered, logger)
     write_merged_manifest(published, output_path)
     return published, missing
 
@@ -178,11 +212,33 @@ def _range_key(product):
     return f'{int(start):04d}-{int(end):04d}'
 
 
-def _report(published, missing, logger):
+def _add_thumbnails(published, output_path, size, image_format, quality):
+    """Render a thumbnail for each published plot and record it"""
+    rendered = 0
+    for entry in published:
+        basename = os.path.basename(entry['plot'])
+        name = thumbnail_name(basename, image_format)
+        if make_thumbnail(
+            plot_filename=os.path.join(output_path, entry['plot']),
+            thumbnail_filename=os.path.join(
+                output_path, THUMBNAILS_DIRNAME, name
+            ),
+            size=size,
+            image_format=image_format,
+            quality=quality,
+        ):
+            rendered += 1
+        entry['thumbnail'] = os.path.join(THUMBNAILS_DIRNAME, name)
+    return rendered
+
+
+def _report(published, missing, rendered, logger):
     """Say what was published, and name anything that was not"""
     if logger is None:
         return
-    logger.info(f'published {len(published)} products')
+    logger.info(
+        f'published {len(published)} products, rendering {rendered} thumbnails'
+    )
     if missing:
         logger.warning(
             f'{len(missing)} products were described by a manifest but their '
