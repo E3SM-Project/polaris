@@ -1,10 +1,40 @@
 import json
 import os
 
+import numpy as np
+from PIL import Image
+
 from polaris.analysis import Manifest, find_fragments, publish
 from polaris.analysis.publish import MERGED_FILENAME, PLOTS_DIRNAME
 
 SEASONS = ['ANN', 'DJF', 'MAM', 'JJA', 'SON']
+
+
+def write_plot(filename, size=(160, 90)):
+    """
+    A stand-in plot: a real RGBA image with structure in it.
+
+    The structure matters.  A flat colour compresses to almost nothing as
+    PNG, so a thumbnail of it cannot be much smaller and a size comparison
+    against it would prove nothing.  A field with both smooth variation and
+    fine detail behaves like the contour maps this suite actually publishes.
+    """
+    width, height = size
+    y, x = np.mgrid[0:height, 0:width]
+    field = np.sin(x / 23.0) * np.cos(y / 17.0) + 0.35 * np.sin(
+        x / 3.0 + y / 5.0
+    )
+    band = ((field - field.min()) / np.ptp(field) * 255).astype(np.uint8)
+    rgba = np.dstack(
+        [
+            band,
+            np.roll(band, 40, axis=1),
+            255 - band,
+            np.full_like(band, 255),
+        ]
+    )
+    Image.fromarray(rgba, mode='RGBA').save(filename)
+    return filename
 
 
 def _make_step(work_dir, step_name, subdir, seasons=None, years=(21, 40)):
@@ -17,9 +47,9 @@ def _make_step(work_dir, step_name, subdir, seasons=None, years=(21, 40)):
     for season in seasons:
         plot = f'temperature_{season}_-100m.png'
         data = f'temperature_{season}_-100m.nc'
-        for filename in (plot, data):
-            with open(os.path.join(step_path, filename), 'w') as out:
-                out.write(f'{subdir}/{filename}')
+        write_plot(os.path.join(step_path, plot))
+        with open(os.path.join(step_path, data), 'w') as out:
+            out.write(f'{subdir}/{data}')
         manifest.add(
             plot=plot,
             data=data,
@@ -176,8 +206,7 @@ def test_a_product_with_no_data_file_publishes_its_plot(tmp_path):
     output_path = str(tmp_path / 'output')
     step_path = os.path.join(work_dir, 'moc/0021-0040')
     os.makedirs(step_path)
-    with open(os.path.join(step_path, 'moc.png'), 'w') as out:
-        out.write('moc')
+    write_plot(os.path.join(step_path, 'moc.png'))
     manifest = Manifest(step_name='moc')
     manifest.add(
         plot='moc.png', group='moc', gallery='moc', title='Global MOC'
