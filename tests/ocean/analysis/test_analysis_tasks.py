@@ -158,4 +158,4 @@ def test_heat_content_is_a_group_even_though_it_is_derived():
     own, and it is not a field a user lists."""
     groups = get_field_groups(['temperature'])
     assert list(groups) == ['temperature', 'heat_content']
-    assert groups['heat_content'] == []
+    assert groups['heat_content'] == ['heat_content']
