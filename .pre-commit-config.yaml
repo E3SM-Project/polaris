@@ -40,6 +40,10 @@ repos:
   # cartopy is deliberately absent: it needs system GEOS and would make this
   # hook fragile for what it would add.  Anything not listed stays Any, so
   # the deployed environment still checks more than CI does.
+  #
+  # pre-commit cannot read a version from pyproject.toml, so the constraints
+  # below repeat the ones there.  tests/test_dependency_pins.py fails if the
+  # two drift apart.
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v2.3.0
     hooks:

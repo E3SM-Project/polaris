@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "cartopy",
+    "cartopy>=0.23.0",
     "cmocean",
     "gsw",
     "importlib_resources",
@@ -45,7 +45,7 @@ dependencies = [
     "ruamel.yaml",
     "requests",
     "scipy>=1.8.0",
-    "shapely>=2.0,<3.0",
+    "shapely>=2.0.4,<3.0",
     "termcolor",
     "tranche>=0.6.0",
     "xarray",
