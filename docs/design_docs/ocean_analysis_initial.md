@@ -1937,21 +1937,26 @@ def parse_vertical_reduction(spec):
     elevation range, into a vertical reduction."""
 
 
-def apply_vertical_reduction(da, reduction, z_mid, z_interface, layer_mass,
+def apply_vertical_reduction(da, reduction, z_mid, z_interface,
                              min_level_cell, max_level_cell):
-    """Reduce a field with a vertical dimension to a horizontal map.
+    """Slice a field with a vertical dimension into a horizontal map.
 
-    Slicing at an elevation, a layer index, the surface or the seafloor, and
-    integrating over an elevation range, are the cases of one operation: every
-    one of them turns ``nVertLevels`` into nothing.  Keeping them behind a
-    single entry point is what lets ocean heat content be a field of the
-    climatology maps rather than a product of its own.
+    Slicing at an elevation, a layer index, the surface or the seafloor are
+    the cases of one operation: every one of them picks one layer of each
+    column, whatever the field means.
     """
 
 
 def elevation_range_weights(z_interface, layer_mass, min_level_cell,
                             max_level_cell, z_top, z_bot):
     """Return the per-layer mass per unit area within an elevation range.
+
+    An elevation range also turns ``nVertLevels`` into nothing, but it is a
+    weighted integral rather than a slice, and what the weighted sum of a
+    field *means* is a property of the diagnostic rather than of the vertical
+    coordinate.  So this module supplies the weights and the diagnostic
+    supplies the sum, which is what lets one heat content kernel serve both
+    the maps and the time series.
 
     The geometric overlap thickness w_k is computed from ``z_interface`` and
     used only as a fraction of the layer, which is then applied to
@@ -2000,11 +2005,13 @@ for season in plot_seasons:
     z_mid, z_interface = get_z_mid_and_interface(ds)
     layer_mass = get_layer_mass(ds, self.config)
     for field in self.field_group.fields:
-        da = self._get_field(ds, field)
+        if field == 'heat_content':
+            self._plot_heat_content(ds, season, layer_mass, k_min, k_max)
+            continue
+        da = ds[field]
         for reduction in self._reductions(da):
             da_map = apply_vertical_reduction(
-                da, reduction, z_mid, z_interface, layer_mass,
-                k_min, k_max)
+                da, reduction, z_mid, z_interface, k_min, k_max)
             basename = f'{field}_{season}_{reduction.label}'
             write_netcdf(da_map, self.work_path(f'{basename}.nc'))
             self.manifest.add(da_map, field=field, season=season,
@@ -2016,9 +2023,13 @@ for season in plot_seasons:
                 mesh_filename=self.work_path('mesh.nc'), ...)
 ```
 
-Heat content needs no branch here.  Its field is derived rather than read, and
-its reduction is an elevation range rather than an elevation, and both of those
-are cases the loop already handles.
+Heat content is the one branch in this loop.  Its field is derived rather
+than read, and its reduction is an elevation range rather than an elevation,
+and a range is weighted rather than sliced, so it takes the weights from
+`elevation_range_weights` and the sum from the heat content kernel instead of
+going through `apply_vertical_reduction`.  Everything around it --- the
+season loop, the netCDF beside each plot, the shared `mosaic` descriptor,
+the naming --- is the same.
 
 Output names are `<field>_<season>_<reduction_label>.png` with reduction labels
 `top`, `bottom`, `-100m`, `k10`, and `top_to_-700m`, so that the set of files
@@ -2107,9 +2118,11 @@ of which the loop above already accommodates:
 
 - its field is derived rather than read, by
   `heat_content(ds.temperature, weights, cp0)` where `weights` comes from
-  `elevation_range_weights`;
+  `elevation_range_weights`, so the derivation happens inside the reduction
+  loop rather than before it, since the weights depend on the range;
 - its vertical reductions are the configured elevation ranges rather than the
-  configured elevations.
+  configured elevations, and they are read from `[ocean_analysis_ohc]` rather
+  than from `[ocean_analysis_climatology]`.
 
 The layer weights $\tilde{w}_k$ do depend on the range, so they are not shared
 between ranges --- but everything expensive is.  The climatology of $\Theta$,
