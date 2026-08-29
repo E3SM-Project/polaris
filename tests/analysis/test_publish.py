@@ -4,7 +4,8 @@ import os
 import numpy as np
 from PIL import Image
 
-from polaris.analysis import Manifest, find_fragments, publish
+from polaris.analysis import Manifest, publish
+from polaris.analysis.manifest import FRAGMENT_FILENAME
 from polaris.analysis.publish import MERGED_FILENAME, PLOTS_DIRNAME
 
 SEASONS = ['ANN', 'DJF', 'MAM', 'JJA', 'SON']
@@ -66,19 +67,37 @@ def _make_step(work_dir, step_name, subdir, seasons=None, years=(21, 40)):
     return step_path
 
 
+def _fragments(*step_paths):
+    """
+    The fragments the publish step declares, one per step that made products.
+
+    The paths are known without looking for them: the filename is a constant
+    and each step's work directory is fixed when the suite is built.
+    """
+    return [
+        os.path.join(step_path, FRAGMENT_FILENAME) for step_path in step_paths
+    ]
+
+
 def _merged(output_path):
     with open(os.path.join(output_path, MERGED_FILENAME)) as data:
         return json.load(data)['products']
 
 
-def test_fragments_are_found_and_sorted(tmp_path):
+def test_a_fragment_that_was_never_written_is_reported(tmp_path):
+    """A step that made no products writes none, and that is not an error."""
     work_dir = str(tmp_path / 'work')
-    _make_step(work_dir, 'maps', 'climatology_maps/0021-0040/temperature')
-    _make_step(work_dir, 'maps', 'climatology_maps/0001-0010/temperature')
-    fragments = find_fragments(work_dir)
-    assert len(fragments) == 2
-    # sorted, so that a publish is reproducible
-    assert fragments == sorted(fragments)
+    output_path = str(tmp_path / 'output')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
+    silent = os.path.join(work_dir, 'moc/0021-0040')
+    os.makedirs(silent)
+
+    published, missing = publish(_fragments(step_path, silent), output_path)
+
+    assert len(published) == len(SEASONS)
+    assert missing == [os.path.join(silent, FRAGMENT_FILENAME)]
 
 
 def test_products_are_published_by_symlink(tmp_path):
@@ -88,7 +107,7 @@ def test_products_are_published_by_symlink(tmp_path):
         work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
     )
 
-    published, missing = publish(find_fragments(work_dir), output_path)
+    published, missing = publish(_fragments(step_path), output_path)
 
     assert missing == []
     assert len(published) == len(SEASONS)
@@ -105,9 +124,11 @@ def test_products_are_published_by_symlink(tmp_path):
 def test_the_published_name_carries_the_facets(tmp_path):
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
-    _make_step(work_dir, 'maps', 'climatology_maps/0021-0040/temperature')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
 
-    publish(find_fragments(work_dir), output_path)
+    publish(_fragments(step_path), output_path)
     names = sorted(os.listdir(os.path.join(output_path, PLOTS_DIRNAME)))
 
     assert 'climatology_maps_temperature_ANN_-100m_0021-0040.png' in names
@@ -118,14 +139,14 @@ def test_two_ranges_coexist(tmp_path):
     """The range is in the name, so a new range never clobbers an old one."""
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
-    _make_step(
+    recent = _make_step(
         work_dir,
         'maps',
         'climatology_maps/0021-0040/temperature',
         seasons=['ANN'],
         years=(21, 40),
     )
-    _make_step(
+    earlier = _make_step(
         work_dir,
         'maps',
         'climatology_maps/0001-0010/temperature',
@@ -133,7 +154,7 @@ def test_two_ranges_coexist(tmp_path):
         years=(1, 10),
     )
 
-    published, _ = publish(find_fragments(work_dir), output_path)
+    published, _ = publish(_fragments(earlier, recent), output_path)
     assert len(published) == 2
 
     names = sorted(os.listdir(os.path.join(output_path, PLOTS_DIRNAME)))
@@ -144,9 +165,11 @@ def test_two_ranges_coexist(tmp_path):
 def test_the_merged_manifest_names_every_product(tmp_path):
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
-    _make_step(work_dir, 'maps', 'climatology_maps/0021-0040/temperature')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
 
-    published, _ = publish(find_fragments(work_dir), output_path)
+    published, _ = publish(_fragments(step_path), output_path)
     merged = _merged(output_path)
 
     assert merged == published
@@ -165,9 +188,11 @@ def test_order_is_preserved_through_the_merge(tmp_path):
     """A gallery reads ANN, DJF, ... because the step plotted them so."""
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
-    _make_step(work_dir, 'maps', 'climatology_maps/0021-0040/temperature')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
 
-    published, _ = publish(find_fragments(work_dir), output_path)
+    published, _ = publish(_fragments(step_path), output_path)
     assert [entry['season'] for entry in published] == SEASONS
 
 
@@ -179,7 +204,7 @@ def test_a_missing_file_is_reported_not_silently_omitted(tmp_path):
     )
     os.remove(os.path.join(step_path, 'temperature_DJF_-100m.png'))
 
-    published, missing = publish(find_fragments(work_dir), output_path)
+    published, missing = publish(_fragments(step_path), output_path)
 
     assert len(missing) == 1
     assert missing[0].endswith('temperature_DJF_-100m.png')
@@ -192,10 +217,12 @@ def test_publishing_twice_replaces_the_links(tmp_path):
     """Re-publishing an analysis must not fail on the links it left."""
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
-    _make_step(work_dir, 'maps', 'climatology_maps/0021-0040/temperature')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
 
-    publish(find_fragments(work_dir), output_path)
-    published, missing = publish(find_fragments(work_dir), output_path)
+    publish(_fragments(step_path), output_path)
+    published, missing = publish(_fragments(step_path), output_path)
 
     assert missing == []
     assert len(published) == len(SEASONS)
@@ -213,7 +240,7 @@ def test_a_product_with_no_data_file_publishes_its_plot(tmp_path):
     )
     manifest.write(step_path)
 
-    published, missing = publish(find_fragments(work_dir), output_path)
+    published, missing = publish(_fragments(step_path), output_path)
 
     assert missing == []
     assert len(published) == 1

@@ -3,13 +3,18 @@ import os
 import pytest
 from PIL import Image
 
-from polaris.analysis import find_fragments, publish
+from polaris.analysis import publish
 from polaris.analysis.thumbnail import (
     THUMBNAILS_DIRNAME,
     make_thumbnail,
     thumbnail_name,
 )
-from tests.analysis.test_publish import SEASONS, _make_step, write_plot
+from tests.analysis.test_publish import (
+    SEASONS,
+    _fragments,
+    _make_step,
+    write_plot,
+)
 
 
 def test_a_thumbnail_fits_inside_the_box_in_both_dimensions(tmp_path):
@@ -100,9 +105,11 @@ def test_a_mismatched_suffix_is_refused(tmp_path):
 def test_publishing_renders_a_thumbnail_for_every_plot(tmp_path):
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
-    _make_step(work_dir, 'maps', 'climatology_maps/0021-0040/temperature')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
 
-    published, _ = publish(find_fragments(work_dir), output_path)
+    published, _ = publish(_fragments(step_path), output_path)
 
     thumbnails = sorted(
         os.listdir(os.path.join(output_path, THUMBNAILS_DIRNAME))
@@ -120,13 +127,13 @@ def test_thumbnails_are_files_not_symlinks(tmp_path):
     """They are generated here, so nothing upstream owns them."""
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
-    _make_step(
+    step_path = _make_step(
         work_dir,
         'maps',
         'climatology_maps/0021-0040/temperature',
         seasons=['ANN'],
     )
 
-    published, _ = publish(find_fragments(work_dir), output_path)
+    published, _ = publish(_fragments(step_path), output_path)
     thumbnail = os.path.join(output_path, published[0]['thumbnail'])
     assert not os.path.islink(thumbnail)

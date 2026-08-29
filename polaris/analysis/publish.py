@@ -1,7 +1,7 @@
 import json
 import os
 
-from polaris.analysis.manifest import FRAGMENT_FILENAME, read_fragment
+from polaris.analysis.manifest import read_fragment
 from polaris.analysis.thumbnail import (
     DEFAULT_FORMAT,
     DEFAULT_QUALITY,
@@ -16,29 +16,6 @@ PLOTS_DIRNAME = 'plots'
 
 #: The merged manifest at the root of the staging tree
 MERGED_FILENAME = 'manifest.json'
-
-
-def find_fragments(work_dir):
-    """
-    Find the manifest fragments under a work directory
-
-    Parameters
-    ----------
-    work_dir : str
-        The directory to search, normally the base work directory of the
-        suite that was run
-
-    Returns
-    -------
-    filenames : list of str
-        The fragments found, sorted by path so that a publish is
-        reproducible
-    """
-    filenames = []
-    for root, _, files in os.walk(work_dir):
-        if FRAGMENT_FILENAME in files:
-            filenames.append(os.path.join(root, FRAGMENT_FILENAME))
-    return sorted(filenames)
 
 
 def published_basename(product, filename):
@@ -88,8 +65,10 @@ def publish(
     Parameters
     ----------
     fragment_filenames : list of str
-        The manifest fragments to publish, as found by
-        :py:func:`~polaris.analysis.publish.find_fragments`
+        The manifest fragments to publish, one per step that made products.
+        A fragment that is not on disk is reported rather than raising: a
+        step that made no products writes none, and a step that has not run
+        is named by its own dependency instead.
 
     output_path : str
         The root of the staging tree
@@ -112,9 +91,10 @@ def publish(
         One entry per published product, as written to the merged manifest
 
     missing : list of str
-        The paths named by a fragment that are not on disk.  These are
-        reported rather than silently omitted, and do not appear in the
-        merged manifest, which is what defines the published set.
+        The paths that are not on disk: a fragment that was declared but not
+        written, or a file a fragment named.  These are reported rather than
+        silently omitted, and do not appear in the merged manifest, which is
+        what defines the published set.
     """
     plots_path = os.path.join(output_path, PLOTS_DIRNAME)
     thumbnails_path = os.path.join(output_path, THUMBNAILS_DIRNAME)
@@ -124,6 +104,9 @@ def publish(
     published: list[dict] = []
     missing: list[str] = []
     for fragment_filename in fragment_filenames:
+        if not os.path.exists(fragment_filename):
+            missing.append(fragment_filename)
+            continue
         manifest = read_fragment(fragment_filename)
         step_path = os.path.dirname(os.path.abspath(fragment_filename))
         for product in manifest.products:
