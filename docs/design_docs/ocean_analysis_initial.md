@@ -1958,9 +1958,13 @@ is about **75 MB in 1641 requests** before the page settles.  Its thumbnails
 are 480 px wide and lightly compressed.  This is the behavior that stalls on a
 throttled link.
 
-Measured against a Polaris single-panel global map reduced to the defaults
-above, a thumbnail is **about 13 kB** as JPEG at 320 px and quality 75, or
-about 10 kB as WebP.  With the default field and season lists a climatology-map
+Against a single global map panel of that figure --- a stand-in for the
+single-panel maps this suite produces, since no Polaris analysis has been
+published yet --- a thumbnail at the defaults above is **about 13 kB** as JPEG
+at 320 px and quality 75, or about 10 kB as WebP.  This should be confirmed on
+real output rather than trusted; the point it is making, that the reference's
+thumbnails are several times larger than they need to be, is not sensitive to
+the exact figure.  With the default field and season lists a climatology-map
 gallery holds roughly fifteen products, so a gallery page is a ~10 kB document
 plus ~200 kB of thumbnails, of which lazy loading fetches only the visible rows
 --- on the order of **100 kB** before the page is usable.  The landing page
