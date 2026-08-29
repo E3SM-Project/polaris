@@ -1,6 +1,7 @@
 import os
 import pathlib
 from glob import glob
+from typing import Any
 
 import netCDF4
 import numpy as np
@@ -957,7 +958,9 @@ def _write_netcdf_with_fill_values(ds, filename, format='NETCDF4'):
     """Write an xarray Dataset with NetCDF4 fill values where needed"""
     ds = ds.copy()
     fill_values = netCDF4.default_fillvals
-    encoding = {}
+    # a value of None means "write no _FillValue attribute for this
+    # variable", which xarray accepts alongside the numeric fill values
+    encoding: dict[str, dict[str, Any]] = {}
     vars = list(ds.data_vars.keys()) + list(ds.coords.keys())
     for var_name in vars:
         # If there's already a fill value attribute, drop it
