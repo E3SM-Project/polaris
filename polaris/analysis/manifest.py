@@ -3,10 +3,6 @@ import os
 
 FRAGMENT_FILENAME = 'manifest.json'
 
-#: The keys a product always has, in the order they are written.  Everything
-#: else a step supplies is a facet, and is written after these.
-_RESERVED = ('plot', 'data', 'group', 'gallery', 'title')
-
 
 class Product:
     """
@@ -74,12 +70,6 @@ class Product:
                 raise ValueError(
                     f'A product needs a non-empty "{name}"; got {value!r}.'
                 )
-        overlap = sorted(set(facets) & set(_RESERVED))
-        if overlap:
-            raise ValueError(
-                f'These facet names are reserved and cannot be reused: '
-                f'{", ".join(overlap)}.'
-            )
         self.plot = plot
         self.data = data
         self.group = group
