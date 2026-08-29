@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "cartopy",
+    "cartopy>=0.23.0",
     "cmocean",
     "gsw",
     "importlib_resources",
@@ -45,9 +45,9 @@ dependencies = [
     "ruamel.yaml",
     "requests",
     "scipy>=1.8.0",
-    "shapely>=2.0,<3.0",
+    "shapely>=2.0.4,<3.0",
     "termcolor",
-    "tranche>=0.3.0",
+    "tranche>=0.6.0",
     "xarray",
 ]
 
@@ -70,7 +70,11 @@ dev = [
 ]
 
 [tool.mypy]
-python_version = "3.11"
+# Deliberately no python_version: mypy applies it when parsing installed type
+# stubs as well as our own code, so pinning it below the version those stubs
+# are written for stops mypy before it checks anything.  Leaving it out makes
+# mypy assume the interpreter it runs under, which is the one `deploy.py`
+# installs.
 check_untyped_defs = true
 ignore_missing_imports = true
 warn_unused_ignores = true

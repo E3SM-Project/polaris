@@ -17,10 +17,13 @@ def test_round_trip_scalar():
 
 def test_round_trip_data_array():
     # a Beckmann and Haidvogel exponential profile over a 5000 m column
-    z_mid = xr.DataArray(
-        -np.linspace(78.125, 4921.875, 32), dims=('nVertLevels',)
+    z_mid = -np.linspace(78.125, 4921.875, 32)
+    # built explicitly rather than by arithmetic on a DataArray: numpy's
+    # signatures say a ufunc returns an ndarray, so the DataArray that
+    # xarray really hands back is invisible to a type checker
+    sigma_0 = xr.DataArray(
+        1028.0 - 3.0 * np.exp(z_mid / 500.0), dims=('nVertLevels',)
     )
-    sigma_0 = 1028.0 - 3.0 * np.exp(z_mid / 500.0)
 
     ct = ct_from_potential_density(sigma_0, 35.0)
 

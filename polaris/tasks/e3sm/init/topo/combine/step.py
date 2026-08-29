@@ -1,6 +1,7 @@
 import os
 import pathlib
 from glob import glob
+from typing import Any
 
 import netCDF4
 import numpy as np
@@ -509,17 +510,17 @@ class CombineStep(Step):
             lon_indices[1] = max([lon_indices[1], nlon])
         else:
             lon_indices[1] += 1
-        lat_indices = np.arange(*lat_indices)
-        lon_indices = np.arange(*lon_indices)
+        lat_index_array = np.arange(*lat_indices)
+        lon_index_array = np.arange(*lon_indices)
 
         # Duplicate top and bottom rows to account for poles
         if lat_tile == 0:
-            lat_indices = np.insert(lat_indices, 0, 0)
+            lat_index_array = np.insert(lat_index_array, 0, 0)
         if lat_tile == lat_tiles - 1:
-            lat_indices = np.append(lat_indices, lat_indices[-1])
+            lat_index_array = np.append(lat_index_array, lat_index_array[-1])
 
         # Select tile from dataset
-        tile = ds.isel(lat=lat_indices, lon=lon_indices)
+        tile = ds.isel(lat=lat_index_array, lon=lon_index_array)
         lat = tile.lat.values.copy()
         lat_attrs = tile.lat.attrs.copy()
         # xarray may expose coordinate views from ``isel()`` as read-only.
@@ -957,7 +958,9 @@ def _write_netcdf_with_fill_values(ds, filename, format='NETCDF4'):
     """Write an xarray Dataset with NetCDF4 fill values where needed"""
     ds = ds.copy()
     fill_values = netCDF4.default_fillvals
-    encoding = {}
+    # a value of None means "write no _FillValue attribute for this
+    # variable", which xarray accepts alongside the numeric fill values
+    encoding: dict[str, dict[str, Any]] = {}
     vars = list(ds.data_vars.keys()) + list(ds.coords.keys())
     for var_name in vars:
         # If there's already a fill value attribute, drop it

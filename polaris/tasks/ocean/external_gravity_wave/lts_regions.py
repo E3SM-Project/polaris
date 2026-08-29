@@ -154,7 +154,7 @@ def label_mesh(
     ds_ltsmsh = ds_msh.copy(deep=True)
     ltsmsh_name = 'init.nc'
     write_netcdf(ds_ltsmsh, ltsmsh_name)
-    mshnc = nc.Dataset(ltsmsh_name, 'a', format='NETCDF4_64BIT_OFFSET')
+    mshnc = nc.Dataset(ltsmsh_name, 'a', format='NETCDF3_64BIT_OFFSET')
 
     try:
         # try to get LTSRegion and assign new value

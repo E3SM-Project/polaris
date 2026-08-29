@@ -1,6 +1,7 @@
 import importlib.resources as imp_res
 import threading
 from contextlib import contextmanager
+from typing import Any, cast
 
 import matplotlib.pyplot as plt
 import matplotlib.style
@@ -30,8 +31,13 @@ def mplstyle_context(dpi=None):
     _register_colormaps()
 
     style_filename = str(imp_res.files('polaris.viz') / 'polaris.mplstyle')
-    overrides = {} if dpi is None else {'savefig.dpi': dpi}
-    with matplotlib.style.context(style_filename), plt.rc_context(overrides):
+    overrides: dict[str, Any] = {} if dpi is None else {'savefig.dpi': dpi}
+    # rc_context is typed with a Literal of every rcParam name; 'savefig.dpi'
+    # is one of them, but the key is built here rather than written inline
+    with (
+        matplotlib.style.context(style_filename),
+        plt.rc_context(cast(Any, overrides)),
+    ):
         yield
 
 

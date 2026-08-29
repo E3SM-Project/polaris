@@ -58,8 +58,9 @@ def pseudothickness_from_pressure(
 
     p_top = p.isel(nVertLevelsP1=slice(0, -1))
     p_bot = p.isel(nVertLevelsP1=slice(1, None))
-    dims = list(p.dims)
-    dims = [item.replace('nVertLevelsP1', 'nVertLevels') for item in dims]
+    dims = [
+        str(item).replace('nVertLevelsP1', 'nVertLevels') for item in p.dims
+    ]
     h = xr.DataArray(
         (p_bot - p_top) / (RhoSw * Gravity),
         dims=tuple(dims),
@@ -251,12 +252,17 @@ def pressure_and_spec_vol_from_state_at_geom_height(
     prev_spec_vol = spec_vol
 
     for iter in range(iter_count):
-        spec_vol = compute_specvol(
+        # compute_specvol() returns a scalar for scalar inputs; this
+        # workflow only ever hands it DataArrays, so check that rather than
+        # widening spec_vol for the rest of the function
+        new_spec_vol = compute_specvol(
             config=config,
             temperature=temperature,
             salinity=salinity,
             pressure=p_mid,
         )
+        assert isinstance(new_spec_vol, xr.DataArray)
+        spec_vol = new_spec_vol
 
         if logger is not None:
             delta_spec_vol = spec_vol - prev_spec_vol

@@ -322,32 +322,32 @@ def _read_geojson_line_mesh(
         edge_tags.append(np.full(int(keep.sum()), line_index, dtype=np.int32))
         raw_point_start += n
 
-    edge_starts = np.concatenate(edge_starts)
-    edge_ends = np.concatenate(edge_ends)
-    edge_tags = np.concatenate(edge_tags)
+    all_edge_starts = np.concatenate(edge_starts)
+    all_edge_ends = np.concatenate(edge_ends)
+    all_edge_tags = np.concatenate(edge_tags)
 
     # Remove duplicate edges (same cluster pair regardless of direction).
     edge_pairs = np.column_stack(
         [
-            np.minimum(edge_starts, edge_ends),
-            np.maximum(edge_starts, edge_ends),
+            np.minimum(all_edge_starts, all_edge_ends),
+            np.maximum(all_edge_starts, all_edge_ends),
         ]
     )
     _, unique_edge_indices = np.unique(edge_pairs, axis=0, return_index=True)
-    edge_starts = edge_starts[unique_edge_indices]
-    edge_ends = edge_ends[unique_edge_indices]
-    edge_tags = edge_tags[unique_edge_indices]
+    all_edge_starts = all_edge_starts[unique_edge_indices]
+    all_edge_ends = all_edge_ends[unique_edge_indices]
+    all_edge_tags = all_edge_tags[unique_edge_indices]
 
-    if edge_starts.size == 0:
+    if all_edge_starts.size == 0:
         return None, None
 
     vert2: Any = np.zeros(len(unique_rad), dtype=temp.VERT2_t)
-    edge2: Any = np.zeros(edge_starts.size, dtype=temp.EDGE2_t)
+    edge2: Any = np.zeros(all_edge_starts.size, dtype=temp.EDGE2_t)
 
     vert2['coord'] = unique_rad
-    edge2['index'][:, 0] = edge_starts
-    edge2['index'][:, 1] = edge_ends
-    edge2['IDtag'] = edge_tags
+    edge2['index'][:, 0] = all_edge_starts
+    edge2['index'][:, 1] = all_edge_ends
+    edge2['IDtag'] = all_edge_tags
 
     return vert2, edge2
 

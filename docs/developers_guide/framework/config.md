@@ -64,13 +64,13 @@ def _get_basic_config(config_file, machine, component_path, component):
 ```
 If there isn't a config file for this machine, nothing will happen.
 
-The `MpasConfigParser` class also includes methods for adding a user
-config file and other config files by file name, but these are largely intended
-for use by the framework rather than individual tasks.
+The {py:class}`polaris.config.PolarisConfigParser` class also includes methods
+for adding a user config file and other config files by file name, but these
+are largely intended for use by the framework rather than individual tasks.
 
-Other methods for the `MpasConfigParser` are similar to those for
-{py:class}`configparser.ConfigParser`.  In addition to `get()`,
-`getinteger()`, `getfloat()` and `getboolean()` methods, this class
+Its other methods are similar to those for
+{py:class}`configparser.ConfigParser`.  In addition to `get()`, `getint()`,
+`getfloat()` and `getboolean()` methods, this class
 implements {py:meth}`tranche.Tranche.getlist()`, which
 can be used to parse a config value separated by spaces and/or commas into
 a list of strings, floats, integers, booleans, etc. Other useful methods

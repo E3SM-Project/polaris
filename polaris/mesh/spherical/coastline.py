@@ -439,7 +439,9 @@ def _write_netcdf_with_fill_values(ds, filename, format='NETCDF4'):
     """
     ds = ds.copy()
     fill_values = netCDF4.default_fillvals
-    encoding = {}
+    # a value of None means "write no _FillValue attribute for this
+    # variable", which xarray accepts alongside the numeric fill values
+    encoding: dict[str, dict[str, Any]] = {}
     vars_and_coords = list(ds.data_vars.keys()) + list(ds.coords.keys())
     for var_name in vars_and_coords:
         ds[var_name].attrs.pop('_FillValue', None)

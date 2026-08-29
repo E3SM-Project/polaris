@@ -27,10 +27,32 @@ repos:
     -   id: ruff-format
 
   # Can run individually with `pre-commit run mypy --all-files`
+  # Can run individually with `pre-commit run mypy --all-files`
+  #
+  # additional_dependencies is what gives this hook teeth.  The hook runs in
+  # an isolated environment, so any package missing from it is Any under
+  # `ignore_missing_imports`, and a hook holding only types-requests checks
+  # each file against the standard library alone -- it reported no issues on
+  # a tree where mypy finds 141.  These four are the ones polaris types
+  # against most: with them the hook finds 48 errors on the tree before this
+  # branch, and none after.
+  #
+  # cartopy is deliberately absent: it needs system GEOS and would make this
+  # hook fragile for what it would add.  Anything not listed stays Any, so
+  # the deployed environment still checks more than CI does.
+  #
+  # pre-commit cannot read a version from pyproject.toml, so the constraints
+  # below repeat the ones there.  tests/test_dependency_pins.py fails if the
+  # two drift apart.
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v2.3.0
     hooks:
     -   id: mypy
         args: ["--config=pyproject.toml", "--show-error-codes"]
         verbose: true
-        additional_dependencies: ['types-requests']
+        additional_dependencies:
+          - 'types-requests'
+          - 'tranche>=0.6.0'
+          - 'numpy>=2.0,<3.0'
+          - 'xarray'
+          - 'matplotlib>=3.9.0'

@@ -235,13 +235,16 @@ class PStarInitStep(Step, ABC):
 
             logger.debug(f'Iteration {iteration}: p_mid = {p_mid}')
 
-            spec_vol = compute_specvol(
+            # compute_specvol() returns a scalar for scalar inputs; this
+            # workflow only ever hands it DataArrays
+            new_spec_vol = compute_specvol(
                 config=config,
                 temperature=ct,
                 salinity=sa,
                 pressure=p_mid,
             )
-            assert isinstance(spec_vol, xr.DataArray)
+            assert isinstance(new_spec_vol, xr.DataArray)
+            spec_vol = new_spec_vol
 
             min_level_cell = ds.minLevelCell - 1
             max_level_cell = ds.maxLevelCell - 1

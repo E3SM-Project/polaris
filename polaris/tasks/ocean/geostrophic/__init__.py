@@ -159,11 +159,10 @@ class Geostrophic(Task):
             option = 'refinement_factors_time'
         else:
             option = 'refinement_factors_space'
-        refinement_factors = config.getlist(
+        factor_strings = config.getlist(
             'spherical_convergence', f'{prefix}_{option}', dtype=str
         )
-        refinement_factors = ', '.join(refinement_factors)
-        config.set('convergence', option, value=refinement_factors)
+        config.set('convergence', option, value=', '.join(factor_strings))
         refinement_factors = config.getlist('convergence', option, dtype=float)
 
         base_resolution = config.getfloat(

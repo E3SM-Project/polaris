@@ -133,7 +133,7 @@ class FilamentAnalysis(OceanIOStep):
                     filament_tau, filament_norm[i, :], '.-', label=mesh_name
                 )
             plt.plot([filament_tau[0], filament_tau[-1]], [1.0, 1.0], 'k--')
-            ax.set_xlim([filament_tau[0], filament_tau[-1]])
+            ax.set_xlim(filament_tau[0], filament_tau[-1])
             ax.set_xlabel(r'$\tau$')
             ax.set_ylabel(r'$l_f$')
             plt.title(f'Filament preservation diagnostic for {variable_name}')

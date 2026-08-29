@@ -190,7 +190,7 @@ these methods only keep track of a "recipe" for downloading files or
 constructing namelist and streams files, they don't actually do the work
 associated with these steps until the point where the step is being set up in
 
-- {py:meth}`mpas_tools.config.MpasConfigParser.add_from_package()`
+- {py:meth}`tranche.Tranche.add_from_package()`
 - {py:meth}`polaris.Step.add_input_file()`
 - {py:meth}`polaris.Step.add_output_file()`
 - {py:meth}`polaris.ModelStep.add_model_config_options()`
