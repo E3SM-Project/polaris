@@ -32,9 +32,15 @@ expensive intermediate products (climatologies, reduced monthly heat content)
 are written to netCDF as well.
 
 The same simulation can be analyzed repeatedly over different date ranges.
-Results accumulate in a range-keyed staging tree that a web interface can serve
-later, and re-analyzing a new range inherits the reduced monthly values
-earlier ranges already computed instead of recomputing them.
+Results accumulate in a range-keyed staging tree, and re-analyzing a new range
+inherits the reduced monthly values earlier ranges already computed instead of
+recomputing them.
+
+The staging tree is published with a thumbnail for every plot and a generated
+gallery over them, as static HTML that a web server serves unchanged.  The
+gallery follows MPAS-Analysis's familiar layout, and is designed around the
+fact that the portal hosting it throttles: what a page costs to load is a
+requirement here, not a detail of presentation.
 
 MPAS-Analysis is the scientific reference for what each of these diagnostics
 means, but the implementation is written from scratch with Polaris and Omega in
@@ -249,19 +255,16 @@ silent.
 
 ### Requirement: repeated-analysis
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
 Polaris shall support analyzing the same simulation repeatedly with different
 climatology and time-series date ranges.
 
-Results shall be published to a single location that a reader can browse
-without knowing anything about Polaris work directories, and that a web
-interface can serve when one is added.  That location shall carry an index over
-the results rather than requiring the reader to navigate directories.
 Analyzing a new range shall not overwrite or remove the results of a range
-analyzed earlier.
+analyzed earlier, and ranges analyzed at different times shall appear together
+in the published output described under `publication` below.
 
 Re-running the analysis with a changed range shall recompute the products that
 depend on that range.  It shall not be necessary to delete the work directory
@@ -276,6 +279,47 @@ Re-running with an unchanged range shall recompute nothing by default, and it
 shall be possible to ask for the plots to be redrawn --- after a change to
 colormaps or other styling --- without recomputing the intermediate results
 behind them.
+
+### Requirement: publication
+
+Date last modified: 2026/08/29
+
+Contributors: Xylar Asay-Davis, Claude
+
+Results shall be published to a single location that a reader can browse
+without knowing anything about Polaris work directories, and that a web server
+can serve unchanged.  That location shall carry a generated index over the
+results rather than requiring the reader to navigate directories.
+
+The index shall be static HTML, generated from the merged manifest, and shall
+require no server-side code, no build step, and no network access of its own,
+so that it works equally from a local filesystem and from a web portal.
+
+**Every plot shall have a thumbnail.**  With a few hundred plots, thumbnails
+are what let a reader decide which full images to open, and they frequently
+answer the question without any full image being opened at all.  A thumbnail
+shall be a separate, small, lossy file rather than the full image scaled down
+by the browser, which would cost the full image's bytes.
+
+**A page shall stay within what a throttled link can deliver.**  The analysis
+is hosted on the LCRC public web portal, which throttles in a way that stalls a
+page asking for too much at once, and this is the constraint that the
+presentation has to be designed around rather than discovering later.  Three
+things shall bound what a page costs: thumbnails shall be small, no page shall
+carry the whole result set, and images the reader has not scrolled to shall not
+be fetched.  The parameters controlling this shall be config options, since the
+binding constraint is a property of the host rather than of the analysis.
+
+**The published output shall not need to be regenerated to be extended.**  The
+index shall be derived from the manifest alone, so that facets added later ---
+region, observational reference, a second simulation to compare against --- and
+richer presentation --- per-product pages carrying provenance and the code that
+reproduces a figure, filtering, search --- can be added without changing any
+step, any manifest fragment already written, or any published path.  The
+broader intent this serves is in {ref}`design-ocean-analysis`.
+
+What this deliverable does *not* owe is a considered visual design.  A gallery
+following MPAS-Analysis's familiar layout, and no more, is what Phase 1 ships.
 
 ### Requirement: omega-monthly-means
 
@@ -1075,7 +1119,7 @@ open questions.
 
 ### Implementation: analysis-suite
 
-Date last modified: 2026/08/27
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1181,8 +1225,10 @@ simulation_path =
 # A short name for the simulation, used in plot titles and file names
 simulation_name = omega
 
-# Where to stage plots and their netCDF files for browsing, organized by
-# product and date range.  Defaults to <work_dir>/analysis_output.
+# Where to publish plots, their netCDF files, thumbnails, and the generated
+# gallery.  Defaults to <work_dir>/analysis_output.  Point this somewhere
+# web-servable if you want to share the results.  The thumbnail options that
+# go with it are given under `publication`.
 output_path =
 
 # The horizontal mesh file, absolute or relative to simulation_path.  Defaults
@@ -1484,7 +1530,7 @@ list above rather than from a spot measurement of one configuration.
 
 ### Implementation: data-products
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1493,7 +1539,7 @@ name containing the plotted field, its coordinates, units, and the config
 options --- including the date range --- that produced it as global attributes.
 Both go in the step's own subdirectory, are described in the step's manifest
 fragment, and are published into the staging tree by symlink, as described
-under `repeated-analysis`.
+under `publication`.
 
 The manifest is what carries the facets that identify a product --- field,
 season, vertical reduction, date range, and later region and observational
@@ -1513,7 +1559,7 @@ provenance stamp that makes them safe to inherit across runs.
 
 ### Implementation: repeated-analysis
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1655,74 +1701,6 @@ pool inside the step rather than over steps.  This follows principle 3 in
 {ref}`design-ocean-analysis`, and it means the analysis gets its concurrency
 from a capability that exists today rather than from task parallelism.
 
-#### Publishing results
-
-The work tree is built for predictability, not for browsing, so results are
-published into a separate staging tree whose root is a config option.  This is
-principle 1 in {ref}`design-ocean-analysis`: two trees, two audiences.
-
-```ini
-[ocean_analysis]
-
-# Where to publish plots and their netCDF files for browsing.  Defaults to
-# <work_dir>/analysis_output.  Point this somewhere web-servable if you want
-# to share the results.
-output_path =
-```
-
-**Every step writes a manifest fragment.**  Alongside its outputs, each step
-writes `manifest.json` describing every product it made and the facets that
-identify it:
-
-```json
-{"products": [
-  {"png": "temperature_ANN_-100m.png",
-   "nc": "temperature_ANN_-100m.nc",
-   "group": "climatology_maps", "field": "temperature",
-   "season": "ANN", "reduction": "-100m",
-   "start_year": 21, "end_year": 40,
-   "title": "Potential temperature at 100 m, ANN, years 21-40"}]}
-```
-
-**A `publish` step collects them.**  One cheap step per suite reads every
-fragment, symlinks each product into the staging tree, and writes the merged
-manifest.  It works from the fragments rather than from directory structure,
-which is what lets the work be re-chunked later without disturbing output
-paths, links, or a gallery --- principle 2.  A product whose fragment is
-present but whose file is missing is reported rather than silently omitted.
-
-**Generating an index over that tree is not in Phase 1.**  A flat directory of
-PNGs and netCDF is enough for the Ocean Team to work from, and the gallery is
-Phase 2 in {ref}`design-ocean-analysis`.  What Phase 1 owes it is the merged
-manifest, which is everything a gallery generator needs and is the reason it
-can be added later without touching a single step.
-
-**The staging tree is shallow, with descriptive filenames.**  A shallow tree is
-easier to archive, to serve, and to diff between two analyses, and it is what a
-generated index wants underneath it when one arrives:
-
-```none
-<output_path>/
-├── manifest.json                                   (the merged manifest)
-└── plots/
-    ├── climatology_maps_temperature_ANN_-100m_0021-0040.png
-    ├── climatology_maps_temperature_ANN_-100m_0021-0040.nc
-    ├── climatology_maps_heat_content_ANN_top_to_-700m_0021-0040.png
-    ├── heat_content_series_0001-0060.png
-    └── …
-```
-
-The filename is the facets in a fixed order, so it sorts usefully, greps
-usefully, and cannot collide between two ranges.  Range keys are the
-zero-padded start and end years, matching the convention `ncclimo` already uses
-in its file names.  This follows MPAS-Analysis, where the experience with a
-flat plot directory plus a generated gallery has been good.
-
-**Products are published by symlink** from the step that owns them, so each
-file has exactly one owner, Polaris's output checking continues to work, and
-the staging tree is a view rather than a second source of truth.  Results from
-different ranges coexist because the range is in the filename.
-
 #### Replotting
 
 Re-running with an unchanged range recomputes nothing, which is what the
@@ -1761,6 +1739,264 @@ earlier range nearly free, but it is worth knowing about on a filesystem with a
 quota.  The climatology files dominate: an accumulator cache for a reduced
 series is kilobytes, while a full set of `ncclimo` output is a copy of the
 requested fields for every season.
+
+### Implementation: publication
+
+Date last modified: 2026/08/29
+
+Contributors: Xylar Asay-Davis, Claude
+
+The work tree is built for predictability, not for browsing, so results are
+published into a separate staging tree whose root is a config option.  This is
+principle 1 in {ref}`design-ocean-analysis`: two trees, two audiences.
+
+#### Where the code lives, and on which branch
+
+Publication is three pieces, and keeping them apart is what lets presentation
+change without touching a step:
+
+- the **manifest writer**, which a plotting step calls once per product;
+- the **collector**, which merges the fragments, publishes each product, and
+  renders its thumbnail;
+- the **site generator**, which renders the index from the merged manifest.
+
+None of the three knows anything about the ocean --- the writer takes arbitrary
+facets, and the generator renders whatever the manifest holds --- so all three
+live in a component-neutral `polaris/analysis/` package beside `polaris/viz/`,
+rather than under `polaris/tasks/ocean/analysis/` to be moved when a second
+component wants them.  The templates ship as package data named `*.template`,
+which `MANIFEST.in` already includes.  `jinja2` and `pillow` are both already
+in the environment --- `jinja2` is used by `polaris/streams.py` and `pillow`
+arrives with `matplotlib` --- but both become direct dependencies here and are
+declared as such in `pyproject.toml`.
+
+Following the branch rules in {ref}`design-ocean-analysis`, this work is a
+branch cut from the analysis scaffolding rather than from either arm of
+products, because the manifest writer is a dependency of every plotting step
+and shared infrastructure is cut below its consumers.  The consequence is
+deliberate and is recorded here so that it is not rediscovered: the branches
+that add products rebase onto this one, and each gains one commit that emits
+its own manifest fragments.
+
+#### Config options
+
+```ini
+[ocean_analysis]
+
+# Where to publish plots, their netCDF files, thumbnails, and the generated
+# gallery.  Defaults to <work_dir>/analysis_output.  Point this somewhere
+# web-servable if you want to share the results.
+output_path =
+
+# The width in pixels of the thumbnail generated for each plot.  Thumbnails
+# are what make a few hundred plots browsable, and their total size is what
+# decides whether a gallery page loads over a throttled link, so this is the
+# first thing to reduce if pages are slow to appear.
+thumbnail_width = 320
+
+# The image format for thumbnails, jpeg or webp.  webp is roughly a quarter
+# smaller at the same quality and every current browser reads it; jpeg is the
+# safer default.
+thumbnail_format = jpeg
+
+# The compression quality of thumbnails, from 1 to 100.  Above about 80 the
+# bytes grow quickly and a thumbnail does not look better.
+thumbnail_quality = 75
+```
+
+#### Every step writes a manifest fragment
+
+Alongside its outputs, each step writes `manifest.json` describing every
+product it made and the facets that identify it:
+
+```json
+{"products": [
+  {"png": "temperature_ANN_-100m.png",
+   "nc": "temperature_ANN_-100m.nc",
+   "group": "climatology_maps", "gallery": "temperature",
+   "field": "temperature", "season": "ANN", "reduction": "-100m",
+   "start_year": 21, "end_year": 40,
+   "title": "Potential temperature at 100 m, ANN, years 21-40"}]}
+```
+
+Three rules keep this from growing into a format that needs a specification.
+
+**A step fills the facets; the collector fills everything else.**  The
+published name and the thumbnail are added by the collector when it publishes,
+so a step never has to know the staging tree's layout, and a change to that
+layout is a change to one step.
+
+**Only `group` and `gallery` shape the site.**  Every other facet is caption
+material today and filter material later.  This is the hinge that makes the
+extensibility requirement cheap: adding a `region` facet adds a key to the
+fragment and a word to the caption, and changes nothing in the generator.
+
+**Order is meaning, so the collector preserves it.**  Products keep the order
+they appear in within a fragment, and fragments are ordered by group and
+gallery.  A gallery therefore reads ANN, DJF, MAM, JJA, SON because that is the
+order the step plotted them in, and no sort key, season-ordering table, or
+comparator has to exist anywhere.
+
+The manifest is what carries the facets that identify a product --- field,
+season, vertical reduction, date range, and later region and observational
+reference.  Encoding those in the path instead would mean a directory level per
+facet, and a path has one dimension where the metadata has six.
+
+#### A `publish` step collects, thumbnails, and generates
+
+One cheap step per suite reads every fragment and, in order: symlinks each
+product into the staging tree, renders a thumbnail for each plot, writes the
+merged manifest, and generates the site over it.  It works from the fragments
+rather than from directory structure, which is what lets the work be re-chunked
+later without disturbing output paths, links, or the gallery --- principle 2.
+A product whose fragment is present but whose file is missing is reported
+rather than silently omitted.
+
+Because it is the only step that knows how results are presented, everything in
+the two sections below can change without a single plotting step changing.
+
+#### The staging tree
+
+The staging tree is shallow, with descriptive filenames.  A shallow tree is
+easier to archive, to serve, and to diff between two analyses:
+
+```none
+<output_path>/
+├── index.html                                      (the gallery groups)
+├── manifest.json                                   (the merged manifest)
+├── galleries/
+│   ├── climatology_maps_temperature_0021-0040.html
+│   └── …
+├── plots/
+│   ├── climatology_maps_temperature_ANN_-100m_0021-0040.png
+│   ├── climatology_maps_temperature_ANN_-100m_0021-0040.nc
+│   ├── climatology_maps_heat_content_ANN_top_to_-700m_0021-0040.png
+│   ├── heat_content_series_0001-0060.png
+│   └── …
+└── thumbnails/
+    └── climatology_maps_temperature_ANN_-100m_0021-0040.jpg
+```
+
+The filename is the facets in a fixed order, so it sorts usefully, greps
+usefully, and cannot collide between two ranges.  Range keys are the
+zero-padded start and end years, matching the convention `ncclimo` already uses
+in its file names.  This follows MPAS-Analysis, where the experience with a
+flat plot directory plus a generated gallery has been good.
+
+**Products are published by symlink** from the step that owns them, so each
+file has exactly one owner, Polaris's output checking continues to work, and
+the staging tree is a view rather than a second source of truth.  Results from
+different ranges coexist because the range is in the filename.
+
+Thumbnails are the exception: they are generated files with no owner upstream,
+so they are real files in the staging tree rather than symlinks, and they are
+regenerated only when missing or older than the plot they came from.  Adding
+one product to an existing analysis therefore costs one thumbnail, not three
+hundred.
+
+#### Thumbnails
+
+Each thumbnail is made from the published PNG with `pillow`: the image is
+flattened onto white, since the plots are written with an alpha channel and
+neither JPEG nor a gallery wants transparency, scaled to `thumbnail_width`
+preserving aspect ratio, and written in `thumbnail_format` at
+`thumbnail_quality`.
+
+Making them here rather than in the plotting steps is deliberate.  It keeps the
+plotting steps ignorant of presentation, it keeps the policy in one place where
+changing it re-renders everything consistently, and it means a thumbnail can be
+regenerated from what was published without re-running any analysis.
+
+The measured cost, on the three-panel MPAS-Analysis figure used for the
+comparison below, is 20 ms per image to decode, scale, and encode.  A default
+Phase 1 analysis is on the order of a hundred products, so the whole pass is a
+few seconds.  Memory is one image at a time.  The loop is embarrassingly
+parallel and is an obvious candidate for principle 3's in-step pool if the
+product count ever grows enough to matter; Phase 1 runs it serially with
+`cpus_per_task = 1`.
+
+#### The generated site
+
+The site follows MPAS-Analysis's shape, because that is what the Ocean Team
+already knows how to navigate:
+
+- a **gallery group** is a section of the landing page: a product group for one
+  date range, such as "Climatology maps, years 0021-0040".  The collector
+  composes this from the `group` facet and the range rather than the step
+  naming it, so a step stays unaware that ranges accumulate side by side.
+- a **gallery** is one page of thumbnails within a group, such as the maps of
+  potential temperature, and is identified by the `gallery` facet.
+- the landing page shows each group with one representative thumbnail per
+  gallery --- the gallery's first product, which is deterministic because order
+  is preserved --- so the reader chooses a gallery by looking rather than by
+  reading names.
+
+Clicking a thumbnail opens the full PNG, with the netCDF linked beside it.
+That link target is the one thing that changes when per-product pages arrive.
+
+The pages are rendered from `jinja2` templates with the CSS inlined, so a page
+costs one HTML request and its images, and no stylesheet request.  There is no
+JavaScript: the site works from `file://`, from `python -m http.server`, and
+from the LCRC portal identically, and there is nothing to break when a browser
+changes.  Every `<img>` carries `loading="lazy"` so that thumbnails below the
+fold are not fetched until they are scrolled to, and explicit `width` and
+`height` so that lazy loading does not make the page reflow as images arrive.
+Both are plain HTML attributes supported by every current browser.
+
+Every page carries the simulation name, the date ranges, and the Polaris
+provenance from `polaris/provenance.py`, so a page found later can be traced
+back to what produced it.
+
+#### What a page costs
+
+This is the number the design exists to control, so it is worth writing down
+rather than asserting.
+
+The reference is a real MPAS-Analysis result: one page of its ocean output
+carries **1641 thumbnails at roughly 46 kB each**, all fetched eagerly, which
+is about **75 MB in 1641 requests** before the page settles.  Its thumbnails
+are 480 px wide and lightly compressed.  This is the behavior that stalls on a
+throttled link.
+
+Measured against a Polaris single-panel global map reduced to the defaults
+above, a thumbnail is **about 13 kB** as JPEG at 320 px and quality 75, or
+about 10 kB as WebP.  With the default field and season lists a climatology-map
+gallery holds roughly fifteen products, so a gallery page is a ~10 kB document
+plus ~200 kB of thumbnails, of which lazy loading fetches only the visible rows
+--- on the order of **100 kB** before the page is usable.  The landing page
+carries one thumbnail per gallery, so it is of the same order.
+
+The three levers act independently, which is why all three are used: small
+thumbnails cut the bytes per image by a factor of three or four against the
+reference, gallery pages cut the images per page by two orders of magnitude,
+and lazy loading cuts what is fetched before the page settles to the handful
+that are visible.  A single page never asks for a full PNG.
+
+What is *not* known is whether the LCRC portal throttles bytes or requests.
+Everything above helps with either, but the remedies differ if requests are the
+binding constraint --- a sprite sheet, or thumbnails inlined in the page as
+data URIs --- and both are worse in every other way.  Deciding between them
+should follow a measurement against the portal rather than a guess; that
+measurement is listed under testing below, and the alternatives are recorded
+among the deferred items in {ref}`design-ocean-analysis`.
+
+#### Where this is extended
+
+Four extensions are expected, and none requires a step, a fragment, or a
+published path to change:
+
+- **New facets** --- region, an observational reference, a second simulation to
+  compare against --- are new keys in the fragment and new words in a caption.
+  Only a facet that should become a new gallery or group touches the generator.
+- **Per-product pages**, carrying the provenance and the code that reproduces a
+  figure in the way E3SM-Diags does, are a new template and a changed link
+  target.  The manifest already holds everything such a page would show except
+  the recipe itself.
+- **Filtering and search** across facets are a client-side layer over
+  `manifest.json`, which the site already publishes beside the pages for
+  exactly this reason.
+- **A different visual design** is templates and CSS.
+
 
 ### Implementation: omega-monthly-means
 
@@ -2382,13 +2618,15 @@ quietly, so this is the first thing to build once the products are out.
 
 ### Implementation: order of work
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/29
 
 Contributors: Xylar Asay-Davis, Claude
 
-Each entry below is a coherent, independently reviewable piece of work, not a
-single commit --- most will take several --- and each leaves the suite working
-for the products delivered so far.
+Each entry below is a branch, following the branch rules in
+{ref}`design-ocean-analysis`: a coherent, independently reviewable piece of
+work carrying its code, its unit tests, and its User's Guide documentation,
+leaving the suite working for the products delivered so far.  Design changes
+are not among them, since those land on the design branch.
 
 The order is by deliverable priority rather than by dependency depth, which is
 why the vertical machinery comes late.  Slicing by layer index needs no
@@ -2417,9 +2655,13 @@ product that already works rather than gating it.
 5. The `ClimatologyMaps` step, restricted to fields with no vertical dimension
    and to slicing by layer index.  The first maps on disk, and no vertical
    geometry needed.
-6. The manifest writer and the `publish` step.  Here rather than earlier so
-   that it is built against products that exist, and here rather than later so
-   that only one step needs its manifest fragment retrofitted.
+6. Publication: the manifest writer, the `publish` step that collects and
+   renders thumbnails, and the generated gallery over the staging tree, as
+   designed under `publication`.  Its position in this list is a priority
+   rather than a dependency: it is cut from item 2 and not from the products,
+   because the manifest writer is a dependency of every plotting step.  The
+   product branches above it therefore rebase onto it, each gaining one commit
+   that emits its own fragments.
 7. `polaris/ocean/heat_content.py` and whole-column mass weights, with unit
    tests.
 8. The `heat_content` field group of `ClimatologyMaps`, whole column only.
@@ -2436,15 +2678,20 @@ product that already works rather than gating it.
 13. The `replot` option.
 14. The offline `mixed_layer_depth` accumulator and its climatology, only if
     Omega's in-situ diagnostic will not be ready in time.
-15. User's Guide documentation: a page under `docs/users_guide/ocean/tasks/`
-    describing the analysis suite and its config options, and an entry in
-    `docs/users_guide/ocean/suites.md`.
+
+User's Guide documentation is not a work item of its own.  Each branch above
+brings the page or the section that documents what it added --- a page under
+`docs/users_guide/ocean/tasks/` for the suite and its config options, and an
+entry in `docs/users_guide/ocean/suites.md` --- because a capability that ships
+undocumented is not finished, and the moment its behavior is fresh is the
+moment to write it down.
 
 Deferred past this deliverable, and designed in
 {ref}`design-ocean-analysis` rather than here: splitting accumulators into
-several steps, process pools inside steps, the generated gallery over the
-staging tree, the mechanical conformance checks, and the `analysis_test` task
-and its suite.
+several steps, process pools inside steps, a considered visual design for the
+gallery and the per-product pages that would carry a figure's provenance and
+recipe, the mechanical conformance checks, and the `analysis_test` task and its
+suite.
 
 ## Testing
 
@@ -2531,6 +2778,57 @@ it ran:
 Finally, a check that the range recorded in a netCDF file's attributes matches
 the range in its path, which is what would catch a plot labeled with the wrong
 range if the step tree and the metadata ever drifted apart.
+
+### Testing and Validation: publication
+
+Date last modified: 2026/08/29
+
+Contributors: Xylar Asay-Davis, Claude
+
+Publication is cheap to test properly because none of it needs a simulation: a
+few hand-written manifest fragments and a handful of small PNGs exercise every
+path.  The unit tests live with the branch that adds them.
+
+On the manifest and the collector:
+
+- fragments written by the writer round-trip through the collector, and the
+  merged manifest names every product the fragments did;
+- a fragment naming a file that is not on disk is reported rather than
+  silently omitted, which is the failure this design promises to catch;
+- order is preserved --- products keep their within-fragment order and
+  fragments are ordered by group and gallery --- since a gallery reading ANN,
+  DJF, MAM, JJA, SON rests on nothing else;
+- two ranges of the same product publish to distinct names and both survive,
+  which is the same guarantee `repeated-analysis` makes, checked here on the
+  staging tree rather than the work tree.
+
+On thumbnails:
+
+- one is generated for every plot, at the configured width, in the configured
+  format, and is smaller than its PNG by the order of magnitude the design
+  claims --- a bound rather than an exact size, since encoders differ;
+- a thumbnail already newer than its plot is not regenerated, which is what
+  keeps adding one product from costing three hundred;
+- a PNG with an alpha channel produces a thumbnail with no transparency,
+  since that is what silently produces black backgrounds otherwise.
+
+On the generated site:
+
+- every link and every `src` in the generated HTML resolves to a file that
+  exists, which is the check that a broken gallery fails on;
+- every product in the merged manifest appears on exactly one gallery page,
+  and every gallery is reachable from the landing page;
+- every `<img>` carries `loading="lazy"` and explicit dimensions.  This is a
+  test of the thing that is easiest to lose in a template edit and whose loss
+  is invisible until a page is served over a throttled link.
+
+One thing here cannot be a unit test and should not be pretended into one.
+**Whether the LCRC portal throttles bytes or requests is unknown**, and it
+decides which further measures are worth taking.  The measurement is to publish
+a realistic result set to the portal and time a cold load of the largest
+gallery page, with the browser's network panel showing whether the limit is
+reached in bytes or in concurrent requests.  This should be done once the first
+real analysis is published, and the answer recorded here.
 
 ### Testing and Validation: climatology
 
