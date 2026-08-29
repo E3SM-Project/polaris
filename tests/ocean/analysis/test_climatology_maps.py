@@ -26,6 +26,7 @@ import pytest
 import xarray as xr
 
 from polaris.config import PolarisConfigParser
+from polaris.constants import get_constant
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.analysis import (
     climatology_maps as climatology_maps_module,
@@ -35,6 +36,7 @@ from polaris.tasks.ocean.analysis.climatology_maps import (
     ClimatologyMaps,
     get_field_groups,
 )
+from polaris.tasks.ocean.analysis.heat_content_config import get_specific_heat
 
 N_CELLS = 5
 N_LEVELS = 4
@@ -164,8 +166,128 @@ def test_the_field_groups_cover_the_fields_that_are_asked_for():
     groups = get_field_groups(['ssh', 'temperature'])
     assert groups['temperature'] == ['temperature']
     assert groups['ssh'] == ['ssh']
-    # heat content is derived, so it is always there
-    assert groups['heat_content'] == []
+    # heat content is derived rather than listed, so it is always there
+    assert groups['heat_content'] == ['heat_content']
+
+
+def test_a_heat_content_map_is_plotted_for_each_season_and_range(ohc_step):
+    """Every range the config asks for, which by default is three bands and
+    the whole column."""
+    ohc_step.run()
+    assert _images(ohc_step) == {
+        f'heat_content_{season}_{label}.png'
+        for season in SEASONS
+        for label in (
+            'top_to_-700m',
+            '-700m_to_-2000m',
+            '-2000m_to_bottom',
+            'top_to_bottom',
+        )
+    }
+
+
+def test_the_heat_content_written_is_the_mass_weighted_integral(ohc_step):
+    """The synthetic column is uniform in thickness and linear in depth, so
+    the whole-column answer can be written down."""
+    ohc_step.run()
+    rho_sw = get_constant('seawater_density_reference')
+    specific_heat = get_specific_heat(ohc_step.config)
+    # MinLayerCell is 1 and MaxLayerCell is N_LEVELS in the one-based
+    # indices both models write, so every layer of every column is valid
+    levels = np.arange(N_LEVELS)
+    with xr.open_dataset(
+        os.path.join(ohc_step.work_dir, 'heat_content_ANN_top_to_bottom.nc')
+    ) as ds:
+        values = ds.heat_content.values
+    for cell in range(N_CELLS):
+        # the climatology holds cell + 10 * level for season ANN, index 0
+        temperature = cell + 10.0 * levels
+        expected = specific_heat * np.sum(temperature * rho_sw * THICKNESS)
+        assert values[cell] == pytest.approx(expected)
+
+
+def test_the_heat_content_file_says_which_range_it_is(ohc_step):
+    ohc_step.run()
+    with xr.open_dataset(
+        os.path.join(ohc_step.work_dir, 'heat_content_JJA_top_to_bottom.nc')
+    ) as ds:
+        assert ds.attrs['field'] == 'heat_content'
+        assert ds.attrs['season'] == 'JJA'
+        assert ds.attrs['vertical_reduction'] == 'top_to_bottom'
+        assert ds.attrs['elevation_range_top'] == 'top'
+        assert ds.attrs['elevation_range_bottom'] == 'bottom'
+        assert ds.heat_content.attrs['units'] == 'J m-2'
+
+
+def test_heat_content_is_written_in_joules_and_plotted_in_gigajoules(
+    ohc_step, monkeypatch
+):
+    """A whole column at a typical temperature is a few hundred GJ m-2 and a
+    few times 10^11 J m-2, so the plot uses the readable one while the file
+    keeps the unit the quantity means."""
+    plotted = {}
+
+    def record(da, out_filename, config, colormap_section, **kwargs):
+        plotted['units'] = da.attrs['units']
+        plotted['values'] = np.array(da.values)
+        return _fake_plot(da, out_filename, config, colormap_section, **kwargs)
+
+    monkeypatch.setattr(
+        climatology_maps_module, 'plot_global_mpas_field', record
+    )
+    ohc_step.run()
+    assert plotted['units'] == 'GJ m-2'
+    with xr.open_dataset(
+        os.path.join(ohc_step.work_dir, 'heat_content_JJA_top_to_bottom.nc')
+    ) as ds:
+        np.testing.assert_allclose(
+            plotted['values'], ds.heat_content.values / 1.0e9
+        )
+
+
+def test_a_heat_content_map_is_plotted_over_a_partial_range(ohc_step):
+    """-150 m is halfway through the second layer of this uniform 100 m
+    grid, so the range covers the top layer whole and half of the next."""
+    ohc_step.config.set(
+        'ocean_analysis_ohc',
+        'elevation_ranges',
+        'top:-150.0, top:bottom',
+        user=True,
+    )
+    ohc_step.run()
+    assert _images(ohc_step) == {
+        f'heat_content_{season}_{label}.png'
+        for season in SEASONS
+        for label in ('top_to_-150m', 'top_to_bottom')
+    }
+
+    rho_sw = get_constant('seawater_density_reference')
+    specific_heat = get_specific_heat(ohc_step.config)
+    with xr.open_dataset(
+        os.path.join(ohc_step.work_dir, 'heat_content_ANN_top_to_-150m.nc')
+    ) as ds:
+        values = ds.heat_content.values
+    for cell in range(N_CELLS):
+        temperature = cell + 10.0 * np.arange(N_LEVELS)
+        mass = rho_sw * THICKNESS * np.array([1.0, 0.5, 0.0, 0.0])
+        expected = specific_heat * np.sum(temperature * mass)
+        assert values[cell] == pytest.approx(expected)
+
+
+def test_heat_content_is_skipped_without_the_thickness_it_needs(
+    ohc_step, caplog, tmp_path
+):
+    """A simulation that did not write the mass-like thickness gets a message
+    rather than a broken step."""
+    for filename in os.listdir(str(tmp_path / 'climatology')):
+        path = str(tmp_path / 'climatology' / filename)
+        with xr.open_dataset(path) as ds:
+            trimmed = ds.drop_vars('PseudoThickness').load()
+        trimmed.to_netcdf(path)
+    with caplog.at_level(logging.INFO):
+        ohc_step.run()
+    assert 'did not write PseudoThickness' in caplog.text
+    assert not _images(ohc_step)
 
 
 def test_a_field_in_no_group_is_reported():
@@ -181,6 +303,11 @@ def step(tmp_path, monkeypatch):
 @pytest.fixture
 def ssh_step(tmp_path, monkeypatch):
     return _make_step(tmp_path, monkeypatch, 'ssh', ['ssh'])
+
+
+@pytest.fixture
+def ohc_step(tmp_path, monkeypatch):
+    return _make_step(tmp_path, monkeypatch, 'heat_content', ['heat_content'])
 
 
 def _make_step(tmp_path, monkeypatch, field_group, fields):
