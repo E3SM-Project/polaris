@@ -1,0 +1,21 @@
+{% extends "base.template" %}
+{% block content %}
+<p class="back"><a href="{{ index_href }}">&larr; All results</a></p>
+<h2>{{ gallery.title }}</h2>
+<ul class="grid">
+{% for product in gallery.products %}
+<li class="card">
+<a href="{{ prefix }}{{ product.plot }}">
+<img src="{{ prefix }}{{ product.thumbnail }}"
+     width="{{ product.thumbnail_width }}"
+     height="{{ product.thumbnail_height }}" loading="lazy"
+     alt="{{ product.title }}">
+<span class="caption">{{ product.title }}</span>
+</a>
+{% if product.data %}
+<span class="data"><a href="{{ prefix }}{{ product.data }}">netCDF</a></span>
+{% endif %}
+</li>
+{% endfor %}
+</ul>
+{% endblock %}

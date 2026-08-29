@@ -1,12 +1,13 @@
 import json
 import os
 
-from polaris.analysis.manifest import read_fragment
+from polaris.analysis.manifest import range_key, read_fragment
 from polaris.analysis.thumbnail import (
     DEFAULT_FORMAT,
     DEFAULT_QUALITY,
     DEFAULT_SIZE,
     THUMBNAILS_DIRNAME,
+    image_size,
     make_thumbnail,
     thumbnail_name,
 )
@@ -40,9 +41,9 @@ def published_basename(product, filename):
     """
     stem, suffix = os.path.splitext(os.path.basename(filename))
     parts = [product.group, stem]
-    range_key = _range_key(product)
-    if range_key is not None:
-        parts.append(range_key)
+    key = range_key(product.facets)
+    if key is not None:
+        parts.append(key)
     return f'{"_".join(parts)}{suffix}'
 
 
@@ -186,32 +187,27 @@ def _symlink(source, link_path):
     os.symlink(source, link_path)
 
 
-def _range_key(product):
-    """The zero-padded range of years, if the product covers one"""
-    start = product.facets.get('start_year')
-    end = product.facets.get('end_year')
-    if start is None or end is None:
-        return None
-    return f'{int(start):04d}-{int(end):04d}'
-
-
 def _add_thumbnails(published, output_path, size, image_format, quality):
     """Render a thumbnail for each published plot and record it"""
     rendered = 0
     for entry in published:
         basename = os.path.basename(entry['plot'])
         name = thumbnail_name(basename, image_format)
+        filename = os.path.join(output_path, THUMBNAILS_DIRNAME, name)
         if make_thumbnail(
             plot_filename=os.path.join(output_path, entry['plot']),
-            thumbnail_filename=os.path.join(
-                output_path, THUMBNAILS_DIRNAME, name
-            ),
+            thumbnail_filename=filename,
             size=size,
             image_format=image_format,
             quality=quality,
         ):
             rendered += 1
         entry['thumbnail'] = os.path.join(THUMBNAILS_DIRNAME, name)
+        # the generated page gives every image its own width and height, so
+        # that lazy loading does not make the page reflow as they arrive
+        width, height = image_size(filename)
+        entry['thumbnail_width'] = width
+        entry['thumbnail_height'] = height
     return rendered
 
 

@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 from polaris.build.omega import detect_omega_build_type
+from polaris.version import __version__
 
 
 def write(
@@ -46,14 +47,7 @@ mache.parallel.pbs.PbsOptions}, optional
         returned by :py:func:`polaris.job.write_job_script()`.  If not
         provided, no scheduler metadata is recorded.
     """
-    polaris_git_version = None
-    if os.path.exists('.git'):
-        try:
-            args = ['git', 'describe', '--tags', '--dirty', '--always']
-            polaris_git_version = subprocess.check_output(args).decode('utf-8')
-            polaris_git_version = polaris_git_version.strip('\n')
-        except subprocess.CalledProcessError:
-            pass
+    polaris_git_version = _get_polaris_git_version()
 
     if config is None:
         # this is a call to clean and we don't need to document the component
@@ -138,6 +132,52 @@ mache.parallel.pbs.PbsOptions}, optional
         '*********************\n'
     )
     provenance_file.close()
+
+
+def get_summary(config=None):
+    """
+    Get a short provenance of the Polaris that is running
+
+    This is the provenance in the form something presented to a reader can
+    carry --- a generated page, a report --- rather than the file
+    :py:func:`polaris.provenance.write` writes, which is exhaustive.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser, optional
+        The config options, used to record the version of the component that
+        was built, if there is one
+
+    Returns
+    -------
+    summary : dict
+        Labels and the values they had, in the order they are worth reading
+    """
+    summary = {'polaris version': __version__}
+
+    polaris_git_version = _get_polaris_git_version()
+    if polaris_git_version is not None:
+        summary['polaris git version'] = polaris_git_version
+
+    if config is not None:
+        component_git_version = _get_component_git_version(config)
+        if component_git_version is not None:
+            summary['component git version'] = component_git_version
+
+    summary['command'] = ' '.join(sys.argv)
+    return summary
+
+
+def _get_polaris_git_version():
+    """The git version of the Polaris being run, if it is a git checkout"""
+    if not os.path.exists('.git'):
+        return None
+    try:
+        args = ['git', 'describe', '--tags', '--dirty', '--always']
+        version = subprocess.check_output(args).decode('utf-8')
+    except subprocess.CalledProcessError:
+        return None
+    return version.strip('\n')
 
 
 def _get_component_git_version(config):

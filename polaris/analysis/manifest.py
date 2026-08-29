@@ -240,6 +240,34 @@ class Manifest:
         return filename
 
 
+def range_key(facets):
+    """
+    Get the zero-padded range of years a product covers, if it covers one
+
+    The range is what keeps two analyses of the same simulation from
+    colliding, in a published file name and in a gallery, so it is written
+    the same way everywhere: the convention ``ncclimo`` already uses in its
+    own file names.
+
+    Parameters
+    ----------
+    facets : dict
+        A product's facets, or an entry of the merged manifest, which may or
+        may not have ``start_year`` and ``end_year``
+
+    Returns
+    -------
+    key : str or None
+        The range as ``<start>-<end>``, or ``None`` for a product that covers
+        no particular range of years
+    """
+    start = facets.get('start_year')
+    end = facets.get('end_year')
+    if start is None or end is None:
+        return None
+    return f'{int(start):04d}-{int(end):04d}'
+
+
 def read_fragment(filename):
     """
     Read one manifest fragment written by a step

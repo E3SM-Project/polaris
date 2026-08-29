@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page_title }}</title>
+<style>
+:root { --edge: #d8dde3; --muted: #5b6570; --link: #14568c; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0 1.5rem 3rem;
+       font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+       color: #1c2229; background: #fff; }
+a { color: var(--link); }
+header, main, footer { max-width: 76rem; margin: 0 auto; }
+header { padding: 1.5rem 0 1rem; border-bottom: 1px solid var(--edge); }
+h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; }
+p.subtitle, p.back { color: var(--muted); margin: 0.25rem 0; }
+p.back { padding-top: 1rem; }
+p.empty { color: var(--muted); padding: 2rem 0; }
+ul.grid { display: flex; flex-wrap: wrap; gap: 1rem;
+          list-style: none; margin: 0; padding: 0; }
+li.card { border: 1px solid var(--edge); border-radius: 4px;
+          padding: 0.5rem; width: 22rem; }
+li.card img { display: block; margin: 0 auto 0.5rem;
+              max-width: 100%; height: auto; }
+li.card a { text-decoration: none; }
+span.caption { display: block; font-size: 0.85rem; line-height: 1.3;
+               color: #1c2229; }
+span.count, span.data { display: block; font-size: 0.8rem;
+                        color: var(--muted); margin-top: 0.25rem; }
+footer { border-top: 1px solid var(--edge); margin-top: 2.5rem;
+         padding-top: 1rem; font-size: 0.8rem; color: var(--muted); }
+footer h2 { font-size: 0.9rem; margin: 0 0 0.5rem; }
+footer dl { display: grid; grid-template-columns: max-content 1fr;
+            gap: 0.15rem 1rem; margin: 0; }
+footer dt { font-weight: 600; }
+footer dd { margin: 0; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<header>
+<h1>{{ title }}</h1>
+{% if subtitle %}
+<p class="subtitle">{{ subtitle }}</p>
+{% endif %}
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>
+<h2>Provenance</h2>
+<dl>
+{% for label, value in provenance %}
+<dt>{{ label }}</dt><dd>{{ value }}</dd>
+{% endfor %}
+</dl>
+</footer>
+</body>
+</html>

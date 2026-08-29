@@ -38,6 +38,27 @@ def thumbnail_name(basename, image_format=DEFAULT_FORMAT):
     return f'{os.path.splitext(basename)[0]}{suffix}'
 
 
+def image_size(filename):
+    """
+    Get the size of an image in pixels
+
+    Parameters
+    ----------
+    filename : str
+        The image to measure
+
+    Returns
+    -------
+    width : int
+        The width in pixels
+
+    height : int
+        The height in pixels
+    """
+    with Image.open(filename) as image:
+        return image.size
+
+
 def make_thumbnail(
     plot_filename,
     thumbnail_filename,

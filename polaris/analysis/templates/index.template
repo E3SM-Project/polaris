@@ -1,0 +1,25 @@
+{% extends "base.template" %}
+{% block content %}
+{% if not groups %}
+<p class="empty">No products were published.</p>
+{% endif %}
+{% for group in groups %}
+<section>
+<h2>{{ group.title }}</h2>
+<ul class="grid">
+{% for gallery in group.galleries %}
+<li class="card">
+<a href="{{ prefix }}{{ gallery.href }}">
+<img src="{{ prefix }}{{ gallery.representative.thumbnail }}"
+     width="{{ gallery.representative.thumbnail_width }}"
+     height="{{ gallery.representative.thumbnail_height }}" loading="lazy"
+     alt="{{ gallery.representative.title }}">
+<span class="caption">{{ gallery.title }}</span>
+</a>
+<span class="count">{{ gallery.count }} plot{{ '' if gallery.count == 1 else 's' }}</span>
+</li>
+{% endfor %}
+</ul>
+</section>
+{% endfor %}
+{% endblock %}
