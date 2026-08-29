@@ -1,3 +1,6 @@
+from polaris.ocean.model.layer_mass import (
+    get_layer_mass as get_layer_mass,
+)
 from polaris.ocean.model.ocean_io_step import OceanIOStep as OceanIOStep
 from polaris.ocean.model.ocean_model_files_mixin import (
     OceanModelFilesMixin as OceanModelFilesMixin,
