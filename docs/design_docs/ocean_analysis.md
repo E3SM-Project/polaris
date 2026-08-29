@@ -893,6 +893,23 @@ consumers were written first --- which is why publication branches from the
 scaffolding rather than from the products, as described in
 {ref}`design-ocean-analysis-initial`.
 
+**A branch that changes a dependency ends with the alpha version bump.**
+Adding or re-pinning a package leaves every existing environment stale, and
+the load scripts notice only by comparing `polaris/version.py`.  Two habits
+follow, and they pull in opposite directions:
+
+- *Add the bump as soon as the dependency changes*, even though later commits
+  will land on top of it.  A bump in the wrong place is a rebase; a forgotten
+  one leaves everyone running against an environment that no longer matches
+  the code, and nothing reports it.
+- *Rebase it to the end before merge*, because a release marker sitting under
+  later work claims a version for a tree that is not the one released.
+
+The number depends on merge order, so it is provisional until the branch
+lands.  Say so in the commit message rather than leaving the next person to
+work out which assumption it rests on.  Several branches in flight at once can
+each expect the same next number, and only the first to merge is right.
+
 ### Implementation: items deferred from Phase 1
 
 Date last modified: 2026/08/29
