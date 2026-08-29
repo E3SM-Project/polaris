@@ -946,6 +946,20 @@ is explained in context in {ref}`design-ocean-analysis-initial`.
 - **Measure Polaris's per-step overhead** --- setup and run of a step that does
   nothing --- and record it under the organizing principles, so that the step
   sizing targets in principle 9 rest on a number rather than on judgment.
+- **Put the gallery where a reader can open it, with permissions that let them
+  read it.**  Phase 1 publishes into a staging tree wherever `output_path`
+  points and stops there; getting that tree onto a machine's web portal is a
+  manual copy, and nothing sets permissions.  Part of the answer is already at
+  hand: mache carries `[web_portal] base_path` and `base_url` for each
+  machine, and Polaris's merged config already exposes them, so publishing
+  under `base_path` and reporting the URL by substituting `base_url` for it is
+  the same move MPAS-Analysis makes.  Two parts are ours to settle.  Every
+  file and directory has to be world readable, which the default umask on
+  these machines does not give and which MPAS-Analysis does not handle either.
+  And products are published by symlink into the work tree, which a web server
+  cannot usefully follow into a private scratch directory --- so a staging
+  tree headed for a portal either holds copies rather than links, or the
+  single-owner rule in the publication design gives way somewhere else.
 
 Phase 1 also ships without concurrency of any kind, and without the presentation
 and verification layers designed around it.  These are deferred to Phase 2
