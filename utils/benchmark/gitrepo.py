@@ -761,7 +761,13 @@ def _check_dirty(path, model):
     ``--ignore-submodules=dirty``, which ignores a submodule's work tree
     but still reports one checked out at a commit other than the pinned
     one.  That matters for jigsaw-python and MALI-Dev, which affect
-    results but are not among the hashes ``compare_shas`` records.
+    results but are not among the hashes ``compare_shas`` records, and
+    which nothing later puts right.
+
+    The submodule the model is built from is the exception, and uses
+    ``--ignore-submodules=all``: polaris re-initializes the nested
+    submodules it builds against before it builds, so their commits are
+    not ours to police.
 
     An untracked file outside the ``polaris`` package is not dirty
     either.  A working polaris worktree normally carries notes, plan
@@ -829,7 +835,16 @@ def _check_dirty(path, model):
         # no source here to be dirty; ``git status`` in the empty
         # directory would walk up and report on polaris again
         return False, '', untracked
-    command = 'git status --porcelain --ignore-submodules=dirty'
+    # ...but inside that submodule, use =all rather than =dirty.  Polaris
+    # runs `git submodule update --init --recursive` over the nested
+    # submodules it builds against -- for Omega, ekat, scorpio,
+    # components/omega/external and cime -- as the first step of the build,
+    # so one of them sitting at a commit other than the pinned one is a
+    # state that the very next step resets.  Reporting it stops a benchmark
+    # for something that was about to be put right, and =dirty already
+    # ignored edits to a nested submodule's files, so =all gives up nothing
+    # that was being caught.
+    command = 'git status --porcelain --ignore-submodules=all'
     kind = 'uncommitted or untracked changes'
     if model in IN_SOURCE_BUILDS:
         command = f'{command} --untracked-files=no'
