@@ -4,6 +4,7 @@ import os
 import xarray as xr
 from mpas_tools.logging import check_call
 
+from polaris.ocean.model.layer_mass import MASS_THICKNESS_VARIABLES
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
 
 # ``ncclimo`` in background mode runs one process per month, so this is what
@@ -27,7 +28,7 @@ HEAT_CONTENT_VARIABLES = ('temperature',)
 # per unit area they imply and disagree on the geometry, so renaming one to
 # the other would hide the distinction that matters.  The analysis reads Omega
 # output only, so this is the Omega spelling.
-MASS_THICKNESS_VARIABLE = 'PseudoThickness'
+MASS_THICKNESS_VARIABLE = MASS_THICKNESS_VARIABLES['omega']
 
 # ``ncclimo`` names the twelve monthly climatologies by month number, so a
 # user who asks to plot JAN is asking for the file with 01 in its name
