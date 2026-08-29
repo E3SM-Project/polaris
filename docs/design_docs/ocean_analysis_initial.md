@@ -1280,6 +1280,22 @@ norm_args = {'vmin': -2., 'vmax': 32.}
 Sections for the fields we expect to plot ship with defaults; fields without a
 section fall back to the defaults in `polaris.viz.get_viz_defaults`.
 
+The section name is not the field name pasted onto a prefix.  Field names are
+the models' own and are therefore camel case, while Polaris config sections are
+lower case with underscores everywhere else in the codebase, and the sections
+this design adds are no exception.  A field's section is
+`ocean_analysis_map_<field, in lower case with underscores>`, so
+`velocityZonal` gets `[ocean_analysis_map_velocity_zonal]` and
+`mixedLayerDepth` gets `[ocean_analysis_map_mixed_layer_depth]`.
+
+That conversion is mechanical, so no step spells a section out.  A small helper
+module, `polaris/tasks/ocean/analysis/config_sections.py`, provides
+`camel_to_snake(name)` and `map_section(field)`, and every caller goes through
+`map_section`, so exactly one place knows the prefix and the spelling rule.  It
+is a leaf module with no Polaris imports, for the same reason `sim_files.py` is
+one: it can be unit tested on its own, and any step can use it without pulling
+in a step.
+
 #### Field and dimension naming
 
 Per the conventions stated in the summary, config options name fields using
@@ -1310,9 +1326,12 @@ design needs:
   entry, deliberately, for the reasons given under the conventions.
 
 The practical consequence of the middle case is that Omega's spelling appears
-in analysis code and in config section names for fields Omega alone provides,
-which is a small inconsistency of style and an accurate one: those fields come
-from Omega and from nowhere else.  If such a field later gains an MPAS-Ocean
+in analysis code, and in the values of config options that name fields, for
+fields Omega alone provides, which is a small inconsistency of style and an
+accurate one: those fields come from Omega and from nowhere else.  Config
+section names are the exception, because they are Polaris' own rather than
+either model's: `map_section` converts the field name, so no model's spelling
+reaches a section header.  If such a field later gains an MPAS-Ocean
 counterpart, or Omega renames it, that is the point at which an entry earns its
 keep --- and adding one then is a one-line change, so there is nothing to be
 gained by adding it in advance.
@@ -1993,7 +2012,7 @@ for season in plot_seasons:
             plot_global_mpas_field(
                 da=da_map, out_filename=self.work_path(f'{basename}.png'),
                 config=self.config,
-                colormap_section=f'ocean_analysis_map_{field}',
+                colormap_section=map_section(field),
                 mesh_filename=self.work_path('mesh.nc'), ...)
 ```
 
