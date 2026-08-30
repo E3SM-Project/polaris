@@ -166,6 +166,20 @@ class GlobalStatsTimeSeries(AnalysisStep):
         )
         self.add_produced_file(f'{prefix}.nc')
 
+        # the group is the kind of product rather than the task that made
+        # it, so that every time series shares one section of the landing
+        # page.  One gallery for all of the global statistics: a page per
+        # field would be a page with one plot on it.
+        self.add_product(
+            plot=f'{prefix}.png',
+            data=f'{prefix}.nc',
+            group='time_series',
+            gallery='global_stats',
+            title=f'Global {field}',
+            field=field,
+            stats=sorted(field_stats),
+        )
+
         self.logger.info(
             f'  {field}: plotted the {", ".join(field_stats)} in {prefix}.png'
         )
