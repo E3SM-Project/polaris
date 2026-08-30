@@ -347,8 +347,8 @@ class ClimatologyMaps(AnalysisStep):
         # field the simulation did not write is skipped, and a step that had
         # declared its plots at setup would fail on the missing files
         # instead.
-        for filename in (nc_filename, png_filename):
-            self.add_output_file(filename)
+        for filename in (f'{basename}.nc', f'{basename}.png'):
+            self.add_produced_file(filename)
         self.logger.info(f'  {os.path.basename(png_filename)}')
         return descriptor
 
