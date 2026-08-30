@@ -416,6 +416,28 @@ an accident:
 command or a step, and whether an analysis pruned to its published set should
 remain something `polaris serial` can be pointed at without confusion.
 
+One of those questions is worth stating now, because the answer probably
+shapes the others: **what counts as a product depends on who is asking.**  For
+publication a product is a figure and the data behind it, which is what
+`Product` describes today --- `group`, `gallery` and `title` are gallery
+vocabulary, and an intermediate has no place in a gallery.  For archiving the
+set is different: an analysis that outlives the simulation it came from cannot
+recompute the climatologies and accumulator caches this requirement otherwise
+treats as discardable, and those are exactly the files that were expensive.
+
+The likely shape is a second collector rather than a second list --- an
+archiver beside the publisher, reading the same fragments and selecting by its
+own rule --- since the two differ in what they select and in the vocabulary
+they need, not in how they learn what a step made.  That would make the
+fragment a description of what a step produced rather than a list of gallery
+entries, which is principle 2 applied one level further: the manifest
+describes, and each consumer selects.
+
+Nothing here is settled, and Phase 1 builds none of it.  What Phase 1 should
+avoid is foreclosing it: a step's fragment is written by the base class rather
+than by the publisher's consumers, and whether a step writes one is kept
+separable from whether it makes something the gallery shows.
+
 ### Requirement: workflow integration
 
 Date last modified: 2026/08/11

@@ -1860,6 +1860,15 @@ same event, so it happens in the same call rather than in a second one a step
 can forget --- which is what would otherwise make a product real to Polaris's
 output checking but invisible to the gallery.
 
+**A product is a figure.**  Its netCDF is an attribute of it --- the data that
+were plotted --- and not a product in its own right, so a file with no figure
+has no entry today.  The intermediates are outside this entirely: a
+climatology or an accumulator cache is written for reuse, not for publication,
+and the step that makes one says so with `makes_products = False`.  Whether
+archiving needs a wider notion than publication does is raised under *pruning
+and archiving* in {ref}`design-ocean-analysis`; it is not settled, and Phase 1
+does not depend on the answer.
+
 **Only `group` and `gallery` shape the site.**  Every other facet is caption
 material today and filter material later.  This is the hinge that makes the
 extensibility requirement cheap: adding a `region` facet adds a key to the
