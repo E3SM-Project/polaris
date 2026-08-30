@@ -121,8 +121,11 @@ config:
     time_management: TimeIntegration
   options:
     config_start_time: StartTime
-    config_stop_time: StopTime
-    config_run_duration: RunDuration
+    # config_stop_time and config_run_duration are deliberately absent.  Omega
+    # has no counterpart to rename them to: it names the kind of stop
+    # criterion in StopType and holds its value in StopCriterion, so one
+    # option becomes two, which cannot be written here.  They are handled by
+    # _add_stop_options in ocean_model_step.py instead.
     config_calendar_type: CalendarType
 
 - section:

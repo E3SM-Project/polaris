@@ -4,6 +4,7 @@ from polaris.tasks.ocean.realistic_global.analysis_members import (
 from polaris.tasks.ocean.realistic_global.hydrography.woa23 import (
     Woa23 as Woa23,
 )
+from polaris.tasks.ocean.realistic_global.restart import Restart as Restart
 
 
 def add_realistic_global_tasks(component):
@@ -33,3 +34,18 @@ def add_realistic_global_tasks(component):
                 ncells=mesh_info['ncells'],
             )
         )
+
+    # the restart task is only defined for the mesh it is cheap enough to run
+    # on in the pull-request suite
+    mesh_name = 'QU.240km'
+    mesh_info = mesh_dict[mesh_name]
+    component.add_task(
+        Restart(
+            component=component,
+            subdir=f'spherical/realistic_global/{mesh_name}',
+            mesh_name=mesh_name,
+            mpaso_id=mesh_info['mpaso_id'],
+            omega_id=mesh_info['omega_id'],
+            ncells=mesh_info['ncells'],
+        )
+    )

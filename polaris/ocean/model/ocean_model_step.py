@@ -1,7 +1,16 @@
 import importlib.resources as imp_res
 import os
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 from ruamel.yaml import YAML
 
@@ -32,6 +41,90 @@ ConfigsType = Dict[
         Dict[str, Dict[str, Dict[str, Dict[str, OptionValue]]]],
     ],
 ]
+
+#: MPAS-Ocean spellings for a time option that has deliberately been left
+#: unset, which a task uses to say "stop on the other criterion, not this one"
+UNSET_TIME_VALUES = frozenset({'', 'none', 'None'})
+
+#: The MPAS-Ocean options that say when a run ends.  These have no Omega
+#: counterpart to rename to -- Omega names the kind of criterion in
+#: ``StopType`` and holds its value in ``StopCriterion`` -- so they are kept
+#: out of the option map in ``mpaso_to_omega.yaml`` and are handled by
+#: :py:func:`_add_stop_options` instead.
+STOP_OPTIONS = frozenset({'config_run_duration', 'config_stop_time'})
+
+
+def _is_set(value: OptionValue) -> bool:
+    """Whether a time option holds a value, as opposed to being left unset"""
+    return str(value).strip() not in UNSET_TIME_VALUES
+
+
+def _add_stop_options(
+    configs: ConfigsType,
+    stop_options: Dict[str, OptionValue],
+) -> None:
+    """
+    Add Omega's ``StopType`` and ``StopCriterion`` to ``configs``, given the
+    MPAS-Ocean stop options a set of yaml configs asked for.
+
+    MPAS-Ocean says when a run ends with two options, either of which may be
+    left unset: ``config_run_duration`` and ``config_stop_time``.  Omega says
+    the same thing with a ``StopType`` naming which kind of criterion is in
+    use and a single ``StopCriterion`` holding its value.  One option becoming
+    two cannot be written in an option-name map, so these are kept out of
+    ``mpaso_to_omega.yaml`` and translated here.
+
+    Setting both to real values is an error.  Omega cannot express it: there
+    is one criterion field, so there is nothing for a precedence rule to
+    choose between.  MPAS-Ocean has such a rule, and Omega used to have a
+    matching one, but it went with the options it applied to, and quietly
+    honouring the old order here would mean the two models were being told
+    different things by the same yaml.
+
+    A stop option that is absent or unset is left out entirely rather than
+    written as ``none``, so that Omega falls back to its own default instead
+    of being handed a criterion it cannot parse.
+
+    Parameters
+    ----------
+    configs : dict
+        The mapped Omega configs, updated in place.
+
+    stop_options : dict
+        The MPAS-Ocean stop options found in this set of yaml configs, keyed
+        by their MPAS-Ocean names.
+
+    Raises
+    ------
+    ValueError
+        If both stop options are set to real values.
+    """
+    duration = stop_options.get('config_run_duration')
+    stop_time = stop_options.get('config_stop_time')
+
+    has_duration = duration is not None and _is_set(duration)
+    has_stop_time = stop_time is not None and _is_set(stop_time)
+
+    if has_duration and has_stop_time:
+        raise ValueError(
+            f'config_run_duration and config_stop_time are both set, to '
+            f'{duration!r} and {stop_time!r}.  Omega holds one stop '
+            f'criterion, so there is no way to say which of these it should '
+            f'use.  Set one and leave the other unset (as "none").'
+        )
+
+    if not (has_duration or has_stop_time):
+        return
+
+    section = cast(
+        Dict[str, OptionValue], configs.setdefault('TimeIntegration', {})
+    )
+    if has_duration:
+        section['StopType'] = 'AfterDuration'
+        section['StopCriterion'] = cast(OptionValue, duration)
+    else:
+        section['StopType'] = 'AtTime'
+        section['StopCriterion'] = cast(OptionValue, stop_time)
 
 
 class OceanModelStep(OceanModelFilesMixin, ModelStep):
@@ -697,6 +790,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         """
         out_configs: ConfigsType = {}
         not_found = []
+        stop_options: Dict[str, OptionValue] = {}
         for section, options in configs.items():
             for option, mpaso_value in options.items():
                 if isinstance(mpaso_value, dict):
@@ -704,6 +798,11 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                         f'Nested sections are not supported in '
                         f'MPAS-Ocean configs: {section}/{option}'
                     )
+                if option in STOP_OPTIONS:
+                    # these have no Omega counterpart to rename to; they are
+                    # turned into a StopType/StopCriterion pair below
+                    stop_options[option] = mpaso_value
+                    continue
                 try:
                     omega_sections, omega_option, omega_value = (
                         self._map_mpaso_to_omega_section_option(
@@ -726,6 +825,8 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     not_found.append(f'{sec_str}/{option}')
 
         self._warn_not_found(not_found)
+
+        _add_stop_options(out_configs, stop_options)
 
         return out_configs
 

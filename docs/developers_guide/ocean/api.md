@@ -444,6 +444,24 @@
    stats_analysis.StatsAnalysis.run
 ```
 
+### realistic_global.restart
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.restart
+
+.. autosummary::
+   :toctree: generated/
+
+   Restart
+
+   restart_step.RestartStep
+   restart_step.RestartStep.setup
+   restart_step.RestartStep.runtime_setup
+
+   validate.Validate
+   validate.Validate.run
+```
+
 ### realistic_global.hydrography.woa23
 
 ```{eval-rst}
