@@ -17,6 +17,7 @@ reading it, so what it adds is that the value written is the one the kernel
 gives, in the unit the file claims, while what is plotted is in another.
 """
 
+import json
 import logging
 import os
 
@@ -56,6 +57,30 @@ def test_a_netcdf_is_registered_beside_every_plot(step):
     assert images
     for image in images:
         assert image.replace('.png', '.nc') in outputs
+
+
+def test_each_map_is_described_in_the_manifest(step):
+    step.runtime_setup()
+    step.run()
+    with open(os.path.join(step.work_dir, 'manifest.json')) as manifest:
+        products = json.load(manifest)['products']
+
+    # every plot the step made is described, and nothing else is
+    assert {product['plot'] for product in products} == _images(step)
+
+    for product in products:
+        assert product['group'] == 'climatology_maps'
+        assert product['gallery'] == 'temperature'
+        assert product['field'] == 'temperature'
+        assert product['season'] in SEASONS
+        assert product['data'] == product['plot'].replace('.png', '.nc')
+        assert product['reduction'] in product['plot']
+
+    # order is meaning: the seasons appear in the order they were plotted,
+    # which is what lets the gallery read ANN, DJF, MAM, JJA, SON with no
+    # sort key anywhere
+    seasons = list(dict.fromkeys(product['season'] for product in products))
+    assert seasons == SEASONS
 
 
 def test_a_map_is_plotted_for_each_season_and_reduction(step):
