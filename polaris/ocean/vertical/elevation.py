@@ -309,16 +309,15 @@ def elevation_range_weights(
     mass, and the geometric coordinate enters only through the partial layers
     at the boundaries.
 
-    Only the whole column, ``top:bottom``, is implemented so far.  It is the
-    range in which every valid layer is whole, so no ``z_interface`` is read
-    and none need be passed.  A range with a boundary in the interior of a
-    layer needs the vertical geometry and is not implemented yet.
+    The whole column, ``top:bottom``, is the one range in which every valid
+    layer is whole, so its overlap fraction is one, no ``z_interface`` is read
+    and none need be passed.
 
     Parameters
     ----------
     z_interface : xarray.DataArray or None
-        The elevation of layer interfaces, needed only for a range with a
-        finite boundary
+        The elevation of layer interfaces, needed for any range but the whole
+        column
 
     layer_mass : xarray.DataArray
         The mass per unit area of each layer, from
@@ -347,20 +346,37 @@ def elevation_range_weights(
 
     Raises
     ------
-    NotImplementedError
-        If either bound is a finite elevation
+    ValueError
+        If a range with a finite bound is asked for without ``z_interface``
     """
-    if not (z_top == np.inf and z_bot == -np.inf):
-        raise NotImplementedError(
-            'Weighting an elevation range with a boundary in the interior of '
-            'a layer needs the vertical geometry, which is not implemented '
-            'yet.  The range that works is the whole column, top:bottom.'
-        )
-
     n_levels = layer_mass.sizes['nVertLevels']
     levels = xr.DataArray(np.arange(n_levels), dims='nVertLevels')
     in_column = (levels >= min_level_cell) & (levels <= max_level_cell)
-    weights = layer_mass.where(in_column, 0.0)
+
+    if z_interface is None:
+        if not (z_top == np.inf and z_bot == -np.inf):
+            raise ValueError(
+                'z_interface is needed to weigh an elevation range with a '
+                'bound in the interior of a layer.  The one range that needs '
+                'no vertical geometry is the whole column, top:bottom, in '
+                'which every valid layer is whole.'
+            )
+        fraction = 1.0
+    else:
+        z_upper = _layer_bound(z_interface, slice(0, -1))
+        z_lower = _layer_bound(z_interface, slice(1, None))
+        thickness = z_upper - z_lower
+        overlap = np.minimum(z_upper, z_top) - np.maximum(z_lower, z_bot)
+        # a layer the range misses entirely has a negative overlap, and one
+        # with no thickness has no fraction to speak of; both weigh nothing
+        fraction = xr.where(
+            thickness > 0.0, np.maximum(overlap, 0.0) / thickness, 0.0
+        )
+
+    # a layer outside the range or outside the column weighs nothing rather
+    # than NaN, since a model may write anything below the seafloor and a NaN
+    # here would poison the sum the weights are for
+    weights = (layer_mass * fraction).where(in_column, 0.0)
     weights.attrs = dict(
         units='kg m-2',
         long_name='mass per unit area within the elevation range',
@@ -457,6 +473,14 @@ def apply_vertical_reduction(
 
     da_map = da.isel(nVertLevels=safe).where(in_column)
     return da_map.drop_vars('nVertLevels', errors='ignore')
+
+
+def _layer_bound(z_interface, levels):
+    """One of the two interfaces bounding each layer, along ``nVertLevels``"""
+    z_bound = z_interface.isel({INTERFACE_DIM: levels})
+    return z_bound.drop_vars(INTERFACE_DIM, errors='ignore').rename(
+        {INTERFACE_DIM: 'nVertLevels'}
+    )
 
 
 def _interpolate_to_elevation(

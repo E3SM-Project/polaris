@@ -459,8 +459,10 @@ def test_a_layer_with_no_mass_written_still_weighs_nothing(columns):
     np.testing.assert_allclose(weights.values[LAND], np.zeros(N_LEVELS))
 
 
-def test_a_range_with_a_finite_bound_is_not_implemented_yet(columns):
-    with pytest.raises(NotImplementedError, match='vertical geometry'):
+def test_a_range_with_a_finite_bound_needs_the_geometry(columns):
+    """The whole column is the one range whose weights can be worked out
+    without it."""
+    with pytest.raises(ValueError, match='z_interface is needed'):
         elevation_range_weights(
             None,
             columns.layer_mass,
