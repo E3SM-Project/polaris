@@ -3,15 +3,24 @@ import os
 import xarray as xr
 from mpas_tools.io import write_netcdf
 
+from polaris.ocean.heat_content import heat_content
+from polaris.ocean.model import get_layer_mass
+from polaris.ocean.model.layer_mass import MASS_THICKNESS_VARIABLES
 from polaris.ocean.vertical.diagnostics import get_z_mid_and_interface
 from polaris.ocean.vertical.elevation import (
     apply_vertical_reduction,
+    elevation_range_weights,
     get_valid_level_range,
     parse_vertical_reduction,
+    range_bound_label,
 )
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
 from polaris.tasks.ocean.analysis.climatology import find_climatology_file
 from polaris.tasks.ocean.analysis.config_sections import map_section
+from polaris.tasks.ocean.analysis.heat_content_config import (
+    get_elevation_ranges,
+    get_specific_heat,
+)
 from polaris.tasks.ocean.analysis.sim_files import year_range_key
 from polaris.viz import plot_global_mpas_field
 
@@ -37,12 +46,22 @@ FIELD_GROUPS = {
     'velocity': ('velocityZonal', 'velocityMeridional'),
     'ssh': ('ssh',),
     'mixed_layer_depth': ('mixedLayerDepth',),
-    'heat_content': (),
+    'heat_content': ('heat_content',),
 }
 
 # Heat content is a field group of the maps rather than a product of its own,
 # and it is not one of the fields a user lists, so it is always present
 DERIVED_FIELD_GROUPS = ('heat_content',)
+
+# The one field that is computed rather than read.  It is spelled the way a
+# config section is because it is Polaris's own diagnostic rather than a
+# variable either model writes, so there is no model spelling to follow.
+HEAT_CONTENT = 'heat_content'
+
+# Heat content is written in J m-2, which is the unit it means, and plotted
+# in GJ m-2, since the whole column at a typical ocean temperature is a few
+# hundred of those rather than a few times 10^11 of the other
+J_PER_GJ = 1.0e9
 
 
 def get_field_groups(fields):
@@ -152,7 +171,9 @@ class ClimatologyMaps(AnalysisStep):
         Link the mesh the maps are plotted on and the vertical coordinate
 
         The vertical coordinate supplies the topmost and bottommost valid
-        layer of each column, which the climatology does not carry.
+        layer of each column, which the climatology does not carry.  The
+        elevation of the layers themselves does come from the climatology,
+        since it is the climatological mean of a geometry that moves.
         """
         sim_files = self.get_sim_files()
         self.add_sim_input_file(sim_files.mesh_filename(), 'mesh.nc')
@@ -166,18 +187,11 @@ class ClimatologyMaps(AnalysisStep):
         vertical reduction that was asked for
         """
         self.log_inputs()
-        if not self.fields:
-            self.logger.info(
-                f'The {self.field_group} field group is derived rather than '
-                f'read, and deriving it is not implemented yet, so no maps '
-                f'are plotted.'
-            )
-            return
-
         config = self.config
         seasons = config.getlist('ocean_analysis_climatology', 'plot_seasons')
         specs = config.getlist('ocean_analysis_climatology', 'elevations')
         reductions = [parse_vertical_reduction(spec) for spec in specs]
+        ranges = get_elevation_ranges(config)
         self._coords = self._mesh_coords()
         min_level_cell, max_level_cell = self._valid_level_range()
         climatology_dir = self.dependencies['climatology'].work_dir
@@ -195,6 +209,17 @@ class ClimatologyMaps(AnalysisStep):
                 z_mid = _drop_time(z_mid)
                 z_interface = _drop_time(z_interface)
                 for field in self.fields:
+                    if field == HEAT_CONTENT:
+                        descriptor = self._plot_heat_content(
+                            ds=ds,
+                            season=season,
+                            ranges=ranges,
+                            z_interface=z_interface,
+                            min_level_cell=min_level_cell,
+                            max_level_cell=max_level_cell,
+                            descriptor=descriptor,
+                        )
+                        continue
                     if field not in ds:
                         self.logger.info(
                             f'  the simulation did not write {field}, so its '
@@ -259,6 +284,65 @@ class ClimatologyMaps(AnalysisStep):
             present = [name for name in wanted if name in ds_native]
             return self.map_from_native_model_vars(ds_native[present]).load()
 
+    def _plot_heat_content(
+        self,
+        ds,
+        season,
+        ranges,
+        z_interface,
+        min_level_cell,
+        max_level_cell,
+        descriptor,
+    ):
+        """
+        Derive and plot ocean heat content over each elevation range
+
+        The climatology of temperature and of the layer mass is read once per
+        season and every range is a weighted sum over levels of what was
+        read, which is negligible beside the read.  That is why the ranges
+        are a loop in here rather than an axis the steps are split along.
+        """
+        config = self.config
+        thickness = MASS_THICKNESS_VARIABLES[config.get('ocean', 'model')]
+        missing = [
+            name for name in ('temperature', thickness) if name not in ds
+        ]
+        if missing:
+            self.logger.info(
+                f'  the simulation did not write {", ".join(missing)}, so '
+                f'heat content maps are skipped'
+            )
+            return descriptor
+
+        temperature = _drop_time(ds.temperature)
+        layer_mass = _drop_time(get_layer_mass(ds, config))
+        specific_heat = get_specific_heat(config)
+
+        for reduction in ranges:
+            weights = elevation_range_weights(
+                z_interface=z_interface,
+                layer_mass=layer_mass,
+                min_level_cell=min_level_cell,
+                max_level_cell=max_level_cell,
+                z_top=reduction.z_top,
+                z_bot=reduction.z_bot,
+            )
+            da_map = heat_content(temperature, weights, specific_heat)
+            da_plot = da_map / J_PER_GJ
+            da_plot.attrs = dict(da_map.attrs, units='GJ m-2')
+            span = reduction.label.replace('_', ' ')
+            descriptor = self._plot_map(
+                da_map=da_map,
+                field=HEAT_CONTENT,
+                season=season,
+                basename=f'{HEAT_CONTENT}_{season}_{reduction.label}',
+                title=f'ocean heat content, {span}, {season}',
+                descriptor=descriptor,
+                reduction=reduction,
+                da_plot=da_plot,
+            )
+        return descriptor
+
     def _plot_field(
         self,
         da,
@@ -303,7 +387,7 @@ class ClimatologyMaps(AnalysisStep):
                 basename=f'{field}_{season}_{reduction.label}',
                 title=f'{field} at {reduction.label}, {season}',
                 descriptor=descriptor,
-                reduction=reduction.label,
+                reduction=reduction,
             )
         return descriptor
 
@@ -316,8 +400,15 @@ class ClimatologyMaps(AnalysisStep):
         title,
         descriptor,
         reduction=None,
+        da_plot=None,
     ):
-        """Write one map to netCDF and plot it, and register both"""
+        """
+        Write one map to netCDF and plot it, and register both
+
+        ``da_plot`` is what is plotted where that differs from what is
+        written, which is how heat content is stored in the unit it means and
+        shown in the unit that reads.
+        """
         config = self.config
         section = map_section(field)
         if not config.has_section(section):
@@ -331,16 +422,19 @@ class ClimatologyMaps(AnalysisStep):
         png_filename = self.work_path(f'{basename}.png')
         self._write_netcdf(da_map, field, season, nc_filename, reduction)
 
+        if da_plot is None:
+            da_plot = da_map
+
         simulation_name = config.get('ocean_analysis', 'simulation_name')
         descriptor = plot_global_mpas_field(
-            da=da_map,
+            da=da_plot,
             out_filename=png_filename,
             config=config,
             colormap_section=section,
             mesh_filename=self.work_path('mesh.nc'),
             descriptor=descriptor,
             title=f'{simulation_name}: {title}, years {self._range_key()}',
-            colorbar_label=da_map.attrs.get('units', ''),
+            colorbar_label=da_plot.attrs.get('units', ''),
         )
 
         # The outputs are registered here rather than in setup() because a
@@ -359,7 +453,9 @@ class ClimatologyMaps(AnalysisStep):
             title=title,
             field=field,
             season=season,
-            reduction=reduction,
+            # the facet is the label, not the reduction itself: a facet is
+            # written to the fragment as JSON
+            reduction=None if reduction is None else reduction.label,
         )
         self.logger.info(f'  {os.path.basename(png_filename)}')
         return descriptor
@@ -373,11 +469,21 @@ class ClimatologyMaps(AnalysisStep):
             simulation_name=config.get('ocean_analysis', 'simulation_name'),
             field=field,
             season=season,
-            vertical_reduction='none' if reduction is None else reduction,
+            vertical_reduction=(
+                'none' if reduction is None else reduction.label
+            ),
             start_year=self.start_year,
             end_year=self.end_year,
             year_range=self._range_key(),
         )
+        if reduction is not None and reduction.kind == 'range':
+            # so that a plot cannot be mistaken for a different range
+            ds.attrs['elevation_range_top'] = range_bound_label(
+                reduction.z_top
+            )
+            ds.attrs['elevation_range_bottom'] = range_bound_label(
+                reduction.z_bot
+            )
         write_netcdf(ds=ds, fileName=filename)
 
     def _range_key(self):
@@ -401,7 +507,7 @@ def _group_for_field(field):
 
 
 def _drop_time(da):
-    """Drop the singleton time dimension a climatology carries"""
+    """A climatology holds one time, which is not an axis of a map"""
     if 'Time' in da.dims:
         return da.isel(Time=0)
     return da
