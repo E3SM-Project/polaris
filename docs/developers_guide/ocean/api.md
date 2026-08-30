@@ -41,6 +41,8 @@
    PublishTask.rebuild_steps
 
    analysis_step.AnalysisStep
+   analysis_step.AnalysisStep.runtime_setup
+   analysis_step.AnalysisStep.add_product
    analysis_step.AnalysisStep.get_sim_files
    analysis_step.AnalysisStep.add_sim_input_file
    analysis_step.AnalysisStep.add_sim_input_files

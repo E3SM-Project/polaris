@@ -1032,7 +1032,9 @@ all three live in the component-neutral `polaris.analysis` package beside
 `polaris.viz` rather than under `polaris.tasks.ocean.analysis`:
 
 - the **manifest writer**, {py:class}`polaris.analysis.manifest.Manifest`,
-  which a plotting step calls once per product;
+  which a plotting step reaches through
+  {py:meth}`polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product()`
+  once per product;
 - the **collector**, {py:func}`polaris.analysis.publish.publish`, which merges
   the fragments, symlinks each product into the staging tree and renders its
   thumbnail;
@@ -1040,21 +1042,25 @@ all three live in the component-neutral `polaris.analysis` package beside
   {py:func}`polaris.analysis.site.generate_site`, which renders the gallery
   from the merged manifest.
 
-A step describes what it made as it makes it:
+A step describes what it made as it makes it, and writes no fragment itself:
 
 ```python
-manifest = Manifest(step_name=self.name)
-manifest.add(
+self.add_product(
     plot='temperature_ANN_-100m.png',
     data='temperature_ANN_-100m.nc',
     group='climatology_maps',
     gallery='temperature',
     title='Potential temperature at 100 m, ANN, years 21-40',
     field='temperature', season='ANN', reduction='-100m',
-    start_year=21, end_year=40,
 )
-manifest.write(self.work_dir)
 ```
+
+`AnalysisStep` writes it.  `runtime_setup()` leaves an empty fragment before
+`run()` is called and each `add_product()` writes it again, so a step that
+makes products always has a current one on disk.  The range of years the step
+covers is added to the facets unless the call passes its own, since every
+product of a step covers the step's range and that range is what keeps the
+published names of two analyses of one simulation apart.
 
 Three rules keep the fragment from growing into a format that needs a
 specification.  A step fills in the facets and nothing else --- the published
@@ -1077,12 +1083,14 @@ without a plotting step changing.  Two things about it are easy to get wrong:
   intermediate results sets `makes_products = False` on its class --- the
   climatology does --- and is left out of both.
 
-  This is why a step calls `Manifest.write()` at the end of `run()` whether or
-  not it made anything.  A step with nothing to publish writes an empty
-  product list, which is what lets the fragment be declared and checked
-  instead of tolerated when absent.  The two failures stay distinguishable:
-  a fragment that is missing means a step ran without writing one, and a
-  dependency's missing pickle means the step did not run at all.
+  This is why the fragment is written from `runtime_setup()` rather than at
+  the end of `run()`.  A step with nothing to publish leaves an empty product
+  list, which is what lets the fragment be declared and checked instead of
+  tolerated when absent --- and a rule that had to be obeyed at the end of
+  `run()` would be forgotten in exactly that step.  The two failures stay
+  distinguishable: a fragment that is missing means a step ran without
+  writing one, and a dependency's missing pickle means the step did not run
+  at all.
 - **Its dependencies are step objects, and the tasks sharing a config are
   configured in an arbitrary order.**  Every analysis task discards its steps
   and builds new ones each time it is configured, and Polaris checks that a
