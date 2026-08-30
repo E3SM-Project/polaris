@@ -61,11 +61,14 @@ class VerticalReduction(NamedTuple):
     z_bot: Optional[float] = None
 
 
-# The reductions that pick a layer by index need no vertical geometry at all,
-# so they work before there is any.  Interpolating to an elevation reads
-# ``zMid`` and ``zInterface`` and is not implemented yet.  An elevation range
-# is not a slice and is not here at all; see ``elevation_range_weights``.
+# The reductions a step can offer without reading any vertical geometry, since
+# they pick a layer by index.  Interpolating to an elevation reads ``zMid``
+# and ``zInterface``, which the map step does not pass yet.  An elevation
+# range is not a slice and is not here at all; see ``elevation_range_weights``.
 IMPLEMENTED_KINDS = ('top', 'bottom', 'index')
+
+# The dimension the layer interfaces are along, one longer than ``nVertLevels``
+INTERFACE_DIM = 'nVertLevelsP1'
 
 
 def get_valid_level_range(ds):
@@ -110,6 +113,46 @@ def get_valid_level_range(ds):
     else:
         min_level_cell = xr.zeros_like(max_level_cell)
     return min_level_cell, max_level_cell
+
+
+def get_z_mid_and_interface(ds):
+    """
+    Get the elevation of layer midpoints and of layer interfaces
+
+    These are the vertical geometry, read directly from what the model wrote
+    rather than reconstructed.  Polaris cannot rebuild them from the monthly
+    means of the other fields, because geometric thickness is derived from
+    pseudo-thickness through specific volume, so a simulation that does not
+    write them cannot be analysed at an elevation at all.  That is why this
+    reports what is missing rather than falling back on something.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A data set holding the vertical geometry, with MPAS-Ocean names
+
+    Returns
+    -------
+    z_mid : xarray.DataArray
+        The elevation of layer midpoints, in m, positive up
+
+    z_interface : xarray.DataArray
+        The elevation of layer interfaces, in m, positive up
+
+    Raises
+    ------
+    ValueError
+        If the data set has neither or only one of them
+    """
+    missing = [name for name in ('zMid', 'zInterface') if name not in ds]
+    if missing:
+        raise ValueError(
+            f'The data set has no {", ".join(missing)}, which is the '
+            f'vertical geometry an elevation is a position in.  Polaris '
+            f'cannot reconstruct it from the other fields, so a simulation '
+            f'has to write it for its output to be analysed at an elevation.'
+        )
+    return ds.zMid, ds.zInterface
 
 
 def parse_vertical_reduction(spec):
@@ -330,17 +373,16 @@ def apply_vertical_reduction(
     reduction,
     z_mid=None,
     z_interface=None,
-    layer_mass=None,
     min_level_cell=None,
     max_level_cell=None,
 ):
     """
     Reduce a field with a vertical dimension to a horizontal map
 
-    Only the reductions in :py:data:`IMPLEMENTED_KINDS` are available so far;
-    interpolating to an elevation and integrating over an elevation range
-    raise :py:exc:`NotImplementedError`, since they need vertical geometry
-    that nothing writes yet.
+    Slicing at the sea surface, the seafloor, a layer index or an elevation
+    are cases of one operation: each picks one layer of each column, or the
+    two layers an elevation falls between, whatever the field means.  Only
+    the last of them reads the vertical geometry.
 
     Parameters
     ----------
@@ -351,14 +393,11 @@ def apply_vertical_reduction(
         How to reduce it, from :py:func:`parse_vertical_reduction`
 
     z_mid : xarray.DataArray, optional
-        The elevation of layer midpoints, needed only for the reductions that
-        are not implemented yet
+        The elevation of layer midpoints, needed only to interpolate to an
+        elevation
 
     z_interface : xarray.DataArray, optional
         The elevation of layer interfaces, as for ``z_mid``
-
-    layer_mass : xarray.DataArray, optional
-        The mass per unit area of each layer, as for ``z_mid``
 
     min_level_cell : xarray.DataArray
         The zero-based index of the topmost valid layer of each column
@@ -374,8 +413,8 @@ def apply_vertical_reduction(
 
     Raises
     ------
-    NotImplementedError
-        If the reduction needs vertical geometry
+    ValueError
+        If the reduction is a range, or if what it needs was not passed
     """
     if reduction.kind == 'range':
         raise ValueError(
@@ -384,16 +423,20 @@ def apply_vertical_reduction(
             'the diagnostic that consumes the weights, rather than through '
             'apply_vertical_reduction.'
         )
-    if reduction.kind not in IMPLEMENTED_KINDS:
-        raise NotImplementedError(
-            f'Reducing a field to {reduction.label} needs the vertical '
-            f'geometry, which is not implemented yet.  The reductions that '
-            f'work are "top", "bottom" and "k<index>".'
-        )
     if min_level_cell is None or max_level_cell is None:
         raise ValueError(
             'min_level_cell and max_level_cell are needed to tell the valid '
             'layers of each column from the rest.'
+        )
+
+    if reduction.kind == 'elevation':
+        return _interpolate_to_elevation(
+            da=da,
+            elevation=reduction.elevation,
+            z_mid=z_mid,
+            z_interface=z_interface,
+            min_level_cell=min_level_cell,
+            max_level_cell=max_level_cell,
         )
 
     n_levels = da.sizes['nVertLevels']
@@ -414,6 +457,80 @@ def apply_vertical_reduction(
 
     da_map = da.isel(nVertLevels=safe).where(in_column)
     return da_map.drop_vars('nVertLevels', errors='ignore')
+
+
+def _interpolate_to_elevation(
+    da, elevation, z_mid, z_interface, min_level_cell, max_level_cell
+):
+    """
+    Interpolate a field linearly in elevation between the two layer midpoints
+    an elevation falls between
+
+    The search for the upper of the two layers is a count rather than a loop
+    over columns: with the midpoints outside the valid range set to ``NaN``,
+    the number of valid midpoints at or above the elevation says how far
+    below the topmost valid layer it lies.
+
+    Above the topmost midpoint the topmost value is returned, and below the
+    bottommost midpoint the bottommost one, rather than either being masked
+    or extrapolated.  Both fall out of clamping the interpolation weight into
+    ``[0, 1]``, and the clamping at the top is deliberate: a request for 0 m
+    or -5 m lies above every midpoint, and masking it would leave a
+    near-surface map empty everywhere.
+    """
+    if z_mid is None or z_interface is None:
+        raise ValueError(
+            'z_mid and z_interface are needed to interpolate to an '
+            'elevation, which is a position in the vertical geometry rather '
+            'than a layer of the grid.'
+        )
+
+    n_levels = da.sizes['nVertLevels']
+    levels = xr.DataArray(np.arange(n_levels), dims='nVertLevels')
+    in_column = (levels >= min_level_cell) & (levels <= max_level_cell)
+    # a layer outside the valid range has no position in the column, so it
+    # takes no part in the search and cannot supply a value
+    z_valid = z_mid.where(in_column)
+
+    # the count is of valid midpoints, so it is measured from the topmost
+    # valid layer of the column rather than from layer zero, which is not the
+    # same thing under an ice-shelf cavity
+    above = (z_valid >= elevation).sum(dim='nVertLevels')
+    k_upper = min_level_cell + above - 1
+    # the pair is (k_upper, k_upper + 1), so the lowest pair of a column
+    # starts one layer above its seafloor.  A column with a single valid
+    # layer has no pair at all and is handled below; land has none either and
+    # is masked, so both only need an index that can be taken safely.
+    lowest_pair = np.maximum(max_level_cell - 1, min_level_cell)
+    k_upper = np.minimum(np.maximum(k_upper, min_level_cell), lowest_pair)
+    k_upper = np.minimum(np.maximum(k_upper, 0), n_levels - 1)
+    k_lower = np.minimum(k_upper + 1, n_levels - 1)
+
+    z_upper = z_valid.isel(nVertLevels=k_upper)
+    z_lower = z_valid.isel(nVertLevels=k_lower)
+    thickness = z_upper - z_lower
+    weight = xr.where(thickness > 0.0, (elevation - z_lower) / thickness, 1.0)
+    weight = np.minimum(np.maximum(weight, 0.0), 1.0)
+
+    da_upper = da.isel(nVertLevels=k_upper)
+    da_lower = da.isel(nVertLevels=k_lower)
+    # a column with one valid layer is that layer everywhere within it; the
+    # layer below is outside the column, so it is selected away rather than
+    # weighted by zero, which would let a fill value poison the sum
+    single_layer = min_level_cell >= max_level_cell
+    da_map = xr.where(
+        single_layer, da_upper, weight * da_upper + (1.0 - weight) * da_lower
+    )
+
+    # land has no layer to take a value from, and an elevation below the
+    # seafloor has no water at it
+    n_interfaces = z_interface.sizes[INTERFACE_DIM]
+    k_floor = np.minimum(np.maximum(max_level_cell + 1, 0), n_interfaces - 1)
+    z_floor = z_interface.isel({INTERFACE_DIM: k_floor})
+    in_water = (max_level_cell >= min_level_cell) & (elevation >= z_floor)
+
+    da_map = da_map.where(in_water)
+    return da_map.drop_vars(['nVertLevels', INTERFACE_DIM], errors='ignore')
 
 
 def _parse_elevation_range(spec):
