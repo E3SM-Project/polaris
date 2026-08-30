@@ -1849,6 +1849,20 @@ all.  That is what lets the `publish` step declare each fragment as an input
 and have the framework check it, instead of tolerating absence and discovering
 late that a step it expected never wrote anything.
 
+**The base class writes it, not the step.**  `AnalysisStep.runtime_setup()`
+writes the empty fragment before the step runs, and describing a product
+rewrites it, so there is no call at the end of `run()` for a step author to
+remember.  That matters because the step that would forget is a step that made
+nothing, which is exactly the case the empty fragment exists for.  The
+fragment is also a declared output, so a step that leaves none names itself
+rather than surfacing as a missing input of `publish`.
+
+`makes_products` decides who writes one.  It is the same attribute `publish`
+uses to decide what to depend on, but the two questions are asked separately
+and nothing in the base class is gallery-aware --- which is what leaves room
+for a step to write a fragment without being a gallery step, as an archiver
+would want; see *pruning and archiving* in {ref}`design-ocean-analysis`.
+
 **A step fills the facets; the collector fills everything else.**  The
 published name and the thumbnail are added by the collector when it publishes,
 so a step never has to know the staging tree's layout, and a change to that
