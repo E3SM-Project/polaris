@@ -485,6 +485,101 @@ def test_a_range_is_not_a_slice(columns):
         )
 
 
+def test_a_range_aligned_with_the_interfaces_weighs_whole_layers(columns):
+    """And weighs them by their mass: the layer masses of these columns are
+    not proportional to their geometric thicknesses, so a weight that came
+    from the geometry would be a different number."""
+    weights = _range_weights(columns, Z_INTERFACE[0, 1], Z_INTERFACE[0, 3])
+    layer_mass = columns.layer_mass.values
+    np.testing.assert_allclose(
+        weights[0], [0.0, layer_mass[0, 1], layer_mass[0, 2], 0.0, 0.0, 0.0]
+    )
+
+
+def test_a_bound_inside_a_layer_weighs_the_geometric_fraction(columns):
+    """The one place the geometry legitimately enters: the partial layer at
+    a boundary contributes the fraction of its mass that the range covers of
+    its thickness."""
+    thickness = Z_INTERFACE[0, 2] - Z_INTERFACE[0, 3]
+    z_bot = Z_INTERFACE[0, 2] - 0.25 * thickness
+    weights = _range_weights(columns, Z_INTERFACE[0, 1], z_bot)
+    layer_mass = columns.layer_mass.values
+    np.testing.assert_allclose(
+        weights[0],
+        [0.0, layer_mass[0, 1], 0.25 * layer_mass[0, 2], 0.0, 0.0, 0.0],
+    )
+
+
+def test_a_bound_swept_across_a_layer_varies_linearly(columns):
+    """From the answer with that layer left out to the answer with it whole,
+    which is what says the fraction is the overlap and not something that
+    merely happens to be right at the two ends."""
+    z_upper = Z_INTERFACE[0, 2]
+    z_lower = Z_INTERFACE[0, 3]
+    fractions = np.linspace(0.0, 1.0, 5)
+    totals = [
+        _range_weights(
+            columns,
+            Z_INTERFACE[0, 1],
+            z_upper - fraction * (z_upper - z_lower),
+        )[0].sum()
+        for fraction in fractions
+    ]
+    layer_mass = columns.layer_mass.values
+    expected = layer_mass[0, 1] + fractions * layer_mass[0, 2]
+    np.testing.assert_allclose(totals, expected)
+
+
+def test_a_range_reaching_below_the_seafloor_is_truncated_there(columns):
+    """There is no mass below it to add, so the answer is the whole
+    column's."""
+    weights = _range_weights(columns, np.inf, -10000.0)
+    np.testing.assert_allclose(weights, _whole_column_weights(columns))
+
+
+def test_the_whole_column_is_the_sum_of_ranges_that_partition_it(columns):
+    """Which also exercises an infinite bound at each end, since the free
+    surface and the seafloor of a column are its outermost interfaces."""
+    partition = ((np.inf, -290.0), (-290.0, -700.0), (-700.0, -np.inf))
+    total = sum(
+        _range_weights(columns, z_top, z_bot) for z_top, z_bot in partition
+    )
+    np.testing.assert_allclose(total, _whole_column_weights(columns))
+
+
+def test_a_column_that_the_range_misses_weighs_nothing_rather_than_nan(
+    columns,
+):
+    """The shallow column ends above this range, and a NaN here would poison
+    the sum the weights are for."""
+    weights = _range_weights(columns, -500.0, -600.0)
+    assert np.all(np.isfinite(weights))
+    np.testing.assert_allclose(weights[2], np.zeros(N_LEVELS))
+    np.testing.assert_allclose(weights[LAND], np.zeros(N_LEVELS))
+    assert weights[0].sum() > 0.0
+
+
+def test_the_whole_column_is_the_same_with_the_geometry_and_without(columns):
+    """Every valid layer is whole in it, so reading the interfaces cannot
+    change the answer."""
+    np.testing.assert_allclose(
+        _range_weights(columns, np.inf, -np.inf),
+        _whole_column_weights(columns),
+    )
+
+
+def _range_weights(ds, z_top, z_bot):
+    """The weights of an elevation range, as an array"""
+    return elevation_range_weights(
+        ds.zInterface,
+        ds.layer_mass,
+        ds.minLevelCell,
+        ds.maxLevelCell,
+        z_top,
+        z_bot,
+    ).values
+
+
 def _whole_column_weights(ds):
     """The weights of the whole column, as an array"""
     return elevation_range_weights(
