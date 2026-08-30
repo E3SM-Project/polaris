@@ -1821,7 +1821,14 @@ product it made and the facets that identify it:
    "title": "Potential temperature at 100 m, ANN, years 21-40"}]}
 ```
 
-Three rules keep this from growing into a format that needs a specification.
+These rules keep this from growing into a format that needs a specification.
+
+**Every step writes one, even when it made nothing.**  A step that produced no
+products --- `moc` against a simulation that wrote no overturning output, say
+--- writes a fragment with an empty product list rather than no fragment at
+all.  That is what lets the `publish` step declare each fragment as an input
+and have the framework check it, instead of tolerating absence and discovering
+late that a step it expected never wrote anything.
 
 **A step fills the facets; the collector fills everything else.**  The
 published name and the thumbnail are added by the collector when it publishes,
@@ -1903,12 +1910,13 @@ Neither mechanism reorders anything: steps run in the order the suite lists
 them, so `publish` goes last.  What the declarations buy is that running it
 too early fails, and says why.
 
-One question is left open deliberately.  If every analysis step must write a
-fragment, then a step that made no products writes an empty one, and a suite
-run with some products skipped fails on a missing input.  If fragments are
-instead optional, `publish` reports what it did not find and publishes the
-rest, which is what a developer iterating on a single plot wants.  Which of
-those two is right should be settled when the step is written.
+Making the fragment mandatory is what lets it be declared, and the alternative
+buys less than it appears to.  Optional fragments would let `publish` report
+what it did not find and carry on, which sounds like what a developer
+iterating on a single plot wants --- but a step that did not run leaves no
+pickle either, and `publish` fails on that first.  The only case optionality
+would actually cover is a step that ran and made nothing, and writing an empty
+fragment covers it at no cost.
 
 Because it is the only step that knows how results are presented, everything in
 the two sections below can change without a single plotting step changing.
