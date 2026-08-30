@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -83,6 +84,7 @@ def run_on_a_file(tmp_path, fields=None, stats=None, fields_asked=None):
         fields=fields,
         stats=stats,
     )
+    step.runtime_setup()
     step.run()
     return step
 
@@ -154,6 +156,26 @@ def test_a_field_the_simulation_did_not_write_is_skipped(tmp_path):
         os.path.basename(o) for o in step.outputs if o.endswith('.png')
     )
     assert plotted == ['ssh.png', 'temperature.png']
+
+
+def test_each_series_is_described_in_the_manifest(tmp_path):
+    step = run_on_a_file(
+        tmp_path,
+        fields=['Temperature', 'SshCell'],
+        fields_asked='temperature, ssh',
+    )
+    with open(os.path.join(str(tmp_path), 'manifest.json')) as manifest:
+        products = json.load(manifest)['products']
+
+    # one gallery for all of the global statistics, not one per field
+    assert {product['gallery'] for product in products} == {'global_stats'}
+    for product in products:
+        assert product['group'] == 'time_series'
+        assert product['plot'] == f'{product["field"]}.png'
+        assert product['data'] == f'{product["field"]}.nc'
+        # the range comes from the step, so a caller does not repeat it
+        assert product['start_year'] == step.start_year
+        assert product['end_year'] == step.end_year
 
 
 def test_a_statistic_the_simulation_did_not_write_is_skipped(tmp_path):
