@@ -191,6 +191,30 @@ def elevation_label(elevation):
     return f'{elevation:g}m'
 
 
+def range_bound_label(elevation, keyword):
+    """
+    Get the label one end of an elevation range is identified by
+
+    Parameters
+    ----------
+    elevation : float
+        The elevation of the bound in m, positive up, or an infinity where
+        the bound resolves per column
+
+    keyword : str
+        ``'top'`` for the upper bound and ``'bottom'`` for the lower one,
+        which is what an infinite bound is labeled with
+
+    Returns
+    -------
+    label : str
+        The label, e.g. ``'top'`` or ``'-700m'``
+    """
+    if np.isinf(elevation):
+        return keyword
+    return elevation_label(elevation)
+
+
 def is_whole_column(reduction):
     """
     Whether an elevation range covers every valid layer of every column
@@ -408,8 +432,8 @@ def _parse_elevation_range(spec):
             f'given as <top>:<bottom> in m, positive up, so the first '
             f'elevation is the higher one.'
         )
-    top_label = _range_bound_label(z_top, 'top')
-    bot_label = _range_bound_label(z_bot, 'bottom')
+    top_label = range_bound_label(z_top, 'top')
+    bot_label = range_bound_label(z_bot, 'bottom')
     return VerticalReduction(
         kind='range',
         label=f'{top_label}_to_{bot_label}',
@@ -431,10 +455,3 @@ def _parse_range_bound(spec, text, keyword):
             f'  It is either "{keyword}" or an elevation in m, positive up, '
             f'so negative within the ocean.'
         ) from None
-
-
-def _range_bound_label(elevation, keyword):
-    """The label one end of an elevation range is identified by"""
-    if np.isinf(elevation):
-        return keyword
-    return elevation_label(elevation)
