@@ -10,11 +10,14 @@ from polaris.ocean.vertical.diagnostics import get_z_mid_and_interface
 from polaris.ocean.vertical.elevation import (
     apply_vertical_reduction,
     elevation_range_weights,
-    get_valid_level_range,
     parse_vertical_reduction,
     range_bound_label,
 )
-from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+from polaris.tasks.ocean.analysis.analysis_step import (
+    MESH_FILENAME,
+    VERT_COORD_FILENAME,
+    AnalysisStep,
+)
 from polaris.tasks.ocean.analysis.climatology import find_climatology_file
 from polaris.tasks.ocean.analysis.config_sections import map_section
 from polaris.tasks.ocean.analysis.heat_content_config import (
@@ -176,9 +179,9 @@ class ClimatologyMaps(AnalysisStep):
         since it is the climatological mean of a geometry that moves.
         """
         sim_files = self.get_sim_files()
-        self.add_sim_input_file(sim_files.mesh_filename(), 'mesh.nc')
+        self.add_sim_input_file(sim_files.mesh_filename(), MESH_FILENAME)
         self.add_sim_input_file(
-            sim_files.vert_coord_filename(), 'vert_coord.nc'
+            sim_files.vert_coord_filename(), VERT_COORD_FILENAME
         )
 
     def run(self):
@@ -193,7 +196,7 @@ class ClimatologyMaps(AnalysisStep):
         reductions = [parse_vertical_reduction(spec) for spec in specs]
         ranges = get_elevation_ranges(config)
         self._coords = self._mesh_coords()
-        min_level_cell, max_level_cell = self._valid_level_range()
+        min_level_cell, max_level_cell = self.valid_level_range()
         climatology_dir = self.dependencies['climatology'].work_dir
 
         # building the mosaic descriptor is the expensive part of plotting a
@@ -243,46 +246,8 @@ class ClimatologyMaps(AnalysisStep):
         Get the cell latitudes and longitudes, so that the netCDF beside each
         plot carries the coordinates of what was plotted
         """
-        ds = self._read_fields('mesh.nc', ['latCell', 'lonCell'])
+        ds = self.read_fields(MESH_FILENAME, ['latCell', 'lonCell'])
         return {name: ds[name] for name in ds.data_vars}
-
-    def _valid_level_range(self):
-        """Get the topmost and bottommost valid layer of each column"""
-        ds = self._read_fields(
-            'vert_coord.nc', ['minLevelCell', 'maxLevelCell']
-        )
-        return get_valid_level_range(ds)
-
-    def _read_fields(self, filename, fields):
-        """
-        Read a few named fields from a file of the simulation, translating
-        their names but nothing else
-
-        The mesh and the vertical coordinate a simulation names are often
-        its initial condition, which carries a full model state.  Opening one
-        as a model data set would then derive specific volume from that
-        state --- an equation-of-state solve --- to get a handful of fields
-        that are already there, so the names are translated and nothing else
-        is done.
-
-        Parameters
-        ----------
-        filename : str
-            The local name of the file in the step's work directory
-
-        fields : list of str
-            The MPAS-Ocean names of the fields to read; a field the file does
-            not have is left out
-
-        Returns
-        -------
-        ds : xarray.Dataset
-            The fields that were there, with MPAS-Ocean names, in memory
-        """
-        wanted = self.component.map_var_list_to_native_model(fields)
-        with xr.open_dataset(self.work_path(filename)) as ds_native:
-            present = [name for name in wanted if name in ds_native]
-            return self.map_from_native_model_vars(ds_native[present]).load()
 
     def _plot_heat_content(
         self,
@@ -431,7 +396,7 @@ class ClimatologyMaps(AnalysisStep):
             out_filename=png_filename,
             config=config,
             colormap_section=section,
-            mesh_filename=self.work_path('mesh.nc'),
+            mesh_filename=self.work_path(MESH_FILENAME),
             descriptor=descriptor,
             title=f'{simulation_name}: {title}, years {self._range_key()}',
             colorbar_label=da_plot.attrs.get('units', ''),
