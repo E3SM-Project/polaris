@@ -12,6 +12,7 @@ Everything is synthetic and small, but it is read through the same
 dimensions, so a change in the name mapping would show up here.
 """
 
+import json
 import logging
 import os
 
@@ -88,6 +89,23 @@ def test_the_product_and_its_plot_are_the_declared_outputs(step):
     assert PLOT_FILENAME in step.outputs
     for output in step.outputs:
         assert os.path.exists(os.path.join(step.work_dir, output)), output
+
+
+def test_the_series_is_described_in_the_manifest(step):
+    step.runtime_setup()
+    step.run()
+    with open(os.path.join(step.work_dir, 'manifest.json')) as manifest:
+        products = json.load(manifest)['products']
+
+    assert len(products) == 1
+    product = products[0]
+    assert product['plot'] == PLOT_FILENAME
+    assert product['data'] == SERIES_FILENAME
+    # the group is the kind of product, shared with the global statistics
+    assert product['group'] == 'time_series'
+    assert product['gallery'] == 'heat_content'
+    assert product['start_year'] == step.start_year
+    assert product['end_year'] == step.end_year
 
 
 def test_the_series_says_what_it_was_computed_from(step):
