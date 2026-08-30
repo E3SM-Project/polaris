@@ -1713,10 +1713,12 @@ sub-range inside it reads nothing at all the second time.  A partially written
 cache in the step's own directory is itself a valid starting point on a retry,
 which is most of what restartability asks for.
 
-Because the remaining months are independent, they are spread over a process
-pool inside the step rather than over steps.  This follows principle 3 in
-{ref}`design-ocean-analysis`, and it means the analysis gets its concurrency
-from a capability that exists today rather than from task parallelism.
+The remaining months are independent, so the concurrency here belongs in a
+process pool inside the step rather than in more steps --- principle 3 in
+{ref}`design-ocean-analysis`, and a capability that exists today rather than
+one waiting on task parallelism.  Phase 1 does not take it: the months are
+computed one after another, as *One step per accumulator in Phase 1* below
+says, and the pool is deferred with the rest of the concurrency work.
 
 #### Replotting
 
