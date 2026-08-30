@@ -78,7 +78,8 @@ def publish(
         The root of the staging tree
 
     logger : logging.Logger, optional
-        A logger for reporting what was published and what was missing
+        A logger for reporting what was published, which steps published
+        nothing, and what was missing
 
     thumbnail_size : tuple of int, optional
         The bounding box in pixels each thumbnail is scaled to fit inside
@@ -111,11 +112,14 @@ def publish(
     published: list[dict] = []
     unwritten: list[str] = []
     missing: list[str] = []
+    empty: list[str] = []
     for fragment_filename in fragment_filenames:
         if not os.path.exists(fragment_filename):
             unwritten.append(fragment_filename)
             continue
         manifest = read_fragment(fragment_filename)
+        if not manifest.products:
+            empty.append(manifest.step_name)
         # a product is named relative to the step that wrote the fragment,
         # and the fragment is normally reached through a symlink into that
         # step, so the step's directory is the real one rather than the one
@@ -140,7 +144,15 @@ def publish(
         quality=thumbnail_quality,
     )
 
-    _report(published, unwritten, missing, rendered, logger)
+    _report(
+        published=published,
+        fragment_count=len(fragment_filenames),
+        empty=empty,
+        unwritten=unwritten,
+        missing=missing,
+        rendered=rendered,
+        logger=logger,
+    )
     write_merged_manifest(published, output_path)
     return published, unwritten + missing
 
@@ -222,13 +234,22 @@ def _add_thumbnails(published, output_path, size, image_format, quality):
     return rendered
 
 
-def _report(published, unwritten, missing, rendered, logger):
+def _report(
+    published, fragment_count, empty, unwritten, missing, rendered, logger
+):
     """Say what was published, and name anything that was not"""
     if logger is None:
         return
     logger.info(
-        f'published {len(published)} products, rendering {rendered} thumbnails'
+        f'published {len(published)} products from {fragment_count} '
+        f'manifests, rendering {rendered} thumbnails'
     )
+    if empty:
+        # a step that ran and made nothing is an absence in the gallery, so
+        # the log is the only place it is named at all
+        logger.info(f'{len(empty)} steps published nothing:')
+        for step_name in empty:
+            logger.info(f'  {step_name}')
     if unwritten:
         logger.info(
             f'{len(unwritten)} manifests were named but never written, so '

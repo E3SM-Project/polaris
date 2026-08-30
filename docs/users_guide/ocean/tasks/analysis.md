@@ -214,7 +214,8 @@ coexist because the range is in every published name.
 
 A step that ran but made no products publishes nothing, and that is not an
 error: every step that publishes leaves a manifest, with nothing in it when it
-made nothing, and the gallery simply has nothing from that step in it.  A step that has not run at all is
+made nothing, and the gallery simply has nothing from that step in it.  The
+`publish` step's log names those steps, since the gallery cannot.  A step that has not run at all is
 different.  `publish` declares every step's manifest as an input and every
 such step as a dependency, so Polaris refuses to run it and names what is
 missing.
