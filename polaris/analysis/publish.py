@@ -66,10 +66,13 @@ def publish(
     Parameters
     ----------
     fragment_filenames : list of str
-        The manifest fragments to publish, one per step that made products.
-        A fragment that is not on disk is reported rather than raising: a
-        step that made no products writes none, and a step that has not run
-        is named by its own dependency instead.
+        The manifest fragments to publish, one per step that makes products.
+        Every such step writes one, empty if it made nothing, which is what
+        lets a step declare them as inputs and have Polaris check them.  A
+        fragment that is not on disk is nonetheless reported here rather than
+        raising, so that this is usable on a list nothing has checked; the
+        ``publish`` step does not rely on it, since a declared input that is
+        missing stops it before it runs.
 
     output_path : str
         The root of the staging tree
@@ -92,12 +95,13 @@ def publish(
         One entry per published product, as written to the merged manifest
 
     missing : list of str
-        The paths that are not on disk: first the fragments that were
-        declared but never written, then the files a fragment named.  Both
-        are reported rather than silently omitted, and neither appears in the
-        merged manifest, which is what defines the published set.  A step
-        that wrote no fragment is only worth a message; a step that promised
-        a file and did not write it is worth a warning.
+        The paths that are not on disk: first the fragments that were named
+        but never written, then the files a fragment named.  Both are
+        reported rather than silently omitted, and neither appears in the
+        merged manifest, which is what defines the published set.  A fragment
+        that was never written is only worth a message, since whoever called
+        this may not have had it checked; a fragment that promised a file
+        that is not there is worth a warning.
     """
     plots_path = os.path.join(output_path, PLOTS_DIRNAME)
     thumbnails_path = os.path.join(output_path, THUMBNAILS_DIRNAME)
@@ -112,7 +116,11 @@ def publish(
             unwritten.append(fragment_filename)
             continue
         manifest = read_fragment(fragment_filename)
-        step_path = os.path.dirname(os.path.abspath(fragment_filename))
+        # a product is named relative to the step that wrote the fragment,
+        # and the fragment is normally reached through a symlink into that
+        # step, so the step's directory is the real one rather than the one
+        # the link sits in
+        step_path = os.path.dirname(os.path.realpath(fragment_filename))
         for product in manifest.products:
             entry = _publish_product(
                 product=product,
@@ -222,10 +230,9 @@ def _report(published, unwritten, missing, rendered, logger):
         f'published {len(published)} products, rendering {rendered} thumbnails'
     )
     if unwritten:
-        # not an error: a step that makes no products writes no manifest
         logger.info(
-            f'{len(unwritten)} steps wrote no manifest, so they published '
-            f'nothing:'
+            f'{len(unwritten)} manifests were named but never written, so '
+            f'nothing from them was published:'
         )
         for filename in unwritten:
             logger.info(f'  {filename}')
