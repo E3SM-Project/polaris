@@ -3,9 +3,18 @@ Unit tests for the climatology map step.
 
 What is checked here is the bookkeeping around the plots rather than the
 plots themselves: that every PNG has a netCDF beside it, that a field the
-simulation did not write is skipped rather than failing the step, and that a
-vertical reduction the machinery cannot reach yet is skipped too.  Plotting
-is stubbed out, since drawing a global mesh needs a mesh.
+simulation did not write is skipped rather than failing the step, and that
+the vertical geometry, which nothing can stand in for, stops it instead.
+Plotting is stubbed out, since drawing a global mesh needs a mesh.
+
+The two reductions that read that geometry are checked on their values as
+well, since the synthetic grid is uniform and shallow enough for both to be
+written down: an elevation halfway between two layer midpoints, and a heat
+content range ending halfway through a layer.
+
+Heat content is the one field group that derives its field instead of
+reading it, so what it adds is that the value written is the one the kernel
+gives, in the unit the file claims, while what is plotted is in another.
 """
 
 import logging
@@ -28,6 +37,14 @@ from polaris.tasks.ocean.analysis.climatology_maps import (
 
 N_CELLS = 5
 N_LEVELS = 4
+
+# a uniform layer thickness, so that the heat content of a column is a number
+# that can be written down
+THICKNESS = 100.0
+
+# the geometry that thickness implies, the same in every column
+Z_INTERFACE = -THICKNESS * np.arange(N_LEVELS + 1)[None, None, :]
+Z_MID = 0.5 * (Z_INTERFACE[:, :, :-1] + Z_INTERFACE[:, :, 1:])
 
 SEASONS = ['ANN', 'JJA']
 
@@ -72,30 +89,50 @@ def test_a_field_the_simulation_did_not_write_is_skipped(step, caplog):
     assert any(name.startswith('temperature') for name in _images(step))
 
 
-def test_an_elevation_that_is_not_implemented_yet_is_skipped(step, caplog):
+def test_a_map_is_plotted_at_an_elevation(step):
     step.config.set(
         'ocean_analysis_climatology',
         'elevations',
         'top, -100.0, bottom',
         user=True,
     )
-    with caplog.at_level(logging.INFO):
-        step.run()
-    assert 'reducing to -100m' in caplog.text
+    step.run()
     assert _images(step) == {
         f'temperature_{season}_{label}.png'
         for season in SEASONS
-        for label in ('top', 'bottom')
+        for label in ('top', '-100m', 'bottom')
     }
 
 
-def test_a_derived_field_group_plots_nothing_yet(step, caplog):
-    step.field_group = 'heat_content'
-    step.fields = []
-    with caplog.at_level(logging.INFO):
+def test_the_map_at_an_elevation_is_the_interpolated_field(step):
+    """-100 m is midway between the midpoints of the top two layers of this
+    uniform 100 m grid, so the value there is the average of the two."""
+    step.config.set(
+        'ocean_analysis_climatology', 'elevations', '-100.0', user=True
+    )
+    step.run()
+    with xr.open_dataset(
+        os.path.join(step.work_dir, 'temperature_ANN_-100m.nc')
+    ) as ds:
+        values = ds.temperature.values
+    for cell in range(N_CELLS):
+        # the climatology holds cell + 10 * level for season ANN
+        assert values[cell] == pytest.approx(cell + 5.0)
+
+
+def test_a_map_at_an_elevation_needs_the_geometry_the_model_wrote(
+    step, tmp_path
+):
+    """A simulation that did not write it is out of spec rather than merely
+    configured without a field, and there is nothing to reconstruct it
+    from, so this stops the step instead of skipping a plot."""
+    for filename in os.listdir(str(tmp_path / 'climatology')):
+        path = str(tmp_path / 'climatology' / filename)
+        with xr.open_dataset(path) as ds:
+            trimmed = ds.drop_vars(['GeomZMid', 'GeomZInterface']).load()
+        trimmed.to_netcdf(path)
+    with pytest.raises(ValueError, match='no zMid, zInterface'):
         step.run()
-    assert 'derived rather than' in caplog.text
-    assert not _images(step)
 
 
 def test_the_field_groups_cover_the_fields_that_are_asked_for():
@@ -135,7 +172,9 @@ def _make_step(tmp_path, monkeypatch, field_group, fields):
     _write_mesh_and_vert_coord(str(work_dir))
 
     config = PolarisConfigParser()
+    config.add_from_package('polaris.ocean', 'ocean.cfg')
     config.add_from_package('polaris.tasks.ocean.analysis', 'analysis.cfg')
+    config.set('ocean', 'model', 'omega')
     config.set(
         'ocean_analysis_climatology',
         'plot_seasons',
@@ -198,6 +237,18 @@ def _write_climatology(climatology_dir):
                     (index + cells + 10.0 * levels)[None, :, :],
                 ),
                 SshCell=(('time', 'NCells'), (index + cells.T)),
+                PseudoThickness=(
+                    ('time', 'NCells', 'NVertLayers'),
+                    np.full((1, N_CELLS, N_LEVELS), THICKNESS),
+                ),
+                GeomZInterface=(
+                    ('time', 'NCells', 'NVertLayersP1'),
+                    np.tile(Z_INTERFACE, (1, N_CELLS, 1)),
+                ),
+                GeomZMid=(
+                    ('time', 'NCells', 'NVertLayers'),
+                    np.tile(Z_MID, (1, N_CELLS, 1)),
+                ),
             )
         )
         ds.to_netcdf(f'{climatology_dir}/case_{season}_000101_000312_climo.nc')
