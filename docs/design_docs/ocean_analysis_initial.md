@@ -789,12 +789,29 @@ The search for $k_1$ is vectorized over columns as the count of valid layer
 midpoints at or above $z$, which avoids a Python loop over cells:
 
 ```python
-k1 = (z_mid >= z).sum(dim='nVertLevels') - 1
+k1 = k_min + (z_mid >= z).sum(dim='nVertLevels') - 1
 ```
 
 with `z_mid` set to `NaN` outside the valid range so invalid layers do not
 contribute, followed by a clip into `[k_min, k_max - 1]` and a mask for the
 out-of-column cases.
+
+The $k_{min}$ term is easy to drop and worth keeping in view.  Because
+`z_mid` is `NaN` above the valid range as well as below it, the count is of
+*valid* midpoints at or above $z$, which is $k_1 - k_{min} + 1$ rather than
+$k_1 + 1$.  Without the term the index lands $k_{min}$ layers too high, which
+is invisible wherever $k_{min} = 0$ and wrong in every ice-shelf cavity: for
+$k_{min} = 3$, $k_{max} = 5$ and a $z$ below every valid midpoint, the count
+is 3, so the index clips to $k_{min}$ and clamps to $f_3$ where the rule above
+says $f_{k_{max}} = f_5$.
+
+Two details of the implementation follow from the rules above rather than
+adding to them.  The two clamping cases come out of clipping the weight $w$
+into $[0, 1]$ after the index is clipped, which reproduces them exactly
+without a branch.  A column with a single valid layer, $k_{min} = k_{max}$,
+does need its own branch: the clip range `[k_min, k_max - 1]` is empty, and
+the answer is $f_{k_{min}}$ rather than an interpolation against a layer below
+the seafloor.
 
 #### Velocity
 
