@@ -2999,6 +2999,12 @@ columns having known layer geometry, `minLevelCell`, and `maxLevelCell`:
   average of the two values;
 - an elevation above the topmost midpoint returns the topmost value, and an
   elevation below the seafloor is masked;
+- a column with a single valid layer returns that layer's value, rather than
+  interpolating it against a layer below the seafloor;
+- an elevation below the second midpoint of a cavity column returns the right
+  layer.  This is the case that distinguishes a bounding-layer search that
+  adds $k_{min}$ back from one that does not, and every column with
+  $k_{min} = 0$ passes either way;
 - a linear-in-$z$ field is recovered exactly at arbitrary elevations.
 
 The last of these is the strongest test: it catches index-off-by-one and
