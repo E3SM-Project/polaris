@@ -141,7 +141,9 @@ class GlobalStatsTimeSeries(AnalysisStep):
             stat: ds[var_name].values.astype(float)
             for stat, var_name in field_stats.items()
         }
-        prefix = f'global_stats_{field}'
+        # the file is named for the field alone; the publish step prefixes
+        # the product group when it publishes it
+        prefix = field
         simulation_name = self.config.get('ocean_analysis', 'simulation_name')
 
         plot_global_stats(

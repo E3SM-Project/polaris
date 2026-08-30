@@ -153,7 +153,7 @@ def test_a_field_the_simulation_did_not_write_is_skipped(tmp_path):
     plotted = sorted(
         os.path.basename(o) for o in step.outputs if o.endswith('.png')
     )
-    assert plotted == ['global_stats_ssh.png', 'global_stats_temperature.png']
+    assert plotted == ['ssh.png', 'temperature.png']
 
 
 def test_a_statistic_the_simulation_did_not_write_is_skipped(tmp_path):
@@ -187,9 +187,9 @@ def test_an_empty_field_list_plots_what_the_simulation_wrote(tmp_path):
         os.path.basename(o) for o in step.outputs if o.endswith('.png')
     )
     assert plotted == [
-        'global_stats_PseudoThickness.png',
-        'global_stats_kineticEnergyCell.png',
-        'global_stats_temperature.png',
+        'PseudoThickness.png',
+        'kineticEnergyCell.png',
+        'temperature.png',
     ]
 
 

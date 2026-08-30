@@ -280,14 +280,14 @@ is the cheapest look at whether a simulation is drifting.
 For each field it produces two files in
 `ocean/analysis/global_stats/<range>/`:
 
-`global_stats_<field>.png`
+`<field>.png`
 : Two panels sharing a time axis in simulation years.  The upper one shows
   the statistics themselves, with the standard deviation as a shaded envelope
   around the mean.  The lower one shows the change in each statistic since
   the beginning of the series, since drift is usually what the reader is
   looking for and it is easy to miss at the scale of the absolute values.
 
-`global_stats_<field>.nc`
+`<field>.nc`
 : Exactly the data that were plotted --- one variable per statistic, the time
   axis in simulation years, and the field, the statistics, the simulation
   name and the year range as global attributes.  It is there so the numbers
