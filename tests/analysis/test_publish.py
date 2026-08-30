@@ -85,7 +85,9 @@ def _merged(output_path):
 
 
 def test_a_fragment_that_was_never_written_is_reported(tmp_path):
-    """A step that made no products writes none, and that is not an error."""
+    """Reported rather than raising, so this is usable on a list nothing has
+    checked.  The publish step does not rely on it: its fragments are
+    declared inputs, and a missing one stops it before it runs."""
     work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
     step_path = _make_step(
@@ -160,6 +162,30 @@ def test_two_ranges_coexist(tmp_path):
     names = sorted(os.listdir(os.path.join(output_path, PLOTS_DIRNAME)))
     assert 'climatology_maps_temperature_ANN_-100m_0001-0010.png' in names
     assert 'climatology_maps_temperature_ANN_-100m_0021-0040.png' in names
+
+
+def test_a_fragment_reached_through_a_symlink_finds_its_products(tmp_path):
+    """The publish step reads its fragments as declared inputs, which are
+    symlinks into the steps that wrote them, and a product is named relative
+    to the step rather than to the link."""
+    work_dir = str(tmp_path / 'work')
+    output_path = str(tmp_path / 'output')
+    step_path = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
+    links = os.path.join(work_dir, 'publish', 'fragments')
+    os.makedirs(links)
+    link = os.path.join(links, 'temperature.json')
+    os.symlink(os.path.join(step_path, FRAGMENT_FILENAME), link)
+
+    published, missing = publish([link], output_path)
+
+    assert missing == []
+    assert len(published) == len(SEASONS)
+    link_path = os.path.join(output_path, published[0]['plot'])
+    assert os.path.realpath(link_path) == os.path.realpath(
+        os.path.join(step_path, 'temperature_ANN_-100m.png')
+    )
 
 
 def test_the_merged_manifest_names_every_product(tmp_path):

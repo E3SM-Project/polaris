@@ -5,6 +5,7 @@ import os
 import pytest
 
 from polaris.analysis import Manifest
+from polaris.analysis.manifest import FRAGMENT_FILENAME
 from polaris.analysis.publish import MERGED_FILENAME, PLOTS_DIRNAME
 from polaris.analysis.site import GALLERIES_DIRNAME, INDEX_FILENAME
 from polaris.analysis.thumbnail import THUMBNAILS_DIRNAME
@@ -63,6 +64,26 @@ def test_the_publish_step_depends_on_every_step_that_makes_products():
     assert 'analysis_global_stats_0001-0010' in step.dependencies
 
 
+def test_every_fragment_is_a_declared_input():
+    """Declared, so Polaris checks it is there and names it if it is not."""
+    component = _make_component()
+    step = _publish_step(component)
+
+    declared = {
+        entry['filename']: entry['work_dir_target']
+        for entry in step.input_data
+        if entry['filename'].startswith('fragments/')
+    }
+    assert step.fragment_filenames == list(declared)
+    assert len(declared) == len(_product_steps(component))
+    for subdir, product in _product_steps(component).items():
+        name = subdir.replace('/', '_')
+        assert (
+            declared[f'fragments/{name}.json']
+            == f'{product.path}/{FRAGMENT_FILENAME}'
+        )
+
+
 def test_the_climatology_is_not_a_dependency():
     """It makes what the maps are plotted from, and publishes nothing."""
     component = _make_component()
@@ -110,7 +131,11 @@ def test_a_dependency_is_asked_for_one_pickle_however_often_it_rebuilds():
 
 
 def _write_fragment(base_work_dir, step, seasons):
-    """Make a step's work directory look like it ran and made products"""
+    """Make a step's work directory look like it ran and made products
+
+    A step with nothing to publish still writes a fragment, with an empty
+    product list, which is what lets the fragment be declared as an input.
+    """
     step_path = os.path.join(base_work_dir, step.path)
     os.makedirs(step_path, exist_ok=True)
     manifest = Manifest(step_name=step.name)
@@ -129,20 +154,44 @@ def _write_fragment(base_work_dir, step, seasons):
     manifest.write(step_path)
 
 
+def _ready_to_run(component, tmp_path, plotted):
+    """Set the publish step up the way ``polaris setup`` would have
+
+    Every step it depends on writes a fragment; the ones not named in
+    ``plotted`` write an empty one.  The fragments are linked into the step's
+    work directory, since they are declared inputs.
+    """
+    step = _publish_step(component)
+    base_work_dir = str(tmp_path / 'work')
+    step.config.set(
+        'ocean_analysis', 'output_path', str(tmp_path / 'output'), user=True
+    )
+    step.base_work_dir = base_work_dir
+    step.work_dir = os.path.join(base_work_dir, step.path)
+    step.logger = logging.getLogger('test_publish_step')
+
+    for subdir, product in _product_steps(component).items():
+        _write_fragment(base_work_dir, product, plotted.get(subdir, []))
+
+    os.makedirs(os.path.join(step.work_dir, 'fragments'), exist_ok=True)
+    for name, dependency in step.dependencies.items():
+        os.symlink(
+            os.path.join(base_work_dir, dependency.path, FRAGMENT_FILENAME),
+            os.path.join(step.work_dir, 'fragments', f'{name}.json'),
+        )
+    return step
+
+
 def test_the_step_publishes_the_fragments_of_the_steps_it_depends_on(
     tmp_path,
 ):
     component = _make_component()
-    step = _publish_step(component)
-    base_work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
-    step.config.set('ocean_analysis', 'output_path', output_path, user=True)
-    step.base_work_dir = base_work_dir
-    step.logger = logging.getLogger('test_publish_step')
+    # every other step ran and wrote an empty fragment, which is not an error
+    step = _ready_to_run(
+        component, tmp_path, {'analysis/moc/0001-0010': ['ANN']}
+    )
 
-    products = _product_steps(component)
-    _write_fragment(base_work_dir, products['analysis/moc/0001-0010'], ['ANN'])
-    # every other step ran and made nothing, which is not an error
     step.run()
 
     with open(os.path.join(output_path, MERGED_FILENAME)) as data:
@@ -161,23 +210,32 @@ def test_the_step_publishes_the_fragments_of_the_steps_it_depends_on(
 
 def test_the_step_reads_the_thumbnail_options_from_the_config(tmp_path):
     component = _make_component()
-    step = _publish_step(component)
-    base_work_dir = str(tmp_path / 'work')
     output_path = str(tmp_path / 'output')
+    step = _ready_to_run(
+        component, tmp_path, {'analysis/moc/0001-0010': ['ANN']}
+    )
     config = step.config
-    config.set('ocean_analysis', 'output_path', output_path, user=True)
     config.set('ocean_analysis', 'thumbnail_size', '40, 40', user=True)
     config.set('ocean_analysis', 'thumbnail_format', 'webp', user=True)
     config.set('ocean_analysis', 'thumbnail_quality', '50', user=True)
-    step.base_work_dir = base_work_dir
-    step.logger = logging.getLogger('test_publish_step')
 
-    products = _product_steps(component)
-    _write_fragment(base_work_dir, products['analysis/moc/0001-0010'], ['ANN'])
     step.run()
 
     thumbnails = os.listdir(os.path.join(output_path, THUMBNAILS_DIRNAME))
     assert thumbnails == ['climatology_maps_moc_ANN_0001-0010.webp']
+
+
+def test_a_suite_that_made_nothing_publishes_an_empty_gallery(tmp_path):
+    """Every step wrote a fragment; every one of them is empty."""
+    component = _make_component()
+    output_path = str(tmp_path / 'output')
+    step = _ready_to_run(component, tmp_path, {})
+
+    step.run()
+
+    with open(os.path.join(output_path, MERGED_FILENAME)) as data:
+        assert json.load(data)['products'] == []
+    assert os.path.exists(os.path.join(output_path, INDEX_FILENAME))
 
 
 def test_the_output_path_defaults_to_the_work_directory(tmp_path):
