@@ -1,11 +1,10 @@
 import os
-from typing import Optional
 
 import xarray as xr
 from mpas_tools.io import write_netcdf
 
+from polaris.ocean.vertical.diagnostics import get_z_mid_and_interface
 from polaris.ocean.vertical.elevation import (
-    IMPLEMENTED_KINDS,
     apply_vertical_reduction,
     get_valid_level_range,
     parse_vertical_reduction,
@@ -145,7 +144,6 @@ class ClimatologyMaps(AnalysisStep):
         )
         self.field_group = field_group
         self.fields = list(fields)
-        self._reductions: Optional[list] = None
         self._coords: dict = {}
         self.add_dependency(climatology, name='climatology')
 
@@ -178,7 +176,8 @@ class ClimatologyMaps(AnalysisStep):
 
         config = self.config
         seasons = config.getlist('ocean_analysis_climatology', 'plot_seasons')
-        self._reductions = None
+        specs = config.getlist('ocean_analysis_climatology', 'elevations')
+        reductions = [parse_vertical_reduction(spec) for spec in specs]
         self._coords = self._mesh_coords()
         min_level_cell, max_level_cell = self._valid_level_range()
         climatology_dir = self.dependencies['climatology'].work_dir
@@ -190,6 +189,11 @@ class ClimatologyMaps(AnalysisStep):
             filename = find_climatology_file(climatology_dir, season)
             self.logger.info(f'{season}: {filename}')
             with self.open_model_dataset(filename, config) as ds:
+                # the climatological-mean layer geometry, which is what a map
+                # at an elevation is a map on
+                z_mid, z_interface = get_z_mid_and_interface(ds)
+                z_mid = _drop_time(z_mid)
+                z_interface = _drop_time(z_interface)
                 for field in self.fields:
                     if field not in ds:
                         self.logger.info(
@@ -201,37 +205,13 @@ class ClimatologyMaps(AnalysisStep):
                         da=ds[field],
                         field=field,
                         season=season,
+                        reductions=reductions,
+                        z_mid=z_mid,
+                        z_interface=z_interface,
                         min_level_cell=min_level_cell,
                         max_level_cell=max_level_cell,
                         descriptor=descriptor,
                     )
-
-    def _get_reductions(self):
-        """
-        Get the vertical reductions to plot fields with a vertical dimension
-        at, reporting the ones that are not implemented yet
-
-        This is worked out on first use rather than up front so that a group
-        with no field that has a vertical dimension does not report anything
-        about elevations, which do not apply to it.
-        """
-        if self._reductions is not None:
-            return self._reductions
-
-        reductions = []
-        specs = self.config.getlist('ocean_analysis_climatology', 'elevations')
-        for spec in specs:
-            reduction = parse_vertical_reduction(spec)
-            if reduction.kind in IMPLEMENTED_KINDS:
-                reductions.append(reduction)
-            else:
-                self.logger.info(
-                    f'  reducing to {reduction.label} needs the vertical '
-                    f'geometry, which is not implemented yet, so no maps '
-                    f'are plotted there'
-                )
-        self._reductions = reductions
-        return reductions
 
     def _mesh_coords(self):
         """
@@ -284,13 +264,15 @@ class ClimatologyMaps(AnalysisStep):
         da,
         field,
         season,
+        reductions,
+        z_mid,
+        z_interface,
         min_level_cell,
         max_level_cell,
         descriptor,
     ):
         """Plot one field for one season, at every reduction that applies"""
-        if 'Time' in da.dims:
-            da = da.isel(Time=0)
+        da = _drop_time(da)
 
         if 'nVertLevels' not in da.dims:
             # a field with no vertical dimension is already a map, so there
@@ -304,10 +286,12 @@ class ClimatologyMaps(AnalysisStep):
                 descriptor=descriptor,
             )
 
-        for reduction in self._get_reductions():
+        for reduction in reductions:
             da_map = apply_vertical_reduction(
                 da,
                 reduction,
+                z_mid=z_mid,
+                z_interface=z_interface,
                 min_level_cell=min_level_cell,
                 max_level_cell=max_level_cell,
             )
@@ -402,3 +386,10 @@ def _group_for_field(field):
         f'to no field group.  The fields that can be mapped are: '
         f'{", ".join(known)}.'
     )
+
+
+def _drop_time(da):
+    """Drop the singleton time dimension a climatology carries"""
+    if 'Time' in da.dims:
+        return da.isel(Time=0)
+    return da
