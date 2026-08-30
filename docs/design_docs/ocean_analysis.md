@@ -907,13 +907,21 @@ uses it, then the tests for the step, then the page that documents the result.
 It keeps every commit reviewable on its own and keeps a test from being
 attributed to code it did not accompany.
 
-**A branch is cut from the branch it actually depends on.**  Where two items
-are independent they branch from the same parent and stay independent rather
-than being stacked for convenience; where one needs another, it is cut from it.
-Shared infrastructure is therefore cut low, below its consumers, even when the
-consumers were written first --- which is why publication branches from the
-scaffolding rather than from the products, as described in
-{ref}`design-ocean-analysis-initial`.
+**The branches form a line, in dependency order.**  Shared infrastructure is
+cut low, below its consumers, even when the consumers were written first: the
+vertical reduction and the manifest writer are both dependencies of every
+product that plots, so both land before any of them.
+
+This replaces an earlier rule that let independent items branch from a common
+parent and stay independent.  It was tried, and the cost was higher than the
+independence was worth.  Siblings cannot see each other, so a helper written
+on one arm was out of reach on the other and had to wait for a merge; the
+integrated tree existed only as a throwaway merge branch that had to be
+rebuilt and its documentation conflicts re-resolved every time anything moved;
+and a rebase low in the tree forked it silently more than once.  A line costs
+a rebase up the chain when something below changes, which is the price of
+having every branch reviewable against the one beneath it and of the top of
+the chain being the integrated tree.
 
 **A branch that changes a dependency ends with the alpha version bump.**
 Adding or re-pinning a package leaves every existing environment stale, and

@@ -2750,52 +2750,62 @@ work carrying its code, its unit tests, and its User's Guide documentation,
 leaving the suite working for the products delivered so far.  Design changes
 are not among them, since those land on the design branch.
 
-The order is by deliverable priority rather than by dependency depth, which is
-why the vertical machinery comes late.  Slicing by layer index needs no
-vertical geometry at all, and heat content over the whole column needs only
-`minLevelCell` and `maxLevelCell`, so both a map and a heat content drift curve
-can be on screen well before elevation interpolation exists.  The standard
-$0$--$700$ m, $700$--$2000$ m and $2000$ m--seafloor ranges then enrich a
-product that already works rather than gating it.
+The order is by dependency rather than by deliverable priority, so that each
+branch is reviewed against the one below it and lands a capability whole.  An
+earlier version ordered by priority, which put the vertical machinery last: a
+map sliced by layer index and a whole-column heat content drift curve need no
+vertical geometry, so both could be on screen before elevation interpolation
+existed, with the standard $0$--$700$ m, $700$--$2000$ m and $2000$
+m--seafloor ranges enriching them later.
+
+That ordering was right for delivery and wrong for review.  It had the
+climatology maps document elevations as asked for and reported as skipped, and
+heat content introduce the vocabulary for elevation ranges while producing
+only the whole column --- prose and API that a later branch then had to
+retract.  Once a product's fragments are published, a partial product set is
+also a visibly incomplete gallery rather than a quiet absence.  The vertical
+reduction is a dependency-light leaf module, unit tested against synthetic
+columns and importing nothing from :py:class:`polaris.Step`, so it costs
+little to land first and saves every branch above it from shipping a
+limitation it will have to un-say.
 
 1. This design document and the umbrella document
    {ref}`design-ocean-analysis`.
-2. The `omega_analysis` scaffolding: the `polaris/tasks/ocean/analysis/`
+2. `polaris/ocean/vertical/elevation.py` --- the full vertical reduction:
+   slicing at a layer index, the sea surface, the seafloor or an elevation,
+   and the weights for an elevation range --- with unit tests.  It depends on
+   nothing else here, and everything vertically reduced above it depends on
+   it.
+3. The `omega_analysis` scaffolding: the `polaris/tasks/ocean/analysis/`
    package, `analysis.cfg`, `sim_files.py` including the reader for the
    simulation's Omega configuration, the range-keyed step subdirectories, the
    tasks with their `configure()` methods, and the `omega_analysis` suite, with
    steps that do nothing yet.  This is where the repeated-analysis structure is
    established, so it lands before anything that depends on it.
-3. The `global_stats` time series step, including factoring the shared plotting
-   function out of `StatsAnalysis`.  It depends on nothing above it, reads
-   Omega's `GlobalStats` output directly, and needs no vertical geometry, so it
-   is the earliest point at which the suite produces a plot a scientist wants.
-4. The `Climatology` step (`ncclimo`).  Early because it carries the most
+4. Publication: the manifest writer, the `publish` step that collects and
+   renders thumbnails, and the generated gallery over the staging tree, as
+   designed under `publication`.  It comes before the products because the
+   manifest writer is a dependency of every plotting step and because every
+   step that makes products must leave a fragment for the `publish` step to
+   declare as an input.
+5. The `global_stats` time series step, including factoring the shared plotting
+   function out of `StatsAnalysis`.  It reads Omega's `GlobalStats` output
+   directly and needs no vertical geometry, so it is the earliest point at
+   which the suite produces a plot a scientist wants.  It also brings
+   `OceanIOStep.add_produced_file()`, which every plotting step above uses.
+6. The `Climatology` step (`ncclimo`).  Early because it carries the most
    external risk in the design: it shells out to NCO and depends on Omega's
    time metadata being read correctly by a tool we do not control.  Everything
    map-shaped is blocked on it, so we want to find out.
-5. The `ClimatologyMaps` step, restricted to fields with no vertical dimension
-   and to slicing by layer index.  The first maps on disk, and no vertical
-   geometry needed.
-6. Publication: the manifest writer, the `publish` step that collects and
-   renders thumbnails, and the generated gallery over the staging tree, as
-   designed under `publication`.  Its position in this list is a priority
-   rather than a dependency: it is cut from item 2 and not from the products,
-   because the manifest writer is a dependency of every plotting step.  The
-   product branches above it therefore rebase onto it, each gaining one commit
-   that emits its own fragments.
-7. `polaris/ocean/heat_content.py` and whole-column mass weights, with unit
-   tests.
-8. The `heat_content` field group of `ClimatologyMaps`, whole column only.
-9. The `Accumulator` base class --- seed discovery and provenance stamping ---
-   with unit tests, since this is the piece whose failure modes are silent.
-10. The `heat_content_series` step built on it, whole column only.  Heat content
-    drift is what a coupled run is judged on, which is why it precedes the
-    vertical machinery rather than following it.
-11. `polaris/ocean/vertical/elevation.py` --- the full vertical reduction:
-    interpolation to an elevation, the sea surface, the seafloor, and elevation
-    ranges --- with unit tests.  This enriches items 5, 8 and 10, each of which
-    already works without it.
+7. The `ClimatologyMaps` step.  The first maps on disk, at any elevation the
+   vertical reduction supports rather than at layer indices only.
+8. `polaris/ocean/heat_content.py` and the mass weights, with unit tests.
+9. The `heat_content` field group of `ClimatologyMaps`, over the whole column
+   and over the standard elevation ranges.
+10. The `Accumulator` base class --- seed discovery and provenance stamping ---
+    with unit tests, since this is the piece whose failure modes are silent.
+11. The `heat_content_series` step built on it.  Heat content drift is what a
+    coupled run is judged on.
 12. The `moc` step and the `plot_lat_elevation_field` primitive.
 13. The `replot` option.
 14. The offline `mixed_layer_depth` accumulator and its climatology, only if
