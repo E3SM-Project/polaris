@@ -4,7 +4,6 @@ import os
 
 import pytest
 
-from polaris.analysis import Manifest
 from polaris.analysis.manifest import FRAGMENT_FILENAME
 from polaris.analysis.publish import MERGED_FILENAME, PLOTS_DIRNAME
 from polaris.analysis.site import GALLERIES_DIRNAME, INDEX_FILENAME
@@ -130,36 +129,34 @@ def test_a_dependency_is_asked_for_one_pickle_however_often_it_rebuilds():
         assert step.outputs.count('step_after_run.pickle') == 1
 
 
-def _write_fragment(base_work_dir, step, seasons):
-    """Make a step's work directory look like it ran and made products
+def _run_product_step(base_work_dir, step, seasons):
+    """Run a step the way the runner would, and have it make its products
 
-    A step with nothing to publish still writes a fragment, with an empty
-    product list, which is what lets the fragment be declared as an input.
+    The step writes its own fragment: an empty one from ``runtime_setup()``,
+    which is what a step with nothing to publish leaves behind, and a product
+    at a time after that.
     """
-    step_path = os.path.join(base_work_dir, step.path)
-    os.makedirs(step_path, exist_ok=True)
-    manifest = Manifest(step_name=step.name)
+    step.work_dir = os.path.join(base_work_dir, step.path)
+    os.makedirs(step.work_dir, exist_ok=True)
+    step.runtime_setup()
     for season in seasons:
         plot = f'{step.name}_{season}.png'
-        write_plot(os.path.join(step_path, plot))
-        manifest.add(
+        write_plot(os.path.join(step.work_dir, plot))
+        step.add_product(
             plot=plot,
             group='climatology_maps',
             gallery=step.name,
             title=f'{step.name}, {season}',
             season=season,
-            start_year=1,
-            end_year=10,
         )
-    manifest.write(step_path)
 
 
 def _ready_to_run(component, tmp_path, plotted):
     """Set the publish step up the way ``polaris setup`` would have
 
-    Every step it depends on writes a fragment; the ones not named in
-    ``plotted`` write an empty one.  The fragments are linked into the step's
-    work directory, since they are declared inputs.
+    Every step it depends on runs and writes a fragment; the ones not named
+    in ``plotted`` make nothing and write an empty one.  The fragments are
+    linked into the step's work directory, since they are declared inputs.
     """
     step = _publish_step(component)
     base_work_dir = str(tmp_path / 'work')
@@ -171,7 +168,7 @@ def _ready_to_run(component, tmp_path, plotted):
     step.logger = logging.getLogger('test_publish_step')
 
     for subdir, product in _product_steps(component).items():
-        _write_fragment(base_work_dir, product, plotted.get(subdir, []))
+        _run_product_step(base_work_dir, product, plotted.get(subdir, []))
 
     os.makedirs(os.path.join(step.work_dir, 'fragments'), exist_ok=True)
     for name, dependency in step.dependencies.items():
@@ -226,7 +223,9 @@ def test_the_step_reads_the_thumbnail_options_from_the_config(tmp_path):
 
 
 def test_a_suite_that_made_nothing_publishes_an_empty_gallery(tmp_path):
-    """Every step wrote a fragment; every one of them is empty."""
+    """Every step ran and wrote a fragment, and every one of them is empty.
+    This is the state a suite whose steps make nothing yet really reaches: a
+    step that wrote no fragment at all stops publish before it runs."""
     component = _make_component()
     output_path = str(tmp_path / 'output')
     step = _ready_to_run(component, tmp_path, {})
