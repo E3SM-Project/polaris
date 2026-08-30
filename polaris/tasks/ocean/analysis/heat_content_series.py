@@ -50,8 +50,10 @@ KERNEL_VERSION = 1
 # The cache of reduced months, which is what a later range inherits, and the
 # product written from it
 CACHE_FILENAME = 'ocean_heat_content_cache.nc'
-SERIES_FILENAME = 'ocean_heat_content_time_series.nc'
-PLOT_FILENAME = 'ocean_heat_content_time_series.png'
+# named for the product alone; the publish step prefixes the group when it
+# publishes it, so a name that repeats it comes out doubled
+SERIES_FILENAME = 'heat_content.nc'
+PLOT_FILENAME = 'heat_content.png'
 
 # Heat content is written in J, which is the unit it means, and plotted in
 # 10^22 J, which is the unit heat content budgets are quoted in and a number a
@@ -363,6 +365,16 @@ class HeatContentSeries(Accumulator):
             figure.savefig(self.work_path(PLOT_FILENAME))
             plt.close(figure)
         self.logger.info(f'wrote {PLOT_FILENAME}')
+        # one product, in the time series group it shares with the global
+        # statistics, so both are one section of the landing page
+        self.add_product(
+            plot=PLOT_FILENAME,
+            data=SERIES_FILENAME,
+            group='time_series',
+            gallery='heat_content',
+            title='Ocean heat content',
+            field='heat_content',
+        )
 
     def _check_fields(self, ds, filename):
         """Report what a month is missing, rather than raising on a name"""

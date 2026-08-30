@@ -548,13 +548,13 @@ end_year = 60
 
 Three files land in the step's directory:
 
-`ocean_heat_content_time_series.png`
+`heat_content.png`
 : two panels sharing a time axis -- the heat content of each range in
   $10^{22}$ J, which the deep ocean dominates, and its anomaly from the first
   month of the range, which is where a drift of a few tenths of a percent is
   visible at all.
 
-`ocean_heat_content_time_series.nc`
+`heat_content.nc`
 : the same series in J, with the year and the month of each value, and the
   range and the options it was computed under as attributes.
 
