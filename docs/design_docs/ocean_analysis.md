@@ -367,7 +367,7 @@ steps, the manifest, or the published paths has to change when it arrives.
 
 ### Requirement: pruning and archiving
 
-Date last modified: 2026/08/29
+Date last modified: 2026/08/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -830,7 +830,7 @@ designed.*  Algorithm designs for the Phase 1 capabilities are in
 
 ### Implementation: code organization
 
-Date last modified: 2026/08/29
+Date last modified: 2026/08/30
 
 Contributors: Xylar Asay-Davis, Claude
 

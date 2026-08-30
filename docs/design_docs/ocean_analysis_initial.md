@@ -713,7 +713,7 @@ already encodes the range in its output file names
 
 ### Algorithm Design: climatology-maps
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1576,7 +1576,7 @@ provenance stamp that makes them safe to inherit across runs.
 
 ### Implementation: repeated-analysis
 
-Date last modified: 2026/08/29
+Date last modified: 2026/08/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1761,7 +1761,7 @@ requested fields for every season.
 
 ### Implementation: publication
 
-Date last modified: 2026/08/29
+Date last modified: 2026/08/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -2756,7 +2756,7 @@ quietly, so this is the first thing to build once the products are out.
 
 ### Implementation: order of work
 
-Date last modified: 2026/08/29
+Date last modified: 2026/08/30
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -2997,7 +2997,7 @@ The test is skipped if `ncclimo` is not on the path.
 
 ### Testing and Validation: climatology-maps
 
-Date last modified: 2026/08/25
+Date last modified: 2026/08/30
 
 Contributors: Xylar Asay-Davis, Claude
 
