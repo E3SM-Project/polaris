@@ -349,6 +349,18 @@ class ClimatologyMaps(AnalysisStep):
         # instead.
         for filename in (f'{basename}.nc', f'{basename}.png'):
             self.add_produced_file(filename)
+        # a gallery per field, so the landing page shows one thumbnail for
+        # each field rather than one for the whole group of maps
+        self.add_product(
+            plot=f'{basename}.png',
+            data=f'{basename}.nc',
+            group='climatology_maps',
+            gallery=field,
+            title=title,
+            field=field,
+            season=season,
+            reduction=reduction,
+        )
         self.logger.info(f'  {os.path.basename(png_filename)}')
         return descriptor
 
