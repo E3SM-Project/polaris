@@ -233,6 +233,42 @@ what makes re-analysis behave sensibly:
   so analyzing years 21--40 leaves the results for years 1--20 in place.  This
   also makes it impossible to get a plot labelled with one range whose
   contents came from another.
+- **An overlapping range inherits rather than recomputes.**  The products that
+  reduce the simulation month by month -- ocean heat content so far -- cache
+  each month they reduce, and a later range reads the months an earlier one
+  already did instead of reading those monthly means again.  Extending a
+  twenty-year series to forty therefore costs twenty years, and re-running a
+  sub-range of one already analyzed costs nothing.
+
+(ocean-analysis-inheritance)=
+
+### what may be inherited, and what may not
+
+Inheriting numbers that were computed from something else is the one way this
+could go quietly wrong, so what a cache has to agree with before it is used is
+deliberately narrow:
+
+- Only directories of **the same product** in **the same work directory** are
+  looked at -- sibling ranges of that product, and nothing else.
+- Only steps that **finished** are, so a cache left behind by an interrupted
+  run is not picked up.  The exception is the step's own directory: a run that
+  was interrupted picks up where it left off when it is re-run.
+- Only caches carrying the same **provenance stamp** are: the simulation's
+  Omega configuration and output directory, the mesh, the config options that
+  decide the numbers -- the elevation ranges and the specific heat capacity
+  for heat content -- and a version number for the code that computed them.
+  The path says nothing about which simulation was analyzed, so the stamp is
+  what keeps a work directory pointed at a second simulation from mixing the
+  two.
+
+Every run says in its log how many months it inherited and from where, and
+names any candidate it turned down together with the entry of the stamp that
+differs.  The stamp is also written into the cache and into the product beside
+it, so `ncdump -h` on a result says what it came from.
+
+Setting `reuse_previous = False` in `[ocean_analysis]` turns inheritance off
+and recomputes everything from the monthly means, for anyone who wants
+determinism rather than discovery.
 
 Re-running `polaris setup` rewrites the suite pickle at the root of the work
 directory, so the range most recently set up is the one `polaris serial` will
@@ -253,7 +289,7 @@ The suite is being built up product by product.  What exists so far:
 | --- | --- | --- |
 | `climatology_maps` | map-view climatologies and ocean heat content maps, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
 | `global_stats` | time series of the simulation's global statistics | {ref}`available <ocean-analysis-global-stats>` |
-| `heat_content_series` | time series of globally integrated ocean heat content | not yet implemented |
+| `heat_content_series` | time series of globally integrated ocean heat content | {ref}`available <ocean-analysis-heat-content-series>` |
 | `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
 | `publish` | the staging tree and the {ref}`gallery <ocean-analysis-gallery>` over it | implemented |
 
@@ -484,6 +520,59 @@ Omega can write these statistics either as snapshots or as time means over a
 period it is configured with, and it names the variables differently in the
 two cases.  Polaris reads the simulation's Omega configuration to find out
 which it wrote, so this needs no option of its own.
+
+(ocean-analysis-heat-content-series)=
+
+### ocean heat content time series
+
+The `heat_content_series` task reduces every month of the simulation to the
+globally integrated ocean heat content of each elevation range and plots the
+series.  Heat content drift is what a long coupled simulation is judged on,
+which is why this comes before the vertical machinery that would enrich it.
+
+The integral is the same mass-weighted one the maps take, over the same ranges
+from `[ocean_analysis_ohc]`, described under
+{ref}`ocean-analysis-heat-content-maps`; the difference is that it is taken
+from the monthly means themselves rather than from a climatology.  Averaging
+over the range is exactly what a drift curve must not do, so the climatology
+is no use here.
+
+The range of years is `start_year` and `end_year` in
+`[ocean_analysis_time_series]`, the same range the global statistics use:
+
+```cfg
+[ocean_analysis_time_series]
+start_year = 1
+end_year = 60
+```
+
+Three files land in the step's directory:
+
+`ocean_heat_content_time_series.png`
+: two panels sharing a time axis -- the heat content of each range in
+  $10^{22}$ J, which the deep ocean dominates, and its anomaly from the first
+  month of the range, which is where a drift of a few tenths of a percent is
+  visible at all.
+
+`ocean_heat_content_time_series.nc`
+: the same series in J, with the year and the month of each value, and the
+  range and the options it was computed under as attributes.
+
+`ocean_heat_content_cache.nc`
+: the reduced months, which is what a later range inherits; see
+  {ref}`ocean-analysis-inheritance`.
+
+Only `temperature` and the model's mass-like thickness are read from each
+month, and only one month is held at a time, so the memory this step needs
+does not grow with the length of the record.  A first run over several decades
+at high resolution is the most expensive thing in the suite, and every run
+after it is nearly free.
+
+**Only `top:bottom` is integrated so far**, for the same reason as in the
+maps: a range with a boundary inside a layer needs vertical geometry that is
+not implemented yet.  The ranges that are left out are named in the step's
+log.  A configuration in which *no* range can be integrated -- one with no
+`top:bottom` in it -- is an error at setup rather than an empty plot later.
 
 ## troubleshooting
 
