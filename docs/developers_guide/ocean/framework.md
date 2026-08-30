@@ -1071,11 +1071,18 @@ without a plotting step changing.  Two things about it are easy to get wrong:
 
 - **It never looks for its inputs.**  Walking the work directory for anything
   named `manifest.json` would be invisible to Polaris's input checking and to
-  {ref}`dev-task-parallelism`, so instead the step declares every step that
-  makes products as a dependency.  A step that only computes intermediate
-  results sets `makes_products = False` on its class --- the climatology does
-  --- and is left out.  A fragment itself is optional: a step that ran and
-  made no products writes none, and that is reported rather than failing.
+  {ref}`dev-task-parallelism`, so instead each fragment is a declared input,
+  linked into the step's `fragments/` directory from the step that wrote it,
+  and each of those steps is a dependency as well.  A step that only computes
+  intermediate results sets `makes_products = False` on its class --- the
+  climatology does --- and is left out of both.
+
+  This is why a step calls `Manifest.write()` at the end of `run()` whether or
+  not it made anything.  A step with nothing to publish writes an empty
+  product list, which is what lets the fragment be declared and checked
+  instead of tolerated when absent.  The two failures stay distinguishable:
+  a fragment that is missing means a step ran without writing one, and a
+  dependency's missing pickle means the step did not run at all.
 - **Its dependencies are step objects, and the tasks sharing a config are
   configured in an arbitrary order.**  Every analysis task discards its steps
   and builds new ones each time it is configured, and Polaris checks that a
