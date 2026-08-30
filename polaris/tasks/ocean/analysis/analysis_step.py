@@ -1,9 +1,18 @@
 import os
 
+import xarray as xr
+
 from polaris.analysis import Manifest
 from polaris.analysis.manifest import FRAGMENT_FILENAME
 from polaris.ocean.model import OceanIOStep
+from polaris.ocean.vertical.elevation import get_valid_level_range
 from polaris.tasks.ocean.analysis.sim_files import SimulationFiles
+
+# The local names the simulation's mesh and vertical coordinate are linked
+# into a step's work directory as.  Both are named here rather than in each
+# step, since a step that reads one reads it under this name.
+MESH_FILENAME = 'mesh.nc'
+VERT_COORD_FILENAME = 'vert_coord.nc'
 
 
 class AnalysisStep(OceanIOStep):
@@ -214,6 +223,55 @@ class AnalysisStep(OceanIOStep):
         """
         for sim_file in sim_files:
             self.add_sim_input_file(sim_file.path)
+
+    def read_fields(self, filename, fields):
+        """
+        Read a few named fields from a file of the simulation, translating
+        their names but nothing else
+
+        The mesh and the vertical coordinate a simulation names are often
+        its initial condition, which carries a full model state.  Opening one
+        as a model data set would then derive specific volume from that
+        state --- an equation-of-state solve --- to get a handful of fields
+        that are already there, so the names are translated and nothing else
+        is done.
+
+        Parameters
+        ----------
+        filename : str
+            The local name of the file in the step's work directory
+
+        fields : list of str
+            The MPAS-Ocean names of the fields to read; a field the file does
+            not have is left out
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The fields that were there, with MPAS-Ocean names, in memory
+        """
+        wanted = self.component.map_var_list_to_native_model(fields)
+        with xr.open_dataset(self.work_path(filename)) as ds_native:
+            present = [name for name in wanted if name in ds_native]
+            return self.map_from_native_model_vars(ds_native[present]).load()
+
+    def valid_level_range(self):
+        """
+        Get the topmost and bottommost valid layer of each column, from the
+        vertical coordinate the step linked
+
+        Returns
+        -------
+        min_level_cell : xarray.DataArray
+            The zero-based index of the topmost valid layer of each column
+
+        max_level_cell : xarray.DataArray
+            The zero-based index of the bottommost valid layer of each column
+        """
+        ds = self.read_fields(
+            VERT_COORD_FILENAME, ['minLevelCell', 'maxLevelCell']
+        )
+        return get_valid_level_range(ds)
 
     def log_inputs(self):
         """
