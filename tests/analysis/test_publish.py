@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 import numpy as np
@@ -273,3 +274,25 @@ def test_a_product_with_no_data_file_publishes_its_plot(tmp_path):
     # no range facets, so no range in the name
     assert published[0]['plot'] == os.path.join(PLOTS_DIRNAME, 'moc_moc.png')
     assert published[0]['data'] is None
+
+
+def test_a_step_that_published_nothing_is_named_in_the_log(tmp_path, caplog):
+    """An empty fragment is an absence in the gallery, so the log is the only
+    place the step that wrote it is named at all."""
+    work_dir = str(tmp_path / 'work')
+    output_path = str(tmp_path / 'output')
+    maps = _make_step(
+        work_dir, 'maps', 'climatology_maps/0021-0040/temperature'
+    )
+    quiet = _make_step(work_dir, 'moc', 'moc/0021-0040', seasons=[])
+
+    with caplog.at_level(logging.INFO):
+        publish(
+            _fragments(maps, quiet),
+            output_path,
+            logger=logging.getLogger('test_publish'),
+        )
+
+    assert f'published {len(SEASONS)} products from 2 manifests' in caplog.text
+    assert '1 steps published nothing:' in caplog.text
+    assert '  moc' in caplog.text
