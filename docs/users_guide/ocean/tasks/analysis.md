@@ -251,7 +251,7 @@ The suite is being built up product by product.  What exists so far:
 
 | task | product | status |
 | --- | --- | --- |
-| `climatology_maps` | map-view climatologies, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
+| `climatology_maps` | map-view climatologies and ocean heat content maps, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
 | `global_stats` | time series of the simulation's global statistics | {ref}`available <ocean-analysis-global-stats>` |
 | `heat_content_series` | time series of globally integrated ocean heat content | not yet implemented |
 | `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
@@ -369,6 +369,61 @@ range can be set for each field independently.  A section is named for its
 field with the field name in lower case with underscores, so `velocityZonal`
 is configured by `[ocean_analysis_map_velocity_zonal]`.
 
+(ocean-analysis-heat-content-maps)=
+
+#### ocean heat content
+
+The `heat_content` field group is the one group that derives its field rather
+than reading it.  It is always present, whatever `fields` asks for, since it
+is a diagnostic Polaris computes rather than a variable a simulation writes.
+
+Heat content per unit area is a **mass**-weighted integral of conservative
+temperature: the specific heat capacity times the sum over layers of
+temperature weighted by each layer's mass per unit area.  That mass comes
+from the model's own mass-like thickness -- `PseudoThickness` for Omega,
+`layerThickness` for MPAS-Ocean -- times the reference density that defines
+Omega's pseudo-height.  Weighting by mass rather than by a geometric
+thickness is what removes the in-situ-versus-reference density error of a few
+tenths of a percent that MPAS-Analysis's formulation carries.
+
+The ranges to integrate over are given by `elevation_ranges` in
+`[ocean_analysis_ohc]`, written `<top>:<bottom>` in m, positive up:
+
+```cfg
+[ocean_analysis_ohc]
+elevation_ranges = top:-700.0, -700.0:-2000.0, -2000.0:bottom, top:bottom
+```
+
+`top` is the free surface of each column and `bottom` is its seafloor, so
+`top:bottom` is the whole column.  These are geometric elevations, matching
+the convention MPAS-Analysis and the observational products use; the integral
+itself is still mass-weighted.  Writing the upper bound as `top` rather than
+as `0.0` matters: `0.0` would exclude the water between the resting sea
+surface and the free surface, and a different amount of it in every column and
+every season.
+
+A range boundary usually falls inside a layer rather than on an interface,
+and the geometry enters there and nowhere else: the layer is weighted by the
+fraction of its thickness that the range covers, and that fraction is applied
+to its mass.  A layer lying wholly within the range therefore contributes its
+whole mass whatever the geometry says, and a range that reaches below the
+seafloor is truncated there.  A column with no water in the range at all --
+one shallower than 2000 m, for the `-2000.0:bottom` band -- is masked rather
+than plotted as zero.
+
+The specific heat capacity defaults to the value in Polaris's Physical
+Constants Dictionary, which is the one the rest of E3SM uses.  Uncommenting
+`seawater_specific_heat_capacity` sets it to something else -- the TEOS-10
+constant, 3991.86795711963, being the interesting alternative, since with
+conservative temperature that constant makes the integral heat content by
+definition rather than to 0.1%.
+
+Output names follow the rest of the maps, with the range in place of the
+elevation, for example `heat_content_ANN_top_to_bottom.png`.  The netCDF is
+written in J m-2, which is the unit the quantity means, and carries the range
+as attributes so a plot cannot be mistaken for a different one; the plot is
+drawn in GJ m-2, which is a readable number.
+
 #### what is not there yet
 
 Two fields in the config file are asked for and reported as skipped rather
@@ -378,9 +433,6 @@ than silently dropped.  Each says so in the step's log:
   Polaris does not reconstruct them from the edge-normal velocity; the
   reconstruction belongs in the model, where it costs nothing in accuracy.
 - **`mixedLayerDepth`** is likewise a diagnostic Omega does not compute yet.
-
-The `heat_content` field group exists but derives nothing yet, so it produces
-no maps.
 
 (ocean-analysis-global-stats)=
 

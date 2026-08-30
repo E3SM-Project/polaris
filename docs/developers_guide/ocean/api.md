@@ -66,6 +66,9 @@
    global_stats.GlobalStatsTimeSeries.setup
    global_stats.GlobalStatsTimeSeries.run
 
+   heat_content_config.get_elevation_ranges
+   heat_content_config.get_specific_heat
+
    heat_content_series.HeatContentSeries
    heat_content_series.HeatContentSeries.setup
    heat_content_series.HeatContentSeries.run
@@ -769,6 +772,7 @@
 
    OceanModelFilesMixin
 
+   get_layer_mass
    get_days_since_start
    get_simulation_years
    days_per_year
@@ -795,6 +799,18 @@
    teos10.ct_from_potential_density
 ```
 
+
+### Heat content
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean
+
+.. autosummary::
+   :toctree: generated/
+
+   heat_content.heat_content
+
+```
 
 ### Initial state
 
@@ -854,6 +870,9 @@
    vertical.elevation.apply_vertical_reduction
    vertical.elevation.get_valid_level_range
    vertical.elevation.elevation_label
+   vertical.elevation.range_bound_label
+   vertical.elevation.is_whole_column
+   vertical.elevation.elevation_range_weights
    vertical.grid_1d.generate_1d_grid
    vertical.grid_1d.write_1d_grid
    vertical.partial_cells.alter_bottom_depth
