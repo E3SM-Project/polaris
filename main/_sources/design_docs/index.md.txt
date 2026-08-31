@@ -7,6 +7,8 @@
 
 horiz_press_grad_reference
 land_locked_cells
+ocean_analysis
+ocean_analysis_initial
 overflow_nonlinear_eos
 pstar_init
 shared_steps
