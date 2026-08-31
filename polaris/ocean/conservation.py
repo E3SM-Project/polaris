@@ -312,6 +312,7 @@ def compute_flux_forcing(
             ds,
             model,
             temperature_sources,
+            config=config,
         )
 
     return total * dt
@@ -322,6 +323,7 @@ def _compute_enthalpy_forcing(
     ds,
     model,
     temperature_sources,
+    config=None,
 ):
     """
     Accumulate the enthalpy heat flux carried by mass fluxes such as rain,
@@ -347,6 +349,12 @@ def _compute_enthalpy_forcing(
           >= 0 C, since fresh water cannot be colder than 0 C
         * ``'freezing'``: the local freezing temperature, applied to frozen
           mass fluxes that the ocean melts
+
+    config : polaris.config.PolarisConfigParser, optional
+
+        Configuration options, used to compute the freezing temperature from
+        the equation of state when a frozen mass flux carries an enthalpy
+        flux and the model's freezing temperature is not in the output
 
     Returns
     -------
@@ -375,9 +383,19 @@ def _compute_enthalpy_forcing(
         if source == 'surface':
             potential_enthalpy = cp_sw[model] * surface_temperature
         elif source == 'surface_clamped':
-            # fresh water cannot be colder than 0 C
+            # fresh water cannot be colder than the minimum enthalpy for the
+            # EOS
+            if config is None:
+                raise ValueError(
+                    'config argument is required for surface_clamped fluxes'
+                )
+            eos_type = config.get('ocean', 'eos_type')
+            if eos_type == 'teos-10':
+                ct_min = ct0_fw[model]
+            else:
+                ct_min = 0.0
             potential_enthalpy = cp_sw[model] * (
-                np.maximum(surface_temperature, ct0_fw[model])
+                np.maximum(surface_temperature, ct_min)
             )
         elif source == 'freezing':
             potential_enthalpy = -latent_heat_fusion[model]

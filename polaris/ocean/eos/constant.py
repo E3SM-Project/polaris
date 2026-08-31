@@ -36,6 +36,7 @@ def compute_constant_density(
     )
     # Return density of same type and size as temperature
     # (needs to work for both float and xarray DataArray)
+    density: xr.DataArray | float
     if isinstance(temperature, xr.DataArray):
         density = rhoref * xr.ones_like(temperature)
     else:
@@ -62,6 +63,7 @@ def compute_constant_ct_freezing(
     """
     # Return a freezing temperature of the same type and size as salinity
     # (needs to work for both float and xarray DataArray)
+    ct_freezing: xr.DataArray | float
     if isinstance(salinity, xr.DataArray):
         ct_freezing = CONSTANT_CT_FREEZING * xr.ones_like(salinity)
     else:

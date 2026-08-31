@@ -169,19 +169,17 @@ class Viz(OceanIOStep):
                             f'Plot {field_name} for '
                             f'{comparison_name} at {t_days} days'
                         )
-                        u_final = ds_comp['velocityZonal'].mean(dim='nCells')
-                        v_final = ds_comp['velocityMeridional'].mean(
-                            dim='nCells'
-                        )
+                        var = ds_comp['velocityZonal'].mean(dim='nCells')
                         plt.plot(
-                            u_final,
+                            var,
                             z_mid_final,
                             '-',
                             color=color,
                             label=f'u {comparison_name}, {t_days:2g} days',
                         )
+                        var = ds_comp['velocityMeridional'].mean(dim='nCells')
                         plt.plot(
-                            v_final,
+                            var,
                             z_mid_final,
                             '--',
                             color=color,
@@ -195,16 +193,14 @@ class Viz(OceanIOStep):
                                 f'{comparison_name}'
                             )
                             continue
-                        var_comp = ds_comp[field_name].mean(dim='nCells')
-                        if 'nVertLevelsP1' in var_comp.dims:
-                            var_comp = var_comp.isel(
-                                nVertLevelsP1=slice(0, -1)
-                            )
+                        var = ds_comp[field_name].mean(dim='nCells')
+                        if 'nVertLevelsP1' in var.dims:
+                            var = var.isel(nVertLevelsP1=slice(0, -1))
                         # TODO delete this line when MPAS-O bug is fixed
                         if field_name == 'RiTopOfCell':
-                            var_comp[0] = np.nan
+                            var[0] = np.nan
                         plt.plot(
-                            var_comp,
+                            var,
                             z_mid_final,
                             '-',
                             color=color,
@@ -233,11 +229,14 @@ class Viz(OceanIOStep):
                     )
                     plt.close()
                     continue
-                plt.ylim(-100, 0)
-                if field_name == 'temperature':
-                    plt.xlim(15, 25)
-                else:
-                    plt.xlim(auto=True)
+                ymin = -100.0
+                ymax = 0.0
+                plt.ylim(ymin, ymax)
+                visible_x = var[(z_mid_final >= ymin) & (z_mid_final <= ymax)]
+                x_min = float(visible_x.min().values)
+                x_max = float(visible_x.max().values)
+                x_margin = (x_max - x_min) * 0.05
+                plt.xlim(x_min - x_margin, x_max + x_margin)
                 plt.xlabel(f'{field_name} ({field_units})')
                 plt.ylabel('z (m)')
                 # Place a single legend centered below the x-axis
@@ -248,5 +247,4 @@ class Viz(OceanIOStep):
                     frameon=False,
                 )
                 plt.savefig(f'{field_name}.png', bbox_inches='tight')
-                self.logger.info(f'Plotted {field_name}')
                 plt.close()
