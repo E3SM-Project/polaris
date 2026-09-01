@@ -1,6 +1,7 @@
 ocean/column/horiz_press_grad/salinity_gradient
 ocean/column/vmix_stable
 ocean/column/vmix_unstable
+ocean/column/thermo
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
 ocean/planar/baroclinic_channel/10km/threads
