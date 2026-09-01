@@ -174,8 +174,7 @@ per unit area are:
 
 - mass: `RhoSw * sum_k(dh_k)` vs the accumulated freshwater plus sea-ice salt
   flux (both enter Omega's thickness equation),
-- heat: `RhoSw * Cp0Sw * sum_k(d(h_k T_k))` vs the accumulated direct heat
-  flux, and
+- heat: `RhoSw * Cp0Sw * sum_k(d(h_k T_k))` vs the accumulated enthalpy flux,
 - salt: `(RhoSw / 1000) * sum_k(d(h_k S_k))` vs the accumulated sea-ice
   salinity flux.
 

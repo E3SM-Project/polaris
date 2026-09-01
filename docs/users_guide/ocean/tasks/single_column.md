@@ -541,8 +541,8 @@ See {ref}`ocean-single-column`.
 
 ### initial conditions
 
-The temperature and salinity are constant with depth. See
-{ref}`ocean-single-column`.
+The temperature profile follows `stable.cfg` and salinity is constant with
+depth. See {ref}`ocean-single-column`.
 
 ### forcing
 
