@@ -132,7 +132,77 @@ def pseudothickness_from_ds(
     return pseudothickness, spec_vol
 
 
+def get_z_mid_and_interface(ds, allow_reconstruct=False):
+    """
+    Get the elevation of layer midpoints and of layer interfaces
+
+    What the model wrote is preferred.  Reconstructing them from
+    ``layerThickness`` is available but off by default, because it is not
+    always valid: the monthly mean of geometric thickness cannot be derived
+    from the monthly means of pseudo-thickness and specific volume, so
+    analysis of monthly means has to read what the model wrote or refuse.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A data set holding the vertical geometry, with MPAS-Ocean names
+
+    allow_reconstruct : bool, optional
+        Whether to reconstruct the geometry from ``layerThickness`` when the
+        data set does not carry it
+
+    Returns
+    -------
+    z_mid : xarray.DataArray
+        The elevation of layer midpoints, in m, positive up
+
+    z_interface : xarray.DataArray
+        The elevation of layer interfaces, in m, positive up
+
+    Raises
+    ------
+    ValueError
+        If the data set lacks the geometry and it may not be reconstructed
+    """
+    missing = [name for name in ('zMid', 'zInterface') if name not in ds]
+    if not missing:
+        return ds.zMid, ds.zInterface
+    if not allow_reconstruct:
+        raise ValueError(
+            f'The data set has no {", ".join(missing)}, which is the '
+            f'vertical geometry an elevation is a position in.  Polaris '
+            f'cannot reconstruct it from the monthly means of the other '
+            f'fields, so a simulation has to write it for its output to be '
+            f'analysed at an elevation.'
+        )
+    return _z_from_thickness(ds)
+
+
 def depth_from_thickness(ds):
+    """
+    Get the elevation of the midpoint of each layer
+
+    A thin face on :py:func:`get_z_mid_and_interface` for callers that want
+    only the midpoints.  What the model wrote is preferred; the geometry is
+    reconstructed from ``layerThickness`` when it is absent.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An ocean dataset carrying the geometry or ``layerThickness``, and
+        optionally ``ssh`` and ``bottomDepth``
+
+    Returns
+    -------
+    z_mid : xarray.DataArray
+        The location in meters from the sea surface of the midpoint of each
+        layer, positive upward
+    """
+    z_mid, _ = get_z_mid_and_interface(ds, allow_reconstruct=True)
+    return z_mid
+
+
+def _z_from_thickness(ds):
     """
     Compute the depth of the midpoint of each layer from `layerThickness`.
 
@@ -221,4 +291,4 @@ def depth_from_thickness(ds):
                 'The maximum discrepancy between bottom_depth and the lower'
                 f'boundary of z_interface is {np.max(np.abs(cell_diff))}'
             )
-    return z_mid
+    return z_mid, z_interface
