@@ -571,7 +571,6 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     time_index_end=time_index_end,
                 )
                 baseline_str = f'time index {time_index_start}'
-            print(f'elapsed seconds: {dt}')
             for output_property in properties:
                 func: Callable[..., Any]
                 kwargs: Dict[str, Any] = {}
@@ -689,10 +688,6 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         final_val = float(func(ds_mesh, ds_end, **kwargs).values)
         actual_change = final_val - init_val
         residual = actual_change - expected_change
-        print(
-            f'actual change {actual_change}, expected {expected_change}, '
-            f'residual {residual}'
-        )
         if init_val != 0.0:
             denom = abs(init_val)
         else:
