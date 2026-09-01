@@ -120,15 +120,17 @@ def parse_vertical_reduction(spec):
     Parse one entry of the ``elevations`` or the ``elevation_ranges`` config
     option
 
-    Both options describe a way of turning ``nVertLevels`` into nothing, so
+    Both options describe a way of reducing the ``nVertLevels`` dimension,
+    so
     both are parsed here and the result says which way it is.
 
     Parameters
     ----------
     spec : str
-        ``'top'``, ``'bottom'``, ``'k<index>'`` with a zero-based index, an
-        elevation in m, positive up, so negative within the ocean, or an
-        elevation range written ``<top>:<bottom>``
+        One of ``'top'``, ``'bottom'``, ``'k<index>'`` with a zero-based
+        index, an elevation in m (positive up, so negative within the
+        ocean), or an elevation range written
+        ``<top_elevation>:<bottom_elevation>``
 
     Returns
     -------
@@ -194,27 +196,28 @@ def elevation_label(elevation):
     return f'{elevation:g}m'
 
 
-def range_bound_label(elevation, keyword):
+def range_bound_label(elevation):
     """
     Get the label one end of an elevation range is identified by
+
+    Which end it is follows from the bound itself, since a bound that
+    resolves per column is an infinity with the sign of the end it is.
 
     Parameters
     ----------
     elevation : float
-        The elevation of the bound in m, positive up, or an infinity where
-        the bound resolves per column
-
-    keyword : str
-        ``'top'`` for the upper bound and ``'bottom'`` for the lower one,
-        which is what an infinite bound is labeled with
+        The elevation of the bound in m, positive up, ``np.inf`` for the sea
+        surface or ``-np.inf`` for the seafloor
 
     Returns
     -------
     label : str
-        The label, e.g. ``'top'`` or ``'-700m'``
+        The label, e.g. ``'top'``, ``'bottom'`` or ``'-700m'``
     """
-    if np.isinf(elevation):
-        return keyword
+    if elevation == np.inf:
+        return 'top'
+    if elevation == -np.inf:
+        return 'bottom'
     return elevation_label(elevation)
 
 
@@ -357,7 +360,7 @@ def apply_vertical_reduction(
 
     Slicing at the sea surface, the seafloor, a layer index or an elevation
     are cases of one operation: each picks one layer of each column, or the
-    two layers an elevation falls between, whatever the field means.  Only
+    two layers an elevation falls between, for any DataArray.  Only
     the last of them reads the vertical geometry.
 
     Parameters
@@ -533,8 +536,8 @@ def _parse_elevation_range(spec):
             f'given as <top>:<bottom> in m, positive up, so the first '
             f'elevation is the higher one.'
         )
-    top_label = range_bound_label(z_top, 'top')
-    bot_label = range_bound_label(z_bot, 'bottom')
+    top_label = range_bound_label(z_top)
+    bot_label = range_bound_label(z_bot)
     return VerticalReduction(
         kind='range',
         label=f'{top_label}_to_{bot_label}',
