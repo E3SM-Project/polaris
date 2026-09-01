@@ -1095,6 +1095,16 @@ by hand is the weak link: it is correct only if it is remembered.  The
 follow-up is a stamp derived from the code and configuration themselves,
 covering the full dependency graph of a product, so that correctness does not
 rest on discipline.</p></li>
+<li><p><strong>Separate slicing from weighting an elevation range.</strong>  Both are parsed by
+<code class="docutils literal notranslate"><span class="pre">parse_vertical_reduction()</span></code> into one <code class="docutils literal notranslate"><span class="pre">VerticalReduction</span></code> whose <code class="docutils literal notranslate"><span class="pre">kind</span></code> spans
+both, but they are different operations with different workflows: a slice is
+completed by <code class="docutils literal notranslate"><span class="pre">apply_vertical_reduction()</span></code>, while a range yields only weights
+and the diagnostic applies them, because what a weighted sum means belongs to
+the diagnostic rather than to the vertical coordinate.  The two are already
+separate at the config level, so the shared type buys little.  Splitting them
+would make the asymmetry explicit rather than something a caller has to know.
+Raised by &#64;cbegeman in review; deferred as a follow-up rather than reworked
+under the September 15 deadline.</p></li>
 <li><p><strong>Measure Polaris’s per-step overhead</strong> — setup and run of a step that does
 nothing — and record it under the organizing principles, so that the step
 sizing targets in principle 9 rest on a number rather than on judgment.</p></li>

@@ -973,6 +973,16 @@ is explained in context in {ref}`design-ocean-analysis-initial`.
   follow-up is a stamp derived from the code and configuration themselves,
   covering the full dependency graph of a product, so that correctness does not
   rest on discipline.
+- **Separate slicing from weighting an elevation range.**  Both are parsed by
+  `parse_vertical_reduction()` into one `VerticalReduction` whose `kind` spans
+  both, but they are different operations with different workflows: a slice is
+  completed by `apply_vertical_reduction()`, while a range yields only weights
+  and the diagnostic applies them, because what a weighted sum means belongs to
+  the diagnostic rather than to the vertical coordinate.  The two are already
+  separate at the config level, so the shared type buys little.  Splitting them
+  would make the asymmetry explicit rather than something a caller has to know.
+  Raised by @cbegeman in review; deferred as a follow-up rather than reworked
+  under the September 15 deadline.
 - **Measure Polaris's per-step overhead** --- setup and run of a step that does
   nothing --- and record it under the organizing principles, so that the step
   sizing targets in principle 9 rest on a number rather than on judgment.
