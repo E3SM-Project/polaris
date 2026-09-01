@@ -115,46 +115,6 @@ def get_valid_level_range(ds):
     return min_level_cell, max_level_cell
 
 
-def get_z_mid_and_interface(ds):
-    """
-    Get the elevation of layer midpoints and of layer interfaces
-
-    These are the vertical geometry, read directly from what the model wrote
-    rather than reconstructed.  Polaris cannot rebuild them from the monthly
-    means of the other fields, because geometric thickness is derived from
-    pseudo-thickness through specific volume, so a simulation that does not
-    write them cannot be analysed at an elevation at all.  That is why this
-    reports what is missing rather than falling back on something.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        A data set holding the vertical geometry, with MPAS-Ocean names
-
-    Returns
-    -------
-    z_mid : xarray.DataArray
-        The elevation of layer midpoints, in m, positive up
-
-    z_interface : xarray.DataArray
-        The elevation of layer interfaces, in m, positive up
-
-    Raises
-    ------
-    ValueError
-        If the data set has neither or only one of them
-    """
-    missing = [name for name in ('zMid', 'zInterface') if name not in ds]
-    if missing:
-        raise ValueError(
-            f'The data set has no {", ".join(missing)}, which is the '
-            f'vertical geometry an elevation is a position in.  Polaris '
-            f'cannot reconstruct it from the other fields, so a simulation '
-            f'has to write it for its output to be analysed at an elevation.'
-        )
-    return ds.zMid, ds.zInterface
-
-
 def parse_vertical_reduction(spec):
     """
     Parse one entry of the ``elevations`` or the ``elevation_ranges`` config

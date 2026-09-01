@@ -16,11 +16,11 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from polaris.ocean.vertical.diagnostics import get_z_mid_and_interface
 from polaris.ocean.vertical.elevation import (
     apply_vertical_reduction,
     elevation_range_weights,
     get_valid_level_range,
-    get_z_mid_and_interface,
     is_whole_column,
     parse_vertical_reduction,
 )
