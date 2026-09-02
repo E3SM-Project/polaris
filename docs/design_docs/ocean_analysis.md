@@ -395,6 +395,20 @@ Pruning shall be safe to the extent that it can be: it shall report what it
 would remove before removing it, and removing the intermediates shall never
 remove something that cannot be recomputed from the simulation output.
 
+A third operation was proposed and belongs here rather than where it was
+suggested: **removing a step's input symlinks once it has completed.**  Every
+step links the simulation files it reads into its own directory and records
+them with `log_inputs`, so the log preserves what a symlink says.  It should
+not happen automatically at the end of a step, for two reasons.  Polaris checks
+that a step's declared inputs exist before running it, so a step whose links
+were removed can no longer be re-run in place, and re-running one step is a
+real workflow.  And a live symlink is better provenance than a log line: it can
+be followed, listed and opened, which is what someone opening an old work
+directory wants.  The bytes are not the argument either way --- a one-year
+QU240 analysis makes 64 of them --- so this belongs in the deliberate prune,
+for an analysis being archived after its simulation is gone, where dangling
+links are noise.  Raised by @cbegeman in review of the scaffolding.
+
 Two things Phase 1 does are what make this implementable later, and neither is
 an accident:
 

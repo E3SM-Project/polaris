@@ -19,6 +19,71 @@
 
 ## Tasks
 
+### analysis
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.analysis
+
+.. autosummary::
+   :toctree: generated/
+
+   add_analysis_tasks
+
+   AnalysisTask
+   AnalysisTask.configure
+   AnalysisTask.year_range
+
+   ClimatologyMapsTask
+   GlobalStatsTask
+   HeatContentSeriesTask
+   MocTask
+
+   analysis_step.AnalysisStep
+   analysis_step.AnalysisStep.get_sim_files
+   analysis_step.AnalysisStep.add_sim_input_file
+   analysis_step.AnalysisStep.add_sim_input_files
+   analysis_step.AnalysisStep.log_inputs
+
+   climatology.Climatology
+   climatology.Climatology.setup
+   climatology.Climatology.run
+
+   climatology_maps.ClimatologyMaps
+   climatology_maps.ClimatologyMaps.setup
+   climatology_maps.ClimatologyMaps.run
+   climatology_maps.get_field_groups
+
+   global_stats.GlobalStatsTimeSeries
+   global_stats.GlobalStatsTimeSeries.setup
+   global_stats.GlobalStatsTimeSeries.run
+
+   heat_content_series.HeatContentSeries
+   heat_content_series.HeatContentSeries.setup
+   heat_content_series.HeatContentSeries.run
+
+   moc.Moc
+   moc.Moc.setup
+   moc.Moc.run
+
+   sim_files.SimFile
+   sim_files.AnalysisStream
+   sim_files.OmegaConfig
+   sim_files.OmegaConfig.stream_status
+   sim_files.OmegaConfig.stream_filename
+   sim_files.OmegaConfig.analysis_group_status
+   sim_files.OmegaConfig.analysis_streams
+   sim_files.SimulationFiles
+   sim_files.SimulationFiles.mesh_filename
+   sim_files.SimulationFiles.vert_coord_filename
+   sim_files.SimulationFiles.monthly_mean_files
+   sim_files.SimulationFiles.global_stats_files
+   sim_files.SimulationFiles.moc_files
+   sim_files.read_omega_config
+   sim_files.expand_template
+   sim_files.check_files_exist
+   sim_files.year_range_key
+```
+
 ### baroclinic_channel
 
 ```{eval-rst}

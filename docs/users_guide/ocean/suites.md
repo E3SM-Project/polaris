@@ -91,6 +91,36 @@ ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 ```
 
+(ocean-suite-omega-analysis)=
+
+## omega_analysis suite
+
+The `omega_analysis` suite analyzes a simulation that has already been run,
+rather than running one.  It is pointed at a completed Omega simulation
+through a config file and produces plots and the netCDF data behind them.  See
+{ref}`ocean-analysis` for the config file it needs and for what each task
+produces.
+
+Unlike the other suites here, it needs neither an Omega nor an MPAS-Ocean
+build, since no model is run, and it can be run on the machine where the
+simulation output lives without copying that output.  Because there is no
+build to detect the model from, `--model omega` is required and no
+`-p`/`--component_path` is given:
+
+```bash
+polaris suite -c ocean -t omega_analysis -w <work_dir> -f analysis.cfg \
+    --model omega
+```
+
+The tasks in the suite are:
+
+```none
+ocean/analysis/climatology_maps
+ocean/analysis/heat_content_series
+ocean/analysis/global_stats
+ocean/analysis/moc
+```
+
 (ocean-suite-framework-pr)=
 
 ## framework_pr suite
