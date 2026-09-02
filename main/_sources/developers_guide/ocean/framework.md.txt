@@ -938,3 +938,89 @@ density, which is horizontally constant and increases with depth.
 The {py:func}`polaris.ocean.rpe.compute_rpe()` is used to compute the RPE as
 a function of time in a series of one or more output files.  The RPE is stored
 in `rpe.csv` and also returned as a numpy array for plotting and analysis.
+
+(dev-ocean-analysis)=
+
+## Analysis of completed simulations
+
+The package `polaris.tasks.ocean.analysis` contains the tasks of the
+`omega_analysis` suite, which analyze a simulation that has already been run
+rather than running one.  {ref}`ocean-analysis` describes the suite from a
+user's point of view.  Three pieces of it are shared machinery that a new
+analysis product builds on.
+
+### Locating the simulation's files
+
+`polaris.tasks.ocean.analysis.sim_files` is a leaf module --- it does not
+import {py:class}`polaris.Step` --- so that it can be unit tested and reused
+by every step that reads simulation output.
+
+{py:class}`polaris.tasks.ocean.analysis.sim_files.SimulationFiles` is the
+entry point.  It resolves the mesh, the vertical coordinate and the lists of
+monthly-mean, global-statistics and MOC files covering a range of years, and
+reports where each path came from.  Underneath it,
+{py:class}`polaris.tasks.ocean.analysis.sim_files.OmegaConfig` reads the
+simulation's own Omega configuration and answers questions about it
+defensively: a missing stream, a stream that names no file, and an analysis
+group that is turned off are told apart rather than raising from inside a
+lookup.  This is the one place Polaris depends on the *shape* of Omega's
+configuration rather than on its output.
+
+Two details are worth knowing before adding a product:
+
+- File-name templates are expanded by
+  {py:func}`polaris.tasks.ocean.analysis.sim_files.expand_template`, which
+  substitutes `$Y` and `$M`.  A template with no `$M` gives one file per year,
+  and one with no date at all gives a single file --- which is the real case
+  for Omega's analysis output.  These templates come from the Omega
+  configuration and never from a Polaris config file, because Polaris config
+  files use extended interpolation and a bare `$` in a value is an error.
+- Omega builds the file name of an analysis group's output stream as
+  `<prefix>_<period><TimeStats|Instants><template>`.  A group can write both
+  time means and snapshots under different names, so
+  {py:meth}`polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams`
+  returns each stream with its period and whether it is a time reduction, and
+  the caller must not assume either spelling.
+
+### Steps
+
+{py:class}`polaris.tasks.ocean.analysis.analysis_step.AnalysisStep` extends
+{py:class}`polaris.ocean.model.OceanIOStep` with the year range every analysis
+step has and with the input handling every one of them needs:
+`get_sim_files()` to resolve the simulation, `add_sim_input_file()` and
+`add_sim_input_files()` to link its files into the step's work directory, and
+`log_inputs()` to report what was read.
+
+Analysis steps follow {ref}`dev-task-parallelism` from the start, since it is
+cheap while the code is being written and expensive to retrofit.  In
+particular, every file a step opens in `run()` goes through
+{py:meth}`polaris.Step.work_path()` rather than a bare relative filename,
+temporary files go in the step's own work directory, and a step declares the
+parallelism it will actually start as `cpus_per_task` rather than sizing
+itself to the machine.
+
+### Range-keyed steps
+
+Every step lives at a subdirectory named for the range of years it covers ---
+`climatology/0021-0040`, `global_stats/0001-0060` --- built with
+{py:func}`polaris.tasks.ocean.analysis.sim_files.year_range_key`.
+
+That is what gives the suite its re-analysis behavior, and it needs no
+framework support.  A setup with a new range creates steps in directories that
+have never run and so run; a setup with the same range lands on directories
+that are already complete and recomputes nothing; and two ranges never share a
+directory, so an earlier range's results cannot be clobbered or mislabelled.
+
+A task's subdirectory is fixed when the component is constructed, but its
+steps are not: `polaris setup` merges the user's config into each task and
+then calls `configure()` before adding configs to steps, precisely so that
+steps created there are handled.  The analysis tasks therefore discard and
+rebuild their step lists from the config options, in the same way the cosine
+bell tasks do for resolutions.  Construction itself must read nothing but the
+packaged defaults, since `polaris list` builds every task in every component;
+the simulation's Omega configuration is not read until step setup.
+
+Steps are created with
+{py:meth}`polaris.Component.get_or_create_shared_step()`, so a step several
+tasks want --- the climatology, which every field group of `climatology_maps`
+reads --- is built once for a range no matter how many of them ask for it.

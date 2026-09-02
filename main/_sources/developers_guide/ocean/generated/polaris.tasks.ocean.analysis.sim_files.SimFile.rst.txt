@@ -1,0 +1,32 @@
+﻿polaris.tasks.ocean.analysis.sim\_files.SimFile
+===============================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.sim_files
+
+.. autoclass:: SimFile
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SimFile.__init__
+      ~SimFile.count
+      ~SimFile.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SimFile.month
+      ~SimFile.path
+      ~SimFile.year
+   
+   

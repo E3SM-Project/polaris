@@ -1,0 +1,495 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.analysis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../ocean.html">polaris.tasks.ocean</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.analysis</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.climatology</span><span class="w"> </span><span class="kn">import</span> <span class="n">Climatology</span> <span class="k">as</span> <span class="n">Climatology</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.climatology_maps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ClimatologyMaps</span> <span class="k">as</span> <span class="n">ClimatologyMaps</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.climatology_maps</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_field_groups</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.global_stats</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GlobalStatsTimeSeries</span> <span class="k">as</span> <span class="n">GlobalStatsTimeSeries</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.heat_content_series</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HeatContentSeries</span> <span class="k">as</span> <span class="n">HeatContentSeries</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.moc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Moc</span> <span class="k">as</span> <span class="n">Moc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">year_range_key</span>
+
+
+<div class="viewcode-block" id="add_analysis_tasks">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.add_analysis_tasks.html#polaris.tasks.ocean.analysis.add_analysis_tasks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_analysis_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add the tasks that analyze a completed Omega simulation</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">        The ocean component the tasks will be added to</span>
+<span class="sd">    """</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/analysis/analysis.cfg'</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.analysis'</span><span class="p">,</span> <span class="s1">'analysis.cfg'</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">task_cls</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="n">ClimatologyMapsTask</span><span class="p">,</span>
+        <span class="n">GlobalStatsTask</span><span class="p">,</span>
+        <span class="n">HeatContentSeriesTask</span><span class="p">,</span>
+        <span class="n">MocTask</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task_cls</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="AnalysisTask">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.AnalysisTask.html#polaris.tasks.ocean.analysis.AnalysisTask">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalysisTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A task of the ocean analysis suite</span>
+
+<span class="sd">    A task is a thin grouping over shared steps and introduces no directory</span>
+<span class="sd">    level of its own.  Its steps are built from config options rather than</span>
+<span class="sd">    fixed at construction, so that a user who asks for a different range of</span>
+<span class="sd">    years gets steps in different directories -- which have never run, and so</span>
+<span class="sd">    run -- without having to delete anything or pass a flag.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    range_section : str</span>
+<span class="sd">        The config section holding the ``start_year`` and ``end_year`` this</span>
+<span class="sd">        task's steps are keyed on</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="AnalysisTask.__init__">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.AnalysisTask.html#polaris.tasks.ocean.analysis.AnalysisTask.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">range_section</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the task and its steps</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component the task belongs to</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The config parser shared by every analysis task</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the task, which is also its subdirectory under</span>
+<span class="sd">            ``analysis``</span>
+
+<span class="sd">        range_section : str</span>
+<span class="sd">            The config section holding the ``start_year`` and ``end_year``</span>
+<span class="sd">            this task's steps are keyed on</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'analysis/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range_section</span> <span class="o">=</span> <span class="n">range_section</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">'analysis.cfg'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AnalysisTask.configure">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.AnalysisTask.configure.html#polaris.tasks.ocean.analysis.AnalysisTask.configure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Build the steps again now that the user's config file has been read</span>
+
+<span class="sd">        ``polaris setup`` merges the user's config into the task and then</span>
+<span class="sd">        calls this before adding configs to steps, precisely so that steps</span>
+<span class="sd">        created here are handled.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AnalysisTask.year_range">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.AnalysisTask.year_range.html#polaris.tasks.ocean.analysis.AnalysisTask.year_range">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">year_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the range of simulation years this task's steps cover</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        start_year : int</span>
+<span class="sd">            The first year of the range, inclusive</span>
+
+<span class="sd">        end_year : int</span>
+<span class="sd">            The last year of the range, inclusive</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">range_section</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'start_year'</span><span class="p">),</span> <span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'end_year'</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Discard the task's steps and build them from the config options"""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> does not define _setup_steps()'</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_all_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Start fresh with no steps"""</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_shared_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_cls</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Add a shared step at a subdirectory computed from the range"""</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">step_cls</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">step</span></div>
+
+
+
+<div class="viewcode-block" id="ClimatologyMapsTask">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.ClimatologyMapsTask.html#polaris.tasks.ocean.analysis.ClimatologyMapsTask">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClimatologyMapsTask</span><span class="p">(</span><span class="n">AnalysisTask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A task that plots map-view climatologies of the simulation's fields</span>
+
+<span class="sd">    It has one step per field group, plus the shared climatology every field</span>
+<span class="sd">    group reads, so that adding a field costs that field and not the others.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="ClimatologyMapsTask.__init__">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.ClimatologyMapsTask.html#polaris.tasks.ocean.analysis.ClimatologyMapsTask.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the climatology maps task</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component the task belongs to</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The config parser shared by every analysis task</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'climatology_maps'</span><span class="p">,</span>
+            <span class="n">range_section</span><span class="o">=</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year_range</span><span class="p">()</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">year_range_key</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_all_steps</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">Climatology</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'analysis/climatology/</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">symlink</span><span class="o">=</span><span class="s1">'climatology'</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span> <span class="s1">'fields'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">group_fields</span> <span class="ow">in</span> <span class="n">get_field_groups</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_shared_step</span><span class="p">(</span>
+                <span class="n">step_cls</span><span class="o">=</span><span class="n">ClimatologyMaps</span><span class="p">,</span>
+                <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'analysis/climatology_maps/</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                <span class="n">field_group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span>
+                <span class="n">fields</span><span class="o">=</span><span class="n">group_fields</span><span class="p">,</span>
+                <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+                <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="GlobalStatsTask">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.GlobalStatsTask.html#polaris.tasks.ocean.analysis.GlobalStatsTask">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GlobalStatsTask</span><span class="p">(</span><span class="n">AnalysisTask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A task that plots time series of the simulation's global statistics</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="GlobalStatsTask.__init__">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.GlobalStatsTask.html#polaris.tasks.ocean.analysis.GlobalStatsTask.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the global statistics task</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component the task belongs to</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The config parser shared by every analysis task</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'global_stats'</span><span class="p">,</span>
+            <span class="n">range_section</span><span class="o">=</span><span class="s1">'ocean_analysis_time_series'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year_range</span><span class="p">()</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">year_range_key</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_all_steps</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">GlobalStatsTimeSeries</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'analysis/global_stats/</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="HeatContentSeriesTask">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.HeatContentSeriesTask.html#polaris.tasks.ocean.analysis.HeatContentSeriesTask">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HeatContentSeriesTask</span><span class="p">(</span><span class="n">AnalysisTask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A task that plots the time series of globally integrated ocean heat</span>
+<span class="sd">    content</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="HeatContentSeriesTask.__init__">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.HeatContentSeriesTask.html#polaris.tasks.ocean.analysis.HeatContentSeriesTask.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the ocean heat content time series task</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component the task belongs to</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The config parser shared by every analysis task</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'heat_content_series'</span><span class="p">,</span>
+            <span class="n">range_section</span><span class="o">=</span><span class="s1">'ocean_analysis_time_series'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year_range</span><span class="p">()</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">year_range_key</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_all_steps</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">HeatContentSeries</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'analysis/heat_content_series/</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MocTask">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.MocTask.html#polaris.tasks.ocean.analysis.MocTask">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MocTask</span><span class="p">(</span><span class="n">AnalysisTask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A task that plots the global meridional overturning circulation</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="MocTask.__init__">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.MocTask.html#polaris.tasks.ocean.analysis.MocTask.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the MOC task</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component the task belongs to</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The config parser shared by every analysis task</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'moc'</span><span class="p">,</span>
+            <span class="n">range_section</span><span class="o">=</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year_range</span><span class="p">()</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">year_range_key</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_all_steps</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">Moc</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'analysis/moc/</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

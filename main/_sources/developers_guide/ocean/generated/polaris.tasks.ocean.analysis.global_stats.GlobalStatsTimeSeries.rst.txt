@@ -1,0 +1,62 @@
+﻿polaris.tasks.ocean.analysis.global\_stats.GlobalStatsTimeSeries
+================================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.global_stats
+
+.. autoclass:: GlobalStatsTimeSeries
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GlobalStatsTimeSeries.__init__
+      ~GlobalStatsTimeSeries.add_dependency
+      ~GlobalStatsTimeSeries.add_horiz_mesh_input_file
+      ~GlobalStatsTimeSeries.add_init_input_file
+      ~GlobalStatsTimeSeries.add_input_file
+      ~GlobalStatsTimeSeries.add_output_file
+      ~GlobalStatsTimeSeries.add_output_files_for_ocean_model_input
+      ~GlobalStatsTimeSeries.add_sim_input_file
+      ~GlobalStatsTimeSeries.add_sim_input_files
+      ~GlobalStatsTimeSeries.add_vert_coord_input_file
+      ~GlobalStatsTimeSeries.check_properties
+      ~GlobalStatsTimeSeries.constrain_resources
+      ~GlobalStatsTimeSeries.get_horiz_mesh_filename
+      ~GlobalStatsTimeSeries.get_init_filename
+      ~GlobalStatsTimeSeries.get_sim_files
+      ~GlobalStatsTimeSeries.get_vert_coord_filename
+      ~GlobalStatsTimeSeries.log_inputs
+      ~GlobalStatsTimeSeries.map_from_native_model_vars
+      ~GlobalStatsTimeSeries.map_to_native_model_vars
+      ~GlobalStatsTimeSeries.open_model_dataset
+      ~GlobalStatsTimeSeries.open_vert_coord_dataset
+      ~GlobalStatsTimeSeries.process_inputs_and_outputs
+      ~GlobalStatsTimeSeries.run
+      ~GlobalStatsTimeSeries.runtime_setup
+      ~GlobalStatsTimeSeries.set_resources
+      ~GlobalStatsTimeSeries.set_shared_config
+      ~GlobalStatsTimeSeries.setup
+      ~GlobalStatsTimeSeries.validate_baselines
+      ~GlobalStatsTimeSeries.work_path
+      ~GlobalStatsTimeSeries.write_horiz_mesh_dataset
+      ~GlobalStatsTimeSeries.write_initial_state_dataset
+      ~GlobalStatsTimeSeries.write_model_dataset
+      ~GlobalStatsTimeSeries.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GlobalStatsTimeSeries.component
+      ~GlobalStatsTimeSeries.config
+      ~GlobalStatsTimeSeries.input_data
+   
+   

@@ -1,0 +1,1063 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.analysis.sim_files</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../analysis.html">polaris.tasks.ocean.analysis</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.analysis.sim_files</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.analysis.sim_files</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Helpers for locating the output of the simulation being analyzed.</span>
+
+<span class="sd">This module is deliberately free of any dependence on</span>
+<span class="sd">:py:class:`polaris.Step`, so that it can be unit tested and reused by every</span>
+<span class="sd">analysis step that reads simulation output.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisYaml</span>
+
+
+<div class="viewcode-block" id="SimFile">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimFile.html#polaris.tasks.ocean.analysis.sim_files.SimFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SimFile</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One file of simulation output, together with the date it covers</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        The absolute path to the file</span>
+
+<span class="sd">    year : int or None</span>
+<span class="sd">        The simulation year the file covers, or ``None`` if the file-name</span>
+<span class="sd">        template has no ``$Y`` in it</span>
+
+<span class="sd">    month : int or None</span>
+<span class="sd">        The month the file covers, or ``None`` if the file-name template has</span>
+<span class="sd">        no ``$M`` in it</span>
+<span class="sd">    """</span>
+
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">year</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">month</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="year_range_key">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.year_range_key.html#polaris.tasks.ocean.analysis.sim_files.year_range_key">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">year_range_key</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the key for a range of years, used both for step subdirectories and</span>
+<span class="sd">    for the names of published files</span>
+
+<span class="sd">    The zero-padded convention matches the one ``ncclimo`` already uses in its</span>
+<span class="sd">    output file names.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    start_year : int</span>
+<span class="sd">        The first year of the range, inclusive</span>
+
+<span class="sd">    end_year : int</span>
+<span class="sd">        The last year of the range, inclusive</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    key : str</span>
+<span class="sd">        The range key, e.g. ``'0021-0040'``</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">start_year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">end_year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">'</span></div>
+
+
+
+<div class="viewcode-block" id="expand_template">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">expand_template</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">simulation_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Expand a file-name template over a range of years</span>
+
+<span class="sd">    ``$Y`` is replaced by the four-digit year and ``$M`` by the two-digit</span>
+<span class="sd">    month.  A template with no ``$M`` gives one file per year and a template</span>
+<span class="sd">    with neither gives a single file, which is the case for the analysis</span>
+<span class="sd">    output Omega writes to one file for a whole run.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    template : str</span>
+<span class="sd">        The file-name template, absolute or relative to ``simulation_path``</span>
+
+<span class="sd">    start_year : int</span>
+<span class="sd">        The first year to expand over, inclusive</span>
+
+<span class="sd">    end_year : int</span>
+<span class="sd">        The last year to expand over, inclusive</span>
+
+<span class="sd">    simulation_path : str, optional</span>
+<span class="sd">        The directory a relative template is resolved against</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sim_files : list of SimFile</span>
+<span class="sd">        The expanded files, in chronological order</span>
+<span class="sd">    """</span>
+    <span class="n">_check_template</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">simulation_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The file-name template "</span><span class="si">{</span><span class="n">template</span><span class="si">}</span><span class="s1">" is relative but no '</span>
+                <span class="sa">f</span><span class="s1">'simulation_path was given to resolve it against.'</span>
+            <span class="p">)</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">simulation_path</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">start_year</span> <span class="o">&gt;</span> <span class="n">end_year</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The start year </span><span class="si">{</span><span class="n">start_year</span><span class="si">}</span><span class="s1"> is after the end year </span><span class="si">{</span><span class="n">end_year</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+
+    <span class="n">has_year</span> <span class="o">=</span> <span class="s1">'$Y'</span> <span class="ow">in</span> <span class="n">template</span>
+    <span class="n">has_month</span> <span class="o">=</span> <span class="s1">'$M'</span> <span class="ow">in</span> <span class="n">template</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_year</span><span class="p">:</span>
+        <span class="c1"># a template with no date in it describes a single file covering the</span>
+        <span class="c1"># whole run</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">SimFile</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">template</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="kc">None</span><span class="p">)]</span>
+
+    <span class="n">sim_files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'$Y'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_month</span><span class="p">:</span>
+            <span class="n">sim_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SimFile</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
+            <span class="n">sim_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">SimFile</span><span class="p">(</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'$M'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">'</span><span class="p">),</span>
+                    <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+                    <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sim_files</span></div>
+
+
+
+<div class="viewcode-block" id="check_files_exist">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.check_files_exist.html#polaris.tasks.ocean.analysis.sim_files.check_files_exist">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_files_exist</span><span class="p">(</span>
+    <span class="n">sim_files</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simulation_path</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that every expanded file exists, reporting the missing years and</span>
+<span class="sd">    months rather than a bare list of paths</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sim_files : list of SimFile</span>
+<span class="sd">        The files to check, as returned by :py:func:`expand_template`</span>
+
+<span class="sd">    description : str</span>
+<span class="sd">        A short description of what the files are, used in the error message,</span>
+<span class="sd">        e.g. ``'monthly-mean'``</span>
+
+<span class="sd">    source : str</span>
+<span class="sd">        A description of where the file-name template came from, so that the</span>
+<span class="sd">        error says where to look, e.g. ``'the History stream in</span>
+<span class="sd">        /path/omega.yml'``</span>
+
+<span class="sd">    template : str, optional</span>
+<span class="sd">        The template the files were expanded from.  Given it, the error also</span>
+<span class="sd">        says which years the simulation did write, which is usually the</span>
+<span class="sd">        answer the reader wants.</span>
+
+<span class="sd">    simulation_path : str, optional</span>
+<span class="sd">        The directory a relative template is resolved against</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        If any of the files is missing</span>
+<span class="sd">    """</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">sim_file</span> <span class="k">for</span> <span class="n">sim_file</span> <span class="ow">in</span> <span class="n">sim_files</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">_exists</span><span class="p">(</span><span class="n">sim_file</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sim_files</span><span class="p">)</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1"> files are missing:'</span>
+    <span class="p">]</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_describe_missing</span><span class="p">(</span><span class="n">missing</span><span class="p">))</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'They are named by </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span>
+    <span class="n">available</span> <span class="o">=</span> <span class="n">_years_available</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">simulation_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">available</span><span class="p">:</span>
+        <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="n">available</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">available</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">gaps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">available</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">last</span> <span class="o">-</span> <span class="n">first</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">span</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">first</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">last</span><span class="si">}</span><span class="s1">'</span> <span class="o">+</span> <span class="p">(</span><span class="s1">', with gaps'</span> <span class="k">if</span> <span class="n">gaps</span> <span class="k">else</span> <span class="s1">''</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The simulation wrote years </span><span class="si">{</span><span class="n">span</span><span class="si">}</span><span class="s1">.  Set start_year and '</span>
+            <span class="sa">f</span><span class="s1">'end_year within that range.'</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">'Check the year range and that the simulation wrote this output '</span>
+            <span class="s1">'for those years.'</span>
+        <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_years_available</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">simulation_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Find the years the simulation actually wrote, for the error message</span>
+
+<span class="sd">    This looks at the simulation directory, which the analysis otherwise</span>
+<span class="sd">    never does: a range is declared by the user rather than discovered, so</span>
+<span class="sd">    that the same request always means the same thing.  Discovering it here</span>
+<span class="sd">    only turns "some files are missing" into the answer the reader wants,</span>
+<span class="sd">    and nothing outside this error path depends on it.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">template</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s1">'$Y'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">template</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">template</span><span class="p">)</span> <span class="ow">and</span> <span class="n">simulation_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">simulation_path</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'$Y'</span><span class="p">,</span> <span class="s1">'[0-9]'</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'$M'</span><span class="p">,</span> <span class="s1">'[0-9]'</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">matcher</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+    <span class="n">matcher</span> <span class="o">=</span> <span class="n">matcher</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s1">'$Y'</span><span class="p">),</span> <span class="sa">r</span><span class="s1">'(?P&lt;year&gt;[0-9]</span><span class="si">{4}</span><span class="s1">)'</span><span class="p">)</span>
+    <span class="n">matcher</span> <span class="o">=</span> <span class="n">matcher</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s1">'$M'</span><span class="p">),</span> <span class="sa">r</span><span class="s1">'[0-9]</span><span class="si">{2}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">years</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">):</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">matcher</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">years</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">'year'</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">years</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AnalysisStream">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.AnalysisStream.html#polaris.tasks.ocean.analysis.sim_files.AnalysisStream">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalysisStream</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One output stream of an Omega analysis group</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The file-name template Omega builds for the stream, which may contain</span>
+<span class="sd">        ``$Y`` and ``$M``</span>
+
+<span class="sd">    period : str</span>
+<span class="sd">        The period of the time reduction or of the snapshots, e.g. ``'1Month'``</span>
+
+<span class="sd">    is_reduction : bool</span>
+<span class="sd">        Whether the stream holds time means rather than snapshots</span>
+<span class="sd">    """</span>
+
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">period</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">is_reduction</span><span class="p">:</span> <span class="nb">bool</span></div>
+
+
+
+<div class="viewcode-block" id="OmegaConfig">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OmegaConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The configuration file of the simulation being analyzed</span>
+
+<span class="sd">    Polaris reads the simulation's own Omega configuration so that the mesh,</span>
+<span class="sd">    the output streams and their file-name templates do not have to be</span>
+<span class="sd">    restated by hand.  This is the one place Polaris depends on the *shape* of</span>
+<span class="sd">    Omega's configuration rather than on its output, so every method here</span>
+<span class="sd">    reports what it did not find rather than raising from deep inside a</span>
+<span class="sd">    lookup.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The absolute path to the Omega configuration file</span>
+
+<span class="sd">    streams : dict</span>
+<span class="sd">        The contents of the ``IOStreams`` section</span>
+
+<span class="sd">    options : dict</span>
+<span class="sd">        The remaining options under the ``Omega`` section</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="OmegaConfig.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">streams</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">streams</span> <span class="o">=</span> <span class="n">streams</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span></div>
+
+
+<div class="viewcode-block" id="OmegaConfig.stream_status">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_status.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stream_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Report whether an ``IOStreams`` entry can supply a file name</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        stream_name : str</span>
+<span class="sd">            The name of the stream, e.g. ``'History'``</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        status : str</span>
+<span class="sd">            ``'ok'``, ``'missing'`` if there is no such stream, or</span>
+<span class="sd">            ``'no_filename'`` if the stream is there but names no file (a</span>
+<span class="sd">            stream that uses a pointer file, for instance)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">stream_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">'missing'</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Filename'</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">'no_filename'</span>
+        <span class="k">return</span> <span class="s1">'ok'</span></div>
+
+
+<div class="viewcode-block" id="OmegaConfig.stream_filename">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_filename.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_filename">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stream_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the file name or file-name template of an ``IOStreams`` entry</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        stream_name : str</span>
+<span class="sd">            The name of the stream, e.g. ``'History'``</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        filename : str or None</span>
+<span class="sd">            The file name, or ``None`` if the stream is absent or names no</span>
+<span class="sd">            file</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream_status</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'ok'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">[</span><span class="n">stream_name</span><span class="p">][</span><span class="s1">'Filename'</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="OmegaConfig.analysis_group_status">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_group_status.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_group_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analysis_group_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Report whether an analysis group is writing output</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        group_name : str</span>
+<span class="sd">            The name of the analysis group, e.g. ``'GlobalStats'``</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        status : str</span>
+<span class="sd">            ``'ok'``, ``'missing'`` if the simulation has no such group, or</span>
+<span class="sd">            ``'disabled'`` if it has one that is turned off</span>
+<span class="sd">        """</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Analysis'</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="n">group_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">'missing'</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">groups</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Enable'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">'disabled'</span>
+        <span class="k">return</span> <span class="s1">'ok'</span></div>
+
+
+<div class="viewcode-block" id="OmegaConfig.analysis_streams">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analysis_streams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the output streams an analysis group writes</span>
+
+<span class="sd">        The file names are reconstructed the way Omega's analysis manager</span>
+<span class="sd">        builds them, as ``&lt;prefix&gt;_&lt;period&gt;&lt;TimeStats|Instants&gt;&lt;template&gt;``.</span>
+<span class="sd">        Time reductions come first, since a time mean is what analysis wants</span>
+<span class="sd">        when a group writes both.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        group_name : str</span>
+<span class="sd">            The name of the analysis group, e.g. ``'GlobalStats'``</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        streams : list of AnalysisStream</span>
+<span class="sd">            The streams the group writes, empty if the group is absent or</span>
+<span class="sd">            disabled</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis_group_status</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'ok'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">'Analysis'</span><span class="p">][</span><span class="n">group_name</span><span class="p">]</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'Filename'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">streams</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AnalysisStream</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">period</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ReductionPeriod'</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="n">streams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">AnalysisStream</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">_omega_analysis_filename</span><span class="p">(</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">period</span><span class="p">),</span> <span class="n">is_reduction</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">),</span>
+                    <span class="n">period</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">period</span><span class="p">),</span>
+                    <span class="n">is_reduction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">period</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'SnapshotPeriod'</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="n">streams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">AnalysisStream</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">_omega_analysis_filename</span><span class="p">(</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">period</span><span class="p">),</span> <span class="n">is_reduction</span><span class="o">=</span><span class="kc">False</span>
+                    <span class="p">),</span>
+                    <span class="n">period</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">period</span><span class="p">),</span>
+                    <span class="n">is_reduction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">streams</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="read_omega_config">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.read_omega_config.html#polaris.tasks.ocean.analysis.sim_files.read_omega_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_omega_config</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Read the configuration file of the simulation being analyzed</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The path to the simulation's Omega configuration file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    omega_config : OmegaConfig</span>
+<span class="sd">        The parsed configuration</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        If there is no file at ``filename``</span>
+
+<span class="sd">    ValueError</span>
+<span class="sd">        If the file does not look like an Omega configuration</span>
+<span class="sd">    """</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'No Omega configuration file at </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">.  Set the '</span>
+            <span class="sa">f</span><span class="s1">'[ocean_analysis] omega_config_filename option to the '</span>
+            <span class="sa">f</span><span class="s1">'configuration file of the simulation being analyzed, or leave '</span>
+            <span class="sa">f</span><span class="s1">'it empty and set the mesh and file-name template options by '</span>
+            <span class="sa">f</span><span class="s1">'hand.'</span>
+        <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">yaml</span> <span class="o">=</span> <span class="n">PolarisYaml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">streams_section</span><span class="o">=</span><span class="s1">'IOStreams'</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Could not parse </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> as an Omega configuration file: '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">exception</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exception</span>
+
+    <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">model</span> <span class="o">!=</span> <span class="s1">'Omega'</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> does not look like an Omega configuration file: its '</span>
+            <span class="sa">f</span><span class="s1">'top-level section is "</span><span class="si">{</span><span class="n">yaml</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s1">" rather than "Omega".'</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">OmegaConfig</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">streams</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">streams</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">configs</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SimulationFiles">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SimulationFiles</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The files of the simulation being analyzed</span>
+
+<span class="sd">    The simulation's own Omega configuration is the analysis' description of</span>
+<span class="sd">    where its output lives: the mesh, the vertical coordinate and every output</span>
+<span class="sd">    stream are read from it, so that none of them have to be restated in a</span>
+<span class="sd">    Polaris config file.  An Omega run always writes one, so its absence is an</span>
+<span class="sd">    error rather than a case to fall back from.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options for the analysis</span>
+
+<span class="sd">    omega_config : OmegaConfig</span>
+<span class="sd">        The simulation's Omega configuration</span>
+
+<span class="sd">    simulation_path : str</span>
+<span class="sd">        The directory that relative file names are resolved against</span>
+
+<span class="sd">    simulation_path_source : str</span>
+<span class="sd">        Where ``simulation_path`` came from, for reporting</span>
+
+<span class="sd">    simulation_name : str</span>
+<span class="sd">        A short name for the simulation, used in plot titles and file names</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="SimulationFiles.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="nb">print</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Resolve the simulation's paths from its Omega configuration</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The config options for the analysis</span>
+
+<span class="sd">        log : callable, optional</span>
+<span class="sd">            Where to report each resolved path and its source.  The default,</span>
+<span class="sd">            ``print``, is what a step wants during ``setup()``, where it has</span>
+<span class="sd">            no logger yet; at run time a step passes ``self.logger.info``.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">log</span>
+
+        <span class="n">_check_model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'ocean_analysis'</span><span class="p">]</span>
+        <span class="n">omega_config_filename</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'omega_config_filename'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">omega_config_filename</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'Set the [ocean_analysis] omega_config_filename option to '</span>
+                <span class="s2">"the simulation's Omega configuration file.  It is how the "</span>
+                <span class="s1">'analysis finds the mesh and the output streams, and an '</span>
+                <span class="s1">'Omega run always writes one.'</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span> <span class="o">=</span> <span class="n">read_omega_config</span><span class="p">(</span><span class="n">omega_config_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_simulation_path</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation_name</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'simulation_name'</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimulationFiles.mesh_filename">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.mesh_filename.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.mesh_filename">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mesh_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the horizontal mesh file</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The absolute path to the mesh file</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_stream_path</span><span class="p">(</span>
+            <span class="n">option_name</span><span class="o">=</span><span class="s1">'mesh_filename'</span><span class="p">,</span>
+            <span class="n">stream_name</span><span class="o">=</span><span class="s1">'HorzMeshIn'</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'horizontal mesh'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimulationFiles.vert_coord_filename">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.vert_coord_filename.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.vert_coord_filename">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vert_coord_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the vertical-coordinate file</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The absolute path to the vertical-coordinate file</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_stream_path</span><span class="p">(</span>
+            <span class="n">option_name</span><span class="o">=</span><span class="s1">'vert_coord_filename'</span><span class="p">,</span>
+            <span class="n">stream_name</span><span class="o">=</span><span class="s1">'InitialVertCoord'</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'vertical coordinate'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimulationFiles.monthly_mean_files">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.monthly_mean_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.monthly_mean_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">monthly_mean_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the monthly-mean output files covering a range of years</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start_year : int</span>
+<span class="sd">            The first year of the range, inclusive</span>
+
+<span class="sd">        end_year : int</span>
+<span class="sd">            The last year of the range, inclusive</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        sim_files : list of SimFile</span>
+<span class="sd">            The monthly-mean files, which are known to exist</span>
+<span class="sd">        """</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_template</span><span class="p">(</span>
+            <span class="n">stream_name</span><span class="o">=</span><span class="s1">'History'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'monthly means'</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_and_check</span><span class="p">(</span>
+            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'monthly-mean'</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="sa">f</span><span class="s1">'the History stream in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimulationFiles.global_stats_files">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">global_stats_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the global statistics output files covering a range of years</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start_year : int</span>
+<span class="sd">            The first year of the range, inclusive</span>
+
+<span class="sd">        end_year : int</span>
+<span class="sd">            The last year of the range, inclusive</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        sim_files : list of SimFile</span>
+<span class="sd">            The global statistics files, which are known to exist</span>
+<span class="sd">        """</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_template</span><span class="p">(</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="s1">'GlobalStats'</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'global statistics'</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">template</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_and_check</span><span class="p">(</span>
+            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'global statistics'</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'the GlobalStats analysis group in '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimulationFiles.moc_files">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">moc_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the meridional overturning circulation output files covering a</span>
+<span class="sd">        range of years</span>
+
+<span class="sd">        Omega's MOC diagnostic is new, so a simulation that does not write it</span>
+<span class="sd">        is an ordinary case rather than an error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start_year : int</span>
+<span class="sd">            The first year of the range, inclusive</span>
+
+<span class="sd">        end_year : int</span>
+<span class="sd">            The last year of the range, inclusive</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        sim_files : list of SimFile or None</span>
+<span class="sd">            The MOC files, which are known to exist, or ``None`` if the</span>
+<span class="sd">            simulation does not write MOC output</span>
+<span class="sd">        """</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_template</span><span class="p">(</span>
+            <span class="n">group_name</span><span class="o">=</span><span class="s1">'Moc'</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'meridional overturning circulation'</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">template</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_and_check</span><span class="p">(</span>
+            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'MOC'</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="sa">f</span><span class="s1">'the Moc analysis group in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_simulation_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the directory that relative file names are resolved against"""</span>
+        <span class="n">simulation_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_path'</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">simulation_path</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="s1">'[ocean_analysis] simulation_path'</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">simulation_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="s1">'the directory of the Omega configuration file'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation_path_source</span> <span class="o">=</span> <span class="n">source</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">simulation_path</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_stream_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option_name</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Resolve a single file, either from a config option or from an Omega</span>
+<span class="sd">        ``IOStreams`` entry</span>
+<span class="sd">        """</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="n">option_name</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1"> (from [ocean_analysis] </span><span class="si">{</span><span class="n">option_name</span><span class="si">}</span><span class="s1">)'</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream_template</span><span class="p">(</span><span class="n">stream_name</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_absolute</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stream_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get a file name or template from an Omega ``IOStreams`` entry"""</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">stream_status</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">'missing'</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1"> has no </span><span class="si">{</span><span class="n">stream_name</span><span class="si">}</span><span class="s1"> stream, '</span>
+                <span class="sa">f</span><span class="s1">'so the analysis cannot find the </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1"> of the '</span>
+                <span class="sa">f</span><span class="s1">'simulation.'</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">'no_filename'</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The </span><span class="si">{</span><span class="n">stream_name</span><span class="si">}</span><span class="s1"> stream in '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1"> names no file, so the '</span>
+                <span class="sa">f</span><span class="s1">'analysis cannot find the </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1"> of the simulation.'</span>
+            <span class="p">)</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">stream_filename</span><span class="p">(</span><span class="n">stream_name</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1"> '</span>
+            <span class="sa">f</span><span class="s2">"(from the Omega config's </span><span class="si">{</span><span class="n">stream_name</span><span class="si">}</span><span class="s2"> stream)"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_analysis_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">required</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get a file-name template from an Omega analysis group"""</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analysis_group_problem</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reason</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">streams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">analysis_streams</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span>
+            <span class="n">stream</span> <span class="o">=</span> <span class="n">_preferred_analysis_stream</span><span class="p">(</span><span class="n">streams</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'the </span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1"> analysis group in '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1"> writes no output streams'</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kind</span> <span class="o">=</span> <span class="s1">'time-mean'</span> <span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">is_reduction</span> <span class="k">else</span> <span class="s1">'snapshot'</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">stream</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1"> (from the Omega '</span>
+                    <span class="sa">f</span><span class="s2">"config's </span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s2"> group, the </span><span class="si">{</span><span class="n">stream</span><span class="o">.</span><span class="n">period</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s1"> stream)'</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">filename</span>
+
+        <span class="k">if</span> <span class="n">required</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The analysis needs the </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1"> of the simulation, '</span>
+                <span class="sa">f</span><span class="s1">'but </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s1">.'</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  no </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1"> output: </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_analysis_group_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Describe why an analysis group cannot supply a template, if it cannot</span>
+<span class="sd">        """</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">analysis_group_status</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">'missing'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1"> has no </span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1"> analysis '</span>
+                <span class="sa">f</span><span class="s1">'group, so the simulation wrote no such output'</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">'disabled'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'the </span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1"> analysis group in '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1"> is turned off, so the '</span>
+                <span class="sa">f</span><span class="s1">'simulation wrote no such output'</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_expand_and_check</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">source</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Expand a template over a year range and check that it all exists"""</span>
+        <span class="n">sim_files</span> <span class="o">=</span> <span class="n">expand_template</span><span class="p">(</span>
+            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+            <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
+            <span class="n">simulation_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation_path</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">check_files_exist</span><span class="p">(</span>
+            <span class="n">sim_files</span><span class="o">=</span><span class="n">sim_files</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+            <span class="n">simulation_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation_path</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">sim_files</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_absolute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Resolve a file name against the simulation path"""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_exists</span><span class="p">(</span><span class="n">sim_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Whether a simulation file is present, following any symlink"""</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">sim_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_describe_missing</span><span class="p">(</span><span class="n">missing</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Summarize missing files as one line per year"""</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">year</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">sim_file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">sim_file</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">]</span>
+
+    <span class="n">by_year</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">sim_file</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="n">by_year</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sim_file</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sim_file</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">months</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">by_year</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">months</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  year </span><span class="si">{</span><span class="n">year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">month_list</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">months</span><span class="p">))</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  year </span><span class="si">{</span><span class="n">year</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">: months </span><span class="si">{</span><span class="n">month_list</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lines</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_template</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Complain about date fields we do not know how to expand"""</span>
+    <span class="n">unsupported</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'$D'</span><span class="p">,</span> <span class="s1">'$h'</span><span class="p">,</span> <span class="s1">'$m'</span><span class="p">,</span> <span class="s1">'$s'</span><span class="p">]</span> <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">template</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">unsupported</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The file-name template "</span><span class="si">{</span><span class="n">template</span><span class="si">}</span><span class="s1">" contains '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unsupported</span><span class="p">)</span><span class="si">}</span><span class="s1">, which the analysis cannot expand.  '</span>
+            <span class="sa">f</span><span class="s1">'Only $Y and $M are supported, since the analysis reads output '</span>
+            <span class="sa">f</span><span class="s1">'written no more often than monthly.'</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_omega_analysis_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">is_reduction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build the file name Omega's analysis manager gives an output stream</span>
+
+<span class="sd">    This mirrors ``AnalysisGroup::createAnalysisGroupStreams()`` in Omega,</span>
+<span class="sd">    which splits the configured name at the first ``$``, absorbing a trailing</span>
+<span class="sd">    ``.`` or ``_`` from the prefix into the timestamp template, and then</span>
+<span class="sd">    inserts the period and the kind of output between the two.</span>
+<span class="sd">    """</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'$'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">position</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="s1">''</span>
+    <span class="k">elif</span> <span class="n">position</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">''</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">filename</span>
+    <span class="k">elif</span> <span class="n">filename</span><span class="p">[</span><span class="n">position</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'.'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">):</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[:</span> <span class="n">position</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="n">position</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[:</span><span class="n">position</span><span class="p">]</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="n">position</span><span class="p">:]</span>
+
+    <span class="n">kind</span> <span class="o">=</span> <span class="s1">'TimeStats'</span> <span class="k">if</span> <span class="n">is_reduction</span> <span class="k">else</span> <span class="s1">'Instants'</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">period</span><span class="si">}{</span><span class="n">kind</span><span class="si">}{</span><span class="n">template</span><span class="si">}</span><span class="s1">'</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_preferred_analysis_stream</span><span class="p">(</span><span class="n">streams</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Pick the analysis stream to read: a time mean if the group wrote one,</span>
+<span class="sd">    otherwise a snapshot</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">streams</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">is_reduction</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stream</span>
+    <span class="k">if</span> <span class="n">streams</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">streams</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_model</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Complain unless the simulation was run with Omega</span>
+
+<span class="sd">    MPAS-Ocean output is not supported.  Reading it would need a translator</span>
+<span class="sd">    from its namelists and streams into the form this module reads, which is</span>
+<span class="sd">    a separate piece of work.</span>
+<span class="sd">    """</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">!=</span> <span class="s1">'omega'</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The analysis suite reads Omega output, but [ocean] model is '</span>
+            <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">".  Set --model omega at setup if the simulation was '</span>
+            <span class="sa">f</span><span class="s1">'run with Omega.  MPAS-Ocean output is not supported: reading '</span>
+            <span class="sa">f</span><span class="s1">'it would need a translator from its namelists and streams '</span>
+            <span class="sa">f</span><span class="s1">'into the form the analysis reads.'</span>
+        <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

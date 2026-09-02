@@ -1,0 +1,409 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>analysis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="baroclinic channel" href="baroclinic_channel.html" />
+    <link rel="prev" title="Tasks" href="index.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pointing-the-analysis-at-a-simulation">pointing the analysis at a simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-the-analysis">running the analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#where-the-results-go">where the results go</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analyzing-the-same-simulation-more-than-once">analyzing the same simulation more than once</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#products">products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#troubleshooting">troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="baroclinic_channel.html">baroclinic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_channel.html">barotropic channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlated_tracers_2d.html">correlated tracers 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cosine_bell.html">cosine bell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable viz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_gravity_wave.html">external gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="realistic_global.html">realistic_global</a></li>
+<li class="toctree-l3"><a class="reference internal" href="horiz_press_grad.html">horizontal pressure gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="divergent_2d.html">divergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ice_shelf_2d.html">ice shelf 2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inertial_gravity_wave.html">inertial gravity wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
+<li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overflow.html">overflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="seamount.html">seamount</a></li>
+<li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Ocean component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/users_guide/ocean/tasks/analysis.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="analysis">
+<span id="ocean-analysis"></span><h1>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">analysis</span></code> task group analyzes a simulation that has <strong>already been run</strong>,
+rather than running one.  Its tasks are pointed at a completed Omega
+simulation through a config file and produce plots and the netCDF data behind
+them.</p>
+<p>This makes it unlike the other pages in this section.  There is no mesh, no
+vertical grid, no initial condition, no forcing and no time step to describe,
+because no model is run: everything the analysis needs it reads from the
+simulation’s own output.</p>
+<p>Analysis products are added over time; <a class="reference internal" href="#ocean-analysis-products"><span class="std std-ref">products</span></a> lists
+what is available so far.</p>
+<section id="supported-models">
+<h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
+<p><strong>Omega only.</strong>  The analysis locates a simulation’s output by reading the
+simulation’s own Omega configuration file, which is also how it learns the
+mesh, the vertical coordinate and the output streams.  MPAS-Ocean describes
+its output with namelists and streams files instead, and reading those would
+require a translator into the same form, which does not exist.  A setup with
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> set to <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> reports that rather than failing later.</p>
+<p>Neither an Omega nor an MPAS-Ocean build is needed, since no model is run.</p>
+</section>
+<section id="pointing-the-analysis-at-a-simulation">
+<span id="ocean-analysis-config"></span><h2>pointing the analysis at a simulation<a class="headerlink" href="#pointing-the-analysis-at-a-simulation" title="Link to this heading"></a></h2>
+<p>The user supplies a config file describing the simulation to analyze.  In the
+common case it needs three things: where the simulation is, and the two ranges
+of simulation years to analyze.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_analysis]</span>
+
+<span class="c1"># the simulation's own Omega configuration file</span>
+<span class="na">omega_config_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/run/omega.yml</span>
+
+<span class="c1"># a short name used in plot titles and file names</span>
+<span class="na">simulation_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_run</span>
+
+
+<span class="k">[ocean_analysis_climatology]</span>
+
+<span class="c1"># the first and last year of the climatology, inclusive</span>
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">21</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40</span>
+
+
+<span class="k">[ocean_analysis_time_series]</span>
+
+<span class="c1"># the first and last year of the time series, inclusive</span>
+<span class="na">start_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">end_year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">omega_config_filename</span></code> is <strong>required</strong> and is the only description of where
+the simulation’s output lives.  Polaris reads the mesh, the vertical
+coordinate and the output streams from it, so none of them have to be restated
+by hand.  An Omega run always writes this file; it is in the run directory.</p>
+<p>The two year ranges are independent.  The climatology range governs the
+map-view products and the MOC; the time-series range governs the global
+statistics and ocean heat content time series.  Changing one does not disturb
+the other.</p>
+<p>A few further options in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis]</span></code> are worth knowing about, though
+most simulations need none of them:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">simulation_path</span></code></dt><dd><p>The directory that relative file names in the Omega configuration are
+resolved against.  Defaults to the directory containing that file, which is
+the run directory.  Set it if the output has moved since the run.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mesh_filename</span></code>, <code class="docutils literal notranslate"><span class="pre">vert_coord_filename</span></code></dt><dd><p>The horizontal mesh and vertical-coordinate files, absolute or relative to
+<code class="docutils literal notranslate"><span class="pre">simulation_path</span></code>.  Each defaults to the file the Omega configuration names.
+Set one if it has moved.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">output_path</span></code></dt><dd><p>Where plots and their netCDF files are published for browsing.  Defaults to
+<code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;/analysis_output</span></code>.  Point it somewhere web-servable to share the
+results.</p>
+</dd>
+</dl>
+<p>The remaining sections — <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_climatology]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">[ocean_analysis_ohc]</span></code>, <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_time_series]</span></code> and
+<code class="docutils literal notranslate"><span class="pre">[ocean_analysis_moc]</span></code> — describe what each product computes and plots.  See
+the comments in <code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/analysis/analysis.cfg</span></code> for the full list
+with its defaults.</p>
+</section>
+<section id="running-the-analysis">
+<h2>running the analysis<a class="headerlink" href="#running-the-analysis" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>omega_analysis<span class="w"> </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>-f<span class="w"> </span>analysis.cfg<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>omega
+polaris<span class="w"> </span>serial
+</pre></div>
+</div>
+<p>Two things about that command differ from most Polaris suites:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">omega</span></code> is required</strong> (or <code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">omega</span></code> in an <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> section
+of the config file).  Polaris normally detects the model by finding a build,
+and there is no build here.</p></li>
+<li><p><strong>No <code class="docutils literal notranslate"><span class="pre">-p</span></code>/<code class="docutils literal notranslate"><span class="pre">--component_path</span></code></strong>, for the same reason.</p></li>
+</ul>
+<p>The suite can be run on the machine where the simulation output lives, without
+copying that output.</p>
+<p>To run a single product rather than the whole suite, set up that task on its
+own:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/analysis/global_stats<span class="w"> </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>-f<span class="w"> </span>analysis.cfg<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>omega
+</pre></div>
+</div>
+</section>
+<section id="where-the-results-go">
+<h2>where the results go<a class="headerlink" href="#where-the-results-go" title="Link to this heading"></a></h2>
+<p>Two directory trees, with two audiences.</p>
+<p>The <strong>work directory</strong> is built for predictability and for finding a step’s
+log, not for browsing.  It follows one rule, <code class="docutils literal notranslate"><span class="pre">&lt;product&gt;/&lt;period&gt;</span></code>, with a
+third level only for the one product that is chunked by field group:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/analysis/
+├── climatology/0021-0040/                (shared: ncclimo)
+├── climatology_maps/0021-0040/
+│   ├── temperature/ salinity/ velocity/
+│   ├── ssh/ mixed_layer_depth/
+│   └── heat_content/
+├── heat_content_series/0001-0060/
+├── global_stats/0001-0060/
+└── moc/0021-0040/
+</pre></div>
+</div>
+<p>The range in each path is the zero-padded first and last year, matching the
+convention <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> uses in its own file names.</p>
+<p>The <strong>staging tree</strong> under <code class="docutils literal notranslate"><span class="pre">output_path</span></code> is where results are published for
+browsing, with descriptive file names that carry the product, the field, the
+season, the vertical reduction and the range.</p>
+</section>
+<section id="analyzing-the-same-simulation-more-than-once">
+<h2>analyzing the same simulation more than once<a class="headerlink" href="#analyzing-the-same-simulation-more-than-once" title="Link to this heading"></a></h2>
+<p>Every product lives at a directory named for the range it covers, and that is
+what makes re-analysis behave sensibly:</p>
+<ul class="simple">
+<li><p><strong>A new range recomputes.</strong>  It creates steps in directories that have never
+run, so they run.  Nothing has to be deleted and no flag has to be passed.</p></li>
+<li><p><strong>An unchanged range recomputes nothing.</strong>  Those directories are already
+complete.</p></li>
+<li><p><strong>An earlier range’s results survive.</strong>  Two ranges never share a directory,
+so analyzing years 21–40 leaves the results for years 1–20 in place.  This
+also makes it impossible to get a plot labelled with one range whose
+contents came from another.</p></li>
+</ul>
+<p>Re-running <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> rewrites the suite pickle at the root of the work
+directory, so the range most recently set up is the one <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> will
+run.  Step directories from earlier ranges are untouched, so returning to an
+earlier range means re-running setup with that range’s config.</p>
+<p>Analyzing many ranges accumulates step directories and intermediate files,
+which is what makes re-analyzing an earlier range nearly free.  It is worth
+knowing about on a filesystem with a quota; the climatology files dominate.</p>
+</section>
+<section id="products">
+<span id="ocean-analysis-products"></span><h2>products<a class="headerlink" href="#products" title="Link to this heading"></a></h2>
+<p>The suite is being built up product by product.  What exists so far:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>task</p></th>
+<th class="head"><p>product</p></th>
+<th class="head"><p>status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">climatology_maps</span></code></p></td>
+<td><p>map-view climatologies, one step per field group</p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">global_stats</span></code></p></td>
+<td><p>time series of the simulation’s global statistics</p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">heat_content_series</span></code></p></td>
+<td><p>time series of globally integrated ocean heat content</p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">moc</span></code></p></td>
+<td><p>latitude-elevation plot of the meridional overturning circulation</p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+</tbody>
+</table>
+<p>Each task currently resolves the simulation files it will read, links them
+into its work directory and reports them in its log, which is enough to check
+that a simulation is being located correctly.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">moc</span></code> task additionally depends on a diagnostic that Omega computes in
+situ and does not yet provide.  A simulation without it is an ordinary case:
+the step reports that no MOC output was written and produces nothing, rather
+than failing the suite.</p>
+</section>
+<section id="troubleshooting">
+<h2>troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<p><strong><code class="docutils literal notranslate"><span class="pre">invalid</span> <span class="pre">interpolation</span> <span class="pre">syntax</span></code></strong> while reading the config file.  Polaris
+config files use extended interpolation, so a bare <code class="docutils literal notranslate"><span class="pre">$</span></code> in a value is an error.
+File-name templates containing <code class="docutils literal notranslate"><span class="pre">$Y</span></code> and <code class="docutils literal notranslate"><span class="pre">$M</span></code> belong in the simulation’s Omega
+configuration, not in a Polaris config file, and there is no option that takes
+one.</p>
+<p><strong>Missing input files at setup.</strong>  The analysis checks that every file it will
+read exists before anything runs, and reports the years and months that are
+absent together with the Omega stream that named them.  The usual cause is a
+year range that reaches beyond the simulation.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">Could</span> <span class="pre">not</span> <span class="pre">detect</span> <span class="pre">ocean</span> <span class="pre">model</span></code>.</strong>  <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">omega</span></code> was not passed and there
+is no <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> option in the config file.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="baroclinic_channel.html" class="btn btn-neutral float-right" title="baroclinic channel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

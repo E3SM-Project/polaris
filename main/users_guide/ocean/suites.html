@@ -61,6 +61,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#nightly-suite">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#omega-pr-suite">omega_pr suite</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#omega-analysis-suite">omega_analysis suite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#framework-pr-suite">framework_pr suite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#convergence-suite">convergence suite</a></li>
 </ul>
@@ -208,6 +209,30 @@ ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 </pre></div>
 </div>
+<section id="omega-analysis-suite">
+<span id="ocean-suite-omega-analysis"></span><h2>omega_analysis suite<a class="headerlink" href="#omega-analysis-suite" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite analyzes a simulation that has already been run,
+rather than running one.  It is pointed at a completed Omega simulation
+through a config file and produces plots and the netCDF data behind them.  See
+<a class="reference internal" href="tasks/analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> for the config file it needs and for what each task
+produces.</p>
+<p>Unlike the other suites here, it needs neither an Omega nor an MPAS-Ocean
+build, since no model is run, and it can be run on the machine where the
+simulation output lives without copying that output.  Because there is no
+build to detect the model from, <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">omega</span></code> is required and no
+<code class="docutils literal notranslate"><span class="pre">-p</span></code>/<code class="docutils literal notranslate"><span class="pre">--component_path</span></code> is given:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>omega_analysis<span class="w"> </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>-f<span class="w"> </span>analysis.cfg<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>omega
+</pre></div>
+</div>
+<p>The tasks in the suite are:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/analysis/climatology_maps
+ocean/analysis/heat_content_series
+ocean/analysis/global_stats
+ocean/analysis/moc
+</pre></div>
+</div>
+</section>
 <section id="framework-pr-suite">
 <span id="ocean-suite-framework-pr"></span><h2>framework_pr suite<a class="headerlink" href="#framework-pr-suite" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">framework_pr</span></code> suite is designed for testing pull-requests (PRs) that

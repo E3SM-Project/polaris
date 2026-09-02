@@ -1,0 +1,27 @@
+﻿polaris.tasks.ocean.analysis.sim\_files.SimulationFiles
+=======================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.sim_files
+
+.. autoclass:: SimulationFiles
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SimulationFiles.__init__
+      ~SimulationFiles.global_stats_files
+      ~SimulationFiles.mesh_filename
+      ~SimulationFiles.moc_files
+      ~SimulationFiles.monthly_mean_files
+      ~SimulationFiles.vert_coord_filename
+   
+   
+
+   
+   
+   

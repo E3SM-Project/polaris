@@ -1,0 +1,62 @@
+﻿polaris.tasks.ocean.analysis.analysis\_step.AnalysisStep
+========================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.analysis_step
+
+.. autoclass:: AnalysisStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AnalysisStep.__init__
+      ~AnalysisStep.add_dependency
+      ~AnalysisStep.add_horiz_mesh_input_file
+      ~AnalysisStep.add_init_input_file
+      ~AnalysisStep.add_input_file
+      ~AnalysisStep.add_output_file
+      ~AnalysisStep.add_output_files_for_ocean_model_input
+      ~AnalysisStep.add_sim_input_file
+      ~AnalysisStep.add_sim_input_files
+      ~AnalysisStep.add_vert_coord_input_file
+      ~AnalysisStep.check_properties
+      ~AnalysisStep.constrain_resources
+      ~AnalysisStep.get_horiz_mesh_filename
+      ~AnalysisStep.get_init_filename
+      ~AnalysisStep.get_sim_files
+      ~AnalysisStep.get_vert_coord_filename
+      ~AnalysisStep.log_inputs
+      ~AnalysisStep.map_from_native_model_vars
+      ~AnalysisStep.map_to_native_model_vars
+      ~AnalysisStep.open_model_dataset
+      ~AnalysisStep.open_vert_coord_dataset
+      ~AnalysisStep.process_inputs_and_outputs
+      ~AnalysisStep.run
+      ~AnalysisStep.runtime_setup
+      ~AnalysisStep.set_resources
+      ~AnalysisStep.set_shared_config
+      ~AnalysisStep.setup
+      ~AnalysisStep.validate_baselines
+      ~AnalysisStep.work_path
+      ~AnalysisStep.write_horiz_mesh_dataset
+      ~AnalysisStep.write_initial_state_dataset
+      ~AnalysisStep.write_model_dataset
+      ~AnalysisStep.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AnalysisStep.component
+      ~AnalysisStep.config
+      ~AnalysisStep.input_data
+   
+   

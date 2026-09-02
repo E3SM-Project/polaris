@@ -85,6 +85,12 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analysis-of-completed-simulations">Analysis of completed simulations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#locating-the-simulation-s-files">Locating the simulation’s files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#steps">Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#range-keyed-steps">Range-keyed steps</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="convert_mpaso_ic_to_omega.html">convert_mpaso_ic_to_omega.py</a></li>
@@ -997,6 +1003,85 @@ density, which is horizontally constant and increases with depth.</p>
 <p>The <a class="reference internal" href="generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe" title="polaris.ocean.rpe.compute_rpe"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.rpe.compute_rpe()</span></code></a> is used to compute the RPE as
 a function of time in a series of one or more output files.  The RPE is stored
 in <code class="docutils literal notranslate"><span class="pre">rpe.csv</span></code> and also returned as a numpy array for plotting and analysis.</p>
+</section>
+<section id="analysis-of-completed-simulations">
+<span id="dev-ocean-analysis"></span><h2>Analysis of completed simulations<a class="headerlink" href="#analysis-of-completed-simulations" title="Link to this heading"></a></h2>
+<p>The package <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code> contains the tasks of the
+<code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite, which analyze a simulation that has already been run
+rather than running one.  <a class="reference internal" href="../../users_guide/ocean/tasks/analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> describes the suite from a
+user’s point of view.  Three pieces of it are shared machinery that a new
+analysis product builds on.</p>
+<section id="locating-the-simulation-s-files">
+<h3>Locating the simulation’s files<a class="headerlink" href="#locating-the-simulation-s-files" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files</span></code> is a leaf module — it does not
+import <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> — so that it can be unit tested and reused
+by every step that reads simulation output.</p>
+<p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.SimulationFiles</span></code></a> is the
+entry point.  It resolves the mesh, the vertical coordinate and the lists of
+monthly-mean, global-statistics and MOC files covering a range of years, and
+reports where each path came from.  Underneath it,
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.OmegaConfig</span></code></a> reads the
+simulation’s own Omega configuration and answers questions about it
+defensively: a missing stream, a stream that names no file, and an analysis
+group that is turned off are told apart rather than raising from inside a
+lookup.  This is the one place Polaris depends on the <em>shape</em> of Omega’s
+configuration rather than on its output.</p>
+<p>Two details are worth knowing before adding a product:</p>
+<ul class="simple">
+<li><p>File-name templates are expanded by
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template" title="polaris.tasks.ocean.analysis.sim_files.expand_template"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.expand_template()</span></code></a>, which
+substitutes <code class="docutils literal notranslate"><span class="pre">$Y</span></code> and <code class="docutils literal notranslate"><span class="pre">$M</span></code>.  A template with no <code class="docutils literal notranslate"><span class="pre">$M</span></code> gives one file per year,
+and one with no date at all gives a single file — which is the real case
+for Omega’s analysis output.  These templates come from the Omega
+configuration and never from a Polaris config file, because Polaris config
+files use extended interpolation and a bare <code class="docutils literal notranslate"><span class="pre">$</span></code> in a value is an error.</p></li>
+<li><p>Omega builds the file name of an analysis group’s output stream as
+<code class="docutils literal notranslate"><span class="pre">&lt;prefix&gt;_&lt;period&gt;&lt;TimeStats|Instants&gt;&lt;template&gt;</span></code>.  A group can write both
+time means and snapshots under different names, so
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams()</span></code></a>
+returns each stream with its period and whether it is a time reduction, and
+the caller must not assume either spelling.</p></li>
+</ul>
+</section>
+<section id="steps">
+<h3>Steps<a class="headerlink" href="#steps" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.analysis_step.AnalysisStep</span></code></a> extends
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep" title="polaris.ocean.model.OceanIOStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep</span></code></a> with the year range every analysis
+step has and with the input handling every one of them needs:
+<code class="docutils literal notranslate"><span class="pre">get_sim_files()</span></code> to resolve the simulation, <code class="docutils literal notranslate"><span class="pre">add_sim_input_file()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">add_sim_input_files()</span></code> to link its files into the step’s work directory, and
+<code class="docutils literal notranslate"><span class="pre">log_inputs()</span></code> to report what was read.</p>
+<p>Analysis steps follow <a class="reference internal" href="../framework/task_parallelism.html#dev-task-parallelism"><span class="std std-ref">Writing task-parallel-safe steps</span></a> from the start, since it is
+cheap while the code is being written and expensive to retrofit.  In
+particular, every file a step opens in <code class="docutils literal notranslate"><span class="pre">run()</span></code> goes through
+<a class="reference internal" href="../generated/polaris.Step.work_path.html#polaris.Step.work_path" title="polaris.Step.work_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.work_path()</span></code></a> rather than a bare relative filename,
+temporary files go in the step’s own work directory, and a step declares the
+parallelism it will actually start as <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> rather than sizing
+itself to the machine.</p>
+</section>
+<section id="range-keyed-steps">
+<h3>Range-keyed steps<a class="headerlink" href="#range-keyed-steps" title="Link to this heading"></a></h3>
+<p>Every step lives at a subdirectory named for the range of years it covers —
+<code class="docutils literal notranslate"><span class="pre">climatology/0021-0040</span></code>, <code class="docutils literal notranslate"><span class="pre">global_stats/0001-0060</span></code> — built with
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.year_range_key.html#polaris.tasks.ocean.analysis.sim_files.year_range_key" title="polaris.tasks.ocean.analysis.sim_files.year_range_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.year_range_key()</span></code></a>.</p>
+<p>That is what gives the suite its re-analysis behavior, and it needs no
+framework support.  A setup with a new range creates steps in directories that
+have never run and so run; a setup with the same range lands on directories
+that are already complete and recomputes nothing; and two ranges never share a
+directory, so an earlier range’s results cannot be clobbered or mislabelled.</p>
+<p>A task’s subdirectory is fixed when the component is constructed, but its
+steps are not: <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> merges the user’s config into each task and
+then calls <code class="docutils literal notranslate"><span class="pre">configure()</span></code> before adding configs to steps, precisely so that
+steps created there are handled.  The analysis tasks therefore discard and
+rebuild their step lists from the config options, in the same way the cosine
+bell tasks do for resolutions.  Construction itself must read nothing but the
+packaged defaults, since <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> builds every task in every component;
+the simulation’s Omega configuration is not read until step setup.</p>
+<p>Steps are created with
+<a class="reference internal" href="../generated/polaris.Component.get_or_create_shared_step.html#polaris.Component.get_or_create_shared_step" title="polaris.Component.get_or_create_shared_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_or_create_shared_step()</span></code></a>, so a step several
+tasks want — the climatology, which every field group of <code class="docutils literal notranslate"><span class="pre">climatology_maps</span></code>
+reads — is built once for a range no matter how many of them ask for it.</p>
+</section>
 </section>
 </section>
 

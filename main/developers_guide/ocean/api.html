@@ -167,6 +167,151 @@
 </table>
 <section id="tasks">
 <h2>Tasks<a class="headerlink" href="#tasks" title="Link to this heading"></a></h2>
+<section id="analysis">
+<h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.add_analysis_tasks.html#polaris.tasks.ocean.analysis.add_analysis_tasks" title="polaris.tasks.ocean.analysis.add_analysis_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_analysis_tasks</span></code></a>(component)</p></td>
+<td><p>Add the tasks that analyze a completed Omega simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.AnalysisTask.html#polaris.tasks.ocean.analysis.AnalysisTask" title="polaris.tasks.ocean.analysis.AnalysisTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnalysisTask</span></code></a>(component, config, name, ...)</p></td>
+<td><p>A task of the ocean analysis suite</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.AnalysisTask.configure.html#polaris.tasks.ocean.analysis.AnalysisTask.configure" title="polaris.tasks.ocean.analysis.AnalysisTask.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnalysisTask.configure</span></code></a>()</p></td>
+<td><p>Build the steps again now that the user's config file has been read</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.AnalysisTask.year_range.html#polaris.tasks.ocean.analysis.AnalysisTask.year_range" title="polaris.tasks.ocean.analysis.AnalysisTask.year_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnalysisTask.year_range</span></code></a>()</p></td>
+<td><p>Get the range of simulation years this task's steps cover</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.ClimatologyMapsTask.html#polaris.tasks.ocean.analysis.ClimatologyMapsTask" title="polaris.tasks.ocean.analysis.ClimatologyMapsTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClimatologyMapsTask</span></code></a>(component, config)</p></td>
+<td><p>A task that plots map-view climatologies of the simulation's fields</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.GlobalStatsTask.html#polaris.tasks.ocean.analysis.GlobalStatsTask" title="polaris.tasks.ocean.analysis.GlobalStatsTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GlobalStatsTask</span></code></a>(component, config)</p></td>
+<td><p>A task that plots time series of the simulation's global statistics</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.HeatContentSeriesTask.html#polaris.tasks.ocean.analysis.HeatContentSeriesTask" title="polaris.tasks.ocean.analysis.HeatContentSeriesTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HeatContentSeriesTask</span></code></a>(component, config)</p></td>
+<td><p>A task that plots the time series of globally integrated ocean heat content</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.MocTask.html#polaris.tasks.ocean.analysis.MocTask" title="polaris.tasks.ocean.analysis.MocTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MocTask</span></code></a>(component, config)</p></td>
+<td><p>A task that plots the global meridional overturning circulation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis_step.AnalysisStep</span></code></a>(component, name, ...)</p></td>
+<td><p>A step of the ocean analysis suite</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.get_sim_files.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.get_sim_files" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.get_sim_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis_step.AnalysisStep.get_sim_files</span></code></a>()</p></td>
+<td><p>Get the simulation's files, reporting where each path came from</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_sim_input_file.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_sim_input_file" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_sim_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis_step.AnalysisStep.add_sim_input_file</span></code></a>(path)</p></td>
+<td><p>Symlink one file of simulation output into the step's work directory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_sim_input_files.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_sim_input_files" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_sim_input_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis_step.AnalysisStep.add_sim_input_files</span></code></a>(...)</p></td>
+<td><p>Symlink a list of simulation files into the step's work directory</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.log_inputs.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.log_inputs" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.log_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analysis_step.AnalysisStep.log_inputs</span></code></a>()</p></td>
+<td><p>Report the simulation files this step reads</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology.Climatology.html#polaris.tasks.ocean.analysis.climatology.Climatology" title="polaris.tasks.ocean.analysis.climatology.Climatology"><code class="xref py py-obj docutils literal notranslate"><span class="pre">climatology.Climatology</span></code></a>(component, subdir, ...)</p></td>
+<td><p>A step that computes monthly, seasonal and annual climatologies of the simulation's monthly-mean output with <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology.Climatology.setup.html#polaris.tasks.ocean.analysis.climatology.Climatology.setup" title="polaris.tasks.ocean.analysis.climatology.Climatology.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">climatology.Climatology.setup</span></code></a>()</p></td>
+<td><p>Link the monthly means the climatology is computed from</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology.Climatology.run.html#polaris.tasks.ocean.analysis.climatology.Climatology.run" title="polaris.tasks.ocean.analysis.climatology.Climatology.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">climatology.Climatology.run</span></code></a>()</p></td>
+<td><p>Report the monthly means; the climatology itself is not computed yet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">climatology_maps.ClimatologyMaps</span></code></a>(component, ...)</p></td>
+<td><p>A step that plots maps of one field group from the climatology</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">climatology_maps.ClimatologyMaps.setup</span></code></a>()</p></td>
+<td><p>Link the mesh the maps are plotted on</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.run.html#polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.run" title="polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">climatology_maps.ClimatologyMaps.run</span></code></a>()</p></td>
+<td><p>Report the fields and inputs; no maps are plotted yet</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.climatology_maps.get_field_groups.html#polaris.tasks.ocean.analysis.climatology_maps.get_field_groups" title="polaris.tasks.ocean.analysis.climatology_maps.get_field_groups"><code class="xref py py-obj docutils literal notranslate"><span class="pre">climatology_maps.get_field_groups</span></code></a>(fields)</p></td>
+<td><p>Get the field groups that cover a list of requested fields</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.html#polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries" title="polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_stats.GlobalStatsTimeSeries</span></code></a>(...)</p></td>
+<td><p>A step that plots time series of the quantities in the simulation's global statistics output</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.setup.html#polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.setup" title="polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_stats.GlobalStatsTimeSeries.setup</span></code></a>()</p></td>
+<td><p>Link the simulation's global statistics output</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.run.html#polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.run" title="polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_stats.GlobalStatsTimeSeries.run</span></code></a>()</p></td>
+<td><p>Report the statistics files; no time series are plotted yet</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries.html#polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries" title="polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">heat_content_series.HeatContentSeries</span></code></a>(...)</p></td>
+<td><p>A step that reduces each month of the simulation to globally integrated ocean heat content over a set of elevation ranges, and plots the series</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries.setup.html#polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries.setup" title="polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">heat_content_series.HeatContentSeries.setup</span></code></a>()</p></td>
+<td><p>Link the monthly means, the mesh and the vertical coordinate</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries.run.html#polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries.run" title="polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">heat_content_series.HeatContentSeries.run</span></code></a>()</p></td>
+<td><p>Report the monthly means; no heat content is computed yet</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.moc.Moc.html#polaris.tasks.ocean.analysis.moc.Moc" title="polaris.tasks.ocean.analysis.moc.Moc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moc.Moc</span></code></a>(component, subdir, start_year, end_year)</p></td>
+<td><p>A step that time averages the meridional overturning circulation Omega computes in situ and plots it against latitude and elevation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.moc.Moc.setup.html#polaris.tasks.ocean.analysis.moc.Moc.setup" title="polaris.tasks.ocean.analysis.moc.Moc.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moc.Moc.setup</span></code></a>()</p></td>
+<td><p>Link the simulation's MOC output, if it wrote any</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.moc.Moc.run.html#polaris.tasks.ocean.analysis.moc.Moc.run" title="polaris.tasks.ocean.analysis.moc.Moc.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moc.Moc.run</span></code></a>()</p></td>
+<td><p>Report the MOC output; no plot is made yet</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimFile.html#polaris.tasks.ocean.analysis.sim_files.SimFile" title="polaris.tasks.ocean.analysis.sim_files.SimFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimFile</span></code></a>(path, year, month)</p></td>
+<td><p>One file of simulation output, together with the date it covers</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.AnalysisStream.html#polaris.tasks.ocean.analysis.sim_files.AnalysisStream" title="polaris.tasks.ocean.analysis.sim_files.AnalysisStream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.AnalysisStream</span></code></a>(filename, period, ...)</p></td>
+<td><p>One output stream of an Omega analysis group</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.OmegaConfig</span></code></a>(filename, streams, options)</p></td>
+<td><p>The configuration file of the simulation being analyzed</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_status.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_status" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.OmegaConfig.stream_status</span></code></a>(stream_name)</p></td>
+<td><p>Report whether an <code class="docutils literal notranslate"><span class="pre">IOStreams</span></code> entry can supply a file name</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_filename.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_filename" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig.stream_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.OmegaConfig.stream_filename</span></code></a>(...)</p></td>
+<td><p>Get the file name or file-name template of an <code class="docutils literal notranslate"><span class="pre">IOStreams</span></code> entry</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_group_status.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_group_status" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_group_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.OmegaConfig.analysis_group_status</span></code></a>(...)</p></td>
+<td><p>Report whether an analysis group is writing output</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.OmegaConfig.analysis_streams</span></code></a>(...)</p></td>
+<td><p>Get the output streams an analysis group writes</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles</span></code></a>(config[, log])</p></td>
+<td><p>The files of the simulation being analyzed</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.mesh_filename.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.mesh_filename" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles.mesh_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles.mesh_filename</span></code></a>()</p></td>
+<td><p>Get the horizontal mesh file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.vert_coord_filename.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.vert_coord_filename" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles.vert_coord_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles.vert_coord_filename</span></code></a>()</p></td>
+<td><p>Get the vertical-coordinate file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.monthly_mean_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.monthly_mean_files" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles.monthly_mean_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles.monthly_mean_files</span></code></a>(...)</p></td>
+<td><p>Get the monthly-mean output files covering a range of years</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles.global_stats_files</span></code></a>(...)</p></td>
+<td><p>Get the global statistics output files covering a range of years</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles.moc_files</span></code></a>(...)</p></td>
+<td><p>Get the meridional overturning circulation output files covering a range of years</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.read_omega_config.html#polaris.tasks.ocean.analysis.sim_files.read_omega_config" title="polaris.tasks.ocean.analysis.sim_files.read_omega_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.read_omega_config</span></code></a>(filename)</p></td>
+<td><p>Read the configuration file of the simulation being analyzed</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template" title="polaris.tasks.ocean.analysis.sim_files.expand_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.expand_template</span></code></a>(template, ...[, ...])</p></td>
+<td><p>Expand a file-name template over a range of years</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.check_files_exist.html#polaris.tasks.ocean.analysis.sim_files.check_files_exist" title="polaris.tasks.ocean.analysis.sim_files.check_files_exist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.check_files_exist</span></code></a>(sim_files, ...)</p></td>
+<td><p>Check that every expanded file exists, reporting the missing years and months rather than a bare list of paths</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.year_range_key.html#polaris.tasks.ocean.analysis.sim_files.year_range_key" title="polaris.tasks.ocean.analysis.sim_files.year_range_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.year_range_key</span></code></a>(start_year, end_year)</p></td>
+<td><p>Get the key for a range of years, used both for step subdirectories and for the names of published files</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="baroclinic-channel">
 <h3>baroclinic_channel<a class="headerlink" href="#baroclinic-channel" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">

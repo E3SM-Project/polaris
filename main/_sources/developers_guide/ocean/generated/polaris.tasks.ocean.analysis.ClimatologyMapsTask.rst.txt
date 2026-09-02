@@ -1,0 +1,27 @@
+﻿polaris.tasks.ocean.analysis.ClimatologyMapsTask
+================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis
+
+.. autoclass:: ClimatologyMapsTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ClimatologyMapsTask.__init__
+      ~ClimatologyMapsTask.add_step
+      ~ClimatologyMapsTask.configure
+      ~ClimatologyMapsTask.remove_step
+      ~ClimatologyMapsTask.set_shared_config
+      ~ClimatologyMapsTask.year_range
+   
+   
+
+   
+   
+   

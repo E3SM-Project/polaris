@@ -5,6 +5,7 @@
 ```{toctree}
 :titlesonly: true
 
+analysis
 baroclinic_channel
 barotropic_channel
 barotropic_gyre
