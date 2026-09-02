@@ -7,6 +7,8 @@ analysis step that reads simulation output.
 """
 
 import os
+import re
+from glob import glob
 from typing import List, NamedTuple, Optional
 
 from polaris.yaml import PolarisYaml
@@ -129,7 +131,9 @@ def expand_template(template, start_year, end_year, simulation_path=None):
     return sim_files
 
 
-def check_files_exist(sim_files, description, source):
+def check_files_exist(
+    sim_files, description, source, template=None, simulation_path=None
+):
     """
     Check that every expanded file exists, reporting the missing years and
     months rather than a bare list of paths
@@ -148,6 +152,14 @@ def check_files_exist(sim_files, description, source):
         error says where to look, e.g. ``'the History stream in
         /path/omega.yml'``
 
+    template : str, optional
+        The template the files were expanded from.  Given it, the error also
+        says which years the simulation did write, which is usually the
+        answer the reader wants.
+
+    simulation_path : str, optional
+        The directory a relative template is resolved against
+
     Raises
     ------
     FileNotFoundError
@@ -161,11 +173,48 @@ def check_files_exist(sim_files, description, source):
         f'{len(missing)} of {len(sim_files)} {description} files are missing:'
     ]
     lines.extend(_describe_missing(missing))
-    lines.append(
-        f'They are named by {source}.  Check the year range and that the '
-        f'simulation wrote this output for those years.'
-    )
+    lines.append(f'They are named by {source}.')
+    available = _years_available(template, simulation_path)
+    if available:
+        first, last = available[0], available[-1]
+        gaps = len(available) < last - first + 1
+        span = f'{first}-{last}' + (', with gaps' if gaps else '')
+        lines.append(
+            f'The simulation wrote years {span}.  Set start_year and '
+            f'end_year within that range.'
+        )
+    else:
+        lines.append(
+            'Check the year range and that the simulation wrote this output '
+            'for those years.'
+        )
     raise FileNotFoundError('\n'.join(lines))
+
+
+def _years_available(template, simulation_path):
+    """
+    Find the years the simulation actually wrote, for the error message
+
+    This looks at the simulation directory, which the analysis otherwise
+    never does: a range is declared by the user rather than discovered, so
+    that the same request always means the same thing.  Discovering it here
+    only turns "some files are missing" into the answer the reader wants,
+    and nothing outside this error path depends on it.
+    """
+    if template is None or '$Y' not in template:
+        return []
+    if not os.path.isabs(template) and simulation_path is not None:
+        template = os.path.join(simulation_path, template)
+    pattern = template.replace('$Y', '[0-9]' * 4).replace('$M', '[0-9]' * 2)
+    matcher = re.escape(template)
+    matcher = matcher.replace(re.escape('$Y'), r'(?P<year>[0-9]{4})')
+    matcher = matcher.replace(re.escape('$M'), r'[0-9]{2}')
+    years = set()
+    for path in glob(pattern):
+        found = re.fullmatch(matcher, path)
+        if found:
+            years.add(int(found.group('year')))
+    return sorted(years)
 
 
 class AnalysisStream(NamedTuple):
@@ -681,7 +730,11 @@ class SimulationFiles:
             simulation_path=self.simulation_path,
         )
         check_files_exist(
-            sim_files=sim_files, description=description, source=source
+            sim_files=sim_files,
+            description=description,
+            source=source,
+            template=template,
+            simulation_path=self.simulation_path,
         )
         return sim_files
 
