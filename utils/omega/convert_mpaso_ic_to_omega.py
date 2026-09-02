@@ -179,8 +179,8 @@ def _prepare_mpas_zero(
     elif include_idealized_sfc_stress:
         _add_sfc_stress(
             ds_mpas_zero,
-            zonal_name='SfcStressZonal',
-            meridional_name='SfcStressMeridional',
+            zonal_name='windStressZonal',
+            meridional_name='windStressMeridional',
         )
 
     _keep_selected_global_attrs(ds_mpas_zero)
@@ -198,7 +198,7 @@ def _prepare_mpas_zero(
             'based on earth radius in pcd.yaml'
         )
     if include_idealized_sfc_stress:
-        print('Added SfcStressZonal and SfcStressMeridional fields')
+        print('Added windStressZonal and windStressMeridional fields')
 
     v_msg = (
         f'Zeroed velocity fields: {", ".join(mpas_velocity_fields)}'
