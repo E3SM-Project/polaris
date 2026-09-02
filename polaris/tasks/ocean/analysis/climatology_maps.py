@@ -1,10 +1,21 @@
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
 
-# The field groups maps are chunked into.  A group is the unit because things
-# computed together belong together: the two velocity components share one
-# vector reconstruction, and heat content over several elevation ranges shares
-# one set of layer weights.  Heat content reads no field of its own, since it
-# is derived from temperature and the layer masses.
+# The field groups maps are chunked into.
+#
+# A group is the unit of *shared computation*, and therefore the unit of work:
+# one step per group.  The two velocity components share one vector
+# reconstruction, and heat content over several elevation ranges shares one set
+# of layer weights, so each is worth computing once.  Temperature, salinity and
+# ssh are groups of one only because they share nothing.
+#
+# It is deliberately not a presentation grouping.  How products are gathered
+# for a reader is carried by the manifest's ``group`` and ``gallery`` facets,
+# which the publication layer adds, so that re-chunking the work does not
+# rearrange the gallery.  A group of two fields can appear as two galleries,
+# and two groups can appear under one heading.
+#
+# Heat content reads no field of its own, since it is derived from temperature
+# and the layer masses.
 FIELD_GROUPS = {
     'temperature': ('temperature',),
     'salinity': ('salinity',),
@@ -61,7 +72,8 @@ class ClimatologyMaps(AnalysisStep):
     Attributes
     ----------
     field_group : str
-        The name of the field group this step covers
+        The name of the field group this step covers, which is the unit of
+        shared computation rather than a heading products are gathered under
 
     fields : list of str
         The fields of that group that were requested
