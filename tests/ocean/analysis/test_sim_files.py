@@ -113,6 +113,55 @@ def test_check_files_exist_names_the_missing_months(tmp_path):
     assert 'the History stream' in message
 
 
+def test_check_files_exist_says_which_years_the_simulation_wrote(tmp_path):
+    """Given the template, the error answers the question it raises."""
+    for year in (1, 2):
+        for month in range(1, 13):
+            (tmp_path / f'ocn.hist.{year:04d}-{month:02d}.nc').touch()
+    template = 'ocn.hist.$Y-$M.nc'
+    sim_files = expand_template(template, 1, 4, simulation_path=str(tmp_path))
+    with pytest.raises(FileNotFoundError) as excinfo:
+        check_files_exist(
+            sim_files,
+            'monthly-mean',
+            'the History stream',
+            template=template,
+            simulation_path=str(tmp_path),
+        )
+    message = str(excinfo.value)
+    assert 'The simulation wrote years 1-2.' in message
+    assert 'with gaps' not in message
+
+
+def test_check_files_exist_says_when_the_years_it_wrote_have_gaps(tmp_path):
+    """A hole in the middle is worth knowing about before setting a range."""
+    for year in (1, 3):
+        for month in range(1, 13):
+            (tmp_path / f'ocn.hist.{year:04d}-{month:02d}.nc').touch()
+    template = 'ocn.hist.$Y-$M.nc'
+    sim_files = expand_template(template, 1, 4, simulation_path=str(tmp_path))
+    with pytest.raises(FileNotFoundError) as excinfo:
+        check_files_exist(
+            sim_files,
+            'monthly-mean',
+            'the History stream',
+            template=template,
+            simulation_path=str(tmp_path),
+        )
+    assert 'years 1-3, with gaps' in str(excinfo.value)
+
+
+def test_check_files_exist_without_a_template_still_advises(tmp_path):
+    """The old advice stands when the caller gives no template."""
+    (tmp_path / 'ocn.hist.0001-01.nc').touch()
+    sim_files = expand_template(
+        'ocn.hist.$Y-$M.nc', 1, 1, simulation_path=str(tmp_path)
+    )
+    with pytest.raises(FileNotFoundError) as excinfo:
+        check_files_exist(sim_files, 'monthly-mean', 'the History stream')
+    assert 'Check the year range' in str(excinfo.value)
+
+
 def test_check_files_exist_reports_an_undated_file_by_path(tmp_path):
     sim_files = expand_template(
         'global_stats_1DayInstants', 1, 60, simulation_path=str(tmp_path)
