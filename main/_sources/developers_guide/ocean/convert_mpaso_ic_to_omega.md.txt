@@ -6,7 +6,8 @@ The script `utils/omega/convert_mpaso_ic_to_omega.py` is a developer utility
 for converting an MPAS-Ocean initial-condition file into an Omega-formatted
 initial-condition file.  It is primarily intended for cases where a developer
 already has an MPAS-Ocean initial condition and needs a corresponding Omega
-file with the expected variable names, a `PseudoThickness` field, and optional
+file with the expected variable names, a `PseudoThickness` field, optional
+idealized or ERA5 based surface forcing, and optional
 tracer conversion for the requested equation of state.
 
 The script complements the model-variable mapping described in
@@ -35,9 +36,11 @@ The converter performs the following operations:
 5. It computes `PseudoThickness` from `layerThickness`, the reference seawater
    density, and specific volume.
 6. It zeros any numeric fields whose names contain `velocity`.
-7. It renames dimensions and variables using
+7. It optionally adds idealized surface stress forcing or surface stress, 
+   net heat flux and surface freshwater forcing from a 20 year average of ERA5.
+8. It renames dimensions and variables using
    `polaris/ocean/model/mpaso_to_omega.yaml`.
-8. It writes the converted Omega file with
+9. It writes the converted Omega file with
    {py:func}`mpas_tools.io.write_netcdf`.
 
 If `--visualization` is supplied, the script also writes diagnostic figures for
@@ -74,6 +77,43 @@ python utils/omega/convert_mpaso_ic_to_omega.py \
     --output-file /path/to/ocean.omega.nc \
     --eos-type linear
 ```
+There are two options for forcing; idealized and a 1990-2010 annual average climatology of ERA5 net surface heat flux, freshwater flux, and momentum fluxes.  The idealized forcing includes surface stress only.  A cubic spline is fit to the following specified stresses
+
+| Latitude ($^o$N) | Sfc Stress (Pa) | 
+| :--------------: | :-------------: |
+| -70              | 0.0             |
+| -45              | 0.2             |
+| -15              | -0.1            |
+| 0                | -0.02           |
+| 15               | -0.1            |
+| 45               |  0.1            |
+| 70               | 0.0             |
+
+To add this sfc stress to the omega initial condition, add the `--include-idealized-sfc-stress` to the python invocation above.
+
+To instead generate a file with ERA5 based forcing, use:
+
+```bash
+python utils/omega/convert_mpaso_ic_to_omega.py \
+  --input-file /path/to/ocean_ic_file.nc \
+  --output-file /path/to/ocean.omega.nc \
+  --eos-type teos10 \
+  --include-realistic-forcing
+```
+
+On supported machines, this will download the ERA5 forcing file and SCRIP file for interpolation.  If you are running on a non-supported machine you can download the files separately and use the following:
+
+```bash
+python utils/omega/convert_mpaso_ic_to_omega.py \
+    --input-file /path/to/ocean.nc \
+    --output-file /path/to/ocean.omega.nc \
+    --eos-type teos10 \
+    --include-realistic-forcing \
+    --forcing-file /path/to/forcing_file.nc \
+    --forcing-scrip-file /path/to/era5_0.25deg_scrip.nc \
+```
+
+The forcing file generation uses conservative remapping by default; if you wish to use another method add `--remap-method bilinear` to the command.
 
 The script appends an EOS suffix automatically unless it is already present:
 

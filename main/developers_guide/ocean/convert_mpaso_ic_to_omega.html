@@ -16,6 +16,8 @@
       <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -133,7 +135,8 @@
 for converting an MPAS-Ocean initial-condition file into an Omega-formatted
 initial-condition file.  It is primarily intended for cases where a developer
 already has an MPAS-Ocean initial condition and needs a corresponding Omega
-file with the expected variable names, a <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> field, and optional
+file with the expected variable names, a <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> field, optional
+idealized or ERA5 based surface forcing, and optional
 tracer conversion for the requested equation of state.</p>
 <p>The script complements the model-variable mapping described in
 <a class="reference internal" href="framework.html#dev-ocean-model"><span class="std std-ref">Model</span></a>.  In contrast to
@@ -161,6 +164,8 @@ volume from the linear EOS coefficients used by Omega.</p></li>
 <li><p>It computes <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> from <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, the reference seawater
 density, and specific volume.</p></li>
 <li><p>It zeros any numeric fields whose names contain <code class="docutils literal notranslate"><span class="pre">velocity</span></code>.</p></li>
+<li><p>It optionally adds idealized surface stress forcing or surface stress,
+net heat flux and surface freshwater forcing from a 20 year average of ERA5.</p></li>
 <li><p>It renames dimensions and variables using
 <code class="docutils literal notranslate"><span class="pre">polaris/ocean/model/mpaso_to_omega.yaml</span></code>.</p></li>
 <li><p>It writes the converted Omega file with
@@ -195,6 +200,57 @@ variable names.  Figures are only produced on spherical meshes.  The temperature
 <span class="w">    </span>--eos-type<span class="w"> </span>linear
 </pre></div>
 </div>
+<p>There are two options for forcing; idealized and a 1990-2010 annual average climatology of ERA5 net surface heat flux, freshwater flux, and momentum fluxes.  The idealized forcing includes surface stress only.  A cubic spline is fit to the following specified stresses</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Latitude (<span class="math notranslate nohighlight">\(^o\)</span>N)</p></th>
+<th class="head text-center"><p>Sfc Stress (Pa)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>-70</p></td>
+<td class="text-center"><p>0.0</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>-45</p></td>
+<td class="text-center"><p>0.2</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>-15</p></td>
+<td class="text-center"><p>-0.1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>0</p></td>
+<td class="text-center"><p>-0.02</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>15</p></td>
+<td class="text-center"><p>-0.1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>45</p></td>
+<td class="text-center"><p>0.1</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>70</p></td>
+<td class="text-center"><p>0.0</p></td>
+</tr>
+</tbody>
+</table>
+<p>To add this sfc stress to the omega initial condition, add the <code class="docutils literal notranslate"><span class="pre">--include-idealized-sfc-stress</span></code> to the python invocation above.</p>
+<p>To instead generate a file with ERA5 based forcing, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>utils/omega/convert_mpaso_ic_to_omega.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--input-file<span class="w"> </span>/path/to/ocean_ic_file.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output-file<span class="w"> </span>/path/to/ocean.omega.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--eos-type<span class="w"> </span>teos10<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--include-realistic-forcing
+</pre></div>
+</div>
+<p>On supported machines, this will download the ERA5 forcing file and SCRIP file for interpolation.  If you are running on a non-supported machine you can download the files separately and use the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>utils/omega/convert_mpaso_ic_to_omega.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--input-file<span class="w"> </span>/path/to/ocean.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-file<span class="w"> </span>/path/to/ocean.omega.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eos-type<span class="w"> </span>teos10<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--include-realistic-forcing<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--forcing-file<span class="w"> </span>/path/to/forcing_file.nc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--forcing-scrip-file<span class="w"> </span>/path/to/era5_0.25deg_scrip.nc<span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<p>The forcing file generation uses conservative remapping by default; if you wish to use another method add <code class="docutils literal notranslate"><span class="pre">--remap-method</span> <span class="pre">bilinear</span></code> to the command.</p>
 <p>The script appends an EOS suffix automatically unless it is already present:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">teos10</span></code> produces <code class="docutils literal notranslate"><span class="pre">*.teos10eos.nc</span></code></p></li>
