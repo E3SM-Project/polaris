@@ -20,6 +20,7 @@
       ~Moc.add_input_file
       ~Moc.add_output_file
       ~Moc.add_output_files_for_ocean_model_input
+      ~Moc.add_product
       ~Moc.add_sim_input_file
       ~Moc.add_sim_input_files
       ~Moc.add_vert_coord_input_file
@@ -55,6 +56,7 @@
 
    .. autosummary::
    
+      ~Moc.makes_products
       ~Moc.component
       ~Moc.config
       ~Moc.input_data

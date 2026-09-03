@@ -1,0 +1,6 @@
+﻿polaris.analysis.thumbnail.thumbnail\_name
+==========================================
+
+.. currentmodule:: polaris.analysis.thumbnail
+
+.. autofunction:: thumbnail_name

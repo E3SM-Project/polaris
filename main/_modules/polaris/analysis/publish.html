@@ -1,0 +1,437 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.analysis.publish</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.analysis.publish</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.analysis.publish</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">range_key</span><span class="p">,</span> <span class="n">read_fragment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.thumbnail</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_FORMAT</span><span class="p">,</span>
+    <span class="n">DEFAULT_QUALITY</span><span class="p">,</span>
+    <span class="n">DEFAULT_SIZE</span><span class="p">,</span>
+    <span class="n">THUMBNAILS_DIRNAME</span><span class="p">,</span>
+    <span class="n">image_size</span><span class="p">,</span>
+    <span class="n">make_thumbnail</span><span class="p">,</span>
+    <span class="n">thumbnail_name</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: The subdirectory of the staging tree holding the published products</span>
+<span class="n">PLOTS_DIRNAME</span> <span class="o">=</span> <span class="s1">'plots'</span>
+
+<span class="c1">#: The merged manifest at the root of the staging tree</span>
+<span class="n">MERGED_FILENAME</span> <span class="o">=</span> <span class="s1">'manifest.json'</span>
+
+
+<div class="viewcode-block" id="published_basename">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.publish.published_basename.html#polaris.analysis.publish.published_basename">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">published_basename</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the name one of a product's files is published under</span>
+
+<span class="sd">    The name is the facets in a fixed order, so that it sorts usefully, greps</span>
+<span class="sd">    usefully, and cannot collide between two date ranges.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    product : polaris.analysis.manifest.Product</span>
+<span class="sd">        The product the file belongs to</span>
+
+<span class="sd">    filename : str</span>
+<span class="sd">        The name of the file within the step's work directory</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    basename : str</span>
+<span class="sd">        The name to publish it under</span>
+<span class="sd">    """</span>
+    <span class="n">stem</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">product</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="n">stem</span><span class="p">]</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">range_key</span><span class="p">(</span><span class="n">product</span><span class="o">.</span><span class="n">facets</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">"_"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span></div>
+
+
+
+<div class="viewcode-block" id="publish">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.publish.publish.html#polaris.analysis.publish.publish">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">publish</span><span class="p">(</span>
+    <span class="n">fragment_filenames</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">thumbnail_size</span><span class="o">=</span><span class="n">DEFAULT_SIZE</span><span class="p">,</span>
+    <span class="n">thumbnail_format</span><span class="o">=</span><span class="n">DEFAULT_FORMAT</span><span class="p">,</span>
+    <span class="n">thumbnail_quality</span><span class="o">=</span><span class="n">DEFAULT_QUALITY</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Publish every product the fragments describe into the staging tree</span>
+
+<span class="sd">    Products are published by symlink from the step that owns them, so that</span>
+<span class="sd">    each file has exactly one owner, Polaris's output checking continues to</span>
+<span class="sd">    work, and the staging tree is a view rather than a second source of</span>
+<span class="sd">    truth.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fragment_filenames : list of str</span>
+<span class="sd">        The manifest fragments to publish, one per step that makes products.</span>
+<span class="sd">        Every such step writes one, empty if it made nothing, which is what</span>
+<span class="sd">        lets a step declare them as inputs and have Polaris check them.  A</span>
+<span class="sd">        fragment that is not on disk is nonetheless reported here rather than</span>
+<span class="sd">        raising, so that this is usable on a list nothing has checked; the</span>
+<span class="sd">        ``publish`` step does not rely on it, since a declared input that is</span>
+<span class="sd">        missing stops it before it runs.</span>
+
+<span class="sd">    output_path : str</span>
+<span class="sd">        The root of the staging tree</span>
+
+<span class="sd">    logger : logging.Logger, optional</span>
+<span class="sd">        A logger for reporting what was published, which steps published</span>
+<span class="sd">        nothing, and what was missing</span>
+
+<span class="sd">    thumbnail_size : tuple of int, optional</span>
+<span class="sd">        The bounding box in pixels each thumbnail is scaled to fit inside</span>
+
+<span class="sd">    thumbnail_format : {'jpeg', 'webp'}, optional</span>
+<span class="sd">        The format thumbnails are written in</span>
+
+<span class="sd">    thumbnail_quality : int, optional</span>
+<span class="sd">        The compression quality of thumbnails, from 1 to 100</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    published : list of dict</span>
+<span class="sd">        One entry per published product, as written to the merged manifest</span>
+
+<span class="sd">    missing : list of str</span>
+<span class="sd">        The paths that are not on disk: first the fragments that were named</span>
+<span class="sd">        but never written, then the files a fragment named.  Both are</span>
+<span class="sd">        reported rather than silently omitted, and neither appears in the</span>
+<span class="sd">        merged manifest, which is what defines the published set.  A fragment</span>
+<span class="sd">        that was never written is only worth a message, since whoever called</span>
+<span class="sd">        this may not have had it checked; a fragment that promised a file</span>
+<span class="sd">        that is not there is worth a warning.</span>
+<span class="sd">    """</span>
+    <span class="n">plots_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">PLOTS_DIRNAME</span><span class="p">)</span>
+    <span class="n">thumbnails_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">THUMBNAILS_DIRNAME</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">plots_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">thumbnails_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">published</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">unwritten</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">missing</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">empty</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fragment_filename</span> <span class="ow">in</span> <span class="n">fragment_filenames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fragment_filename</span><span class="p">):</span>
+            <span class="n">unwritten</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fragment_filename</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="n">read_fragment</span><span class="p">(</span><span class="n">fragment_filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">manifest</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+            <span class="n">empty</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">step_name</span><span class="p">)</span>
+        <span class="c1"># a product is named relative to the step that wrote the fragment,</span>
+        <span class="c1"># and the fragment is normally reached through a symlink into that</span>
+        <span class="c1"># step, so the step's directory is the real one rather than the one</span>
+        <span class="c1"># the link sits in</span>
+        <span class="n">step_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">fragment_filename</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">_publish_product</span><span class="p">(</span>
+                <span class="n">product</span><span class="o">=</span><span class="n">product</span><span class="p">,</span>
+                <span class="n">step_path</span><span class="o">=</span><span class="n">step_path</span><span class="p">,</span>
+                <span class="n">plots_path</span><span class="o">=</span><span class="n">plots_path</span><span class="p">,</span>
+                <span class="n">step_name</span><span class="o">=</span><span class="n">manifest</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+                <span class="n">missing</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">published</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+    <span class="n">rendered</span> <span class="o">=</span> <span class="n">_add_thumbnails</span><span class="p">(</span>
+        <span class="n">published</span><span class="o">=</span><span class="n">published</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="n">thumbnail_size</span><span class="p">,</span>
+        <span class="n">image_format</span><span class="o">=</span><span class="n">thumbnail_format</span><span class="p">,</span>
+        <span class="n">quality</span><span class="o">=</span><span class="n">thumbnail_quality</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">_report</span><span class="p">(</span>
+        <span class="n">published</span><span class="o">=</span><span class="n">published</span><span class="p">,</span>
+        <span class="n">fragment_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">fragment_filenames</span><span class="p">),</span>
+        <span class="n">empty</span><span class="o">=</span><span class="n">empty</span><span class="p">,</span>
+        <span class="n">unwritten</span><span class="o">=</span><span class="n">unwritten</span><span class="p">,</span>
+        <span class="n">missing</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span>
+        <span class="n">rendered</span><span class="o">=</span><span class="n">rendered</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">write_merged_manifest</span><span class="p">(</span><span class="n">published</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">published</span><span class="p">,</span> <span class="n">unwritten</span> <span class="o">+</span> <span class="n">missing</span></div>
+
+
+
+<div class="viewcode-block" id="write_merged_manifest">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.publish.write_merged_manifest.html#polaris.analysis.publish.write_merged_manifest">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_merged_manifest</span><span class="p">(</span><span class="n">published</span><span class="p">,</span> <span class="n">output_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Write the merged manifest that defines the published set</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    published : list of dict</span>
+<span class="sd">        The published products, in the order they were published</span>
+
+<span class="sd">    output_path : str</span>
+<span class="sd">        The root of the staging tree</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The path of the manifest that was written</span>
+<span class="sd">    """</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">MERGED_FILENAME</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s1">'products'</span><span class="p">:</span> <span class="n">published</span><span class="p">},</span> <span class="n">out</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filename</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_publish_product</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">step_path</span><span class="p">,</span> <span class="n">plots_path</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">missing</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Symlink one product's files, or record it as missing"""</span>
+    <span class="n">sources</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'plot'</span><span class="p">:</span> <span class="n">product</span><span class="o">.</span><span class="n">plot</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sources</span><span class="p">[</span><span class="s1">'data'</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="n">targets</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">sources</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">step_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+            <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">targets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">published_basename</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="n">entry</span><span class="p">[</span><span class="s1">'step'</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_name</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span> <span class="ow">in</span> <span class="n">targets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">_symlink</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plots_path</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
+        <span class="n">entry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PLOTS_DIRNAME</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">entry</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_symlink</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">link_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Point link_path at source, replacing a link left by an earlier run"""</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">link_path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">link_path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">link_path</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">link_path</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_thumbnails</span><span class="p">(</span><span class="n">published</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">image_format</span><span class="p">,</span> <span class="n">quality</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Render a thumbnail for each published plot and record it"""</span>
+    <span class="n">rendered</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">published</span><span class="p">:</span>
+        <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">'plot'</span><span class="p">])</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">thumbnail_name</span><span class="p">(</span><span class="n">basename</span><span class="p">,</span> <span class="n">image_format</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">THUMBNAILS_DIRNAME</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">make_thumbnail</span><span class="p">(</span>
+            <span class="n">plot_filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'plot'</span><span class="p">]),</span>
+            <span class="n">thumbnail_filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
+            <span class="n">image_format</span><span class="o">=</span><span class="n">image_format</span><span class="p">,</span>
+            <span class="n">quality</span><span class="o">=</span><span class="n">quality</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">rendered</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail'</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">THUMBNAILS_DIRNAME</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="c1"># the generated page gives every image its own width and height, so</span>
+        <span class="c1"># that lazy loading does not make the page reflow as they arrive</span>
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">image_size</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail_width'</span><span class="p">]</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail_height'</span><span class="p">]</span> <span class="o">=</span> <span class="n">height</span>
+    <span class="k">return</span> <span class="n">rendered</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_report</span><span class="p">(</span>
+    <span class="n">published</span><span class="p">,</span> <span class="n">fragment_count</span><span class="p">,</span> <span class="n">empty</span><span class="p">,</span> <span class="n">unwritten</span><span class="p">,</span> <span class="n">missing</span><span class="p">,</span> <span class="n">rendered</span><span class="p">,</span> <span class="n">logger</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Say what was published, and name anything that was not"""</span>
+    <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'published </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">published</span><span class="p">)</span><span class="si">}</span><span class="s1"> products from </span><span class="si">{</span><span class="n">fragment_count</span><span class="si">}</span><span class="s1"> '</span>
+        <span class="sa">f</span><span class="s1">'manifests, rendering </span><span class="si">{</span><span class="n">rendered</span><span class="si">}</span><span class="s1"> thumbnails'</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">empty</span><span class="p">:</span>
+        <span class="c1"># a step that ran and made nothing is an absence in the gallery, so</span>
+        <span class="c1"># the log is the only place it is named at all</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span><span class="si">}</span><span class="s1"> steps published nothing:'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">empty</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unwritten</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unwritten</span><span class="p">)</span><span class="si">}</span><span class="s1"> manifests were named but never written, so '</span>
+            <span class="sa">f</span><span class="s1">'nothing from them was published:'</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">unwritten</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1"> products were described by a manifest but their '</span>
+            <span class="sa">f</span><span class="s1">'files are not on disk, so they were not published:'</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

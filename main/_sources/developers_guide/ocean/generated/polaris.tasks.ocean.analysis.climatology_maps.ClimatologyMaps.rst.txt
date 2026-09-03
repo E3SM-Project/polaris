@@ -20,6 +20,7 @@
       ~ClimatologyMaps.add_input_file
       ~ClimatologyMaps.add_output_file
       ~ClimatologyMaps.add_output_files_for_ocean_model_input
+      ~ClimatologyMaps.add_product
       ~ClimatologyMaps.add_sim_input_file
       ~ClimatologyMaps.add_sim_input_files
       ~ClimatologyMaps.add_vert_coord_input_file
@@ -55,6 +56,7 @@
 
    .. autosummary::
    
+      ~ClimatologyMaps.makes_products
       ~ClimatologyMaps.component
       ~ClimatologyMaps.config
       ~ClimatologyMaps.input_data

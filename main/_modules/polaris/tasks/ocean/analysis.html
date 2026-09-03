@@ -125,6 +125,7 @@
     <span class="n">HeatContentSeries</span> <span class="k">as</span> <span class="n">HeatContentSeries</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.moc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Moc</span> <span class="k">as</span> <span class="n">Moc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.publish</span><span class="w"> </span><span class="kn">import</span> <span class="n">Publish</span> <span class="k">as</span> <span class="n">Publish</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">year_range_key</span>
 
 
@@ -143,13 +144,26 @@
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.analysis'</span><span class="p">,</span> <span class="s1">'analysis.cfg'</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">task_cls</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="n">ClimatologyMapsTask</span><span class="p">,</span>
-        <span class="n">GlobalStatsTask</span><span class="p">,</span>
-        <span class="n">HeatContentSeriesTask</span><span class="p">,</span>
-        <span class="n">MocTask</span><span class="p">,</span>
-    <span class="p">]:</span>
-        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task_cls</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">))</span></div>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">task_cls</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">task_cls</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="n">ClimatologyMapsTask</span><span class="p">,</span>
+            <span class="n">GlobalStatsTask</span><span class="p">,</span>
+            <span class="n">HeatContentSeriesTask</span><span class="p">,</span>
+            <span class="n">MocTask</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="c1"># the publish step depends on the steps of every other analysis task, so</span>
+    <span class="c1"># the task that carries it is created once those steps exist, and each of</span>
+    <span class="c1"># those tasks is told to have it rebuilt whenever they rebuild</span>
+    <span class="n">publish_task</span> <span class="o">=</span> <span class="n">PublishTask</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">publish_task</span> <span class="o">=</span> <span class="n">publish_task</span>
+    <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">publish_task</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span></div>
 
 
 
@@ -170,6 +184,10 @@
 <span class="sd">    range_section : str</span>
 <span class="sd">        The config section holding the ``start_year`` and ``end_year`` this</span>
 <span class="sd">        task's steps are keyed on</span>
+
+<span class="sd">    publish_task : polaris.tasks.ocean.analysis.PublishTask or None</span>
+<span class="sd">        The task that publishes this task's products, which has to rebuild</span>
+<span class="sd">        its step whenever this one rebuilds its steps</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="AnalysisTask.__init__">
@@ -198,6 +216,7 @@
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'analysis/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">range_section</span> <span class="o">=</span> <span class="n">range_section</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">publish_task</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">'analysis.cfg'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span></div>
 
@@ -211,9 +230,18 @@
 <span class="sd">        ``polaris setup`` merges the user's config into the task and then</span>
 <span class="sd">        calls this before adding configs to steps, precisely so that steps</span>
 <span class="sd">        created here are handled.</span>
+
+<span class="sd">        The tasks sharing a config are configured in an arbitrary order --</span>
+<span class="sd">        they are held in a set -- so a task that has just rebuilt its steps</span>
+<span class="sd">        tells the task that publishes them to rebuild its own.  Whichever</span>
+<span class="sd">        task is configured last therefore leaves the ``publish`` step</span>
+<span class="sd">        depending on the steps that are really set up, rather than on the</span>
+<span class="sd">        ones some earlier config asked for.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">publish_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">publish_task</span><span class="o">.</span><span class="n">rebuild_steps</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="AnalysisTask.year_range">
@@ -442,6 +470,86 @@
             <span class="n">start_year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
             <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="PublishTask">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.PublishTask.html#polaris.tasks.ocean.analysis.PublishTask">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PublishTask</span><span class="p">(</span><span class="n">AnalysisTask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A task that publishes the results of the other analysis tasks</span>
+
+<span class="sd">    It carries the one ``publish`` step of the suite, which depends on every</span>
+<span class="sd">    step that makes products.  Nothing about the suite makes that step run</span>
+<span class="sd">    last on its own, so the suite lists it last.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    analysis_tasks : list of polaris.tasks.ocean.analysis.AnalysisTask</span>
+<span class="sd">        The tasks whose steps make the products that are published</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="PublishTask.__init__">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.PublishTask.html#polaris.tasks.ocean.analysis.PublishTask.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the publish task</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component the task belongs to</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The config parser shared by every analysis task</span>
+
+<span class="sd">        tasks : list of polaris.tasks.ocean.analysis.AnalysisTask</span>
+<span class="sd">            The tasks whose steps make products.  They are built before this</span>
+<span class="sd">            one so that their steps exist, and rebuilt before this task is</span>
+<span class="sd">            configured so that the steps this one depends on are the ones the</span>
+<span class="sd">            user's config asked for.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_tasks</span> <span class="o">=</span> <span class="n">tasks</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'publish'</span><span class="p">,</span>
+            <span class="n">range_section</span><span class="o">=</span><span class="s1">'ocean_analysis_climatology'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PublishTask.rebuild_steps">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.PublishTask.rebuild_steps.html#polaris.tasks.ocean.analysis.PublishTask.rebuild_steps">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rebuild_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Build the publish step again, now that a task it depends on has</span>
+<span class="sd">        rebuilt its steps</span>
+
+<span class="sd">        A dependency is a step object rather than a path, and Polaris checks</span>
+<span class="sd">        that the object it was given is one that was set up, so the step has</span>
+<span class="sd">        to be rewired whenever a task discards its steps and builds new ones.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_all_steps</span><span class="p">()</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">Publish</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="s1">'analysis/publish'</span><span class="p">,</span>
+            <span class="n">product_steps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_product_steps</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_product_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The steps of the other tasks that make products, in suite order"""</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis_tasks</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">makes_products</span><span class="p">:</span>
+                    <span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
 
 </pre></div>
 

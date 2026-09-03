@@ -102,6 +102,13 @@
 <li class="toctree-l4"><a class="reference internal" href="#modelstep">ModelStep</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#analysis">analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-manifest">analysis.manifest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-publish">analysis.publish</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-thumbnail">analysis.thumbnail</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-site">analysis.site</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#config">config</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.html">polaris.config.PolarisConfigParser</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.setup.html">polaris.config.PolarisConfigParser.setup</a></li>
@@ -188,6 +195,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#provenance">provenance</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.provenance.write.html">polaris.provenance.write</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.provenance.get_summary.html">polaris.provenance.get_summary</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#remap">remap</a><ul>
@@ -538,6 +546,85 @@ documentation.</p>
 </table>
 </section>
 </section>
+<section id="analysis">
+<h3>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
+<section id="analysis-manifest">
+<h4>analysis.manifest<a class="headerlink" href="#analysis-manifest" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.manifest.Product.html#polaris.analysis.manifest.Product" title="polaris.analysis.manifest.Product"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Product</span></code></a>(plot, group, gallery, title[, data])</p></td>
+<td><p>One published product: a plot, the data behind it, and the facets that identify it</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.analysis.manifest.Product.to_dict.html#polaris.analysis.manifest.Product.to_dict" title="polaris.analysis.manifest.Product.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Product.to_dict</span></code></a>()</p></td>
+<td><p>Get the product as a dictionary ready to be written to JSON</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.manifest.Product.from_dict.html#polaris.analysis.manifest.Product.from_dict" title="polaris.analysis.manifest.Product.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Product.from_dict</span></code></a>(entry)</p></td>
+<td><p>Build a product from a dictionary read back from JSON</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.analysis.manifest.Manifest.html#polaris.analysis.manifest.Manifest" title="polaris.analysis.manifest.Manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Manifest</span></code></a>(step_name)</p></td>
+<td><p>The products one step made, written beside its outputs so that a collector can find them without knowing how the work was divided into steps</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.manifest.Manifest.add.html#polaris.analysis.manifest.Manifest.add" title="polaris.analysis.manifest.Manifest.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Manifest.add</span></code></a>(plot, group, gallery, title[, data])</p></td>
+<td><p>Describe one product this step has just made</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.analysis.manifest.Manifest.write.html#polaris.analysis.manifest.Manifest.write" title="polaris.analysis.manifest.Manifest.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Manifest.write</span></code></a>(path)</p></td>
+<td><p>Write the fragment describing everything this step made</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.manifest.range_key.html#polaris.analysis.manifest.range_key" title="polaris.analysis.manifest.range_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">range_key</span></code></a>(facets)</p></td>
+<td><p>Get the zero-padded range of years a product covers, if it covers one</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.analysis.manifest.read_fragment.html#polaris.analysis.manifest.read_fragment" title="polaris.analysis.manifest.read_fragment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_fragment</span></code></a>(filename)</p></td>
+<td><p>Read one manifest fragment written by a step</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="analysis-publish">
+<h4>analysis.publish<a class="headerlink" href="#analysis-publish" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.publish.publish.html#polaris.analysis.publish.publish" title="polaris.analysis.publish.publish"><code class="xref py py-obj docutils literal notranslate"><span class="pre">publish</span></code></a>(fragment_filenames, output_path[, ...])</p></td>
+<td><p>Publish every product the fragments describe into the staging tree</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.analysis.publish.published_basename.html#polaris.analysis.publish.published_basename" title="polaris.analysis.publish.published_basename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">published_basename</span></code></a>(product, filename)</p></td>
+<td><p>Get the name one of a product's files is published under</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.publish.write_merged_manifest.html#polaris.analysis.publish.write_merged_manifest" title="polaris.analysis.publish.write_merged_manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_merged_manifest</span></code></a>(published, output_path)</p></td>
+<td><p>Write the merged manifest that defines the published set</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="analysis-thumbnail">
+<h4>analysis.thumbnail<a class="headerlink" href="#analysis-thumbnail" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.thumbnail.make_thumbnail.html#polaris.analysis.thumbnail.make_thumbnail" title="polaris.analysis.thumbnail.make_thumbnail"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_thumbnail</span></code></a>(plot_filename, thumbnail_filename)</p></td>
+<td><p>Render the thumbnail for one plot, unless it is already up to date</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.analysis.thumbnail.thumbnail_name.html#polaris.analysis.thumbnail.thumbnail_name" title="polaris.analysis.thumbnail.thumbnail_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thumbnail_name</span></code></a>(basename[, image_format])</p></td>
+<td><p>Get the name of the thumbnail for a published file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.thumbnail.image_size.html#polaris.analysis.thumbnail.image_size" title="polaris.analysis.thumbnail.image_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">image_size</span></code></a>(filename)</p></td>
+<td><p>Get the size of an image in pixels</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="analysis-site">
+<h4>analysis.site<a class="headerlink" href="#analysis-site" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.site.generate_site.html#polaris.analysis.site.generate_site" title="polaris.analysis.site.generate_site"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_site</span></code></a>(published, output_path, ...[, ...])</p></td>
+<td><p>Generate the static site over the products that have been published</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.analysis.site.gallery_filename.html#polaris.analysis.site.gallery_filename" title="polaris.analysis.site.gallery_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gallery_filename</span></code></a>(group, gallery[, key])</p></td>
+<td><p>Get the name of the page holding one gallery</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
 <section id="config">
 <h3>config<a class="headerlink" href="#config" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -790,6 +877,9 @@ documentation.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.provenance.write.html#polaris.provenance.write" title="polaris.provenance.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(work_dir, tasks[, config, machine, ...])</p></td>
 <td><p>Write a file with provenance, such as the git version, conda packages, command, and tasks, to the work directory.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.provenance.get_summary.html#polaris.provenance.get_summary" title="polaris.provenance.get_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_summary</span></code></a>([config])</p></td>
+<td><p>Get a short provenance of the Polaris that is running</p></td>
 </tr>
 </tbody>
 </table>

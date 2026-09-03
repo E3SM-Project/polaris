@@ -20,6 +20,7 @@
       ~AnalysisStep.add_input_file
       ~AnalysisStep.add_output_file
       ~AnalysisStep.add_output_files_for_ocean_model_input
+      ~AnalysisStep.add_product
       ~AnalysisStep.add_sim_input_file
       ~AnalysisStep.add_sim_input_files
       ~AnalysisStep.add_vert_coord_input_file
@@ -55,6 +56,7 @@
 
    .. autosummary::
    
+      ~AnalysisStep.makes_products
       ~AnalysisStep.component
       ~AnalysisStep.config
       ~AnalysisStep.input_data

@@ -149,8 +149,12 @@ years gets steps in different directories – which have never run, and so
 run – without having to delete anything or pass a flag.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>range_section</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The config section holding the <code class="docutils literal notranslate"><span class="pre">start_year</span></code> and <code class="docutils literal notranslate"><span class="pre">end_year</span></code> this
-task’s steps are keyed on</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>range_section</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The config section holding the <code class="docutils literal notranslate"><span class="pre">start_year</span></code> and <code class="docutils literal notranslate"><span class="pre">end_year</span></code> this
+task’s steps are keyed on</p></li>
+<li><p><strong>publish_task</strong> (<a class="reference internal" href="polaris.tasks.ocean.analysis.PublishTask.html#polaris.tasks.ocean.analysis.PublishTask" title="polaris.tasks.ocean.analysis.PublishTask"><em>polaris.tasks.ocean.analysis.PublishTask</em></a><em> or </em><em>None</em>) – The task that publishes this task’s products, which has to rebuild
+its step whenever this one rebuilds its steps</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">

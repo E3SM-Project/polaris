@@ -89,6 +89,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#locating-the-simulation-s-files">Locating the simulation’s files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#steps">Steps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#range-keyed-steps">Range-keyed steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#publishing-what-the-steps-made">Publishing what the steps made</a></li>
 </ul>
 </li>
 </ul>
@@ -1081,6 +1082,81 @@ the simulation’s Omega configuration is not read until step setup.</p>
 <a class="reference internal" href="../generated/polaris.Component.get_or_create_shared_step.html#polaris.Component.get_or_create_shared_step" title="polaris.Component.get_or_create_shared_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_or_create_shared_step()</span></code></a>, so a step several
 tasks want — the climatology, which every field group of <code class="docutils literal notranslate"><span class="pre">climatology_maps</span></code>
 reads — is built once for a range no matter how many of them ask for it.</p>
+</section>
+<section id="publishing-what-the-steps-made">
+<h3>Publishing what the steps made<a class="headerlink" href="#publishing-what-the-steps-made" title="Link to this heading"></a></h3>
+<p>Publication is three pieces, none of which knows anything about the ocean, so
+all three live in the component-neutral <code class="docutils literal notranslate"><span class="pre">polaris.analysis</span></code> package beside
+<code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code> rather than under <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code>:</p>
+<ul class="simple">
+<li><p>the <strong>manifest writer</strong>, <a class="reference internal" href="../generated/polaris.analysis.manifest.Manifest.html#polaris.analysis.manifest.Manifest" title="polaris.analysis.manifest.Manifest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.analysis.manifest.Manifest</span></code></a>,
+which a plotting step reaches through
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product()</span></code></a>
+once per product;</p></li>
+<li><p>the <strong>collector</strong>, <a class="reference internal" href="../generated/polaris.analysis.publish.publish.html#polaris.analysis.publish.publish" title="polaris.analysis.publish.publish"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.analysis.publish.publish()</span></code></a>, which merges
+the fragments, symlinks each product into the staging tree and renders its
+thumbnail;</p></li>
+<li><p>the <strong>site generator</strong>,
+<a class="reference internal" href="../generated/polaris.analysis.site.generate_site.html#polaris.analysis.site.generate_site" title="polaris.analysis.site.generate_site"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.analysis.site.generate_site()</span></code></a>, which renders the gallery
+from the merged manifest.</p></li>
+</ul>
+<p>A step describes what it made as it makes it, and writes no fragment itself:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_product</span><span class="p">(</span>
+    <span class="n">plot</span><span class="o">=</span><span class="s1">'temperature_ANN_-100m.png'</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="s1">'temperature_ANN_-100m.nc'</span><span class="p">,</span>
+    <span class="n">group</span><span class="o">=</span><span class="s1">'climatology_maps'</span><span class="p">,</span>
+    <span class="n">gallery</span><span class="o">=</span><span class="s1">'temperature'</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">'Potential temperature at 100 m, ANN, years 21-40'</span><span class="p">,</span>
+    <span class="n">field</span><span class="o">=</span><span class="s1">'temperature'</span><span class="p">,</span> <span class="n">season</span><span class="o">=</span><span class="s1">'ANN'</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s1">'-100m'</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">AnalysisStep</span></code> writes it.  <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> leaves an empty fragment before
+<code class="docutils literal notranslate"><span class="pre">run()</span></code> is called and each <code class="docutils literal notranslate"><span class="pre">add_product()</span></code> writes it again, so a step that
+makes products always has a current one on disk.  The range of years the step
+covers is added to the facets unless the call passes its own, since every
+product of a step covers the step’s range and that range is what keeps the
+published names of two analyses of one simulation apart.</p>
+<p>Three rules keep the fragment from growing into a format that needs a
+specification.  A step fills in the facets and nothing else — the published
+name, the thumbnail and the gallery page are the collector’s business, so a
+step never learns the staging tree’s layout.  Only <code class="docutils literal notranslate"><span class="pre">group</span></code> and <code class="docutils literal notranslate"><span class="pre">gallery</span></code> shape
+the site; every other facet is caption material today and filter material
+later, which is what makes adding a facet cheap.  And products keep the order
+they were added in, so a gallery reads ANN, DJF, MAM, JJA, SON because that is
+the order the step plotted them in, with no sort key anywhere.</p>
+<p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.publish.Publish.html#polaris.tasks.ocean.analysis.publish.Publish" title="polaris.tasks.ocean.analysis.publish.Publish"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.publish.Publish</span></code></a> is the one step that
+knows how results are presented, and everything about presentation can change
+without a plotting step changing.  Two things about it are easy to get wrong:</p>
+<ul>
+<li><p><strong>It never looks for its inputs.</strong>  Walking the work directory for anything
+named <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> would be invisible to Polaris’s input checking and to
+<a class="reference internal" href="../framework/task_parallelism.html#dev-task-parallelism"><span class="std std-ref">Writing task-parallel-safe steps</span></a>, so instead each fragment is a declared input,
+linked into the step’s <code class="docutils literal notranslate"><span class="pre">fragments/</span></code> directory from the step that wrote it,
+and each of those steps is a dependency as well.  A step that only computes
+intermediate results sets <code class="docutils literal notranslate"><span class="pre">makes_products</span> <span class="pre">=</span> <span class="pre">False</span></code> on its class — the
+climatology does — and is left out of both.</p>
+<p>This is why the fragment is written from <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> rather than at
+the end of <code class="docutils literal notranslate"><span class="pre">run()</span></code>.  A step with nothing to publish leaves an empty product
+list, which is what lets the fragment be declared and checked instead of
+tolerated when absent — and a rule that had to be obeyed at the end of
+<code class="docutils literal notranslate"><span class="pre">run()</span></code> would be forgotten in exactly that step.  The two failures stay
+distinguishable: a fragment that is missing means a step ran without
+writing one, and a dependency’s missing pickle means the step did not run
+at all.</p>
+</li>
+<li><p><strong>Its dependencies are step objects, and the tasks sharing a config are
+configured in an arbitrary order.</strong>  Every analysis task discards its steps
+and builds new ones each time it is configured, and Polaris checks that a
+dependency is an object that was set up, so wiring the step once at
+construction leaves it depending on steps that no longer exist.  Each task
+therefore calls
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.PublishTask.rebuild_steps.html#polaris.tasks.ocean.analysis.PublishTask.rebuild_steps" title="polaris.tasks.ocean.analysis.PublishTask.rebuild_steps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.PublishTask.rebuild_steps()</span></code></a> after
+rebuilding its own, and whichever task is configured last leaves the
+dependencies correct.</p></li>
+</ul>
+<p>Nothing about a dependency reorders steps — the runner walks them in the
+order the suite lists them — so <code class="docutils literal notranslate"><span class="pre">omega_analysis.txt</span></code> lists <code class="docutils literal notranslate"><span class="pre">publish</span></code> last.</p>
 </section>
 </section>
 </section>

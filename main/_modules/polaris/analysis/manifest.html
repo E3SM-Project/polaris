@@ -1,0 +1,497 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.analysis.manifest</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.analysis.manifest</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.analysis.manifest</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">FRAGMENT_FILENAME</span> <span class="o">=</span> <span class="s1">'manifest.json'</span>
+
+
+<div class="viewcode-block" id="Product">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.Product.html#polaris.analysis.manifest.Product">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Product</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One published product: a plot, the data behind it, and the facets that</span>
+<span class="sd">    identify it</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    plot : str</span>
+<span class="sd">        The name of the plot file, relative to the step's work directory</span>
+
+<span class="sd">    data : str or None</span>
+<span class="sd">        The name of the netCDF file holding what was plotted, relative to the</span>
+<span class="sd">        step's work directory, or ``None`` for a product with no data file</span>
+
+<span class="sd">    group : str</span>
+<span class="sd">        The product group this belongs to, which becomes a gallery group in</span>
+<span class="sd">        the published index</span>
+
+<span class="sd">    gallery : str</span>
+<span class="sd">        The gallery within that group</span>
+
+<span class="sd">    title : str</span>
+<span class="sd">        A one-line description, used as the caption under the thumbnail</span>
+
+<span class="sd">    facets : dict</span>
+<span class="sd">        Everything else that identifies the product --- field, season,</span>
+<span class="sd">        vertical reduction, date range, and later region and observational</span>
+<span class="sd">        reference.  These are caption and filter material; only ``group`` and</span>
+<span class="sd">        ``gallery`` shape the index.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="Product.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.Product.html#polaris.analysis.manifest.Product.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">gallery</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">facets</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Describe one product</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plot : str</span>
+<span class="sd">            The name of the plot file, relative to the step's work directory</span>
+
+<span class="sd">        group : str</span>
+<span class="sd">            The product group this belongs to</span>
+
+<span class="sd">        gallery : str</span>
+<span class="sd">            The gallery within that group</span>
+
+<span class="sd">        title : str</span>
+<span class="sd">            A one-line description, used as the caption</span>
+
+<span class="sd">        data : str, optional</span>
+<span class="sd">            The name of the netCDF file holding what was plotted</span>
+
+<span class="sd">        facets</span>
+<span class="sd">            Any other keys that identify the product</span>
+<span class="sd">        """</span>
+        <span class="n">required</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'plot'</span><span class="p">:</span> <span class="n">plot</span><span class="p">,</span>
+            <span class="s1">'group'</span><span class="p">:</span> <span class="n">group</span><span class="p">,</span>
+            <span class="s1">'gallery'</span><span class="p">:</span> <span class="n">gallery</span><span class="p">,</span>
+            <span class="s1">'title'</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">required</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'A product needs a non-empty "</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">"; got </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1">.'</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span> <span class="o">=</span> <span class="n">plot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">group</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gallery</span> <span class="o">=</span> <span class="n">gallery</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">facets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">facets</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Product.to_dict">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.Product.to_dict.html#polaris.analysis.manifest.Product.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the product as a dictionary ready to be written to JSON</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        entry : dict</span>
+<span class="sd">            The reserved keys first, in a fixed order, then the facets</span>
+<span class="sd">        """</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'plot'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">,</span>
+            <span class="s1">'data'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="s1">'group'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
+            <span class="s1">'gallery'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gallery</span><span class="p">,</span>
+            <span class="s1">'title'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">entry</span></div>
+
+
+<div class="viewcode-block" id="Product.from_dict">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.Product.from_dict.html#polaris.analysis.manifest.Product.from_dict">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Build a product from a dictionary read back from JSON</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        entry : dict</span>
+<span class="sd">            One entry of a manifest fragment's ``products`` list</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        product : polaris.analysis.manifest.Product</span>
+<span class="sd">            The product the entry describes</span>
+<span class="sd">        """</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">key</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'plot'</span><span class="p">,</span> <span class="s1">'group'</span><span class="p">,</span> <span class="s1">'gallery'</span><span class="p">,</span> <span class="s1">'title'</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'A manifest entry is missing </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">entry</span><span class="si">!r}</span><span class="s1">'</span>
+            <span class="p">)</span>
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'plot'</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'data'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'group'</span><span class="p">)</span>
+        <span class="n">gallery</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'gallery'</span><span class="p">)</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'title'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Product</span><span class="p">(</span>
+            <span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span>
+            <span class="n">gallery</span><span class="o">=</span><span class="n">gallery</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">entry</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Manifest">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.Manifest.html#polaris.analysis.manifest.Manifest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Manifest</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The products one step made, written beside its outputs so that a collector</span>
+<span class="sd">    can find them without knowing how the work was divided into steps</span>
+
+<span class="sd">    Products keep the order they were added in.  That order is meaning: a</span>
+<span class="sd">    gallery reads ANN, DJF, MAM, JJA, SON because that is the order the step</span>
+<span class="sd">    plotted them in, so no sort key or season-ordering table has to exist.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    step_name : str</span>
+<span class="sd">        The name of the step that made these products, for reporting</span>
+
+<span class="sd">    products : list of polaris.analysis.manifest.Product</span>
+<span class="sd">        The products, in the order they were added</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="Manifest.__init__">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.Manifest.html#polaris.analysis.manifest.Manifest.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create an empty manifest for a step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step_name : str</span>
+<span class="sd">            The name of the step that will fill it</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span> <span class="o">=</span> <span class="n">step_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="Manifest.add">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.Manifest.add.html#polaris.analysis.manifest.Manifest.add">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">gallery</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">facets</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Describe one product this step has just made</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plot : str</span>
+<span class="sd">            The name of the plot file, relative to the step's work directory</span>
+
+<span class="sd">        group : str</span>
+<span class="sd">            The product group this belongs to</span>
+
+<span class="sd">        gallery : str</span>
+<span class="sd">            The gallery within that group</span>
+
+<span class="sd">        title : str</span>
+<span class="sd">            A one-line description, used as the caption</span>
+
+<span class="sd">        data : str, optional</span>
+<span class="sd">            The name of the netCDF file holding what was plotted</span>
+
+<span class="sd">        facets</span>
+<span class="sd">            Any other keys that identify the product</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        product : polaris.analysis.manifest.Product</span>
+<span class="sd">            The product that was added</span>
+<span class="sd">        """</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+            <span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span>
+            <span class="n">gallery</span><span class="o">=</span><span class="n">gallery</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">facets</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">duplicate</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">other</span> <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span> <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">plot</span> <span class="o">==</span> <span class="n">product</span><span class="o">.</span><span class="n">plot</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">duplicate</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The step "</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">step_name</span><span class="si">}</span><span class="s1">" described two products plotted '</span>
+                <span class="sa">f</span><span class="s1">'in "</span><span class="si">{</span><span class="n">product</span><span class="o">.</span><span class="n">plot</span><span class="si">}</span><span class="s1">".  Each plot is one product.'</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">product</span></div>
+
+
+<div class="viewcode-block" id="Manifest.write">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.Manifest.write.html#polaris.analysis.manifest.Manifest.write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Write the fragment describing everything this step made</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str</span>
+<span class="sd">            The directory to write ``manifest.json`` into, normally the step's</span>
+<span class="sd">            work directory</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The path of the fragment that was written</span>
+<span class="sd">        """</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">FRAGMENT_FILENAME</span><span class="p">)</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'step'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_name</span><span class="p">,</span>
+            <span class="s1">'products'</span><span class="p">:</span> <span class="p">[</span><span class="n">product</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filename</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="range_key">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.range_key.html#polaris.analysis.manifest.range_key">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">range_key</span><span class="p">(</span><span class="n">facets</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the zero-padded range of years a product covers, if it covers one</span>
+
+<span class="sd">    The range is what keeps two analyses of the same simulation from</span>
+<span class="sd">    colliding, in a published file name and in a gallery, so it is written</span>
+<span class="sd">    the same way everywhere: the convention ``ncclimo`` already uses in its</span>
+<span class="sd">    own file names.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    facets : dict</span>
+<span class="sd">        A product's facets, or an entry of the merged manifest, which may or</span>
+<span class="sd">        may not have ``start_year`` and ``end_year``</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    key : str or None</span>
+<span class="sd">        The range as ``&lt;start&gt;-&lt;end&gt;``, or ``None`` for a product that covers</span>
+<span class="sd">        no particular range of years</span>
+<span class="sd">    """</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">facets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'start_year'</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">facets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'end_year'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">)</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">end</span><span class="p">)</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">'</span></div>
+
+
+
+<div class="viewcode-block" id="read_fragment">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.manifest.read_fragment.html#polaris.analysis.manifest.read_fragment">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_fragment</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Read one manifest fragment written by a step</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The path of the fragment, or of the directory containing it</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    manifest : polaris.analysis.manifest.Manifest</span>
+<span class="sd">        The step's manifest, with its products in the order they were written</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">FRAGMENT_FILENAME</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'step'</span><span class="p">,</span> <span class="s1">'products'</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The manifest fragment </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> has no "</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">".'</span>
+            <span class="p">)</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="n">contents</span><span class="p">[</span><span class="s1">'step'</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">[</span><span class="s1">'products'</span><span class="p">]:</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="n">manifest</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="n">plot</span><span class="o">=</span><span class="n">product</span><span class="o">.</span><span class="n">plot</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="n">product</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
+            <span class="n">gallery</span><span class="o">=</span><span class="n">product</span><span class="o">.</span><span class="n">gallery</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">product</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">product</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">product</span><span class="o">.</span><span class="n">facets</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">manifest</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

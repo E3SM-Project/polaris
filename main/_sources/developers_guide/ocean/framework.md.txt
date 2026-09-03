@@ -1024,3 +1024,82 @@ Steps are created with
 {py:meth}`polaris.Component.get_or_create_shared_step()`, so a step several
 tasks want --- the climatology, which every field group of `climatology_maps`
 reads --- is built once for a range no matter how many of them ask for it.
+
+### Publishing what the steps made
+
+Publication is three pieces, none of which knows anything about the ocean, so
+all three live in the component-neutral `polaris.analysis` package beside
+`polaris.viz` rather than under `polaris.tasks.ocean.analysis`:
+
+- the **manifest writer**, {py:class}`polaris.analysis.manifest.Manifest`,
+  which a plotting step reaches through
+  {py:meth}`polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product()`
+  once per product;
+- the **collector**, {py:func}`polaris.analysis.publish.publish`, which merges
+  the fragments, symlinks each product into the staging tree and renders its
+  thumbnail;
+- the **site generator**,
+  {py:func}`polaris.analysis.site.generate_site`, which renders the gallery
+  from the merged manifest.
+
+A step describes what it made as it makes it, and writes no fragment itself:
+
+```python
+self.add_product(
+    plot='temperature_ANN_-100m.png',
+    data='temperature_ANN_-100m.nc',
+    group='climatology_maps',
+    gallery='temperature',
+    title='Potential temperature at 100 m, ANN, years 21-40',
+    field='temperature', season='ANN', reduction='-100m',
+)
+```
+
+`AnalysisStep` writes it.  `runtime_setup()` leaves an empty fragment before
+`run()` is called and each `add_product()` writes it again, so a step that
+makes products always has a current one on disk.  The range of years the step
+covers is added to the facets unless the call passes its own, since every
+product of a step covers the step's range and that range is what keeps the
+published names of two analyses of one simulation apart.
+
+Three rules keep the fragment from growing into a format that needs a
+specification.  A step fills in the facets and nothing else --- the published
+name, the thumbnail and the gallery page are the collector's business, so a
+step never learns the staging tree's layout.  Only `group` and `gallery` shape
+the site; every other facet is caption material today and filter material
+later, which is what makes adding a facet cheap.  And products keep the order
+they were added in, so a gallery reads ANN, DJF, MAM, JJA, SON because that is
+the order the step plotted them in, with no sort key anywhere.
+
+{py:class}`polaris.tasks.ocean.analysis.publish.Publish` is the one step that
+knows how results are presented, and everything about presentation can change
+without a plotting step changing.  Two things about it are easy to get wrong:
+
+- **It never looks for its inputs.**  Walking the work directory for anything
+  named `manifest.json` would be invisible to Polaris's input checking and to
+  {ref}`dev-task-parallelism`, so instead each fragment is a declared input,
+  linked into the step's `fragments/` directory from the step that wrote it,
+  and each of those steps is a dependency as well.  A step that only computes
+  intermediate results sets `makes_products = False` on its class --- the
+  climatology does --- and is left out of both.
+
+  This is why the fragment is written from `runtime_setup()` rather than at
+  the end of `run()`.  A step with nothing to publish leaves an empty product
+  list, which is what lets the fragment be declared and checked instead of
+  tolerated when absent --- and a rule that had to be obeyed at the end of
+  `run()` would be forgotten in exactly that step.  The two failures stay
+  distinguishable: a fragment that is missing means a step ran without
+  writing one, and a dependency's missing pickle means the step did not run
+  at all.
+- **Its dependencies are step objects, and the tasks sharing a config are
+  configured in an arbitrary order.**  Every analysis task discards its steps
+  and builds new ones each time it is configured, and Polaris checks that a
+  dependency is an object that was set up, so wiring the step once at
+  construction leaves it depending on steps that no longer exist.  Each task
+  therefore calls
+  {py:meth}`polaris.tasks.ocean.analysis.PublishTask.rebuild_steps()` after
+  rebuilding its own, and whichever task is configured last leaves the
+  dependencies correct.
+
+Nothing about a dependency reorders steps --- the runner walks them in the
+order the suite lists them --- so `omega_analysis.txt` lists `publish` last.

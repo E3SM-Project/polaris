@@ -145,6 +145,12 @@
 <p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> merges the user’s config into the task and then
 calls this before adding configs to steps, precisely so that steps
 created here are handled.</p>
+<p>The tasks sharing a config are configured in an arbitrary order –
+they are held in a set – so a task that has just rebuilt its steps
+tells the task that publishes them to rebuild its own.  Whichever
+task is configured last therefore leaves the <code class="docutils literal notranslate"><span class="pre">publish</span></code> step
+depending on the steps that are really set up, rather than on the
+ones some earlier config asked for.</p>
 </dd></dl>
 
 </section>

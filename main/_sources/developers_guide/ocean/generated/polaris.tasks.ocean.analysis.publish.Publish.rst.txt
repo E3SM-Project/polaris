@@ -1,0 +1,36 @@
+﻿polaris.tasks.ocean.analysis.publish.Publish
+============================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.publish
+
+.. autoclass:: Publish
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Publish.__init__
+      ~Publish.add_dependency
+      ~Publish.add_input_file
+      ~Publish.add_output_file
+      ~Publish.check_properties
+      ~Publish.constrain_resources
+      ~Publish.output_path
+      ~Publish.process_inputs_and_outputs
+      ~Publish.run
+      ~Publish.runtime_setup
+      ~Publish.set_resources
+      ~Publish.set_shared_config
+      ~Publish.setup
+      ~Publish.validate_baselines
+      ~Publish.work_path
+   
+   
+
+   
+   
+   

@@ -37,8 +37,12 @@
    GlobalStatsTask
    HeatContentSeriesTask
    MocTask
+   PublishTask
+   PublishTask.rebuild_steps
 
    analysis_step.AnalysisStep
+   analysis_step.AnalysisStep.runtime_setup
+   analysis_step.AnalysisStep.add_product
    analysis_step.AnalysisStep.get_sim_files
    analysis_step.AnalysisStep.add_sim_input_file
    analysis_step.AnalysisStep.add_sim_input_files
@@ -64,6 +68,10 @@
    moc.Moc
    moc.Moc.setup
    moc.Moc.run
+
+   publish.Publish
+   publish.Publish.run
+   publish.Publish.output_path
 
    sim_files.SimFile
    sim_files.AnalysisStream

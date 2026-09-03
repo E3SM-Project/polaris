@@ -114,6 +114,8 @@
   <h1>Source code for polaris.tasks.ocean.analysis.analysis_step</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Manifest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRAGMENT_FILENAME</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.sim_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationFiles</span>
 
@@ -139,7 +141,19 @@
 <span class="sd">    input_filenames : list of str</span>
 <span class="sd">        The local names of the simulation files symlinked into the step's</span>
 <span class="sd">        work directory, in the order they were added</span>
+
+<span class="sd">    manifest : polaris.analysis.manifest.Manifest</span>
+<span class="sd">        The products this step has described so far, written to</span>
+<span class="sd">        ``manifest.json`` in the step's work directory as they are added.</span>
+<span class="sd">        Steps add to it through :py:meth:`add_product` rather than directly.</span>
 <span class="sd">    """</span>
+
+    <span class="c1">#: Whether this step makes products for the published gallery, and so</span>
+    <span class="c1">#: writes a manifest fragment describing them.  A step that only computes</span>
+    <span class="c1">#: intermediate results for other steps to plot sets this to ``False``,</span>
+    <span class="c1">#: which keeps the ``publish`` step from depending on it and from</span>
+    <span class="c1">#: reporting the fragment it was never going to write.</span>
+    <span class="n">makes_products</span> <span class="o">=</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="AnalysisStep.__init__">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.__init__">[docs]</a>
@@ -176,7 +190,91 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_year</span> <span class="o">=</span> <span class="n">start_year</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span> <span class="o">=</span> <span class="n">end_year</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># the step's work directory names the range as well as the product,</span>
+        <span class="c1"># so it is what tells two ranges of one step apart in the merged</span>
+        <span class="c1"># manifest</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span> <span class="o">=</span> <span class="n">Manifest</span><span class="p">(</span><span class="n">step_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">makes_products</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">FRAGMENT_FILENAME</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AnalysisStep.runtime_setup">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Write the empty manifest fragment before the step runs</span>
+
+<span class="sd">        The fragment is written here, and again by each</span>
+<span class="sd">        :py:meth:`add_product` call, so that a step that makes products</span>
+<span class="sd">        always leaves one behind: an empty product list until it has</span>
+<span class="sd">        something to put in it.  Nothing is asked of the step author, because</span>
+<span class="sd">        a rule that has to be remembered at the end of ``run()`` would be</span>
+<span class="sd">        forgotten in exactly the step that made nothing --- which is the case</span>
+<span class="sd">        that stops the ``publish`` step.</span>
+
+<span class="sd">        Writing it again also clears out what a previous run of the step</span>
+<span class="sd">        described, so a fragment never outlives the products it names.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">runtime_setup</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">makes_products</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_manifest</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AnalysisStep.add_product">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">gallery</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">facets</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Describe one product this step has just made, and update the fragment</span>
+
+<span class="sd">        The range of years the step covers is added to the facets unless the</span>
+<span class="sd">        caller gives its own, since every product of an analysis step covers</span>
+<span class="sd">        the step's range and the published name of a product is what keeps</span>
+<span class="sd">        two ranges from colliding.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plot : str</span>
+<span class="sd">            The name of the plot file, relative to the step's work directory</span>
+
+<span class="sd">        group : str</span>
+<span class="sd">            The product group this belongs to, which becomes a gallery group</span>
+
+<span class="sd">        gallery : str</span>
+<span class="sd">            The gallery within that group</span>
+
+<span class="sd">        title : str</span>
+<span class="sd">            A one-line description, used as the caption</span>
+
+<span class="sd">        data : str, optional</span>
+<span class="sd">            The name of the netCDF file holding what was plotted</span>
+
+<span class="sd">        facets</span>
+<span class="sd">            Any other keys that identify the product</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        product : polaris.analysis.manifest.Product</span>
+<span class="sd">            The product that was added</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">makes_products</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> sets makes_products = False, so it '</span>
+                <span class="sa">f</span><span class="s1">'writes no manifest fragment and cannot describe the '</span>
+                <span class="sa">f</span><span class="s1">'product plotted in "</span><span class="si">{</span><span class="n">plot</span><span class="si">}</span><span class="s1">".'</span>
+            <span class="p">)</span>
+        <span class="n">facets</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'start_year'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">)</span>
+        <span class="n">facets</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'end_year'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">)</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span>
+            <span class="n">gallery</span><span class="o">=</span><span class="n">gallery</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">facets</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_manifest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">product</span></div>
 
 
 <div class="viewcode-block" id="AnalysisStep.get_sim_files">
@@ -267,7 +365,11 @@
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Write the fragment describing what the step has made so far"""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">())</span></div>
 
 </pre></div>
 

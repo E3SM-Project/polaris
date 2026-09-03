@@ -1,0 +1,6 @@
+﻿polaris.analysis.publish.published\_basename
+============================================
+
+.. currentmodule:: polaris.analysis.publish
+
+.. autofunction:: published_basename

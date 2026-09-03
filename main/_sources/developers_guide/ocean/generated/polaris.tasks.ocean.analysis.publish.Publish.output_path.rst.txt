@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.analysis.publish.Publish.output\_path
+=========================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.publish
+
+.. automethod:: Publish.output_path

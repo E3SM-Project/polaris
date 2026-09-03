@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.analysis.site</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.analysis.site</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.analysis.site</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">PackageLoader</span><span class="p">,</span> <span class="n">select_autoescape</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">range_key</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_summary</span>
+
+<span class="c1">#: The landing page at the root of the staging tree</span>
+<span class="n">INDEX_FILENAME</span> <span class="o">=</span> <span class="s1">'index.html'</span>
+
+<span class="c1">#: The subdirectory of the staging tree holding the gallery pages</span>
+<span class="n">GALLERIES_DIRNAME</span> <span class="o">=</span> <span class="s1">'galleries'</span>
+
+
+<div class="viewcode-block" id="generate_site">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.site.generate_site.html#polaris.analysis.site.generate_site">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_site</span><span class="p">(</span><span class="n">published</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">simulation_name</span><span class="p">,</span> <span class="n">provenance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Generate the static site over the products that have been published</span>
+
+<span class="sd">    The site is a landing page of gallery groups, plus one page of thumbnails</span>
+<span class="sd">    per gallery.  It is rendered from the merged manifest alone, so that a</span>
+<span class="sd">    facet added later, a richer presentation, or a different visual design</span>
+<span class="sd">    costs nothing anywhere else: no step, no manifest fragment already</span>
+<span class="sd">    written, and no published path has to change.</span>
+
+<span class="sd">    The pages have their CSS inlined and no JavaScript, so a page costs one</span>
+<span class="sd">    request and its images, and works the same from a local filesystem and</span>
+<span class="sd">    from a web portal.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    published : list of dict</span>
+<span class="sd">        The merged manifest, as :py:func:`~polaris.analysis.publish.publish`</span>
+<span class="sd">        returned it</span>
+
+<span class="sd">    output_path : str</span>
+<span class="sd">        The root of the staging tree, where the pages are written</span>
+
+<span class="sd">    simulation_name : str</span>
+<span class="sd">        The name of the simulation that was analyzed, shown on every page</span>
+
+<span class="sd">    provenance : dict, optional</span>
+<span class="sd">        Labels and values recording what produced the results, shown in the</span>
+<span class="sd">        footer of every page.  By default, the provenance of the Polaris that</span>
+<span class="sd">        is running, from :py:func:`polaris.provenance.get_summary`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filenames : list of str</span>
+<span class="sd">        The pages that were written, the landing page first</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">provenance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">provenance</span> <span class="o">=</span> <span class="n">get_summary</span><span class="p">()</span>
+    <span class="n">provenance</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">provenance</span><span class="p">)</span>
+    <span class="n">provenance</span><span class="p">[</span><span class="s1">'generated'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s1">'seconds'</span><span class="p">)</span>
+
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">_build_groups</span><span class="p">(</span><span class="n">published</span><span class="p">)</span>
+    <span class="n">environment</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span>
+        <span class="n">loader</span><span class="o">=</span><span class="n">PackageLoader</span><span class="p">(</span><span class="s1">'polaris.analysis'</span><span class="p">,</span> <span class="s1">'templates'</span><span class="p">),</span>
+        <span class="n">autoescape</span><span class="o">=</span><span class="n">select_autoescape</span><span class="p">(</span><span class="n">default_for_string</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">trim_blocks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">lstrip_blocks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">shared</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'title'</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'Analysis of </span><span class="si">{</span><span class="n">simulation_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="s1">'provenance'</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">provenance</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span>
+    <span class="p">}</span>
+
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_render</span><span class="p">(</span>
+            <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">,</span>
+            <span class="n">template_name</span><span class="o">=</span><span class="s1">'index.template'</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">INDEX_FILENAME</span><span class="p">),</span>
+            <span class="n">page_title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'Analysis of </span><span class="si">{</span><span class="n">simulation_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">subtitle</span><span class="o">=</span><span class="n">_index_subtitle</span><span class="p">(</span><span class="n">published</span><span class="p">),</span>
+            <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span>
+            <span class="n">prefix</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">shared</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">galleries_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">GALLERIES_DIRNAME</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">galleries_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">gallery</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="s1">'galleries'</span><span class="p">]:</span>
+            <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">_render</span><span class="p">(</span>
+                    <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">,</span>
+                    <span class="n">template_name</span><span class="o">=</span><span class="s1">'gallery.template'</span><span class="p">,</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">galleries_path</span><span class="p">,</span> <span class="n">gallery</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]),</span>
+                    <span class="n">page_title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">simulation_name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">gallery</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                    <span class="n">subtitle</span><span class="o">=</span><span class="n">_gallery_subtitle</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">gallery</span><span class="p">),</span>
+                    <span class="n">index_href</span><span class="o">=</span><span class="sa">f</span><span class="s1">'../</span><span class="si">{</span><span class="n">INDEX_FILENAME</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                    <span class="n">gallery</span><span class="o">=</span><span class="n">gallery</span><span class="p">,</span>
+                    <span class="n">prefix</span><span class="o">=</span><span class="s1">'../'</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">shared</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">filenames</span></div>
+
+
+
+<div class="viewcode-block" id="gallery_filename">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.analysis.site.gallery_filename.html#polaris.analysis.site.gallery_filename">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gallery_filename</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">gallery</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the name of the page holding one gallery</span>
+
+<span class="sd">    As with a published product, the name is the facets in a fixed order, so</span>
+<span class="sd">    that two date ranges of the same gallery coexist.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    group : str</span>
+<span class="sd">        The product group the gallery belongs to</span>
+
+<span class="sd">    gallery : str</span>
+<span class="sd">        The gallery within that group</span>
+
+<span class="sd">    key : str, optional</span>
+<span class="sd">        The zero-padded range of years the gallery covers, if it covers one</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The name of the page within the galleries directory</span>
+<span class="sd">    """</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">group</span><span class="p">,</span> <span class="n">gallery</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="s2">"_"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span><span class="si">}</span><span class="s1">.html'</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_groups</span><span class="p">(</span><span class="n">published</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Gather the published products into gallery groups and galleries"""</span>
+    <span class="n">groups</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">published</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">range_key</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="n">group_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">'group'</span><span class="p">],</span> <span class="n">key</span><span class="p">)</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+            <span class="n">group_key</span><span class="p">,</span>
+            <span class="p">{</span><span class="s1">'title'</span><span class="p">:</span> <span class="n">_group_title</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">'group'</span><span class="p">],</span> <span class="n">key</span><span class="p">),</span> <span class="s1">'galleries'</span><span class="p">:</span> <span class="p">{}},</span>
+        <span class="p">)</span>
+        <span class="n">gallery</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s1">'galleries'</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s1">'gallery'</span><span class="p">],</span>
+            <span class="p">{</span>
+                <span class="s1">'title'</span><span class="p">:</span> <span class="n">_humanize</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">'gallery'</span><span class="p">]),</span>
+                <span class="s1">'filename'</span><span class="p">:</span> <span class="n">gallery_filename</span><span class="p">(</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="s1">'group'</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'gallery'</span><span class="p">],</span> <span class="n">key</span>
+                <span class="p">),</span>
+                <span class="s1">'products'</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">gallery</span><span class="p">[</span><span class="s1">'products'</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_product</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span>
+
+    <span class="c1"># dictionaries keep the order products were published in, and that order</span>
+    <span class="c1"># is meaning: a gallery reads ANN, DJF, ... because the step plotted them</span>
+    <span class="c1"># in that order</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s1">'title'</span><span class="p">:</span> <span class="n">group</span><span class="p">[</span><span class="s1">'title'</span><span class="p">],</span>
+            <span class="s1">'galleries'</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">_gallery_summary</span><span class="p">(</span><span class="n">gallery</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">gallery</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="s1">'galleries'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_gallery_summary</span><span class="p">(</span><span class="n">gallery</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Add what the landing page shows for a gallery to the gallery itself"""</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">gallery</span><span class="p">)</span>
+    <span class="n">summary</span><span class="p">[</span><span class="s1">'count'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gallery</span><span class="p">[</span><span class="s1">'products'</span><span class="p">])</span>
+    <span class="n">summary</span><span class="p">[</span><span class="s1">'href'</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">GALLERIES_DIRNAME</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">gallery</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span>
+    <span class="c1"># the gallery is represented by its first product, which is deterministic</span>
+    <span class="c1"># because order is preserved, so the reader chooses a gallery by looking</span>
+    <span class="c1"># rather than by reading names</span>
+    <span class="n">summary</span><span class="p">[</span><span class="s1">'representative'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gallery</span><span class="p">[</span><span class="s1">'products'</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">summary</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_product</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""What a gallery page shows for one product, relative to the tree root"""</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'title'</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'title'</span><span class="p">],</span>
+        <span class="s1">'plot'</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'plot'</span><span class="p">],</span>
+        <span class="s1">'data'</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'data'</span><span class="p">),</span>
+        <span class="s1">'thumbnail'</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail'</span><span class="p">],</span>
+        <span class="s1">'thumbnail_width'</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail_width'</span><span class="p">],</span>
+        <span class="s1">'thumbnail_height'</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s1">'thumbnail_height'</span><span class="p">],</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_group_title</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The heading a gallery group appears under on the landing page"""</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">_humanize</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">title</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">, years </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">'</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_humanize</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A facet as it is written on a page rather than in a file name"""</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'_'</span><span class="p">,</span> <span class="s1">' '</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">words</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">name</span>
+    <span class="k">return</span> <span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">words</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_index_subtitle</span><span class="p">(</span><span class="n">published</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The simulation's date ranges and how much was published"""</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">_count</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">published</span><span class="p">),</span> <span class="s1">'product'</span><span class="p">)]</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">range_key</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">published</span><span class="p">))</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'years </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s1">' · '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_gallery_subtitle</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">gallery</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The group a gallery belongs to and how many plots it holds"""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span><span class="si">}</span><span class="s1"> · </span><span class="si">{</span><span class="n">_count</span><span class="p">(</span><span class="n">gallery</span><span class="p">[</span><span class="s2">"count"</span><span class="p">],</span><span class="w"> </span><span class="s2">"plot"</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_count</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">noun</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A count of something, with the noun made plural if it needs to be"""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">noun</span><span class="si">}</span><span class="s1">'</span> <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">noun</span><span class="si">}</span><span class="s1">s'</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_render</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">template_name</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">context</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Render one page and write it"""</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="n">template_name</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">context</span><span class="p">))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filename</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

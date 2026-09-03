@@ -1,0 +1,318 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.tasks.ocean.analysis.publish</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../ocean.html">polaris.tasks.ocean</a></li>
+          <li class="breadcrumb-item"><a href="../analysis.html">polaris.tasks.ocean.analysis</a></li>
+      <li class="breadcrumb-item active">polaris.tasks.ocean.analysis.publish</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.tasks.ocean.analysis.publish</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_site</span><span class="p">,</span> <span class="n">publish</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRAGMENT_FILENAME</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_summary</span>
+
+<span class="c1">#: The pickle a dependency leaves behind, which is what makes a step that</span>
+<span class="c1">#: did not run report itself by name rather than as an empty gallery</span>
+<span class="n">DEPENDENCY_PICKLE</span> <span class="o">=</span> <span class="s1">'step_after_run.pickle'</span>
+
+<span class="c1">#: The subdirectory the fragments are linked into, one per step</span>
+<span class="n">FRAGMENTS_DIRNAME</span> <span class="o">=</span> <span class="s1">'fragments'</span>
+
+
+<div class="viewcode-block" id="Publish">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.publish.Publish.html#polaris.tasks.ocean.analysis.publish.Publish">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Publish</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step that publishes what the analysis steps made and generates the</span>
+<span class="sd">    gallery over it</span>
+
+<span class="sd">    This is the only step that knows how results are presented.  It reads</span>
+<span class="sd">    each step's manifest fragment, symlinks the products into the staging</span>
+<span class="sd">    tree, renders a thumbnail for each plot, writes the merged manifest, and</span>
+<span class="sd">    generates the site.  Working from the fragments rather than from the</span>
+<span class="sd">    directory structure is what lets the work be re-chunked later without</span>
+<span class="sd">    disturbing output paths, links, or the gallery.</span>
+
+<span class="sd">    The step never looks for its inputs.  Each fragment is a declared input,</span>
+<span class="sd">    linked into ``fragments/`` from the step that wrote it, so Polaris checks</span>
+<span class="sd">    before this step runs that every one of them is there and names the ones</span>
+<span class="sd">    that are not.  Each of those steps is also declared as a dependency,</span>
+<span class="sd">    which is what reaches anything knowable only after a step has run and</span>
+<span class="sd">    what names a step that never ran at all.  Nothing reorders steps, so the</span>
+<span class="sd">    suite has to list this one last.</span>
+
+<span class="sd">    Every step that makes products writes a fragment, even when it made</span>
+<span class="sd">    nothing: an empty product list is what a step with nothing to publish</span>
+<span class="sd">    writes, and it is what lets the fragment be declared rather than looked</span>
+<span class="sd">    for.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fragment_filenames : list of str</span>
+<span class="sd">        The fragments, as local paths within this step's work directory, in</span>
+<span class="sd">        the order the steps that wrote them are listed</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="Publish.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.publish.Publish.html#polaris.tasks.ocean.analysis.publish.Publish.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">product_steps</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the publish step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.tasks.ocean.Ocean</span>
+<span class="sd">            The ocean component the step belongs to</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory for the step</span>
+
+<span class="sd">        product_steps : list of polaris.Step</span>
+<span class="sd">            The steps that make products, each of which becomes a dependency</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s1">'publish'</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fragment_filenames</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">product_steps</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_product_dependency</span><span class="p">(</span><span class="n">step</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Publish.run">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.publish.Publish.run.html#polaris.tasks.ocean.analysis.publish.Publish.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Publish every product the fragments describe and generate the gallery</span>
+<span class="sd">        """</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">()</span>
+
+        <span class="n">published</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">publish</span><span class="p">(</span>
+            <span class="n">fragment_filenames</span><span class="o">=</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fragment_filenames</span>
+            <span class="p">],</span>
+            <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">thumbnail_size</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_size'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">thumbnail_format</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_format'</span><span class="p">),</span>
+            <span class="n">thumbnail_quality</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
+                <span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_quality'</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">generate_site</span><span class="p">(</span>
+            <span class="n">published</span><span class="o">=</span><span class="n">published</span><span class="p">,</span>
+            <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+            <span class="n">simulation_name</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">),</span>
+            <span class="n">provenance</span><span class="o">=</span><span class="n">get_summary</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'published to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Publish.output_path">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.publish.Publish.output_path.html#polaris.tasks.ocean.analysis.publish.Publish.output_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">output_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the root of the staging tree results are published into</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output_path : str</span>
+<span class="sd">            The ``[ocean_analysis] output_path`` config option, or</span>
+<span class="sd">            ``analysis_output`` in the base work directory if it is not set</span>
+<span class="sd">        """</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'output_path'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_path</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="s1">'analysis_output'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_path</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_product_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Declare one step's fragment as an input and the step as a dependency,</span>
+<span class="sd">        naming both for its work directory so that two ranges of one product</span>
+<span class="sd">        do not collide</span>
+
+<span class="sd">        The task rebuilds its steps whenever the config is read, so a step</span>
+<span class="sd">        whose work directory did not change is asked a second time for the</span>
+<span class="sd">        pickle it already owes.  The duplicate is dropped rather than left</span>
+<span class="sd">        for Polaris to check twice.</span>
+<span class="sd">        """</span>
+        <span class="n">already_a_dependency</span> <span class="o">=</span> <span class="n">DEPENDENCY_PICKLE</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">outputs</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">already_a_dependency</span><span class="p">:</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">DEPENDENCY_PICKLE</span><span class="p">)</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FRAGMENTS_DIRNAME</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.json'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">FRAGMENT_FILENAME</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fragment_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
