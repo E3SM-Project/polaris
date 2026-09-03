@@ -86,8 +86,17 @@ def plot_global_stats(
                 label=STAT_LABELS['std'],
             )
 
-        axes[0].legend()
-        axes[1].legend()
+        # one legend for the figure, above the panels: it applies to both,
+        # and inside the axes it covers the data
+        handles, labels = axes[0].get_legend_handles_labels()
+        axes[0].legend(
+            handles,
+            labels,
+            loc='lower center',
+            bbox_to_anchor=(0.5, 1.02),
+            ncol=len(labels),
+            frameon=False,
+        )
         axes[0].set_xlabel(x_label)
         axes[1].set_xlabel(x_label)
         axes[0].set_ylabel(field_name)
