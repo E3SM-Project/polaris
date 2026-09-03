@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
+import subprocess
 from pathlib import Path
 from typing import cast
 
@@ -11,8 +13,18 @@ from mpas_tools.io import write_netcdf
 from ruamel.yaml import YAML
 from scipy.interpolate import CubicSpline
 
+from polaris.config import PolarisConfigParser
 from polaris.constants import get_constant
+from polaris.io import download
 from polaris.mesh.info import is_spherical
+
+# These should probably move to a config file
+FORCING_VARIABLES = [
+    'windStressZonal',
+    'windStressMeridional',
+    'LatentHeatFlux',
+    'EvaporationFlux',
+]
 
 
 def parse_args():
@@ -47,16 +59,46 @@ def parse_args():
         ),
     )
     parser.add_argument(
-        '--include-wind-stress',
+        '--include-idealized-sfc-stress',
         action='store_true',
-        help=('Include wind stress fields.'),
+        help=('Include surface stress fields.'),
+    )
+    parser.add_argument(
+        '--include-realistic-forcing',
+        action='store_true',
+        help=(
+            'Include stress, heat, and evaporative fluxes '
+            'from averaged ERA5 data 1990-2010.'
+        ),
+    )
+    parser.add_argument(
+        '--forcing-file',
+        default=None,
+        help=(
+            'Optional local ERA5 forcing file. If not supplied, the file is '
+            'downloaded from the Polaris data repository.'
+        ),
+    )
+    parser.add_argument(
+        '--forcing-scrip-file',
+        default=None,
+        help=(
+            'Optional local ERA5 SCRIP file. If not supplied, the file is '
+            'downloaded from the Polaris data repository.'
+        ),
+    )
+    parser.add_argument(
+        '--remap-method',
+        choices=['conserve', 'bilinear'],
+        default='conserve',
+        help='Horizontal remapping method for surface fluxes.',
     )
     parser.add_argument(
         '--visualization',
         action='store_true',
         help=(
             'Generate temperature/salinity difference slices and '
-            'surface wind stress visualizations figures and save '
+            'surface stress visualizations figures and save '
             'next to the output NetCDF file. Figures are not '
             "generated for planar meshes (i.e., on_a_sphere = 'NO')."
         ),
@@ -64,78 +106,177 @@ def parse_args():
     return parser.parse_args()
 
 
-def convert_to_omega(
-    input_file,
+def _print_summary(
     output_file,
     eos_type,
-    include_wind_stress=True,
-    visualization=False,
+    velocity_fields,
+    include_idealized_sfc_stress,
+    visualization,
 ):
-    with xr.open_dataset(input_file, decode_times=False) as ds_in:
-        ds_input = ds_in.load()
+    """Handles all the long-form stdout reporting for Omega."""
+    print(f'Wrote {output_file}')
 
-    spherical = is_spherical(ds_input)
-    _check_sphere_radius(ds_input, spherical)
+    if eos_type == 'teos10':
+        print(
+            'Converted to Omega TEOS-10 temperature: '
+            'potential -> conservative\n'
+            'Converted to Omega TEOS-10 salinity: '
+            'practical -> absolute'
+        )
+    else:
+        print(
+            'Kept temperature and salinity unchanged '
+            '(potential temp/practical salinity)'
+        )
 
-    output_file = _append_eos_suffix(output_file, eos_type)
+    v_msg = (
+        f'Zeroed velocity fields: {", ".join(velocity_fields)}'
+        if velocity_fields
+        else 'No velocity fields found to zero'
+    )
+    sfc_msg = (
+        'Added SfcStressZonal and SfcStressMeridional fields'
+        if include_idealized_sfc_stress
+        else 'Skipped SfcStressZonal and SfcStressMeridional fields'
+    )
 
+    print(
+        f'Added Omega variable PseudoThickness\n'
+        f'Rescaled Omega earth radius, coordinates, and areas\n'
+        f'{v_msg}\n'
+        f'Renamed variables to Omega names based on '
+        f'mpaso_to_omega.yaml\n'
+        f'Renamed refLayerThickness to RefPseudoThickness for '
+        f'Omega output\n'
+        f'{sfc_msg}\n'
+        f'Added SurfacePressure field\n'
+        f'Removed unnecessary global attributes'
+    )
+
+    if visualization:
+        print('Saved temperature/salinity percent-difference visualizations')
+
+
+def _prepare_mpas_zero(
+    ds_input,
+    input_file,
+    spherical,
+    include_realistic_forcing,
+    ds_forcing,
+    include_idealized_sfc_stress,
+):
+    """Generates and writes the baseline zero-velocity MPAS dataset."""
     input_path = Path(input_file)
     zero_velocity_mpas_file = str(input_path.with_suffix('')) + '.mpas.nc'
 
     ds_mpas_zero = ds_input.copy(deep=True)
     mpas_velocity_fields = _zero_velocity_fields(ds_mpas_zero)
+
     if spherical:
         _rescale_sphere_radius(ds_mpas_zero)
-    if include_wind_stress:
-        _add_wind_stress(
+
+    if include_realistic_forcing:
+        _add_surface_forcing(ds_mpas_zero, ds_forcing)
+    elif include_idealized_sfc_stress:
+        _add_sfc_stress(
             ds_mpas_zero,
             zonal_name='windStressZonal',
             meridional_name='windStressMeridional',
         )
-    _keep_selected_global_attrs(ds_mpas_zero)
 
+    _keep_selected_global_attrs(ds_mpas_zero)
     write_netcdf(
         ds_mpas_zero,
         zero_velocity_mpas_file,
         format='NETCDF3_64BIT_DATA',
         engine='netcdf4',
     )
+
     print(f'Wrote {zero_velocity_mpas_file}')
     if spherical:
         print(
-            'Rescaled MPAS earth radius, coordinates, and areas based on '
-            'earth radius in pcd.yaml'
+            'Rescaled MPAS earth radius, coordinates, and areas '
+            'based on earth radius in pcd.yaml'
         )
-    if include_wind_stress:
+    if include_idealized_sfc_stress:
         print('Added windStressZonal and windStressMeridional fields')
-    if mpas_velocity_fields:
-        print(f'Zeroed velocity fields: {", ".join(mpas_velocity_fields)}')
-    else:
-        print('No velocity fields found to zero')
+
+    v_msg = (
+        f'Zeroed velocity fields: {", ".join(mpas_velocity_fields)}'
+        if mpas_velocity_fields
+        else 'No velocity fields found to zero'
+    )
+    print(v_msg)
     print('Removed unnecessary global attributes')
 
-    required_vars = ['layerThickness']
-    missing = [
-        name for name in required_vars if name not in ds_input.variables
-    ]
-    if missing:
-        raise ValueError(f'Missing required variables: {missing}')
+    return ds_mpas_zero
 
-    # Keep the original input dataset untouched; all Omega transforms
-    # happen on a separate working copy.
-    ds_omega = ds_input.copy(deep=True)
 
-    # Create valid mask with shape (Time, nCells, nVertLevels)
-    layer_thickness_valid = ds_omega['layerThickness'].values > 0.0
-    if layer_thickness_valid.ndim == 2:
-        # Broadcast (nCells, nVertLevels) to (nTime, nCells, nVertLevels)
-        valid = np.tile(
-            layer_thickness_valid[np.newaxis, :, :],
-            (ds_omega.sizes['Time'], 1, 1),
+def convert_to_omega(
+    input_file,
+    output_file,
+    eos_type,
+    include_realistic_forcing=False,
+    forcing_file=None,
+    forcing_scrip_file=None,
+    remap_method='conserve',
+    include_idealized_sfc_stress=False,
+    visualization=False,
+):
+    """Main function with low complexity and strict 79 line limits."""
+    _check_forcing_args(
+        include_realistic_forcing, include_idealized_sfc_stress
+    )
+
+    # 1. Setup forcing dependencies up front
+    ds_forcing = None
+    if include_realistic_forcing:
+        if forcing_file is None or forcing_scrip_file is None:
+            downloaded = _get_realistic_forcing_files()
+            downloaded_forcing, downloaded_scrip = downloaded
+            forcing_file = forcing_file or downloaded_forcing
+            forcing_scrip_file = forcing_scrip_file or downloaded_scrip
+
+        ds_forcing = _remap_forcing_to_mpas(
+            mpas_file=input_file,
+            forcing_file=forcing_file,
+            forcing_scrip_file=forcing_scrip_file,
+            remap_method=remap_method,
         )
-    else:
-        valid = layer_thickness_valid
 
+    # 2. Load and validate
+    with xr.open_dataset(input_file, decode_times=False) as ds_in:
+        ds_input = ds_in.load()
+
+    if 'layerThickness' not in ds_input.variables:
+        raise ValueError("Missing required variables: ['layerThickness']")
+
+    spherical = is_spherical(ds_input)
+    _check_sphere_radius(ds_input, spherical)
+
+    output_file = _append_eos_suffix(output_file, eos_type)
+
+    # 3. Create baseline dataset
+    ds_mpas_zero = _prepare_mpas_zero(
+        ds_input,
+        input_file,
+        spherical,
+        include_realistic_forcing,
+        ds_forcing,
+        include_idealized_sfc_stress,
+    )
+
+    # 4. Initialize working copy and broadcast mask
+    ds_omega = ds_input.copy(deep=True)
+    lt_vals = ds_omega['layerThickness'].values > 0.0
+    valid = (
+        np.tile(lt_vals[np.newaxis, :, :], (ds_omega.sizes['Time'], 1, 1))
+        if lt_vals.ndim == 2
+        else lt_vals
+    )
+
+    # 5. Physics and state transitions
+    spec_vol = None
     if eos_type == 'teos10':
         spec_vol = _convert_teos10_tracers(ds_omega, valid)
     elif eos_type == 'linear':
@@ -143,15 +284,22 @@ def convert_to_omega(
 
     _add_pseudo_thickness(ds_omega, valid, spec_vol)
     velocity_fields = _zero_velocity_fields(ds_omega)
+
     if spherical:
         _rescale_sphere_radius(ds_omega)
-    if include_wind_stress:
-        _add_wind_stress(
+
+    # 6. Apply surface stresses
+    if include_realistic_forcing:
+        _add_surface_forcing(ds_omega, ds_forcing)
+    elif include_idealized_sfc_stress:
+        _add_sfc_stress(
             ds_omega,
             zonal_name='SfcStressZonal',
             meridional_name='SfcStressMeridional',
         )
+
     _add_surface_pressure(ds_omega)
+
     if visualization and spherical:
         _save_percent_difference_visualizations(
             ds_original=ds_mpas_zero,
@@ -159,46 +307,37 @@ def convert_to_omega(
             output_file=output_file,
         )
 
+    # 7. Map variables and export final netCDF
     ds_omega = _map_mpaso_to_omega(ds_omega)
     ds_omega = _rename_resting_thickness_for_omega(ds_omega)
     _keep_selected_global_attrs(ds_omega)
 
     write_netcdf(
-        ds_omega, output_file, format='NETCDF3_64BIT_DATA', engine='netcdf4'
+        ds_omega,
+        output_file,
+        format='NETCDF3_64BIT_DATA',
+        engine='netcdf4',
     )
 
-    print(f'Wrote {output_file}')
-    if eos_type == 'teos10':
-        print(
-            'Converted to Omega TEOS-10 temperature: potential -> conservative'
-        )
-        print('Converted to Omega TEOS-10 salinity: practical -> absolute')
-    else:
-        print(
-            'Kept temperature and salinity unchanged '
-            '(potential temperature and practical salinity)'
-        )
-    print('Added Omega variable PseudoThickness')
-    print(
-        'Rescaled Omega earth radius, coordinates, and areas based on '
-        'earth radius in pcd.yaml'
+    # 8. Report execution summary
+    _print_summary(
+        output_file,
+        eos_type,
+        velocity_fields,
+        include_idealized_sfc_stress,
+        visualization,
     )
-    if velocity_fields:
-        print(f'Zeroed velocity fields: {", ".join(velocity_fields)}')
-    else:
-        print('No velocity fields found to zero')
-    print(
-        'Renamed variables to Omega names based on mpaso_to_omega.yaml mapping'
-    )
-    print('Renamed refLayerThickness to RefPseudoThickness for Omega output')
-    if include_wind_stress:
-        print('Added SfcStressZonal and SfcStressMeridional fields')
-    else:
-        print('Skipped SfcStressZonal and SfcStressMeridional fields')
-    print('Added SurfacePressure field')
-    print('Removed unnecessary global attributes')
-    if visualization:
-        print('Saved temperature/salinity percent-difference visualizations')
+
+
+def _check_forcing_args(
+    include_realistic_forcing,
+    include_idealized_sfc_stress,
+):
+    if include_realistic_forcing and include_idealized_sfc_stress:
+        raise ValueError(
+            'Only one of include_realistic_forcing and '
+            'include_idealized_sfc_stress may be requested'
+        )
 
 
 def _to_degrees(angle):
@@ -209,6 +348,77 @@ def _to_degrees(angle):
     if max_abs <= 2.0 * get_constant('pi') + 1.0e-12:
         return angle * get_constant('radian')
     return angle
+
+
+def _get_polaris_config():
+    config = PolarisConfigParser()
+    config.add_from_package('polaris', 'default.cfg')
+
+    machine = os.environ.get('POLARIS_MACHINE')
+    if machine is not None:
+        config.add_from_package(
+            'mache.machines',
+            f'{machine}.cfg',
+            exception=False,
+        )
+        config.add_from_package(
+            'polaris.machines',
+            f'{machine}.cfg',
+            exception=False,
+        )
+
+    if not config.has_option('paths', 'database_root'):
+        raise ValueError(
+            'No Polaris database_root is configured. Source a Polaris '
+            'machine load script or provide local --forcing-file and '
+            '--forcing-scrip-file arguments.'
+        )
+    return config
+
+
+def _get_realistic_forcing_files():
+
+    config = _get_polaris_config()
+
+    database_root = config.get('paths', 'database_root')
+    base_url = config.get('download', 'server_base_url')
+
+    database_path = os.path.join(
+        database_root,
+        'ocean/realistic_global/forcing',
+    )
+
+    forcing_path = os.path.join(
+        database_path,
+        'era5_forcing_1990-2010_average_0.25x0.25_degree.20260820.nc',
+    )
+    scrip_path = os.path.join(
+        database_path,
+        'era5_0.25x0.25_degree_scrip.20260820.nc',
+    )
+
+    forcing_url = (
+        f'{base_url}/ocean/realistic_global/forcing/era5_forcing_'
+        '1990-2010_average_0.25x0.25_degree.20260820.nc'
+    )
+    scrip_url = (
+        f'{base_url}/ocean/realistic_global/forcing/'
+        'era5_0.25x0.25_degree_scrip.20260820.nc'
+    )
+
+    forcing_file = download(
+        forcing_url,
+        forcing_path,
+        config,
+    )
+
+    forcing_scrip_file = download(
+        scrip_url,
+        scrip_path,
+        config,
+    )
+
+    return forcing_file, forcing_scrip_file
 
 
 def _append_eos_suffix(output_file, eos_type):
@@ -571,7 +781,7 @@ def _rename_resting_thickness_for_omega(ds):
     return ds
 
 
-def _add_wind_stress(ds, zonal_name, meridional_name):
+def _add_sfc_stress(ds, zonal_name, meridional_name):
     # Fixed latitude-value pairs for cubic interpolation
     # These can be modified by editing the arrays below
     fixed_latitudes = np.array(
@@ -584,12 +794,12 @@ def _add_wind_stress(ds, zonal_name, meridional_name):
     # Create cubic spline interpolation function
     cs = CubicSpline(fixed_latitudes, fixed_values, bc_type='natural')
 
-    # Interpolate wind stress zonal values at each cell's latitude
-    wind_stress_zonal_values = cs(lat)
+    # Interpolate surface stress zonal values at each cell's latitude
+    sfc_stress_zonal_values = cs(lat)
 
     # Zero out values outside the range of fixed_latitudes
     outside = (lat < fixed_latitudes[0]) | (lat > fixed_latitudes[-1])
-    wind_stress_zonal_values[outside] = 0.0
+    sfc_stress_zonal_values[outside] = 0.0
 
     # Detect which time dimension name exists in the dataset
     ncell_dim = 'NCells' if 'NCells' in ds.dims else 'nCells'
@@ -598,12 +808,12 @@ def _add_wind_stress(ds, zonal_name, meridional_name):
     # Create the field with (time_dim, nCells) dimensions
     n_time = ds.sizes[time_dim]
     n_cells = ds.sizes[ncell_dim]
-    wind_stress_zonal = np.tile(
-        wind_stress_zonal_values[np.newaxis, :], (n_time, 1)
+    sfc_stress_zonal = np.tile(
+        sfc_stress_zonal_values[np.newaxis, :], (n_time, 1)
     )
 
     ds[zonal_name] = xr.DataArray(
-        data=wind_stress_zonal,
+        data=sfc_stress_zonal,
         dims=[time_dim, ncell_dim],
         attrs={
             'long_name': 'surface zonal wind stress',
@@ -612,10 +822,10 @@ def _add_wind_stress(ds, zonal_name, meridional_name):
         },
     )
 
-    # Create meridional wind stress field (set to zero)
-    wind_stress_merid = np.zeros((n_time, n_cells))
+    # Create meridional surface stress field (set to zero)
+    sfc_stress_merid = np.zeros((n_time, n_cells))
     ds[meridional_name] = xr.DataArray(
-        data=wind_stress_merid,
+        data=sfc_stress_merid,
         dims=[time_dim, ncell_dim],
         attrs={
             'long_name': 'surface meridional wind stress',
@@ -644,6 +854,93 @@ def _add_surface_pressure(ds):
             'standard_name': '',
         },
     )
+
+
+def _remap_forcing_to_mpas(
+    mpas_file,
+    forcing_file,
+    forcing_scrip_file,
+    remap_method='conserve',
+):
+    mpas_path = Path(mpas_file)
+    work_dir = mpas_path.parent
+
+    mpas_scrip = work_dir / 'mpas.scrip.nc'
+    remapped_file = work_dir / 'forcing.mpas.nc'
+
+    # Generate the destination SCRIP grid from the MPAS mesh
+    subprocess.run(
+        [
+            'scrip_from_mpas',
+            '-m',
+            str(mpas_file),
+            '-s',
+            str(mpas_scrip),
+        ],
+        check=True,
+    )
+
+    # Remap only the four forcing variables
+    subprocess.run(
+        [
+            'ncremap',
+            '-a',
+            remap_method,
+            '-s',
+            str(forcing_scrip_file),
+            '-g',
+            str(mpas_scrip),
+            '-v',
+            ','.join(FORCING_VARIABLES),
+            '-i',
+            str(forcing_file),
+            '-o',
+            str(remapped_file),
+        ],
+        check=True,
+    )
+
+    with xr.open_dataset(remapped_file, decode_times=False) as ds:
+        ds_forcing = ds.load()
+
+    return ds_forcing
+
+
+def _add_surface_forcing(ds_omega, ds_forcing):
+    ncell_dim = 'NCells' if 'NCells' in ds_omega.dims else 'nCells'
+    time_dim = 'Time' if 'Time' in ds_omega.dims else 'time'
+
+    n_cells = ds_omega.sizes[ncell_dim]
+    n_time = ds_omega.sizes[time_dim]
+
+    for input_name in FORCING_VARIABLES:
+        if input_name not in ds_forcing:
+            raise ValueError(
+                f'{input_name} not found in remapped forcing file'
+            )
+
+        field = ds_forcing[input_name].squeeze(drop=True)
+
+        if field.size != n_cells:
+            raise ValueError(
+                f'{input_name} contains {field.size} values, '
+                f'but MPAS mesh has {n_cells} cells'
+            )
+
+        values = field.values.reshape(n_cells)
+
+        # Omega IC has a Time dimension, even though the forcing has
+        # only one time-averaged state.
+        values = values[None, :]
+
+        if n_time != 1:
+            values = values.repeat(n_time, axis=0)
+
+        ds_omega[input_name] = xr.DataArray(
+            values,
+            dims=(time_dim, ncell_dim),
+            attrs=ds_forcing[input_name].attrs,
+        )
 
 
 def _select_visualization_levels(ds_original, count=5):
@@ -921,11 +1218,15 @@ def _save_percent_difference_visualizations(
 def main():
     args = parse_args()
     convert_to_omega(
-        args.input_file,
-        args.output_file,
-        args.eos_type,
-        args.include_wind_stress,
-        args.visualization,
+        input_file=args.input_file,
+        output_file=args.output_file,
+        eos_type=args.eos_type,
+        include_realistic_forcing=args.include_realistic_forcing,
+        include_idealized_sfc_stress=args.include_idealized_sfc_stress,
+        forcing_file=args.forcing_file,
+        forcing_scrip_file=args.forcing_scrip_file,
+        remap_method=args.remap_method,
+        visualization=args.visualization,
     )
 
 
