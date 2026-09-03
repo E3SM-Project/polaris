@@ -1,5 +1,9 @@
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.tasks.ocean.single_column.ekman import Ekman as Ekman
+from polaris.tasks.ocean.single_column.frazil import Frazil as Frazil
+from polaris.tasks.ocean.single_column.frazil.init import (
+    FrazilInit as FrazilInit,
+)
 from polaris.tasks.ocean.single_column.ideal_age import IdealAge as IdealAge
 from polaris.tasks.ocean.single_column.inertial import Inertial as Inertial
 from polaris.tasks.ocean.single_column.init import Init
@@ -172,3 +176,32 @@ def add_single_column_tasks(component):
             indir='column',
         )
     )
+
+    for case in ('melting', 'freezing'):
+        filepath = f'{component.name}/column/frazil/{case}/{case}.cfg'
+        config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package(
+            'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
+        )
+        config.add_from_package('polaris.ocean.eos', 'linear.cfg')
+        config.add_from_package(
+            'polaris.tasks.ocean.single_column.frazil', 'frazil.cfg'
+        )
+        init_step = component.get_or_create_shared_step(
+            step_cls=FrazilInit,
+            subdir=f'column/init/frazil/{case}',
+            config=config,
+            config_filename=f'{case}.cfg',
+            case=case,
+        )
+        for frazil_type in ('basic', 'teos'):
+            component.add_task(
+                Frazil(
+                    component=component,
+                    config=config,
+                    init=init_step,
+                    indir='column/frazil',
+                    case=case,
+                    frazil_type=frazil_type,
+                )
+            )

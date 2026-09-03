@@ -1,0 +1,31 @@
+Omega:
+  IOStreams:
+    History:
+      Filename: output.nc
+      Freq: {{ output_freq }}
+      FreqUnits: Seconds
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+      - AuxiliaryState
+      - State
+      - GeomZMid
+      - Tracers
+      - SshCell
+      - Eos
+      - Forcing
+      # TODO: add PseudoThicknessTend, TracerTend and the accumulated
+      # frazil ice thickness/salinity fields once these are available for
+      # output in Omega
+    Forcing:
+      UsePointerFile: false
+      Filename: forcing.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - Forcing

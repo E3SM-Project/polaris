@@ -82,66 +82,12 @@ class Init(OceanIOStep):
         init_vertical_coord(config, ds)
 
         section = config['single_column']
-        surface_temperature = section.getfloat('surface_temperature')
-        temperature_gradient_mixed_layer = section.getfloat(
-            'temperature_gradient_mixed_layer'
-        )
-        temperature_difference_across_mixed_layer = section.getfloat(
-            'temperature_difference_across_mixed_layer'
-        )
-        temperature_gradient_interior = section.getfloat(
-            'temperature_gradient_interior'
-        )
-        mixed_layer_depth_temperature = section.getfloat(
-            'mixed_layer_depth_temperature'
-        )
-        surface_salinity = section.getfloat('surface_salinity')
-        salinity_gradient_mixed_layer = section.getfloat(
-            'salinity_gradient_mixed_layer'
-        )
-        salinity_difference_across_mixed_layer = section.getfloat(
-            'salinity_difference_across_mixed_layer'
-        )
-        salinity_gradient_interior = section.getfloat(
-            'salinity_gradient_interior'
-        )
-        mixed_layer_depth_salinity = section.getfloat(
-            'mixed_layer_depth_salinity'
-        )
         u = section.getfloat('zonal_velocity')
         v = section.getfloat('meridional_velocity')
 
-        z_mid = ds.refZMid
-
-        temperature_at_mixed_layer_depth = (
-            surface_temperature + temperature_difference_across_mixed_layer
+        temperature, salinity = self._compute_temperature_salinity(
+            config, ds, x_cell
         )
-        temperature_vert = xr.where(
-            z_mid > -mixed_layer_depth_temperature,
-            surface_temperature + temperature_gradient_mixed_layer * z_mid,
-            temperature_at_mixed_layer_depth
-            + temperature_gradient_interior
-            * (z_mid + mixed_layer_depth_temperature),
-        )
-        temperature_vert[0] = surface_temperature
-        temperature, _ = xr.broadcast(temperature_vert, x_cell)
-        temperature = temperature.transpose('nCells', 'nVertLevels')
-        temperature = temperature.expand_dims(dim='Time', axis=0)
-
-        salinity_at_mixed_layer_depth = (
-            surface_salinity + salinity_difference_across_mixed_layer
-        )
-        salinity_vert = xr.where(
-            z_mid > -mixed_layer_depth_salinity,
-            surface_salinity + salinity_gradient_mixed_layer * z_mid,
-            salinity_at_mixed_layer_depth
-            + salinity_gradient_interior
-            * (z_mid + mixed_layer_depth_salinity),
-        )
-        salinity_vert[0] = surface_salinity
-        salinity, _ = xr.broadcast(salinity_vert, x_cell)
-        salinity = salinity.transpose('nCells', 'nVertLevels')
-        salinity = salinity.expand_dims(dim='Time', axis=0)
 
         normal_velocity = u * np.cos(ds_mesh.angleEdge) + v * np.sin(
             ds_mesh.angleEdge
@@ -263,3 +209,93 @@ class Init(OceanIOStep):
             ds_forcing[variable_name] = forcing_value * forcing_array_surface
 
         self.write_model_dataset(ds_forcing, 'forcing.nc', config)
+
+    def _compute_temperature_salinity(self, config, ds, x_cell):
+        """
+        Compute the initial temperature and salinity fields as functions of
+        depth, broadcast to all cells.  Subclasses may override this method
+        to define alternative profiles while reusing the rest of ``run()``.
+
+        Parameters
+        ----------
+        config : polaris.config.PolarisConfigParser
+            The config options for this task
+
+        ds : xarray.Dataset
+            The mesh dataset, including the vertical coordinate (``refZMid``)
+
+        x_cell : xarray.DataArray
+            A cell-based field used to broadcast 1D vertical profiles to all
+            cells
+
+        Returns
+        -------
+        temperature : xarray.DataArray
+            The temperature field with dimensions ``(Time, nCells,
+            nVertLevels)``
+
+        salinity : xarray.DataArray
+            The salinity field with dimensions ``(Time, nCells,
+            nVertLevels)``
+        """
+        section = config['single_column']
+        surface_temperature = section.getfloat('surface_temperature')
+        temperature_gradient_mixed_layer = section.getfloat(
+            'temperature_gradient_mixed_layer'
+        )
+        temperature_difference_across_mixed_layer = section.getfloat(
+            'temperature_difference_across_mixed_layer'
+        )
+        temperature_gradient_interior = section.getfloat(
+            'temperature_gradient_interior'
+        )
+        mixed_layer_depth_temperature = section.getfloat(
+            'mixed_layer_depth_temperature'
+        )
+        surface_salinity = section.getfloat('surface_salinity')
+        salinity_gradient_mixed_layer = section.getfloat(
+            'salinity_gradient_mixed_layer'
+        )
+        salinity_difference_across_mixed_layer = section.getfloat(
+            'salinity_difference_across_mixed_layer'
+        )
+        salinity_gradient_interior = section.getfloat(
+            'salinity_gradient_interior'
+        )
+        mixed_layer_depth_salinity = section.getfloat(
+            'mixed_layer_depth_salinity'
+        )
+
+        z_mid = ds.refZMid
+
+        temperature_at_mixed_layer_depth = (
+            surface_temperature + temperature_difference_across_mixed_layer
+        )
+        temperature_vert = xr.where(
+            z_mid > -mixed_layer_depth_temperature,
+            surface_temperature + temperature_gradient_mixed_layer * z_mid,
+            temperature_at_mixed_layer_depth
+            + temperature_gradient_interior
+            * (z_mid + mixed_layer_depth_temperature),
+        )
+        temperature_vert[0] = surface_temperature
+        temperature, _ = xr.broadcast(temperature_vert, x_cell)
+        temperature = temperature.transpose('nCells', 'nVertLevels')
+        temperature = temperature.expand_dims(dim='Time', axis=0)
+
+        salinity_at_mixed_layer_depth = (
+            surface_salinity + salinity_difference_across_mixed_layer
+        )
+        salinity_vert = xr.where(
+            z_mid > -mixed_layer_depth_salinity,
+            surface_salinity + salinity_gradient_mixed_layer * z_mid,
+            salinity_at_mixed_layer_depth
+            + salinity_gradient_interior
+            * (z_mid + mixed_layer_depth_salinity),
+        )
+        salinity_vert[0] = surface_salinity
+        salinity, _ = xr.broadcast(salinity_vert, x_cell)
+        salinity = salinity.transpose('nCells', 'nVertLevels')
+        salinity = salinity.expand_dims(dim='Time', axis=0)
+
+        return temperature, salinity
