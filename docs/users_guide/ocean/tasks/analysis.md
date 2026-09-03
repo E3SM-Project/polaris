@@ -142,8 +142,83 @@ The range in each path is the zero-padded first and last year, matching the
 convention `ncclimo` uses in its own file names.
 
 The **staging tree** under `output_path` is where results are published for
-browsing, with descriptive file names that carry the product, the field, the
-season, the vertical reduction and the range.
+browsing.  It is shallow, with descriptive file names that carry the product,
+the field, the season, the vertical reduction and the range, so that it is
+easy to archive, to serve and to search:
+
+```none
+<output_path>/
+├── index.html                                      (the gallery groups)
+├── manifest.json                                   (what was published)
+├── galleries/
+│   └── climatology_maps_temperature_0021-0040.html
+├── plots/
+│   ├── climatology_maps_temperature_ANN_-100m_0021-0040.png
+│   └── climatology_maps_temperature_ANN_-100m_0021-0040.nc
+└── thumbnails/
+    └── climatology_maps_temperature_ANN_-100m_0021-0040.jpg
+```
+
+`output_path` defaults to `analysis_output` at the root of the work
+directory.  Point it somewhere a web server can reach if the results are to be
+shared.
+
+The plots and their netCDF files are **symlinks** into the step that made
+them, so each file has one owner and the staging tree is a view rather than a
+second copy.  Copying the tree to another machine therefore needs
+`cp -rL`, or `rsync -L`, to follow them.
+
+(ocean-analysis-gallery)=
+
+## the published gallery
+
+The suite's last step, `publish`, collects what every other step made,
+publishes it into the staging tree, renders a thumbnail for each plot and
+generates a static gallery over the result.  Open `index.html` in a browser,
+from the filesystem or over a web server; there is nothing to build and no
+JavaScript, and the pages look the same either way.
+
+The landing page shows each **gallery group** --- a product for one range of
+years, such as "Climatology maps, years 0021-0040" --- with one thumbnail per
+gallery within it.  A gallery page shows every plot in that gallery, in the
+order the step made them, and clicking a thumbnail opens the full image with
+its netCDF file linked beside it.  Every page carries the simulation name, the
+ranges and the Polaris provenance, so a page found later can be traced back to
+what produced it.
+
+Three config options control what a page costs to load, which matters on a
+portal that throttles:
+
+```cfg
+[ocean_analysis]
+
+# the box, in pixels, each thumbnail is scaled to fit inside
+thumbnail_size = 320, 240
+
+# jpeg or webp; webp is a third to a half smaller at the same quality
+thumbnail_format = jpeg
+
+# 1 to 100; above about 80 the bytes grow quickly and it looks no better
+thumbnail_quality = 75
+```
+
+Reducing `thumbnail_size` is the first thing to try if gallery pages are slow
+to appear.  Thumbnails are the only images a page fetches, they are one to two
+hundred times smaller than the plots they stand for, and a browser fetches
+only the ones that have been scrolled to.
+
+Publishing again is cheap and safe.  A thumbnail is regenerated only when it
+is missing or older than its plot, so adding one product to an analysis costs
+one thumbnail rather than all of them, and results from different ranges
+coexist because the range is in every published name.
+
+A step that ran but made no products publishes nothing, and that is not an
+error: every step that publishes leaves a manifest, with nothing in it when it
+made nothing, and the gallery simply has nothing from that step in it.  The
+`publish` step's log names those steps, since the gallery cannot.  A step that has not run at all is
+different.  `publish` declares every step's manifest as an input and every
+such step as a dependency, so Polaris refuses to run it and names what is
+missing.
 
 ## analyzing the same simulation more than once
 
@@ -180,10 +255,12 @@ The suite is being built up product by product.  What exists so far:
 | `global_stats` | time series of the simulation's global statistics | not yet implemented |
 | `heat_content_series` | time series of globally integrated ocean heat content | not yet implemented |
 | `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
+| `publish` | the staging tree and the {ref}`gallery <ocean-analysis-gallery>` over it | implemented |
 
 Each task currently resolves the simulation files it will read, links them
 into its work directory and reports them in its log, which is enough to check
-that a simulation is being located correctly.
+that a simulation is being located correctly.  Until the products land, there
+is nothing for `publish` to publish and it generates an empty gallery.
 
 The `moc` task additionally depends on a diagnostic that Omega computes in
 situ and does not yet provide.  A simulation without it is an ordinary case:

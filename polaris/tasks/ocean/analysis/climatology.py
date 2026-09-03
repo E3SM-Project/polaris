@@ -15,6 +15,10 @@ class Climatology(AnalysisStep):
     it, so it runs once for a range no matter how many products want it.
     """
 
+    # the climatology is what the maps are plotted from, not something a
+    # reader browses, so it publishes nothing and writes no fragment
+    makes_products = False
+
     def __init__(self, component, subdir, start_year, end_year):
         """
         Create the climatology step
