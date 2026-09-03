@@ -5,6 +5,8 @@ ocean:
   time_integration:
     config_time_integrator: {{ time_integrator }}
     config_dt: {{ dt }}
+  split_explicit_ts:
+    config_btr_dt: 0000_00:00:30
   forcing:
     config_use_bulk_wind_stress: false
   hmix_del2:
@@ -14,8 +16,6 @@ ocean:
 mpas-ocean:
   run_modes:
     config_ocean_run_mode: forward
-  split_explicit_ts:
-    config_btr_dt: 0000_00:00:30
   forcing:
     config_bulk_wind_stress_interp_isotropic: true
     config_use_bulk_thickness_flux: true

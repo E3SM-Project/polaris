@@ -5,6 +5,8 @@ ocean:
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
   hmix_del2:
     config_mom_del2: 1.5e6
   hmix_del4:
@@ -45,6 +47,10 @@ Omega:
     VelHyperDiffTendencyEnable: false
     UseCustomTendency: true
     ManufacturedSolutionTendency: true
+    TracerHorzAdvTendencyEnable: false
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+    TracerVertAdvTendencyEnable: false
   IOStreams:
     InitialState:
       UsePointerFile: false

@@ -185,8 +185,11 @@ class Forward(OceanModelStep):
         )
 
         time_integrator = section.get('time_integrator')
-        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        time_integrator_map = dict(
+            [('RK4', 'RungeKutta4'), ('split_explicit', 'SplitExplicitRK2')]
+        )
         if model == 'omega':
+            # set before the mapping so an unmapped name still has a duration
             if time_integrator in time_integrator_map.keys():
                 time_integrator = time_integrator_map[time_integrator]
             else:
