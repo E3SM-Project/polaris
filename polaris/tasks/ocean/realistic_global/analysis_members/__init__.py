@@ -78,19 +78,22 @@ class AnalysisMembers(Task):
 
         mesh_info = {
             'QU.240km': dict(
-                dt='00:10:00',
+                dt='02:00:00',
+                btr_dt='00:04:00',
                 run_duration='0005_00:00:00',
             ),
             'EC30to60E2r2': dict(
-                dt='00:00:45',
+                dt='00:30:00',
+                btr_dt='00:01:00',
                 run_duration='0001_00:00:00',
             ),
         }
         package = 'polaris.tasks.ocean.realistic_global'
         replacements = {
-            'time_integrator': 'RungeKutta4',
+            'time_integrator': 'SplitExplicitRK2',
             'run_duration': mesh_info[mesh_name]['run_duration'],
             'dt': mesh_info[mesh_name]['dt'],
+            'btr_dt': mesh_info[mesh_name]['btr_dt'],
             'output_interval': '0001_00:00:00',
             'output_freq': '1',
             'output_freq_units': 'days',

@@ -137,6 +137,16 @@ config:
     config_number_of_time_levels: NTimeLevels
 
 - section:
+    split_timestep_share: [TimeIntegration, ModeSplitShare]
+  options:
+    config_n_ts_iter: NTimeStepIteration
+
+- section:
+    split_explicit_ts: [TimeIntegration, ModeSplitShare]
+  options:
+    config_btr_dt: BtrTimeStep
+
+- section:
     decomposition: Decomp
   options:
     config_num_halos: HaloWidth
