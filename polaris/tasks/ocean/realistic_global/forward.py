@@ -109,7 +109,7 @@ class Forward(OceanModelStep):
                 database=target_location,
             )
         else:
-            self.replacements['time_integrator'] = 'RK4'
+            self.replacements['time_integrator'] = 'split_explicit'
             input_filename = f'{input_filename}.zerovel.nc'
             self.add_input_file(
                 target=input_filename,

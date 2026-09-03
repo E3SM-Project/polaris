@@ -1,5 +1,4 @@
 import os
-import time
 
 from polaris.mesh.planar import compute_planar_hex_nx_ny
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
@@ -181,7 +180,9 @@ class Forward(OceanModelStep):
         model = config.get('ocean', 'model')
 
         time_integrator = config.get('baroclinic_channel', 'time_integrator')
-        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        time_integrator_map = dict(
+            [('RK4', 'RungeKutta4'), ('split_explicit', 'SplitExplicitRK2')]
+        )
         if model == 'omega':
             if time_integrator in time_integrator_map.keys():
                 time_integrator = time_integrator_map[time_integrator]
@@ -192,22 +193,23 @@ class Forward(OceanModelStep):
                     'retaining name given in config'
                 )
 
-        # dt is proportional to resolution: default 30 seconds per km
+        # dt is proportional to resolution
         dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
         dt = dt_per_km * self.resolution
         dt_str = get_time_interval_string(seconds=dt)
 
-        # btr_dt is only for MPAS-Ocean (Omega uses RK4)
+        # btr_dt is shared by Omega and MPAS-Ocean
         btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')
         btr_dt = btr_dt_per_km * self.resolution
+        btr_dt_str = get_time_interval_string(seconds=btr_dt)
         mpaso_options = {
             'config_do_restart': False,
-            'config_btr_dt': time.strftime('%H:%M:%S', time.gmtime(btr_dt)),
         }
 
         # Set dt and default run duration, which may be changed below
         ocean_options = {
             'config_dt': dt_str,
+            'config_btr_dt': btr_dt_str,
         }
 
         start_str = '0001-01-01_00:00:00'

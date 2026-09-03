@@ -91,6 +91,10 @@ def get_timestep_for_task(config, refinement_factor, refinement='both'):
     elif time_integrator == 'FB_LTS':
         dt_per_km = section.getfloat('fblts_dt_per_km')
         btr_timestep = 0.0
+    elif time_integrator == 'unsplit_explicit':
+        # both models zero the split factor and skip the barotropic subcycle
+        dt_per_km = section.getfloat('unsplit_dt_per_km')
+        btr_timestep = 0.0
     else:
         dt_per_km = section.getfloat('split_dt_per_km')
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
