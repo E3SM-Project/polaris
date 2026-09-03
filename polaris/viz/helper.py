@@ -1,4 +1,7 @@
+import textwrap
+
 import cartopy.crs as ccrs
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 projections = {
     'PlateCarree': ccrs.PlateCarree,
@@ -72,3 +75,64 @@ def determine_time_variable(ds):
         prefix = 'timeMonthly_avg_'
         time_variable = 'Time'
     return prefix, time_variable
+
+
+def add_fitted_suptitle(fig, title, y=None, min_fontsize=8.0):
+    """
+    Add a title to a figure, sized so that it fits across the figure
+
+    A title wider than the figure runs off both ends of the canvas, and is
+    simply cropped when the figure is saved at a fixed size.  What it loses is
+    the part that distinguishes one plot from another --- the elevation range,
+    the season, the years --- so the title is shrunk to fit, and wrapped onto a
+    second line if shrinking alone is not enough.  Nothing is dropped.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        The figure to title
+
+    title : str
+        The title, which may be longer than the figure is wide
+
+    y : float, optional
+        Where to place the title in figure coordinates.  A wrapped title is
+        placed by the layout engine instead, since a fixed position would put
+        its second line over the axes.
+
+    min_fontsize : float, optional
+        The size below which the title is wrapped rather than shrunk further
+
+    Returns
+    -------
+    text : matplotlib.text.Text
+        The title that was added
+    """
+    # measuring rendered text needs a canvas that can produce a renderer; a
+    # bare figure carries one that cannot, and savefig would attach an Agg
+    # canvas anyway, so attaching it here changes nothing that is drawn
+    if not hasattr(fig.canvas, 'get_renderer'):
+        FigureCanvasAgg(fig)
+
+    text = fig.suptitle(title, y=y) if y is not None else fig.suptitle(title)
+    fontsize = text.get_fontsize()
+    # leave a small margin so the title does not touch the figure edge
+    limit = 0.96 * fig.get_size_inches()[0] * fig.dpi
+
+    def too_wide():
+        extent = text.get_window_extent(renderer=fig.canvas.get_renderer())
+        return extent.width > limit
+
+    while too_wide() and fontsize > min_fontsize:
+        fontsize = max(min_fontsize, fontsize * 0.95)
+        text.set_fontsize(fontsize)
+
+    if too_wide():
+        # shrinking hit the floor, so wrap instead, and let the layout engine
+        # place a title that is now two lines tall
+        halves = textwrap.wrap(title, width=max(len(title) // 2, 1))
+        text.set_text('\n'.join(halves[:1] + [' '.join(halves[1:])]))
+        text.set_position((text.get_position()[0], 1.0))
+        text.set_verticalalignment('top')
+
+    return text
