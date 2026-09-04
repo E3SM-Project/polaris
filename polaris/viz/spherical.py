@@ -14,7 +14,11 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 from ruamel.yaml import YAML
 
-from polaris.viz.helper import add_fitted_suptitle, get_projection
+from polaris.viz.helper import (
+    add_fitted_suptitle,
+    get_projection,
+    make_room_for_gridline_labels,
+)
 from polaris.viz.style import mplstyle_context
 
 
@@ -179,6 +183,7 @@ def plot_global_mpas_field(
         )
         gl.right_labels = False
         gl.top_labels = False
+        make_room_for_gridline_labels(ax)
 
         if plot_land:
             _add_land_lakes_coastline(ax)
@@ -330,6 +335,7 @@ def plot_global_lat_lon_field(
         )
         gl.right_labels = False
         gl.top_labels = False
+        make_room_for_gridline_labels(ax)
 
         plotHandle = ax.pcolormesh(
             lon_corner,
