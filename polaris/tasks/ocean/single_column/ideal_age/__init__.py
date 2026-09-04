@@ -33,6 +33,7 @@ class IdealAge(Task):
         validate_vars = ['temperature', 'salinity', 'iAge']
         step = Forward(
             component=component,
+            init=init,
             indir=self.subdir,
             ntasks=1,
             min_tasks=1,
@@ -46,6 +47,7 @@ class IdealAge(Task):
         self.add_step(
             Viz(
                 component=component,
+                init=init,
                 indir=self.subdir,
                 ideal_age=ideal_age,
             ),

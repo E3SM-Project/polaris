@@ -131,8 +131,19 @@ class Step:
         comparison should be performed if a baseline run has been provided. The
         baseline validation is performed after the step has run.
 
-    properties_to_check: dict of list
-        A list of properties to check for each output file.
+    properties_to_check: list of dict
+        A list of conservation comparisons to perform, each a dictionary
+        with the keys ``filename`` (the output file), ``properties`` (the
+        list of conservation properties to check), ``baseline`` (either
+        ``'init'`` or the time index in the output file to compare against)
+        and ``time_index_end`` (the time index in the output file at the end
+        of the comparison)
+
+    property_check_results : list of dict
+        The results of the conservation checks performed by
+        :py:meth:`check_properties()`, each a dictionary with at least the
+        keys ``description``, ``relative_error``, ``tolerance`` and
+        ``passed``
 
     logger : logging.Logger
         A logger for output from the step
@@ -292,7 +303,8 @@ class Step:
         # may be set during setup if there is a baseline for comparison
         self.baseline_dir = None
         self.validate_vars = dict()
-        self.properties_to_check = dict()
+        self.properties_to_check = list()
+        self.property_check_results = list()
         self.setup_complete = False
 
         # these will be set before running the step, dummy placeholders for now
@@ -575,15 +587,15 @@ class Step:
         )
 
     def add_output_file(
-        self, filename, validate_vars=None, check_properties=None
+        self,
+        filename,
+        validate_vars=None,
+        check_properties=None,
+        check_properties_baseline='init',
+        check_properties_time_index_end=-1,
     ):
         """
-        Add the output file that must be produced by this step and may be made
-        available as an input to steps, perhaps in other tasks.  This file
-        must exist after the task has run or an exception will be raised.
-
-        Optionally, a list of variables can be provided for validation against
-        a baseline (if one is provided), once the step has been run.
+        Add the output file to the step
 
         Parameters
         ----------
@@ -591,15 +603,82 @@ class Step:
             The relative path of the output file within the step's work
             directory
 
-        validate_vars : list, optional
-            A list of variable names to compare with a baseline (if one is
-            provided)
+        validate_vars : list of str, optional
+            A list of variables to validate against a baseline
+
+        check_properties : list of str, optional
+            A list of conservation properties to check for this file, e.g.
+            ``['mass conservation', 'salt conservation']``.  Any surface
+            forcing flux variables present in the file are integrated over
+            the duration of the comparison (assuming they are constant in
+            time) and used as the expected change in the corresponding
+            budget.  Each call adds a single conservation comparison, so
+            call this method again (or use
+            :py:meth:`add_property_check()`) to check conservation over
+            another time interval of the same file.
+
+        check_properties_baseline : {'init'} or int, optional
+            The state to compare the conservation properties against, either
+            ``'init'`` for the initial condition or a time index in the
+            output file
+
+        check_properties_time_index_end : int, optional
+            The time index in the output file at the end of the conservation
+            comparison
         """
-        self.outputs.append(filename)
+        if filename not in self.outputs:
+            self.outputs.append(filename)
         if validate_vars is not None:
             self.validate_vars[filename] = validate_vars
         if check_properties is not None:
-            self.properties_to_check[filename] = check_properties
+            self.add_property_check(
+                filename=filename,
+                check_properties=check_properties,
+                baseline=check_properties_baseline,
+                time_index_end=check_properties_time_index_end,
+            )
+
+    def add_property_check(
+        self,
+        filename,
+        check_properties,
+        baseline='init',
+        time_index_end=-1,
+    ):
+        """
+        Add a single conservation comparison for an output file
+
+        Parameters
+        ----------
+        filename : str
+            The relative path of the output file within the step's work
+            directory
+
+        check_properties : list of str
+            A list of conservation properties to check, e.g.
+            ``['mass conservation', 'salt conservation']``
+
+        baseline : {'init'} or int, optional
+            The state to compare the conservation properties against, either
+            ``'init'`` for the initial condition or a time index in the
+            output file
+
+        time_index_end : int, optional
+            The time index in the output file at the end of the comparison
+        """
+        if baseline != 'init' and not isinstance(baseline, int):
+            raise ValueError(
+                f'Unexpected conservation baseline "{baseline}"; expected '
+                "'init' or a time index in the output file"
+            )
+        self.properties_to_check.append(
+            dict(
+                filename=filename,
+                properties=list(check_properties),
+                baseline=baseline,
+                time_index_end=time_index_end,
+            )
+        )
 
     def add_dependency(self, step, name=None):
         """
@@ -637,11 +716,18 @@ class Step:
 
     def check_properties(self):
         """
-        This method should be overridden to check properties of step outputs
+        Check conservation properties of the output files of this step.
+        Subclasses that support property checks should override this method.
+
+        Returns
+        -------
+        checked : bool
+            Whether any properties were checked
+
+        success : bool
+            Whether all checked properties were within tolerance
         """
-        checked = False
-        success = True
-        return checked, success
+        return False, True
 
     def validate_baselines(self):
         """

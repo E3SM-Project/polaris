@@ -30,6 +30,66 @@ class OceanModelFilesMixin:
     config: 'PolarisConfigParser'
     input_data: list[dict[str, Any]]
     add_input_file: Callable[..., None]
+    logger: Any
+
+    # --- dataset access ---
+
+    def open_model_dataset(
+        self,
+        filename,
+        config=None,
+        tracer_convention=None,
+        lon=None,
+        lat=None,
+        logger=None,
+        **kwargs,
+    ):
+        """
+        Open a dataset, mapping Omega variable and dimension names to their
+        MPAS-Ocean equivalents if appropriate.
+
+        Parameters
+        ----------
+        filename : str
+            The path for the NetCDF file to open
+
+        config : polaris.config.PolarisConfigParser, optional
+            Configuration for the task; defaults to the step's config
+
+        tracer_convention : str, optional
+            The tracer convention to use when renaming variables
+
+        lon : str, optional
+            The name of the longitude coordinate, if any
+
+        lat : str, optional
+            The name of the latitude coordinate, if any
+
+        logger : logging.Logger, optional
+            A logger; defaults to the step's logger
+
+        **kwargs
+            Additional keyword arguments forwarded to
+            :py:meth:`polaris.tasks.ocean.Ocean.open_model_dataset`
+
+        Returns
+        -------
+        ds : xarray.Dataset
+            The dataset with variables named as expected in MPAS-Ocean
+        """
+        if config is None:
+            config = self.config
+        if logger is None:
+            logger = self.logger
+        return self.component.open_model_dataset(
+            filename,
+            config=config,
+            tracer_convention=tracer_convention,
+            lon=lon,
+            lat=lat,
+            logger=logger,
+            **kwargs,
+        )
 
     # --- filename getters ---
 
@@ -87,6 +147,7 @@ class OceanModelFilesMixin:
         ----------
         filename : str, optional
             Explicit local filename, overriding the placeholder.
+
         **kwargs
             Additional keyword arguments forwarded to
             :py:meth:`polaris.Step.add_input_file`.
@@ -118,6 +179,8 @@ class OceanModelFilesMixin:
         filename,
         validate_vars=None,
         check_properties=None,
+        check_properties_baseline='init',
+        check_properties_time_index_end=-1,
         validate_class=None,
     ):
         """
@@ -132,7 +195,13 @@ class OceanModelFilesMixin:
         validate_vars : list of str, optional
             Explicit list of variable names to validate against a baseline.
 
-        check_properties : dict, optional
+        check_properties : list of str, optional
+            Forwarded to :py:meth:`polaris.Step.add_output_file`.
+
+        check_properties_baseline : {'init'} or int, optional
+            Forwarded to :py:meth:`polaris.Step.add_output_file`.
+
+        check_properties_time_index_end : int, optional
             Forwarded to :py:meth:`polaris.Step.add_output_file`.
 
         validate_class : str, optional
@@ -183,6 +252,8 @@ class OceanModelFilesMixin:
             filename=filename,
             validate_vars=validate_vars if validate_vars else None,
             check_properties=check_properties,
+            check_properties_baseline=check_properties_baseline,
+            check_properties_time_index_end=check_properties_time_index_end,
         )
 
     # --- shared placeholder resolution ---

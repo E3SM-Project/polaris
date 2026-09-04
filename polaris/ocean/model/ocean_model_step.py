@@ -1,16 +1,29 @@
 import importlib.resources as imp_res
+import json
 import os
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from ruamel.yaml import YAML
 
+from polaris.constants import get_constant
 from polaris.model_step import ModelStep
 from polaris.ocean.conservation import (
+    compute_flux_forcing,
     compute_total_energy,
     compute_total_mass,
     compute_total_salt,
     compute_total_tracer,
+    get_elapsed_seconds,
 )
 from polaris.ocean.model.ocean_model_files_mixin import OceanModelFilesMixin
 
@@ -244,6 +257,18 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             'model_inputs.yaml',
             template_replacements=self._get_model_input_replacements(),
         )
+
+        if self.config.get('ocean', 'model') == 'mpas-ocean':
+            # Omega takes RhoSw from the Physical Constants Dictionary, so
+            # keep MPAS-Ocean's reference density consistent with it
+            self.add_model_config_options(
+                options={
+                    'config_density0': get_constant(
+                        'seawater_density_reference'
+                    )
+                },
+                config_model='mpas-ocean',
+            )
 
         if self.update_eos:
             self.update_namelist_eos()
@@ -488,122 +513,186 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         return replacements
 
     def check_properties(self):
+        """
+        Check conservation properties of the output files of this step
+
+        Details of each check are stored in ``self.property_check_results``
+        and written to ``property_check_results.json`` in the step's work
+        directory so that they can be summarized by other steps.
+
+        Returns
+        -------
+        checked : bool
+            Whether any properties were checked
+
+        success : bool
+            Whether all checked properties are within tolerance
+        """
+        logger = self.logger
+        config = self.config
         checked = False
         success = True
-        if self.work_dir is None:
-            raise ValueError(
-                'The work directory must be set before the step '
-                'output properties can be checked.'
-            )
-        passed_properties = []
-        failed_properties = []
-        for filename, properties in self.properties_to_check.items():
-            filename = str(filename)
-            mesh_filename = os.path.join(
-                self.work_dir, self.get_horiz_mesh_filename()
-            )
-            this_filename = os.path.join(self.work_dir, filename)
-            ds_mesh = self.component.open_model_dataset(
-                mesh_filename, self.config
-            )
-            ds = self.component.open_model_dataset(this_filename, self.config)
-            if 'tracer conservation' in properties:
-                # All tracers in mpaso_to_omega.yaml
-                tracers_to_check = [
-                    'temperature',
-                    'salinity',
-                    'tracer1',
-                    'tracer2',
-                    'tracer3',
-                ]
-                # Expand 'tracer conservation' into list of tracers to check
-                properties = [
-                    item
-                    for item in properties
-                    if item != 'tracer conservation'
-                ]
-                for tracer in tracers_to_check:
-                    if tracer in ds.keys():
-                        properties.append(f'tracer conservation-{tracer}')
+        results: List[Dict[str, Any]] = []
+        mesh_filename = self.get_horiz_mesh_filename()
+        init_filename = self.get_init_filename()
+        ds_mesh = self.open_model_dataset(
+            os.path.join(self.work_dir, mesh_filename)
+        )
+        ds_init = self.open_model_dataset(
+            os.path.join(self.work_dir, init_filename)
+        )
+        datasets: Dict[str, Any] = {}
+        for check in self.properties_to_check:
+            filename = check['filename']
+            baseline = check['baseline']
+            time_index_end = check['time_index_end']
+            properties = [
+                prop.replace(' conservation', '')
+                for prop in check['properties']
+            ]
+
+            if filename not in datasets:
+                datasets[filename] = self.open_model_dataset(
+                    os.path.join(self.work_dir, filename), decode_times=True
+                )
+            ds = datasets[filename]
+
+            if baseline == 'init':
+                ds_start = ds_init
+                time_index_start = 0
+                dt = get_elapsed_seconds(ds, time_index_end=time_index_end)
+                baseline_str = 'init'
+            else:
+                ds_start = None
+                time_index_start = baseline
+                dt = get_elapsed_seconds(
+                    ds,
+                    time_index_start=time_index_start,
+                    time_index_end=time_index_end,
+                )
+                baseline_str = f'time index {time_index_start}'
             for output_property in properties:
-                if output_property == 'mass conservation':
-                    tol = self.config.getfloat(
-                        'ocean', 'mass_conservation_tolerance'
-                    )
-                    relative_error = self._compute_rel_err(
-                        compute_total_mass, ds_mesh=ds_mesh, ds=ds
-                    )
-                elif output_property == 'salt conservation':
-                    tol = self.config.getfloat(
-                        'ocean', 'salt_conservation_tolerance'
-                    )
-                    relative_error = self._compute_rel_err(
-                        compute_total_mass, ds_mesh, ds
-                    )
-                    relative_error = self._compute_rel_err(
-                        compute_total_salt, ds_mesh, ds
-                    )
-                elif output_property.split('-')[0] == 'tracer conservation':
-                    tol = self.config.getfloat(
-                        'ocean', 'tracer_conservation_tolerance'
-                    )
-                    tracer = output_property.split('-')[1]
-                    relative_error = self._compute_rel_err(
-                        compute_total_tracer,
-                        ds_mesh,
-                        ds,
-                        tracer_name=tracer,
-                    )
-                elif output_property == 'energy conservation':
-                    tol = self.config.getfloat(
-                        'ocean', 'energy_conservation_tolerance'
-                    )
-                    relative_error = self._compute_rel_err(
-                        compute_total_energy, ds_mesh, ds
-                    )
+                func: Callable[..., Any]
+                kwargs: Dict[str, Any] = {}
+                if output_property == 'mass':
+                    func = compute_total_mass
+                elif output_property == 'energy':
+                    func = compute_total_energy
+                    kwargs['model'] = self.config.get('ocean', 'model')
+                elif output_property == 'salt':
+                    func = compute_total_salt
+                elif output_property == 'tracer':
+                    func = compute_total_tracer
+                    kwargs = {'tracer_name': 'tracer1'}
                 else:
                     raise ValueError(
-                        'Could not find method to execute property check '
-                        f'{output_property}'
+                        f'Unknown property to check: {output_property}'
+                    )
+                tol = config.getfloat(
+                    'ocean', f'{output_property}_conservation_tolerance'
+                )
+
+                expected_change = 0.0
+                if output_property in ['mass', 'energy', 'salt']:
+                    expected_change = compute_flux_forcing(
+                        ds_mesh,
+                        ds,
+                        output_property,
+                        dt,
+                        time_index_start=time_index_start,
+                        model=config.get('ocean', 'model'),
+                        config=config,
                     )
 
-                result = relative_error < tol
-                success = success and result
+                relative_error = self._compute_rel_err(
+                    func,
+                    ds_mesh=ds_mesh,
+                    ds_init=ds_start,
+                    ds=ds,
+                    expected_change=expected_change,
+                    time_index_start=time_index_start,
+                    time_index_end=time_index_end,
+                    **kwargs,
+                )
+                relative_error = float(relative_error)
+                passed = bool(relative_error <= tol)
+                status = 'PASS' if passed else 'FAIL'
+                description = (
+                    f'{output_property} conservation in {filename} '
+                    f'({baseline_str} to time index {time_index_end})'
+                )
+                logger.info(
+                    f'    {description}: '
+                    f'error={relative_error:.3e} tol={tol:.3e} [{status}]'
+                )
+                results.append(
+                    dict(
+                        property=output_property,
+                        filename=filename,
+                        baseline=baseline,
+                        time_index_start=int(time_index_start),
+                        time_index_end=int(time_index_end),
+                        description=description,
+                        relative_error=relative_error,
+                        tolerance=float(tol),
+                        passed=passed,
+                    )
+                )
                 checked = True
-                # We already appended log strings for tracer conservation
-                if output_property != 'tracer conservation':
-                    if not result:
-                        failed_properties.append(
-                            f'{output_property} relative error '
-                            f'{relative_error:.3e} exceeds {tol}'
-                        )
-                    else:
-                        passed_properties.append(
-                            f'{output_property} relative error '
-                            f'{relative_error:.3e}'
-                        )
-        if checked and success:
-            log_filename = os.path.join(
-                self.work_dir, 'property_check_passed.log'
+                success = success and passed
+
+        self.property_check_results = results
+        if checked:
+            results_filename = os.path.join(
+                self.work_dir, 'property_check_results.json'
             )
-            passed_properties_str = '\n  '.join(passed_properties)
-            with open(log_filename, 'w') as result_log_file:
-                result_log_file.write(
-                    f'Output file {filename} passed property checks.\n'
-                    f'{passed_properties_str}\n'
-                )
-        elif checked and not success:
-            log_filename = os.path.join(
-                self.work_dir, 'property_check_failed.log'
-            )
-            failed_properties_str = '\n  '.join(failed_properties)
-            with open(log_filename, 'w') as result_log_file:
-                result_log_file.write(
-                    f'Property checks on {filename} failed for:\n '
-                    f'{failed_properties_str}\n'
-                )
+            tmp_filename = f'{results_filename}.tmp'
+            with open(tmp_filename, 'w') as handle:
+                json.dump(results, handle, indent=4, default=str)
+                handle.flush()
+                os.fsync(handle.fileno())
+            # rename atomically so that readers never see a partial file
+            os.replace(tmp_filename, results_filename)
 
         return checked, success
+
+    def _compute_rel_err(
+        self,
+        func,
+        ds_mesh,
+        ds,
+        ds_init=None,
+        time_index_start=0,
+        time_index_end=0,
+        expected_change=0.0,
+        **kwargs,
+    ):
+        """
+        Compute the error in a budget, relative to the expected change if it
+        is nonzero and to the initial content otherwise
+
+        The initial value is taken from ``ds_init`` if it is provided, so that
+        the budget starts from the true initial condition rather than the
+        first output time slice.
+        """
+        if ds_init is not None:
+            ds_start = ds_init
+        else:
+            ds_start = ds
+        init_val = float(
+            func(
+                ds_mesh, ds_start.isel(Time=time_index_start), **kwargs
+            ).values
+        )
+        ds_end = ds.isel(Time=time_index_end)
+        final_val = float(func(ds_mesh, ds_end, **kwargs).values)
+        actual_change = final_val - init_val
+        residual = actual_change - expected_change
+        if init_val != 0.0:
+            denom = abs(init_val)
+        else:
+            denom = 1.0
+        return abs(residual) / denom
 
     def _update_ntasks(self) -> None:
         """
@@ -783,20 +872,6 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         out_option, out_value = self._map_handle_not(out_option, value)
 
         return out_sections, out_option, out_value
-
-    def _compute_rel_err(
-        self,
-        func,
-        ds_mesh,
-        ds,
-        time_index_start=0,
-        time_index_end=-1,
-        **kwargs,
-    ):
-        init_val = func(ds_mesh, ds.isel(Time=time_index_start), **kwargs)
-        final_val = func(ds_mesh, ds.isel(Time=time_index_end), **kwargs)
-        val_change = final_val - init_val
-        return abs(val_change) / (final_val + 1.0)
 
     @staticmethod
     def _warn_not_found(not_found: List[str]) -> None:

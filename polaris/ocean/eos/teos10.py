@@ -92,6 +92,55 @@ def compute_specvol(
     return specvol
 
 
+def compute_ct_freezing(
+    sa: xr.DataArray | float,
+    p: xr.DataArray | float,
+    saturation_fraction: float = 0.0,
+) -> xr.DataArray | float:
+    """
+    Compute the freezing Conservative Temperature from the TEOS-10
+    polynomial, equivalent to ``Teos10Eos::calcCtFreezingTeos10()`` in Omega.
+
+    Parameters
+    ----------
+    sa : float or xarray.DataArray
+        Absolute Salinity (g/kg) at the same points as p.
+
+    p : float or xarray.DataArray
+        Sea pressure in Pascals (Pa) at the same points as sa.
+
+    saturation_fraction : float, optional
+        The fraction of dissolved air in seawater (0 to 1), used to
+        correct the freezing temperature.
+
+    Returns
+    -------
+    ct_freezing : float or xarray.DataArray
+        The freezing Conservative Temperature (degC) with the same
+        dims/coords as the input arrays, or a scalar if all inputs are
+        scalar.
+    """
+    if not any(isinstance(value, xr.DataArray) for value in (p, sa)):
+        p_dbar = p / 1.0e4
+        return float(gsw.CT_freezing(sa, p_dbar, saturation_fraction))
+
+    p, _, sa = _align_data_arrays(p=p, ct=0.0, sa=sa)
+    template = _get_template_data_array(p=p, ct=0.0, sa=sa)
+
+    p_dbar = _to_numpy(p) / 1.0e4
+    sa_np = _to_numpy(sa)
+    ct_freezing_np = gsw.CT_freezing(sa_np, p_dbar, saturation_fraction)
+
+    ct_freezing = xr.DataArray(
+        ct_freezing_np,
+        dims=template.dims,
+        coords=template.coords,
+        name='ctFreezing',
+    )
+
+    return ct_freezing
+
+
 def ct_from_potential_density(
     sigma_0: xr.DataArray | float,
     sa: xr.DataArray | float,

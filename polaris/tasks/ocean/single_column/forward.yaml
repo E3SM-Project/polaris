@@ -1,8 +1,10 @@
 ocean:
   time_management:
     config_stop_time: none
+    config_run_duration: {{ run_duration }}
   time_integration:
-    config_dt: 0000_00:10:00
+    config_time_integrator: {{ time_integrator }}
+    config_dt: {{ dt }}
   forcing:
     config_use_bulk_wind_stress: false
   hmix_del2:
@@ -26,7 +28,7 @@ Omega:
   IOStreams:
     InitialVertCoord:
       UsePointerFile: false
-      Filename: init.nc
+      Filename: vert_coord.nc
       Mode: read
       Precision: double
       Freq: 1
