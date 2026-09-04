@@ -260,6 +260,38 @@
 
     <span class="k">return</span> <span class="n">text</span></div>
 
+
+
+<div class="viewcode-block" id="make_room_for_gridline_labels">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.make_room_for_gridline_labels.html#polaris.viz.make_room_for_gridline_labels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_room_for_gridline_labels</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Let the layout engine reserve room for a map's gridline labels</span>
+
+<span class="sd">    Cartopy draws gridline labels outside the axes, so a layout engine only</span>
+<span class="sd">    leaves room for them if the axes report a finite tight bounding box.  A</span>
+<span class="sd">    ``GeoAxes`` does not.  Whenever its gridliner draws top or "geo" labels ---</span>
+<span class="sd">    and geo labels are on by default --- cartopy repositions the axes titles</span>
+<span class="sd">    to sit above them, and lands them at an infinite position.  Matplotlib</span>
+<span class="sd">    folds the titles into the tight bounding box, so the box comes back as</span>
+<span class="sd">    ``nan``, the layout engine reserves nothing, and the labels are drawn off</span>
+<span class="sd">    the canvas: the outermost longitude label is cut in half and every</span>
+<span class="sd">    latitude label is lost entirely.</span>
+
+<span class="sd">    Giving the title an explicit position turns cartopy's repositioning off,</span>
+<span class="sd">    which is all it takes for the bounding box to be finite and the margins to</span>
+<span class="sd">    be reserved.  Polaris titles its spherical plots with ``fig.suptitle()``,</span>
+<span class="sd">    so the axes titles are empty and nothing is drawn differently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax : cartopy.mpl.geoaxes.GeoAxes</span>
+<span class="sd">        The map axes whose gridline labels need room</span>
+<span class="sd">    """</span>
+    <span class="c1"># passing an explicit ``y`` is what tells matplotlib and cartopy that the</span>
+    <span class="c1"># title has been placed by hand and must not be moved</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

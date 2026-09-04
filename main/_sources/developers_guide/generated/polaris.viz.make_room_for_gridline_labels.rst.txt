@@ -1,0 +1,6 @@
+﻿polaris.viz.make\_room\_for\_gridline\_labels
+=============================================
+
+.. currentmodule:: polaris.viz
+
+.. autofunction:: make_room_for_gridline_labels

@@ -508,6 +508,7 @@ seaice/api
    determine_time_variable
    get_projection
    get_viz_defaults
+   make_room_for_gridline_labels
    mplstyle_context
    plot_horiz_field
    plot_global_lat_lon_field

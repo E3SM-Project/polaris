@@ -224,6 +224,7 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.determine_time_variable.html">polaris.viz.determine_time_variable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.get_projection.html">polaris.viz.get_projection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.get_viz_defaults.html">polaris.viz.get_viz_defaults</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.make_room_for_gridline_labels.html">polaris.viz.make_room_for_gridline_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.mplstyle_context.html">polaris.viz.mplstyle_context</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.plot_horiz_field.html">polaris.viz.plot_horiz_field</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.viz.plot_global_lat_lon_field.html">polaris.viz.plot_global_lat_lon_field</a></li>
@@ -956,16 +957,19 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.get_viz_defaults.html#polaris.viz.get_viz_defaults" title="polaris.viz.get_viz_defaults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_viz_defaults</span></code></a>()</p></td>
 <td><p>Return the whole dictionary of MPAS variables and default viz properties</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.mplstyle_context.html#polaris.viz.mplstyle_context" title="polaris.viz.mplstyle_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mplstyle_context</span></code></a>([dpi])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.make_room_for_gridline_labels.html#polaris.viz.make_room_for_gridline_labels" title="polaris.viz.make_room_for_gridline_labels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_room_for_gridline_labels</span></code></a>(ax)</p></td>
+<td><p>Let the layout engine reserve room for a map's gridline labels</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.mplstyle_context.html#polaris.viz.mplstyle_context" title="polaris.viz.mplstyle_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mplstyle_context</span></code></a>([dpi])</p></td>
 <td><p>A context manager that applies the Polaris matplotlib style for the duration of a plot and restores the previous settings afterwards</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_horiz_field</span></code></a>(ds_mesh, field[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_horiz_field</span></code></a>(ds_mesh, field[, ...])</p></td>
 <td><p>Plot a horizontal field from a planar domain using x,y coordinates at a single time and depth slice.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field" title="polaris.viz.plot_global_lat_lon_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_global_lat_lon_field</span></code></a>(lon, lat, ...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.plot_global_lat_lon_field.html#polaris.viz.plot_global_lat_lon_field" title="polaris.viz.plot_global_lat_lon_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_global_lat_lon_field</span></code></a>(lon, lat, ...[, ...])</p></td>
 <td><p>Plots a data set as a longitude-latitude map</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_global_mpas_field</span></code></a>(da, out_filename, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_global_mpas_field</span></code></a>(da, out_filename, ...)</p></td>
 <td><p>Plots a data set as a longitude-latitude map</p></td>
 </tr>
 </tbody>

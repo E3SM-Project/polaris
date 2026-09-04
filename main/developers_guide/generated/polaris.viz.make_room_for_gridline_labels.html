@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.viz.plot_global_lat_lon_field</title>
+  <title>polaris.viz.make_room_for_gridline_labels</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.viz.plot_global_mpas_field" href="polaris.viz.plot_global_mpas_field.html" />
-    <link rel="prev" title="polaris.viz.plot_horiz_field" href="polaris.viz.plot_horiz_field.html" />
+    <link rel="next" title="polaris.viz.mplstyle_context" href="polaris.viz.mplstyle_context.html" />
+    <link rel="prev" title="polaris.viz.get_viz_defaults" href="polaris.viz.get_viz_defaults.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -103,10 +103,10 @@
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.determine_time_variable.html">polaris.viz.determine_time_variable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.get_projection.html">polaris.viz.get_projection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.get_viz_defaults.html">polaris.viz.get_viz_defaults</a></li>
-<li class="toctree-l4"><a class="reference internal" href="polaris.viz.make_room_for_gridline_labels.html">polaris.viz.make_room_for_gridline_labels</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.viz.make_room_for_gridline_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.mplstyle_context.html">polaris.viz.mplstyle_context</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.plot_horiz_field.html">polaris.viz.plot_horiz_field</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.viz.plot_global_lat_lon_field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.viz.plot_global_lat_lon_field.html">polaris.viz.plot_global_lat_lon_field</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.plot_global_mpas_field.html">polaris.viz.plot_global_mpas_field</a></li>
 </ul>
 </li>
@@ -141,9 +141,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
-      <li class="breadcrumb-item active">polaris.viz.plot_global_lat_lon_field</li>
+      <li class="breadcrumb-item active">polaris.viz.make_room_for_gridline_labels</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/developers_guide/generated/polaris.viz.plot_global_lat_lon_field.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/developers_guide/generated/polaris.viz.make_room_for_gridline_labels.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -151,41 +151,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-viz-plot-global-lat-lon-field">
-<h1>polaris.viz.plot_global_lat_lon_field<a class="headerlink" href="#polaris-viz-plot-global-lat-lon-field" title="Link to this heading"></a></h1>
+  <section id="polaris-viz-make-room-for-gridline-labels">
+<h1>polaris.viz.make_room_for_gridline_labels<a class="headerlink" href="#polaris-viz-make-room-for-gridline-labels" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.viz.plot_global_lat_lon_field">
-<span class="sig-prename descclassname"><span class="pre">polaris.viz.</span></span><span class="sig-name descname"><span class="pre">plot_global_lat_lon_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap_section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_land</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8,</span> <span class="pre">4.5)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/viz/spherical.html#plot_global_lat_lon_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.viz.plot_global_lat_lon_field" title="Link to this definition"></a></dt>
-<dd><p>Plots a data set as a longitude-latitude map</p>
+<dt class="sig sig-object py" id="polaris.viz.make_room_for_gridline_labels">
+<span class="sig-prename descclassname"><span class="pre">polaris.viz.</span></span><span class="sig-name descname"><span class="pre">make_room_for_gridline_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/viz/helper.html#make_room_for_gridline_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.viz.make_room_for_gridline_labels" title="Link to this definition"></a></dt>
+<dd><p>Let the layout engine reserve room for a map’s gridline labels</p>
+<p>Cartopy draws gridline labels outside the axes, so a layout engine only
+leaves room for them if the axes report a finite tight bounding box.  A
+<code class="docutils literal notranslate"><span class="pre">GeoAxes</span></code> does not.  Whenever its gridliner draws top or “geo” labels —
+and geo labels are on by default — cartopy repositions the axes titles
+to sit above them, and lands them at an infinite position.  Matplotlib
+folds the titles into the tight bounding box, so the box comes back as
+<code class="docutils literal notranslate"><span class="pre">nan</span></code>, the layout engine reserves nothing, and the labels are drawn off
+the canvas: the outermost longitude label is cut in half and every
+latitude label is lost entirely.</p>
+<p>Giving the title an explicit position turns cartopy’s repositioning off,
+which is all it takes for the bounding box to be finite and the margins to
+be reserved.  Polaris titles its spherical plots with <code class="docutils literal notranslate"><span class="pre">fig.suptitle()</span></code>,
+so the axes titles are empty and nothing is drawn differently.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>lon</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – 1D longitude coordinate</p></li>
-<li><p><strong>lat</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – 1D latitude coordinate</p></li>
-<li><p><strong>data_array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – 2D data array to plot</p></li>
-<li><p><strong>out_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The image file name to be written</p></li>
-<li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – The config options to use for colormap settings</p></li>
-<li><p><strong>colormap_section</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – <p>The name of a section in the config options. Options must include:</p>
-<dl class="simple">
-<dt>colormap_name</dt><dd><p>The name of the colormap</p>
-</dd>
-<dt>norm_type</dt><dd><p>The norm: {‘symlog’, ‘log’, ‘linear’}</p>
-</dd>
-<dt>norm_args</dt><dd><p>A dict of arguments to pass to the norm</p>
-</dd>
-</dl>
-<p>It may also include:</p>
-<dl class="simple">
-<dt>colorbar_ticks</dt><dd><p>An array of values where ticks should be placed</p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The subtitle of the plot</p></li>
-<li><p><strong>plot_land</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to plot continents over the data</p></li>
-<li><p><strong>colorbar_label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Label on the colorbar</p></li>
-<li><p><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>, </em><em>optional</em>) – The size of the figure in inches.  A size that matches the aspect
-ratio of the map leaves the least empty canvas around it</p></li>
-</ul>
+<dd class="field-odd"><p><strong>ax</strong> (<em>cartopy.mpl.geoaxes.GeoAxes</em>) – The map axes whose gridline labels need room</p>
 </dd>
 </dl>
 </dd></dl>
@@ -196,8 +183,8 @@ ratio of the map leaves the least empty canvas around it</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.viz.plot_horiz_field.html" class="btn btn-neutral float-left" title="polaris.viz.plot_horiz_field" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.viz.plot_global_mpas_field.html" class="btn btn-neutral float-right" title="polaris.viz.plot_global_mpas_field" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.viz.get_viz_defaults.html" class="btn btn-neutral float-left" title="polaris.viz.get_viz_defaults" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.viz.mplstyle_context.html" class="btn btn-neutral float-right" title="polaris.viz.mplstyle_context" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
