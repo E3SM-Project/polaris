@@ -228,29 +228,28 @@ def dynamic_model_config(self, at_setup):
 
     options = dict()
 
-    # dt is proportional to resolution: default 30 seconds per km
+    # dt is proportional to resolution
     dt_per_km = config.getfloat('baroclinic_channel', 'dt_per_km')
     dt = dt_per_km * self.resolution
-    # https://stackoverflow.com/a/1384565/7728169
-    options['config_dt'] = \
-        time.strftime('%H:%M:%S', time.gmtime(dt))
+    options['config_dt'] = get_time_interval_string(seconds=dt)
 
     if self.run_time_steps is not None:
         # default run duration is a few time steps
         run_seconds = self.run_time_steps * dt
         options['config_run_duration'] = \
-            time.strftime('%H:%M:%S', time.gmtime(run_seconds))
+            get_time_interval_string(seconds=run_seconds)
 
-    # btr_dt is also proportional to resolution: default 1.5 seconds per km
+    # btr_dt is also proportional to resolution
     btr_dt_per_km = config.getfloat('baroclinic_channel', 'btr_dt_per_km')
     btr_dt = btr_dt_per_km * self.resolution
-    options['config_btr_dt'] = \
-        time.strftime('%H:%M:%S', time.gmtime(btr_dt))
+    options['config_btr_dt'] = get_time_interval_string(seconds=btr_dt)
 
     self.dt = dt
     self.btr_dt = btr_dt
 
-    self.add_model_config_options(options=options)
+    # config_model='ocean' marks these as shared between MPAS-Ocean and
+    # Omega, so they get translated to Omega's config names
+    self.add_model_config_options(options=options, config_model='ocean')
 ```
 
 (dev-model-add-streams-file)=

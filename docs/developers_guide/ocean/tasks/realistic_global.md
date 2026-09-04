@@ -47,7 +47,7 @@ the target model is known:
   mesh, initial condition, and vertical coordinate from MPAS-Ocean.
 - For MPAS-Ocean, a `zerovel` file is linked as both `mesh.nc` and `init.nc`,
   and the `time_integrator` template replacement is rewritten from
-  `RungeKutta4` to MPAS-Ocean's `RK4`.
+  `SplitExplicitRK2` to MPAS-Ocean's `split_explicit`.
 
 `setup()` also renders `forward.yaml` with the template replacements supplied
 by the task, so the time step, run duration and output interval can be varied
