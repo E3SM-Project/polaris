@@ -4,6 +4,7 @@ import importlib.resources as imp_res
 import cartopy
 import cmocean  # noqa: F401
 import matplotlib.colors as cols
+import matplotlib.path as mpath
 import mosaic
 import mosaic.utils
 import numpy as np
@@ -52,6 +53,8 @@ def plot_global_mpas_field(
     cell_indices=None,
     ds_transect=None,
     enforce_aspect_ratio=False,
+    extent=None,
+    circular_boundary=False,
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -117,6 +120,16 @@ def plot_global_mpas_field(
         Whether to enforce the aspect ratio of the figure according to lat,
         lon bounds
 
+    extent : tuple of float, optional
+        The ``(lon_min, lon_max, lat_min, lat_max)`` the map covers, in
+        degrees.  The map is scaled to the data being plotted if this is not
+        given.
+
+    circular_boundary : bool, optional
+        Whether to clip the map to a circle inscribed in the axes, which is
+        how a polar stereographic map of everything poleward of some latitude
+        is drawn.  Meaningless without ``extent``
+
     Returns
     -------
     descriptor : mosaic.Descriptor
@@ -177,6 +190,11 @@ def plot_global_mpas_field(
 
         fig = Figure(figsize=figsize, constrained_layout=True)
         ax = fig.add_subplot(111, projection=projection)
+
+        if extent is not None:
+            ax.set_extent(extent, crs=cartopy.crs.PlateCarree())
+        if circular_boundary:
+            _set_circular_boundary(ax)
 
         if title is not None:
             add_fitted_suptitle(fig, title)
@@ -453,6 +471,24 @@ def setup_colormap(config, colormap_section):
         colormap.set_over(over_color)
 
     return colormap, norm, ticks
+
+
+def _set_circular_boundary(ax):
+    """
+    Clip a map to the circle inscribed in its axes
+
+    A polar stereographic map of everything poleward of some latitude is a
+    disc, but the axes are rectangular, so without this the corners are drawn
+    too and the map reads as a box with a cap in it.
+
+    Parameters
+    ----------
+    ax : cartopy.mpl.geoaxes.GeoAxes
+        The map axes to clip
+    """
+    theta = np.linspace(0.0, 2.0 * np.pi, 100)
+    vertices = np.column_stack([np.sin(theta), np.cos(theta)])
+    ax.set_boundary(mpath.Path(0.5 * vertices + 0.5), transform=ax.transAxes)
 
 
 def _cull_mesh_to_cells(mesh_ds, cell_indices):
