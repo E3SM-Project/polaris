@@ -504,6 +504,7 @@ seaice/api
 .. autosummary::
    :toctree: generated/
 
+   add_fitted_suptitle
    determine_time_variable
    get_projection
    get_viz_defaults

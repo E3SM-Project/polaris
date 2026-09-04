@@ -126,7 +126,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyremap.descriptor.utility</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp_extrap_corner</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_projection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_fitted_suptitle</span><span class="p">,</span> <span class="n">get_projection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 
@@ -277,7 +277,7 @@
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.935</span><span class="p">)</span>
+            <span class="n">add_fitted_suptitle</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.935</span><span class="p">)</span>
 
         <span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ticks</span> <span class="o">=</span> <span class="n">setup_colormap</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="p">)</span>
 
@@ -421,7 +421,7 @@
         <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">)</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.935</span><span class="p">)</span>
+            <span class="n">add_fitted_suptitle</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.935</span><span class="p">)</span>
 
         <span class="n">subplots</span> <span class="o">=</span> <span class="p">[</span><span class="mi">111</span><span class="p">]</span>
         <span class="n">ref_projection</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>

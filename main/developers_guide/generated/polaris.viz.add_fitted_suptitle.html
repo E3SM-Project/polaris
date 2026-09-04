@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.viz.get_viz_defaults</title>
+  <title>polaris.viz.add_fitted_suptitle</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.viz.mplstyle_context" href="polaris.viz.mplstyle_context.html" />
-    <link rel="prev" title="polaris.viz.get_projection" href="polaris.viz.get_projection.html" />
+    <link rel="next" title="polaris.viz.determine_time_variable" href="polaris.viz.determine_time_variable.html" />
+    <link rel="prev" title="polaris.validate.compare_variables" href="polaris.validate.compare_variables.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -99,10 +99,10 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#streams">streams</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#validate">validate</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#viz">viz</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="polaris.viz.add_fitted_suptitle.html">polaris.viz.add_fitted_suptitle</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.viz.add_fitted_suptitle</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.determine_time_variable.html">polaris.viz.determine_time_variable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.get_projection.html">polaris.viz.get_projection</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.viz.get_viz_defaults</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.viz.get_viz_defaults.html">polaris.viz.get_viz_defaults</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.mplstyle_context.html">polaris.viz.mplstyle_context</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.plot_horiz_field.html">polaris.viz.plot_horiz_field</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.viz.plot_global_lat_lon_field.html">polaris.viz.plot_global_lat_lon_field</a></li>
@@ -140,9 +140,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
-      <li class="breadcrumb-item active">polaris.viz.get_viz_defaults</li>
+      <li class="breadcrumb-item active">polaris.viz.add_fitted_suptitle</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/developers_guide/generated/polaris.viz.get_viz_defaults.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/developers_guide/generated/polaris.viz.add_fitted_suptitle.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -150,12 +150,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-viz-get-viz-defaults">
-<h1>polaris.viz.get_viz_defaults<a class="headerlink" href="#polaris-viz-get-viz-defaults" title="Link to this heading"></a></h1>
+  <section id="polaris-viz-add-fitted-suptitle">
+<h1>polaris.viz.add_fitted_suptitle<a class="headerlink" href="#polaris-viz-add-fitted-suptitle" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.viz.get_viz_defaults">
-<span class="sig-prename descclassname"><span class="pre">polaris.viz.</span></span><span class="sig-name descname"><span class="pre">get_viz_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/viz/helper.html#get_viz_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.viz.get_viz_defaults" title="Link to this definition"></a></dt>
-<dd><p>Return the whole dictionary of MPAS variables and default viz properties</p>
+<dt class="sig sig-object py" id="polaris.viz.add_fitted_suptitle">
+<span class="sig-prename descclassname"><span class="pre">polaris.viz.</span></span><span class="sig-name descname"><span class="pre">add_fitted_suptitle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/viz/helper.html#add_fitted_suptitle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.viz.add_fitted_suptitle" title="Link to this definition"></a></dt>
+<dd><p>Add a title to a figure, sized so that it fits across the figure</p>
+<p>A title wider than the figure runs off both ends of the canvas, and is
+simply cropped when the figure is saved at a fixed size.  What it loses is
+the part that distinguishes one plot from another — the elevation range,
+the season, the years — so the title is shrunk to fit, and wrapped onto a
+second line if shrinking alone is not enough.  Nothing is dropped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.11.1)"><em>matplotlib.figure.Figure</em></a>) – The figure to title</p></li>
+<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The title, which may be longer than the figure is wide</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Where to place the title in figure coordinates.  A wrapped title is
+placed by the layout engine instead, since a fixed position would put
+its second line over the axes.</p></li>
+<li><p><strong>min_fontsize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The size below which the title is wrapped rather than shrunk further</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>text</strong> (<em>matplotlib.text.Text</em>) – The title that was added</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -164,8 +184,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.viz.get_projection.html" class="btn btn-neutral float-left" title="polaris.viz.get_projection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.viz.mplstyle_context.html" class="btn btn-neutral float-right" title="polaris.viz.mplstyle_context" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.validate.compare_variables.html" class="btn btn-neutral float-left" title="polaris.validate.compare_variables" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.viz.determine_time_variable.html" class="btn btn-neutral float-right" title="polaris.viz.determine_time_variable" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
