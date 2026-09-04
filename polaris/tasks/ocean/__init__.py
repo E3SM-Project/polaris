@@ -185,6 +185,11 @@ class Ocean(Component):
         renamed_vars = var_list
         model = self.model
         if model == 'omega':
+            if self.mpaso_to_omega_var_map is None:
+                # a step that only reads model output never went through
+                # set_model(), so prime the map the way the other public
+                # methods here do
+                self._read_var_map()
             assert self.mpaso_to_omega_var_map is not None
             renamed_vars = [
                 self.mpaso_to_omega_var_map.get(v, v) for v in var_list
