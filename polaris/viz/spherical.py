@@ -5,7 +5,9 @@ import cartopy
 import cmocean  # noqa: F401
 import matplotlib.colors as cols
 import mosaic
+import mosaic.utils
 import numpy as np
+import xarray as xr
 from cartopy.geodesic import Geodesic
 from matplotlib import colormaps
 from matplotlib.figure import Figure
@@ -20,6 +22,16 @@ from polaris.viz.helper import (
     make_room_for_gridline_labels,
 )
 from polaris.viz.style import mplstyle_context
+
+# the connectivity arrays mosaic remaps when it culls a mesh, mirroring
+# ``mosaic.descriptor.connectivity_arrays``
+_CONNECTIVITY_ARRAYS = [
+    'cellsOnEdge',
+    'cellsOnVertex',
+    'verticesOnEdge',
+    'verticesOnCell',
+    'edgesOnVertex',
+]
 
 
 def plot_global_mpas_field(
@@ -155,7 +167,7 @@ def plot_global_mpas_field(
             mesh_ds.attrs['is_periodic'] = 'NO'
 
             if cell_indices is not None:
-                mesh_ds = mesh_ds.isel(nCells=cell_indices)
+                mesh_ds = _cull_mesh_to_cells(mesh_ds, cell_indices)
             descriptor = mosaic.Descriptor(
                 mesh_ds,
                 projection=projection,
@@ -441,6 +453,57 @@ def setup_colormap(config, colormap_section):
         colormap.set_over(over_color)
 
     return colormap, norm, ticks
+
+
+def _cull_mesh_to_cells(mesh_ds, cell_indices):
+    """
+    Cull an MPAS mesh down to a subset of its cells
+
+    Selecting cells with ``isel(nCells=...)`` alone leaves the edge and vertex
+    dimensions at their original size and the connectivity arrays pointing at
+    cells that are no longer there.  Mosaic then culls the mesh again for the
+    projection, and indexes those stale arrays out of bounds.
+
+    ``mosaic.utils.cull_mesh()`` does the job properly, but it expects
+    zero-based connectivity, so the arrays are shifted into that convention
+    and back again around the call.  The shift back is faithful: mosaic marks
+    a neighbor it culled with ``-2`` and a land boundary with ``-1``, which
+    become ``-1`` and ``0`` here and are read back as ``-2`` and ``-1`` when
+    the descriptor zero-bases them again.
+
+    Parameters
+    ----------
+    mesh_ds : xarray.Dataset
+        An MPAS mesh, with one-based connectivity arrays
+
+    cell_indices : integer array
+        The cells to keep.  Cells are kept in mesh order, so a field plotted
+        on the culled mesh must be selected the same way.
+
+    Returns
+    -------
+    culled_ds : xarray.Dataset
+        The mesh with only those cells, and the edges and vertices that
+        touch them
+    """
+    culled_ds = mesh_ds.copy()
+    for array_name in _CONNECTIVITY_ARRAYS:
+        dim = 'n' + array_name.split('On')[0].title()
+        zero_based = culled_ds[array_name] - 1
+        # some meshes mark "no neighbor" with the size of the dimension
+        # rather than with zero, which is out of bounds once zero-based
+        culled_ds[array_name] = xr.where(
+            zero_based == mesh_ds.sizes[dim], -1, zero_based
+        )
+
+    cells_to_cull = np.ones(mesh_ds.sizes['nCells'], dtype=bool)
+    cells_to_cull[cell_indices] = False
+    culled_ds = mosaic.utils.cull_mesh(culled_ds, cells_to_cull)
+
+    for array_name in _CONNECTIVITY_ARRAYS:
+        culled_ds[array_name] = culled_ds[array_name] + 1
+
+    return culled_ds
 
 
 def _add_land_lakes_coastline(ax, ice_shelves=True):
