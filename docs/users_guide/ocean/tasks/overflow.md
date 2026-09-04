@@ -178,13 +178,13 @@ These config options are common to all overflow tests:
 [overflow]
 
 # Time integration scheme
-time_integrator = RK4
+time_integrator = split_explicit
 
-# Timestep per km horizontal resolution (s)
-dt_per_km = 7.5
+# Baroclinic timestep per km horizontal resolution (s)
+dt_per_km = 45
 
 # Barotropic timestep per km horizontal resolution (s)
-btr_dt_per_km = 2.5
+btr_dt_per_km = 1.5
 
 # The width of the domain in the across-slope dimension (km)
 ly = 40
