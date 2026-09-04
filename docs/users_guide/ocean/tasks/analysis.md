@@ -233,6 +233,42 @@ what makes re-analysis behave sensibly:
   so analyzing years 21--40 leaves the results for years 1--20 in place.  This
   also makes it impossible to get a plot labelled with one range whose
   contents came from another.
+- **An overlapping range inherits rather than recomputes.**  The products that
+  reduce the simulation month by month -- ocean heat content so far -- cache
+  each month they reduce, and a later range reads the months an earlier one
+  already did instead of reading those monthly means again.  Extending a
+  twenty-year series to forty therefore costs twenty years, and re-running a
+  sub-range of one already analyzed costs nothing.
+
+(ocean-analysis-inheritance)=
+
+### what may be inherited, and what may not
+
+Inheriting numbers that were computed from something else is the one way this
+could go quietly wrong, so what a cache has to agree with before it is used is
+deliberately narrow:
+
+- Only directories of **the same product** in **the same work directory** are
+  looked at -- sibling ranges of that product, and nothing else.
+- Only steps that **finished** are, so a cache left behind by an interrupted
+  run is not picked up.  The exception is the step's own directory: a run that
+  was interrupted picks up where it left off when it is re-run.
+- Only caches carrying the same **provenance stamp** are: the simulation's
+  Omega configuration and output directory, the mesh, the config options that
+  decide the numbers -- the elevation ranges and the specific heat capacity
+  for heat content -- and a version number for the code that computed them.
+  The path says nothing about which simulation was analyzed, so the stamp is
+  what keeps a work directory pointed at a second simulation from mixing the
+  two.
+
+Every run says in its log how many months it inherited and from where, and
+names any candidate it turned down together with the entry of the stamp that
+differs.  The stamp is also written into the cache and into the product beside
+it, so `ncdump -h` on a result says what it came from.
+
+Setting `reuse_previous = False` in `[ocean_analysis]` turns inheritance off
+and recomputes everything from the monthly means, for anyone who wants
+determinism rather than discovery.
 
 Re-running `polaris setup` rewrites the suite pickle at the root of the work
 directory, so the range most recently set up is the one `polaris serial` will
@@ -251,9 +287,9 @@ The suite is being built up product by product.  What exists so far:
 
 | task | product | status |
 | --- | --- | --- |
-| `climatology_maps` | map-view climatologies, one step per field group | not yet implemented |
+| `climatology_maps` | map-view climatologies and ocean heat content maps, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
 | `global_stats` | time series of the simulation's global statistics | {ref}`available <ocean-analysis-global-stats>` |
-| `heat_content_series` | time series of globally integrated ocean heat content | not yet implemented |
+| `heat_content_series` | time series of globally integrated ocean heat content | {ref}`available <ocean-analysis-heat-content-series>` |
 | `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
 | `publish` | the staging tree and the {ref}`gallery <ocean-analysis-gallery>` over it | implemented |
 
@@ -267,6 +303,172 @@ The `moc` task additionally depends on a diagnostic that Omega computes in
 situ and does not yet provide.  A simulation without it is an ordinary case:
 the step reports that no MOC output was written and produces nothing, rather
 than failing the suite.
+
+(ocean-analysis-climatology-maps)=
+
+### climatology maps
+
+The `climatology_maps` task computes a climatology of the simulation's
+monthly-mean output and plots global maps from it, on the native MPAS mesh.
+Nothing is remapped anywhere in the analysis.
+
+It has a **shared climatology step** and then **one step per field group**.
+The climatology runs once for a range of years no matter how many field
+groups read it, and the groups are `temperature`, `salinity`, `velocity`,
+`ssh`, `mixed_layer_depth` and `heat_content`.  A group is the unit of work
+so that adding a field costs that field and not the others.
+
+#### the climatology
+
+The climatology is computed with `ncclimo` from the NCO package, which is what
+the rest of the E3SM post-processing workflow uses, so that these
+climatologies are comparable with the ones zppy produces.  It writes the
+twelve monthly climatologies and one file per season in `seasons`, into
+`ocean/analysis/climatology/<range>/`.
+
+Two conventions are worth knowing:
+
+- Seasons are weighted by the length of each month in the simulation's own
+  calendar, and the annual mean is the same weighting over all twelve months.
+- `DJF` takes its December from the same calendar year as its January and
+  February, so every year in the range contributes exactly one December and
+  no data from outside the range are needed.  This is what MPAS-Analysis
+  does.
+
+Only the variables the analysis needs are averaged, so the cost scales with
+what is being plotted rather than with the size of the monthly means.  A
+variable the simulation did not write is reported in the step's log and left
+out.
+
+#### the maps
+
+Each field group's step writes, for every combination of season, field and
+vertical reduction it was asked for, a PNG and a netCDF file with the same
+base name holding exactly what was plotted:
+
+```none
+temperature_ANN_top.png     temperature_ANN_top.nc
+temperature_DJF_bottom.png  temperature_DJF_bottom.nc
+ssh_ANN.png                 ssh_ANN.nc
+```
+
+A field with no vertical dimension, such as `ssh`, is already a map, so its
+files carry no reduction label.  The netCDF files carry the simulation name,
+the field, the season, the vertical reduction and the range of years as
+global attributes, so a plot cannot be mistaken for a different one.
+
+#### the config options that govern it
+
+All of these are in `[ocean_analysis_climatology]`:
+
+`start_year`, `end_year`
+: The range of years the climatology covers.  It is also the directory the
+  results land in, so a different range recomputes rather than overwriting.
+
+`seasons`
+: The seasons to compute, beyond the twelve monthly climatologies, which are
+  always computed.
+
+`plot_seasons`
+: The seasons to plot, which may include the monthly climatologies as `JAN`
+  through `DEC`.  Every season here has to be one the climatology computed.
+
+`fields`
+: The fields to map, using MPAS-Ocean names whatever model produced the
+  output.  This is what decides which field group steps exist.
+
+`elevations`
+: How to reduce a field with a vertical dimension to a map.  `top` and
+  `bottom` are the topmost and bottommost valid layer of each column, so they
+  respect ice-shelf cavities and partial bottom cells; `k<index>` is a fixed,
+  zero-based vertical index, masked in columns where it falls outside the
+  valid range; and a number is an elevation in m, positive up, so `-100.0` is
+  100 m below the sea surface.
+
+An elevation is interpolated linearly between the midpoints of the two layers
+it falls between, using the layer elevations the simulation wrote.  Because
+the input is a climatology, a `-100.0` map is a map on the climatological-mean
+position of the -100 m surface rather than the time mean of maps on its
+instantaneous position; the two differ only where the seasonal cycle in layer
+thickness is large.
+
+Two ends of a column are worth knowing about.  Above the midpoint of its
+topmost layer the topmost value is used rather than the map being masked,
+which is what makes `0.0` and `-5.0` mean what a near-surface map is asked
+for; likewise below the midpoint of the bottommost layer, down to the
+seafloor.  Below the seafloor the map is masked, so a column with partial
+bottom cells ending at -97 m is blank at `-100.0` while `k9` still has a value
+in it.
+
+The colors come from one config section per field, so the color map and its
+range can be set for each field independently.  A section is named for its
+field with the field name in lower case with underscores, so `velocityZonal`
+is configured by `[ocean_analysis_map_velocity_zonal]`.
+
+(ocean-analysis-heat-content-maps)=
+
+#### ocean heat content
+
+The `heat_content` field group is the one group that derives its field rather
+than reading it.  It is always present, whatever `fields` asks for, since it
+is a diagnostic Polaris computes rather than a variable a simulation writes.
+
+Heat content per unit area is a **mass**-weighted integral of conservative
+temperature: the specific heat capacity times the sum over layers of
+temperature weighted by each layer's mass per unit area.  That mass comes
+from the model's own mass-like thickness -- `PseudoThickness` for Omega,
+`layerThickness` for MPAS-Ocean -- times the reference density that defines
+Omega's pseudo-height.  Weighting by mass rather than by a geometric
+thickness is what removes the in-situ-versus-reference density error of a few
+tenths of a percent that MPAS-Analysis's formulation carries.
+
+The ranges to integrate over are given by `elevation_ranges` in
+`[ocean_analysis_ohc]`, written `<top>:<bottom>` in m, positive up:
+
+```cfg
+[ocean_analysis_ohc]
+elevation_ranges = top:-700.0, -700.0:-2000.0, -2000.0:bottom, top:bottom
+```
+
+`top` is the free surface of each column and `bottom` is its seafloor, so
+`top:bottom` is the whole column.  These are geometric elevations, matching
+the convention MPAS-Analysis and the observational products use; the integral
+itself is still mass-weighted.  Writing the upper bound as `top` rather than
+as `0.0` matters: `0.0` would exclude the water between the resting sea
+surface and the free surface, and a different amount of it in every column and
+every season.
+
+A range boundary usually falls inside a layer rather than on an interface,
+and the geometry enters there and nowhere else: the layer is weighted by the
+fraction of its thickness that the range covers, and that fraction is applied
+to its mass.  A layer lying wholly within the range therefore contributes its
+whole mass whatever the geometry says, and a range that reaches below the
+seafloor is truncated there.  A column with no water in the range at all --
+one shallower than 2000 m, for the `-2000.0:bottom` band -- is masked rather
+than plotted as zero.
+
+The specific heat capacity defaults to the value in Polaris's Physical
+Constants Dictionary, which is the one the rest of E3SM uses.  Uncommenting
+`seawater_specific_heat_capacity` sets it to something else -- the TEOS-10
+constant, 3991.86795711963, being the interesting alternative, since with
+conservative temperature that constant makes the integral heat content by
+definition rather than to 0.1%.
+
+Output names follow the rest of the maps, with the range in place of the
+elevation, for example `heat_content_ANN_top_to_bottom.png`.  The netCDF is
+written in J m-2, which is the unit the quantity means, and carries the range
+as attributes so a plot cannot be mistaken for a different one; the plot is
+drawn in GJ m-2, which is a readable number.
+
+#### what is not there yet
+
+Two fields in the config file are asked for and reported as skipped rather
+than silently dropped.  Each says so in the step's log:
+
+- **`velocityZonal` and `velocityMeridional`** are not written by Omega yet.
+  Polaris does not reconstruct them from the edge-normal velocity; the
+  reconstruction belongs in the model, where it costs nothing in accuracy.
+- **`mixedLayerDepth`** is likewise a diagnostic Omega does not compute yet.
 
 (ocean-analysis-global-stats)=
 
@@ -319,7 +521,67 @@ period it is configured with, and it names the variables differently in the
 two cases.  Polaris reads the simulation's Omega configuration to find out
 which it wrote, so this needs no option of its own.
 
+(ocean-analysis-heat-content-series)=
+
+### ocean heat content time series
+
+The `heat_content_series` task reduces every month of the simulation to the
+globally integrated ocean heat content of each elevation range and plots the
+series.  Heat content drift is what a long coupled simulation is judged on,
+which is why this comes before the vertical machinery that would enrich it.
+
+The integral is the same mass-weighted one the maps take, over the same ranges
+from `[ocean_analysis_ohc]`, described under
+{ref}`ocean-analysis-heat-content-maps`; the difference is that it is taken
+from the monthly means themselves rather than from a climatology.  Averaging
+over the range is exactly what a drift curve must not do, so the climatology
+is no use here.
+
+The range of years is `start_year` and `end_year` in
+`[ocean_analysis_time_series]`, the same range the global statistics use:
+
+```cfg
+[ocean_analysis_time_series]
+start_year = 1
+end_year = 60
+```
+
+Three files land in the step's directory:
+
+`heat_content.png`
+: two panels sharing a time axis -- the heat content of each range in
+  $10^{22}$ J, which the deep ocean dominates, and its anomaly from the first
+  month of the range, which is where a drift of a few tenths of a percent is
+  visible at all.
+
+`heat_content.nc`
+: the same series in J, with the year and the month of each value, and the
+  range and the options it was computed under as attributes.
+
+`ocean_heat_content_cache.nc`
+: the reduced months, which is what a later range inherits; see
+  {ref}`ocean-analysis-inheritance`.
+
+Only `temperature` and the model's mass-like thickness are read from each
+month, and only one month is held at a time, so the memory this step needs
+does not grow with the length of the record.  A first run over several decades
+at high resolution is the most expensive thing in the suite, and every run
+after it is nearly free.
+
+**Only `top:bottom` is integrated so far**, for the same reason as in the
+maps: a range with a boundary inside a layer needs vertical geometry that is
+not implemented yet.  The ranges that are left out are named in the step's
+log.  A configuration in which *no* range can be integrated -- one with no
+`top:bottom` in it -- is an error at setup rather than an empty plot later.
+
 ## troubleshooting
+
+**`The data set has no zMid, zInterface`.**  The simulation did not write the
+elevation of its layers, which every map at an elevation is a position in.
+Polaris cannot reconstruct it: geometric thickness is derived from
+pseudo-thickness through specific volume, and the monthly mean of that product
+is not the product of the monthly means.  A run without it is out of spec
+rather than merely configured without a field.
 
 **`invalid interpolation syntax`** while reading the config file.  Polaris
 config files use extended interpolation, so a bare `$` in a value is an error.
