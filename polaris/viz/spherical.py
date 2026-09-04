@@ -179,7 +179,7 @@ def plot_global_mpas_field(
         ax = fig.add_subplot(111, projection=projection)
 
         if title is not None:
-            add_fitted_suptitle(fig, title, y=0.935)
+            add_fitted_suptitle(fig, title)
 
         colormap, norm, ticks = setup_colormap(config, colormap_section)
 
@@ -321,7 +321,7 @@ def plot_global_lat_lon_field(
         figsize = (8, 4.5)
         fig = Figure(figsize=figsize)
         if title is not None:
-            add_fitted_suptitle(fig, title, y=0.935)
+            add_fitted_suptitle(fig, title)
 
         subplots = [111]
         ref_projection = cartopy.crs.PlateCarree()
