@@ -4,8 +4,11 @@ import importlib.resources as imp_res
 import cartopy
 import cmocean  # noqa: F401
 import matplotlib.colors as cols
+import matplotlib.path as mpath
 import mosaic
+import mosaic.utils
 import numpy as np
+import xarray as xr
 from cartopy.geodesic import Geodesic
 from matplotlib import colormaps
 from matplotlib.figure import Figure
@@ -14,8 +17,22 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 from ruamel.yaml import YAML
 
-from polaris.viz.helper import add_fitted_suptitle, get_projection
+from polaris.viz.helper import (
+    add_fitted_suptitle,
+    get_projection,
+    make_room_for_gridline_labels,
+)
 from polaris.viz.style import mplstyle_context
+
+# the connectivity arrays mosaic remaps when it culls a mesh, mirroring
+# ``mosaic.descriptor.connectivity_arrays``
+_CONNECTIVITY_ARRAYS = [
+    'cellsOnEdge',
+    'cellsOnVertex',
+    'verticesOnEdge',
+    'verticesOnCell',
+    'edgesOnVertex',
+]
 
 
 def plot_global_mpas_field(
@@ -36,6 +53,8 @@ def plot_global_mpas_field(
     cell_indices=None,
     ds_transect=None,
     enforce_aspect_ratio=False,
+    extent=None,
+    circular_boundary=False,
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -101,6 +120,16 @@ def plot_global_mpas_field(
         Whether to enforce the aspect ratio of the figure according to lat,
         lon bounds
 
+    extent : tuple of float, optional
+        The ``(lon_min, lon_max, lat_min, lat_max)`` the map covers, in
+        degrees.  The map is scaled to the data being plotted if this is not
+        given.
+
+    circular_boundary : bool, optional
+        Whether to clip the map to a circle inscribed in the axes, which is
+        how a polar stereographic map of everything poleward of some latitude
+        is drawn.  Meaningless without ``extent``
+
     Returns
     -------
     descriptor : mosaic.Descriptor
@@ -151,7 +180,7 @@ def plot_global_mpas_field(
             mesh_ds.attrs['is_periodic'] = 'NO'
 
             if cell_indices is not None:
-                mesh_ds = mesh_ds.isel(nCells=cell_indices)
+                mesh_ds = _cull_mesh_to_cells(mesh_ds, cell_indices)
             descriptor = mosaic.Descriptor(
                 mesh_ds,
                 projection=projection,
@@ -162,8 +191,13 @@ def plot_global_mpas_field(
         fig = Figure(figsize=figsize, constrained_layout=True)
         ax = fig.add_subplot(111, projection=projection)
 
+        if extent is not None:
+            ax.set_extent(extent, crs=cartopy.crs.PlateCarree())
+        if circular_boundary:
+            _set_circular_boundary(ax)
+
         if title is not None:
-            add_fitted_suptitle(fig, title, y=0.935)
+            add_fitted_suptitle(fig, title)
 
         colormap, norm, ticks = setup_colormap(config, colormap_section)
 
@@ -179,6 +213,7 @@ def plot_global_mpas_field(
         )
         gl.right_labels = False
         gl.top_labels = False
+        make_room_for_gridline_labels(ax)
 
         if plot_land:
             _add_land_lakes_coastline(ax)
@@ -231,6 +266,7 @@ def plot_global_lat_lon_field(
     title=None,
     plot_land=True,
     colorbar_label=None,
+    figsize=(8, 4.5),
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -277,6 +313,10 @@ def plot_global_lat_lon_field(
 
     colorbar_label : str, optional
         Label on the colorbar
+
+    figsize : tuple, optional
+        The size of the figure in inches.  A size that matches the aspect
+        ratio of the map leaves the least empty canvas around it
     """
 
     with mplstyle_context():
@@ -301,10 +341,9 @@ def plot_global_lat_lon_field(
                 f'be either {nlat} or {nlat + 1}'
             )
 
-        figsize = (8, 4.5)
         fig = Figure(figsize=figsize)
         if title is not None:
-            add_fitted_suptitle(fig, title, y=0.935)
+            add_fitted_suptitle(fig, title)
 
         subplots = [111]
         ref_projection = cartopy.crs.PlateCarree()
@@ -330,6 +369,7 @@ def plot_global_lat_lon_field(
         )
         gl.right_labels = False
         gl.top_labels = False
+        make_room_for_gridline_labels(ax)
 
         plotHandle = ax.pcolormesh(
             lon_corner,
@@ -435,6 +475,75 @@ def setup_colormap(config, colormap_section):
         colormap.set_over(over_color)
 
     return colormap, norm, ticks
+
+
+def _set_circular_boundary(ax):
+    """
+    Clip a map to the circle inscribed in its axes
+
+    A polar stereographic map of everything poleward of some latitude is a
+    disc, but the axes are rectangular, so without this the corners are drawn
+    too and the map reads as a box with a cap in it.
+
+    Parameters
+    ----------
+    ax : cartopy.mpl.geoaxes.GeoAxes
+        The map axes to clip
+    """
+    theta = np.linspace(0.0, 2.0 * np.pi, 100)
+    vertices = np.column_stack([np.sin(theta), np.cos(theta)])
+    ax.set_boundary(mpath.Path(0.5 * vertices + 0.5), transform=ax.transAxes)
+
+
+def _cull_mesh_to_cells(mesh_ds, cell_indices):
+    """
+    Cull an MPAS mesh down to a subset of its cells
+
+    Selecting cells with ``isel(nCells=...)`` alone leaves the edge and vertex
+    dimensions at their original size and the connectivity arrays pointing at
+    cells that are no longer there.  Mosaic then culls the mesh again for the
+    projection, and indexes those stale arrays out of bounds.
+
+    ``mosaic.utils.cull_mesh()`` does the job properly, but it expects
+    zero-based connectivity, so the arrays are shifted into that convention
+    and back again around the call.  The shift back is faithful: mosaic marks
+    a neighbor it culled with ``-2`` and a land boundary with ``-1``, which
+    become ``-1`` and ``0`` here and are read back as ``-2`` and ``-1`` when
+    the descriptor zero-bases them again.
+
+    Parameters
+    ----------
+    mesh_ds : xarray.Dataset
+        An MPAS mesh, with one-based connectivity arrays
+
+    cell_indices : integer array
+        The cells to keep.  Cells are kept in mesh order, so a field plotted
+        on the culled mesh must be selected the same way.
+
+    Returns
+    -------
+    culled_ds : xarray.Dataset
+        The mesh with only those cells, and the edges and vertices that
+        touch them
+    """
+    culled_ds = mesh_ds.copy()
+    for array_name in _CONNECTIVITY_ARRAYS:
+        dim = 'n' + array_name.split('On')[0].title()
+        zero_based = culled_ds[array_name] - 1
+        # some meshes mark "no neighbor" with the size of the dimension
+        # rather than with zero, which is out of bounds once zero-based
+        culled_ds[array_name] = xr.where(
+            zero_based == mesh_ds.sizes[dim], -1, zero_based
+        )
+
+    cells_to_cull = np.ones(mesh_ds.sizes['nCells'], dtype=bool)
+    cells_to_cull[cell_indices] = False
+    culled_ds = mosaic.utils.cull_mesh(culled_ds, cells_to_cull)
+
+    for array_name in _CONNECTIVITY_ARRAYS:
+        culled_ds[array_name] = culled_ds[array_name] + 1
+
+    return culled_ds
 
 
 def _add_land_lakes_coastline(ax, ice_shelves=True):

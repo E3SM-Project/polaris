@@ -136,3 +136,32 @@ def add_fitted_suptitle(fig, title, y=None, min_fontsize=8.0):
         text.set_verticalalignment('top')
 
     return text
+
+
+def make_room_for_gridline_labels(ax):
+    """
+    Let the layout engine reserve room for a map's gridline labels
+
+    Cartopy draws gridline labels outside the axes, so a layout engine only
+    leaves room for them if the axes report a finite tight bounding box.  A
+    ``GeoAxes`` does not.  Whenever its gridliner draws top or "geo" labels ---
+    and geo labels are on by default --- cartopy repositions the axes titles
+    to sit above them, and lands them at an infinite position.  Matplotlib
+    folds the titles into the tight bounding box, so the box comes back as
+    ``nan``, the layout engine reserves nothing, and the labels are drawn off
+    the canvas: the outermost longitude label is cut in half and every
+    latitude label is lost entirely.
+
+    Giving the title an explicit position turns cartopy's repositioning off,
+    which is all it takes for the bounding box to be finite and the margins to
+    be reserved.  Polaris titles its spherical plots with ``fig.suptitle()``,
+    so the axes titles are empty and nothing is drawn differently.
+
+    Parameters
+    ----------
+    ax : cartopy.mpl.geoaxes.GeoAxes
+        The map axes whose gridline labels need room
+    """
+    # passing an explicit ``y`` is what tells matplotlib and cartopy that the
+    # title has been placed by hand and must not be moved
+    ax.set_title('', y=1.0)
