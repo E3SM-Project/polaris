@@ -1,11 +1,12 @@
 """
-Unit tests for the room a spherical plot leaves for its gridline labels.
+Unit tests for the room a spherical plot leaves around its map.
 
 Cartopy draws gridline labels outside the axes, and a ``GeoAxes`` reports a
 non-finite tight bounding box, so the layout engine reserves no room for them
 and they are drawn off the canvas: the outermost longitude label is cut in
 half and every latitude label is lost entirely.  These check that the axes
-report a finite bounding box and that every label lands inside the figure.
+report a finite bounding box, that every label lands inside the figure, and
+that the title clears the map rather than being drawn over it.
 
 They run in the Polaris style, since that is what sets the figure size and
 label size the plots are actually drawn with.
@@ -17,7 +18,11 @@ import pytest
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 
-from polaris.viz.helper import get_projection, make_room_for_gridline_labels
+from polaris.viz.helper import (
+    add_fitted_suptitle,
+    get_projection,
+    make_room_for_gridline_labels,
+)
 from polaris.viz.style import mplstyle_context
 
 # a rectangular projection, one with a curved boundary, an interrupted one and
@@ -30,15 +35,19 @@ PROJECTIONS = [
 ]
 
 
-def _figure(projection_name, make_room):
+def _figure(
+    projection_name, make_room, figsize=(8, 4.5), title=None, title_y=None
+):
     """Build the figure that ``plot_global_mpas_field()`` builds"""
     projection = get_projection(projection_name)
-    fig = Figure(figsize=(8, 4.5), constrained_layout=True)
+    fig = Figure(figsize=figsize, constrained_layout=True)
     # measuring rendered labels needs a canvas that can produce a renderer;
     # a bare figure carries one that cannot
     FigureCanvasAgg(fig)
     ax = fig.add_subplot(111, projection=projection)
     ax.set_global()
+    if title is not None:
+        add_fitted_suptitle(fig, title, y=title_y)
     gl = ax.gridlines(color='gray', linestyle=':', zorder=5, draw_labels=True)
     gl.right_labels = False
     gl.top_labels = False
@@ -81,6 +90,39 @@ def test_no_gridline_label_is_cropped(projection_name):
         bbox = ax.get_tightbbox(fig.canvas.get_renderer())
         assert np.isfinite([bbox.x0, bbox.y0, bbox.x1, bbox.y1]).all()
         assert _cropped_labels(fig, gl) == []
+
+
+# the default figure is wider than a global map is tall, so a title placed a
+# fixed distance from the top of the canvas happens to clear the map; a figure
+# sized to a taller projection is where that goes wrong
+@pytest.mark.parametrize('figsize', [(8, 4.5), (8, 6.4)])
+def test_the_title_clears_the_map(figsize):
+    with mplstyle_context():
+        fig, ax, _ = _figure(
+            'Mercator', make_room=True, figsize=figsize, title='a title'
+        )
+        renderer = fig.canvas.get_renderer()
+        title = fig._suptitle.get_window_extent(renderer=renderer)
+        assert title.ymin >= ax.get_window_extent(renderer).ymax
+        assert title.ymax <= fig.bbox.y1
+
+
+def test_a_title_at_a_fixed_height_lands_on_the_map():
+    """The bug the test above guards against: a hand-placed title is one the
+    layout engine does not reserve room for, so a figure sized to a taller
+    projection draws it over the map.  0.935 is where the title used to be
+    pinned."""
+    with mplstyle_context():
+        fig, ax, _ = _figure(
+            'Mercator',
+            make_room=True,
+            figsize=(8, 6.4),
+            title='a title',
+            title_y=0.935,
+        )
+        renderer = fig.canvas.get_renderer()
+        title = fig._suptitle.get_window_extent(renderer=renderer)
+        assert title.ymin < ax.get_window_extent(renderer).ymax
 
 
 def test_labels_are_cropped_without_the_fix():
