@@ -1,5 +1,5 @@
 """
-Unit tests for culling a mesh down to the cells that are being plotted.
+Unit tests for restricting a spherical plot to part of the globe.
 
 Selecting cells with ``isel(nCells=...)`` leaves the connectivity arrays
 pointing at cells that are no longer there, and mosaic indexes them out of
@@ -12,8 +12,14 @@ import mosaic
 import numpy as np
 import pytest
 import xarray as xr
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
 
-from polaris.viz.spherical import _CONNECTIVITY_ARRAYS, _cull_mesh_to_cells
+from polaris.viz.spherical import (
+    _CONNECTIVITY_ARRAYS,
+    _cull_mesh_to_cells,
+    _set_circular_boundary,
+)
 
 
 def test_the_connectivity_arrays_match_mosaic():
@@ -183,3 +189,33 @@ def _quad_mesh_dataset(nx, ny):
     mesh_ds.attrs['sphere_radius'] = 6371229.0
     mesh_ds.attrs['is_periodic'] = 'NO'
     return mesh_ds
+
+
+def test_a_circular_boundary_leaves_the_corners_undrawn():
+    """A polar map of everything poleward of a latitude is a disc, not a box"""
+    corner, centre = _corner_and_centre(circular=True)
+    assert tuple(centre) == (255, 0, 0)
+    assert tuple(corner) == (255, 255, 255)
+
+
+def test_the_corners_are_drawn_without_a_circular_boundary():
+    """So the test above cannot pass vacuously"""
+    corner, centre = _corner_and_centre(circular=False)
+    assert tuple(centre) == (255, 0, 0)
+    assert tuple(corner) == (255, 0, 0)
+
+
+def _corner_and_centre(circular):
+    """Render a polar map filled with red and sample two of its pixels"""
+    fig = Figure(figsize=(2, 2), dpi=100)
+    canvas = FigureCanvasAgg(fig)
+    ax = fig.add_subplot(111, projection=ccrs.NorthPolarStereo())
+    # fill the figure, so that a corner of the axes is a corner of the image
+    ax.set_position((0.0, 0.0, 1.0, 1.0))
+    ax.set_extent((-180.0, 180.0, 60.0, 90.0), crs=ccrs.PlateCarree())
+    ax.patch.set_facecolor('red')
+    if circular:
+        _set_circular_boundary(ax)
+    canvas.draw()
+    rgba = np.asarray(canvas.buffer_rgba())
+    return rgba[3, 3, :3], rgba[100, 100, :3]
