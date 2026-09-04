@@ -20,6 +20,7 @@
       ~MixingAnalysis.add_input_file
       ~MixingAnalysis.add_output_file
       ~MixingAnalysis.add_output_files_for_ocean_model_input
+      ~MixingAnalysis.add_produced_file
       ~MixingAnalysis.add_vert_coord_input_file
       ~MixingAnalysis.check_properties
       ~MixingAnalysis.constrain_resources

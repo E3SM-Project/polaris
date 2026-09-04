@@ -112,7 +112,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.analysis.global_stats</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.analysis_plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_global_stats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.global_stats_names</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">STAT_DESCRIPTIONS</span><span class="p">,</span>
+    <span class="n">discover_fields</span><span class="p">,</span>
+    <span class="n">select_global_stats</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_simulation_years</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.analysis.analysis_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisStep</span>
 
 
 <div class="viewcode-block" id="GlobalStatsTimeSeries">
@@ -121,6 +130,14 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A step that plots time series of the quantities in the simulation's global</span>
 <span class="sd">    statistics output</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time_mean_period : str or None</span>
+<span class="sd">        The period the statistics were averaged over, if the simulation wrote</span>
+<span class="sd">        time means, or ``None`` if it wrote snapshots.  The two are spelled</span>
+<span class="sd">        differently in the file, so which one it is has to be known before the</span>
+<span class="sd">        variables can be looked up.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="GlobalStatsTimeSeries.__init__">
@@ -151,7 +168,8 @@
             <span class="n">end_year</span><span class="o">=</span><span class="n">end_year</span><span class="p">,</span>
             <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_mean_period</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="GlobalStatsTimeSeries.setup">
@@ -163,18 +181,193 @@
         <span class="n">sim_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sim_files</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_sim_input_files</span><span class="p">(</span>
             <span class="n">sim_files</span><span class="o">.</span><span class="n">global_stats_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">sim_files</span><span class="o">.</span><span class="n">global_stats_stream</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_mean_period</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">period</span> <span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">is_reduction</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="GlobalStatsTimeSeries.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.run.html#polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Report the statistics files; no time series are plotted yet</span>
+<span class="sd">        Plot a time series of each field's global statistics, and write the</span>
+<span class="sd">        data behind each plot beside it</span>
 <span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">()</span></div>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_inputs</span><span class="p">()</span>
 
+        <span class="n">section</span> <span class="o">=</span> <span class="s1">'ocean_analysis_time_series'</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s1">'stats'</span><span class="p">)</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_stats</span><span class="p">()</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">select_global_stats</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span>
+            <span class="n">fields</span><span class="o">=</span><span class="n">fields</span><span class="p">,</span>
+            <span class="n">stats</span><span class="o">=</span><span class="n">stats</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="s1">'omega'</span><span class="p">,</span>
+            <span class="n">field_map</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_field_map</span><span class="p">(</span><span class="n">fields</span><span class="p">),</span>
+            <span class="n">time_mean_period</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">time_mean_period</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">),</span>
+            <span class="n">hint</span><span class="o">=</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'A simulation writes some subset of the fields and '</span>
+                <span class="sa">f</span><span class="s1">'statistics [</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">] asks for, but none of them usually '</span>
+                <span class="sa">f</span><span class="s1">'means that years </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="si">}</span><span class="s1"> through '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="si">}</span><span class="s1"> are not years the simulation covers, or '</span>
+                <span class="sa">f</span><span class="s1">'that its GlobalStats analysis group named a stream other '</span>
+                <span class="sa">f</span><span class="s1">'than the one it wrote.'</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">time</span> <span class="o">=</span> <span class="n">get_simulation_years</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span> <span class="ow">in</span> <span class="n">found</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_field</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_open_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Open the global statistics files as one series</span>
+
+<span class="sd">        The variables keep the names Omega gave them, since those are the</span>
+<span class="sd">        names the analysis builds and looks for.</span>
+<span class="sd">        """</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">],</span>
+            <span class="n">combine</span><span class="o">=</span><span class="s1">'nested'</span><span class="p">,</span>
+            <span class="n">concat_dim</span><span class="o">=</span><span class="s1">'time'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'Scalar'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="c1"># Omega writes each global statistic as a field of one point</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Scalar</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># the rest of Polaris spells the time dimension the MPAS-Ocean way</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'time'</span><span class="p">:</span> <span class="s1">'Time'</span><span class="p">})</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the fields to plot, in Polaris-standard names"""</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis_time_series'</span><span class="p">,</span> <span class="s1">'fields'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fields</span>
+        <span class="c1"># an empty option asks for whatever the simulation wrote</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">map_var_list_from_native_model</span><span class="p">(</span>
+            <span class="n">discover_fields</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">'omega'</span><span class="p">,</span> <span class="n">time_mean_period</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">time_mean_period</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_field_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the name Omega gave each configured field"""</span>
+        <span class="n">native</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="n">native</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Plot one field's statistics and write the data beside the plot"""</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">stat</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">stat</span><span class="p">,</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">field_stats</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="c1"># the file is named for the field alone; the publish step prefixes</span>
+        <span class="c1"># the product group when it publishes it</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">field</span>
+        <span class="n">simulation_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">)</span>
+
+        <span class="n">plot_global_stats</span><span class="p">(</span>
+            <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
+            <span class="n">stats</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">field_name</span><span class="o">=</span><span class="n">_axis_label</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">),</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">),</span>
+            <span class="n">x_label</span><span class="o">=</span><span class="s1">'Simulation years'</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">simulation_name</span><span class="si">}</span><span class="s1">: global </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_produced_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_plot_data</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">field_stats</span><span class="o">=</span><span class="n">field_stats</span><span class="p">,</span>
+            <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
+            <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">out_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_produced_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">)</span>
+
+        <span class="c1"># the group is the kind of product rather than the task that made</span>
+        <span class="c1"># it, so that every time series shares one section of the landing</span>
+        <span class="c1"># page.  One gallery for all of the global statistics: a page per</span>
+        <span class="c1"># field would be a page with one plot on it.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_product</span><span class="p">(</span>
+            <span class="n">plot</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="s1">'time_series'</span><span class="p">,</span>
+            <span class="n">gallery</span><span class="o">=</span><span class="s1">'global_stats'</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'Global </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">stats</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">field_stats</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">: plotted the </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field_stats</span><span class="p">)</span><span class="si">}</span><span class="s1"> in </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.png'</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_plot_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">out_filename</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Write exactly what was plotted, so it can be checked again"""</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">)</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s1">'simulationYears'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">time</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'Time'</span><span class="p">,),</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'simulation year, from the calendar date'</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'years'</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">stat</span><span class="p">,</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">field_stats</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">stat</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">values</span><span class="p">[</span><span class="n">stat</span><span class="p">],</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'Time'</span><span class="p">,),</span>
+                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">'long_name'</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">STAT_DESCRIPTIONS</span><span class="p">[</span><span class="n">stat</span><span class="p">]</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                    <span class="s1">'units'</span><span class="p">:</span> <span class="n">units</span><span class="p">,</span>
+                    <span class="s1">'omega_name'</span><span class="p">:</span> <span class="n">var_name</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'field'</span><span class="p">:</span> <span class="n">field</span><span class="p">,</span>
+            <span class="s1">'statistics'</span><span class="p">:</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field_stats</span><span class="p">),</span>
+            <span class="s1">'simulation_name'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span>
+            <span class="p">),</span>
+            <span class="s1">'start_year'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_year</span><span class="p">,</span>
+            <span class="s1">'end_year'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_year</span><span class="p">,</span>
+            <span class="s1">'time_mean_period'</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s1">'none; these are snapshots'</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_mean_period</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_mean_period</span>
+            <span class="p">),</span>
+            <span class="s1">'source_files'</span><span class="p">:</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_filenames</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">ds_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">out_filename</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_axis_label</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Label the vertical axes with the field and its units, if it has any"""</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="n">_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s1">)'</span>
+    <span class="k">return</span> <span class="n">field</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">field_stats</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the units the statistics of a field were written with"""</span>
+    <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">field_stats</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'units'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s1">''</span>
 </pre></div>
 
            </div>

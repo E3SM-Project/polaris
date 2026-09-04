@@ -250,7 +250,7 @@
 <td><p>Link the simulation's global statistics output</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.run.html#polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.run" title="polaris.tasks.ocean.analysis.global_stats.GlobalStatsTimeSeries.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_stats.GlobalStatsTimeSeries.run</span></code></a>()</p></td>
-<td><p>Report the statistics files; no time series are plotted yet</p></td>
+<td><p>Plot a time series of each field's global statistics, and write the data behind each plot beside it</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries.html#polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries" title="polaris.tasks.ocean.analysis.heat_content_series.HeatContentSeries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">heat_content_series.HeatContentSeries</span></code></a>(...)</p></td>
 <td><p>A step that reduces each month of the simulation to globally integrated ocean heat content over a set of elevation ranges, and plots the series</p></td>
@@ -315,19 +315,22 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles.global_stats_files</span></code></a>(...)</p></td>
 <td><p>Get the global statistics output files covering a range of years</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles.moc_files</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_stream.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_stream" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles.global_stats_stream</span></code></a>()</p></td>
+<td><p>Get the output stream the global statistics are read from</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.SimulationFiles.moc_files</span></code></a>(...)</p></td>
 <td><p>Get the meridional overturning circulation output files covering a range of years</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.read_omega_config.html#polaris.tasks.ocean.analysis.sim_files.read_omega_config" title="polaris.tasks.ocean.analysis.sim_files.read_omega_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.read_omega_config</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.read_omega_config.html#polaris.tasks.ocean.analysis.sim_files.read_omega_config" title="polaris.tasks.ocean.analysis.sim_files.read_omega_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.read_omega_config</span></code></a>(filename)</p></td>
 <td><p>Read the configuration file of the simulation being analyzed</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template" title="polaris.tasks.ocean.analysis.sim_files.expand_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.expand_template</span></code></a>(template, ...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template" title="polaris.tasks.ocean.analysis.sim_files.expand_template"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.expand_template</span></code></a>(template, ...[, ...])</p></td>
 <td><p>Expand a file-name template over a range of years</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.check_files_exist.html#polaris.tasks.ocean.analysis.sim_files.check_files_exist" title="polaris.tasks.ocean.analysis.sim_files.check_files_exist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.check_files_exist</span></code></a>(sim_files, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.check_files_exist.html#polaris.tasks.ocean.analysis.sim_files.check_files_exist" title="polaris.tasks.ocean.analysis.sim_files.check_files_exist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.check_files_exist</span></code></a>(sim_files, ...)</p></td>
 <td><p>Check that every expanded file exists, reporting the missing years and months rather than a bare list of paths</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.year_range_key.html#polaris.tasks.ocean.analysis.sim_files.year_range_key" title="polaris.tasks.ocean.analysis.sim_files.year_range_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.year_range_key</span></code></a>(start_year, end_year)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.year_range_key.html#polaris.tasks.ocean.analysis.sim_files.year_range_key" title="polaris.tasks.ocean.analysis.sim_files.year_range_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_files.year_range_key</span></code></a>(start_year, end_year)</p></td>
 <td><p>Get the key for a range of years, used both for step subdirectories and for the names of published files</p></td>
 </tr>
 </tbody>
@@ -1009,7 +1012,7 @@
 <td><p>A task for exercising the global-statistics analysis member on a realistic global mesh.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats_analysis.StatsAnalysis</span></code></a>(component, ...)</p></td>
-<td><p></p></td>
+<td><p>A step that plots time series of the global statistics a forward step wrote</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.setup.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.setup" title="polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats_analysis.StatsAnalysis.setup</span></code></a>()</p></td>
 <td><p>Set up the task in the work directory, including downloading any dependencies.</p></td>
@@ -1213,6 +1216,35 @@
 </section>
 <section id="ocean-framework">
 <h2>Ocean Framework<a class="headerlink" href="#ocean-framework" title="Link to this heading"></a></h2>
+<section id="analysis-plots">
+<h3>Analysis plots<a class="headerlink" href="#analysis-plots" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.analysis_plots.plot_global_stats.html#polaris.ocean.analysis_plots.plot_global_stats" title="polaris.ocean.analysis_plots.plot_global_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_global_stats</span></code></a>(time, stats, field_name, ...)</p></td>
+<td><p>Plot a time series of the global statistics of one field</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="global-statistics">
+<h3>Global statistics<a class="headerlink" href="#global-statistics" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.global_stats_names.available_stats.html#polaris.ocean.global_stats_names.available_stats" title="polaris.ocean.global_stats_names.available_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">available_stats</span></code></a>(model)</p></td>
+<td><p>Get the global statistics a model computes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.global_stats_names.global_stats_var_names.html#polaris.ocean.global_stats_names.global_stats_var_names" title="polaris.ocean.global_stats_names.global_stats_var_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_stats_var_names</span></code></a>(fields, stats, model)</p></td>
+<td><p>Build the names of the global statistics variables to look for</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.global_stats_names.discover_fields.html#polaris.ocean.global_stats_names.discover_fields" title="polaris.ocean.global_stats_names.discover_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_fields</span></code></a>(ds, model[, time_mean_period])</p></td>
+<td><p>Get the fields a dataset holds global statistics for</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.global_stats_names.select_global_stats.html#polaris.ocean.global_stats_names.select_global_stats" title="polaris.ocean.global_stats_names.select_global_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_global_stats</span></code></a>(ds, fields, stats, model)</p></td>
+<td><p>Intersect the requested (field, statistic) pairs with what a dataset holds</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="conservation-utilities">
 <h3>Conservation utilities<a class="headerlink" href="#conservation-utilities" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -1329,67 +1361,76 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.process_inputs_and_outputs.html#polaris.ocean.model.OceanIOStep.process_inputs_and_outputs" title="polaris.ocean.model.OceanIOStep.process_inputs_and_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.process_inputs_and_outputs</span></code></a>()</p></td>
 <td><p>Resolve <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;placeholder&gt;&gt;&gt;</span></code> filenames to configured names and drop <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;vert_coord&gt;&gt;&gt;</span></code> entries for MPAS-Ocean before delegating to the base <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">Step</span></code></a> processing.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_horiz_mesh_input_file.html#polaris.ocean.model.OceanIOStep.add_horiz_mesh_input_file" title="polaris.ocean.model.OceanIOStep.add_horiz_mesh_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.add_horiz_mesh_input_file</span></code></a>(**kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_produced_file.html#polaris.ocean.model.OceanIOStep.add_produced_file" title="polaris.ocean.model.OceanIOStep.add_produced_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.add_produced_file</span></code></a>(filename)</p></td>
+<td><p>Register a file the step has just written as one of its outputs</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_horiz_mesh_input_file.html#polaris.ocean.model.OceanIOStep.add_horiz_mesh_input_file" title="polaris.ocean.model.OceanIOStep.add_horiz_mesh_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.add_horiz_mesh_input_file</span></code></a>(**kwargs)</p></td>
 <td><p>Add the horizontal-mesh input file using a placeholder that is resolved to the configured filename at <code class="xref py py-meth docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code> time.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_vert_coord_input_file.html#polaris.ocean.model.OceanIOStep.add_vert_coord_input_file" title="polaris.ocean.model.OceanIOStep.add_vert_coord_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.add_vert_coord_input_file</span></code></a>([filename])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_vert_coord_input_file.html#polaris.ocean.model.OceanIOStep.add_vert_coord_input_file" title="polaris.ocean.model.OceanIOStep.add_vert_coord_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.add_vert_coord_input_file</span></code></a>([filename])</p></td>
 <td><p>Add the vertical-coordinate input file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_init_input_file.html#polaris.ocean.model.OceanIOStep.add_init_input_file" title="polaris.ocean.model.OceanIOStep.add_init_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.add_init_input_file</span></code></a>(**kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_init_input_file.html#polaris.ocean.model.OceanIOStep.add_init_input_file" title="polaris.ocean.model.OceanIOStep.add_init_input_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.add_init_input_file</span></code></a>(**kwargs)</p></td>
 <td><p>Add the initial-condition input file using a placeholder that is resolved to the configured filename at <code class="xref py py-meth docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code> time.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.get_horiz_mesh_filename.html#polaris.ocean.model.OceanIOStep.get_horiz_mesh_filename" title="polaris.ocean.model.OceanIOStep.get_horiz_mesh_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.get_horiz_mesh_filename</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.get_horiz_mesh_filename.html#polaris.ocean.model.OceanIOStep.get_horiz_mesh_filename" title="polaris.ocean.model.OceanIOStep.get_horiz_mesh_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.get_horiz_mesh_filename</span></code></a>()</p></td>
 <td><p>Get the configured local filename for the horizontal mesh file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.get_vert_coord_filename.html#polaris.ocean.model.OceanIOStep.get_vert_coord_filename" title="polaris.ocean.model.OceanIOStep.get_vert_coord_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.get_vert_coord_filename</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.get_vert_coord_filename.html#polaris.ocean.model.OceanIOStep.get_vert_coord_filename" title="polaris.ocean.model.OceanIOStep.get_vert_coord_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.get_vert_coord_filename</span></code></a>()</p></td>
 <td><p>Get the configured local filename for the vertical coordinate file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.get_init_filename.html#polaris.ocean.model.OceanIOStep.get_init_filename" title="polaris.ocean.model.OceanIOStep.get_init_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.get_init_filename</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.get_init_filename.html#polaris.ocean.model.OceanIOStep.get_init_filename" title="polaris.ocean.model.OceanIOStep.get_init_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.get_init_filename</span></code></a>()</p></td>
 <td><p>Get the configured local filename for the initial-condition file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_vert_coord_dataset.html#polaris.ocean.model.OceanIOStep.open_vert_coord_dataset" title="polaris.ocean.model.OceanIOStep.open_vert_coord_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.open_vert_coord_dataset</span></code></a>(ds_init)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_vert_coord_dataset.html#polaris.ocean.model.OceanIOStep.open_vert_coord_dataset" title="polaris.ocean.model.OceanIOStep.open_vert_coord_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.open_vert_coord_dataset</span></code></a>(ds_init)</p></td>
 <td><p>Return the dataset containing vertical-coordinate variables (<code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>, <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">vertCoordMovementWeights</span></code> and either <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> or <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_to_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_to_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_to_native_model_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.map_to_native_model_vars</span></code></a>(ds)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_to_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_to_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_to_native_model_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.map_to_native_model_vars</span></code></a>(ds)</p></td>
 <td><p>If the model is Omega, rename dimensions and variables in a dataset from their MPAS-Ocean names to the Omega equivalent (appropriate for input datasets like an initial condition)</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.write_model_dataset.html#polaris.ocean.model.OceanIOStep.write_model_dataset" title="polaris.ocean.model.OceanIOStep.write_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.write_model_dataset</span></code></a>(ds, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.write_model_dataset.html#polaris.ocean.model.OceanIOStep.write_model_dataset" title="polaris.ocean.model.OceanIOStep.write_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.write_model_dataset</span></code></a>(ds, ...)</p></td>
 <td><p>Write out the given dataset, mapping dimension and variable names from MPAS-Ocean to Omega names if appropriate</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_from_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_from_native_model_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.map_from_native_model_vars</span></code></a>(ds)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_from_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_from_native_model_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.map_from_native_model_vars</span></code></a>(ds)</p></td>
 <td><p>If the model is Omega, rename dimensions and variables in a dataset from their Omega names to the MPAS-Ocean equivalent (appropriate for datasets that are output from the model)</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.open_model_dataset</span></code></a>(filename, config)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.open_model_dataset</span></code></a>(filename, config)</p></td>
 <td><p>Open the given dataset, mapping variable and dimension names from Omega to MPAS-Ocean names if appropriate</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep</span></code></a>(component, name[, subdir, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep</span></code></a>(component, name[, subdir, ...])</p></td>
 <td><p>An Omega or MPAS-Ocean step</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.setup.html#polaris.ocean.model.OceanModelStep.setup" title="polaris.ocean.model.OceanModelStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.setup</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.setup.html#polaris.ocean.model.OceanModelStep.setup" title="polaris.ocean.model.OceanModelStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.setup</span></code></a>()</p></td>
 <td><p>Determine if we will make yaml files or namelists and streams files, then, determine the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.check_properties.html#polaris.ocean.model.OceanModelStep.check_properties" title="polaris.ocean.model.OceanModelStep.check_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.check_properties</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.check_properties.html#polaris.ocean.model.OceanModelStep.check_properties" title="polaris.ocean.model.OceanModelStep.check_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.check_properties</span></code></a>()</p></td>
 <td><p>This method should be overridden to check properties of step outputs</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources" title="polaris.ocean.model.OceanModelStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.constrain_resources</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources" title="polaris.ocean.model.OceanModelStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.constrain_resources</span></code></a>(...)</p></td>
 <td><p>Update the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count" title="polaris.ocean.model.OceanModelStep.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.compute_cell_count</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count" title="polaris.ocean.model.OceanModelStep.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options" title="polaris.ocean.model.OceanModelStep.map_yaml_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_options</span></code></a>(options, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options" title="polaris.ocean.model.OceanModelStep.map_yaml_options"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_options</span></code></a>(options, ...)</p></td>
 <td><p>A mapping between model config options from MPAS-Ocean to Omega</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs" title="polaris.ocean.model.OceanModelStep.map_yaml_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_configs</span></code></a>(configs, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs" title="polaris.ocean.model.OceanModelStep.map_yaml_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_configs</span></code></a>(configs, ...)</p></td>
 <td><p>A mapping between model sections and config options from MPAS-Ocean to Omega</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelFilesMixin.html#polaris.ocean.model.OceanModelFilesMixin" title="polaris.ocean.model.OceanModelFilesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelFilesMixin</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelFilesMixin.html#polaris.ocean.model.OceanModelFilesMixin" title="polaris.ocean.model.OceanModelFilesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelFilesMixin</span></code></a>()</p></td>
 <td><p>Mixin providing access to the <code class="docutils literal notranslate"><span class="pre">[ocean_staged_files]</span></code> config section and the shared placeholder mechanism for the three canonical ocean dataset files (horizontal mesh, vertical coordinate, initial state).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_days_since_start.html#polaris.ocean.model.get_days_since_start" title="polaris.ocean.model.get_days_since_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_days_since_start</span></code></a>(ds)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_days_since_start.html#polaris.ocean.model.get_days_since_start" title="polaris.ocean.model.get_days_since_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_days_since_start</span></code></a>(ds)</p></td>
 <td><p>Ocean model output may or may not include 'daysSinceStartOfSim'.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string" title="polaris.ocean.model.get_time_interval_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_interval_string</span></code></a>([days, seconds])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_simulation_years.html#polaris.ocean.model.get_simulation_years" title="polaris.ocean.model.get_simulation_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulation_years</span></code></a>(ds[, time_var])</p></td>
+<td><p>Get the time axis of a dataset in decimal simulation years</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.days_per_year.html#polaris.ocean.model.days_per_year" title="polaris.ocean.model.days_per_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">days_per_year</span></code></a>(calendar)</p></td>
+<td><p>Get the length of a year in days in a given calendar</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string" title="polaris.ocean.model.get_time_interval_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_interval_string</span></code></a>([days, seconds])</p></td>
 <td><p>Convert a time interval in days and/or seconds to a string for use in a model config option.</p></td>
 </tr>
 </tbody>

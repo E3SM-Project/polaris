@@ -707,16 +707,19 @@
 <span class="sd">        If the model is Omega, rename variables from their Omega names to</span>
 <span class="sd">        the MPAS-Ocean equivalent</span>
 
+<span class="sd">        A variable with no entry in the map keeps its own name, which is the</span>
+<span class="sd">        right answer for a field only Omega has.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        var_list : list of str</span>
-<span class="sd">            A list of MPAS-Ocean variable names</span>
+<span class="sd">            A list of variable names native to the ocean model being run</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        renamed_vars : list of str</span>
-<span class="sd">            The same list with variables renamed as appropriate for the</span>
-<span class="sd">            ocean model being run</span>
+<span class="sd">            The same list, in the same order, with variables renamed to their</span>
+<span class="sd">            MPAS-Ocean equivalents</span>
 <span class="sd">        """</span>
         <span class="n">renamed_vars</span> <span class="o">=</span> <span class="n">var_list</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
@@ -724,11 +727,10 @@
             <span class="c1"># switch keys and values in mpaso_to_omega maps to get</span>
             <span class="c1"># omega to mpaso maps</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="n">renamed_vars</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">v</span>
-                <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">var_list</span>
-            <span class="p">]</span>
+            <span class="n">omega_to_mpaso</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+            <span class="n">renamed_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">omega_to_mpaso</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">renamed_vars</span></div>
 
 

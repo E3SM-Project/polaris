@@ -20,6 +20,7 @@
       ~AnalysisStep.add_input_file
       ~AnalysisStep.add_output_file
       ~AnalysisStep.add_output_files_for_ocean_model_input
+      ~AnalysisStep.add_produced_file
       ~AnalysisStep.add_product
       ~AnalysisStep.add_sim_input_file
       ~AnalysisStep.add_sim_input_files

@@ -20,6 +20,7 @@
       ~HeatContentSeries.add_input_file
       ~HeatContentSeries.add_output_file
       ~HeatContentSeries.add_output_files_for_ocean_model_input
+      ~HeatContentSeries.add_produced_file
       ~HeatContentSeries.add_product
       ~HeatContentSeries.add_sim_input_file
       ~HeatContentSeries.add_sim_input_files

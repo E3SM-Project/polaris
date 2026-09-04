@@ -153,6 +153,92 @@
 
 
 
+<span class="c1"># the number of days in a year of each calendar cftime supports; the mixed</span>
+<span class="c1"># Julian/Gregorian calendars use the mean Gregorian year, which is what a</span>
+<span class="c1"># time axis in years wants</span>
+<span class="n">DAYS_PER_YEAR</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'noleap'</span><span class="p">:</span> <span class="mf">365.0</span><span class="p">,</span>
+    <span class="s1">'365_day'</span><span class="p">:</span> <span class="mf">365.0</span><span class="p">,</span>
+    <span class="s1">'all_leap'</span><span class="p">:</span> <span class="mf">366.0</span><span class="p">,</span>
+    <span class="s1">'366_day'</span><span class="p">:</span> <span class="mf">366.0</span><span class="p">,</span>
+    <span class="s1">'360_day'</span><span class="p">:</span> <span class="mf">360.0</span><span class="p">,</span>
+    <span class="s1">'julian'</span><span class="p">:</span> <span class="mf">365.25</span><span class="p">,</span>
+    <span class="s1">'standard'</span><span class="p">:</span> <span class="mf">365.2425</span><span class="p">,</span>
+    <span class="s1">'gregorian'</span><span class="p">:</span> <span class="mf">365.2425</span><span class="p">,</span>
+    <span class="s1">'proleptic_gregorian'</span><span class="p">:</span> <span class="mf">365.2425</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="days_per_year">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.days_per_year.html#polaris.ocean.model.days_per_year">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">days_per_year</span><span class="p">(</span><span class="n">calendar</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the length of a year in days in a given calendar</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    calendar : str</span>
+<span class="sd">        The name of a CF calendar, as ``xarray.DataArray.dt.calendar`` gives</span>
+<span class="sd">        it</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    days : float</span>
+<span class="sd">        The number of days in a year of that calendar</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the calendar is not one of those CF defines</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">calendar</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">DAYS_PER_YEAR</span><span class="p">:</span>
+        <span class="n">known</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DAYS_PER_YEAR</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Do not know the length of a year in the "</span><span class="si">{</span><span class="n">calendar</span><span class="si">}</span><span class="s1">" '</span>
+            <span class="sa">f</span><span class="s1">'calendar.  The calendars supported are: </span><span class="si">{</span><span class="n">known</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">DAYS_PER_YEAR</span><span class="p">[</span><span class="n">calendar</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_simulation_years">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.get_simulation_years.html#polaris.ocean.model.get_simulation_years">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_simulation_years</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">time_var</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the time axis of a dataset in decimal simulation years</span>
+
+<span class="sd">    The year comes from the calendar date itself rather than from an elapsed</span>
+<span class="sd">    time, so that a series covering years 21 through 40 is plotted at 21</span>
+<span class="sd">    through 41 -- the years the user asked for -- whatever reference date the</span>
+<span class="sd">    model happened to write its time coordinate against.  It also depends on</span>
+<span class="sd">    no attribute of the time variable beyond its calendar, so a file that has</span>
+<span class="sd">    been read and written again is handled the same as one straight from the</span>
+<span class="sd">    model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A dataset with a decoded time coordinate</span>
+
+<span class="sd">    time_var : str, optional</span>
+<span class="sd">        The name of the time coordinate</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    years : numpy.ndarray</span>
+<span class="sd">        The decimal simulation year of each time in the dataset</span>
+<span class="sd">    """</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">time_var</span><span class="p">]</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">days_per_year</span><span class="p">(</span><span class="n">times</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">calendar</span><span class="p">)</span>
+    <span class="n">seconds</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">times</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">hour</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">+</span> <span class="n">times</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">minute</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="n">times</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">second</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">day_of_year</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">dayofyear</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">year</span> <span class="o">+</span> <span class="p">(</span><span class="n">day_of_year</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">seconds</span> <span class="o">/</span> <span class="mf">86400.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">length</span></div>
+
+
+
 <div class="viewcode-block" id="get_time_interval_string">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

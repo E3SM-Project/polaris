@@ -113,17 +113,26 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.analysis_plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_global_stats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.global_stats_names</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">discover_fields</span><span class="p">,</span>
+    <span class="n">select_global_stats</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_days_since_start</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 
 <div class="viewcode-block" id="StatsAnalysis">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">StatsAnalysis</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step that plots time series of the global statistics a forward step</span>
+<span class="sd">    wrote</span>
+<span class="sd">    """</span>
+
 <div class="viewcode-block" id="StatsAnalysis.__init__">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -134,18 +143,13 @@
         <span class="n">output_filename</span><span class="o">=</span><span class="s1">'global_stats.nc'</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="s1">'global_stats'</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="c1"># TODO this should be replaced with model-specific state variables</span>
-        <span class="c1"># read from yaml</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">forward_step</span> <span class="o">=</span> <span class="n">forward_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span> <span class="o">=</span> <span class="n">output_filename</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">state_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">component</span><span class="o">.</span><span class="n">_read_variables_yaml</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">state_vars</span></div>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="StatsAnalysis.setup">
@@ -160,63 +164,82 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">variable_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">_stats.png'</span><span class="p">)</span></div>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="StatsAnalysis.run">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run.html#polaris.tasks.ocean.realistic_global.analysis_members.stats_analysis.StatsAnalysis.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">'Scalar'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-                <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Scalar</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">time</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">variable_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-                <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
-                    <span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-                <span class="p">)</span>
-                <span class="n">suffix</span> <span class="o">=</span> <span class="s1">'Min'</span>
-                <span class="n">var</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="s1">':k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">suffix</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">var</span> <span class="o">-</span> <span class="n">var</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">':k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">suffix</span><span class="p">)</span>
-                <span class="n">suffix</span> <span class="o">=</span> <span class="s1">'Max'</span>
-                <span class="n">var</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="s1">'--k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">suffix</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">var</span> <span class="o">-</span> <span class="n">var</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">'--k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">suffix</span><span class="p">)</span>
-                <span class="n">suffix</span> <span class="o">=</span> <span class="s1">'Avg'</span>
-                <span class="n">var_mean</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">var_mean</span><span class="p">,</span> <span class="s1">'-k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">suffix</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">var_mean</span> <span class="o">-</span> <span class="n">var_mean</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">'-k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">suffix</span><span class="p">)</span>
-                <span class="n">suffix</span> <span class="o">=</span> <span class="s1">'Rms'</span>
-                <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
-                    <span class="n">var_std</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_rms</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
-                    <span class="n">var_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
-                        <span class="n">var_rms</span><span class="o">.</span><span class="n">values</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">-</span> <span class="n">var_mean</span><span class="o">.</span><span class="n">values</span><span class="o">**</span><span class="mf">2.0</span>
-                    <span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
-                    <span class="n">time</span><span class="p">,</span>
-                    <span class="n">var_mean</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="n">var_std</span><span class="p">,</span>
-                    <span class="n">var_mean</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">var_std</span><span class="p">,</span>
-                    <span class="n">color</span><span class="o">=</span><span class="s1">'k'</span><span class="p">,</span>
-                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-                    <span class="n">label</span><span class="o">=</span><span class="s1">'SD'</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Days'</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Days'</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1"> at t=0'</span><span class="p">)</span>
-                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">time</span><span class="p">)])</span>
-                <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s1">_stats.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span></div>
-</div>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'output.nc'</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s1">'Scalar'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Scalar</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">select_global_stats</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span>
+            <span class="n">fields</span><span class="o">=</span><span class="n">fields</span><span class="p">,</span>
+            <span class="n">stats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">field_map</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_field_map</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="n">model</span><span class="p">),</span>
+            <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
+            <span class="n">hint</span><span class="o">=</span><span class="p">(</span>
+                <span class="s1">'Check that the global statistics analysis member was '</span>
+                <span class="s1">'enabled for the fields the plots are asked for.'</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">ds_time</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'time'</span><span class="p">:</span> <span class="s1">'Time'</span><span class="p">})</span> <span class="k">if</span> <span class="s1">'time'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span> <span class="k">else</span> <span class="n">ds</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds_time</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_stats</span> <span class="ow">in</span> <span class="n">found</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">stat</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">stat</span><span class="p">,</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">field_stats</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+            <span class="n">_add_standard_deviation</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s1">_stats.png'</span>
+            <span class="n">plot_global_stats</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
+                <span class="n">stats</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">field_name</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+                <span class="n">out_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_produced_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the fields to plot, in Polaris-standard names"""</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'analysis_members'</span><span class="p">,</span> <span class="s1">'fields'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fields</span>
+        <span class="c1"># the honest default: whatever the run wrote statistics for</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">map_var_list_from_native_model</span><span class="p">(</span>
+            <span class="n">discover_fields</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_field_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get the name the model gave each field"""</span>
+        <span class="n">native</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="n">native</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_standard_deviation</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get a standard deviation for the plot's envelope, deriving one from the</span>
+<span class="sd">    root-mean-square if that is what the model computed</span>
+
+<span class="sd">    MPAS-Ocean writes a root-mean-square where Omega writes a standard</span>
+<span class="sd">    deviation, so this is where the two are reconciled -- a conversion rather</span>
+<span class="sd">    than a difference of spelling, which is why it is not in the table of</span>
+<span class="sd">    names.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'std'</span> <span class="ow">in</span> <span class="n">values</span> <span class="ow">or</span> <span class="s1">'rms'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">values</span> <span class="ow">or</span> <span class="s1">'mean'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s1">'mean'</span><span class="p">]</span>
+    <span class="n">rms</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s1">'rms'</span><span class="p">]</span>
+    <span class="n">values</span><span class="p">[</span><span class="s1">'std'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rms</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">-</span> <span class="n">mean</span><span class="o">**</span><span class="mf">2.0</span><span class="p">)</span>
 </pre></div>
 
            </div>

@@ -752,6 +752,26 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="SimulationFiles.global_stats_stream">
+<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_stream.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.global_stats_stream">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">global_stats_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the output stream the global statistics are read from</span>
+
+<span class="sd">        The names of the variables in the file depend on whether the stream</span>
+<span class="sd">        holds time means or snapshots, so a step that reads them needs the</span>
+<span class="sd">        stream and not just its file name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        stream : AnalysisStream or None</span>
+<span class="sd">            The stream, or ``None`` if the simulation wrote no global</span>
+<span class="sd">            statistics</span>
+<span class="sd">        """</span>
+        <span class="n">streams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_config</span><span class="o">.</span><span class="n">analysis_streams</span><span class="p">(</span><span class="s1">'GlobalStats'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_preferred_analysis_stream</span><span class="p">(</span><span class="n">streams</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="SimulationFiles.moc_files">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles.moc_files">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">moc_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">end_year</span><span class="p">):</span>

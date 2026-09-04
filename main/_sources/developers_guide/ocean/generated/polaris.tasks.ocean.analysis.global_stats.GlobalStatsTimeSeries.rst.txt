@@ -20,6 +20,7 @@
       ~GlobalStatsTimeSeries.add_input_file
       ~GlobalStatsTimeSeries.add_output_file
       ~GlobalStatsTimeSeries.add_output_files_for_ocean_model_input
+      ~GlobalStatsTimeSeries.add_produced_file
       ~GlobalStatsTimeSeries.add_product
       ~GlobalStatsTimeSeries.add_sim_input_file
       ~GlobalStatsTimeSeries.add_sim_input_files

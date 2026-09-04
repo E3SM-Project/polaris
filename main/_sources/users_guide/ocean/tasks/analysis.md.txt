@@ -252,20 +252,72 @@ The suite is being built up product by product.  What exists so far:
 | task | product | status |
 | --- | --- | --- |
 | `climatology_maps` | map-view climatologies, one step per field group | not yet implemented |
-| `global_stats` | time series of the simulation's global statistics | not yet implemented |
+| `global_stats` | time series of the simulation's global statistics | {ref}`available <ocean-analysis-global-stats>` |
 | `heat_content_series` | time series of globally integrated ocean heat content | not yet implemented |
 | `moc` | latitude-elevation plot of the meridional overturning circulation | not yet implemented |
 | `publish` | the staging tree and the {ref}`gallery <ocean-analysis-gallery>` over it | implemented |
 
-Each task currently resolves the simulation files it will read, links them
-into its work directory and reports them in its log, which is enough to check
-that a simulation is being located correctly.  Until the products land, there
-is nothing for `publish` to publish and it generates an empty gallery.
+A task that is not yet implemented resolves the simulation files it will read,
+links them into its work directory and reports them in its log, which is
+enough to check that a simulation is being located correctly.  No step
+describes its products in a manifest yet, so `publish` generates an empty
+gallery.
 
 The `moc` task additionally depends on a diagnostic that Omega computes in
 situ and does not yet provide.  A simulation without it is an ordinary case:
 the step reports that no MOC output was written and produces nothing, rather
 than failing the suite.
+
+(ocean-analysis-global-stats)=
+
+### global statistics time series
+
+Omega's `GlobalStats` analysis group reduces each field it is given to a
+handful of numbers per output time --- the global mean, minimum, maximum and
+standard deviation.  The `global_stats` task plots those against time, which
+is the cheapest look at whether a simulation is drifting.
+
+For each field it produces two files in
+`ocean/analysis/global_stats/<range>/`:
+
+`<field>.png`
+: Two panels sharing a time axis in simulation years.  The upper one shows
+  the statistics themselves, with the standard deviation as a shaded envelope
+  around the mean.  The lower one shows the change in each statistic since
+  the beginning of the series, since drift is usually what the reader is
+  looking for and it is easy to miss at the scale of the absolute values.
+
+`<field>.nc`
+: Exactly the data that were plotted --- one variable per statistic, the time
+  axis in simulation years, and the field, the statistics, the simulation
+  name and the year range as global attributes.  It is there so the numbers
+  can be inspected, compared against another tool, or re-plotted without
+  re-reading the simulation.
+
+Two options in `[ocean_analysis_time_series]` govern it, alongside the
+`start_year` and `end_year` that every time series shares:
+
+`fields`
+: The fields to plot, using MPAS-Ocean (Polaris standard) names.  Leave it
+  empty to plot every field the simulation wrote statistics for.
+
+`stats`
+: The statistics to plot for each field: any of `mean`, `min`, `max` and
+  `std`.
+
+**A field or statistic the simulation did not write is skipped with a message
+in the step's log, not treated as an error.**  The defaults describe what we
+would like to see, and any given simulation will have written some subset of
+it --- which is no more under the user's control than it is under ours.  A
+field with no surviving statistics is dropped entirely.  Only a file with
+*none* of the requested variables stops the step, since that usually means
+the year range does not overlap the simulation rather than that a variable is
+missing.
+
+Omega can write these statistics either as snapshots or as time means over a
+period it is configured with, and it names the variables differently in the
+two cases.  Polaris reads the simulation's Omega configuration to find out
+which it wrote, so this needs no option of its own.
 
 ## troubleshooting
 

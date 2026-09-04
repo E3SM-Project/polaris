@@ -87,6 +87,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#analysis-of-completed-simulations">Analysis of completed simulations</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#locating-the-simulation-s-files">Locating the simulation’s files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#naming-the-models-global-statistics">Naming the models’ global statistics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#steps">Steps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#range-keyed-steps">Range-keyed steps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#publishing-what-the-steps-made">Publishing what the steps made</a></li>
@@ -1010,7 +1011,7 @@ in <code class="docutils literal notranslate"><span class="pre">rpe.csv</span></
 <p>The package <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code> contains the tasks of the
 <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite, which analyze a simulation that has already been run
 rather than running one.  <a class="reference internal" href="../../users_guide/ocean/tasks/analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> describes the suite from a
-user’s point of view.  Three pieces of it are shared machinery that a new
+user’s point of view.  Four pieces of it are shared machinery that a new
 analysis product builds on.</p>
 <section id="locating-the-simulation-s-files">
 <h3>Locating the simulation’s files<a class="headerlink" href="#locating-the-simulation-s-files" title="Link to this heading"></a></h3>
@@ -1044,6 +1045,40 @@ returns each stream with its period and whether it is a time reduction, and
 the caller must not assume either spelling.</p></li>
 </ul>
 </section>
+<section id="naming-the-models-global-statistics">
+<h3>Naming the models’ global statistics<a class="headerlink" href="#naming-the-models-global-statistics" title="Link to this heading"></a></h3>
+<p>Both ocean models write one variable per (field, statistic) pair in their
+global statistics output and name it after the two, so
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names</span></code> builds the names rather than listing them.
+It is a leaf module for the same reason <code class="docutils literal notranslate"><span class="pre">sim_files</span></code> is, and it lives under
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean</span></code> rather than under the analysis package because the
+<code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> task reads the same kind of output from
+a forward step in its own task.</p>
+<p>Three things about it are worth knowing:</p>
+<ul class="simple">
+<li><p><strong>The names are built, not mapped.</strong>  <code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> needs an entry
+only for the field itself — <code class="docutils literal notranslate"><span class="pre">ssh:</span> <span class="pre">SshCell</span></code> — and the statistic and,
+for one of Omega’s time reductions, the period are appended.  Mapping the
+composite names instead would take an entry per (field, statistic) and,
+once Omega writes time means, one per (field, statistic, period).</p></li>
+<li><p><strong>The two models do not compute the same statistics.</strong>  MPAS-Ocean writes
+a root-mean-square where Omega writes a standard deviation, and those are
+different quantities, so neither model’s list in
+<code class="xref py py-data docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names.GLOBAL_STATS</span></code> has an entry for
+the other’s.  A step that wants a standard deviation from MPAS-Ocean
+derives one from the root-mean-square and the mean, which is a conversion
+and belongs in the step.</p></li>
+<li><p><strong>A step should not assume what a run wrote.</strong>
+<a class="reference internal" href="generated/polaris.ocean.global_stats_names.select_global_stats.html#polaris.ocean.global_stats_names.select_global_stats" title="polaris.ocean.global_stats_names.select_global_stats"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names.select_global_stats()</span></code></a> intersects
+the (field, statistic) pairs a step asks for with what a dataset holds,
+reports each one that is absent and drops it, and raises only when <em>none</em>
+of them is present — which is a step reading the wrong thing rather than
+a simulation writing a subset.
+<a class="reference internal" href="generated/polaris.ocean.global_stats_names.discover_fields.html#polaris.ocean.global_stats_names.discover_fields" title="polaris.ocean.global_stats_names.discover_fields"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names.discover_fields()</span></code></a> goes the other
+way, giving the fields a file holds statistics for, which is what a config
+option that names no fields falls back to.</p></li>
+</ul>
+</section>
 <section id="steps">
 <h3>Steps<a class="headerlink" href="#steps" title="Link to this heading"></a></h3>
 <p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.analysis_step.AnalysisStep</span></code></a> extends
@@ -1059,6 +1094,12 @@ particular, every file a step opens in <code class="docutils literal notranslate
 temporary files go in the step’s own work directory, and a step declares the
 parallelism it will actually start as <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> rather than sizing
 itself to the machine.</p>
+<p>Which products an analysis step makes is usually not known until it has read
+the simulation, since a run writes some subset of the fields that were asked
+for.  Such a step declares no per-field outputs at setup and instead calls
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_produced_file.html#polaris.ocean.model.OceanIOStep.add_produced_file" title="polaris.ocean.model.OceanIOStep.add_produced_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.add_produced_file()</span></code></a> as it writes
+each one.  That is also what keeps a plot and the netCDF file beside it from
+getting out of step with each other, since they are registered together.</p>
 </section>
 <section id="range-keyed-steps">
 <h3>Range-keyed steps<a class="headerlink" href="#range-keyed-steps" title="Link to this heading"></a></h3>

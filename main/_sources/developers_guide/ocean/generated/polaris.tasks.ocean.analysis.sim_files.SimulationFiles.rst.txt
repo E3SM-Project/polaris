@@ -15,6 +15,7 @@
    
       ~SimulationFiles.__init__
       ~SimulationFiles.global_stats_files
+      ~SimulationFiles.global_stats_stream
       ~SimulationFiles.mesh_filename
       ~SimulationFiles.moc_files
       ~SimulationFiles.monthly_mean_files

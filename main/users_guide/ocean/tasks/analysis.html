@@ -384,7 +384,7 @@ knowing about on a filesystem with a quota; the climatology files dominate.</p>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">global_stats</span></code></p></td>
 <td><p>time series of the simulation’s global statistics</p></td>
-<td><p>not yet implemented</p></td>
+<td><p><a class="reference internal" href="#ocean-analysis-global-stats"><span class="std std-ref">available</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">heat_content_series</span></code></p></td>
 <td><p>time series of globally integrated ocean heat content</p></td>
@@ -400,14 +400,60 @@ knowing about on a filesystem with a quota; the climatology files dominate.</p>
 </tr>
 </tbody>
 </table>
-<p>Each task currently resolves the simulation files it will read, links them
-into its work directory and reports them in its log, which is enough to check
-that a simulation is being located correctly.  Until the products land, there
-is nothing for <code class="docutils literal notranslate"><span class="pre">publish</span></code> to publish and it generates an empty gallery.</p>
+<p>A task that is not yet implemented resolves the simulation files it will read,
+links them into its work directory and reports them in its log, which is
+enough to check that a simulation is being located correctly.  No step
+describes its products in a manifest yet, so <code class="docutils literal notranslate"><span class="pre">publish</span></code> generates an empty
+gallery.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">moc</span></code> task additionally depends on a diagnostic that Omega computes in
 situ and does not yet provide.  A simulation without it is an ordinary case:
 the step reports that no MOC output was written and produces nothing, rather
 than failing the suite.</p>
+<section id="global-statistics-time-series">
+<span id="ocean-analysis-global-stats"></span><h3>global statistics time series<a class="headerlink" href="#global-statistics-time-series" title="Link to this heading"></a></h3>
+<p>Omega’s <code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code> analysis group reduces each field it is given to a
+handful of numbers per output time — the global mean, minimum, maximum and
+standard deviation.  The <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> task plots those against time, which
+is the cheapest look at whether a simulation is drifting.</p>
+<p>For each field it produces two files in
+<code class="docutils literal notranslate"><span class="pre">ocean/analysis/global_stats/&lt;range&gt;/</span></code>:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">&lt;field&gt;.png</span></code></dt><dd><p>Two panels sharing a time axis in simulation years.  The upper one shows
+the statistics themselves, with the standard deviation as a shaded envelope
+around the mean.  The lower one shows the change in each statistic since
+the beginning of the series, since drift is usually what the reader is
+looking for and it is easy to miss at the scale of the absolute values.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">&lt;field&gt;.nc</span></code></dt><dd><p>Exactly the data that were plotted — one variable per statistic, the time
+axis in simulation years, and the field, the statistics, the simulation
+name and the year range as global attributes.  It is there so the numbers
+can be inspected, compared against another tool, or re-plotted without
+re-reading the simulation.</p>
+</dd>
+</dl>
+<p>Two options in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis_time_series]</span></code> govern it, alongside the
+<code class="docutils literal notranslate"><span class="pre">start_year</span></code> and <code class="docutils literal notranslate"><span class="pre">end_year</span></code> that every time series shares:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">fields</span></code></dt><dd><p>The fields to plot, using MPAS-Ocean (Polaris standard) names.  Leave it
+empty to plot every field the simulation wrote statistics for.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">stats</span></code></dt><dd><p>The statistics to plot for each field: any of <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code> and
+<code class="docutils literal notranslate"><span class="pre">std</span></code>.</p>
+</dd>
+</dl>
+<p><strong>A field or statistic the simulation did not write is skipped with a message
+in the step’s log, not treated as an error.</strong>  The defaults describe what we
+would like to see, and any given simulation will have written some subset of
+it — which is no more under the user’s control than it is under ours.  A
+field with no surviving statistics is dropped entirely.  Only a file with
+<em>none</em> of the requested variables stops the step, since that usually means
+the year range does not overlap the simulation rather than that a variable is
+missing.</p>
+<p>Omega can write these statistics either as snapshots or as time means over a
+period it is configured with, and it names the variables differently in the
+two cases.  Polaris reads the simulation’s Omega configuration to find out
+which it wrote, so this needs no option of its own.</p>
+</section>
 </section>
 <section id="troubleshooting">
 <h2>troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>

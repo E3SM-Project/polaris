@@ -20,6 +20,7 @@
       ~Analysis.add_input_file
       ~Analysis.add_output_file
       ~Analysis.add_output_files_for_ocean_model_input
+      ~Analysis.add_produced_file
       ~Analysis.add_vert_coord_input_file
       ~Analysis.check_properties
       ~Analysis.constrain_resources

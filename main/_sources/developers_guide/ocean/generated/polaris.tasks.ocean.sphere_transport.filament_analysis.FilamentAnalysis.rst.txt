@@ -20,6 +20,7 @@
       ~FilamentAnalysis.add_input_file
       ~FilamentAnalysis.add_output_file
       ~FilamentAnalysis.add_output_files_for_ocean_model_input
+      ~FilamentAnalysis.add_produced_file
       ~FilamentAnalysis.add_vert_coord_input_file
       ~FilamentAnalysis.check_properties
       ~FilamentAnalysis.constrain_resources

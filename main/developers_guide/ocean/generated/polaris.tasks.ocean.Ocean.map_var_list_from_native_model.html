@@ -143,13 +143,15 @@
 <span class="sig-prename descclassname"><span class="pre">Ocean.</span></span><span class="sig-name descname"><span class="pre">map_var_list_from_native_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean.html#Ocean.map_var_list_from_native_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.Ocean.map_var_list_from_native_model" title="Link to this definition"></a></dt>
 <dd><p>If the model is Omega, rename variables from their Omega names to
 the MPAS-Ocean equivalent</p>
+<p>A variable with no entry in the map keeps its own name, which is the
+right answer for a field only Omega has.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>var_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A list of MPAS-Ocean variable names</p>
+<dd class="field-odd"><p><strong>var_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A list of variable names native to the ocean model being run</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>renamed_vars</strong> (<em>list of str</em>) – The same list with variables renamed as appropriate for the
-ocean model being run</p>
+<dd class="field-even"><p><strong>renamed_vars</strong> (<em>list of str</em>) – The same list, in the same order, with variables renamed to their
+MPAS-Ocean equivalents</p>
 </dd>
 </dl>
 </dd></dl>

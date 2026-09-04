@@ -20,6 +20,7 @@
       ~VizTransect.add_input_file
       ~VizTransect.add_output_file
       ~VizTransect.add_output_files_for_ocean_model_input
+      ~VizTransect.add_produced_file
       ~VizTransect.add_vert_coord_input_file
       ~VizTransect.check_properties
       ~VizTransect.constrain_resources

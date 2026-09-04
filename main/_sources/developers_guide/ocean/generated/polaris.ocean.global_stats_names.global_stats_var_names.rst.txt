@@ -1,0 +1,6 @@
+﻿polaris.ocean.global\_stats\_names.global\_stats\_var\_names
+============================================================
+
+.. currentmodule:: polaris.ocean.global_stats_names
+
+.. autofunction:: global_stats_var_names

@@ -153,6 +153,27 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">process_inputs_and_outputs</span><span class="p">()</span></div>
 
 
+<div class="viewcode-block" id="OceanIOStep.add_produced_file">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.add_produced_file.html#polaris.ocean.model.OceanIOStep.add_produced_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_produced_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Register a file the step has just written as one of its outputs</span>
+
+<span class="sd">        Most outputs are known at setup, but a step that plots what a</span>
+<span class="sd">        simulation wrote does not know which plots it will make until it has</span>
+<span class="sd">        read the simulation, since a run writes some subset of the fields it</span>
+<span class="sd">        was asked for.  Such a step registers each product as it writes it,</span>
+<span class="sd">        which also keeps a plot and the data beside it from getting out of</span>
+<span class="sd">        step with each other.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The name of the file, relative to the step's work directory</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span></div>
+
+
     <span class="k">def</span><span class="w"> </span><span class="nf">add_output_files_for_ocean_model_input</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">horiz_mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>

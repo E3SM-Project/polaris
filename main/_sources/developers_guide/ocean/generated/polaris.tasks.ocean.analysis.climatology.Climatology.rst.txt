@@ -20,6 +20,7 @@
       ~Climatology.add_input_file
       ~Climatology.add_output_file
       ~Climatology.add_output_files_for_ocean_model_input
+      ~Climatology.add_produced_file
       ~Climatology.add_product
       ~Climatology.add_sim_input_file
       ~Climatology.add_sim_input_files
