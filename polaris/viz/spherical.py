@@ -266,6 +266,7 @@ def plot_global_lat_lon_field(
     title=None,
     plot_land=True,
     colorbar_label=None,
+    figsize=(8, 4.5),
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -312,6 +313,10 @@ def plot_global_lat_lon_field(
 
     colorbar_label : str, optional
         Label on the colorbar
+
+    figsize : tuple, optional
+        The size of the figure in inches.  A size that matches the aspect
+        ratio of the map leaves the least empty canvas around it
     """
 
     with mplstyle_context():
@@ -336,7 +341,6 @@ def plot_global_lat_lon_field(
                 f'be either {nlat} or {nlat + 1}'
             )
 
-        figsize = (8, 4.5)
         fig = Figure(figsize=figsize)
         if title is not None:
             add_fitted_suptitle(fig, title)
