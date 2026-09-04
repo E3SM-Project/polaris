@@ -585,6 +585,23 @@ class SimulationFiles:
             ),
         )
 
+    def global_stats_stream(self):
+        """
+        Get the output stream the global statistics are read from
+
+        The names of the variables in the file depend on whether the stream
+        holds time means or snapshots, so a step that reads them needs the
+        stream and not just its file name.
+
+        Returns
+        -------
+        stream : AnalysisStream or None
+            The stream, or ``None`` if the simulation wrote no global
+            statistics
+        """
+        streams = self.omega_config.analysis_streams('GlobalStats')
+        return _preferred_analysis_stream(streams)
+
     def moc_files(self, start_year, end_year):
         """
         Get the meridional overturning circulation output files covering a

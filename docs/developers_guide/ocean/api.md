@@ -85,6 +85,7 @@
    sim_files.SimulationFiles.vert_coord_filename
    sim_files.SimulationFiles.monthly_mean_files
    sim_files.SimulationFiles.global_stats_files
+   sim_files.SimulationFiles.global_stats_stream
    sim_files.SimulationFiles.moc_files
    sim_files.read_omega_config
    sim_files.expand_template
@@ -636,6 +637,31 @@
 
 ## Ocean Framework
 
+### Analysis plots
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.analysis_plots
+
+.. autosummary::
+   :toctree: generated/
+
+   plot_global_stats
+```
+
+### Global statistics
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean.global_stats_names
+
+.. autosummary::
+   :toctree: generated/
+
+   available_stats
+   global_stats_var_names
+   discover_fields
+   select_global_stats
+```
+
 ### Conservation utilities
 
 ```{eval-rst}
@@ -715,6 +741,7 @@
    OceanIOStep
    OceanIOStep.setup
    OceanIOStep.process_inputs_and_outputs
+   OceanIOStep.add_produced_file
    OceanIOStep.add_horiz_mesh_input_file
    OceanIOStep.add_vert_coord_input_file
    OceanIOStep.add_init_input_file
@@ -738,6 +765,8 @@
    OceanModelFilesMixin
 
    get_days_since_start
+   get_simulation_years
+   days_per_year
    get_time_interval_string
 ```
 

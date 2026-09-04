@@ -98,23 +98,16 @@ variables:
   # eos
   BruntVaisalaFreqTop: BruntVaisalaFreqSq
 
-  # global stats daily variables
-  normalVelocityMax: NormalVelocity_SpatialMax
-  normalVelocityMin: NormalVelocity_SpatialMin
-  normalVelocityAvg: NormalVelocity_SpatialMean
-  normalVelocityRms: NormalVelocity_SpatialStdDev
-  layerThicknessMax: PseudoThickness_SpatialMax
-  layerThicknessMin: PseudoThickness_SpatialMin
-  layerThicknessAvg: PseudoThickness_SpatialMean
-  layerThicknessRms: PseudoThickness_SpatialStdDev
-  temperatureMax: Temperature_SpatialMax
-  temperatureMin: Temperature_SpatialMin
-  temperatureAvg: Temperature_SpatialMean
-  temperatureRms: Temperature_SpatialStdDev
-  salinityMax: Salinity_SpatialMax
-  salinityMin: Salinity_SpatialMin
-  salinityAvg: Salinity_SpatialMean
-  salinityRms: Salinity_SpatialStdDev
+  # Note: the variables in each model's global statistics output are not
+  #       mapped here.  Both models name a statistic after the field and the
+  #       statistic, so the names are built from the two in
+  #       polaris/ocean/global_stats_names.py, which needs an entry only for
+  #       the field itself.  Mapping the composite names instead would take
+  #       one entry per (field, statistic), and one per (field, statistic,
+  #       period) once Omega writes time means.  It would also have to claim
+  #       that MPAS-Ocean's Rms and Omega's SpatialStdDev are the same
+  #       quantity, which they are not: one is a root-mean-square and the
+  #       other a standard deviation.
 
 config:
 - section:

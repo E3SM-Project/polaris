@@ -38,6 +38,86 @@ def get_days_since_start(ds):
     return t_arr
 
 
+# the number of days in a year of each calendar cftime supports; the mixed
+# Julian/Gregorian calendars use the mean Gregorian year, which is what a
+# time axis in years wants
+DAYS_PER_YEAR = {
+    'noleap': 365.0,
+    '365_day': 365.0,
+    'all_leap': 366.0,
+    '366_day': 366.0,
+    '360_day': 360.0,
+    'julian': 365.25,
+    'standard': 365.2425,
+    'gregorian': 365.2425,
+    'proleptic_gregorian': 365.2425,
+}
+
+
+def days_per_year(calendar):
+    """
+    Get the length of a year in days in a given calendar
+
+    Parameters
+    ----------
+    calendar : str
+        The name of a CF calendar, as ``xarray.DataArray.dt.calendar`` gives
+        it
+
+    Returns
+    -------
+    days : float
+        The number of days in a year of that calendar
+
+    Raises
+    ------
+    ValueError
+        If the calendar is not one of those CF defines
+    """
+    if calendar not in DAYS_PER_YEAR:
+        known = ', '.join(DAYS_PER_YEAR)
+        raise ValueError(
+            f'Do not know the length of a year in the "{calendar}" '
+            f'calendar.  The calendars supported are: {known}.'
+        )
+    return DAYS_PER_YEAR[calendar]
+
+
+def get_simulation_years(ds, time_var='Time'):
+    """
+    Get the time axis of a dataset in decimal simulation years
+
+    The year comes from the calendar date itself rather than from an elapsed
+    time, so that a series covering years 21 through 40 is plotted at 21
+    through 41 -- the years the user asked for -- whatever reference date the
+    model happened to write its time coordinate against.  It also depends on
+    no attribute of the time variable beyond its calendar, so a file that has
+    been read and written again is handled the same as one straight from the
+    model.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset with a decoded time coordinate
+
+    time_var : str, optional
+        The name of the time coordinate
+
+    Returns
+    -------
+    years : numpy.ndarray
+        The decimal simulation year of each time in the dataset
+    """
+    times = ds[time_var]
+    length = days_per_year(times.dt.calendar)
+    seconds = (
+        times.dt.hour * 3600 + times.dt.minute * 60 + times.dt.second
+    ).values.astype(float)
+    day_of_year = times.dt.dayofyear.values.astype(float)
+    year = times.dt.year.values.astype(float)
+    return year + (day_of_year - 1.0 + seconds / 86400.0) / length
+
+
 def get_time_interval_string(days=None, seconds=None):
     """
     Convert a time interval in days and/or seconds to a string for use in a
