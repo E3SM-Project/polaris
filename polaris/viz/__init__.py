@@ -1,4 +1,7 @@
 from polaris.viz.helper import (
+    add_fitted_suptitle as add_fitted_suptitle,
+)
+from polaris.viz.helper import (
     determine_time_variable as determine_time_variable,
 )
 from polaris.viz.helper import (

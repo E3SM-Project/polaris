@@ -14,7 +14,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 from ruamel.yaml import YAML
 
-from polaris.viz.helper import get_projection
+from polaris.viz.helper import add_fitted_suptitle, get_projection
 from polaris.viz.style import mplstyle_context
 
 
@@ -163,7 +163,7 @@ def plot_global_mpas_field(
         ax = fig.add_subplot(111, projection=projection)
 
         if title is not None:
-            fig.suptitle(title, y=0.935)
+            add_fitted_suptitle(fig, title, y=0.935)
 
         colormap, norm, ticks = setup_colormap(config, colormap_section)
 
@@ -304,7 +304,7 @@ def plot_global_lat_lon_field(
         figsize = (8, 4.5)
         fig = Figure(figsize=figsize)
         if title is not None:
-            fig.suptitle(title, y=0.935)
+            add_fitted_suptitle(fig, title, y=0.935)
 
         subplots = [111]
         ref_projection = cartopy.crs.PlateCarree()
