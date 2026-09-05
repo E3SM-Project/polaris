@@ -461,11 +461,15 @@ refinement_factors = 4., 2., 1., 0.5
 # config options for convergence forward steps
 [convergence_forward]
 
-# time integrator: {'split_explicit', 'RK4'}
+# time integrator: {'RK4', 'split_explicit', 'unsplit_explicit'}
 time_integrator = RK4
 
 # RK4 time step per resolution (s/km), since dt is proportional to resolution
 rk4_dt_per_km = 3.0
+
+# unsplit time step per resolution (s/km), since dt is proportional to
+# resolution
+unsplit_dt_per_km = 3.0
 
 # split time step per resolution (s/km), since dt is proportional to resolution
 split_dt_per_km = 30.0
@@ -490,12 +494,15 @@ default. The L-infinity norm, `inf`, is also supported.
 
 `time_integrator` will typically be overridden by the specific convergence
 task's config options, and indicates which time integrator to use for the
-forward run.  Depending on the time integrator, either `rk4_dt_per_km` or
-`split_dt_per_km` will be used to determine an appropriate time step for each
-mesh resolution (proportional to the cell size). For split time integrators,
-`btr_dt_per_km` will be used to compute the barotropic time step in a similar
-way.  The `run_duration` and `output_interval` are typically the same, and
-they are given in hours.
+forward run.  Depending on the time integrator, `rk4_dt_per_km`,
+`unsplit_dt_per_km` or `split_dt_per_km` will be used to determine an
+appropriate time step for each mesh resolution (proportional to the cell
+size). For split time integrators, `btr_dt_per_km` will be used to compute the
+barotropic time step in a similar way; the unsplit scheme
+(`unsplit_explicit`, which Omega calls `UnsplitRK2`) sets the split factor to
+zero and skips the barotropic subcycle, so it does not read this value.
+The `run_duration` and `output_interval` are typically the same and are
+specified in hours.
 
 Each convergence test can override these defaults with its own defaults by
 defining them in its own config file.  Convergence tests should bring in this

@@ -139,12 +139,15 @@ class Forward(OceanModelStep):
 
         time_integrator = self.config.get('single_column', 'time_integrator')
         duration = self.config.getfloat('single_column', 'run_duration')
-        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        time_integrator_map = dict(
+            [('RK4', 'RungeKutta4'), ('split_explicit', 'SplitExplicitRK2')]
+        )
         model = self.config.get('ocean', 'model')
         if model == 'omega':
+            # set before the mapping so an unmapped name still has a duration
+            duration_str = get_time_interval_string(days=duration)
             if time_integrator in time_integrator_map.keys():
                 time_integrator = time_integrator_map[time_integrator]
-                duration_str = get_time_interval_string(days=duration)
             else:
                 print(
                     'Warning: mapping from time integrator '
