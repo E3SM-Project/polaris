@@ -797,8 +797,23 @@ was not one. The small node was a Perlmutter *GPU* node: the run had been
 labelled from the deployment's machine name rather than from the node it
 landed on, and three hardware signals agree it was misfiled -- the job held
 four GPUs, its hyperthread siblings were 64 apart rather than 128, and its
-memory matched a GPU node. There is at present no evidence that any machine
-Polaris targets is heterogeneous in memory.
+memory matched a GPU node. Perlmutter CPU is homogeneous, and its two genuine
+samples agree.
+
+**Aurora, however, is heterogeneous, and that is measured rather than
+inferred.** Its scheduler was asked what every one of its 10,624 nodes has,
+which is a survey and not a sample: about 89% report roughly 1135 GiB, 11%
+report roughly 1007 GiB, and a handful sit between. The smallest is 1,030,518
+MB against a median of 1,162,460 -- so a figure taken from the majority would
+be about 13% too high for one node in nine, and a step packed against it
+would be over-admitted whenever it landed on a small one.
+
+The two episodes are worth reading together, because they point the same way
+for opposite reasons. The Perlmutter reading was withdrawn because two
+samples of different machines were compared as though they were one machine.
+The Aurora figure stands because nothing was sampled at all -- every node was
+asked. The rule that survives both is the one already stated: where nodes
+differ the smallest binds, and a single sample cannot establish the number.
 
 The episode is worth keeping for what it says about the measurements
 generally, which is that they are labelled by configuration and confirmed by

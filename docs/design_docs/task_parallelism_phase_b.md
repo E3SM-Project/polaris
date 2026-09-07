@@ -106,12 +106,20 @@ that slows it. Nodes shall be tracked individually rather than as so many
 copies of one node, which costs nothing if they turn out to be identical and
 is the only correct answer if they are not.
 
-No machine Polaris targets is currently known to be heterogeneous in memory.
-This is not written for a case that has been observed; it is written because
-the configured figure is the weaker source of truth in every case, and
-reading the nodes removes a whole class of error -- a stale configuration, a
-machine that has changed, a job that is not on the machine it was thought to
-be -- without requiring any of them to be anticipated.
+This was written before any machine was known to be heterogeneous, on the
+argument that the configured figure is the weaker source of truth in every
+case and that reading the nodes removes a whole class of error -- a stale
+configuration, a machine that has changed, a job that is not on the machine
+it was thought to be -- without requiring any of them to be anticipated.
+That argument still stands on its own.
+
+It no longer has to. Aurora is heterogeneous, from a survey of all 10,624 of
+its nodes: about one in nine holds roughly 1007 GiB where the majority holds
+1135, so a figure taken from the majority would over-admit by about 13%
+whenever a step landed on a small node. A run that packs against what its
+own nodes report cannot make that mistake; a run that packs against one
+number per machine can only avoid it by using the smallest, and thereby
+wasting the difference everywhere else.
 
 A step that has not said its resources may span nodes shall have its cores
 and its GPUs drawn from a single node. This is a packing constraint rather

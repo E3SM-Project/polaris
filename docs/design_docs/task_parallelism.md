@@ -95,13 +95,32 @@ three of four launches silently received no GPU at all and exited zero --
 the same class of failure as silently losing placement, and the reason this
 verification was worth doing separately from the hand-written one.
 
-One limit of the Aurora result should be carried with it. On Slurm the GPUs
-a launch can see are read from the scheduler's own variables, so the verdict
-is independent evidence. On PALS nothing assigns GPUs, so `mache` renders
-the indices the caller chose and the check reads that same value back: it
-confirms the plumbing, not that the runtime honors it. Whether Level Zero
-reads an empty mask as "no devices" or as "no mask at all" is still open,
-and a clean Aurora run does not close it.
+One limit of the Aurora result had to be carried with it, and asking about it
+turned up a real defect. On Slurm the GPUs a launch can see are read from the
+scheduler's own variables, so the verdict is independent evidence. On PALS
+nothing assigns GPUs, so `mache` renders the indices the caller chose and the
+check reads that same value back: it confirms the plumbing, not that the
+runtime honors it. A clean Aurora run therefore did not establish that a
+launch asking for no GPUs got none.
+
+It has since been asked properly, by enumerating what the runtime can see
+rather than reading back what it was told, and the answer is that **an empty
+`ZE_AFFINITY_MASK` hides nothing**. Level Zero reads an empty value as "no
+mask", which means every device: six cards visible with the variable unset,
+and the same six with it set and empty. So the explicit "no GPUs" `mache`
+renders on PALS is a no-op.
+
+Two controls make that a finding rather than a guess, and both were
+necessary. The variable arrived at the process *set and empty* rather than
+dropped, which separates Level Zero's semantics from a plumbing bug; and a
+mask naming a subset, in the same launch style, did confine the launch, which
+rules out the mask simply being inert there. Two enumerators agreed, one of
+them reaching Level Zero with no SYCL layer in between.
+
+The consequence is small now and not small later. Nothing on PALS reserves
+GPUs, so a step seeing hardware it declined costs only tidiness, and neither
+Phase A nor Phase B is affected. It becomes an isolation question in Phase C,
+where it is recorded.
 
 ### Where measurements live, and what does not
 

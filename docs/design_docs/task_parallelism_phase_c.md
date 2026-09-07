@@ -159,19 +159,38 @@ per-step total -- but the pool has to account for it, and a step that
 distributes GPU work should not have GPUs reserved on the node its driver
 happens to sit on.
 
-This phase is also where one open question from Phase A stops being
-harmless. On PBS with PALS, a launch that needs no GPUs is given an empty
-vendor visibility variable, and whether the runtime reads that as "no
-devices" or as "no mask, every device" has not been established -- a clean
-Aurora run does not settle it, because there the check reads back the same
-value the launcher wrote. Through Phase A and Phase B it does not matter:
-nothing on PALS reserves GPUs, so concurrency is unaffected either way and
-the worst case is a step seeing hardware it said it did not want. Here,
-where several workers on one node may each be assigned different devices,
-whether that assignment confines anything is the difference between
-isolation and two workers quietly sharing a device. It should be answered
-before pool workers are given GPUs on that machine, and answering it takes
-two commands in an allocation rather than any machinery.
+This phase is also where a limitation carried harmlessly through Phase A and
+Phase B stops being harmless. On PBS with PALS, a launch that needs no GPUs
+is given an empty vendor visibility variable, and it has now been measured
+that the runtime reads an empty value as "no mask", meaning every device. So
+the explicit "no GPUs" is a no-op there: a worker that declares no GPUs on
+that machine can still see all of them.
+
+Through Phase A and Phase B this costs nothing, because nothing on PALS
+reserves GPUs and the worst case is a step seeing hardware it declined. Here
+it splits into two cases that behave differently, and only one of them
+works.
+
+A worker assigned *some* devices is confined: a mask naming a subset was
+measured to do exactly that. A worker assigned *no* devices is not confined
+at all. So a pool mixing GPU and CPU-only workers on one node gets isolation
+between the GPU workers and none for the CPU-only ones, which is the
+opposite of the intuition that asking for nothing is the safe case.
+
+A candidate fix is to name an out-of-range device rather than an empty
+value. It is untested, and should be tested rather than assumed: the runtime
+may equally refuse it, warn, or fall back to every device. It is one launch
+on the pattern that answered the first question.
+
+One further thing is unestablished and matters more here than anywhere else.
+That machine's configuration describes twelve GPUs per node, which are
+tiles, while the runtime presents six cards under the device hierarchy it
+runs with; a mask naming three tiles yielded two devices, which is
+consistent. What has not been tried is a mask naming a *single* tile, which
+is the unit a scheduler handing out twelve of them would actually assign.
+Whether two workers masked to different tiles of the same card are isolated
+from each other, or merely both see that card, is the question this phase
+rests on, and it is not answered by what has been measured so far.
 
 Reading the bound off "is it an MPI step" instead would have made this phase
 begin by undoing a rule, which is why the property exists ahead of anything
