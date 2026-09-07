@@ -138,13 +138,18 @@ enforced on Chrysalis. So a step that declares memory should declare a
 **peak with margin**, not a typical value: on a machine that enforces, the
 number it gives is the number it dies at.
 
-Memory does not go to the launcher, and that is not an omission.  Nothing
-below Polaris acts on it -- asking a launch for a share of the node's memory
-was measured to change nothing -- so a memory figure rendered into a launch
-command would suggest an enforcement that does not happen.  Memory is a
-budget Polaris keeps: the only thing protecting one step's memory from
-another's is Polaris declining to start the second, which is admission
-control in a later phase.
+Polaris does not yet pass a memory figure to the launcher, and that is a
+consequence of where the work has got to rather than a decision that it
+never should.  `mache` accepts an optional cap alongside a placement, and
+Polaris will pass it for a step that *declared* a figure once there is a
+scheduler to admit steps -- which is a later phase.  Today nothing is
+admitted and nothing is capped.
+
+What the launcher does not do, on any machine, is *reserve* memory or say
+whether a step fits.  That stays Polaris's own accounting: the only thing
+protecting one step's memory from another's is Polaris declining to start
+the second.  Enforcement and scheduling are separate, and only enforcement
+is something a launcher offers.
 
 A step that declares nothing is given **its proportional share of a node**
 as its `memory_budget`, leaving `memory` as `None`: its cores times the
