@@ -228,3 +228,64 @@ class Viz(Step):
 
 The `<task>_viz` of the config file is the same as what's used by
 {py:func}`polaris.viz.plot_global_mpas_field()`.
+
+(dev-visualization-lat-elevation)=
+
+## latitude-elevation plots
+
+{py:func}`polaris.viz.plot_lat_elevation_field()` plots a two-dimensional
+field against latitude and elevation as filled contours with contour lines
+over them. The meridional overturning streamfunction is the first of these,
+but regional overturning, zonal means and meridional heat transport all live
+on the same axes.
+
+The vertical axis is elevation in m, positive up, so the sea surface is at the
+top of an axis that increases upwards. It is not inverted: an inverted axis
+labelled with elevations would contradict the sign convention used everywhere
+else in the ocean analysis.
+
+Typical usage might be:
+```python
+from polaris import Step
+from polaris.viz import plot_lat_elevation_field
+
+class Viz(Step):
+    def run(self):
+        plot_lat_elevation_field(
+            da=streamfunction, lat=lat, z=z,
+            out_filename='moc.png', config=self.config,
+            colormap_section='ocean_analysis_moc',
+            contour_interval=2.0, max_abs=30.0,
+            title='Global overturning streamfunction',
+            colorbar_label='Sv')
+```
+
+`da` is the field, with one dimension the length of `z` and one the length of
+`lat`; it is transposed as needed, so the caller does not have to know which
+order the model wrote them in. `lat` and `z` are the positions the field is
+defined at rather than cell boundaries, so a field on latitude *bins* is
+plotted against the centers of those bins.
+
+The `colormap_section` of the config file is the same as the one
+{py:func}`polaris.viz.plot_global_mpas_field()` uses. Two arguments layer on
+top of it:
+
+`max_abs`
+: The maximum absolute value of a color map centered on zero, replacing the
+  limits `norm_args` gives. This is how a diverging field such as a
+  streamfunction is plotted symmetrically about zero. A field with no natural
+  center leaves it out and sets its limits in `norm_args` as usual.
+
+`contour_interval`
+: The spacing of the contour lines drawn over the fill. The lines follow the
+  data rather than the color map, so a color map deliberately clipped to bring
+  out a weak circulation still has lines through the saturated part of it,
+  which is the only thing left there that says how strong the strong part is.
+  Negative contours are dashed, which is what tells the two cells of a
+  circulation apart in black and white.
+
+The color bar's arrows are drawn only at the ends the data actually run past,
+since an arrow is a claim that there is something beyond it. Anything the
+field is missing --- what is below the seafloor --- is left unpainted against
+a neutral gray rather than taking a color from the map, since a gap in the
+data is not a zero.
