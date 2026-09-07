@@ -180,7 +180,7 @@ class Moc(AnalysisStep):
         streamfunction = _weighted_time_mean(ds[streamfunction], weights)
         elevation = _weighted_time_mean(ds[elevation], weights)
 
-        lat = _bin_centers(ds[boundaries].values)
+        lat = _bin_centers(_static(ds[boundaries]))
         z = np.asarray(elevation.values, dtype=float).ravel()
         streamfunction = _orient(streamfunction, n_lat=len(lat), n_z=len(z))
         return streamfunction, lat, z
@@ -382,6 +382,18 @@ def period_lengths(ds):
     if gaps.size == 0:
         # one reduction carries the whole average, so its weight cancels
         return np.ones(ds.sizes.get('Time', 1))
+    if np.any(gaps <= 0.0):
+        # zero weights would make the weighted mean NaN rather than raise,
+        # and a plot of NaN is the one outcome worse than a failed step
+        raise ValueError(
+            f'The MOC output does not step forward in time: the reductions '
+            f'are {len(gaps) + 1} times with gaps of '
+            f'{np.min(gaps):g} to {np.max(gaps):g} days between them.  Each '
+            f'reduction has to cover a distinct period for the average to be '
+            f'weighted by the length of that period.  A gap of zero usually '
+            f'means the same file was read twice, or that a re-run wrote the '
+            f'same period again alongside the first.'
+        )
     return np.concatenate([gaps[:1], gaps])
 
 
@@ -419,6 +431,30 @@ def _weighted_time_mean(da, weights):
     if 'Time' not in da.dims:
         return da
     return da.weighted(weights).mean('Time')
+
+
+def _static(da):
+    """
+    Get the one value of a field that does not vary in time
+
+    Omega attaches the latitude bin boundaries to its MOC output streams like
+    any other field, so every reduction in every file carries a copy of them.
+    They come from the group's config options and are the same in all of
+    them, so the first is taken rather than averaged: averaging a coordinate
+    would be a way of hiding it if they ever stopped agreeing.
+    """
+    if 'Time' in da.dims:
+        first = da.isel(Time=0)
+        if not (da == first).all():
+            raise ValueError(
+                f'{da.name} changes over the range being averaged, but it is '
+                f'a coordinate of the streamfunction and has to be fixed for '
+                f'the average to mean anything.  This usually means two '
+                f'simulations, or two settings of the MOC group, have been '
+                f'mixed in one range of years.'
+            )
+        return first
+    return da
 
 
 def _bin_centers(boundaries):
