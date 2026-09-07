@@ -301,9 +301,10 @@ writes to a shared path is unsafe there in a way it is not unsafe in its own
 process.
 
 The properties this requires are set out in
-*Task-Parallel-Safe Analysis Steps in Polaris*, which should be adopted
-before analysis steps are written. Phase C depends on those rules being
-followed; it cannot enforce them after the fact.
+[Task-Parallel-Safe Analysis Steps in Polaris](task_parallel_analysis_steps.md),
+which should be adopted before analysis steps are written, and are written
+up for step authors under {ref}`dev-task-parallelism`. Phase C depends on
+those rules being followed; it cannot enforce them after the fact.
 
 ### Requirement: Failures Are Attributable
 

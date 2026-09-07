@@ -259,10 +259,10 @@ not hold nodes idle once that work drains.
 - These documents do not cover writing the analysis capability itself. The
   properties an analysis step needs in order to be safely run concurrently
   are a separate document,
-  *Task-Parallel-Safe Analysis Steps in Polaris*, which is worth adopting
-  before analysis steps are written rather than after. That document is
-  being prepared on its own branch and should land alongside these; once it
-  does, this should become a link to it.
+  [Task-Parallel-Safe Analysis Steps in Polaris](task_parallel_analysis_steps.md),
+  which is worth adopting before analysis steps are written rather than
+  after. Its rules are also written up for step authors in the developer
+  guide, under {ref}`dev-task-parallelism`.
 
 ## What success looks like
 

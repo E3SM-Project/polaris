@@ -482,8 +482,11 @@ directory, external side effects, or anything else that makes running beside
 another step wrong.
 
 This is the same metadata the analysis conformance checks in
-*Task-Parallel-Safe Analysis Steps in Polaris* needs, and it should be one
-mechanism, not two.
+[Task-Parallel-Safe Analysis Steps in Polaris](task_parallel_analysis_steps.md)
+needs, and it should be one mechanism, not two. That document has since
+landed and its rules are in the developer guide under
+{ref}`dev-task-parallelism`; the shared mechanism does not exist yet, and
+building it twice is what this is written to prevent.
 
 ## Testing
 
