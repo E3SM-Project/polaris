@@ -524,13 +524,22 @@ change to Polaris's deployment machinery:
 kind. That was always a temporary state, and it ends here: Phase A must not
 merge while depending on an unreleased branch, and no longer has to.
 
-Polaris shall now require `mache` 3.12.0 or later, and shall fail clearly,
-at setup, if an older one is present. Until the release existed the check
-had to be on the capability rather than on a version, because there was no
-version to name; it becomes an ordinary requirement. What it guards against
-is the reason it is stated at all: a run that silently lost placement would
-appear to work while oversubscribing the machine, which is the worst failure
-available here -- no error, wrong results, and slower than serial.
+Polaris shall require `mache` 3.12.0 or later, and shall fail clearly if an
+older one is present. Those are two separate mechanisms and it is worth
+saying which does what.
+
+The version requirement belongs in the deployment pin, which is what governs
+any environment built the ordinary way. The check in the running code is a
+backstop for an environment that was not, and it shall test the *capability*
+-- whether this `mache` accepts a placement at all -- rather than compare
+version numbers. The capability is the thing that matters, and a version is
+only a proxy for it: a proxy that would reject a development build or a fork
+that can place, and accept a release that could not.
+
+What either guards against is the reason they exist: a run that silently
+lost placement would appear to work while oversubscribing the machine, which
+is the worst failure available here -- no error, wrong results, and slower
+than serial.
 
 ### Implementation: The Polaris Side
 
