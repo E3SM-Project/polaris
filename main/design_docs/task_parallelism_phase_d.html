@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Parallelism Phase D: Coexistence and Elasticity</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Unified Mesh: Global Base Mesh Workflow" href="unified_base_mesh.html" />
+    <link rel="prev" title="Task Parallelism Phase C: Python Worker Pool" href="task_parallelism_phase_c.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Task Parallelism Phase D: Coexistence and Elasticity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-pool-gives-resources-back">Requirement: The Pool Gives Resources Back</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-pool-grows-when-needed">Requirement: The Pool Grows When Needed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-changes-are-not-constant">Requirement: Changes Are Not Constant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-a-rule-for-competing-work">Requirement: A Rule for Competing Work</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-resizing-is-safe">Requirement: Resizing Is Safe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-elasticity-is-visible">Requirement: Elasticity Is Visible</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-deciding-the-size">Algorithm Design: Deciding the Size</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-when-both-kinds-of-work-are-waiting">Algorithm Design: When Both Kinds of Work Are Waiting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-shrinking-without-interrupting">Algorithm Design: Shrinking Without Interrupting</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-what-changes">Implementation: What Changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-order-of-work">Implementation: Order of Work</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-resize-behavior">Testing and Validation: Resize Behavior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-idle-time">Testing and Validation: Idle Time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-real-mixed-workload">Testing and Validation: Real Mixed Workload</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Task Parallelism Phase D: Coexistence and Elasticity</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/task_parallelism_phase_d.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="task-parallelism-phase-d-coexistence-and-elasticity">
+<h1>Task Parallelism Phase D: Coexistence and Elasticity<a class="headerlink" href="#task-parallelism-phase-d-coexistence-and-elasticity" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Phase C gives the worker pool a fixed share of the allocation for the life of
+the run. That is simple, and it is wrong in one specific way: once the Python
+work is finished, the pool goes on holding its share, and those nodes sit
+idle while model runs queue for resources that are right there.</p>
+<p>Phase D makes the pool’s share change with the work. When Python work is
+ready, the pool grows; when it drains, the pool gives nodes back and ordinary
+steps use them.</p>
+<p>This is the phase that makes a mixed suite – model runs and analysis in the
+same job – use the machine properly. It is also the phase most likely to be
+unnecessary, and that should be tested before it is built: if suites in
+practice do their analysis at the end, after the model runs are done, then a
+pool that appears late and holds resources until the job ends costs nothing,
+and Phase D is optimisation without a problem to solve.</p>
+<p>Success in Phase D means a suite mixing model runs and analysis finishes in
+close to the time the work itself requires, with no long stretch where part
+of the allocation is reserved but idle.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-the-pool-gives-resources-back">
+<h3>Requirement: The Pool Gives Resources Back<a class="headerlink" href="#requirement-the-pool-gives-resources-back" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>When there is less ready Python work than the pool is sized for, the pool
+shall shrink and the freed resources shall become available to other steps.</p>
+<p>When the Python work is finished entirely, the pool shall release everything.</p>
+</section>
+<section id="requirement-the-pool-grows-when-needed">
+<h3>Requirement: The Pool Grows When Needed<a class="headerlink" href="#requirement-the-pool-grows-when-needed" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>When ready Python work exceeds what the current pool can handle, and
+resources are free, the pool shall grow.</p>
+<p>Growing shall not take resources from steps that are already running.</p>
+</section>
+<section id="requirement-changes-are-not-constant">
+<h3>Requirement: Changes Are Not Constant<a class="headerlink" href="#requirement-changes-are-not-constant" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The pool shall not resize continuously in response to small fluctuations.</p>
+<p>Adding and removing workers is not free. An earlier design that switched
+execution modes at every opportunity spent a significant fraction of its
+wall time doing so. The scheduler shall require a change to be worth making
+before making it.</p>
+</section>
+<section id="requirement-a-rule-for-competing-work">
+<h3>Requirement: A Rule for Competing Work<a class="headerlink" href="#requirement-a-rule-for-competing-work" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>When ready model steps and ready Python work both want the same free
+resources, Polaris shall apply a stated rule rather than whichever the loop
+happens to reach first.</p>
+<p>The rule shall be simple enough to explain in a sentence and shall be
+recorded in the run’s event stream when it is applied, so that a schedule
+that looks wrong can be understood.</p>
+</section>
+<section id="requirement-resizing-is-safe">
+<h3>Requirement: Resizing Is Safe<a class="headerlink" href="#requirement-resizing-is-safe" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Shrinking the pool shall not interrupt work already running on the workers
+being removed.</p>
+<p>A worker shall be allowed to finish what it holds before it is stopped, and
+the resources it occupied shall not be offered to another step until it has
+actually gone.</p>
+</section>
+<section id="requirement-elasticity-is-visible">
+<h3>Requirement: Elasticity Is Visible<a class="headerlink" href="#requirement-elasticity-is-visible" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Every resize shall be recorded, with what triggered it and what it cost, and
+the run summary shall report how much of the allocation was idle and for how
+long.</p>
+<p>Idle time is the quantity this phase exists to reduce, so it must be
+measurable before and after.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-deciding-the-size">
+<h3>Algorithm Design: Deciding the Size<a class="headerlink" href="#algorithm-design-deciding-the-size" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The scheduler already holds the dependency graph, so it knows not only what
+Python work is ready now but how much is still to come. The pool’s target
+size should be the number of workers the ready Python work can actually use,
+capped by what the allocation can spare.</p>
+<p>Resizing should happen in whole nodes. A pool spanning three nodes releasing
+“half a node” leaves a fragment too small to run a model step in, which is
+the shape of free resource that looks available and is useless.</p>
+<p>Two guards keep this from thrashing. A change should have to be worth more
+than it costs – the cost being one launch per node added, which measurement
+puts at a fraction of a second to a second – and a resize should not be
+followed immediately by its opposite.</p>
+</section>
+<section id="algorithm-design-when-both-kinds-of-work-are-waiting">
+<h3>Algorithm Design: When Both Kinds of Work Are Waiting<a class="headerlink" href="#algorithm-design-when-both-kinds-of-work-are-waiting" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The rule proposed is: <strong>prefer the work on the critical path, and break ties
+in favour of model steps.</strong></p>
+<p>Model steps tend to be longer and to have more work depending on them, so
+starting one late delays more. Python work tends to be shorter and more
+plentiful, which makes it good for filling gaps. The scheduler can estimate
+the critical path from the graph, so this is not guesswork.</p>
+<p>This is a proposal, not a conclusion. It should be revisited once there is a
+real mixed suite to measure, and the alternative – simple first-ready
+ordering – should be measured against it rather than assumed worse.</p>
+</section>
+<section id="algorithm-design-shrinking-without-interrupting">
+<h3>Algorithm Design: Shrinking Without Interrupting<a class="headerlink" href="#algorithm-design-shrinking-without-interrupting" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Shrinking should be cooperative: mark the workers to be removed as accepting
+no new work, wait for what they hold to finish, then stop them and return
+their resources to the pool. The scheduler must not count those resources as
+free until the workers have actually exited, or it will place a step on top
+of one still shutting down.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-what-changes">
+<h3>Implementation: What Changes<a class="headerlink" href="#implementation-what-changes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Phase D changes the pool module from Phase C and the scheduler loop from
+Phase B, and adds nothing structurally new:</p>
+<ul class="simple">
+<li><p>the pool gains grow and drain operations, and a notion of workers that are
+finishing but not yet gone;</p></li>
+<li><p>the resource pool distinguishes resources that are free from resources that
+will be free shortly;</p></li>
+<li><p>the scheduler consults a target pool size each time round the loop, and
+applies the competing-work rule when both kinds are ready.</p></li>
+</ul>
+</section>
+<section id="implementation-order-of-work">
+<h3>Implementation: Order of Work<a class="headerlink" href="#implementation-order-of-work" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Shrinking should be implemented before growing. Shrinking is what recovers
+the idle resources that motivate the phase; growing is an optimisation on top
+of it, and a pool that only ever shrinks is still correct.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-resize-behavior">
+<h3>Testing and Validation: Resize Behavior<a class="headerlink" href="#testing-and-validation-resize-behavior" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Tests with synthetic work shall cover: Python work draining to nothing, and
+the pool releasing everything; Python work appearing when the pool is at zero;
+a burst of work followed immediately by a lull, which shall not produce a
+resize followed by its opposite; and a shrink while work is still running,
+which shall wait for it.</p>
+</section>
+<section id="testing-and-validation-idle-time">
+<h3>Testing and Validation: Idle Time<a class="headerlink" href="#testing-and-validation-idle-time" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A mixed synthetic suite – model-like steps and Python-like work,
+interleaved so that a fixed pool would clearly waste resources – shall be run
+with a fixed pool and with an elastic one. Total allocation-seconds idle
+shall fall, and results shall be identical.</p>
+<p>This test is also what decides whether Phase D is worth building at all. It
+should be written first, run against Phase C, and the answer recorded.</p>
+</section>
+<section id="testing-and-validation-real-mixed-workload">
+<h3>Testing and Validation: Real Mixed Workload<a class="headerlink" href="#testing-and-validation-real-mixed-workload" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Once a real suite exists that mixes model runs and analysis, it shall be run
+with a fixed and an elastic pool and the wall times compared, on at least one
+Slurm and one PBS machine.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="task_parallelism_phase_c.html" class="btn btn-neutral float-left" title="Task Parallelism Phase C: Python Worker Pool" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="unified_base_mesh.html" class="btn btn-neutral float-right" title="Unified Mesh: Global Base Mesh Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

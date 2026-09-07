@@ -1,0 +1,542 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Parallelism in Polaris</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Task Parallelism Phase A: Placement" href="task_parallelism_phase_a.html" />
+    <link rel="prev" title="Task-Parallel-Safe Analysis Steps in Polaris" href="task_parallel_analysis_steps.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Task Parallelism in Polaris</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#two-workloads-not-one">Two workloads, not one</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-we-already-established">What we already established</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-the-rendered-commands-did">What the rendered commands did</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#where-measurements-live-and-what-does-not">Where measurements live, and what does not</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#the-phases">The phases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#phase-a-placement">Phase A – Placement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phase-b-concurrency">Phase B – Concurrency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phase-c-python-worker-pool">Phase C – Python worker pool</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#phase-d-coexistence-and-elasticity">Phase D – Coexistence and elasticity</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#scope-and-non-goals">Scope and non-goals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-success-looks-like">What success looks like</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Task Parallelism in Polaris</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/task_parallelism.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="task-parallelism-in-polaris">
+<h1>Task Parallelism in Polaris<a class="headerlink" href="#task-parallelism-in-polaris" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Polaris runs one step at a time. This document describes adding the ability
+to run independent steps at the same time, and maps out four phases of work
+to get there.</p>
+<p>“Task parallelism” is the historical name for this effort. The unit Polaris
+actually schedules is a <code class="docutils literal notranslate"><span class="pre">Step</span></code>, not a <code class="docutils literal notranslate"><span class="pre">Task</span></code>, and steps that run together may
+come from one task or from several tasks in a suite.</p>
+<section id="two-workloads-not-one">
+<h3>Two workloads, not one<a class="headerlink" href="#two-workloads-not-one" title="Link to this heading"></a></h3>
+<p>Two quite different kinds of work motivate this, and keeping them distinct
+is what makes the phasing sensible.</p>
+<p><strong>Regression suites</strong> such as <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> are dominated by many small MPI
+model runs. On a recent <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> run on Chrysalis, 79% of the time in
+steps was MPI forward runs and 21% was everything else. The whole suite took
+12:26 while its longest single task took 106 s, so the work is there: it is
+simply run one step after another. Running independent steps together should
+give roughly a 2.5-3x improvement on the same three-node allocation, limited
+by the total core-seconds of MPI work rather than by dependencies.</p>
+<p><strong>Analysis</strong> is the larger long-term need. Polaris is to gain analysis
+capability equivalent to MPAS-Analysis, for Omega and possibly MPAS-Ocean.
+That workload is heavily Python. MPAS-Analysis already has task parallelism,
+but it is built on <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code>, which cannot span nodes, and that
+single-node ceiling is a known choke point at high resolution – exactly
+Omega’s target. What this workload needs is not just concurrency but
+concurrency <strong>across nodes</strong>.</p>
+<p>Neither is optional, and the phases below deliver them in an order chosen for
+what each one unblocks rather than for which matters more.</p>
+</section>
+<section id="what-we-already-established">
+<h3>What we already established<a class="headerlink" href="#what-we-already-established" title="Link to this heading"></a></h3>
+<p>Before designing anything, we measured whether the machines Polaris targets
+can actually run several placed pieces of work at once inside a single
+allocation. They can, all five of them. The measurements were made in
+August 2026 with throwaway scripts; the results are recorded here because
+this document is where they need to survive.</p>
+<p>In each test, four pieces of work were launched at once inside one
+allocation, each asking to be confined to its own cores and, where
+relevant, its own GPUs. Each reported back which cores and GPUs it could
+actually see and when it ran, so that genuine overlap could be told from
+work that merely queued.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>machine</p></th>
+<th class="head"><p>batch system</p></th>
+<th class="head"><p>what confines a launch</p></th>
+<th class="head"><p>cores</p></th>
+<th class="head"><p>GPUs</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Chrysalis</p></td>
+<td><p>Slurm 20.02</p></td>
+<td><p>explicit CPU binding</p></td>
+<td><p>disjoint</p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-odd"><td><p>Perlmutter CPU</p></td>
+<td><p>Slurm 25.11</p></td>
+<td><p>resource request</p></td>
+<td><p>disjoint</p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-even"><td><p>Perlmutter GPU</p></td>
+<td><p>Slurm 25.11</p></td>
+<td><p>request + GPU total</p></td>
+<td><p>disjoint</p></td>
+<td><p>disjoint</p></td>
+</tr>
+<tr class="row-odd"><td><p>Frontier</p></td>
+<td><p>Slurm 25.11</p></td>
+<td><p>request + GPU total</p></td>
+<td><p>disjoint</p></td>
+<td><p>disjoint</p></td>
+</tr>
+<tr class="row-even"><td><p>Aurora</p></td>
+<td><p>PBS with PALS</p></td>
+<td><p>host list + core list</p></td>
+<td><p>disjoint</p></td>
+<td><p>disjoint</p></td>
+</tr>
+</tbody>
+</table>
+<p>All five ran all four launches concurrently.</p>
+<p>The GPU machines were also tested at MPI width – four concurrent two-rank
+MPI launches – and partitioned cleanly there too. On Frontier the four
+launches received GPUs 4,5 / 6,7 / 0,1 / 2,3.</p>
+</section>
+<section id="what-the-rendered-commands-did">
+<h3>What the rendered commands did<a class="headerlink" href="#what-the-rendered-commands-did" title="Link to this heading"></a></h3>
+<p>The table above was produced with commands written by hand. That establishes
+what the machines can do, not that the commands Polaris and <code class="docutils literal notranslate"><span class="pre">mache</span></code> build
+between them do it, which is a different claim and the one that gates the
+<code class="docutils literal notranslate"><span class="pre">mache</span></code> change. It was checked separately, in August 2026, on all five
+machines, by constructing disjoint placements, rendering each through
+<code class="docutils literal notranslate"><span class="pre">mache</span></code> and launching them together:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>machine</p></th>
+<th class="head"><p>placement</p></th>
+<th class="head"><p>GPUs</p></th>
+<th class="head"><p>note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Chrysalis</p></td>
+<td><p>exact cores</p></td>
+<td><p>n/a</p></td>
+<td><p>clean first time</p></td>
+</tr>
+<tr class="row-odd"><td><p>Frontier</p></td>
+<td><p>honored</p></td>
+<td><p>disjoint, 0,1 / 2,3 / 4,5 / 6,7</p></td>
+<td><p>clean first time</p></td>
+</tr>
+<tr class="row-even"><td><p>Perlmutter GPU</p></td>
+<td><p>honored</p></td>
+<td><p>disjoint, 0 / 1 / 2 / 3</p></td>
+<td><p>clean after a fix</p></td>
+</tr>
+<tr class="row-odd"><td><p>Aurora</p></td>
+<td><p>exact cores</p></td>
+<td><p>disjoint masks</p></td>
+<td><p>clean after a fix</p></td>
+</tr>
+<tr class="row-even"><td><p>Perlmutter CPU</p></td>
+<td><p>honored</p></td>
+<td><p>n/a</p></td>
+<td><p>clean first time</p></td>
+</tr>
+</tbody>
+</table>
+<p>Two defects were found this way and both were fixed in <code class="docutils literal notranslate"><span class="pre">mache</span></code> rather than
+worked around. On Aurora, <code class="docutils literal notranslate"><span class="pre">--env-remove</span></code> is not an option the PALS
+<code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> accepts, and it rejected the whole command, so every placed launch
+failed to start. On Perlmutter GPU, a <code class="docutils literal notranslate"><span class="pre">gpu_bind</span></code> of <code class="docutils literal notranslate"><span class="pre">none</span></code> carried from the
+machine config alongside an explicit GPU request, and under concurrency
+three of four launches silently received no GPU at all and exited zero –
+the same class of failure as silently losing placement, and the reason this
+verification was worth doing separately from the hand-written one.</p>
+<p>One limit of the Aurora result had to be carried with it, and asking about it
+turned up a real defect. On Slurm the GPUs a launch can see are read from the
+scheduler’s own variables, so the verdict is independent evidence. On PALS
+nothing assigns GPUs, so <code class="docutils literal notranslate"><span class="pre">mache</span></code> renders the indices the caller chose and the
+check reads that same value back: it confirms the plumbing, not that the
+runtime honors it. A clean Aurora run therefore did not establish that a
+launch asking for no GPUs got none.</p>
+<p>It has since been asked properly, by enumerating what the runtime can see
+rather than reading back what it was told, and the answer is that <strong>an empty
+<code class="docutils literal notranslate"><span class="pre">ZE_AFFINITY_MASK</span></code> hides nothing</strong>. Level Zero reads an empty value as “no
+mask”, which means every device: six cards visible with the variable unset,
+and the same six with it set and empty. So the explicit “no GPUs” <code class="docutils literal notranslate"><span class="pre">mache</span></code>
+renders on PALS is a no-op.</p>
+<p>Two controls make that a finding rather than a guess, and both were
+necessary. The variable arrived at the process <em>set and empty</em> rather than
+dropped, which separates Level Zero’s semantics from a plumbing bug; and a
+mask naming a subset, in the same launch style, did confine the launch, which
+rules out the mask simply being inert there. Two enumerators agreed, one of
+them reaching Level Zero with no SYCL layer in between.</p>
+<p>The consequence is small now and not small later. Nothing on PALS reserves
+GPUs, so a step seeing hardware it declined costs only tidiness, and neither
+Phase A nor Phase B is affected. It becomes an isolation question in Phase C,
+where it is recorded.</p>
+</section>
+<section id="where-measurements-live-and-what-does-not">
+<h3>Where measurements live, and what does not<a class="headerlink" href="#where-measurements-live-and-what-does-not" title="Link to this heading"></a></h3>
+<p>Both sets of results above were produced by harnesses written to answer a
+question. Neither harness is part of what Polaris ships, and the findings
+are recorded in this document rather than in the directories that produced
+them. This is deliberate and has already been learned once: an earlier
+version of these documents pointed at a README on a branch that was never
+going to merge, so the reference would have dangled and the evidence would
+have been lost with it.</p>
+<p>The rule worth stating, so that it does not have to be learned a third time:
+<strong>a harness built to answer a question is not part of the deliverable, its
+findings belong in the design document, and it does not merge.</strong> Anything
+from such a harness that deserves to keep running – a regression test, a
+standing check – has to be moved somewhere permanent before the harness
+goes, not after.</p>
+<p>The conclusions that shape this design are:</p>
+<ul>
+<li><p><strong>Launching work is cheap.</strong> Measured sequentially: roughly 60 per minute
+on Perlmutter GPU and Aurora, 150 on Perlmutter CPU, 500-600 on Frontier
+and Chrysalis. A long-standing suspicion that Perlmutter throttles
+launches to about one a minute turned out to describe a different problem
+– concurrent launches queueing, not launches being rate limited.</p>
+<p>Two caveats worth carrying. The tail is heavy: Frontier showed two of ten
+launches near two seconds against a median of 0.11 s on an otherwise idle
+system. And all of this was measured off-peak, so a busy weekday has not
+been ruled out. If a future run finds launching unexpectedly slow, this is
+the first thing to re-measure rather than the last.</p>
+</li>
+<li><p><strong>The scheduler will keep concurrent work apart, if asked properly.</strong> Each
+piece of work gets its own cores, and its own GPUs, enforced by the batch
+system rather than by Polaris. This is a stronger guarantee than we
+expected to get.</p></li>
+<li><p><strong>Silence about GPUs is not neutral at the launcher.</strong> Polaris steps use
+no GPUs unless they say so, and that stays true. But if Polaris passes
+that silence on, the batch system reads it as “give this work the node’s
+GPUs” and reserves all of them, which is what stopped concurrency on the
+GPU machines – not memory or CPU contention. Polaris must therefore state
+a step’s GPU need explicitly in every case, <strong>including when it is zero</strong>.
+Since most Polaris steps use no GPUs at all, saying “none” is the common
+path, not the exception.</p></li>
+<li><p><strong>When a step does want GPUs, it must ask for a total, not a count per MPI
+rank.</strong> The per-rank form does not confine a step at all. This is a real
+constraint on how Polaris describes step resources, and it differs from
+how CPU resources are described today.</p></li>
+<li><p><strong>The batch system will not schedule memory for us, but on newer Slurm it
+will enforce it.</strong> These are different things and the difference decides
+how memory is handled. Asking a launch for a share of the node’s memory
+did not fix the serialization – silence about GPUs did that – and it
+reserved nothing that any measurement could see. But a later measurement
+on the same machines showed a memory request is not inert: a launch
+allowed 1024 MB and told to take 4 GB is killed at 960 MB on Perlmutter
+GPU and on Frontier, and runs to completion on Chrysalis, whose Slurm
+predates the 20.11 change.</p>
+<p>So the launcher will not tell Polaris what fits, and deciding that remains
+a budget Polaris keeps itself, in the scheduler in Phase B. What the
+launcher will do, on some machines, is hold a launch to a number it was
+given. That makes a memory figure passed to a launcher a <strong>cap</strong> rather
+than a reservation, which is a thing worth doing deliberately for a step
+that stated its own number and not worth doing to a step the framework
+guessed at.</p>
+<p>One worry this raised does not materialize. Silence about memory does not
+repeat the trap that silence about GPUs sets: four concurrent launches
+that said nothing about memory all started within 40 ms of each other and
+ran their full duration on both machines that enforce. An unstated memory
+requirement is not read as a claim on the node’s memory. Aurora and
+Perlmutter CPU are unmeasured on this point.</p>
+</li>
+</ul>
+<p>One more result is worth recording because it cost a round of testing: on
+CUDA machines the visible-device variable is renumbered for each launch, so
+four launches on four different GPUs all report device <code class="docutils literal notranslate"><span class="pre">0</span></code>. Anything
+verifying GPU placement must use the scheduler’s global identifiers
+instead.</p>
+<p>Two approaches were tried and rejected. Allowing launches to overlap without
+constraining them gives concurrency but every launch then shares every core
+and GPU, which is oversubscription rather than scheduling. Constraining a
+launch and <em>also</em> pinning it with an explicit CPU mask fails outright on
+newer Slurm, because the two contradict each other; explicit masks remain
+the only mechanism on Slurm older than 20.11, where they work.</p>
+<p>The practical consequence is that no new dependency is needed. We considered
+adopting Flux, a nested scheduler that would sidestep the batch system
+entirely, and it is not necessary.</p>
+</section>
+</section>
+<section id="the-phases">
+<h2>The phases<a class="headerlink" href="#the-phases" title="Link to this heading"></a></h2>
+<p>Each phase is a separate design document and is intended to be independently
+useful.</p>
+<section id="phase-a-placement">
+<h3>Phase A – Placement<a class="headerlink" href="#phase-a-placement" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="task_parallelism_phase_a.html"><span class="std std-doc">Task Parallelism Phase A: Placement</span></a></p>
+<p>Give Polaris the ability to run a step on a <strong>named part</strong> of its allocation
+rather than on all of it, and give steps a way to say what they need,
+including GPUs as a per-step total and memory. Still one step at a time.
+Memory is declared here and shown to the step, but it is not something the
+launcher is asked to enforce; deciding what fits is Phase B’s job.</p>
+<p>This is a prerequisite for everything else, and most of the work is in
+<code class="docutils literal notranslate"><span class="pre">mache</span></code>, which owns how Polaris launches parallel work. That <code class="docutils literal notranslate"><span class="pre">mache</span></code> change
+is merged and released as <code class="docutils literal notranslate"><span class="pre">mache</span></code> 3.12.0, which Polaris requires; while it
+was unreleased Phase A was developed against the branch.</p>
+</section>
+<section id="phase-b-concurrency">
+<h3>Phase B – Concurrency<a class="headerlink" href="#phase-b-concurrency" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="task_parallelism_phase_b.html"><span class="std std-doc">Task Parallelism Phase B: Concurrency</span></a></p>
+<p>Build the dependency graph, the resource pool and an executor that runs each
+step in its own process. Run independent steps at the same time – MPI and
+non-MPI alike, since with Phase A in place there is no reason to stage one
+behind the other.</p>
+<p>This is where the regression-suite speedup lands.</p>
+</section>
+<section id="phase-c-python-worker-pool">
+<h3>Phase C – Python worker pool<a class="headerlink" href="#phase-c-python-worker-pool" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="task_parallelism_phase_c.html"><span class="std std-doc">Task Parallelism Phase C: Python Worker Pool</span></a></p>
+<p>Add a second executor: a pool of workers spread across the allocation’s
+nodes, for Python work that is too fine-grained to give a process of its
+own. This is what lifts the single-node ceiling that constrains
+MPAS-Analysis today, and it is the phase the analysis capability depends on.</p>
+<p>Measurement has since confirmed the premise: a high-resolution analysis run
+is fine-grained, with a median task of about five seconds and half of them
+shorter. Phase C records what else that run showed, including two of its
+headline numbers that do not mean what they appear to. It is worth stating
+here that analysis is the pool’s first demanding customer and not its
+specification – most Polaris workflows share no single large input, and a
+pool built around one would serve the general case badly.</p>
+</section>
+<section id="phase-d-coexistence-and-elasticity">
+<h3>Phase D – Coexistence and elasticity<a class="headerlink" href="#phase-d-coexistence-and-elasticity" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="task_parallelism_phase_d.html"><span class="std std-doc">Task Parallelism Phase D: Coexistence and Elasticity</span></a></p>
+<p>Let the worker pool and ordinary steps share an allocation, and let the pool
+grow and shrink as the amount of ready Python work changes, so that it does
+not hold nodes idle once that work drains.</p>
+</section>
+</section>
+<section id="scope-and-non-goals">
+<h2>Scope and non-goals<a class="headerlink" href="#scope-and-non-goals" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> <strong>stays</strong>, unchanged, as the compatibility baseline. The
+new capability arrives on a separate path. There is no plan in these
+documents to remove <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>; that can be revisited once the new
+path has been used in anger.</p></li>
+<li><p>Polaris will not request larger allocations by default just because it can
+now use them. Allocation sizing stays as it is; users asking for more
+nodes is a deliberate act.</p></li>
+<li><p>These documents do not cover writing the analysis capability itself. The
+properties an analysis step needs in order to be safely run concurrently
+are a separate document,
+<a class="reference internal" href="task_parallel_analysis_steps.html"><span class="std std-doc">Task-Parallel-Safe Analysis Steps in Polaris</span></a>,
+which is worth adopting before analysis steps are written rather than
+after. Its rules are also written up for step authors in the developer
+guide, under <a class="reference internal" href="../developers_guide/framework/task_parallelism.html#dev-task-parallelism"><span class="std std-ref">Writing task-parallel-safe steps</span></a>.</p></li>
+</ul>
+</section>
+<section id="what-success-looks-like">
+<h2>What success looks like<a class="headerlink" href="#what-success-looks-like" title="Link to this heading"></a></h2>
+<p>Polaris can run a suite’s independent steps at the same time, on any
+supported machine, with the batch system keeping them from treading on each
+other, producing the same results as running them one at a time; and Python
+analysis work can spread across more than one node.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="task_parallel_analysis_steps.html" class="btn btn-neutral float-left" title="Task-Parallel-Safe Analysis Steps in Polaris" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="task_parallelism_phase_a.html" class="btn btn-neutral float-right" title="Task Parallelism Phase A: Placement" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

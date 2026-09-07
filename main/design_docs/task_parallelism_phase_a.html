@@ -1,0 +1,1077 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Parallelism Phase A: Placement</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Task Parallelism Phase B: Concurrency" href="task_parallelism_phase_b.html" />
+    <link rel="prev" title="Task Parallelism in Polaris" href="task_parallelism.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Task Parallelism Phase A: Placement</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-confine-a-step-to-part-of-the-allocation">Requirement: Confine a Step to Part of the Allocation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-isolation-enforced-by-the-batch-system">Requirement: Isolation Enforced by the Batch System</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-a-step-s-gpu-need-is-always-stated-explicitly">Requirement: A Step’s GPU Need Is Always Stated Explicitly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-steps-declare-memory">Requirement: Steps Declare Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-resource-views-describe-what-a-step-can-use">Requirement: Resource Views Describe What a Step Can Use</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-a-step-says-whether-its-resources-may-span-nodes">Requirement: A Step Says Whether Its Resources May Span Nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-portability-across-supported-machines">Requirement: Portability Across Supported Machines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-no-change-to-existing-behavior">Requirement: No Change to Existing Behavior</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-what-placement-means-to-the-launcher">Algorithm Design: What Placement Means to the Launcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-describing-step-resources">Algorithm Design: Describing Step Resources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-reservations-are-not-always-placements">Algorithm Design: Reservations Are Not Always Placements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-detecting-what-a-machine-supports">Algorithm Design: Detecting What a Machine Supports</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-mache-side">Implementation: The mache Side</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-polaris-side">Implementation: The Polaris Side</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-boundaries">Implementation: Boundaries</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-command-construction">Testing and Validation: Command Construction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-real-machines">Testing and Validation: Real Machines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-measuring-each-machine-s-memory">Testing and Validation: Measuring Each Machine’s Memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-no-regression">Testing and Validation: No Regression</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Task Parallelism Phase A: Placement</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/task_parallelism_phase_a.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="task-parallelism-phase-a-placement">
+<h1>Task Parallelism Phase A: Placement<a class="headerlink" href="#task-parallelism-phase-a-placement" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Today, when Polaris runs a step that uses MPI, it launches it across the
+whole allocation. That is correct when only one step runs at a time, and it
+is the single largest obstacle to ever running two steps at once: two steps
+that each believe they own the machine will either collide or, more often,
+queue behind one another.</p>
+<p>Phase A gives Polaris the ability to run a step on a <strong>named part</strong> of its
+allocation – these nodes, these cores, these GPUs – and gives steps a way
+to describe what they need, in terms the batch system can act on.</p>
+<p>Phase A does not run anything concurrently. At the end of it, Polaris still
+executes one step at a time and produces identical results. What changes is
+that the machinery for saying “run this here” exists and is known to work on
+every machine Polaris supports.</p>
+<p>Most of the work is not in Polaris. Polaris does not build the command that
+launches parallel work; <code class="docutils literal notranslate"><span class="pre">mache</span></code> does, through its <code class="docutils literal notranslate"><span class="pre">ParallelSystem</span></code> classes.
+<code class="docutils literal notranslate"><span class="pre">mache</span></code> is a contract shared with other software, so the launcher change must
+land there first. That change has its own design document in the <code class="docutils literal notranslate"><span class="pre">mache</span></code>
+repository; this document describes what Polaris needs from it and what
+changes on the Polaris side.</p>
+<p>Success in Phase A means Polaris can construct a correct launch command for a
+step confined to a given subset of the allocation, on Slurm and on PBS, for
+CPU-only and GPU steps, and that <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> behaves exactly as before.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-confine-a-step-to-part-of-the-allocation">
+<h3>Requirement: Confine a Step to Part of the Allocation<a class="headerlink" href="#requirement-confine-a-step-to-part-of-the-allocation" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Polaris shall be able to launch a step so that it runs on a specified subset
+of the allocation’s nodes and cores, rather than on all of them.</p>
+<p>The subset shall be expressible in terms Polaris already understands: which
+nodes, how many cores, and how many GPUs. Polaris shall not need to know
+machine-specific syntax in order to express it.</p>
+</section>
+<section id="requirement-isolation-enforced-by-the-batch-system">
+<h3>Requirement: Isolation Enforced by the Batch System<a class="headerlink" href="#requirement-isolation-enforced-by-the-batch-system" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>When two steps are confined to non-overlapping subsets, the batch system
+shall be what keeps them apart, not Polaris.</p>
+<p>We prototyped an alternative in which Polaris pinned processes itself using
+CPU affinity masks. It works, but it is a weaker guarantee: a step that
+ignores its mask is not prevented from doing so, and the mechanism differs
+per machine. Measurements showed the batch system can do this properly on
+every supported machine, so it should.</p>
+<p>The exception is machines running Slurm older than 20.11, such as Chrysalis,
+where the necessary options do not exist. There, Polaris shall fall back to
+explicit CPU binding, and shall record that it has done so.</p>
+</section>
+<section id="requirement-a-step-s-gpu-need-is-always-stated-explicitly">
+<h3>Requirement: A Step’s GPU Need Is Always Stated Explicitly<a class="headerlink" href="#requirement-a-step-s-gpu-need-is-always-stated-explicitly" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A Polaris step uses no GPUs unless it declares otherwise. That premise does
+not change, and most steps will continue to declare nothing.</p>
+<p>What must change is that Polaris shall state a step’s GPU need to the
+launcher in every case, <strong>including when it is zero</strong>. Passing nothing is
+not the same as passing zero: the batch system treats an unstated GPU
+requirement as a claim on the node’s GPUs and reserves all of them, which
+prevents any other step from starting. Because most Polaris steps use no
+GPUs, explicitly requesting none is the ordinary case rather than a special
+one.</p>
+<p>A step that does want GPUs shall declare how many <strong>the step</strong> needs, not
+how many each MPI rank needs. This differs from how CPU resources are
+described today, where <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> are per-rank
+quantities, and the difference is not cosmetic: measurements on both GPU
+machines showed the per-rank form does not confine a step at all, while a
+per-step total does.</p>
+</section>
+<section id="requirement-steps-declare-memory">
+<h3>Requirement: Steps Declare Memory<a class="headerlink" href="#requirement-steps-declare-memory" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A step shall be able to declare how much memory it needs, as a target and a
+minimum, in the same style as its existing CPU requirements.</p>
+<p>Memory is unlike cores and GPUs in that the batch system will not keep it
+for us. Asking a launch for a share of the node’s memory was measured to
+reserve nothing, so nothing Polaris passes to a launcher will make room for
+a step or tell Polaris whether one fits. Memory is therefore a budget
+Polaris keeps itself: the only way one step’s memory is protected from
+another’s is that Polaris declines to start the second step. That decision
+is Phase B’s, and so is the accounting behind it.</p>
+<p>What a memory figure passed to a launcher <em>does</em> do, on machines whose Slurm
+postdates the 20.11 change, is cap the launch: a step allowed 1024 MB and
+told to take 4 GB is killed at 960 MB on Perlmutter GPU and on Frontier,
+while the same launch runs to completion on Chrysalis. So such a figure is
+an enforced ceiling on some machines and inert on others, and is never a
+reservation anywhere. Whether Polaris should impose that ceiling is taken up
+in Phase B, and the answer there turns on the distinction the next paragraph
+draws.</p>
+<p>What Phase A shall provide is the declaration, its default, and its
+visibility to the step – and shall keep a declared figure distinguishable
+from a defaulted one, because later phases treat them differently. A step
+that says a number has made a claim about itself and can be held to it. A
+step that says nothing is being estimated by the framework, and must not be
+held to the framework’s estimate. Anything that reads a step’s memory needs
+to be able to tell which it has.</p>
+<p>A step that declares nothing shall be treated as needing memory in
+proportion to the cores it asked for – the node’s memory
+divided by its cores, times the step’s cores. This is deliberately the value
+that makes memory-aware packing arithmetically identical to packing on cores
+alone, so that introducing memory can never make Phase B schedule worse than
+it would have without it, and so that no per-step number has to be invented
+for the steps that exist today. Steps that have been measured, which is
+mostly the analysis work in Phase C, override the default with a real
+figure and are then scheduled on it.</p>
+<p>A declared figure is therefore a ceiling as well as a claim, wherever the
+machine can hold a step to one, and a step author should declare a peak with
+margin rather than a typical value. A figure that describes what a step
+usually needs will kill it on the day it needs more, on the machines that
+enforce and not on the others.</p>
+<p>An under-declaring step running beside others is a real failure mode, and
+one that did not exist when Polaris ran a step at a time. Phase B addresses
+it, and the declared-versus-defaulted distinction is what lets it do so
+without turning the framework’s own estimate into a death sentence.</p>
+<p>Device memory needs no declaration of its own. GPUs are never divided
+between steps, so a step given a GPU is given that GPU’s memory with it, and
+the GPU count already accounts for it.</p>
+<p>Host memory on a GPU machine is the case where the proportional default is
+most likely to be wrong, and a step author should expect to declare rather
+than rely on it. A step that wants every GPU on a node and only a handful of
+cores to drive them gets, by the proportional rule, only that handful’s
+share of the node’s memory – which is unlikely to be what it needs to stage
+data for the devices. Making the default depend on GPUs as well would
+destroy the property that makes it safe, since it is exactly its being
+proportional to cores that makes memory-aware packing reduce to packing on
+cores. The default is a floor for steps nobody has measured, not an estimate
+anyone should trust for a step whose memory has nothing to do with its core
+count.</p>
+</section>
+<section id="requirement-resource-views-describe-what-a-step-can-use">
+<h3>Requirement: Resource Views Describe What a Step Can Use<a class="headerlink" href="#requirement-resource-views-describe-what-a-step-can-use" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The resource information given to a step shall describe the resources that
+step can actually use.</p>
+<p>A step confined to one node shall be told about one node’s resources, and a
+step whose work may span nodes shall be told about all of the resources it
+was given. Telling a step that runs its work in its own process about cores
+on nodes it will never reach invites it to size itself wrongly; telling a
+step that distributes its work about one node’s worth understates what it
+has. The view shall describe how a step’s resources are distributed, not
+only how many there are, since that is the part a step sizing itself needs
+and the part a single number cannot carry.</p>
+<p>Any resources withheld from a step shall be genuinely withheld, not merely
+subtracted from a number.</p>
+<p>Memory shall be part of that view. It is the one resource where the number a
+step is told is the only thing standing between it and the node’s limit,
+because nothing below Polaris will stop it, and it is the number a step that
+sizes something for itself – a worker pool, a chunk size – has to size
+against. A step told its cores and its memory can do that; a step told only
+its cores cannot, and the natural mistake is to derive memory from cores,
+which is wrong in exactly the case that matters.</p>
+</section>
+<section id="requirement-a-step-says-whether-its-resources-may-span-nodes">
+<h3>Requirement: A Step Says Whether Its Resources May Span Nodes<a class="headerlink" href="#requirement-a-step-says-whether-its-resources-may-span-nodes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Whether a step’s resources may be drawn from more than one node shall be a
+property the step declares, and shall not be inferred from whether the step
+uses MPI.</p>
+<p>This covers cores and GPUs together, as one property rather than two. A step
+that reaches other nodes reaches them by one mechanism, and that mechanism
+carries whatever the work needs; a step that cannot reach them cannot reach
+either. No case has been identified that wants the two to differ, and
+splitting them would invite a step to claim GPUs on nodes its cores cannot
+reach.</p>
+<p>MPI and spanning are not the same question, and treating them as the same is
+what this requirement exists to prevent. An MPI step spans nodes because its
+launcher spreads its ranks. A single-process Python step that does its work
+in its own threads cannot span nodes, because there is no mechanism by which
+it would reach them. A single-process Python step that hands its work to a
+distributed worker pool spans nodes perfectly well – the pool is exactly
+the mechanism the thread-based step lacks – and it does so while remaining
+one process asking for one task. “Not MPI” covers the last two cases, which
+want opposite answers.</p>
+<p>Such a step’s workers may use GPUs as readily as cores, and when they do,
+the GPUs come from the nodes the workers are on rather than from the node
+the step’s own process happens to occupy. Nothing about a step being
+single-process confines its GPUs to one node once its work is somewhere
+else.</p>
+<p>Steps that do not say shall be treated as confined to a node, which is what
+every non-MPI step in Polaris is today. This is also the safe direction: a
+request that a node can satisfy is satisfiable on any allocation that could
+have satisfied a larger one.</p>
+<p>Where a step cannot be given what it asked for, the existing
+target-and-minimum rule shall decide what happens, with the node boundary
+as one more thing that can make a request unsatisfiable. A step confined to
+a node may be reduced silently towards its target, exactly as it may be
+today, because a step that names a minimum has said in advance which
+reductions are acceptable. A step whose <em>minimum</em> cannot be met within a
+node shall be an error when the run is set up, naming what it needs, what a
+node holds, and the property that would let it span – not quietly reduced
+to what fits. This applies to a step asking for more GPUs than a node has
+exactly as it applies to cores.</p>
+<p>This is deliberately the rule Polaris already follows, extended rather than
+replaced, and it leaves today’s steps alone. The two steps that currently
+ask for more cores than some machines have per node both name a minimum of
+one, so they are reduced as they always were. What changes is only that the
+bound is the allocation for a step that may span, and that a step that may
+not span and cannot fit says so instead of shrinking in silence.</p>
+</section>
+<section id="requirement-portability-across-supported-machines">
+<h3>Requirement: Portability Across Supported Machines<a class="headerlink" href="#requirement-portability-across-supported-machines" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Placement shall work on all machines Polaris supports for parallel work:
+Slurm systems both older and newer than the 20.11 change in how job steps
+reserve resources, and PBS systems using the PALS launcher.</p>
+<p>Where a machine cannot support placement, Polaris shall detect this and say
+so, rather than silently running steps on the whole allocation.</p>
+</section>
+<section id="requirement-no-change-to-existing-behavior">
+<h3>Requirement: No Change to Existing Behavior<a class="headerlink" href="#requirement-no-change-to-existing-behavior" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> shall behave exactly as it does today. A step that does not
+ask to be confined shall be launched as it is now.</p>
+<p>Two of the requirements above change what a step is told or permitted rather
+than how it is launched, and both are constructed to leave existing steps
+where they are: the memory default reproduces core-only packing exactly, and
+the node-span rule reduces to today’s target-and-minimum behavior for every
+step now in Polaris. Neither should show up as a difference in a run.</p>
+<p>This requirement is also what the migration of existing non-MPI steps onto
+the new fields is checked against. A step restated in different words shall
+receive the same resources and produce the same outputs, and any step for
+which that is not true has been restated wrongly.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-what-placement-means-to-the-launcher">
+<h3>Algorithm Design: What Placement Means to the Launcher<a class="headerlink" href="#algorithm-design-what-placement-means-to-the-launcher" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The launcher should accept an optional description of where a step is to
+run, alongside the existing task and CPU counts. In substance that
+description is:</p>
+<ul class="simple">
+<li><p>the nodes the step may use;</p></li>
+<li><p>how many cores it may use on each;</p></li>
+<li><p>how many GPUs it needs in total, which is normally none.</p></li>
+</ul>
+<p>All three are always present. There is no “unspecified” for GPUs, because
+an unspecified GPU requirement is what the batch system reads as a claim on
+all of them.</p>
+<p>Each supported system can express all three, though they say it differently.
+On newer Slurm it is a matter of asking for exactly the resources requested
+rather than inheriting the job’s; on PBS with PALS it is a host list plus an
+explicit core list; on older Slurm, where the modern options do not exist, it
+is an explicit CPU mask, which is the fallback noted above.</p>
+<p>The important design point is that Polaris should describe the <em>placement</em>,
+never the flags. Which flags implement it is the launcher’s business, and
+they differ enough between machines – and between Slurm versions on the same
+kind of machine – that leaking them into Polaris would spread
+machine-specific knowledge through the scheduler.</p>
+</section>
+<section id="algorithm-design-describing-step-resources">
+<h3>Algorithm Design: Describing Step Resources<a class="headerlink" href="#algorithm-design-describing-step-resources" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Polaris steps today describe CPU needs per MPI rank: <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> how many ranks,
+<code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> how many cores each, with <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code>
+giving the scheduler room to run a step smaller when resources are tight.
+That target-and-minimum pattern is a good one and should be kept.</p>
+<p>GPUs should be added as a per-step total with a matching minimum, for the
+reason given in the requirements, defaulting to none so that the great
+majority of steps need say nothing and still get an explicit “no GPUs”
+passed to the launcher on their behalf.</p>
+<p>Memory follows the same target-and-minimum pattern but does not follow the
+same path afterwards. GPUs go to the launcher because the launcher acts on
+them; memory goes to the scheduler and to the step, because those are the
+only two things that act on it. It is worth being explicit that this is not
+an omission: a memory figure rendered into a launch command would be
+decoration, and worse than decoration, because it would suggest an
+enforcement that does not happen.</p>
+<p>Memory’s default differs from the GPU default in kind. “No GPUs” is a true
+statement about a step that uses no GPUs. There is no equivalent true
+statement about memory – every step uses some – so the default has to be
+an assumption, and the assumption chosen is the step’s proportional share of
+the node: cores requested, times the node’s memory divided by the node’s
+cores. Its merit is not that it is accurate for any particular step; it is
+that a run in which every step defaults packs exactly as a run with no
+memory accounting at all, so the mechanism is inert until someone supplies a
+measured number.</p>
+<p>An alternative was considered and rejected: converting memory into an
+equivalent number of cores and packing on cores alone, so that a step
+needing a large fraction of the node’s memory reserves a matching fraction
+of its cores. It has the appeal of resting on the one resource the batch
+system does enforce. But it over-reserves whenever a step’s ratio of memory
+to cores differs from the node’s, and it does so worst for steps that want
+much memory and few cores, which is precisely the analysis work that
+motivated declaring memory at all. It would also hand such a step <em>more</em>
+cores than it asked for, so a step that sizes a worker pool from its cores
+would respond to needing more memory by creating more workers with less
+memory each. Tracking memory as its own quantity avoids both, and is
+consistent with the decision already made for GPUs, which this design
+likewise declines to express in CPU-shaped terms.</p>
+<p>GPUs need no separate treatment for non-MPI steps, and it is worth saying so
+rather than leaving it to be inferred. A per-step total is already the shape
+a single-process step wants, so the same <code class="docutils literal notranslate"><span class="pre">gpus</span></code> and <code class="docutils literal notranslate"><span class="pre">min_gpus</span></code> serve both
+kinds of step and nothing further is required. The measurement that forced
+GPUs into that shape – a per-rank count does not confine a launch – happens
+to have put them where a step with no ranks can use them. Cores are the
+exception rather than GPUs being an omission: they are described per rank
+for historical reasons, and are the one resource a non-MPI step therefore
+cannot state.</p>
+<p>Non-MPI steps are worth calling out for that reason. A single-process Python
+step has no meaningful “number of ranks”; what it has is a number of cores
+it can use and an amount of memory it needs. Expressing that through
+MPI-shaped fields is how Polaris ends up telling a Python step it has 192
+cores across three nodes. Non-MPI steps should describe cores and memory
+directly, and their GPUs through the same per-step total every other step
+uses.</p>
+<p>That matters more once such a step is allowed to span nodes. A step that
+wants two hundred cores from a distributed pool is, in MPI-shaped terms, one
+task with two hundred CPUs each – a sentence no launcher can act on, since
+one process cannot be given two hundred cores on a node that has a hundred
+and twenty-eight. Written directly, as two hundred cores that may come from
+several nodes, it says something true and actionable. The MPI-shaped fields
+are not merely awkward here; they cannot express the case at all.</p>
+</section>
+<section id="algorithm-design-reservations-are-not-always-placements">
+<h3>Algorithm Design: Reservations Are Not Always Placements<a class="headerlink" href="#algorithm-design-reservations-are-not-always-placements" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>For most steps, the resources Polaris reserves and the resources it confines
+the step to are the same set, described once and used twice. An MPI step
+given ninety-six cores is launched on those ninety-six cores; reserving them
+and placing them are one act.</p>
+<p>Two cases in this design separate them. Memory is reserved and never placed,
+because no launcher acts on it. A step that delegates its work to a
+distributed pool is the mirror image: what Polaris launches is a driver
+process needing about one core, while the cores the step claims – and the
+GPUs, where its workers use them – are consumed by pool workers, which are
+separate launches, started elsewhere, and shared with other steps. Placing
+two hundred cores on that driver would confine them to a process that will
+not use them, while the workers that will are somewhere else entirely, and
+placing GPUs on it would reserve devices on the one node whose work is
+smallest.</p>
+<p>The distinction to carry forward is that <strong>placement is what the launcher
+acts on and a reservation is what the scheduler tracks</strong>. They coincide for
+ordinary steps. Where they do not, the scheduler’s accounting is the one
+that has to be right, because it is what stops the machine being
+oversubscribed; the placement is only ever a description of where a
+particular launch goes.</p>
+<p>Phase A implements no delegation – there is no pool until Phase C, and no
+scheduler until Phase B. What Phase A must not do is build the two ideas as
+one thing, because separating them afterwards means revisiting every place
+that assumed a step’s cores and its launch describe the same set.</p>
+</section>
+<section id="algorithm-design-detecting-what-a-machine-supports">
+<h3>Algorithm Design: Detecting What a Machine Supports<a class="headerlink" href="#algorithm-design-detecting-what-a-machine-supports" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Placement support is a property of the machine and of the version of its
+batch system, and it must be decided at run time rather than baked into
+configuration, because the same machine can change underneath us.</p>
+<p>The launcher should determine, once per run, which placement mechanism
+applies, and report it. Three outcomes matter: full placement with batch-system
+enforcement; placement by explicit CPU binding, on older Slurm; and no
+placement, which Polaris should treat as “concurrency is not available here”
+rather than as an error.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-the-mache-side">
+<h3>Implementation: The mache Side<a class="headerlink" href="#implementation-the-mache-side" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">mache.parallel.ParallelSystem.get_parallel_command()</span></code> gains an optional
+placement argument, and each subclass renders it appropriately. This is the
+contract change, and it must land in <code class="docutils literal notranslate"><span class="pre">mache</span></code> before Polaris can depend on
+it. Its design is <em>Design Document: parallel placement</em>, at
+<code class="docutils literal notranslate"><span class="pre">docs/design/parallel_placement.md</span></code> in the <code class="docutils literal notranslate"><span class="pre">mache</span></code> repository. It is a
+separate repository, so this cannot be a cross-reference.</p>
+<p>That work was <strong><code class="docutils literal notranslate"><span class="pre">mache</span></code> pull request #470</strong>, which adds a
+<code class="docutils literal notranslate"><span class="pre">ResourcePlacement</span></code> type and the optional argument, renders it for Slurm
+both before and after 20.11, for PBS with PALS and for a single node, adds
+an optional memory cap, and tests the rendering against every shipped
+machine config. Its condition for merging was that Polaris testing first
+confirm the rendered commands behave as intended on real machines, so it and
+Phase A unblocked each other and were worked on together. <strong>It is merged,
+and released as <code class="docutils literal notranslate"><span class="pre">mache</span></code> 3.12.0.</strong></p>
+<p>The sequencing that release was held to is worth recording, because it was
+deliberate and the alternative was easy to drift into. The order was:
+Polaris testing confirms the rendering <em>and</em> measures each machine’s memory,
+<code class="docutils literal notranslate"><span class="pre">mache</span></code> takes both, then merges and releases, Polaris pins that release, and
+only then does Phase A land. Folding the memory corrections into the same
+release mattered because the alternative is shipping estimates and
+correcting them in a second release that nothing forces anyone to make.
+That held: 3.12.0 carries the placement work, the memory cap, and the
+surveyed <code class="docutils literal notranslate"><span class="pre">memory_per_node</span></code> figures together.</p>
+<p>While the work was unreleased, Polaris deployed against the pull request
+branch, which <code class="docutils literal notranslate"><span class="pre">deploy.py</span></code> already supported and which therefore needed no
+change to Polaris’s deployment machinery:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">deploy</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">mache</span><span class="o">-</span><span class="n">fork</span> <span class="n">xylar</span><span class="o">/</span><span class="n">mache</span> <span class="o">--</span><span class="n">mache</span><span class="o">-</span><span class="n">branch</span> <span class="n">parallel</span><span class="o">-</span><span class="n">placement</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">deploy.py</span></code> and <code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code> are contract files shared with
+<code class="docutils literal notranslate"><span class="pre">mache</span></code> and must not be edited in Polaris to accommodate anything of this
+kind. That was always a temporary state, and it ends here: Phase A must not
+merge while depending on an unreleased branch, and no longer has to.</p>
+<p>Polaris shall require <code class="docutils literal notranslate"><span class="pre">mache</span></code> 3.12.0 or later, and shall fail clearly if an
+older one is present. Those are two separate mechanisms and it is worth
+saying which does what.</p>
+<p>The version requirement belongs in the deployment pin, which is what governs
+any environment built the ordinary way. The check in the running code is a
+backstop for an environment that was not, and it shall test the <em>capability</em>
+– whether this <code class="docutils literal notranslate"><span class="pre">mache</span></code> accepts a placement at all – rather than compare
+version numbers. The capability is the thing that matters, and a version is
+only a proxy for it: a proxy that would reject a development build or a fork
+that can place, and accept a release that could not.</p>
+<p>What either guards against is the reason they exist: a run that silently
+lost placement would appear to work while oversubscribing the machine, which
+is the worst failure available here – no error, wrong results, and slower
+than serial.</p>
+</section>
+<section id="implementation-the-polaris-side">
+<h3>Implementation: The Polaris Side<a class="headerlink" href="#implementation-the-polaris-side" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul>
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span></code> gains <code class="docutils literal notranslate"><span class="pre">gpus</span></code> and <code class="docutils literal notranslate"><span class="pre">min_gpus</span></code> as per-step totals. The existing
+<code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> should be deprecated in favor of the total, since it does
+not do what its name suggests when steps run concurrently.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span></code> gains <code class="docutils literal notranslate"><span class="pre">memory</span></code> and <code class="docutils literal notranslate"><span class="pre">min_memory</span></code>. <code class="docutils literal notranslate"><span class="pre">Step</span></code> already carries a
+<code class="docutils literal notranslate"><span class="pre">max_memory</span></code> attribute, documented as a placeholder for task parallelism
+and unused by anything. This is that placeholder being redeemed, not a
+second mechanism beside it, and the existing attribute should be
+reconciled rather than left alongside. Its units, megabytes, are worth
+keeping; its name is not, since what a step declares is what it needs and
+not a ceiling it is held to.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span></code> gains a way to say how many cores and how much memory a non-MPI
+step needs, without going through MPI task counts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span></code> gains a property saying whether its resources – cores and GPUs
+alike – may be drawn from more than one node, false by default for a
+non-MPI step and true for an MPI one. <code class="docutils literal notranslate"><span class="pre">constrain_resources()</span></code> uses it in
+place of the node-sized cap it applies today: a step that may span is
+bounded by the allocation, and a step that may not and asks for more than
+a node holds is an error rather than a silent reduction. Nothing in
+Polaris sets the property to true in Phase A; it exists so that Phase C
+does not have to remove a rule.</p></li>
+<li><p>No non-MPI GPU field is added, because <code class="docutils literal notranslate"><span class="pre">gpus</span></code> and <code class="docutils literal notranslate"><span class="pre">min_gpus</span></code> already are
+one. Deprecating <code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> is what completes this: it is the only
+GPU field with a shape a non-MPI step cannot use.</p></li>
+<li><p>The non-MPI steps that exist today are moved onto the new fields, as a
+commit of its own at the end of the Phase A series rather than mixed into
+the framework change. Nothing forces this: the two spellings mean the same
+thing for a step confined to a node, and the framework should accept
+either. It is done in Phase A anyway because Phase A is the only phase
+whose acceptance criterion is that behavior does not change, which is
+precisely how a translation of this kind is checked, and because leaving
+both spellings live means the Phase B scheduler is the first thing to meet
+them – where a misread declaration shows up as a packing bug rather than
+as a wrong number on a page.</p></li>
+<li><p>That migration is smaller than it sounds and needs more judgment than it
+sounds. Of the non-model steps that declare resources, most name one core
+and one task, which is the default and can simply go. Four genuinely want
+to state cores directly. The remainder set <code class="docutils literal notranslate"><span class="pre">ntasks=1</span></code> while being MPI
+steps that happen to run at width one – the WOA23 steps, the topography
+remapping step, and the shared mapping-file step – and moving those would
+be wrong, since <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> is the field that means what they mean. This has
+to be decided per step rather than swept, and is the reason it is its own
+commit and not a mechanical pass.</p></li>
+<li><p>The code that builds a step’s parallel command passes a placement through
+to <code class="docutils literal notranslate"><span class="pre">mache</span></code> when one has been assigned, and passes none when it has not,
+preserving today’s behavior.</p></li>
+<li><p>The resource information handed to a step is built from its placement, so
+that a confined step sees only what it was given, and includes memory
+alongside cores, nodes and GPUs.</p></li>
+<li><p>The per-node memory a machine has becomes a <code class="docutils literal notranslate"><span class="pre">[parallel]</span></code> configuration
+option in <code class="docutils literal notranslate"><span class="pre">mache</span></code>, beside the <code class="docutils literal notranslate"><span class="pre">cores_per_node</span></code> and <code class="docutils literal notranslate"><span class="pre">gpus_per_node</span></code> that
+are already there. That is a separate and much smaller change than pull
+request #470: it describes a machine rather than altering an interface,
+and it does not touch <code class="docutils literal notranslate"><span class="pre">ResourcePlacement</span></code>. It should be a configured
+quantity rather than one read from the running node, both because Polaris
+needs it before a compute node is in hand and because what belongs in it
+is the memory a job may actually use, which is not what the operating
+system reports.</p></li>
+<li><p>Nothing about memory reaches <code class="docutils literal notranslate"><span class="pre">mache</span></code>’s <code class="docutils literal notranslate"><span class="pre">ResourcePlacement</span></code>. That type
+describes where a launch runs – which nodes, which cores, which GPUs –
+and every field in it is rendered into the launch command. Memory is not
+a location and does not belong there.</p>
+<p>The enforcement question that was open when this was first written has
+since been answered, and machines do honor a memory request, so a cap
+does now reach the launcher – as a separate optional argument to
+<code class="docutils literal notranslate"><span class="pre">get_parallel_command()</span></code> rather than as a field on the placement. Keeping
+the two apart is deliberate: a placement still says only where a launch
+runs, and a cap is a different kind of statement that the signature
+should distinguish rather than blend. <code class="docutils literal notranslate"><span class="pre">mache</span></code> reports separately whether
+a machine can enforce one, so Polaris can say in a run log that caps are
+not enforced here rather than quietly believe it has a safety net.</p>
+</li>
+<li><p>Polaris passes that cap for a step that declared a memory figure, and
+omits it entirely for a step carrying the proportional default, which is
+what makes the argument optional rather than always supplied. This is the
+only place the declared-versus-defaulted distinction reaches outside
+Polaris, and it is the reason Phase A must keep the two separable rather
+than resolving the default eagerly into one number.</p></li>
+</ul>
+</section>
+<section id="implementation-boundaries">
+<h3>Implementation: Boundaries<a class="headerlink" href="#implementation-boundaries" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Nothing in Phase A decides <em>which</em> subset a step should get. There is no
+scheduler yet; the only caller is the existing serial path, which assigns no
+placement. Keeping that boundary makes Phase A reviewable on its own and
+means a mistake in it shows up as a wrong command rather than as a wrong
+schedule.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-command-construction">
+<h3>Testing and Validation: Command Construction<a class="headerlink" href="#testing-and-validation-command-construction" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Unit tests shall check the command built for a given placement on each
+supported system, including: a step confined to one node, a step spanning
+several, a step needing GPUs, a step needing none, and a step with no
+placement at all, which shall produce today’s command unchanged.</p>
+<p>These tests need no allocation and shall run in ordinary CI.</p>
+</section>
+<section id="testing-and-validation-real-machines">
+<h3>Testing and Validation: Real Machines<a class="headerlink" href="#testing-and-validation-real-machines" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The mechanisms Phase A relies on were measured on Chrysalis, Perlmutter (CPU
+and GPU), Frontier and Aurora before this design was written; the results
+are summarized in <a class="reference internal" href="task_parallelism.html"><span class="std std-doc">Task Parallelism in Polaris</span></a>. Those
+measurements used commands written by hand. Phase A shall be validated by
+showing that the commands <code class="docutils literal notranslate"><span class="pre">mache</span></code> <em>renders</em> produce the same behavior on
+each of those machines, which is a different claim and the one that gates
+merging <code class="docutils literal notranslate"><span class="pre">mache</span></code> pull request #470.</p>
+<p>That validation does not require the rest of Phase A. Building placements,
+rendering them through <code class="docutils literal notranslate"><span class="pre">get_parallel_command()</span></code> and launching them
+concurrently is enough to confirm the rendering, and keeping it separate
+means a failure is attributable to <code class="docutils literal notranslate"><span class="pre">mache</span></code> rather than ambiguous between
+<code class="docutils literal notranslate"><span class="pre">mache</span></code> and Polaris’s placement construction. It should be done first, on
+all five machines.</p>
+<p>A single confined step shall be run on each machine and shall report that it
+sees only the cores and GPUs it was given. This is the check that catches a
+placement which is constructed correctly but not honored, and it is the
+first thing that would break if a site changed its scheduler configuration.</p>
+<p>One combination that neither the harness nor the unit tests reach has been
+checked separately, because it is the one Phase B relies on most. The
+harness confines synthetic payloads; the unit tests give a step a placement
+and inspect what would be launched. Neither runs a <em>real</em> step under a
+placement Polaris built from that step’s own declarations. That was done
+once, on Chrysalis, with an Omega forward step declaring four tasks of one
+core:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>given</p></th>
+<th class="head"><p>rendered launch</p></th>
+<th class="head"><p>ran</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>no placement</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">4</span> <span class="pre">--cpu-bind=cores</span> <span class="pre">-m</span> <span class="pre">plane=64</span></code></p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>four cores</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">4</span> <span class="pre">-w</span> <span class="pre">&lt;node&gt;</span></code> + a four-bit mask</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p>two cores</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">2</span> <span class="pre">-w</span> <span class="pre">&lt;node&gt;</span></code> + a two-bit mask</p></td>
+<td><p>yes</p></td>
+</tr>
+</tbody>
+</table>
+<p>The third row is the one that establishes anything. A step asking for four
+tasks came out as two, on a node holding sixty-four cores, which is only
+possible if the resources it was constrained against were the placement
+rather than the allocation. The second row cannot show that, because four
+is what the step asked for either way – a distinction worth keeping in mind
+if this is ever repeated, since the obvious test is the uninformative one.</p>
+<p>The placed and unplaced runs at the same width produced bit-identical
+output, which is the other thing worth confirming: a placement changes where
+a step runs and not what it computes. This was the cpu-binding fallback
+rather than the reservation path, Chrysalis running Slurm 20.02, so it
+exercised the weaker of the two mechanisms.</p>
+<p>Something of all this shall keep running after Phase A, but not the harness
+or the scaffold that produced it. Both exist to answer a question and are
+not part of what Polaris ships; they are removed once the question is
+answered, and anything worth keeping has to be moved somewhere permanent
+<strong>before</strong> that rather than after. Two things are worth keeping, and neither
+needs an allocation to be remembered.</p>
+<p>The first is a test that needs no batch system at all. A single-node
+launcher confines a launch with ordinary process affinity, which is enough
+to build several disjoint placements, render each through <code class="docutils literal notranslate"><span class="pre">mache</span></code>, run them
+at once and read back what each could see. That exercises the rendering
+end to end and runs anywhere, so it belongs with the ordinary tests and
+guards against a rendering regression on every commit. It cannot tell
+whether a real scheduler honors a placement, which is the other tier.</p>
+<p>The second is not a test at all. Phase A assigns no placements – the serial
+path passes none, deliberately – so any check here has to construct one for
+itself, which makes it a diagnostic rather than an observation of Polaris
+doing its job. From Phase B onwards every placed step has a placement to
+verify, and a step that checks it received what it was given costs almost
+nothing and runs on every machine on every run. That is the standing check
+on real machines, and it should replace this one rather than sit beside it.</p>
+<p>What must not happen is an allocation-gated test that exists and is never
+run. A check that requires someone to remember to run <code class="docutils literal notranslate"><span class="pre">pytest</span></code> inside a job
+is a check that reports nothing for as long as nobody does.</p>
+<p>While those machines are being visited, two further things should be
+settled, because both are cheap there and expensive to guess at. The first
+has been answered and its result is recorded below; the second has not.
+The question was whether a memory request is inert. The evidence for
+assuming so showed only that memory was not the cause of the serialization,
+which is a different claim. The test was direct – launch a step with a
+small allowance, have it allocate several times that, record whether it is
+killed – and it has been run:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>machine</p></th>
+<th class="head"><p>1024 MB allowed, 4 GB requested</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Chrysalis (Slurm 20.02)</p></td>
+<td><p>reached 4 GB, exited 0 – not enforced</p></td>
+</tr>
+<tr class="row-odd"><td><p>Perlmutter GPU (Slurm 25.11)</p></td>
+<td><p>killed at 960 MB</p></td>
+</tr>
+<tr class="row-even"><td><p>Frontier (Slurm 25.11)</p></td>
+<td><p>killed at 960 MB</p></td>
+</tr>
+</tbody>
+</table>
+<p>A memory request is real on newer Slurm and inert on older. What follows for
+the design is in the requirement above and in Phase B.</p>
+<p>The second consequence that was anticipated does <strong>not</strong> occur, and can be
+retired rather than carried forward. By the argument that applies to GPUs, a
+step that says nothing about memory might have been read as claiming all of
+it. It is not: on both machines that enforce, four concurrent launches that
+said nothing about memory started within 40 ms of each other and ran their
+full duration. Aurora and Perlmutter CPU remain unmeasured.</p>
+<p>What is still open, and matters more than what was closed, is whether
+<em>placement itself</em> imposes a memory ceiling. The measurement above passed an
+explicit allowance. Placement on newer Slurm asks for exactly the resources
+a step needs rather than the job’s, and memory is evidently a resource the
+scheduler tracks there, so a placed step may be given a share of the node’s
+memory it never asked for and be killed at it – with Polaris having said
+nothing about memory and its own accounting unaware of any limit. That would
+make placement impose a hidden ceiling that bites only the memory-hungry
+steps, which is the failure shape this design most wants to avoid. The check
+is a placed launch given no memory request at all, allocating hard, with an
+unplaced launch beside it to separate what placement causes from what the
+allocation causes. It should be added to the machine runs that remain.</p>
+</section>
+<section id="testing-and-validation-measuring-each-machine-s-memory">
+<h3>Testing and Validation: Measuring Each Machine’s Memory<a class="headerlink" href="#testing-and-validation-measuring-each-machine-s-memory" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The per-node memory <code class="docutils literal notranslate"><span class="pre">mache</span></code> reports is a number nobody has been able to
+measure. Whoever adds <code class="docutils literal notranslate"><span class="pre">memory_per_node</span></code> to the machine configs is not on
+those machines, and the figure that matters – what a job may actually
+allocate – is not what a vendor specification says, not what site
+documentation says, and not what a login node reports. The values that ship
+with <code class="docutils literal notranslate"><span class="pre">mache</span></code> will be estimates.</p>
+<p>Polaris’s validation is the only occasion on which anyone is on all five of
+those machines with a reason to look, so measuring the real values is part
+of it. For each of Chrysalis, Perlmutter CPU, Perlmutter GPU, Frontier and
+Aurora, a job shall record what the batch system says a node has, and the
+corrections shall be returned to <code class="docutils literal notranslate"><span class="pre">mache</span></code> as a change to its machine configs.</p>
+<p>Two figures are worth recording rather than one, because they answer
+different questions. What the scheduler believes a node has is what a
+scheduler would pack against, and is what the config option should hold: on
+Slurm that is the node’s real memory as <code class="docutils literal notranslate"><span class="pre">scontrol</span></code> or <code class="docutils literal notranslate"><span class="pre">sinfo</span></code> reports it,
+and on PBS it is the equivalent node attribute. What a process can actually
+allocate before it is refused is the figure that decides whether the first
+is honest. Where the two disagree, the smaller one is the one Polaris must
+not exceed, and the disagreement is itself worth reporting.</p>
+<p>Until a machine has been measured its value should be treated as
+provisional, and estimates should err low: a figure that is too high costs a
+job killed for exhausting a node, while one that is too low costs only work
+that could have been packed. Those are not comparable, so the unverified
+direction to be wrong in is downwards.</p>
+<p>This is a small task with an unusual failure mode: it is easy to omit and
+nothing fails when it is. A run with an over-estimated node memory looks
+entirely normal until a suite happens to pack tightly enough to exhaust a
+node, at which point the failure appears far from its cause and looks like a
+step’s bug. Recording which machines have been measured, in the <code class="docutils literal notranslate"><span class="pre">mache</span></code>
+configs themselves, is what makes the omission visible.</p>
+<p><strong>A measurement is only as good as the label on it.</strong> An early reading
+appeared to show Perlmutter CPU returning nodes of two different sizes
+within one machine, and this document briefly recorded that as a finding. It
+was not one. The small node was a Perlmutter <em>GPU</em> node: the run had been
+labelled from the deployment’s machine name rather than from the node it
+landed on, and three hardware signals agree it was misfiled – the job held
+four GPUs, its hyperthread siblings were 64 apart rather than 128, and its
+memory matched a GPU node. Perlmutter CPU is homogeneous, and its two genuine
+samples agree.</p>
+<p><strong>Aurora, however, is heterogeneous, and that is measured rather than
+inferred.</strong> Its scheduler was asked what every one of its 10,624 nodes has,
+which is a survey and not a sample: about 89% report roughly 1135 GiB, 11%
+report roughly 1007 GiB, and a handful sit between. The smallest is 1,030,518
+MB against a median of 1,162,460 – so a figure taken from the majority would
+be about 13% too high for one node in nine, and a step packed against it
+would be over-admitted whenever it landed on a small one.</p>
+<p>The two episodes are worth reading together, because they point the same way
+for opposite reasons. The Perlmutter reading was withdrawn because two
+samples of different machines were compared as though they were one machine.
+The Aurora figure stands because nothing was sampled at all – every node was
+asked. The rule that survives both is the one already stated: where nodes
+differ the smallest binds, and a single sample cannot establish the number.</p>
+<p>The episode is worth keeping for what it says about the measurements
+generally, which is that they are labelled by configuration and confirmed by
+nothing. A harness that records what a deployment claims, while the node it
+ran on says otherwise, will mislabel silently and produce a finding that
+looks like a property of the machine. Any measurement taken this way should
+cross-check the label against the hardware – GPUs present where the
+configuration says there are none, or a physical core count that disagrees
+with <code class="docutils literal notranslate"><span class="pre">cores_per_node</span></code> – and refuse to record a result it cannot vouch for.</p>
+<p>Two precautions stand regardless, since neither depended on that finding.
+<strong>Where nodes differ, the smallest binds</strong>, because the figure exists to say
+what a caller must not exceed and a value above the smallest node
+over-admits whenever work lands on one – the direction that kills a job
+rather than wasting it. And <strong>a single sample cannot establish the number</strong>:
+most measurements taken so far are single samples, and the reliable method
+costs no allocation, being to query every node in a partition and take the
+minimum rather than asking whichever node one happens to be on.</p>
+<p>A node that turns up with unexpectedly little memory shall be treated as a
+finding rather than a curiosity, and reported. It means a configured figure
+is wrong, or a machine has changed, or – as here – that something is not
+the machine it was thought to be. All three are things to learn from a
+message rather than from an exhausted node.</p>
+<p><strong>The configured figure plans; the allocation’s own nodes account.</strong> These
+are two uses with different requirements and only one of them has to be
+predicted in advance. Sizing a job script happens before any node has been
+assigned, so it can only use a configured number. Deciding what fits happens
+inside the allocation, where the nodes are known and can simply be asked
+what they have – which is better than any configured value, because it is
+the truth for the nodes in hand rather than an estimate of a machine.</p>
+<p>Polaris shall therefore read the memory of the nodes it was actually given,
+once, at the start of a run, and the scheduler shall account against those
+figures rather than against the configured one. Where they disagree the
+disagreement shall be reported, because it means the configuration is stale
+or the machine has changed, and neither should be discovered silently.</p>
+<p>This does not make the configured figure unnecessary; it makes it a
+planning estimate rather than a promise, which is what it can honestly be.</p>
+<p>It also answers the class of problem the mislabelled run belongs to, rather
+than the specific one. A run that reads what its nodes actually report, and
+says so when that disagrees with what was configured, catches a stale
+figure, a machine that has changed, and a job that is not on the machine it
+was thought to be – without anyone having to anticipate which. The
+mislabelling above went unnoticed because nothing compared the two; the
+comparison is cheap and belongs in the run rather than in a later query.</p>
+</section>
+<section id="testing-and-validation-no-regression">
+<h3>Testing and Validation: No Regression<a class="headerlink" href="#testing-and-validation-no-regression" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A representative suite shall be run with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> and compared
+against a baseline, to confirm that adding the placement machinery has not
+changed behavior when placement is not used. Since Phase A adds no
+concurrency, any difference in results is a bug rather than a trade-off.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="task_parallelism.html" class="btn btn-neutral float-left" title="Task Parallelism in Polaris" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="task_parallelism_phase_b.html" class="btn btn-neutral float-right" title="Task Parallelism Phase B: Concurrency" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

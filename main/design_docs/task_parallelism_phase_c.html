@@ -1,0 +1,762 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Parallelism Phase C: Python Worker Pool</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Task Parallelism Phase D: Coexistence and Elasticity" href="task_parallelism_phase_d.html" />
+    <link rel="prev" title="Task Parallelism Phase B: Concurrency" href="task_parallelism_phase_b.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Task Parallelism Phase C: Python Worker Pool</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-the-measurement-showed">What the measurement showed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-the-measurement-showed-about-memory">What the measurement showed about memory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sizing-a-pool-and-what-not-to-assume-while-doing-it">Sizing a pool, and what not to assume while doing it</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#a-task-larger-than-one-node">A task larger than one node</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-python-work-across-more-than-one-node">Requirement: Python Work Across More Than One Node</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-pool-occupies-a-known-share">Requirement: The Pool Occupies a Known Share</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-steps-ask-for-workers-explicitly">Requirement: Steps Ask for Workers Explicitly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-work-sent-to-the-pool-must-be-safe-to-run-there">Requirement: Work Sent to the Pool Must Be Safe to Run There</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-failures-are-attributable">Requirement: Failures Are Attributable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-pool-s-cost-is-visible">Requirement: The Pool’s Cost Is Visible</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-what-the-pool-is">Algorithm Design: What the Pool Is</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-where-a-pool-disappoints">Algorithm Design: Where a Pool Disappoints</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-sizing-the-pool">Algorithm Design: Sizing the Pool</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-two-executors-one-scheduler">Algorithm Design: Two Executors, One Scheduler</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-pool-lifecycle">Implementation: Pool Lifecycle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-worker-environment">Implementation: Worker Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-multi-node-distribution">Testing and Validation: Multi-Node Distribution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-safety-of-work-sent-to-workers">Testing and Validation: Safety of Work Sent to Workers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-failure-handling">Testing and Validation: Failure Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-is-it-worth-it">Testing and Validation: Is It Worth It</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Task Parallelism Phase C: Python Worker Pool</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/task_parallelism_phase_c.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="task-parallelism-phase-c-python-worker-pool">
+<h1>Task Parallelism Phase C: Python Worker Pool<a class="headerlink" href="#task-parallelism-phase-c-python-worker-pool" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Phase B runs each step in its own process. That is the right unit for a
+Polaris step, which typically does minutes of work. It is the wrong unit for
+work made of many small pieces: if a piece takes two seconds, spending a
+second starting a process for it wastes half the machine.</p>
+<p>Phase C adds a second executor for that case: a pool of worker processes,
+spread across the allocation’s nodes, that a step can send many small pieces
+of work to.</p>
+<p>The motivating workload is analysis. Polaris is to gain analysis capability
+equivalent to MPAS-Analysis, and MPAS-Analysis already does this kind of
+work in parallel – but with Python’s <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code>, which cannot reach
+beyond one node. At high resolution, which is Omega’s target, one node is not
+enough. Lifting that ceiling is the point of this phase.</p>
+<p>Phase C stands on Phase A and Phase B. The pool occupies a defined part of
+the allocation, so ordinary steps continue to run in the rest; the
+scheduler from Phase B accounts for the pool’s share as it would any other
+reservation. Making that share change as the amount of Python work changes is
+Phase D.</p>
+<section id="what-the-measurement-showed">
+<h3>What the measurement showed<a class="headerlink" href="#what-the-measurement-showed" title="Link to this heading"></a></h3>
+<p>Whether a pool is needed at all was an empirical question, and it has been
+answered. A high-resolution MPAS-Analysis run was instrumented for per-task
+duration, peak memory and dependency-graph width, and run cold on one node:
+1231 tasks, none failed, 7h29m.</p>
+<p>The question this phase turned on was whether analysis work is coarse –
+minutes each, tens of them, in which case Phase B already handles it – or
+fine-grained, in which case a pool is needed. It is fine-grained. The median
+task is 5.2 seconds and 49% run in under five, at the resolution that
+matters. This document proceeds as written.</p>
+<p>Two of that measurement’s headline numbers should not be carried into this
+design without their qualification, and the qualification is the same for
+both.</p>
+<p><strong>The measured ceiling on what more nodes could buy was 1.29x, and it is a
+statement about three particular tasks.</strong> The run’s critical path was 5h49m
+of a 7h29m makespan, and a single transect-remapping task was 82% of it;
+three such tasks are the whole tail. They are known not to be written for
+high resolution, and they are among the things Polaris would reimplement
+rather than inherit. Taking the reported figures at face value, and assuming
+the three are independent rather than chained, removing the largest raises
+the ceiling from about 6.5x to about 11x and removing all three to about
+36x. Those are arithmetic on someone else’s summary rather than a
+reanalysis, so they should be read as an order of magnitude. The conclusion
+that survives is directional and sufficient: the measured headroom is a
+lower bound taken on the least favorable available version of the workload,
+not an estimate of what task parallelism is worth.</p>
+<p><strong>The reported narrowing of the dependency graph with resolution is the same
+finding again, not a second one.</strong> Mean graph width, as reported, is
+arithmetically serial work divided by critical path – which is the speedup
+ceiling. Both runs confirm it: 2255 minutes over 349 gives 6.46 against a
+reported width of 6.5, and the low-resolution run gives 30.4 against a
+reported 30. So “the graph got narrower as resolution rose” restates the
+serial tail and inherits its fragility. The structural comparison is peak
+width, which went from 251 to 170 – a modest narrowing rather than a
+collapse. This matters because an intrinsically narrow graph would be a real
+argument against this phase, and the evidence does not support one.</p>
+</section>
+<section id="what-the-measurement-showed-about-memory">
+<h3>What the measurement showed about memory<a class="headerlink" href="#what-the-measurement-showed-about-memory" title="Link to this heading"></a></h3>
+<p>The memory result is the one that bears on how a pool is built, and it
+arrived in two parts, the second correcting the first.</p>
+<p>Every task in that run inherited 7.85 GiB by forking. Taken at face value
+that is an argument for a pool on memory grounds alone – 26 times the
+median task’s own data, unaffordable per task and cheap per worker,
+independent of how long tasks run. Measured directly, the baseline splits
+into <strong>0.40 GiB of Python imports and 7.45 GiB of data loaded before
+forking</strong>. The import half is identical at both resolutions; the data half
+scales with the problem, which is what identifies it.</p>
+<p>Only the 0.40 GiB generalizes. It is a property of the scientific Python
+stack rather than of any workload, and every worker in any pool pays it. The
+7.45 GiB was an artifact of one program loading its inputs in a parent
+process and forking, which a reimplementation does not inherit.</p>
+<p>So the pool is still the right shape, but the reason has to be stated
+correctly rather than at its most convenient. Paying interpreter start and
+0.40 GiB of imports once per worker instead of once per task is worth it
+against a 5.2 second median; that is a claim about startup cost, and it does
+depend on the duration distribution. The stronger memory argument does not
+survive its own measurement.</p>
+<p>The correction matters a second time. Because those tasks <em>inherited</em> their
+inputs, the per-task memory figures exclude them, so they are not what a
+worker holding its own inputs would need. What a worker needs is imports,
+plus whatever of the shared inputs its work actually touches, plus its own
+data – and the middle term was never measured because forking made it free.</p>
+</section>
+<section id="sizing-a-pool-and-what-not-to-assume-while-doing-it">
+<h3>Sizing a pool, and what not to assume while doing it<a class="headerlink" href="#sizing-a-pool-and-what-not-to-assume-while-doing-it" title="Link to this heading"></a></h3>
+<p>The question that sizes a pool is therefore <strong>how much read-only input a
+step needs resident</strong>, and it is deliberately phrased that way rather than
+in terms of any particular kind of input. If steps can work on subsets,
+memory stops binding and a pool is limited by cores. If each step needs all
+of it, the same node supports far fewer workers than it has cores. Polaris
+can measure this as soon as it has one real step of the kind, and should,
+before choosing a pool size.</p>
+<p>Two things follow that are easy to get wrong in opposite directions.</p>
+<p><strong>The pool must not be designed around a shared dataset.</strong> Analysis happens
+to be a workload where many tasks read from one large input, and it is
+tempting to build for that. Most Polaris workflows have no such thing, and a
+pool that assumes one – in how it starts workers, in how it accounts for
+their memory, or in what it expects a task to be given – would be a pool
+that serves one purpose well and the general case badly. Task parallelism is
+the general facility; analysis is its first demanding customer, not its
+specification.</p>
+<p><strong>But a worker’s memory should not be assumed private either.</strong> Where many
+tasks on a node do read the same large input, holding one copy per node
+rather than one per worker is the distributed equivalent of what forking
+gives for free, and the difference is large enough to change how many
+workers fit. This is worth leaving room for and is not worth building now:
+nothing has been measured that needs it, and the measurement that would
+justify it is the one described above. It is recorded here so that it is not
+rediscovered late, and so that nothing in the pool’s design forecloses it.</p>
+</section>
+<section id="a-task-larger-than-one-node">
+<h3>A task larger than one node<a class="headerlink" href="#a-task-larger-than-one-node" title="Link to this heading"></a></h3>
+<p>Nothing here restricts a step to a single node, and the design should not
+acquire that restriction by accident.</p>
+<p>Polaris already runs steps that span nodes: every MPI model run does. What
+is bounded to one node is a <strong>non-MPI step running in its own process</strong> –
+that is a property of processes, not a decision Polaris made. A step that
+hands its work to the pool is not in that category, because the pool is
+precisely the mechanism such a step lacks.</p>
+<p>Phase A provides the property this turns on: a step declares whether its
+resources may be drawn from more than one node, defaulting to no. A step
+using the pool declares that they may, and this phase is where anything
+first does. Its cores are then a reservation rather than a placement, in the
+sense Phase A draws: Polaris launches the step’s driver, which needs about
+one core, and accounts the rest against the pool’s share of the allocation.</p>
+<p>The property covers GPUs on the same terms, and this is where that matters.
+A pool whose workers use GPUs draws them from the nodes those workers are
+on, so a step’s GPU count is a claim against the pool exactly as its core
+count is. Nothing extra is needed to express it – <code class="docutils literal notranslate"><span class="pre">gpus</span></code> is already a
+per-step total – but the pool has to account for it, and a step that
+distributes GPU work should not have GPUs reserved on the node its driver
+happens to sit on.</p>
+<p>This phase is also where a limitation carried harmlessly through Phase A and
+Phase B stops being harmless. On PBS with PALS, a launch that needs no GPUs
+is given an empty vendor visibility variable, and it has now been measured
+that the runtime reads an empty value as “no mask”, meaning every device. So
+the explicit “no GPUs” is a no-op there: a worker that declares no GPUs on
+that machine can still see all of them.</p>
+<p>Through Phase A and Phase B this costs nothing, because nothing on PALS
+reserves GPUs and the worst case is a step seeing hardware it declined. Here
+it splits into two cases that behave differently, and only one of them
+works.</p>
+<p>A worker assigned <em>some</em> devices is confined: a mask naming a subset was
+measured to do exactly that. A worker assigned <em>no</em> devices is not confined
+at all. So a pool mixing GPU and CPU-only workers on one node gets isolation
+between the GPU workers and none for the CPU-only ones, which is the
+opposite of the intuition that asking for nothing is the safe case.</p>
+<p>A candidate fix is to name an out-of-range device rather than an empty
+value. It is untested, and should be tested rather than assumed: the runtime
+may equally refuse it, warn, or fall back to every device. It is one launch
+on the pattern that answered the first question.</p>
+<p>One further thing is unestablished and matters more here than anywhere else.
+That machine’s configuration describes twelve GPUs per node, which are
+tiles, while the runtime presents six cards under the device hierarchy it
+runs with; a mask naming three tiles yielded two devices, which is
+consistent. What has not been tried is a mask naming a <em>single</em> tile, which
+is the unit a scheduler handing out twelve of them would actually assign.
+Whether two workers masked to different tiles of the same card are isolated
+from each other, or merely both see that card, is the question this phase
+rests on, and it is not answered by what has been measured so far.</p>
+<p>Reading the bound off “is it an MPI step” instead would have made this phase
+begin by undoing a rule, which is why the property exists ahead of anything
+that sets it.</p>
+<p>For the pool, a computation whose data exceed one node’s memory is not a
+separate problem needing separate machinery. Working in chunks and spreading
+those chunks across the workers’ combined memory are the same facility, and
+the distributed-array layer that provides it sits on the same pool. A step
+that needs more memory than one node has can take a lease spanning several
+and work across their combined memory.</p>
+<p>The cost is not zero: moving data between nodes is slower than staying
+within one, the work has to be written in terms of array operations the
+framework can partition rather than as monolithic in-memory arrays, and
+diagnosing a distributed computation is harder than a local one. So this
+should not be the assumed shape of every analysis step, and no step should
+be written to span nodes before measurement shows it needs to. But it should
+be available, and the requirements below are written so that it is.</p>
+<p>It should be available in particular because nothing has yet demanded it,
+and that fact carries less weight than it appears to. The instrumented
+analysis run contained no Python task needing more than a node – the
+largest held 53.9 GiB where the node had 251 – and it would be easy to read
+that as evidence the case is hypothetical. It is not evidence of that. The
+program measured had no way to express such a task: its parallelism is
+fork-based and confined to one node, and the only work in it that spans
+nodes at all is MPI, meaning <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> and the generation of mapping files.
+Any analysis that would have needed more than a node was therefore never
+written, or was restructured until it fitted, or was handed to one of those
+two. A tool produces no examples of what it cannot express, and the absence
+of such tasks describes the tool rather than the science.</p>
+<p>So the door stays open deliberately. Every Polaris step that is not MPI has
+always been bounded by one process on one node, and this phase is the first
+opportunity to lift that bound rather than a proposal to add a capability
+nobody asked for. Declining to lift it because nothing has hit it would
+preserve a limitation by default, on the strength of a measurement that
+could not have found a counterexample.</p>
+<p>The case that genuinely stays hard is a computation that cannot be
+partitioned at all – one needing global, random access to a single array
+larger than a node. Neither chunking nor distribution helps there, and the
+answer is to restructure the computation. Analysis work is mostly reductions
+over dimensions that partition cleanly, so this should be rare; if one turns
+up, it is worth examining on its own rather than
+treating as a requirement on the framework.</p>
+<p>Success in Phase C means a Python step can distribute work across more than
+one node, that this is faster than the same work on one node, and that
+results are unchanged.</p>
+</section>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-python-work-across-more-than-one-node">
+<h3>Requirement: Python Work Across More Than One Node<a class="headerlink" href="#requirement-python-work-across-more-than-one-node" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A step shall be able to distribute Python work across workers on more than
+one node of the allocation.</p>
+<p>This is the requirement that distinguishes Phase C from what MPAS-Analysis
+can already do. A capability limited to a single node would not address the
+problem that motivates the phase.</p>
+<p>This covers two things that should not be conflated: many independent pieces
+of work running at once on different nodes, and a single computation whose
+data are spread across the memory of several nodes. Both shall be possible.
+The second is not expected to be common, but designing it out would be a
+mistake, and it comes without additional machinery from the same framework
+that provides the first.</p>
+</section>
+<section id="requirement-the-pool-occupies-a-known-share">
+<h3>Requirement: The Pool Occupies a Known Share<a class="headerlink" href="#requirement-the-pool-occupies-a-known-share" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The pool shall be confined to a defined set of resources, and the scheduler
+shall know about that reservation.</p>
+<p>An earlier attempt launched a worker pool without bounding it, which claimed
+the whole allocation and prevented model runs from starting at all. With
+Phase A the pool is placed like anything else, and the scheduler simply sees
+fewer free resources while it exists.</p>
+</section>
+<section id="requirement-steps-ask-for-workers-explicitly">
+<h3>Requirement: Steps Ask for Workers Explicitly<a class="headerlink" href="#requirement-steps-ask-for-workers-explicitly" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A step shall have to opt in to using the pool, and shall declare how many
+workers it wants and needs.</p>
+<p>Ordinary steps shall continue to run as their own process, as in Phase B.
+Adding a pool shall not change how any existing step runs.</p>
+</section>
+<section id="requirement-work-sent-to-the-pool-must-be-safe-to-run-there">
+<h3>Requirement: Work Sent to the Pool Must Be Safe to Run There<a class="headerlink" href="#requirement-work-sent-to-the-pool-must-be-safe-to-run-there" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Work dispatched to a worker shall not depend on process state that the worker
+does not have, and shall not disturb state that other work in the same worker
+relies on.</p>
+<p>A worker process runs many pieces of work over its lifetime, possibly
+several at once, and never ran the setup that a fresh Polaris process runs.
+Work that changes the working directory, sets a library-level default or
+writes to a shared path is unsafe there in a way it is not unsafe in its own
+process.</p>
+<p>The properties this requires are set out in
+<a class="reference internal" href="task_parallel_analysis_steps.html"><span class="std std-doc">Task-Parallel-Safe Analysis Steps in Polaris</span></a>,
+which should be adopted before analysis steps are written, and are written
+up for step authors under <a class="reference internal" href="../developers_guide/framework/task_parallelism.html#dev-task-parallelism"><span class="std std-ref">Writing task-parallel-safe steps</span></a>. Phase C depends on
+those rules being followed; it cannot enforce them after the fact.</p>
+</section>
+<section id="requirement-failures-are-attributable">
+<h3>Requirement: Failures Are Attributable<a class="headerlink" href="#requirement-failures-are-attributable" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>When work sent to the pool fails, it shall be clear which piece of work
+failed and why, and the failure shall be reported as a failure of the step
+that submitted it.</p>
+<p>A worker that dies shall not silently reduce the pool. Losing workers
+quietly turns a crash into a mysterious slowdown.</p>
+</section>
+<section id="requirement-the-pool-s-cost-is-visible">
+<h3>Requirement: The Pool’s Cost Is Visible<a class="headerlink" href="#requirement-the-pool-s-cost-is-visible" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The time spent starting and stopping the pool, and the resources it held
+while idle, shall be recorded.</p>
+<p>A pool is only worth having if the work it enables outweighs what it costs.
+Earlier measurements found a worker pool spending around 9% of a suite’s wall
+time on its own lifecycle, which is the sort of thing that must be visible
+rather than inferred.</p>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-what-the-pool-is">
+<h3>Algorithm Design: What the Pool Is<a class="headerlink" href="#algorithm-design-what-the-pool-is" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The pool is a set of worker processes, at least one per node it spans, started
+once and reused. A step that opts in is given a handle to it and a lease
+saying how many workers it may use, submits pieces of work, and collects
+results.</p>
+<p>Starting the pool is a single launch, confined by Phase A placement. That is
+important for two reasons: it is one launch rather than one per piece of
+work, which is the whole point of pooling; and being confined means the rest
+of the allocation stays usable.</p>
+<p>Dask Distributed is the natural implementation. What matters for Polaris is
+that its core is a <strong>general task scheduler</strong>, not an array library: a step
+submits arbitrary Python callables and collects results, and can say which
+workers a piece of work may run on and what resources it needs. Distributed
+arrays are one thing built on top of that scheduler, available when a step
+wants them, and irrelevant when it does not. The primary use here is the
+general form – many independent analysis tasks – and the design should be
+read that way.</p>
+<p>Earlier Polaris work established that such a pool can be started across an
+allocation’s nodes. The design should not depend on the choice of framework:
+what a step sees should be “submit work, get results”, so the underlying
+mechanism can be replaced.</p>
+</section>
+<section id="algorithm-design-where-a-pool-disappoints">
+<h3>Algorithm Design: Where a Pool Disappoints<a class="headerlink" href="#algorithm-design-where-a-pool-disappoints" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The risks in adopting a pool are operational rather than conceptual, and are
+worth naming so they are designed for rather than discovered.</p>
+<p><strong>Worker memory is managed by the pool, not by the batch system.</strong> Workers
+spill, pause and eventually restart themselves when they approach their
+memory limit. If a step’s tasks are memory-hungry and the limits are set
+wrongly, the symptom is workers dying and work silently retrying, which
+reads as a mysterious slowdown. Worker memory limits must be derived from
+the resources the pool was actually given, and worker restarts must be
+reported, not absorbed.</p>
+<p>This is the case the memory declaration introduced in Phase A exists for.
+The pool’s memory is the memory its steps declared, divided among its
+workers, and it must be taken from the declaration rather than inferred from
+the worker count: the analysis steps this phase is for are the ones whose
+memory bears no fixed relation to their cores, and deriving one from the
+other gets them wrong in the direction that hurts. Steps that reach this
+phase should be carrying measured figures rather than the proportional
+default. What a step declares is what it will hold resident – its own data
+and whatever of its inputs it keeps – and not what an equivalent forking
+program would have needed, which is smaller for the reason given above.</p>
+<p><strong>Large results should not travel back through the pool.</strong> Analysis tasks
+that produce files should write them and return paths. Returning large
+arrays moves them across the network and through the process that
+coordinates the pool, which is the classic way to turn a fast distributed
+computation into a slow one.</p>
+<p><strong>Pure-Python work needs separate processes, not threads.</strong> A worker that
+runs several tasks as threads will serialize anything holding Python’s
+global interpreter lock. Work that is numerical and releases the lock is
+fine; work that is Python-level loops is not. The pool’s shape – how many
+worker processes, how many threads each – must follow from what the tasks
+actually do.</p>
+<p><strong>There is a floor on useful task size.</strong> Each task carries a small
+scheduling cost. It is far below the duration of any realistic analysis
+task, so it should not matter here, but it is the reason a pool is the wrong
+answer for very short work and worth confirming against the measured task
+durations rather than assumed.</p>
+</section>
+<section id="algorithm-design-sizing-the-pool">
+<h3>Algorithm Design: Sizing the Pool<a class="headerlink" href="#algorithm-design-sizing-the-pool" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The pool should be sized from the work that is ready to run, not from the
+allocation. If three analysis steps are ready and together they want twelve
+workers, twelve is the number, regardless of how many nodes are free.</p>
+<p>Phase C may size the pool once, when the first step that needs it runs, and
+keep it until the run ends. That is simple and adequate while Python work is
+a small part of a suite. It is also the thing Phase D fixes, because a pool
+sized once holds its share even after the Python work is finished.</p>
+<p>The numbers that make this concrete – how many workers, how much memory each
+– follow from how much read-only input a step needs resident, which is the
+open question stated above and which Polaris can answer with one real step
+of the kind. Until it is answered, a pool should be sized from what its
+steps declare and should report what it chose, rather than carrying a
+default that would be a guess dressed as a number.</p>
+</section>
+<section id="algorithm-design-two-executors-one-scheduler">
+<h3>Algorithm Design: Two Executors, One Scheduler<a class="headerlink" href="#algorithm-design-two-executors-one-scheduler" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>The scheduler from Phase B does not change shape. It still decides what may
+run and what resources each thing gets. What changes is that a step may be
+executed in one of two ways: as its own process, or, if it opted in, by being
+given the pool.</p>
+<p>Keeping the decision “what runs next” separate from “how it is executed” is
+what prevents the scheduler from acquiring the mode-switching complexity that
+made the earlier attempt hard to reason about.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-pool-lifecycle">
+<h3>Implementation: Pool Lifecycle<a class="headerlink" href="#implementation-pool-lifecycle" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+<li><p>a module owning the pool: starting it with a placement, handing out
+leases, shutting it down, and reporting its cost;</p></li>
+<li><p>a step hook – a separate method from <code class="docutils literal notranslate"><span class="pre">run()</span></code> – through which a step
+receives the pool and its lease. Keeping it separate means the meaning of
+<code class="docutils literal notranslate"><span class="pre">run()</span></code> is unchanged for every existing step.</p></li>
+</ul>
+<p>The pool must be shut down cleanly at the end of a run, including when the
+run fails, or its workers outlive the job.</p>
+</section>
+<section id="implementation-worker-environment">
+<h3>Implementation: Worker Environment<a class="headerlink" href="#implementation-worker-environment" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A worker process starts without any of the setup a Polaris process performs.
+Anything the work needs must travel with it. Earlier work discovered this the
+hard way: NetCDF output settings were configured in the main process, so work
+running in workers silently wrote files in a different format, which showed
+up as a step taking fifty seconds instead of ten.</p>
+<p>Rather than replicating Polaris’s startup inside each worker, the work sent
+to a worker should carry what it needs. This is the same discipline the
+analysis groundrules require, and it is the reason those rules matter more
+here than anywhere else.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-multi-node-distribution">
+<h3>Testing and Validation: Multi-Node Distribution<a class="headerlink" href="#testing-and-validation-multi-node-distribution" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>A test shall submit work to the pool and verify from the results which node
+each piece ran on, confirming that more than one node was used. This is the
+central claim of the phase and should be checked directly rather than
+inferred from timing.</p>
+</section>
+<section id="testing-and-validation-safety-of-work-sent-to-workers">
+<h3>Testing and Validation: Safety of Work Sent to Workers<a class="headerlink" href="#testing-and-validation-safety-of-work-sent-to-workers" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Tests shall include work that deliberately violates the rules – changes the
+working directory, mutates a library default, writes outside its work
+directory – and confirm the conformance checks catch it.</p>
+<p>A test shall run two pieces of work in one worker at the same time and
+confirm that neither affects the other’s results.</p>
+</section>
+<section id="testing-and-validation-failure-handling">
+<h3>Testing and Validation: Failure Handling<a class="headerlink" href="#testing-and-validation-failure-handling" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Tests shall cover work that raises, work that exits the worker process
+outright, and a worker lost mid-run. In each case the submitting step shall
+fail with an attributable error, and the run shall not hang.</p>
+</section>
+<section id="testing-and-validation-is-it-worth-it">
+<h3>Testing and Validation: Is It Worth It<a class="headerlink" href="#testing-and-validation-is-it-worth-it" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/08/23</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<p>Validation shall compare the same analysis workload run three ways: as
+ordinary Phase B steps, through the pool on one node, and through the pool on
+several. The comparison shall include the pool’s own lifecycle cost.</p>
+<p>If the pool does not beat Phase B steps on the real workload, that is a
+finding, and it should be recorded rather than worked around.</p>
+<p>The measurement already in hand does not decide this, and it is worth being
+clear about why. It was taken on one program, on one node, using fork, with
+a critical path dominated by tasks that would be rewritten before they ever
+ran here. It establishes that the work is fine-grained and that a worker’s
+resident inputs are the quantity to watch. It does not establish what a pool
+is worth, because the version of the workload that would run under one does
+not exist yet. The comparison has to be made against Polaris’s own steps,
+and this phase should not claim a speedup it has not measured on them.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="task_parallelism_phase_b.html" class="btn btn-neutral float-left" title="Task Parallelism Phase B: Concurrency" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="task_parallelism_phase_d.html" class="btn btn-neutral float-right" title="Task Parallelism Phase D: Coexistence and Elasticity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
