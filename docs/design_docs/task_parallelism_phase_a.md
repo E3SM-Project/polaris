@@ -681,12 +681,39 @@ sees only the cores and GPUs it was given. This is the check that catches a
 placement which is constructed correctly but not honored, and it is the
 first thing that would break if a site changed its scheduler configuration.
 
-Something of it shall keep running after Phase A, but not the harness that
-produced it. The harness exists to answer a question and is not part of what
-Polaris ships; it is removed once the question is answered, and anything
-worth keeping has to be moved somewhere permanent **before** that rather
-than after. Two things are worth keeping, and neither needs an allocation to
-be remembered.
+One combination that neither the harness nor the unit tests reach has been
+checked separately, because it is the one Phase B relies on most. The
+harness confines synthetic payloads; the unit tests give a step a placement
+and inspect what would be launched. Neither runs a *real* step under a
+placement Polaris built from that step's own declarations. That was done
+once, on Chrysalis, with an Omega forward step declaring four tasks of one
+core:
+
+| given | rendered launch | ran |
+| --- | --- | --- |
+| no placement | `-n 4 --cpu-bind=cores -m plane=64` | yes |
+| four cores | `-n 4 -w <node>` + a four-bit mask | yes |
+| two cores | `-n 2 -w <node>` + a two-bit mask | yes |
+
+The third row is the one that establishes anything. A step asking for four
+tasks came out as two, on a node holding sixty-four cores, which is only
+possible if the resources it was constrained against were the placement
+rather than the allocation. The second row cannot show that, because four
+is what the step asked for either way -- a distinction worth keeping in mind
+if this is ever repeated, since the obvious test is the uninformative one.
+
+The placed and unplaced runs at the same width produced bit-identical
+output, which is the other thing worth confirming: a placement changes where
+a step runs and not what it computes. This was the cpu-binding fallback
+rather than the reservation path, Chrysalis running Slurm 20.02, so it
+exercised the weaker of the two mechanisms.
+
+Something of all this shall keep running after Phase A, but not the harness
+or the scaffold that produced it. Both exist to answer a question and are
+not part of what Polaris ships; they are removed once the question is
+answered, and anything worth keeping has to be moved somewhere permanent
+**before** that rather than after. Two things are worth keeping, and neither
+needs an allocation to be remembered.
 
 The first is a test that needs no batch system at all. A single-node
 launcher confines a launch with ordinary process affinity, which is enough
