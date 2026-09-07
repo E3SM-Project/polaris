@@ -13,7 +13,13 @@ from typing import List, NamedTuple, Optional
 
 from polaris.yaml import PolarisYaml
 
-# the Omega analysis group that writes the monthly means the analysis reads
+# The names Omega gives the analysis groups this module looks for.  They are
+# spelled exactly as Omega spells them, since the lookup is a plain dictionary
+# index into the simulation's configuration and so is case-sensitive: a group
+# named anything else is simply not found, and the analysis reports a
+# simulation that wrote plenty of output as having written none.
+GLOBAL_STATS_GROUP_NAME = 'GlobalStats'
+MOC_GROUP_NAME = 'MOC'
 MONTHLY_MEAN_GROUP = 'MonthlyAverages'
 
 
@@ -631,7 +637,7 @@ class SimulationFiles:
             The global statistics files, which are known to exist
         """
         stream = self._analysis_stream(
-            group_name='GlobalStats',
+            group_name=GLOBAL_STATS_GROUP_NAME,
             description='global statistics',
             required=True,
         )
@@ -642,7 +648,7 @@ class SimulationFiles:
             end_year=end_year,
             description='global statistics',
             source=(
-                f'the GlobalStats analysis group in '
+                f'the {GLOBAL_STATS_GROUP_NAME} analysis group in '
                 f'{self.omega_config.filename}'
             ),
         )
@@ -661,7 +667,7 @@ class SimulationFiles:
             The stream, or ``None`` if the simulation wrote no global
             statistics
         """
-        streams = self.omega_config.analysis_streams('GlobalStats')
+        streams = self.omega_config.analysis_streams(GLOBAL_STATS_GROUP_NAME)
         return _preferred_analysis_stream(streams)
 
     def moc_files(self, start_year, end_year):
@@ -687,7 +693,7 @@ class SimulationFiles:
             simulation does not write MOC output
         """
         stream = self._analysis_stream(
-            group_name='Moc',
+            group_name=MOC_GROUP_NAME,
             description='meridional overturning circulation',
             required=False,
         )
@@ -698,8 +704,27 @@ class SimulationFiles:
             start_year=start_year,
             end_year=end_year,
             description='MOC',
-            source=f'the Moc analysis group in {self.omega_config.filename}',
+            source=(
+                f'the {MOC_GROUP_NAME} analysis group in '
+                f'{self.omega_config.filename}'
+            ),
         )
+
+    def moc_stream(self):
+        """
+        Get the output stream the MOC is read from
+
+        As with the global statistics, the names of the variables in the file
+        depend on whether the stream holds time means or snapshots, so a step
+        that reads them needs the stream and not just its file name.
+
+        Returns
+        -------
+        stream : AnalysisStream or None
+            The stream, or ``None`` if the simulation wrote no MOC output
+        """
+        streams = self.omega_config.analysis_streams(MOC_GROUP_NAME)
+        return _preferred_analysis_stream(streams)
 
     def _resolve_simulation_path(self):
         """Get the directory that relative file names are resolved against"""
