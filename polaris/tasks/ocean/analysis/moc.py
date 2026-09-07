@@ -22,6 +22,7 @@ from polaris.tasks.ocean.analysis.sim_files import (
     year_range_key,
 )
 from polaris.viz import plot_lat_elevation_field
+from polaris.viz.lat_elevation import MAX_CONTOUR_LINES
 
 # The names Omega gives the fields this step reads.  A time reduction carries
 # a "_TimeMean<period>" suffix on the variable whose chain was given an IOName
@@ -321,14 +322,15 @@ class Moc(AnalysisStep):
         simulation_name = config.get('ocean_analysis', 'simulation_name')
         key = year_range_key(self.start_year, self.end_year)
 
-        plot_lat_elevation_field(
+        interval = section.getfloat('contour_interval')
+        drawn = plot_lat_elevation_field(
             da=streamfunction,
             lat=lat,
             z=z,
             out_filename=self.work_path(PLOT_FILENAME),
             config=config,
             colormap_section='ocean_analysis_moc',
-            contour_interval=section.getfloat('contour_interval'),
+            contour_interval=interval,
             max_abs=max_abs,
             title=(
                 f'{simulation_name}: global overturning streamfunction, '
@@ -336,6 +338,13 @@ class Moc(AnalysisStep):
             ),
             colorbar_label=STREAMFUNCTION_UNITS,
         )
+        if drawn is not None and drawn != interval:
+            self.logger.info(
+                f'  the streamfunction reaches {max_abs:.3g} '
+                f'{STREAMFUNCTION_UNITS}, so a contour every {interval:g} '
+                f'would have drawn more than {MAX_CONTOUR_LINES} lines; they '
+                f'are drawn every {drawn:g} instead'
+            )
         self.logger.info(f'wrote {PLOT_FILENAME}')
 
         # The outputs are registered here rather than in setup() because a

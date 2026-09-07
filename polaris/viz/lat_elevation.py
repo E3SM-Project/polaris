@@ -22,6 +22,13 @@ from polaris.viz.style import mplstyle_context
 # follows.
 FILL_LEVELS = 51
 
+# The most contour lines a plot carries before they stop being something the
+# eye can follow and become a scribble.  Past this the interval is widened to
+# a round multiple of the one that was asked for, so that a field whose range
+# is much larger than expected still gets a readable plot rather than one that
+# has to be tuned by hand before it can be looked at.
+MAX_CONTOUR_LINES = 25
+
 
 def plot_lat_elevation_field(
     da,
@@ -101,6 +108,14 @@ def plot_lat_elevation_field(
 
     dpi : int, optional
         Dots per inch for the saved image
+
+    Returns
+    -------
+    contour_interval : float or None
+        The interval the contour lines were actually drawn at, which is a
+        round multiple of ``contour_interval`` when that one would have drawn
+        more than :py:data:`MAX_CONTOUR_LINES` of them, or ``None`` if no
+        lines were asked for
     """
     lat = np.asarray(lat, dtype=float)
     z = np.asarray(z, dtype=float)
@@ -134,8 +149,9 @@ def plot_lat_elevation_field(
         # polygons unless they are drawn over their own edges
         filled.set_edgecolor('face')
 
+        drawn_interval = None
         if contour_interval is not None:
-            lines = _contour_levels(contour_interval, values)
+            lines, drawn_interval = _contour_levels(contour_interval, values)
             if len(lines) > 0:
                 # negative contours come out dashed, which is what tells the
                 # two circulation cells apart in black and white
@@ -158,6 +174,7 @@ def plot_lat_elevation_field(
         if title is not None:
             add_fitted_suptitle(figure, title)
         figure.savefig(out_filename)
+    return drawn_interval
 
 
 def _oriented_values(da, lat, z):
@@ -203,8 +220,8 @@ def _extend(values, vmin, vmax):
 
 def _contour_levels(interval, values):
     """
-    Get the values to draw contour lines at: the multiples of the interval the
-    field reaches
+    Get the values to draw contour lines at, and the interval they end up
+    spaced by
 
     The levels follow the data rather than the color map, so that a color map
     deliberately clipped to bring out the weaker circulation still has contour
@@ -212,6 +229,12 @@ def _contour_levels(interval, values):
     that says how strong it is.  Restricting them to the range of the data
     also keeps matplotlib from warning once per level about levels no contour
     passes through.
+
+    Following the data is what makes the count unbounded, though: a field with
+    a range much wider than the interval was chosen for turns the plot into a
+    scribble.  So the interval is widened to a round multiple of itself --- 2,
+    5, 10, 20 times and so on --- until the lines are few enough to follow.
+    The caller is told which interval was used so it can say so.
     """
     if interval <= 0.0:
         raise ValueError(
@@ -219,12 +242,33 @@ def _contour_levels(interval, values):
         )
     finite = values[np.isfinite(values)]
     if finite.size == 0:
-        return np.array([])
-    first = np.ceil(float(finite.min()) / interval)
-    last = np.floor(float(finite.max()) / interval)
-    if last < first:
-        return np.array([])
-    return np.arange(first, last + 1) * interval
+        return np.array([]), interval
+
+    low = float(finite.min())
+    high = float(finite.max())
+    for factor in _round_factors():
+        spacing = interval * factor
+        first = np.ceil(low / spacing)
+        last = np.floor(high / spacing)
+        if last < first:
+            # the field does not reach a single multiple of this spacing, so
+            # widening it further cannot help
+            return np.array([]), spacing
+        if int(last - first) + 1 <= MAX_CONTOUR_LINES:
+            return np.arange(first, last + 1) * spacing, spacing
+    return np.array([]), interval
+
+
+def _round_factors():
+    """
+    The round multiples an interval may be widened by, in order
+
+    1, 2, 5, 10, 20, 50 and so on, so that a widened interval is still a
+    number a reader can do arithmetic with.
+    """
+    for power in range(12):
+        for step in (1, 2, 5):
+            yield step * 10**power
 
 
 def _latitude_ticks(lat, spacing=30.0):
