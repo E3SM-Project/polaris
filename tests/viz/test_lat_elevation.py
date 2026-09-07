@@ -18,6 +18,7 @@ from matplotlib.figure import Figure
 
 from polaris.config import PolarisConfigParser
 from polaris.viz.lat_elevation import (
+    MAX_CONTOUR_LINES,
     _contour_levels,
     _extend,
     _latitude_ticks,
@@ -145,15 +146,16 @@ def test_a_square_field_is_taken_as_elevation_then_latitude():
 
 
 def test_contour_lines_are_multiples_of_the_interval():
-    levels = _contour_levels(4.0, np.linspace(-11.0, 7.5, 100))
+    levels, spacing = _contour_levels(4.0, np.linspace(-11.0, 7.5, 100))
     assert np.array_equal(levels, [-8.0, -4.0, 0.0, 4.0])
+    assert spacing == 4.0
 
 
 def test_contour_lines_reach_the_ends_of_the_data():
     """A color map clipped to bring out a weak circulation still gets lines
     through the saturated part of it, which is the only thing left there that
     says how strong the strong part is."""
-    levels = _contour_levels(10.0, np.linspace(-20.0, 20.0, 100))
+    levels, _ = _contour_levels(10.0, np.linspace(-20.0, 20.0, 100))
     assert np.array_equal(levels, [-20.0, -10.0, 0.0, 10.0, 20.0])
 
 
@@ -173,12 +175,69 @@ def test_no_contour_interval_draws_no_contour_lines(monkeypatch):
     assert len(_contour_sets(_figure_of(monkeypatch, max_abs=20.0))) == 1
 
 
+def test_a_wide_range_widens_the_interval_to_stay_readable():
+    """Following the data leaves the number of lines unbounded, so a field
+    whose range is far wider than the interval was chosen for would turn the
+    plot into a scribble.  The interval widens to a round multiple instead."""
+    levels, spacing = _contour_levels(2.0, np.linspace(-82.3, 82.3, 500))
+    assert spacing == 10.0
+    assert len(levels) <= MAX_CONTOUR_LINES
+    assert np.allclose(np.diff(levels), 10.0)
+
+
+def test_the_interval_is_left_alone_when_it_already_reads():
+    """A physical overturning streamfunction is unaffected: the widening is a
+    guard against an unexpected range, not a change of default."""
+    levels, spacing = _contour_levels(2.0, np.linspace(-20.0, 20.0, 500))
+    assert spacing == 2.0
+    assert len(levels) == 21
+
+
+def test_a_widened_interval_is_a_round_multiple():
+    """2 Sv widens to 4, 10, 20 and so on, so the labels stay numbers a
+    reader can do arithmetic with."""
+    for half_range in (30.0, 90.0, 400.0, 5000.0):
+        values = np.linspace(-half_range, half_range, 800)
+        _, spacing = _contour_levels(2.0, values)
+        assert spacing / 2.0 in (1, 2, 5, 10, 20, 50, 100, 200, 500, 1000)
+
+
+def test_the_plot_reports_the_interval_it_drew(tmp_path):
+    """The step logs the widened interval, so the primitive has to say
+    which one it used."""
+    da = _field(amplitude=100.0)
+    drawn = plot_lat_elevation_field(
+        da=da,
+        lat=LAT,
+        z=Z,
+        out_filename=str(tmp_path / 'wide.png'),
+        config=_config(),
+        colormap_section='ocean_analysis_moc',
+        contour_interval=2.0,
+        max_abs=100.0,
+    )
+    assert drawn is not None and drawn > 2.0
+
+
+def test_no_contour_interval_reports_no_interval(tmp_path):
+    drawn = plot_lat_elevation_field(
+        da=_field(),
+        lat=LAT,
+        z=Z,
+        out_filename=str(tmp_path / 'plain.png'),
+        config=_config(),
+        colormap_section='ocean_analysis_moc',
+        max_abs=20.0,
+    )
+    assert drawn is None
+
+
 def test_a_field_with_no_valid_values_gets_no_contour_lines():
-    assert len(_contour_levels(2.0, np.full(10, np.nan))) == 0
+    assert len(_contour_levels(2.0, np.full(10, np.nan))[0]) == 0
 
 
 def test_a_field_between_two_levels_gets_no_contour_lines():
-    assert len(_contour_levels(10.0, np.linspace(1.0, 9.0, 10))) == 0
+    assert len(_contour_levels(10.0, np.linspace(1.0, 9.0, 10))[0]) == 0
 
 
 def test_a_contour_interval_must_be_positive():
@@ -188,7 +247,7 @@ def test_a_contour_interval_must_be_positive():
 
 def test_contour_levels_ignore_what_is_below_the_seafloor():
     values = np.array([np.nan, -3.0, 1.0, np.nan])
-    assert np.array_equal(_contour_levels(2.0, values), [-2.0, 0.0])
+    assert np.array_equal(_contour_levels(2.0, values)[0], [-2.0, 0.0])
 
 
 def test_the_color_bar_points_only_where_there_is_data_beyond_it():
