@@ -77,9 +77,13 @@ def write_moc_file(
     if with_boundaries:
         if boundaries is None:
             boundaries = BIN_BOUNDARIES
+        boundaries = np.asarray(boundaries, dtype=float)
+        # Omega attaches the bin boundaries to the output stream like any
+        # other field, so they carry a time dimension even though they are
+        # static
         ds[LAT_BIN_BOUNDARY_VARIABLE] = (
-            ('NMocLatBinBoundaries',),
-            boundaries,
+            ('time', 'NMocLatBinBoundaries'),
+            boundaries[np.newaxis, :],
         )
     if with_elevations:
         ds[INTERFACE_ELEVATION_VARIABLE] = (
@@ -177,6 +181,35 @@ def test_the_latitude_axis_is_bin_centers_not_boundaries(tmp_path):
         assert np.allclose(ds.latBinCenter.values, expected)
 
 
+def test_bin_boundaries_repeated_every_month_give_one_latitude_axis(tmp_path):
+    """Omega writes the bin boundaries into every reduction, so a range of
+    twelve months carries twelve identical copies.  Flattening them would
+    give twelve times as many latitudes as there are bins."""
+    step = run_on_months(tmp_path)
+    with xr.open_dataset(step.work_path(DATA_FILENAME)) as ds:
+        assert ds.sizes['nLatBins'] == N_BINS
+
+
+def test_bin_boundaries_that_disagree_between_months_are_an_error(tmp_path):
+    """Two simulations mixed into one range would otherwise be averaged into
+    a streamfunction whose latitude axis belongs to neither."""
+    step = make_step(tmp_path)
+    for month in (1, 2):
+        filename = f'moc_1MonthTimeStats.0001-{month:02d}.nc'
+        write_moc_file(
+            os.path.join(str(tmp_path), filename),
+            year=1,
+            month=month,
+            boundaries=(
+                BIN_BOUNDARIES if month == 1 else BIN_BOUNDARIES * 0.5
+            ),
+        )
+        step.input_filenames.append(filename)
+    step.runtime_setup()
+    with pytest.raises(ValueError, match='changes over the range'):
+        step.run()
+
+
 def test_the_elevation_axis_is_the_one_omega_reported(tmp_path):
     """Polaris plots the interface elevations Omega averaged over the same
     period rather than reconstructing them."""
@@ -219,6 +252,22 @@ def test_period_lengths_are_the_gaps_between_the_stamps(tmp_path):
     )
     ds = xr.Dataset(coords={'Time': ('Time', time)})
     assert np.allclose(period_lengths(ds), [31.0, 31.0, 28.0, 31.0])
+
+
+def test_reductions_that_do_not_step_forward_are_an_error(tmp_path):
+    """Equal time stamps give zero weights, and a weighted mean by zero
+    weights is NaN rather than an error -- a published plot of NaN is the one
+    outcome worse than a failed step."""
+    time = xr.date_range(
+        start='0001-01-01',
+        periods=3,
+        freq='MS',
+        calendar='noleap',
+        use_cftime=True,
+    )
+    repeated = xr.Dataset(coords={'Time': ('Time', [time[0]] * 3)})
+    with pytest.raises(ValueError, match='does not step forward in time'):
+        period_lengths(repeated)
 
 
 def test_a_single_reduction_needs_no_weight(tmp_path):
@@ -339,8 +388,8 @@ def test_a_file_without_the_streamfunction_names_what_is_there(
     )
     ds = xr.Dataset(coords={'time': ('time', time)})
     ds[LAT_BIN_BOUNDARY_VARIABLE] = (
-        ('NMocLatBinBoundaries',),
-        BIN_BOUNDARIES,
+        ('time', 'NMocLatBinBoundaries'),
+        BIN_BOUNDARIES[np.newaxis, :],
     )
     ds[INTERFACE_ELEVATION_VARIABLE] = (
         ('time', 'NVertLayersP1'),
