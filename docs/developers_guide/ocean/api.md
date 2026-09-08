@@ -40,30 +40,58 @@
    PublishTask
    PublishTask.rebuild_steps
 
+   accumulate.Accumulator
+   accumulate.Accumulator.setup
+   accumulate.Accumulator.run
+   accumulate.Accumulator.setup_inputs
+   accumulate.Accumulator.product_stamp
+   accumulate.Accumulator.compute_month
+   accumulate.Accumulator.finalize
+   accumulate.Accumulator.provenance_stamp
+   accumulate.read_stamp
+   accumulate.stamp_attrs
+   accumulate.stamp_difference
+
    analysis_step.AnalysisStep
    analysis_step.AnalysisStep.runtime_setup
    analysis_step.AnalysisStep.add_product
    analysis_step.AnalysisStep.get_sim_files
    analysis_step.AnalysisStep.add_sim_input_file
    analysis_step.AnalysisStep.add_sim_input_files
+   analysis_step.AnalysisStep.read_fields
+   analysis_step.AnalysisStep.valid_level_range
    analysis_step.AnalysisStep.log_inputs
 
    climatology.Climatology
    climatology.Climatology.setup
    climatology.Climatology.run
+   climatology.get_climatology_variables
+   climatology.find_climatology_file
 
    climatology_maps.ClimatologyMaps
    climatology_maps.ClimatologyMaps.setup
    climatology_maps.ClimatologyMaps.run
    climatology_maps.get_field_groups
 
+   config_sections.camel_to_snake
+   config_sections.map_section
+
    global_stats.GlobalStatsTimeSeries
    global_stats.GlobalStatsTimeSeries.setup
    global_stats.GlobalStatsTimeSeries.run
 
+   heat_content_config.get_elevation_ranges
+   heat_content_config.get_specific_heat
+
    heat_content_series.HeatContentSeries
    heat_content_series.HeatContentSeries.setup
+   heat_content_series.HeatContentSeries.setup_inputs
+   heat_content_series.HeatContentSeries.product_stamp
+   heat_content_series.HeatContentSeries.computed_ranges
    heat_content_series.HeatContentSeries.run
+   heat_content_series.HeatContentSeries.compute_month
+   heat_content_series.HeatContentSeries.finalize
+   heat_content_series.series_variable
 
    moc.Moc
    moc.Moc.setup
@@ -764,6 +792,7 @@
 
    OceanModelFilesMixin
 
+   get_layer_mass
    get_days_since_start
    get_simulation_years
    days_per_year
@@ -790,6 +819,18 @@
    teos10.ct_from_potential_density
 ```
 
+
+### Heat content
+
+```{eval-rst}
+.. currentmodule:: polaris.ocean
+
+.. autosummary::
+   :toctree: generated/
+
+   heat_content.heat_content
+
+```
 
 ### Initial state
 
@@ -844,6 +885,14 @@
    vertical.diagnostics.pseudothickness_from_ds
    vertical.diagnostics.get_z_mid_and_interface
    vertical.diagnostics.depth_from_thickness
+   vertical.elevation.VerticalReduction
+   vertical.elevation.parse_vertical_reduction
+   vertical.elevation.apply_vertical_reduction
+   vertical.elevation.get_valid_level_range
+   vertical.elevation.elevation_label
+   vertical.elevation.range_bound_label
+   vertical.elevation.is_whole_column
+   vertical.elevation.elevation_range_weights
    vertical.grid_1d.generate_1d_grid
    vertical.grid_1d.write_1d_grid
    vertical.partial_cells.alter_bottom_depth
