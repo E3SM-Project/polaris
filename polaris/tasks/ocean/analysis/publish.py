@@ -5,10 +5,6 @@ from polaris.analysis import generate_site, publish
 from polaris.analysis.manifest import FRAGMENT_FILENAME
 from polaris.provenance import get_summary
 
-#: The pickle a dependency leaves behind, which is what makes a step that
-#: did not run report itself by name rather than as an empty gallery
-DEPENDENCY_PICKLE = 'step_after_run.pickle'
-
 #: The subdirectory the fragments are linked into, one per step
 FRAGMENTS_DIRNAME = 'fragments'
 
@@ -125,14 +121,12 @@ class Publish(Step):
 
         The task rebuilds its steps whenever the config is read, so a step
         whose work directory did not change is asked a second time for the
-        pickle it already owes.  The duplicate is dropped rather than left
-        for Polaris to check twice.
+        pickle it already owes.  ``add_output_file()`` keeps only the first
+        of those, so the pickle is listed once however often the step is
+        rebuilt.
         """
-        already_a_dependency = DEPENDENCY_PICKLE in step.outputs
         name = step.subdir.replace('/', '_')
         self.add_dependency(step, name=name)
-        if already_a_dependency:
-            step.outputs.remove(DEPENDENCY_PICKLE)
 
         filename = os.path.join(FRAGMENTS_DIRNAME, f'{name}.json')
         self.add_input_file(
