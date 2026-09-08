@@ -9,13 +9,6 @@ ocean:
     config_cvmix_background_diffusion: 1.e-5
     config_cvmix_background_viscosity: 1.e-4
     config_cvmix_num_ri_smooth_loops: 2
-  eos:
-    config_eos_type: linear
-  eos_linear:
-    config_eos_linear_alpha: 0.2
-    config_eos_linear_beta: 0.01
-    # 1000.0 + 0.2 * 5 - 0.01 * 35
-    config_eos_linear_densityref: 1000.65
   forcing:
     config_use_bulk_wind_stress: true
   debug:
@@ -31,12 +24,12 @@ ocean:
     config_disable_tr_vmix: true
   tracer_forcing_activeTracers:
     config_salinity_restoring_constant_piston_velocity: 1.585e-5
+  frazil_ice:
+    config_use_frazil_ice_formation: false
 
 mpas-ocean:
   io:
     config_write_output_on_startup: false
-  frazil_ice:
-    config_use_frazil_ice_formation: false
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: true
     config_use_activeTracers_surface_restoring: false
