@@ -93,6 +93,8 @@ seaice/api
    allocation.NodeResources
    placement.placement_to_env
    placement.placement_from_env
+   pool.ResourcePool
+   pool.Reservation
    serial.run_tasks
    serial.run_single_step
    results.TaskResult
