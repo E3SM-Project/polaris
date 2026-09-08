@@ -12,6 +12,11 @@ run is still going and appended to without rewriting anything.  Every record
 carries the seconds since the run began, because what matters afterwards is
 almost always when something happened relative to everything else rather
 than the wall-clock time it happened at.
+
+That field is the stream's and not the caller's, and ``record()`` refuses to
+let anything overwrite it.  Overlap is computed by holding one record's
+timestamp against another's, so a record whose ``seconds`` meant something
+else would not fail -- it would quietly give a wrong answer.
 """
 
 import json
@@ -61,7 +66,24 @@ class EventStream:
         -------
         record : dict
             What was written, which is what the tests read
+
+        Raises
+        ------
+        ValueError
+            If a caller tries to supply ``seconds``.  When a record's
+            timestamp can be overwritten, two records can carry the same
+            field meaning different things, and nothing downstream can tell
+            which is which.  That is not hypothetical: a finish record once
+            carried a step's *duration* under this name, which silently
+            turned every overlap computed from the stream into nonsense.
         """
+        if 'seconds' in fields:
+            raise ValueError(
+                f"A record's 'seconds' is when it happened, measured from "
+                f'the start of the run, and belongs to the stream rather '
+                f'than to the caller. Record {event!r} tried to supply its '
+                f'own. A duration or any other span needs its own name.'
+            )
         record: Dict[str, Any] = {
             'event': event,
             'seconds': round(time.time() - self._start, 3),

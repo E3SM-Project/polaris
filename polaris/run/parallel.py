@@ -144,7 +144,7 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
 
     failures = _report(outcomes, mismatched, logger, elapsed)
     events.record(
-        'run_finished', seconds=round(elapsed, 3), failures=len(failures)
+        'run_finished', elapsed=round(elapsed, 3), failures=len(failures)
     )
     return failures
 
@@ -380,7 +380,7 @@ def _finish(
             'step_finished',
             step=outcome.step_path,
             status='succeeded',
-            seconds=outcome.seconds,
+            duration=outcome.seconds,
         )
         if not quiet:
             logger.info(
@@ -394,7 +394,7 @@ def _finish(
         'step_finished',
         step=outcome.step_path,
         status=status,
-        seconds=outcome.seconds,
+        duration=outcome.seconds,
         returncode=outcome.returncode,
         signal=outcome.signal_name,
     )
