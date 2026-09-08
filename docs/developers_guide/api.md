@@ -95,6 +95,12 @@ seaice/api
    placement.placement_from_env
    pool.ResourcePool
    pool.Reservation
+   executor.start_step
+   executor.RunningStep
+   executor.StepOutcome
+   events.EventStream
+   events.read_events
+   parallel.run_tasks
    serial.run_tasks
    serial.run_single_step
    results.TaskResult
