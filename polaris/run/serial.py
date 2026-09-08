@@ -24,6 +24,7 @@ from polaris.run.lifecycle import (
     read_property_status_from_logs,
     run_step,
     run_step_as_subprocess,
+    step_is_complete,
 )
 from polaris.run.results import TaskResult, write_suite_results
 from polaris.validate import merge_diff_summary
@@ -639,13 +640,10 @@ def _run_task(task, available_resources):
     cf_passed = None
     for step_name in task.steps_to_run:
         step = task.steps[step_name]
-        complete_filename = os.path.join(
-            step.work_dir, 'polaris_step_complete.log'
-        )
 
         _print_to_stdout(task, f'  * step: {step_name}')
 
-        if os.path.exists(complete_filename):
+        if step_is_complete(step):
             _print_to_stdout(task, '          already completed')
             # print results of baseline comparison if it was done
             baseline_status = read_baseline_status_from_logs(step.work_dir)

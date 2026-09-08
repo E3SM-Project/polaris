@@ -18,7 +18,11 @@ from typing import Optional
 from mpas_tools.logging import LoggingContext, check_call
 
 from polaris.logging import log_method_call
-from polaris.run import complete_step_run, load_dependencies
+from polaris.run import (
+    STEP_COMPLETE_LOG,
+    complete_step_run,
+    load_dependencies,
+)
 
 
 def run_step(task, step, new_log_file, available_resources, step_log_filename):
@@ -129,6 +133,26 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
             f'output file(s) missing in step {step.name} in '
             f'{step.component.name}/{step.subdir}: {missing_files}'
         )
+
+
+def step_is_complete(step) -> bool:
+    """
+    Whether a step has already run successfully in its work directory.
+
+    A step that has is skipped rather than run again, which is what makes a
+    rerun after a failure resume from what succeeded.
+
+    Parameters
+    ----------
+    step : polaris.Step
+        The step to ask about
+
+    Returns
+    -------
+    complete : bool
+        Whether the step left the marker that says it finished
+    """
+    return os.path.exists(os.path.join(step.work_dir, STEP_COMPLETE_LOG))
 
 
 def run_step_as_subprocess(logger, step, new_log_file):
