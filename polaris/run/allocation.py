@@ -188,6 +188,16 @@ def read_allocation(component, logger) -> List[NodeResources]:
         )
         for name in names
     ]
+    silent = [name for name in names if name not in readings]
+    if silent and readings:
+        # some nodes answered and some did not, which is worth more than a
+        # line saying the quiet ones fell back: a launch that reaches only
+        # part of its allocation is a placement problem rather than a
+        # memory one, and the raw output is what tells them apart
+        logger.warning(
+            f'{len(silent)} of {len(names)} node(s) did not report their '
+            f'memory and fall back to the configured figure: {silent}'
+        )
     _report(nodes, logger)
     return nodes
 
@@ -244,7 +254,12 @@ def _read_nodes(parallel_system, names, logger) -> Dict[str, Dict[str, int]]:
         )
         return {}
 
-    return _parse(process.stdout)
+    readings = _parse(process.stdout)
+    if len(readings) != len(names):
+        # keep what the nodes actually said, since a reading that is wrong
+        # or missing cannot be diagnosed from the summary alone
+        logger.debug(f'the nodes answered:\n{process.stdout}')
+    return readings
 
 
 def _parse(output: str) -> Dict[str, Dict[str, int]]:

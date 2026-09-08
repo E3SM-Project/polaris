@@ -70,6 +70,43 @@ def test_a_produced_file_becomes_an_edge(tmp_path):
     )
 
 
+def test_a_link_to_what_another_step_will_produce_is_an_edge(tmp_path):
+    """
+    What setup actually leaves behind, and what a real suite exposed.
+
+    Setup links a step's inputs into its own work directory, so a step
+    consuming another's output names a link pointing there.  Until the
+    other step runs that link dangles: it does not exist, and the file it
+    waits for has a different path.  Comparing what the link resolves to is
+    what connects the two.
+    """
+    produced = tmp_path / 'producer' / 'init.nc'
+    producer = _make_step(tmp_path, 'producer', outputs=[produced])
+    consumer = _make_step(tmp_path, 'consumer')
+    linked = tmp_path / 'consumer' / 'init.nc'
+    os.symlink(produced, linked)
+    consumer.inputs = [str(linked)]
+
+    assert not os.path.exists(linked)
+
+    graph = build_step_graph([producer, consumer])
+
+    assert graph.nodes['ocean/consumer'].requires == frozenset(
+        {'ocean/producer'}
+    )
+
+
+def test_a_link_to_a_file_nothing_produces_is_still_rejected(tmp_path):
+    """Following the link must not turn a real error into an edge."""
+    consumer = _make_step(tmp_path, 'consumer')
+    linked = tmp_path / 'consumer' / 'init.nc'
+    os.symlink(tmp_path / 'nowhere.nc', linked)
+    consumer.inputs = [str(linked)]
+
+    with pytest.raises(ValueError, match='does not exist'):
+        build_step_graph([consumer])
+
+
 def test_listed_order_alone_is_not_an_edge(tmp_path):
     """Two steps that declare nothing about each other may run at once."""
     first = _make_step(tmp_path, 'first')

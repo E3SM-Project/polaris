@@ -21,7 +21,7 @@ from polaris.run import STEP_COMPLETE_LOG
 from polaris.run.allocation import NodeResources
 from polaris.run.events import EventStream, read_events
 from polaris.run.graph import build_step_graph
-from polaris.run.parallel import _loop
+from polaris.run.parallel import _credit_memory, _loop
 from polaris.run.pool import ResourcePool
 
 # what each synthetic step's process runs, in its own work directory
@@ -274,3 +274,79 @@ def test_every_step_records_when_it_ran(tmp_path):
     assert kinds.count('step_started') == 3
     assert kinds.count('step_finished') == 3
     assert all('seconds' in event for event in events)
+
+
+def test_a_step_is_sized_against_what_the_nodes_credit():
+    """
+    The interaction that stopped the first real run, with its numbers.
+
+    A step that declares no memory is budgeted at its proportional share of
+    a node, which is what makes memory accounting neutral: the memory
+    inequality and the core inequality become the same one.  That holds
+    only while the share is taken from the same figure the pool charges
+    against.  Chrysalis reported about 5% less than its configured 253000
+    MiB, so a step wanting all three nodes was budgeted 759000 MiB against
+    the 730758 MiB they credited and could never start.
+    """
+    credited = [238308, 239450, 253000]
+    nodes = [
+        NodeResources(
+            name=f'chr-{index}',
+            cores=64,
+            gpus=0,
+            memory=memory,
+            memory_source='available',
+            memory_total=257155,
+            memory_configured=253000,
+        )
+        for index, memory in enumerate(credited)
+    ]
+    configured = dict(
+        cores=192,
+        nodes=3,
+        cores_per_node=64,
+        gpus=0,
+        gpus_per_node=0,
+        memory=253000 * 3,
+        memory_per_node=253000,
+        mpi_allowed=True,
+    )
+
+    available = _credit_memory(configured, nodes)
+
+    assert available['memory_per_node'] == min(credited)
+    assert available['memory'] == sum(credited)
+
+    # and the step that could not start now does: budgeted on the credited
+    # figure, a step wanting every core fits every node exactly
+    step = Step(
+        component=Component(name='ocean'),
+        name='wide',
+        subdir='wide',
+        ntasks=192,
+        cpus_per_task=1,
+        may_span_nodes=True,
+    )
+    step.constrain_resources(available)
+    pool = ResourcePool(nodes)
+
+    assert pool.why_impossible(step) is None
+    assert pool.reserve(step) is not None
+
+
+def test_a_view_from_nodes_that_said_nothing_is_left_alone():
+    """A machine with no reading to offer keeps the configured figure."""
+    nodes = [
+        NodeResources(
+            name='node0',
+            cores=64,
+            gpus=0,
+            memory=None,
+            memory_source='config',
+            memory_total=None,
+            memory_configured=None,
+        )
+    ]
+    configured = dict(cores=64, memory_per_node=253000, memory=253000)
+
+    assert _credit_memory(configured, nodes) == configured
