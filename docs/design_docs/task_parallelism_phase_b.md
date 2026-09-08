@@ -387,7 +387,7 @@ with evidence for it.
 
 ### Algorithm Design: Running a Step in Its Own Process
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/08
 
 Contributors:
 
@@ -405,6 +405,35 @@ non-MPI steps. An MPI step's subprocess goes on to launch its model through
 the parallel command; a Python step's subprocess simply runs Python. The
 scheduler does not need two executors, two policies or a barrier between
 them.
+
+What the two do not share is how they are confined, and saying so matters
+because otherwise a placement means nothing for half the steps. An MPI step's
+placement reaches a launcher, which puts the work on the nodes and cores it
+names. A non-MPI step does its work in the subprocess itself, and nothing
+between the scheduler and that process acts on a placement: the executor has
+to apply the affinity, and it can only do that on the node it is running on.
+So a step that is not launched shall be given cores on the scheduler's own
+node and bound to them by the executor.
+
+That puts a ceiling on Python concurrency at one node's worth of cores. It is
+the ceiling Phase C exists to lift, and the same one MPAS-Analysis has today.
+It is not a ceiling on what Phase B is for: the regression suites this phase
+targets are dominated by MPI work, which is placed across the whole
+allocation as designed.
+
+The alternative -- launching every step's driver through the launcher, so
+that a Python step lands wherever it was placed -- was rejected here because
+an MPI step's driver would then start its model from inside a job step, which
+needs care on newer Slurm and is a known way to hang. That is a reason to
+leave it out of Phase B, not a finding; it is worth revisiting with a
+measurement rather than by argument.
+
+One consequence to acknowledge rather than discover: every step has a driver
+process on the scheduler's node for as long as it runs, MPI steps included,
+and those are not reserved. A driver blocked waiting for its model consumes
+no core, so reserving one each would cost more concurrency than the drivers
+cost the node. The point at which that stops being true is a driver that does
+real work while its model runs, and that is the point to revisit it.
 
 The alternative we considered and rejected was to run steps as functions
 inside a pool of worker processes. It is a good fit for fine-grained Python
@@ -571,7 +600,7 @@ the steps that were on its node with what they declared.
 
 ### Testing and Validation: Concurrency and Isolation
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/08
 
 Contributors:
 
@@ -591,6 +620,11 @@ already and confirming it costs almost nothing. It runs on every machine on
 every run, which is what makes it useful -- the thing it guards against is a
 site changing its scheduler configuration underneath us, and that will not
 announce itself.
+
+What it reads differs with how the step was confined. A launched step is
+asked what its ranks were given; a step bound by the executor is asked for
+its own process affinity. Same question, different mechanism, and both are
+cheap.
 
 A mismatch shall be reported rather than corrected. A step given fewer cores
 than it was promised is running in a way the scheduler's accounting does not
