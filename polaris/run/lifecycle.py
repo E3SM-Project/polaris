@@ -23,6 +23,7 @@ from polaris.run import (
     complete_step_run,
     load_dependencies,
 )
+from polaris.run.confinement import check_confinement
 
 
 def run_step(task, step, new_log_file, available_resources, step_log_filename):
@@ -72,8 +73,8 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
         log_method_call(method=step.constrain_resources, logger=step_logger)
         step_logger.info('')
         # a step confined to part of the allocation has to be told about
-        # that part, not about the whole job.  Nothing assigns a placement
-        # yet, so this is the whole job in every case today.
+        # that part, not about the whole job.  A serial run assigns no
+        # placement, so there it is the whole job as it always was.
         if step.placement is not None:
             step_resources = step.component.get_available_resources(
                 step.placement
@@ -81,6 +82,10 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
         else:
             step_resources = available_resources
         step.constrain_resources(step_resources)
+
+        # a placement is a promise about part of the machine, and nothing
+        # enforces it.  Ask, once, whether this step got what it was given.
+        check_confinement(step, step_logger)
 
         # runtime_setup() will perform small tasks that require knowing the
         # resources of the task before the step runs (such as creating
