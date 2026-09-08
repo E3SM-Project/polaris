@@ -378,3 +378,40 @@ def test_a_step_that_did_not_get_its_placement_is_surfaced(tmp_path):
         if event['event'] == 'placement_mismatch'
     ]
     assert reported == ['ocean/wrong']
+
+
+def test_a_record_cannot_overwrite_when_it_happened(tmp_path):
+    """
+    Overlap is one record's timestamp held against another's.
+
+    A record that supplied its own ``seconds`` would not fail; it would
+    quietly give a wrong answer, which is how a finish record carrying a
+    step's duration under that name went unnoticed.
+    """
+    with EventStream(str(tmp_path / 'events.jsonl')) as events:
+        with pytest.raises(ValueError, match='belongs to the stream'):
+            events.record('step_finished', step='ocean/step', seconds=12.0)
+
+
+def test_overlap_can_be_computed_from_what_was_recorded(tmp_path):
+    """The design's bar: measured from start and end times, not wall time."""
+    steps = [
+        _step(tmp_path, 'first', 'sleep 1\n'),
+        _step(tmp_path, 'second', 'sleep 1\n'),
+    ]
+
+    _, events = _run(tmp_path, steps, nodes=_nodes(cores=2))
+
+    starts = {
+        event['step']: event['seconds']
+        for event in events
+        if event['event'] == 'step_started'
+    }
+    ends = {
+        event['step']: event['seconds']
+        for event in events
+        if event['event'] == 'step_finished'
+    }
+    for path, start in starts.items():
+        assert ends[path] > start, (path, start, ends[path])
+    assert _peak_concurrency(events) == 2
