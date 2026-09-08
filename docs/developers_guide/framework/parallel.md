@@ -45,7 +45,20 @@ even between Slurm versions on the same machine:
 from mache.parallel import ResourcePlacement
 
 step.placement = ResourcePlacement(
-    nodes=('nid001234',), cores=tuple(range(8)), gpus=0
+    nodes=('nid001234',), cores=(tuple(range(8)),), gpus=0
+)
+```
+
+`cores` is one set of core numbers **per node**, in the same order as
+`nodes`, which is why a placement on a single node still nests.  Core numbers
+are node-local, so a step spanning two nodes normally asks for the same ones
+on both:
+
+```python
+step.placement = ResourcePlacement(
+    nodes=('nid001234', 'nid001235'),
+    cores=(tuple(range(8)), tuple(range(8))),
+    gpus=0,
 )
 ```
 
@@ -73,12 +86,19 @@ Not every machine can confine a launch.  `mache` reports which mechanism a
 machine has through `ParallelSystem.placement_support`, decided at run time
 from the launcher that is actually installed rather than from configuration.
 
-Placement needs `mache` 3.12.0 or later, which the deployment pins.
+Placement needs `mache` 3.13.0 or later, which the deployment pins.  3.12.0
+brought placement and expressed a launch's cores as one flat set, which
+cannot describe a launch spanning nodes wherever the launcher binds cores
+explicitly: it required the numbers to be unique, and node-local numbering
+means two nodes normally use the same ones.
 
 Setup refuses to go any further against a `mache` that cannot place, rather
 than letting a run fail partway through with a `TypeError` from inside the
-launcher.  This will become an ordinary version requirement once the change
-is released.
+launcher.  It tests capabilities rather than comparing version numbers,
+because the capability is the thing that matters and a version is only a
+proxy for it: it asks whether this `mache` accepts a placement at all, and
+then whether it accepts one core set per node, by building two nodes that
+both offer core 0.
 
 ## How a step says what it needs
 
