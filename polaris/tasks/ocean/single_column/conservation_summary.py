@@ -10,7 +10,7 @@ BUDGETS = ['mass', 'salt', 'energy']
 
 class ConservationSummary(Step):
     """
-    A step that gathers the conservation errors from each of the ``thermo``
+    A step that gathers the conservation errors from each of a task's
     forward steps into a single log file listing the forward step name and
     the mass, salt and energy errors.
 
@@ -49,7 +49,7 @@ class ConservationSummary(Step):
         Write a log file listing the conservation error for each forward step
         """
         lines = [
-            'Conservation errors for each thermo forward step',
+            'Conservation errors for each forward step',
             '',
             f'{"forward step":<40s}{"budget interval":<32s}'
             + ''.join(f'{f"{budget} error":<16s}' for budget in BUDGETS),
