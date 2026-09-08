@@ -208,6 +208,55 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_ct_freezing</span><span class="p">(</span>
+    <span class="n">sa</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">p</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">saturation_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the freezing Conservative Temperature from the TEOS-10</span>
+<span class="sd">    polynomial, equivalent to ``Teos10Eos::calcCtFreezingTeos10()`` in Omega.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sa : float or xarray.DataArray</span>
+<span class="sd">        Absolute Salinity (g/kg) at the same points as p.</span>
+
+<span class="sd">    p : float or xarray.DataArray</span>
+<span class="sd">        Sea pressure in Pascals (Pa) at the same points as sa.</span>
+
+<span class="sd">    saturation_fraction : float, optional</span>
+<span class="sd">        The fraction of dissolved air in seawater (0 to 1), used to</span>
+<span class="sd">        correct the freezing temperature.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ct_freezing : float or xarray.DataArray</span>
+<span class="sd">        The freezing Conservative Temperature (degC) with the same</span>
+<span class="sd">        dims/coords as the input arrays, or a scalar if all inputs are</span>
+<span class="sd">        scalar.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">sa</span><span class="p">)):</span>
+        <span class="n">p_dbar</span> <span class="o">=</span> <span class="n">p</span> <span class="o">/</span> <span class="mf">1.0e4</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">gsw</span><span class="o">.</span><span class="n">CT_freezing</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">p_dbar</span><span class="p">,</span> <span class="n">saturation_fraction</span><span class="p">))</span>
+
+    <span class="n">p</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">sa</span> <span class="o">=</span> <span class="n">_align_data_arrays</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sa</span><span class="o">=</span><span class="n">sa</span><span class="p">)</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">_get_template_data_array</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">ct</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sa</span><span class="o">=</span><span class="n">sa</span><span class="p">)</span>
+
+    <span class="n">p_dbar</span> <span class="o">=</span> <span class="n">_to_numpy</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.0e4</span>
+    <span class="n">sa_np</span> <span class="o">=</span> <span class="n">_to_numpy</span><span class="p">(</span><span class="n">sa</span><span class="p">)</span>
+    <span class="n">ct_freezing_np</span> <span class="o">=</span> <span class="n">gsw</span><span class="o">.</span><span class="n">CT_freezing</span><span class="p">(</span><span class="n">sa_np</span><span class="p">,</span> <span class="n">p_dbar</span><span class="p">,</span> <span class="n">saturation_fraction</span><span class="p">)</span>
+
+    <span class="n">ct_freezing</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">ct_freezing_np</span><span class="p">,</span>
+        <span class="n">dims</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">'ctFreezing'</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ct_freezing</span>
+
+
 <div class="viewcode-block" id="ct_from_potential_density">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.eos.teos10.ct_from_potential_density.html#polaris.ocean.eos.ct_from_potential_density">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ct_from_potential_density</span><span class="p">(</span>

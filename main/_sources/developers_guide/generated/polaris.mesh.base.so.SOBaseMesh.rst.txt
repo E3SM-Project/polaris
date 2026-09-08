@@ -17,6 +17,7 @@
       ~SOBaseMesh.add_dependency
       ~SOBaseMesh.add_input_file
       ~SOBaseMesh.add_output_file
+      ~SOBaseMesh.add_property_check
       ~SOBaseMesh.build_cell_width_lat_lon
       ~SOBaseMesh.check_properties
       ~SOBaseMesh.constrain_resources

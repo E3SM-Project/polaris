@@ -21,6 +21,7 @@
       ~ConvergenceForward.add_model_config_options
       ~ConvergenceForward.add_namelist_file
       ~ConvergenceForward.add_output_file
+      ~ConvergenceForward.add_property_check
       ~ConvergenceForward.add_streams_file
       ~ConvergenceForward.add_vert_coord_input_file
       ~ConvergenceForward.add_yaml_file
@@ -35,6 +36,7 @@
       ~ConvergenceForward.map_yaml_options
       ~ConvergenceForward.map_yaml_streams
       ~ConvergenceForward.map_yaml_to_namelist
+      ~ConvergenceForward.open_model_dataset
       ~ConvergenceForward.partition
       ~ConvergenceForward.process_inputs_and_outputs
       ~ConvergenceForward.run
@@ -66,5 +68,6 @@
       ~ConvergenceForward.write_coeffs_reconstruct
       ~ConvergenceForward.config
       ~ConvergenceForward.input_data
+      ~ConvergenceForward.logger
    
    

@@ -17,6 +17,7 @@
       ~CullMaskStep.add_dependency
       ~CullMaskStep.add_input_file
       ~CullMaskStep.add_output_file
+      ~CullMaskStep.add_property_check
       ~CullMaskStep.check_properties
       ~CullMaskStep.constrain_resources
       ~CullMaskStep.define_critical_land_transects

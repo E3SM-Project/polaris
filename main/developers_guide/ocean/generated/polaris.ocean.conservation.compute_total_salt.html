@@ -141,7 +141,22 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.ocean.conservation.compute_total_salt">
 <span class="sig-prename descclassname"><span class="pre">polaris.ocean.conservation.</span></span><span class="sig-name descname"><span class="pre">compute_total_salt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/conservation.html#compute_total_salt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.conservation.compute_total_salt" title="Link to this definition"></a></dt>
-<dd><p>Compute the total salt in an ocean model output file</p>
+<dd><p>Compute the total mass of salt in an ocean model output file using a
+constant density</p>
+<p>Salinity is assumed to be in g/kg (i.e. grams of salt per kilogram of
+seawater), so the volume integral of <code class="docutils literal notranslate"><span class="pre">layerThickness</span> <span class="pre">*</span> <span class="pre">salinity</span></code> is
+converted to a salt mass with <code class="docutils literal notranslate"><span class="pre">rho_sw</span> <span class="pre">/</span> <span class="pre">1000</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds_mesh</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – The mesh dataset, containing <code class="docutils literal notranslate"><span class="pre">areaCell</span></code></p></li>
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – The dataset containing <code class="docutils literal notranslate"><span class="pre">salinity</span></code> and a layer thickness</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>total_salt</strong> (<em>float</em>) – The total mass of salt in kg over the whole domain</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

@@ -21,6 +21,7 @@
       ~RestartStep.add_model_config_options
       ~RestartStep.add_namelist_file
       ~RestartStep.add_output_file
+      ~RestartStep.add_property_check
       ~RestartStep.add_streams_file
       ~RestartStep.add_vert_coord_input_file
       ~RestartStep.add_yaml_file
@@ -35,6 +36,7 @@
       ~RestartStep.map_yaml_options
       ~RestartStep.map_yaml_streams
       ~RestartStep.map_yaml_to_namelist
+      ~RestartStep.open_model_dataset
       ~RestartStep.partition
       ~RestartStep.process_inputs_and_outputs
       ~RestartStep.run
@@ -66,5 +68,6 @@
       ~RestartStep.write_coeffs_reconstruct
       ~RestartStep.config
       ~RestartStep.input_data
+      ~RestartStep.logger
    
    

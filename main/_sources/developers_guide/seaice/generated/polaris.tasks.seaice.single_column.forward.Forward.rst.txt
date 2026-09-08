@@ -19,6 +19,7 @@
       ~Forward.add_model_config_options
       ~Forward.add_namelist_file
       ~Forward.add_output_file
+      ~Forward.add_property_check
       ~Forward.add_streams_file
       ~Forward.add_yaml_file
       ~Forward.check_properties

@@ -199,47 +199,53 @@ than this number of tasks, the step will fail</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_output_file</span></code>(filename[, validate_vars, ...])</p></td>
 <td><p>Add an output file, optionally resolving <code class="docutils literal notranslate"><span class="pre">validate_class</span></code> to a pre-defined list of variables from the Ocean component.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code>(package, streams[, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_property_check</span></code>(filename, check_properties)</p></td>
+<td><p>Add a single conservation comparison for an output file</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_streams_file</span></code>(package, streams[, ...])</p></td>
 <td><p>Add a streams file to the step to be parsed when generating a complete streams file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_vert_coord_input_file</span></code>([filename])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_vert_coord_input_file</span></code>([filename])</p></td>
 <td><p>Add the vertical-coordinate input file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code>(package, yaml[, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_yaml_file</span></code>(package, yaml[, ...])</p></td>
 <td><p>Add a file with updates to yaml config options to the step to be parsed when generating a complete yaml file if and when the step gets set up.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_properties</span></code>()</p></td>
-<td><p>This method should be overridden to check properties of step outputs</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_properties</span></code>()</p></td>
+<td><p>Check conservation properties of the output files of this step</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_cell_count</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_cell_count</span></code></a>()</p></td>
 <td><p>Compute the approximate number of cells in the mesh, used to constrain resources</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_cores)</p></td>
 <td><p>Update the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dynamic_model_config</span></code></a>(at_setup)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dynamic_model_config</span></code></a>(at_setup)</p></td>
 <td><p>Add model config options, namelist, streams and yaml files using config options or template replacements that need to be set both during step setup and at runtime</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_horiz_mesh_filename</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_horiz_mesh_filename</span></code>()</p></td>
 <td><p>Get the configured local filename for the horizontal mesh file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_init_filename</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_init_filename</span></code>()</p></td>
 <td><p>Get the configured local filename for the initial-condition file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vert_coord_filename</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vert_coord_filename</span></code>()</p></td>
 <td><p>Get the configured local filename for the vertical coordinate file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_configs</span></code>(configs, config_model)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_configs</span></code>(configs, config_model)</p></td>
 <td><p>A mapping between model sections and config options from MPAS-Ocean to Omega</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_options</span></code>(options, config_model)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_options</span></code>(options, config_model)</p></td>
 <td><p>A mapping between model config options from MPAS-Ocean to Omega</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_streams</span></code>(streams, config_model)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_streams</span></code>(streams, config_model)</p></td>
 <td><p>A mapping between model streams from different models.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code>(options)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_yaml_to_namelist</span></code>(options)</p></td>
 <td><p>A mapping from yaml model config options to namelist options.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_model_dataset</span></code>(filename[, config, ...])</p></td>
+<td><p>Open a dataset, mapping Omega variable and dimension names to their MPAS-Ocean equivalents if appropriate.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code>([graph_file])</p></td>
 <td><p>Partition the domain for the requested number of tasks</p></td>
@@ -310,6 +316,9 @@ than this number of tasks, the step will fail</p></li>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">input_data</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></p></td>
 <td><p></p></td>
 </tr>
 </tbody>

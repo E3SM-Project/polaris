@@ -17,6 +17,7 @@
       ~QuasiUniformSphericalMeshStep.add_dependency
       ~QuasiUniformSphericalMeshStep.add_input_file
       ~QuasiUniformSphericalMeshStep.add_output_file
+      ~QuasiUniformSphericalMeshStep.add_property_check
       ~QuasiUniformSphericalMeshStep.build_cell_width_lat_lon
       ~QuasiUniformSphericalMeshStep.check_properties
       ~QuasiUniformSphericalMeshStep.constrain_resources

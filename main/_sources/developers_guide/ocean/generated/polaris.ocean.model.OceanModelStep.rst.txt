@@ -21,6 +21,7 @@
       ~OceanModelStep.add_model_config_options
       ~OceanModelStep.add_namelist_file
       ~OceanModelStep.add_output_file
+      ~OceanModelStep.add_property_check
       ~OceanModelStep.add_streams_file
       ~OceanModelStep.add_vert_coord_input_file
       ~OceanModelStep.add_yaml_file
@@ -35,6 +36,7 @@
       ~OceanModelStep.map_yaml_options
       ~OceanModelStep.map_yaml_streams
       ~OceanModelStep.map_yaml_to_namelist
+      ~OceanModelStep.open_model_dataset
       ~OceanModelStep.partition
       ~OceanModelStep.process_inputs_and_outputs
       ~OceanModelStep.run
@@ -66,5 +68,6 @@
       ~OceanModelStep.write_coeffs_reconstruct
       ~OceanModelStep.config
       ~OceanModelStep.input_data
+      ~OceanModelStep.logger
    
    

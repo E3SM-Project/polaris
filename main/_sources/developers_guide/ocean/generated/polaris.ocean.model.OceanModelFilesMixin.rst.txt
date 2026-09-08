@@ -21,6 +21,7 @@
       ~OceanModelFilesMixin.get_horiz_mesh_filename
       ~OceanModelFilesMixin.get_init_filename
       ~OceanModelFilesMixin.get_vert_coord_filename
+      ~OceanModelFilesMixin.open_model_dataset
    
    
 
@@ -34,5 +35,6 @@
       ~OceanModelFilesMixin.config
       ~OceanModelFilesMixin.input_data
       ~OceanModelFilesMixin.add_input_file
+      ~OceanModelFilesMixin.logger
    
    

@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.single\_column.thermo.Thermo
+================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.thermo
+
+.. autoclass:: Thermo
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Thermo.__init__
+      ~Thermo.add_step
+      ~Thermo.configure
+      ~Thermo.remove_step
+      ~Thermo.set_shared_config
+   
+   
+
+   
+   
+   

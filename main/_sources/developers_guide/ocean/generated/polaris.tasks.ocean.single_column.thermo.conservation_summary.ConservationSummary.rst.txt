@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.single\_column.thermo.conservation\_summary.ConservationSummary
+===================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.thermo.conservation_summary
+
+.. autoclass:: ConservationSummary
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ConservationSummary.__init__
+      ~ConservationSummary.add_dependency
+      ~ConservationSummary.add_input_file
+      ~ConservationSummary.add_output_file
+      ~ConservationSummary.add_property_check
+      ~ConservationSummary.check_properties
+      ~ConservationSummary.constrain_resources
+      ~ConservationSummary.process_inputs_and_outputs
+      ~ConservationSummary.run
+      ~ConservationSummary.runtime_setup
+      ~ConservationSummary.set_resources
+      ~ConservationSummary.set_shared_config
+      ~ConservationSummary.setup
+      ~ConservationSummary.validate_baselines
+      ~ConservationSummary.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ConservationSummary.cores
+      ~ConservationSummary.gpus
+      ~ConservationSummary.may_span_nodes
+      ~ConservationSummary.min_cores
+      ~ConservationSummary.min_gpus
+   
+   

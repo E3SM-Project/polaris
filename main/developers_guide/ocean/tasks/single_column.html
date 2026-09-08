@@ -92,6 +92,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#ekman">ekman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ideal-age">ideal age</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#inertial">inertial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#thermo">thermo</a></li>
 </ul>
 </li>
 </ul>
@@ -302,6 +303,57 @@ compares the inertial frequency with its theoretical value and induces a
 failure if the frequency is more than a given fractional difference from
 theory, as determined by the config option
 <code class="docutils literal notranslate"><span class="pre">single_column_inertial:period_tolerance_fraction</span></code>.</p>
+</section>
+</section>
+<section id="thermo">
+<h2>thermo<a class="headerlink" href="#thermo" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.thermo.Thermo.html#polaris.tasks.ocean.single_column.thermo.Thermo" title="polaris.tasks.ocean.single_column.thermo.Thermo"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.thermo.Thermo</span></code></a> test performs
+a separate forward run of 3 time steps, with output written every time step,
+for each supported surface thermodynamic forcing
+variable (latent, sensible, shortwave and longwave heat fluxes; evaporation,
+snow, rain, river- and ice-runoff and sea-ice freshwater fluxes; and the
+sea-ice heat and salinity fluxes).  Each <code class="docutils literal notranslate"><span class="pre">init</span></code>/<code class="docutils literal notranslate"><span class="pre">forward</span></code> pair applies a single
+nonzero forcing variable so that the individual forcing terms can be verified
+in isolation.  Conservation is checked twice for each run: between the initial
+condition and the first time step in the output file, and between the last two
+time steps.  Then the analysis step is run, and the viz step is optionally
+run.</p>
+<section id="conservation-summary">
+<h3>conservation_summary<a class="headerlink" href="#conservation-summary" title="Link to this heading"></a></h3>
+<p>The
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary</span></code></a>
+step gathers the conservation results from each forward step’s
+<code class="docutils literal notranslate"><span class="pre">property_check_results.json</span></code> and writes <code class="docutils literal notranslate"><span class="pre">conservation_summary.log</span></code>, which
+lists each forward step name along with its mass, salt and energy relative
+error for each conservation interval.</p>
+</section>
+<section id="id1">
+<h3>analysis<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.thermo.analysis.Analysis.html#polaris.tasks.ocean.single_column.thermo.analysis.Analysis" title="polaris.tasks.ocean.single_column.thermo.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.thermo.analysis.Analysis</span></code></a>
+verifies conservation of mass, heat and salt for each forward run.  For every
+run it compares the change in the column-integrated content against the surface
+forcing flux accumulated over the run.  For a budget driven by a nonzero flux
+the error is measured relative to that accumulated flux; for a budget with no
+expected flux the residual is compared against the config option
+<code class="docutils literal notranslate"><span class="pre">single_column_thermo:conservation_error_tolerance</span></code> times the initial total
+column content.  A failure is induced if any budget’s error exceeds that
+tolerance.</p>
+<p>The budgets follow exactly what the model integrates.  For Omega, the mass
+coordinate is the pseudo-thickness <code class="docutils literal notranslate"><span class="pre">h</span></code> (<code class="docutils literal notranslate"><span class="pre">RhoSw</span> <span class="pre">*</span> <span class="pre">h</span></code> is the mass per area), so
+the checks use the native <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">Temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">Salinity</span></code>
+fields rather than the reconstructed geometric thickness.  The column budgets
+per unit area are:</p>
+<ul class="simple">
+<li><p>mass: <code class="docutils literal notranslate"><span class="pre">RhoSw</span> <span class="pre">*</span> <span class="pre">sum_k(dh_k)</span></code> vs the accumulated freshwater plus sea-ice salt
+flux (both enter Omega’s thickness equation),</p></li>
+<li><p>heat: <code class="docutils literal notranslate"><span class="pre">RhoSw</span> <span class="pre">*</span> <span class="pre">Cp0Sw</span> <span class="pre">*</span> <span class="pre">sum_k(d(h_k</span> <span class="pre">T_k))</span></code> vs the accumulated enthalpy flux,</p></li>
+<li><p>salt: <code class="docutils literal notranslate"><span class="pre">(RhoSw</span> <span class="pre">/</span> <span class="pre">1000)</span> <span class="pre">*</span> <span class="pre">sum_k(d(h_k</span> <span class="pre">S_k))</span></code> vs the accumulated sea-ice
+salinity flux.</p></li>
+</ul>
+<p>Because the freshwater mass fluxes (rain, river runoff, snow and ice runoff)
+also carry an SST-/freezing-point-dependent enthalpy heat flux, the heat
+budget is skipped for those runs.  For MPAS-Ocean (Boussinesq), which has no
+pseudo-thickness, the geometric <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> is used instead.</p>
 </section>
 </section>
 </section>

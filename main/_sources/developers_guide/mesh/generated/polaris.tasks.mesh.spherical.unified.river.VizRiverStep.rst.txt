@@ -17,6 +17,7 @@
       ~VizRiverStep.add_dependency
       ~VizRiverStep.add_input_file
       ~VizRiverStep.add_output_file
+      ~VizRiverStep.add_property_check
       ~VizRiverStep.check_properties
       ~VizRiverStep.constrain_resources
       ~VizRiverStep.process_inputs_and_outputs

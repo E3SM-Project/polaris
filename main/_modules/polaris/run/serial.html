@@ -605,6 +605,40 @@
     <span class="k">return</span> <span class="kc">None</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_property_check_message</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">passed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">step_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the contents of the property check log file.</span>
+
+<span class="sd">    For a passing step, the properties that passed are listed.  For a failing</span>
+<span class="sd">    step, the properties that failed are listed along with the relative error</span>
+<span class="sd">    and the relative error tolerance.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">passed</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'property checks passed for step </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="s1">''</span><span class="p">]</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'The following properties passed:'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"description"</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'property checks failed for step </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="s1">''</span><span class="p">]</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">'The following properties failed (relative error &gt; tolerance):'</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">'passed'</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"description"</span><span class="p">]</span><span class="si">}</span><span class="s1">: '</span>
+                <span class="sa">f</span><span class="s1">'relative error=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"relative_error"</span><span class="p">]</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1"> '</span>
+                <span class="sa">f</span><span class="s1">'tolerance=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"tolerance"</span><span class="p">]</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+        <span class="n">passing</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">'passed'</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">passing</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'The following properties passed:'</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">passing</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"description"</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_accumulate_baselines</span><span class="p">(</span>
     <span class="n">baselines_passed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">status</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
@@ -693,16 +727,40 @@
         <span class="n">step_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">step_start</span>
         <span class="n">step_time_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">step_time</span><span class="p">)))</span>
 
-        <span class="n">compared</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">check_properties</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">compared</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-                <span class="n">property_str</span> <span class="o">=</span> <span class="n">pass_str</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">property_str</span> <span class="o">=</span> <span class="n">fail_str</span>
-            <span class="n">_print_to_stdout</span><span class="p">(</span>
-                <span class="n">task</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'          property checks:  </span><span class="si">{</span><span class="n">property_str</span><span class="si">}</span><span class="s1">'</span>
-            <span class="p">)</span>
-            <span class="n">property_passed</span> <span class="o">=</span> <span class="n">_accumulate_baselines</span><span class="p">(</span><span class="n">property_passed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">properties_to_check</span><span class="p">:</span>
+            <span class="n">checked</span><span class="p">,</span> <span class="n">properties_passed</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">check_properties</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">checked</span><span class="p">:</span>
+                <span class="n">passed_log</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'property_check_passed.log'</span>
+                <span class="p">)</span>
+                <span class="n">failed_log</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'property_check_failed.log'</span>
+                <span class="p">)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s1">'property_check_results'</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="n">properties_passed</span><span class="p">:</span>
+                    <span class="n">property_str</span> <span class="o">=</span> <span class="n">pass_str</span>
+                    <span class="n">write_log</span> <span class="o">=</span> <span class="n">passed_log</span>
+                    <span class="n">remove_log</span> <span class="o">=</span> <span class="n">failed_log</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="n">_property_check_message</span><span class="p">(</span>
+                        <span class="n">results</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="n">step_name</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">property_str</span> <span class="o">=</span> <span class="n">fail_str</span>
+                    <span class="n">write_log</span> <span class="o">=</span> <span class="n">failed_log</span>
+                    <span class="n">remove_log</span> <span class="o">=</span> <span class="n">passed_log</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="n">_property_check_message</span><span class="p">(</span>
+                        <span class="n">results</span><span class="p">,</span> <span class="n">passed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">step_name</span><span class="o">=</span><span class="n">step_name</span>
+                    <span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_log</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">remove_log</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">remove_log</span><span class="p">)</span>
+                <span class="n">_print_to_stdout</span><span class="p">(</span>
+                    <span class="n">task</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'          property checks:  </span><span class="si">{</span><span class="n">property_str</span><span class="si">}</span><span class="s1">'</span>
+                <span class="p">)</span>
+                <span class="n">property_passed</span> <span class="o">=</span> <span class="n">_accumulate_baselines</span><span class="p">(</span>
+                    <span class="n">property_passed</span><span class="p">,</span> <span class="n">properties_passed</span>
+                <span class="p">)</span>
 
         <span class="n">compared</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">validate_baselines</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">compared</span><span class="p">:</span>

@@ -21,6 +21,7 @@
       ~SphericalConvergenceForward.add_model_config_options
       ~SphericalConvergenceForward.add_namelist_file
       ~SphericalConvergenceForward.add_output_file
+      ~SphericalConvergenceForward.add_property_check
       ~SphericalConvergenceForward.add_streams_file
       ~SphericalConvergenceForward.add_vert_coord_input_file
       ~SphericalConvergenceForward.add_yaml_file
@@ -35,6 +36,7 @@
       ~SphericalConvergenceForward.map_yaml_options
       ~SphericalConvergenceForward.map_yaml_streams
       ~SphericalConvergenceForward.map_yaml_to_namelist
+      ~SphericalConvergenceForward.open_model_dataset
       ~SphericalConvergenceForward.partition
       ~SphericalConvergenceForward.process_inputs_and_outputs
       ~SphericalConvergenceForward.run
@@ -66,5 +68,6 @@
       ~SphericalConvergenceForward.write_coeffs_reconstruct
       ~SphericalConvergenceForward.config
       ~SphericalConvergenceForward.input_data
+      ~SphericalConvergenceForward.logger
    
    

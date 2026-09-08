@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.Step.add_dependency" href="polaris.Step.add_dependency.html" />
+    <link rel="next" title="polaris.Step.add_property_check" href="polaris.Step.add_property_check.html" />
     <link rel="prev" title="polaris.Step.add_input_file" href="polaris.Step.add_input_file.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -151,19 +151,28 @@
 <h1>polaris.Step.add_output_file<a class="headerlink" href="#polaris-step-add-output-file" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.Step.add_output_file">
-<span class="sig-prename descclassname"><span class="pre">Step.</span></span><span class="sig-name descname"><span class="pre">add_output_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_vars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/step.html#Step.add_output_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Step.add_output_file" title="Link to this definition"></a></dt>
-<dd><p>Add the output file that must be produced by this step and may be made
-available as an input to steps, perhaps in other tasks.  This file
-must exist after the task has run or an exception will be raised.</p>
-<p>Optionally, a list of variables can be provided for validation against
-a baseline (if one is provided), once the step has been run.</p>
+<span class="sig-prename descclassname"><span class="pre">Step.</span></span><span class="sig-name descname"><span class="pre">add_output_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_vars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_properties_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'init'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_properties_time_index_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/step.html#Step.add_output_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Step.add_output_file" title="Link to this definition"></a></dt>
+<dd><p>Add the output file to the step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The relative path of the output file within the step’s work
 directory</p></li>
-<li><p><strong>validate_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>, </em><em>optional</em>) – A list of variable names to compare with a baseline (if one is
-provided)</p></li>
+<li><p><strong>validate_vars</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – A list of variables to validate against a baseline</p></li>
+<li><p><strong>check_properties</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – A list of conservation properties to check for this file, e.g.
+<code class="docutils literal notranslate"><span class="pre">['mass</span> <span class="pre">conservation',</span> <span class="pre">'salt</span> <span class="pre">conservation']</span></code>.  Any surface
+forcing flux variables present in the file are integrated over
+the duration of the comparison (assuming they are constant in
+time) and used as the expected change in the corresponding
+budget.  Each call adds a single conservation comparison, so
+call this method again (or use
+<a class="reference internal" href="polaris.Step.add_property_check.html#polaris.Step.add_property_check" title="polaris.Step.add_property_check"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_property_check()</span></code></a>) to check conservation over
+another time interval of the same file.</p></li>
+<li><p><strong>check_properties_baseline</strong> (<em>{'init'}</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The state to compare the conservation properties against, either
+<code class="docutils literal notranslate"><span class="pre">'init'</span></code> for the initial condition or a time index in the
+output file</p></li>
+<li><p><strong>check_properties_time_index_end</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The time index in the output file at the end of the conservation
+comparison</p></li>
 </ul>
 </dd>
 </dl>
@@ -176,7 +185,7 @@ provided)</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.Step.add_input_file.html" class="btn btn-neutral float-left" title="polaris.Step.add_input_file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.Step.add_dependency.html" class="btn btn-neutral float-right" title="polaris.Step.add_dependency" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.Step.add_property_check.html" class="btn btn-neutral float-right" title="polaris.Step.add_property_check" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

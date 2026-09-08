@@ -17,6 +17,7 @@
       ~PStarInitStep.add_dependency
       ~PStarInitStep.add_input_file
       ~PStarInitStep.add_output_file
+      ~PStarInitStep.add_property_check
       ~PStarInitStep.check_properties
       ~PStarInitStep.constrain_resources
       ~PStarInitStep.init_tracers

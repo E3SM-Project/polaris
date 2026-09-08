@@ -17,6 +17,7 @@
       ~BuildSizingFieldStep.add_dependency
       ~BuildSizingFieldStep.add_input_file
       ~BuildSizingFieldStep.add_output_file
+      ~BuildSizingFieldStep.add_property_check
       ~BuildSizingFieldStep.check_properties
       ~BuildSizingFieldStep.constrain_resources
       ~BuildSizingFieldStep.process_inputs_and_outputs

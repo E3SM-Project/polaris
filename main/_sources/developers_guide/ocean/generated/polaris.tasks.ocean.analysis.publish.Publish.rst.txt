@@ -17,6 +17,7 @@
       ~Publish.add_dependency
       ~Publish.add_input_file
       ~Publish.add_output_file
+      ~Publish.add_property_check
       ~Publish.check_properties
       ~Publish.constrain_resources
       ~Publish.output_path

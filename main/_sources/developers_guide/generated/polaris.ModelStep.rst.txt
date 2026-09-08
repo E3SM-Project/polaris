@@ -19,6 +19,7 @@
       ~ModelStep.add_model_config_options
       ~ModelStep.add_namelist_file
       ~ModelStep.add_output_file
+      ~ModelStep.add_property_check
       ~ModelStep.add_streams_file
       ~ModelStep.add_yaml_file
       ~ModelStep.check_properties

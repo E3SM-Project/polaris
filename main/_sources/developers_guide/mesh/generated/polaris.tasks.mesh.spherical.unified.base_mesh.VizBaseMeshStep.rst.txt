@@ -17,6 +17,7 @@
       ~VizBaseMeshStep.add_dependency
       ~VizBaseMeshStep.add_input_file
       ~VizBaseMeshStep.add_output_file
+      ~VizBaseMeshStep.add_property_check
       ~VizBaseMeshStep.check_properties
       ~VizBaseMeshStep.constrain_resources
       ~VizBaseMeshStep.process_inputs_and_outputs

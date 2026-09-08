@@ -21,6 +21,7 @@
       ~Viz.add_output_file
       ~Viz.add_output_files_for_ocean_model_input
       ~Viz.add_produced_file
+      ~Viz.add_property_check
       ~Viz.add_vert_coord_input_file
       ~Viz.check_properties
       ~Viz.constrain_resources
@@ -60,5 +61,6 @@
       ~Viz.component
       ~Viz.config
       ~Viz.input_data
+      ~Viz.logger
    
    

@@ -21,6 +21,7 @@
       ~Forward.add_model_config_options
       ~Forward.add_namelist_file
       ~Forward.add_output_file
+      ~Forward.add_property_check
       ~Forward.add_streams_file
       ~Forward.add_vert_coord_input_file
       ~Forward.add_yaml_file
@@ -35,6 +36,7 @@
       ~Forward.map_yaml_options
       ~Forward.map_yaml_streams
       ~Forward.map_yaml_to_namelist
+      ~Forward.open_model_dataset
       ~Forward.partition
       ~Forward.process_inputs_and_outputs
       ~Forward.run
@@ -66,5 +68,6 @@
       ~Forward.write_coeffs_reconstruct
       ~Forward.config
       ~Forward.input_data
+      ~Forward.logger
    
    

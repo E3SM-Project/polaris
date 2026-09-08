@@ -21,6 +21,7 @@
       ~SshForward.add_model_config_options
       ~SshForward.add_namelist_file
       ~SshForward.add_output_file
+      ~SshForward.add_property_check
       ~SshForward.add_streams_file
       ~SshForward.add_vert_coord_input_file
       ~SshForward.add_yaml_file
@@ -35,6 +36,7 @@
       ~SshForward.map_yaml_options
       ~SshForward.map_yaml_streams
       ~SshForward.map_yaml_to_namelist
+      ~SshForward.open_model_dataset
       ~SshForward.partition
       ~SshForward.process_inputs_and_outputs
       ~SshForward.run
@@ -66,5 +68,6 @@
       ~SshForward.write_coeffs_reconstruct
       ~SshForward.config
       ~SshForward.input_data
+      ~SshForward.logger
    
    

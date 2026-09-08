@@ -115,6 +115,12 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 
+<span class="c1"># Linear salinity dependence of the freezing temperature (degC/PSU) and the</span>
+<span class="c1"># absolute-to-practical salinity conversion (g/kg per PSU), matching the</span>
+<span class="c1"># LinearEos branch of Omega's Eos::calcCtFreezing()</span>
+<span class="n">FREEZING_SALINITY_COEFF</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.054</span>
+<span class="n">PSU_TO_GPKG</span> <span class="o">=</span> <span class="mf">35.16504</span> <span class="o">/</span> <span class="mf">35.0</span>
+
 
 <div class="viewcode-block" id="compute_linear_density">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density">[docs]</a>
@@ -161,6 +167,27 @@
     <span class="n">density</span> <span class="o">=</span> <span class="n">rhoref</span> <span class="o">+</span> <span class="o">-</span><span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">-</span> <span class="n">Tref</span><span class="p">)</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="n">salinity</span> <span class="o">-</span> <span class="n">Sref</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">density</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_linear_ct_freezing</span><span class="p">(</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the freezing temperature of seawater for the linear equation of</span>
+<span class="sd">    state using a simple linear dependence on salinity.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    salinity : float or xarray.DataArray</span>
+<span class="sd">        Salinity of the seawater (g/kg).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ct_freezing : float or xarray.DataArray</span>
+<span class="sd">        The freezing temperature (degC) of the seawater.</span>
+<span class="sd">    """</span>
+    <span class="n">ct_freezing</span> <span class="o">=</span> <span class="n">FREEZING_SALINITY_COEFF</span> <span class="o">*</span> <span class="n">salinity</span> <span class="o">/</span> <span class="n">PSU_TO_GPKG</span>
+    <span class="k">return</span> <span class="n">ct_freezing</span>
 </pre></div>
 
            </div>

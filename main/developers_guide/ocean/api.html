@@ -1131,7 +1131,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.ekman.analysis.Analysis.run.html#polaris.tasks.ocean.single_column.ekman.analysis.Analysis.run" title="polaris.tasks.ocean.single_column.ekman.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ekman.analysis.Analysis.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward" title="polaris.tasks.ocean.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component[, name, subdir, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward" title="polaris.tasks.ocean.single_column.forward.Forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward</span></code></a>(component, init[, name, ...])</p></td>
 <td><p>A step for performing forward ocean component runs as part of single_column test cases.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.single_column.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.single_column.forward.Forward.dynamic_model_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward.Forward.dynamic_model_config</span></code></a>(at_setup)</p></td>
@@ -1149,16 +1149,31 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.inertial.analysis.Analysis.run.html#polaris.tasks.ocean.single_column.inertial.analysis.Analysis.run" title="polaris.tasks.ocean.single_column.inertial.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inertial.analysis.Analysis.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.html#polaris.tasks.ocean.single_column.init.Init" title="polaris.tasks.ocean.single_column.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, subdir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.html#polaris.tasks.ocean.single_column.init.Init" title="polaris.tasks.ocean.single_column.init.Init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init</span></code></a>(component, subdir[, name, ...])</p></td>
 <td><p>A step for creating a mesh and initial condition for single column test cases</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.init.Init.run.html#polaris.tasks.ocean.single_column.init.Init.run" title="polaris.tasks.ocean.single_column.init.Init.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init.Init.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.html#polaris.tasks.ocean.single_column.viz.Viz" title="polaris.tasks.ocean.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir[, name, ideal_age, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.Thermo.html#polaris.tasks.ocean.single_column.thermo.Thermo" title="polaris.tasks.ocean.single_column.thermo.Thermo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.Thermo</span></code></a>(component, indir)</p></td>
+<td><p>The Thermo single-column test case creates the mesh and initial condition, then performs several short forward runs corresponding to each supported surface thermodynamic forcing variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.conservation_summary.ConservationSummary</span></code></a>(...)</p></td>
+<td><p>A step that gathers the conservation errors from each of the <code class="docutils literal notranslate"><span class="pre">thermo</span></code> forward steps into a single log file listing the forward step name and the mass, salt and energy errors.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run.html#polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run" title="polaris.tasks.ocean.single_column.thermo.conservation_summary.ConservationSummary.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.conservation_summary.ConservationSummary.run</span></code></a>()</p></td>
+<td><p>Write a log file listing the conservation error for each forward step</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.analysis.Analysis.html#polaris.tasks.ocean.single_column.thermo.analysis.Analysis" title="polaris.tasks.ocean.single_column.thermo.analysis.Analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.analysis.Analysis</span></code></a>(component, indir, ...)</p></td>
+<td><p>A step that verifies conservation of mass, heat and salt for each of the <code class="docutils literal notranslate"><span class="pre">thermo</span></code> forward runs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.thermo.analysis.Analysis.run.html#polaris.tasks.ocean.single_column.thermo.analysis.Analysis.run" title="polaris.tasks.ocean.single_column.thermo.analysis.Analysis.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermo.analysis.Analysis.run</span></code></a>()</p></td>
+<td><p>Run this step of the test case</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.html#polaris.tasks.ocean.single_column.viz.Viz" title="polaris.tasks.ocean.single_column.viz.Viz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz</span></code></a>(component, indir, init[, name, ...])</p></td>
 <td><p>A step for plotting the results of a single-column test</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.run.html#polaris.tasks.ocean.single_column.viz.Viz.run" title="polaris.tasks.ocean.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.single_column.viz.Viz.run.html#polaris.tasks.ocean.single_column.viz.Viz.run" title="polaris.tasks.ocean.single_column.viz.Viz.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.Viz.run</span></code></a>()</p></td>
 <td><p>Run this step of the test case</p></td>
 </tr>
 </tbody>
@@ -1250,12 +1265,12 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.conservation.compute_total_mass.html#polaris.ocean.conservation.compute_total_mass" title="polaris.ocean.conservation.compute_total_mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_total_mass</span></code></a>(ds_mesh, ds)</p></td>
-<td><p>Compute the total mass in an ocean model output file using a constant density</p></td>
+<td><p>Compute the total mass in an ocean model output file</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.conservation.compute_total_salt.html#polaris.ocean.conservation.compute_total_salt" title="polaris.ocean.conservation.compute_total_salt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_total_salt</span></code></a>(ds_mesh, ds)</p></td>
-<td><p>Compute the total salt in an ocean model output file</p></td>
+<td><p>Compute the total mass of salt in an ocean model output file using a constant density</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.conservation.compute_total_energy.html#polaris.ocean.conservation.compute_total_energy" title="polaris.ocean.conservation.compute_total_energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_total_energy</span></code></a>(ds_mesh, ds)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.conservation.compute_total_energy.html#polaris.ocean.conservation.compute_total_energy" title="polaris.ocean.conservation.compute_total_energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_total_energy</span></code></a>(ds_mesh, ds, model)</p></td>
 <td><p>Compute the total heat content in an ocean model output file</p></td>
 </tr>
 </tbody>
@@ -1394,7 +1409,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_from_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_from_native_model_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.map_from_native_model_vars</span></code></a>(ds)</p></td>
 <td><p>If the model is Omega, rename dimensions and variables in a dataset from their Omega names to the MPAS-Ocean equivalent (appropriate for datasets that are output from the model)</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.open_model_dataset</span></code></a>(filename, config)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanIOStep.open_model_dataset</span></code></a>(filename[, ...])</p></td>
 <td><p>Open the given dataset, mapping variable and dimension names from Omega to MPAS-Ocean names if appropriate</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep</span></code></a>(component, name[, subdir, ...])</p></td>
@@ -1404,7 +1419,7 @@
 <td><p>Determine if we will make yaml files or namelists and streams files, then, determine the number of MPI tasks to use based on the estimated mesh size</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.check_properties.html#polaris.ocean.model.OceanModelStep.check_properties" title="polaris.ocean.model.OceanModelStep.check_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.check_properties</span></code></a>()</p></td>
-<td><p>This method should be overridden to check properties of step outputs</p></td>
+<td><p>Check conservation properties of the output files of this step</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources" title="polaris.ocean.model.OceanModelStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.constrain_resources</span></code></a>(...)</p></td>
 <td><p>Update the number of MPI tasks to use based on the estimated mesh size</p></td>

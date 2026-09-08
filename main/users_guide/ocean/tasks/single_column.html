@@ -92,6 +92,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#ekman">ekman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-ideal-age">ideal age</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#inertial">inertial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#thermo">thermo</a></li>
 </ul>
 </li>
 </ul>
@@ -619,6 +620,77 @@ days.</p>
 </section>
 <section id="id33">
 <h3>cores<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+</section>
+<section id="thermo">
+<h2>thermo<a class="headerlink" href="#thermo" title="Link to this heading"></a></h2>
+<section id="id34">
+<h3>description<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">thermo</span></code> test verifies that the ocean model conserves mass, heat and salt
+under surface thermodynamic forcing.  It performs a separate forward run of 3
+time steps, with output written every time step,
+for each supported surface forcing variable, applying a single nonzero forcing
+value per run so that each forcing term is exercised in isolation.
+Conservation is checked between the initial condition and the first time step
+in the output file, and again between the last two time steps.  The
+analysis step then compares, for each run, the change in the column-integrated
+content of mass, heat and salt against the surface forcing flux accumulated
+over the run.  For a budget driven by a nonzero flux the error is measured
+relative to that accumulated flux; for a budget with no expected flux the
+residual is compared against
+<code class="docutils literal notranslate"><span class="pre">single_column_thermo:conservation_error_tolerance</span></code> times the initial total
+column content.  The test fails if any checked budget’s error exceeds that
+tolerance.</p>
+<p>Because the freshwater mass fluxes (rain, river runoff, snow and ice runoff)
+also carry an enthalpy heat flux that depends on the evolving surface state,
+the heat budget is skipped for those runs; their mass (and, where applicable,
+salt) budgets are still checked.</p>
+</section>
+<section id="id35">
+<h3>mesh<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id36">
+<h3>vertical grid<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id37">
+<h3>initial conditions<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<p>The temperature profile follows <code class="docutils literal notranslate"><span class="pre">stable.cfg</span></code> and salinity is constant with
+depth. See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id38">
+<h3>forcing<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<p>Each run applies a single nonzero surface forcing variable from the
+<code class="docutils literal notranslate"><span class="pre">[single_column_forcing]</span></code> section (for example <code class="docutils literal notranslate"><span class="pre">latent_heat_flux</span></code>,
+<code class="docutils literal notranslate"><span class="pre">evaporation_flux</span></code> or <code class="docutils literal notranslate"><span class="pre">sea_ice_salinity_flux</span></code>).  The values used by this test
+override the defaults in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
+</section>
+<section id="id39">
+<h3>time step and run duration<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<p>The time step is given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. The run duration is 10
+days.</p>
+</section>
+<section id="id40">
+<h3>config options<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<p>The config option specific to this test case is the conservation tolerance:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[single_column_thermo]</span>
+
+<span class="c1"># Relative tolerance for the conservation check.  The analysis step compares</span>
+<span class="c1"># the accumulated surface forcing flux of mass, heat and salt against the</span>
+<span class="c1"># change in the column-integrated content over the run.  For a budget driven by</span>
+<span class="c1"># a nonzero flux the error is relative to that accumulated flux; for a budget</span>
+<span class="c1"># with no expected flux the residual is compared against this tolerance times</span>
+<span class="c1"># the initial total column content.  The check fails if any budget's error</span>
+<span class="c1"># exceeds this value.</span>
+<span class="na">conservation_error_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-10</span>
+</pre></div>
+</div>
+<p>All config options shown in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a> are also used.</p>
+</section>
+<section id="id41">
+<h3>cores<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>

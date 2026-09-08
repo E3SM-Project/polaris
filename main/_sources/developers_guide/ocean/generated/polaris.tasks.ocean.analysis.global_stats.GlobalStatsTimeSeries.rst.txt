@@ -22,6 +22,7 @@
       ~GlobalStatsTimeSeries.add_output_files_for_ocean_model_input
       ~GlobalStatsTimeSeries.add_produced_file
       ~GlobalStatsTimeSeries.add_product
+      ~GlobalStatsTimeSeries.add_property_check
       ~GlobalStatsTimeSeries.add_sim_input_file
       ~GlobalStatsTimeSeries.add_sim_input_files
       ~GlobalStatsTimeSeries.add_vert_coord_input_file
@@ -66,5 +67,6 @@
       ~GlobalStatsTimeSeries.component
       ~GlobalStatsTimeSeries.config
       ~GlobalStatsTimeSeries.input_data
+      ~GlobalStatsTimeSeries.logger
    
    

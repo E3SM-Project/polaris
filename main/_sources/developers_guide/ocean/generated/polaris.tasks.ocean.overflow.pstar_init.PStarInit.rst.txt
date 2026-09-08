@@ -21,6 +21,7 @@
       ~PStarInit.add_output_file
       ~PStarInit.add_output_files_for_ocean_model_input
       ~PStarInit.add_produced_file
+      ~PStarInit.add_property_check
       ~PStarInit.add_vert_coord_input_file
       ~PStarInit.check_properties
       ~PStarInit.constrain_resources
@@ -62,5 +63,6 @@
       ~PStarInit.component
       ~PStarInit.config
       ~PStarInit.input_data
+      ~PStarInit.logger
    
    

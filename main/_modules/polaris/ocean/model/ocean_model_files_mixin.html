@@ -144,6 +144,66 @@
     <span class="n">config</span><span class="p">:</span> <span class="s1">'PolarisConfigParser'</span>
     <span class="n">input_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
     <span class="n">add_input_file</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">Any</span>
+
+    <span class="c1"># --- dataset access ---</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">open_model_dataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tracer_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Open a dataset, mapping Omega variable and dimension names to their</span>
+<span class="sd">        MPAS-Ocean equivalents if appropriate.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The path for the NetCDF file to open</span>
+
+<span class="sd">        config : polaris.config.PolarisConfigParser, optional</span>
+<span class="sd">            Configuration for the task; defaults to the step's config</span>
+
+<span class="sd">        tracer_convention : str, optional</span>
+<span class="sd">            The tracer convention to use when renaming variables</span>
+
+<span class="sd">        lon : str, optional</span>
+<span class="sd">            The name of the longitude coordinate, if any</span>
+
+<span class="sd">        lat : str, optional</span>
+<span class="sd">            The name of the latitude coordinate, if any</span>
+
+<span class="sd">        logger : logging.Logger, optional</span>
+<span class="sd">            A logger; defaults to the step's logger</span>
+
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments forwarded to</span>
+<span class="sd">            :py:meth:`polaris.tasks.ocean.Ocean.open_model_dataset`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            The dataset with variables named as expected in MPAS-Ocean</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+            <span class="n">filename</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">tracer_convention</span><span class="o">=</span><span class="n">tracer_convention</span><span class="p">,</span>
+            <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
+            <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="c1"># --- filename getters ---</span>
 
@@ -201,6 +261,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str, optional</span>
 <span class="sd">            Explicit local filename, overriding the placeholder.</span>
+
 <span class="sd">        **kwargs</span>
 <span class="sd">            Additional keyword arguments forwarded to</span>
 <span class="sd">            :py:meth:`polaris.Step.add_input_file`.</span>
@@ -232,6 +293,8 @@
         <span class="n">filename</span><span class="p">,</span>
         <span class="n">validate_vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">check_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">check_properties_baseline</span><span class="o">=</span><span class="s1">'init'</span><span class="p">,</span>
+        <span class="n">check_properties_time_index_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">validate_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -246,7 +309,13 @@
 <span class="sd">        validate_vars : list of str, optional</span>
 <span class="sd">            Explicit list of variable names to validate against a baseline.</span>
 
-<span class="sd">        check_properties : dict, optional</span>
+<span class="sd">        check_properties : list of str, optional</span>
+<span class="sd">            Forwarded to :py:meth:`polaris.Step.add_output_file`.</span>
+
+<span class="sd">        check_properties_baseline : {'init'} or int, optional</span>
+<span class="sd">            Forwarded to :py:meth:`polaris.Step.add_output_file`.</span>
+
+<span class="sd">        check_properties_time_index_end : int, optional</span>
 <span class="sd">            Forwarded to :py:meth:`polaris.Step.add_output_file`.</span>
 
 <span class="sd">        validate_class : str, optional</span>
@@ -297,6 +366,8 @@
             <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span> <span class="k">if</span> <span class="n">validate_vars</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">check_properties</span><span class="o">=</span><span class="n">check_properties</span><span class="p">,</span>
+            <span class="n">check_properties_baseline</span><span class="o">=</span><span class="n">check_properties_baseline</span><span class="p">,</span>
+            <span class="n">check_properties_time_index_end</span><span class="o">=</span><span class="n">check_properties_time_index_end</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="c1"># --- shared placeholder resolution ---</span>

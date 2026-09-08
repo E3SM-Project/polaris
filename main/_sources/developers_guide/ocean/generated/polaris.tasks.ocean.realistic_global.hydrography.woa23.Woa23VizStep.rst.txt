@@ -17,6 +17,7 @@
       ~Woa23VizStep.add_dependency
       ~Woa23VizStep.add_input_file
       ~Woa23VizStep.add_output_file
+      ~Woa23VizStep.add_property_check
       ~Woa23VizStep.check_properties
       ~Woa23VizStep.constrain_resources
       ~Woa23VizStep.process_inputs_and_outputs

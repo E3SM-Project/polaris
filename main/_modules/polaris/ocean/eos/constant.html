@@ -115,6 +115,10 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 
+<span class="c1"># Constant approximate ocean freezing temperature (degC), matching the</span>
+<span class="c1"># ConstantEos branch of Omega's Eos::calcCtFreezing()</span>
+<span class="n">CONSTANT_CT_FREEZING</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.9</span>
+
 
 <div class="viewcode-block" id="compute_constant_density">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.eos.constant.compute_constant_density.html#polaris.ocean.eos.constant.compute_constant_density">[docs]</a>
@@ -147,12 +151,40 @@
     <span class="p">)</span>
     <span class="c1"># Return density of same type and size as temperature</span>
     <span class="c1"># (needs to work for both float and xarray DataArray)</span>
+    <span class="n">density</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
         <span class="n">density</span> <span class="o">=</span> <span class="n">rhoref</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">density</span> <span class="o">=</span> <span class="n">rhoref</span>
     <span class="k">return</span> <span class="n">density</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_constant_ct_freezing</span><span class="p">(</span>
+    <span class="n">salinity</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the freezing temperature of seawater for the constant equation of</span>
+<span class="sd">    state, which is a constant approximate ocean freezing point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    salinity : float or xarray.DataArray</span>
+<span class="sd">        Salinity of the seawater used to set the type and size of the result.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ct_freezing : float or xarray.DataArray</span>
+<span class="sd">        The freezing temperature (degC) of the seawater.</span>
+<span class="sd">    """</span>
+    <span class="c1"># Return a freezing temperature of the same type and size as salinity</span>
+    <span class="c1"># (needs to work for both float and xarray DataArray)</span>
+    <span class="n">ct_freezing</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">salinity</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">ct_freezing</span> <span class="o">=</span> <span class="n">CONSTANT_CT_FREEZING</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">salinity</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ct_freezing</span> <span class="o">=</span> <span class="n">CONSTANT_CT_FREEZING</span>
+    <span class="k">return</span> <span class="n">ct_freezing</span>
 </pre></div>
 
            </div>

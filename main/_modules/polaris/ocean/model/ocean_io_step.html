@@ -460,7 +460,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">open_model_dataset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filename</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">tracer_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -476,8 +476,8 @@
 <span class="sd">        filename : str</span>
 <span class="sd">            The path for the NetCDF file to open</span>
 
-<span class="sd">        config : polaris.config.PolarisConfigParser</span>
-<span class="sd">            Configuration for the task; forwarded to the Ocean component.</span>
+<span class="sd">        config : polaris.config.PolarisConfigParser, optional</span>
+<span class="sd">            Configuration for the task; defaults to the step's config</span>
 
 <span class="sd">        tracer_convention : {'teos-10', 'mpas-ocean'}, optional</span>
 <span class="sd">            The convention of ``temperature`` and ``salinity`` in the dataset</span>
@@ -508,6 +508,8 @@
 <span class="sd">        ds : xarray.Dataset</span>
 <span class="sd">            The dataset with variables named as expected in MPAS-Ocean</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>

@@ -17,6 +17,7 @@
       ~ClipRiverNetworkStep.add_dependency
       ~ClipRiverNetworkStep.add_input_file
       ~ClipRiverNetworkStep.add_output_file
+      ~ClipRiverNetworkStep.add_property_check
       ~ClipRiverNetworkStep.check_properties
       ~ClipRiverNetworkStep.constrain_resources
       ~ClipRiverNetworkStep.process_inputs_and_outputs

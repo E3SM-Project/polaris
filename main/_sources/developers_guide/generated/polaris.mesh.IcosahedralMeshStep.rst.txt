@@ -17,6 +17,7 @@
       ~IcosahedralMeshStep.add_dependency
       ~IcosahedralMeshStep.add_input_file
       ~IcosahedralMeshStep.add_output_file
+      ~IcosahedralMeshStep.add_property_check
       ~IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon
       ~IcosahedralMeshStep.check_properties
       ~IcosahedralMeshStep.constrain_resources

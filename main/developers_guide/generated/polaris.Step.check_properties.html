@@ -152,7 +152,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.Step.check_properties">
 <span class="sig-prename descclassname"><span class="pre">Step.</span></span><span class="sig-name descname"><span class="pre">check_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/step.html#Step.check_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Step.check_properties" title="Link to this definition"></a></dt>
-<dd><p>This method should be overridden to check properties of step outputs</p>
+<dd><p>Check conservation properties of the output files of this step.
+Subclasses that support property checks should override this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>checked</strong> (<em>bool</em>) – Whether any properties were checked</p></li>
+<li><p><strong>success</strong> (<em>bool</em>) – Whether all checked properties were within tolerance</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

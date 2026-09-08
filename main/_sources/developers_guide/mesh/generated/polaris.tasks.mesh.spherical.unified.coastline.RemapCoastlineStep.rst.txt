@@ -17,6 +17,7 @@
       ~RemapCoastlineStep.add_dependency
       ~RemapCoastlineStep.add_input_file
       ~RemapCoastlineStep.add_output_file
+      ~RemapCoastlineStep.add_property_check
       ~RemapCoastlineStep.check_properties
       ~RemapCoastlineStep.constrain_resources
       ~RemapCoastlineStep.process_inputs_and_outputs

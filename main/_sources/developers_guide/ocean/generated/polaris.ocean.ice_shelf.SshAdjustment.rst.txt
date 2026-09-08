@@ -17,6 +17,7 @@
       ~SshAdjustment.add_dependency
       ~SshAdjustment.add_input_file
       ~SshAdjustment.add_output_file
+      ~SshAdjustment.add_property_check
       ~SshAdjustment.check_properties
       ~SshAdjustment.constrain_resources
       ~SshAdjustment.process_inputs_and_outputs

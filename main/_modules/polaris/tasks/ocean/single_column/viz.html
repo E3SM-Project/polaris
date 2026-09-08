@@ -136,6 +136,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">,</span>
         <span class="n">indir</span><span class="p">,</span>
+        <span class="n">init</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="s1">'viz'</span><span class="p">,</span>
         <span class="n">ideal_age</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">comparisons</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -180,9 +181,11 @@
             <span class="c1"># Include age tracer</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">'iAge'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seconds'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/culled_mesh.nc'</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc'</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/init.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc'</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">comparison_name</span><span class="p">,</span> <span class="n">comparison_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
@@ -287,19 +290,17 @@
                             <span class="sa">f</span><span class="s1">'Plot </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> for '</span>
                             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="n">t_days</span><span class="si">}</span><span class="s1"> days'</span>
                         <span class="p">)</span>
-                        <span class="n">u_final</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                        <span class="n">v_final</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
-                            <span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span>
-                        <span class="p">)</span>
+                        <span class="n">var</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
                         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                            <span class="n">u_final</span><span class="p">,</span>
+                            <span class="n">var</span><span class="p">,</span>
                             <span class="n">z_mid_final</span><span class="p">,</span>
                             <span class="s1">'-'</span><span class="p">,</span>
                             <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
                             <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'u </span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">t_days</span><span class="si">:</span><span class="s1">2g</span><span class="si">}</span><span class="s1"> days'</span><span class="p">,</span>
                         <span class="p">)</span>
+                        <span class="n">var</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
                         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                            <span class="n">v_final</span><span class="p">,</span>
+                            <span class="n">var</span><span class="p">,</span>
                             <span class="n">z_mid_final</span><span class="p">,</span>
                             <span class="s1">'--'</span><span class="p">,</span>
                             <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
@@ -313,16 +314,14 @@
                                 <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">'</span>
                             <span class="p">)</span>
                             <span class="k">continue</span>
-                        <span class="n">var_comp</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="s1">'nVertLevelsP1'</span> <span class="ow">in</span> <span class="n">var_comp</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-                            <span class="n">var_comp</span> <span class="o">=</span> <span class="n">var_comp</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
-                                <span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-                            <span class="p">)</span>
+                        <span class="n">var</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="s1">'nVertLevelsP1'</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+                            <span class="n">var</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
                         <span class="c1"># TODO delete this line when MPAS-O bug is fixed</span>
                         <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'RiTopOfCell'</span><span class="p">:</span>
-                            <span class="n">var_comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                            <span class="n">var</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
                         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                            <span class="n">var_comp</span><span class="p">,</span>
+                            <span class="n">var</span><span class="p">,</span>
                             <span class="n">z_mid_final</span><span class="p">,</span>
                             <span class="s1">'-'</span><span class="p">,</span>
                             <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
@@ -351,11 +350,14 @@
                     <span class="p">)</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                     <span class="k">continue</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'temperature'</span><span class="p">:</span>
-                    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">auto</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">ymin</span> <span class="o">=</span> <span class="o">-</span><span class="mf">100.0</span>
+                <span class="n">ymax</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+                <span class="n">visible_x</span> <span class="o">=</span> <span class="n">var</span><span class="p">[(</span><span class="n">z_mid_final</span> <span class="o">&gt;=</span> <span class="n">ymin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z_mid_final</span> <span class="o">&lt;=</span> <span class="n">ymax</span><span class="p">)]</span>
+                <span class="n">x_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">visible_x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                <span class="n">x_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">visible_x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                <span class="n">x_margin</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">x_min</span> <span class="o">-</span> <span class="n">x_margin</span><span class="p">,</span> <span class="n">x_max</span> <span class="o">+</span> <span class="n">x_margin</span><span class="p">)</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">field_units</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'z (m)'</span><span class="p">)</span>
                 <span class="c1"># Place a single legend centered below the x-axis</span>
@@ -366,7 +368,6 @@
                     <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Plotted </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 </div>
 

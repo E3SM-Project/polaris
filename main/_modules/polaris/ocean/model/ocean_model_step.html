@@ -111,18 +111,31 @@
              
   <h1>Source code for polaris.ocean.model.ocean_model_step</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.model_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.conservation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compute_flux_forcing</span><span class="p">,</span>
     <span class="n">compute_total_energy</span><span class="p">,</span>
     <span class="n">compute_total_mass</span><span class="p">,</span>
     <span class="n">compute_total_salt</span><span class="p">,</span>
     <span class="n">compute_total_tracer</span><span class="p">,</span>
+    <span class="n">get_elapsed_seconds</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.ocean_model_files_mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelFilesMixin</span>
 
@@ -368,6 +381,18 @@
             <span class="s1">'model_inputs.yaml'</span><span class="p">,</span>
             <span class="n">template_replacements</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_model_input_replacements</span><span class="p">(),</span>
         <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
+            <span class="c1"># Omega takes RhoSw from the Physical Constants Dictionary, so</span>
+            <span class="c1"># keep MPAS-Ocean's reference density consistent with it</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+                <span class="n">options</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">'config_density0'</span><span class="p">:</span> <span class="n">get_constant</span><span class="p">(</span>
+                        <span class="s1">'seawater_density_reference'</span>
+                    <span class="p">)</span>
+                <span class="p">},</span>
+                <span class="n">config_model</span><span class="o">=</span><span class="s1">'mpas-ocean'</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_eos</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_namelist_eos</span><span class="p">()</span>
@@ -626,123 +651,187 @@
 <div class="viewcode-block" id="OceanModelStep.check_properties">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.check_properties.html#polaris.ocean.model.OceanModelStep.check_properties">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Check conservation properties of the output files of this step</span>
+
+<span class="sd">        Details of each check are stored in ``self.property_check_results``</span>
+<span class="sd">        and written to ``property_check_results.json`` in the step's work</span>
+<span class="sd">        directory so that they can be summarized by other steps.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        checked : bool</span>
+<span class="sd">            Whether any properties were checked</span>
+
+<span class="sd">        success : bool</span>
+<span class="sd">            Whether all checked properties are within tolerance</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">checked</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">'The work directory must be set before the step '</span>
-                <span class="s1">'output properties can be checked.'</span>
-            <span class="p">)</span>
-        <span class="n">passed_properties</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">failed_properties</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">properties</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties_to_check</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-            <span class="n">mesh_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_horiz_mesh_filename</span><span class="p">()</span>
-            <span class="p">)</span>
-            <span class="n">this_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-                <span class="n">mesh_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-            <span class="p">)</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">this_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">'tracer conservation'</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
-                <span class="c1"># All tracers in mpaso_to_omega.yaml</span>
-                <span class="n">tracers_to_check</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="s1">'temperature'</span><span class="p">,</span>
-                    <span class="s1">'salinity'</span><span class="p">,</span>
-                    <span class="s1">'tracer1'</span><span class="p">,</span>
-                    <span class="s1">'tracer2'</span><span class="p">,</span>
-                    <span class="s1">'tracer3'</span><span class="p">,</span>
-                <span class="p">]</span>
-                <span class="c1"># Expand 'tracer conservation' into list of tracers to check</span>
-                <span class="n">properties</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">item</span>
-                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">properties</span>
-                    <span class="k">if</span> <span class="n">item</span> <span class="o">!=</span> <span class="s1">'tracer conservation'</span>
-                <span class="p">]</span>
-                <span class="k">for</span> <span class="n">tracer</span> <span class="ow">in</span> <span class="n">tracers_to_check</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">tracer</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                        <span class="n">properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'tracer conservation-</span><span class="si">{</span><span class="n">tracer</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_horiz_mesh_filename</span><span class="p">()</span>
+        <span class="n">init_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_init_filename</span><span class="p">()</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">mesh_filename</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">init_filename</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">datasets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties_to_check</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">check</span><span class="p">[</span><span class="s1">'filename'</span><span class="p">]</span>
+            <span class="n">baseline</span> <span class="o">=</span> <span class="n">check</span><span class="p">[</span><span class="s1">'baseline'</span><span class="p">]</span>
+            <span class="n">time_index_end</span> <span class="o">=</span> <span class="n">check</span><span class="p">[</span><span class="s1">'time_index_end'</span><span class="p">]</span>
+            <span class="n">properties</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">prop</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">' conservation'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">check</span><span class="p">[</span><span class="s1">'properties'</span><span class="p">]</span>
+            <span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+                <span class="n">datasets</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">datasets</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">baseline</span> <span class="o">==</span> <span class="s1">'init'</span><span class="p">:</span>
+                <span class="n">ds_start</span> <span class="o">=</span> <span class="n">ds_init</span>
+                <span class="n">time_index_start</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">get_elapsed_seconds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">time_index_end</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">)</span>
+                <span class="n">baseline_str</span> <span class="o">=</span> <span class="s1">'init'</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ds_start</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">time_index_start</span> <span class="o">=</span> <span class="n">baseline</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">get_elapsed_seconds</span><span class="p">(</span>
+                    <span class="n">ds</span><span class="p">,</span>
+                    <span class="n">time_index_start</span><span class="o">=</span><span class="n">time_index_start</span><span class="p">,</span>
+                    <span class="n">time_index_end</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">baseline_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'time index </span><span class="si">{</span><span class="n">time_index_start</span><span class="si">}</span><span class="s1">'</span>
             <span class="k">for</span> <span class="n">output_property</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'mass conservation'</span><span class="p">:</span>
-                    <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'mass_conservation_tolerance'</span>
-                    <span class="p">)</span>
-                    <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
-                        <span class="n">compute_total_mass</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="o">=</span><span class="n">ds</span>
-                    <span class="p">)</span>
-                <span class="k">elif</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'salt conservation'</span><span class="p">:</span>
-                    <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'salt_conservation_tolerance'</span>
-                    <span class="p">)</span>
-                    <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
-                        <span class="n">compute_total_mass</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span>
-                    <span class="p">)</span>
-                    <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
-                        <span class="n">compute_total_salt</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span>
-                    <span class="p">)</span>
-                <span class="k">elif</span> <span class="n">output_property</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'-'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'tracer conservation'</span><span class="p">:</span>
-                    <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'tracer_conservation_tolerance'</span>
-                    <span class="p">)</span>
-                    <span class="n">tracer</span> <span class="o">=</span> <span class="n">output_property</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'-'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
-                        <span class="n">compute_total_tracer</span><span class="p">,</span>
-                        <span class="n">ds_mesh</span><span class="p">,</span>
-                        <span class="n">ds</span><span class="p">,</span>
-                        <span class="n">tracer_name</span><span class="o">=</span><span class="n">tracer</span><span class="p">,</span>
-                    <span class="p">)</span>
-                <span class="k">elif</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'energy conservation'</span><span class="p">:</span>
-                    <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                        <span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'energy_conservation_tolerance'</span>
-                    <span class="p">)</span>
-                    <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
-                        <span class="n">compute_total_energy</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span>
-                    <span class="p">)</span>
+                <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+                <span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">if</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'mass'</span><span class="p">:</span>
+                    <span class="n">func</span> <span class="o">=</span> <span class="n">compute_total_mass</span>
+                <span class="k">elif</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'energy'</span><span class="p">:</span>
+                    <span class="n">func</span> <span class="o">=</span> <span class="n">compute_total_energy</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="s1">'model'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'salt'</span><span class="p">:</span>
+                    <span class="n">func</span> <span class="o">=</span> <span class="n">compute_total_salt</span>
+                <span class="k">elif</span> <span class="n">output_property</span> <span class="o">==</span> <span class="s1">'tracer'</span><span class="p">:</span>
+                    <span class="n">func</span> <span class="o">=</span> <span class="n">compute_total_tracer</span>
+                    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'tracer_name'</span><span class="p">:</span> <span class="s1">'tracer1'</span><span class="p">}</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s1">'Could not find method to execute property check '</span>
-                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1">'</span>
+                        <span class="sa">f</span><span class="s1">'Unknown property to check: </span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1">'</span>
+                    <span class="p">)</span>
+                <span class="n">tol</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+                    <span class="s1">'ocean'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1">_conservation_tolerance'</span>
+                <span class="p">)</span>
+
+                <span class="n">expected_change</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">if</span> <span class="n">output_property</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'mass'</span><span class="p">,</span> <span class="s1">'energy'</span><span class="p">,</span> <span class="s1">'salt'</span><span class="p">]:</span>
+                    <span class="n">expected_change</span> <span class="o">=</span> <span class="n">compute_flux_forcing</span><span class="p">(</span>
+                        <span class="n">ds_mesh</span><span class="p">,</span>
+                        <span class="n">ds</span><span class="p">,</span>
+                        <span class="n">output_property</span><span class="p">,</span>
+                        <span class="n">dt</span><span class="p">,</span>
+                        <span class="n">time_index_start</span><span class="o">=</span><span class="n">time_index_start</span><span class="p">,</span>
+                        <span class="n">model</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">),</span>
+                        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                     <span class="p">)</span>
 
-                <span class="n">result</span> <span class="o">=</span> <span class="n">relative_error</span> <span class="o">&lt;</span> <span class="n">tol</span>
-                <span class="n">success</span> <span class="o">=</span> <span class="n">success</span> <span class="ow">and</span> <span class="n">result</span>
+                <span class="n">relative_error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_rel_err</span><span class="p">(</span>
+                    <span class="n">func</span><span class="p">,</span>
+                    <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+                    <span class="n">ds_init</span><span class="o">=</span><span class="n">ds_start</span><span class="p">,</span>
+                    <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span>
+                    <span class="n">expected_change</span><span class="o">=</span><span class="n">expected_change</span><span class="p">,</span>
+                    <span class="n">time_index_start</span><span class="o">=</span><span class="n">time_index_start</span><span class="p">,</span>
+                    <span class="n">time_index_end</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">relative_error</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">relative_error</span><span class="p">)</span>
+                <span class="n">passed</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">relative_error</span> <span class="o">&lt;=</span> <span class="n">tol</span><span class="p">)</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s1">'PASS'</span> <span class="k">if</span> <span class="n">passed</span> <span class="k">else</span> <span class="s1">'FAIL'</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1"> conservation in </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> '</span>
+                    <span class="sa">f</span><span class="s1">'(</span><span class="si">{</span><span class="n">baseline_str</span><span class="si">}</span><span class="s1"> to time index </span><span class="si">{</span><span class="n">time_index_end</span><span class="si">}</span><span class="s1">)'</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">description</span><span class="si">}</span><span class="s1">: '</span>
+                    <span class="sa">f</span><span class="s1">'error=</span><span class="si">{</span><span class="n">relative_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> tol=</span><span class="si">{</span><span class="n">tol</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s1">]'</span>
+                <span class="p">)</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="nb">dict</span><span class="p">(</span>
+                        <span class="nb">property</span><span class="o">=</span><span class="n">output_property</span><span class="p">,</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                        <span class="n">baseline</span><span class="o">=</span><span class="n">baseline</span><span class="p">,</span>
+                        <span class="n">time_index_start</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_index_start</span><span class="p">),</span>
+                        <span class="n">time_index_end</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">time_index_end</span><span class="p">),</span>
+                        <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+                        <span class="n">relative_error</span><span class="o">=</span><span class="n">relative_error</span><span class="p">,</span>
+                        <span class="n">tolerance</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">tol</span><span class="p">),</span>
+                        <span class="n">passed</span><span class="o">=</span><span class="n">passed</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
                 <span class="n">checked</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="c1"># We already appended log strings for tracer conservation</span>
-                <span class="k">if</span> <span class="n">output_property</span> <span class="o">!=</span> <span class="s1">'tracer conservation'</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-                        <span class="n">failed_properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1"> relative error '</span>
-                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">relative_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1"> exceeds </span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s1">'</span>
-                        <span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">passed_properties</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_property</span><span class="si">}</span><span class="s1"> relative error '</span>
-                            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">relative_error</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">'</span>
-                        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">checked</span> <span class="ow">and</span> <span class="n">success</span><span class="p">:</span>
-            <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'property_check_passed.log'</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="n">success</span> <span class="ow">and</span> <span class="n">passed</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">property_check_results</span> <span class="o">=</span> <span class="n">results</span>
+        <span class="k">if</span> <span class="n">checked</span><span class="p">:</span>
+            <span class="n">results_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'property_check_results.json'</span>
             <span class="p">)</span>
-            <span class="n">passed_properties_str</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">  '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">passed_properties</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
-                <span class="n">result_log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'Output file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> passed property checks.</span><span class="se">\n</span><span class="s1">'</span>
-                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">passed_properties_str</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
-                <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">checked</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
-            <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'property_check_failed.log'</span>
-            <span class="p">)</span>
-            <span class="n">failed_properties_str</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">  '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed_properties</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">result_log_file</span><span class="p">:</span>
-                <span class="n">result_log_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'Property checks on </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> failed for:</span><span class="se">\n</span><span class="s1"> '</span>
-                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">failed_properties_str</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span>
-                <span class="p">)</span>
+            <span class="n">tmp_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">results_filename</span><span class="si">}</span><span class="s1">.tmp'</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tmp_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+                <span class="n">handle</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+            <span class="c1"># rename atomically so that readers never see a partial file</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tmp_filename</span><span class="p">,</span> <span class="n">results_filename</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">checked</span><span class="p">,</span> <span class="n">success</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_rel_err</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">func</span><span class="p">,</span>
+        <span class="n">ds_mesh</span><span class="p">,</span>
+        <span class="n">ds</span><span class="p">,</span>
+        <span class="n">ds_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">time_index_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">time_index_end</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">expected_change</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Compute the error in a budget, relative to the expected change if it</span>
+<span class="sd">        is nonzero and to the initial content otherwise</span>
+
+<span class="sd">        The initial value is taken from ``ds_init`` if it is provided, so that</span>
+<span class="sd">        the budget starts from the true initial condition rather than the</span>
+<span class="sd">        first output time slice.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">ds_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds_start</span> <span class="o">=</span> <span class="n">ds_init</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ds_start</span> <span class="o">=</span> <span class="n">ds</span>
+        <span class="n">init_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">func</span><span class="p">(</span>
+                <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_start</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index_start</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="p">)</span>
+        <span class="n">ds_end</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">)</span>
+        <span class="n">final_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_end</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">actual_change</span> <span class="o">=</span> <span class="n">final_val</span> <span class="o">-</span> <span class="n">init_val</span>
+        <span class="n">residual</span> <span class="o">=</span> <span class="n">actual_change</span> <span class="o">-</span> <span class="n">expected_change</span>
+        <span class="k">if</span> <span class="n">init_val</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">denom</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">init_val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">denom</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_ntasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -926,20 +1015,6 @@
         <span class="n">out_option</span><span class="p">,</span> <span class="n">out_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_handle_not</span><span class="p">(</span><span class="n">out_option</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">out_sections</span><span class="p">,</span> <span class="n">out_option</span><span class="p">,</span> <span class="n">out_value</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_rel_err</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">func</span><span class="p">,</span>
-        <span class="n">ds_mesh</span><span class="p">,</span>
-        <span class="n">ds</span><span class="p">,</span>
-        <span class="n">time_index_start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">time_index_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="n">init_val</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index_start</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">final_val</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">val_change</span> <span class="o">=</span> <span class="n">final_val</span> <span class="o">-</span> <span class="n">init_val</span>
-        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">val_change</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">final_val</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_warn_not_found</span><span class="p">(</span><span class="n">not_found</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

@@ -140,8 +140,20 @@
 <h1>polaris.ocean.conservation.compute_total_energy<a class="headerlink" href="#polaris-ocean-conservation-compute-total-energy" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.ocean.conservation.compute_total_energy">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.conservation.</span></span><span class="sig-name descname"><span class="pre">compute_total_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/conservation.html#compute_total_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.conservation.compute_total_energy" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.conservation.</span></span><span class="sig-name descname"><span class="pre">compute_total_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/conservation.html#compute_total_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.conservation.compute_total_energy" title="Link to this definition"></a></dt>
 <dd><p>Compute the total heat content in an ocean model output file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds_mesh</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – The mesh dataset, containing <code class="docutils literal notranslate"><span class="pre">areaCell</span></code></p></li>
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – The dataset containing <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and a layer thickness for a
+single time slice</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>total_energy</strong> (<em>float</em>) – The total heat content in J over the whole domain</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

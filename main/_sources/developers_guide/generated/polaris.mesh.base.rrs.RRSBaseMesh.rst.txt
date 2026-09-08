@@ -17,6 +17,7 @@
       ~RRSBaseMesh.add_dependency
       ~RRSBaseMesh.add_input_file
       ~RRSBaseMesh.add_output_file
+      ~RRSBaseMesh.add_property_check
       ~RRSBaseMesh.build_cell_width_lat_lon
       ~RRSBaseMesh.check_properties
       ~RRSBaseMesh.constrain_resources
