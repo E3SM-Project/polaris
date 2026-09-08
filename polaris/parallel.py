@@ -94,3 +94,23 @@ def set_parallel_systems(tasks, config: PolarisConfigParser):
 
     for component in get_components_in_use(tasks):
         component.set_parallel_system(config)
+
+
+def get_memory_per_node(parallel_system):
+    """
+    Get the memory a node has, in MB, or ``None`` if this machine has not
+    said.
+
+    Read from the attribute where a newer mache offers one and from the
+    config option otherwise, because the option is arriving in mache while
+    this is being written and Polaris should work either side of it.  A
+    machine that says nothing leaves memory undeclared rather than guessed
+    at: a wrong figure here would propagate into every step's default.
+    """
+    memory_per_node = getattr(parallel_system, 'memory_per_node', None)
+    if memory_per_node:
+        return int(memory_per_node)
+    memory_per_node = parallel_system.get_config_int('memory_per_node')
+    if memory_per_node:
+        return int(memory_per_node)
+    return None
