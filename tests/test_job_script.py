@@ -5,6 +5,7 @@ import pytest
 from polaris import provenance
 from polaris.config import PolarisConfigParser
 from polaris.job import write_job_script
+from polaris.setup import _run_steps_concurrently
 
 
 def get_config(machine=None, **job_options):
@@ -290,3 +291,49 @@ def test_empty_option_is_not_a_request(tmp_path, option):
     text, options = get_job_script(tmp_path, 'pm-cpu', nodes=2, **{option: ''})
     assert '<<<' not in text
     assert options.honored
+
+
+def test_a_job_script_runs_the_serial_path_by_default(tmp_path):
+    """What every suite has been validated against."""
+    config = get_config('chrysalis')
+    write_job_script(
+        config=config,
+        machine='chrysalis',
+        work_dir=str(tmp_path),
+        nodes=2,
+        suite='omega_pr',
+    )
+    with open(os.path.join(str(tmp_path), 'job_script.omega_pr.sh')) as handle:
+        text = handle.read()
+
+    assert 'polaris serial omega_pr' in text
+    assert 'polaris parallel' not in text
+
+
+def test_a_job_script_runs_the_concurrent_path_when_asked(tmp_path):
+    """The opt-in, which is a config option so that setup stays the same."""
+    config = get_config('chrysalis')
+    write_job_script(
+        config=config,
+        machine='chrysalis',
+        work_dir=str(tmp_path),
+        nodes=2,
+        suite='omega_pr',
+        concurrent=True,
+    )
+    with open(os.path.join(str(tmp_path), 'job_script.omega_pr.sh')) as handle:
+        text = handle.read()
+
+    assert 'polaris parallel omega_pr' in text
+    assert 'polaris serial' not in text
+
+
+def test_asking_for_the_concurrent_path_is_reading_the_option(tmp_path):
+    """The option is what setup passes on, and it is off unless it is set."""
+    assert not _run_steps_concurrently(get_config('chrysalis'))
+    assert _run_steps_concurrently(
+        get_config('chrysalis', concurrent_steps='True')
+    )
+    assert not _run_steps_concurrently(
+        get_config('chrysalis', concurrent_steps='False')
+    )

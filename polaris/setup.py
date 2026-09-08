@@ -289,6 +289,7 @@ def setup_tasks(
             min_gpus=max_of_min_gpus,
             work_dir=work_dir,
             suite=suite_name,
+            concurrent=_run_steps_concurrently(basic_config),
         )
 
     # Rewrite provenance (it was written earlier so that it exists even if
@@ -410,7 +411,23 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
             target_gpus=max_gpus,
             min_gpus=max_of_min_gpus,
             work_dir=task_dir,
+            concurrent=_run_steps_concurrently(task.config),
         )
+
+
+def _run_steps_concurrently(config):
+    """
+    Whether job scripts should run a suite's or task's steps at the same time.
+
+    Opting in belongs to whoever sets a run up rather than to Polaris: the
+    serial path is what every suite has been validated against, and it stays
+    the default until the concurrent one has been used enough to trust.  A
+    single step's job script is never concurrent, which is why the callers
+    rather than ``write_job_script`` decide.
+    """
+    if not config.has_option('job', 'concurrent_steps'):
+        return False
+    return config.getboolean('job', 'concurrent_steps')
 
 
 def main():
