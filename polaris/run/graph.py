@@ -184,7 +184,7 @@ def _find_producers(selected: Dict[str, Step]) -> Dict[str, str]:
     producers: Dict[str, str] = {}
     for path, step in selected.items():
         for output in step.outputs:
-            filename = os.path.normpath(output)
+            filename = _resolve(output)
             if filename in producers and producers[filename] != path:
                 raise ValueError(
                     f'Steps {producers[filename]} and {path} both produce '
@@ -193,6 +193,23 @@ def _find_producers(selected: Dict[str, Step]) -> Dict[str, str]:
                 )
             producers[filename] = path
     return producers
+
+
+def _resolve(filename: str) -> str:
+    """
+    The path to compare a file by, following any symlinks along the way.
+
+    Setup links a step's inputs into its own work directory, so a step that
+    consumes another's output names a link that points there.  Until the
+    other step runs, that link dangles: it does not exist, and the file it
+    is waiting for has a different path.  Comparing what a link resolves to
+    is what connects the two.
+
+    A link that does not exist yet resolves to itself, and a name with no
+    links in it is merely normalized, so this is safe to apply to every
+    path on both sides of the comparison.
+    """
+    return os.path.realpath(filename)
 
 
 def _requirements_of(
@@ -212,7 +229,7 @@ def _requirements_of(
             required.add(dependency.path)
 
     for input_file in step.inputs:
-        filename = os.path.normpath(input_file)
+        filename = _resolve(input_file)
         producer = producers.get(filename)
         if producer is not None:
             if producer != step.path:
@@ -220,7 +237,7 @@ def _requirements_of(
             continue
         if not os.path.exists(filename):
             raise ValueError(
-                f'Step {step.path} needs the input file {filename}, which '
+                f'Step {step.path} needs the input file {input_file}, which '
                 f'does not exist and which no step being run produces.'
             )
 

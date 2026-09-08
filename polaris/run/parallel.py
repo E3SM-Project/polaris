@@ -101,11 +101,14 @@ def run_tasks(suite_name, quiet=False):
 def _run(suite, suite_name, component, logger, events, work_dir, quiet):
     """Set the run up, drive the loop, and report what happened."""
     steps = _select_steps(suite, logger)
-    available = component.get_available_resources()
+
+    # the nodes are read before the steps are sized, because what they
+    # report is what the sizes have to be taken from
+    nodes = read_allocation(component, logger)
+    available = _credit_memory(component.get_available_resources(), nodes)
     for step in steps.values():
         step.constrain_resources(available)
 
-    nodes = read_allocation(component, logger)
     pool = ResourcePool(nodes, local_node=_local_node(nodes))
     graph = build_step_graph(steps.values())
 
@@ -141,6 +144,53 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
         'run_finished', seconds=round(elapsed, 3), failures=len(failures)
     )
     return failures
+
+
+def _credit_memory(available, nodes):
+    """
+    Size steps against the memory the nodes credit, not the configured
+    figure.
+
+    A step that declares no memory is budgeted at its proportional share of
+    a node, and that is what makes memory accounting neutral: the memory
+    inequality and the core inequality become the same inequality, so a run
+    in which nothing declares memory packs exactly as it would with no
+    memory accounting at all.
+
+    That neutrality holds only while the figure the share is taken from is
+    the figure the pool charges against.  Taking the share from the
+    machine's configured memory while crediting each node with what it
+    reports breaks it, and breaks it in the direction that refuses work.
+    Measured on Chrysalis: the configured 253000 MiB is about 5% above what
+    a node reports available, so a step wanting the whole allocation was
+    budgeted 759000 MiB against the 730758 MiB its three nodes credited,
+    and could never start.  Two steps of a fifteen-step run were rejected
+    before anything ran.
+
+    The smallest node's figure is the one used, since a single number has
+    to serve every node the step might land on and the smallest is the one
+    that always fits.
+
+    Parameters
+    ----------
+    available : dict
+        The resource view from the parallel system
+
+    nodes : list of polaris.run.allocation.NodeResources
+        What the allocation's nodes reported
+
+    Returns
+    -------
+    available : dict
+        The same view, with memory taken from what the nodes credit
+    """
+    credited = [node.memory for node in nodes if node.memory is not None]
+    if not credited:
+        return available
+    available = dict(available)
+    available['memory_per_node'] = min(credited)
+    available['memory'] = sum(credited)
+    return available
 
 
 def _select_steps(suite, logger) -> Dict:
