@@ -10,18 +10,20 @@ from functools import partial
 from typing import Dict, List, Optional, Tuple
 
 import mpas_tools.io
-from mpas_tools.logging import LoggingContext, check_call
+from mpas_tools.logging import LoggingContext
 
 from polaris import Task
 from polaris.build.omega import detect_omega_build_type
-from polaris.logging import log_function_call, log_method_call
+from polaris.logging import log_function_call
 from polaris.parallel import set_parallel_systems
 from polaris.provenance import read as read_provenance
-from polaris.run import (
-    complete_step_run,
-    load_dependencies,
-    setup_config,
-    unpickle_suite,
+from polaris.run import setup_config, unpickle_suite
+from polaris.run.lifecycle import (
+    accumulate_baselines,
+    read_baseline_status_from_logs,
+    read_property_status_from_logs,
+    run_step,
+    run_step_as_subprocess,
 )
 from polaris.run.results import TaskResult, write_suite_results
 from polaris.validate import merge_diff_summary
@@ -482,25 +484,6 @@ def _log_and_run_task(
     result.cf_passed = cf_passed
 
 
-def _read_baseline_status_from_logs(step_work_dir: str) -> Optional[bool]:
-    """Get baseline comparison status from existing log markers.
-
-    Returns
-    -------
-    Optional[bool]
-        True if ``baseline_passed.log`` exists, False if
-        ``baseline_failed.log`` exists, otherwise None.
-    """
-    baseline_pass_filename = os.path.join(step_work_dir, 'baseline_passed.log')
-    baseline_fail_filename = os.path.join(step_work_dir, 'baseline_failed.log')
-
-    if os.path.exists(baseline_pass_filename):
-        return True
-    if os.path.exists(baseline_fail_filename):
-        return False
-    return None
-
-
 def _read_baseline_diff_summary_from_logs(step_work_dir: str) -> Dict:
     """Get the baseline diff summary from an existing JSON file, if any.
 
@@ -565,29 +548,6 @@ def _format_diff_summary_lines(
             f'linf={norms["linf"]:.3e}'
         )
     return lines
-
-
-def _read_property_status_from_logs(step_work_dir: str) -> Optional[bool]:
-    """Get property check status from existing log markers.
-
-    Returns
-    -------
-    Optional[bool]
-        True if ``property_check_passed.log`` exists, False if
-        ``property_check_failed.log`` exists, otherwise None.
-    """
-    property_check_pass_filename = os.path.join(
-        step_work_dir, 'property_check_passed.log'
-    )
-    property_check_fail_filename = os.path.join(
-        step_work_dir, 'property_check_failed.log'
-    )
-
-    if os.path.exists(property_check_pass_filename):
-        return True
-    if os.path.exists(property_check_fail_filename):
-        return False
-    return None
 
 
 def _read_cf_status_from_logs(step_work_dir: str) -> Optional[bool]:
@@ -667,19 +627,6 @@ def _property_check_message(results, passed: bool, step_name: str) -> str:
     return '\n'.join(lines) + '\n'
 
 
-def _accumulate_baselines(
-    baselines_passed: Optional[bool], status: bool
-) -> Optional[bool]:
-    """Aggregate baseline results across steps.
-
-    None means no baseline comparisons were performed. If any comparison fails,
-    the aggregate becomes False.
-    """
-    if baselines_passed is None:
-        return status
-    return baselines_passed and status
-
-
 def _run_task(task, available_resources):
     """
     Run each step of the task
@@ -701,13 +648,13 @@ def _run_task(task, available_resources):
         if os.path.exists(complete_filename):
             _print_to_stdout(task, '          already completed')
             # print results of baseline comparison if it was done
-            baseline_status = _read_baseline_status_from_logs(step.work_dir)
+            baseline_status = read_baseline_status_from_logs(step.work_dir)
             if baseline_status is not None:
                 baseline_str = pass_str if baseline_status else fail_str
                 _print_to_stdout(
                     task, f'          baseline comp.:   {baseline_str}'
                 )
-                baselines_passed = _accumulate_baselines(
+                baselines_passed = accumulate_baselines(
                     baselines_passed, baseline_status
                 )
                 merge_diff_summary(
@@ -715,13 +662,13 @@ def _run_task(task, available_resources):
                     _read_baseline_diff_summary_from_logs(step.work_dir),
                 )
             property_status = None
-            property_status = _read_property_status_from_logs(step.work_dir)
+            property_status = read_property_status_from_logs(step.work_dir)
             if property_status is not None:
                 property_str = pass_str if property_status else fail_str
                 _print_to_stdout(
                     task, f'          property comp.:   {property_str}'
                 )
-                property_passed = _accumulate_baselines(
+                property_passed = accumulate_baselines(
                     property_passed, property_status
                 )
             cf_status = _check_completed_step_cf(task, step, step_name)
@@ -744,9 +691,9 @@ def _run_task(task, available_resources):
 
         try:
             if step.run_as_subprocess:
-                _run_step_as_subprocess(logger, step, task.new_step_log_file)
+                run_step_as_subprocess(logger, step, task.new_step_log_file)
             else:
-                _run_step(
+                run_step(
                     task,
                     step,
                     task.new_step_log_file,
@@ -795,7 +742,7 @@ def _run_task(task, available_resources):
                 _print_to_stdout(
                     task, f'          property checks:  {property_str}'
                 )
-                property_passed = _accumulate_baselines(
+                property_passed = accumulate_baselines(
                     property_passed, properties_passed
                 )
 
@@ -813,7 +760,7 @@ def _run_task(task, available_resources):
             _print_to_stdout(
                 task, f'          baseline comp.:   {baseline_str}'
             )
-            baselines_passed = _accumulate_baselines(baselines_passed, status)
+            baselines_passed = accumulate_baselines(baselines_passed, status)
             merge_diff_summary(
                 diff_summary, getattr(step, 'baseline_diff_summary', {})
             )
@@ -887,142 +834,7 @@ def _report_cf_status(
         return cf_passed
     cf_str = pass_str if status else fail_str
     _print_to_stdout(task, f'          CF compliance:    {cf_str}')
-    return _accumulate_baselines(cf_passed, status)
-
-
-def _run_step(
-    task, step, new_log_file, available_resources, step_log_filename
-):
-    """
-    Run the requested step
-    """
-    logger = task.logger
-    cwd = os.getcwd()
-
-    missing_files = list()
-    for input_file in step.inputs:
-        if not os.path.exists(input_file):
-            missing_files.append(input_file)
-
-    if len(missing_files) > 0:
-        raise OSError(
-            f'input file(s) missing in step {step.name} in '
-            f'{step.component.name}/{step.subdir}: {missing_files}'
-        )
-
-    load_dependencies(step)
-
-    # each logger needs a unique name
-    logger_name = step.path.replace('/', '_')
-    if new_log_file:
-        # we want to create new log file and point the step to that name
-        new_log_filename = f'{cwd}/{step.name}.log'
-        step_log_filename = new_log_filename
-        step_logger = None
-    else:
-        # either we don't want a log file at all or there is an existing one
-        # to use.  Either way, we don't want a new log filename and we want
-        # to use the existing logger.  The step log filename will be whatever
-        # is passed as a parameter
-        step_logger = logger
-        new_log_filename = None
-
-    step.log_filename = step_log_filename
-
-    with LoggingContext(
-        name=logger_name, logger=step_logger, log_filename=new_log_filename
-    ) as step_logger:
-        step.logger = step_logger
-        os.chdir(step.work_dir)
-
-        step_logger.info('')
-        log_method_call(method=step.constrain_resources, logger=step_logger)
-        step_logger.info('')
-        # a step confined to part of the allocation has to be told about
-        # that part, not about the whole job.  Nothing assigns a placement
-        # yet, so this is the whole job in every case today.
-        if step.placement is not None:
-            step_resources = step.component.get_available_resources(
-                step.placement
-            )
-        else:
-            step_resources = available_resources
-        step.constrain_resources(step_resources)
-
-        # runtime_setup() will perform small tasks that require knowing the
-        # resources of the task before the step runs (such as creating
-        # graph partitions)
-        step_logger.info('')
-        log_method_call(method=step.runtime_setup, logger=step_logger)
-        step_logger.info('')
-        step.runtime_setup()
-
-        if step.args is not None:
-            step_logger.info(
-                "\nBypassing step's run() method and running "
-                'with command line args\n'
-            )
-            for args in step.args:
-                log_method_call(
-                    method=step.component.run_parallel_command,
-                    logger=step_logger,
-                )
-                step_logger.info('')
-                step.component.run_parallel_command(
-                    args,
-                    step.cpus_per_task,
-                    step.ntasks,
-                    step.openmp_threads,
-                    step.logger,
-                    gpus=step.gpus,
-                    placement=step.placement,
-                )
-        else:
-            step_logger.info('')
-            log_method_call(method=step.run, logger=step_logger)
-            step_logger.info('')
-            step.run()
-
-    complete_step_run(step)
-
-    missing_files = list()
-    for output_file in step.outputs:
-        if not os.path.exists(output_file):
-            missing_files.append(output_file)
-
-    if len(missing_files) > 0:
-        # We want to indicate that the step failed by removing the pickle
-        try:
-            os.remove('step_after_run.pickle')
-        except FileNotFoundError:
-            pass
-        raise OSError(
-            f'output file(s) missing in step {step.name} in '
-            f'{step.component.name}/{step.subdir}: {missing_files}'
-        )
-
-
-def _run_step_as_subprocess(logger, step, new_log_file):
-    """
-    Run the requested step as a subprocess
-    """
-    cwd = os.getcwd()
-    logger_name = step.path.replace('/', '_')
-    if new_log_file:
-        log_filename = f'{cwd}/{step.name}.log'
-        step_logger = None
-    else:
-        step_logger = logger
-        log_filename = None
-
-    step.log_filename = log_filename
-
-    with LoggingContext(
-        name=logger_name, logger=step_logger, log_filename=log_filename
-    ) as step_logger:
-        os.chdir(step.work_dir)
-        step_args = ['polaris', 'serial', '--step_is_subprocess']
-        check_call(step_args, step_logger)
+    return accumulate_baselines(cf_passed, status)
 
 
 def _write_output_for_pull_request(
