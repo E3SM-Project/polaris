@@ -3,6 +3,11 @@ import pickle as pickle
 
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 
+# what complete_step_run() writes in a step's work directory once the step
+# has finished successfully, and what anything asking "has this already
+# run?" looks for
+STEP_COMPLETE_LOG = 'polaris_step_complete.log'
+
 
 def unpickle_suite(suite_name):
     """
@@ -95,7 +100,7 @@ def complete_step_run(step):
     step : polaris.step.Step
         The step object
     """
-    with open('polaris_step_complete.log', 'w') as log_file:
+    with open(STEP_COMPLETE_LOG, 'w') as log_file:
         log_file.write(f'{step.path} finished successfully.')
     if step.is_dependency:
         # pickle the test case and step for use at runtime

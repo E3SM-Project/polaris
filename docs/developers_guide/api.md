@@ -82,9 +82,13 @@ seaice/api
    complete_step_run
    lifecycle.run_step
    lifecycle.run_step_as_subprocess
+   lifecycle.step_is_complete
    lifecycle.read_baseline_status_from_logs
    lifecycle.read_property_status_from_logs
    lifecycle.accumulate_baselines
+   graph.build_step_graph
+   graph.StepGraph
+   graph.StepNode
    serial.run_tasks
    serial.run_single_step
    results.TaskResult
