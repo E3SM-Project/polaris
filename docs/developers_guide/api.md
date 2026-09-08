@@ -89,6 +89,10 @@ seaice/api
    graph.build_step_graph
    graph.StepGraph
    graph.StepNode
+   allocation.read_allocation
+   allocation.NodeResources
+   placement.placement_to_env
+   placement.placement_from_env
    serial.run_tasks
    serial.run_single_step
    results.TaskResult

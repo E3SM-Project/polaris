@@ -9,6 +9,7 @@ from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
 
 from polaris.config import PolarisConfigParser
+from polaris.parallel import get_memory_per_node
 
 # attributes that describe how a component was set up rather than what a step
 # needs to run, so they are left out of pickles
@@ -163,7 +164,7 @@ class Component:
         if placement is not None:
             return _placement_resources(placement, self.parallel_system)
 
-        memory_per_node = _get_memory_per_node(self.parallel_system)
+        memory_per_node = get_memory_per_node(self.parallel_system)
         nodes = self.parallel_system.nodes
         memory = None
         if memory_per_node is not None and nodes is not None:
@@ -189,6 +190,7 @@ class Component:
         logger,
         gpus=0,
         placement=None,
+        memory_cap=None,
         gpus_per_task=None,
     ):
         """
@@ -218,6 +220,14 @@ class Component:
         placement : mache.parallel.ResourcePlacement, optional
             The part of the allocation to confine this launch to.  Passing
             none gives exactly the command Polaris has always built.
+
+        memory_cap : int, optional
+            The most memory in MB this launch may use on each node, which
+            some machines enforce and others ignore.  Pass a step's
+            **declared** ``memory`` and never its ``memory_budget``: a step
+            that stated a number has made a claim and can fairly be held to
+            it, while a step that said nothing is being guessed at by the
+            framework and must not be killed for the framework's guess.
 
         gpus_per_task : int, optional
             Number of GPUs per task
@@ -260,6 +270,7 @@ class Component:
             cpus_per_task=cpus_per_task,
             gpus_per_task=_gpus_per_task(gpus, ntasks),
             placement=placement,
+            memory_cap=memory_cap,
         )
         check_call(command_line_args, logger, env=env)
 
@@ -574,7 +585,7 @@ def _placement_resources(placement, parallel_system):
     # a placement carries no memory, because no launcher acts on one.  What
     # a placement does imply is a share of the nodes it names, in the same
     # proportion as the cores it took from them.
-    memory_per_node = _get_memory_per_node(parallel_system)
+    memory_per_node = get_memory_per_node(parallel_system)
     memory = None
     machine_cores_per_node = parallel_system.cores_per_node
     if memory_per_node is not None and machine_cores_per_node:
@@ -590,23 +601,3 @@ def _placement_resources(placement, parallel_system):
         memory_per_node=memory_per_node,
         mpi_allowed=parallel_system.mpi_allowed,
     )
-
-
-def _get_memory_per_node(parallel_system):
-    """
-    Get the memory a node has, in MB, or ``None`` if this machine has not
-    said.
-
-    Read from the attribute where a newer mache offers one and from the
-    config option otherwise, because the option is arriving in mache while
-    this is being written and Polaris should work either side of it.  A
-    machine that says nothing leaves memory undeclared rather than guessed
-    at: a wrong figure here would propagate into every step's default.
-    """
-    memory_per_node = getattr(parallel_system, 'memory_per_node', None)
-    if memory_per_node:
-        return int(memory_per_node)
-    memory_per_node = parallel_system.get_config_int('memory_per_node')
-    if memory_per_node:
-        return int(memory_per_node)
-    return None
