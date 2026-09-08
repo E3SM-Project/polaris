@@ -83,7 +83,7 @@ Steps shared between tasks shall be recognized as one step and run once.
 
 ### Requirement: Resource-Aware Scheduling
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/08
 
 Contributors:
 
@@ -148,8 +148,28 @@ would with no memory accounting at all -- the two constraints reduce to the
 same inequality. Memory accounting can therefore only ever remove a
 schedule that a measured declaration says would not have fit.
 
-Where a step declares both a target and a minimum, Polaris may run it at less
-than its target in order to fit more work, but never below its minimum.
+A step's resources shall be decided from the whole allocation, exactly as
+`polaris serial` decides them, and the scheduler shall wait until that much
+is free rather than starting the step on less.
+
+The target-and-minimum rule keeps the job it already has: it fits a step to
+the machine once, at the start of a run, and a step whose minimum the
+allocation cannot meet is reported as impossible. What it must not also
+become is a packing lever. A step handed whatever happened to be free when
+its turn came is a step whose width depends on scheduling timing, and for an
+MPI model step the width is the decomposition, so the same suite on the same
+allocation would produce different outputs on different runs. That is not a
+trade against the requirement that results match serial execution; it
+contradicts it. A pleasant consequence is that a step's memory budget, being
+proportional to its cores, stops moving too.
+
+This does cost packing. A wide step waits for room that a narrower version of
+it would not have needed, and the allocation can sit partly idle while it
+waits. It is still the right trade, because the alternative is not slower but
+wrong. If the cost proves large, the way to buy it back is to let a step say
+that its results do not depend on its width -- which is true of most steps
+that are not model runs -- rather than to make every step's width a
+scheduling accident.
 
 ### Requirement: Each Step in Its Own Process
 
@@ -514,7 +534,7 @@ synthetic steps and need no allocation.
 
 ### Testing and Validation: Resource Accounting
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/08
 
 Contributors:
 
@@ -522,8 +542,10 @@ Contributors:
 - Claude
 
 Unit tests shall cover packing: steps that all fit, steps where only a subset
-fits, a step run at its minimum rather than its target, and a step whose
-minimum exceeds the allocation, which shall be reported before the run.
+fits, a step the allocation reduces from its target towards its minimum, and
+a step whose minimum exceeds the allocation, which shall be reported before
+the run. The reduction is the allocation's doing and not the pool's, so the
+same step is offered the same width whatever else is running.
 
 Memory shall be covered explicitly, including the case where cores are
 available but memory is not, and the case where a step declares memory
