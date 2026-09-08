@@ -497,6 +497,64 @@ is a pure refactor and reviewable as one. Earlier task-parallel work already
 did this and the result was sound; it is the piece of that work most worth
 carrying forward.
 
+### Implementation: The mache Side
+
+Date last modified: 2026/09/08
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Phase A described a placement as the nodes a step may use and how many cores
+it may use *on each*. `mache` 3.12.0 implements it as one flat tuple of
+unique core ids, divided into one chunk per rank. For a single node the two
+are the same statement. For several they are not, and the difference stops
+Phase B from placing a step wider than a node on two of the five machines.
+
+Where the batch system reserves what a job step asks for -- Slurm 20.11 and
+newer, so Perlmutter and Frontier -- only the *count* is used and the ids are
+ignored, so a multi-node placement renders correctly today. Where the
+launcher binds explicitly -- Chrysalis on Slurm 20.02, and Aurora on PALS --
+each chunk becomes a CPU mask or core list for one rank, and those ids are
+node-local. Since a placement's ids must be unique, two nodes cannot both use
+core 0, so a launch spanning nodes is expressible only while its total cores
+fit inside one node's id space, which is to say not usefully at all.
+
+This is a reading of the 3.12.0 renderers rather than a measured failure. No
+multi-node placement has been rendered on any machine: Phase A's five-machine
+verification put all four concurrent launches on one node deliberately,
+because sharing a node was the hard case. The cross-machine validation below
+is where it gets tested.
+
+Phase B needs it. The allocation `omega_pr` sizes itself to on Chrysalis is
+three 64-core nodes, and that node count comes from the geometric mean of the
+widest step's target and the largest minimum, so the widest step asks for
+more than 128 cores -- more than two nodes. That is arithmetic on the figure
+in the summary above rather than a measurement of the suite, and it is worth
+measuring before the pool is built.
+
+So `mache` gains two things, and Polaris develops against the branch until
+they are released, exactly as Phase A did:
+
+- **a placement carrying one core list per node**, aligned with the nodes it
+  names. This is what the pool naturally produces, since it tracks free cores
+  per node, and it removes the coupling that would otherwise require every
+  node of a spanning launch to have the same ids free.
+- **the allocation's individual nodes**, by name. Polaris cannot build a
+  placement without them, and reading them from the job's own environment
+  rather than from the batch system also removes a query Polaris would
+  otherwise make once per step -- `ParallelSystem` asks `squeue` or `qstat`
+  for its node count when it is constructed, which is once per step process
+  under this design, and a suite of a hundred steps compressed into minutes
+  would breach the request in the requirement below by an order of magnitude.
+
+One thing on the Polaris side has to move with them.
+`Component.get_available_resources()` reads a placement's cores as a per-node
+set and multiplies by the node count, following Phase A's description rather
+than what `mache` renders. Nothing builds a multi-node placement today, so
+the disagreement is inert; it stops being inert here.
+
 ### Implementation: New Modules
 
 Date last modified: 2026/08/23
