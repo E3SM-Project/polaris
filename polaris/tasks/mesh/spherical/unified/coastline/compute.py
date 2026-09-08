@@ -48,8 +48,6 @@ class ComputeCoastlineStep(Step):
             component=component,
             name='coastline_compute',
             subdir=subdir,
-            cpus_per_task=1,
-            min_cpus_per_task=1,
         )
         self.default_cached = True
         self.combine_step = combine_step
@@ -98,7 +96,7 @@ class ComputeCoastlineStep(Step):
             mask_threshold=mask_threshold,
             sea_level_elevation=sea_level_elevation,
             distance_chunk_size=distance_chunk_size,
-            workers=self.cpus_per_task,
+            workers=self.cores,
             critical_transects=critical_transects,
         )
         for convention, ds_coastline in ds_coastlines.items():

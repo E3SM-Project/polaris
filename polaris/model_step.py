@@ -82,9 +82,12 @@ class ModelStep(Step):
         ntasks=None,
         min_tasks=None,
         openmp_threads=None,
+        gpus=None,
+        min_gpus=None,
         gpus_per_task=0,
         min_gpus_per_task=0,
-        max_memory=None,
+        memory=None,
+        min_memory=None,
         cached=False,
         namelist=None,
         streams=None,
@@ -129,16 +132,31 @@ class ModelStep(Step):
         openmp_threads : int, optional
             the number of OpenMP threads to use
 
+        gpus : int, optional
+            the number of GPUs to use, as a total for the step rather than
+            a count per task
+
+        min_gpus : int, optional
+            the minimum number of GPUs required, again as a total
+
         gpus_per_task : int, optional
             the number of GPUs per task to use
+
+            .. deprecated:: 1.1.0
+                Use ``gpus`` instead
 
         min_gpus_per_task : int, optional
             the minimum number of GPUs per task required
 
-        max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+            .. deprecated:: 1.1.0
+                Use ``min_gpus`` instead
+
+        memory : int, optional
+            the amount of memory in MB the step would ideally be given
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
 
         cached : bool, optional
             Whether to get all of the outputs for the step from the database of
@@ -187,9 +205,12 @@ class ModelStep(Step):
             ntasks=ntasks,
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
+            gpus=gpus,
+            min_gpus=min_gpus,
             gpus_per_task=gpus_per_task,
             min_gpus_per_task=min_gpus_per_task,
-            max_memory=max_memory,
+            memory=memory,
+            min_memory=min_memory,
             cached=cached,
         )
 
@@ -251,9 +272,12 @@ class ModelStep(Step):
         ntasks=None,
         min_tasks=None,
         openmp_threads=None,
+        gpus=None,
+        min_gpus=None,
         gpus_per_task=None,
         min_gpus_per_task=None,
-        max_memory=None,
+        memory=None,
+        min_memory=None,
     ):
         """
         Update the resources for the step.  This can be done within init,
@@ -277,16 +301,31 @@ class ModelStep(Step):
         openmp_threads : int, optional
             the number of OpenMP threads to use
 
+        gpus : int, optional
+            the number of GPUs to use, as a total for the step rather than
+            a count per task
+
+        min_gpus : int, optional
+            the minimum number of GPUs required, again as a total
+
         gpus_per_task : int, optional
             the number of GPUs per task to use
+
+            .. deprecated:: 1.1.0
+                Use ``gpus`` instead
 
         min_gpus_per_task : int, optional
             the minimum number of GPUs per task required
 
-        max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+            .. deprecated:: 1.1.0
+                Use ``min_gpus`` instead
+
+        memory : int, optional
+            the amount of memory in MB the step would ideally be given
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
         """
         self.set_resources(
             cpus_per_task=openmp_threads,
@@ -294,9 +333,12 @@ class ModelStep(Step):
             ntasks=ntasks,
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
+            gpus=gpus,
+            min_gpus=min_gpus,
             gpus_per_task=gpus_per_task,
             min_gpus_per_task=min_gpus_per_task,
-            max_memory=max_memory,
+            memory=memory,
+            min_memory=min_memory,
         )
 
     def add_model_config_options(self, options, config_model=None):
@@ -677,17 +719,18 @@ class ModelStep(Step):
             tasks_per_node = min(tasks_per_node, max_tasks_per_node)
 
         # if this step requires GPUs, tasks are placed according to the GPUs
-        # available on each node, not the CPU cores
-        if self.gpus_per_task > 0:
+        # available on each node, not the CPU cores.  The step's GPUs are a
+        # total spread over its tasks, so a node holds as many tasks as its
+        # own GPUs cover.
+        if self.gpus > 0:
             gpus_per_node = parallel_system.gpus_per_node
             if not gpus_per_node:
                 raise ValueError(
-                    f'Step {self.name} requests {self.gpus_per_task} GPUs per '
-                    f'task but gpus_per_node is not set in the parallel '
-                    f'config'
+                    f'Step {self.name} requests {self.gpus} GPUs but '
+                    f'gpus_per_node is not set in the parallel config'
                 )
             tasks_per_node = min(
-                tasks_per_node, gpus_per_node // self.gpus_per_task
+                tasks_per_node, gpus_per_node * self.ntasks // self.gpus
             )
 
         # never more tasks per node than the step has in total, and always at

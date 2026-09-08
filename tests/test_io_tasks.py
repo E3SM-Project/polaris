@@ -67,14 +67,16 @@ def _make_step(
     component.parallel_system = _make_parallel_system(
         nodes=nodes, gpu_compiler=gpu_compiler
     )
-    # ModelStep uses openmp_threads as cpus_per_task
+    # ModelStep uses openmp_threads as cpus_per_task, and states its GPU
+    # need as a total for the step rather than a count per task
     return ModelStep(
         component=component,
         name='forward',
         ntasks=ntasks,
         min_tasks=ntasks,
         openmp_threads=cpus_per_task,
-        gpus_per_task=gpus_per_task,
+        gpus=gpus_per_task * ntasks,
+        min_gpus=gpus_per_task * ntasks,
     )
 
 

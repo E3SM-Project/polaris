@@ -100,8 +100,8 @@ class CullMaskStep(Step):
             component,
             name=name,
             subdir=subdir,
-            cpus_per_task=None,
-            min_cpus_per_task=None,
+            cores=None,
+            min_cores=None,
         )
         self.base_mesh_step = base_mesh_step
         self.unsmoothed_topo_step = unsmoothed_topo_step
@@ -153,13 +153,12 @@ class CullMaskStep(Step):
                 ),
             )
 
-        self.cpus_per_task = section.getint('cpus_per_task')
-        self.min_cpus_per_task = section.getint('min_cpus_per_task')
+        self.cores = section.getint('cores')
+        self.min_cores = section.getint('min_cores')
 
     def constrain_resources(self, available_resources):
         """
-        Constrain ``cpus_per_task`` and ``ntasks`` based on the number of
-        cores available to this step
+        Constrain the cores this step uses to the cores available to it
 
         Parameters
         ----------
@@ -168,8 +167,8 @@ class CullMaskStep(Step):
         """
         config = self.config
         section = config['cull_mesh']
-        self.cpus_per_task = section.getint('cpus_per_task')
-        self.min_cpus_per_task = section.getint('min_cpus_per_task')
+        self.cores = section.getint('cores')
+        self.min_cores = section.getint('min_cores')
         super().constrain_resources(available_resources)
 
     def define_critical_land_transects(self, gf):
@@ -359,7 +358,7 @@ class CullMaskStep(Step):
         section = config['cull_mesh']
         latitude_threshold = section.getfloat('sea_ice_latitude_threshold')
 
-        cpus_per_task = self.cpus_per_task
+        cores = self.cores
         netcdf_format = mpas_tools.io.default_format
         netcdf_engine = mpas_tools.io.default_engine
 
@@ -387,7 +386,7 @@ class CullMaskStep(Step):
                 '-s',
                 '10e3',
                 '--process_count',
-                f'{cpus_per_task}',
+                f'{cores}',
                 '--format',
                 netcdf_format,
                 '--engine',
@@ -432,7 +431,7 @@ class CullMaskStep(Step):
                 '-s',
                 '10e3',
                 '--process_count',
-                f'{cpus_per_task}',
+                f'{cores}',
                 '--format',
                 netcdf_format,
                 '--engine',

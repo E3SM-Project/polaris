@@ -676,7 +676,8 @@ class CombineStep(Step):
             ntasks=self.ntasks,
             openmp_threads=self.openmp_threads,
             logger=self.logger,
-            gpus_per_task=self.gpus_per_task,
+            gpus=self.gpus,
+            placement=self.placement,
         )
 
     def _remap_to_target_grid(

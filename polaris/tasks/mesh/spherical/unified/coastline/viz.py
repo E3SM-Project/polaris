@@ -52,8 +52,6 @@ class VizCoastlineStep(Step):
             component=component,
             name='viz_coastline',
             subdir=subdir,
-            cpus_per_task=1,
-            min_cpus_per_task=1,
         )
         self.coastline_step = coastline_step
 

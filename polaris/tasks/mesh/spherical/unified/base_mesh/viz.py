@@ -73,8 +73,6 @@ class VizBaseMeshStep(Step):
             component=component,
             name='base_mesh_viz',
             subdir=subdir,
-            cpus_per_task=1,
-            min_cpus_per_task=1,
         )
         self.base_mesh_step = base_mesh_step
         self.sizing_step = sizing_step

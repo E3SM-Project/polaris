@@ -2,6 +2,7 @@ import importlib.resources as imp_res
 import logging
 import os
 import shutil
+import warnings
 
 from mache import MachineInfo
 from mache.permissions import update_permissions
@@ -61,16 +62,83 @@ class Step:
     openmp_threads : int
         the number of OpenMP threads to use
 
+    gpus : int
+        the number of GPUs the step would ideally use, as a total for the
+        step rather than a count per task.  A step uses no GPUs unless it
+        says otherwise, so 0 is the common case
+
+    min_gpus : int
+        the number of GPUs the step requires, again as a total
+
     gpus_per_task : int
         the number of GPUs per task the step would ideally use
+
+        .. deprecated:: 1.1.0
+            Use ``gpus`` instead.  A per-task count does not confine a step
+            to those GPUs when steps run at the same time; a total does
 
     min_gpus_per_task : int
         the number of GPUs per task the step requires
 
-    max_memory : int
-        the amount of memory that the step is allowed to use in MB.
-        This is currently just a placeholder for later use with task
-        parallelism
+        .. deprecated:: 1.1.0
+            Use ``min_gpus`` instead
+
+    cores : int
+        the number of cores the step needs in total.  A non-MPI step says
+        this directly; an MPI step says ``ntasks`` and ``cpus_per_task``
+        instead and this is their product
+
+    min_cores : int
+        the number of cores the step needs in order to run at all
+
+    memory : int or None
+        the amount of memory in MB the step declares it needs, or ``None``
+        if it has not said.  This stays ``None`` for a step that declares
+        nothing: it is never filled in with the default, because the two
+        are treated differently.
+
+        A declared figure is a **ceiling as well as a claim**.  The
+        launcher will hold a step to a memory figure on machines that
+        enforce, so a step author should declare a peak with margin rather
+        than a typical value.
+
+    memory_budget : int or None
+        the memory in MB to account for this step: what it declared, or its
+        proportional share of a node if it declared nothing.  Resolved when
+        resources are constrained, and ``None`` where the machine has not
+        said how much memory a node has.
+
+        Use this for accounting and ``memory`` for capping.  Only a
+        declared figure may be enforced as a cap -- capping a step at the
+        framework's own rough estimate of it would make every step carry a
+        measured number before it could run, which is the burden the
+        default exists to avoid.
+
+    min_memory : int
+        the amount of memory in MB the step needs in order to run at all,
+        the minimum to ``memory``'s target, in the same style as
+        ``min_tasks`` and ``min_cpus_per_task``
+
+    may_span_nodes : bool
+        whether this step's resources -- its cores and its GPUs alike -- may
+        be drawn from more than one node.  True for an MPI step, whose
+        launcher spreads its ranks; false for a step that runs in one
+        process, which has no way to reach another node.
+
+        This is not the same question as whether a step uses MPI.  A single
+        process that hands its work to a distributed pool spans nodes
+        perfectly well, and one that does its work in its own threads
+        cannot; both are "not MPI".  Nothing in Polaris sets this true today
+        beyond the MPI default.
+
+    placement : mache.parallel.ResourcePlacement or None
+        the part of the allocation this step is confined to -- which nodes,
+        which cores on each and how many GPUs -- or ``None`` to run on the
+        whole allocation, as steps have always done.
+
+        Nothing assigns this yet.  Deciding which subset a step should get
+        needs a scheduler, and there is not one: the only caller is the
+        serial path, which assigns no placement.
 
     input_data : list of dict
         a list of dict used to define input files typically to be
@@ -178,10 +246,16 @@ class Step:
         min_cpus_per_task=1,
         ntasks=1,
         min_tasks=1,
+        cores=None,
+        min_cores=None,
+        may_span_nodes=None,
         openmp_threads=1,
-        max_memory=None,
+        memory=None,
+        min_memory=None,
         cached=False,
         run_as_subprocess=False,
+        gpus=None,
+        min_gpus=None,
         gpus_per_task=0,
         min_gpus_per_task=0,
     ):
@@ -224,19 +298,50 @@ class Step:
             few cores to accommodate the number of tasks and cores per task,
             the step will fail
 
+        cores : int, optional
+            the number of cores the step needs in total.  For a non-MPI
+            step this is the direct way to say it; an MPI step says
+            ``ntasks`` and ``cpus_per_task`` instead
+
+        min_cores : int, optional
+            the number of cores the step needs in order to run at all
+
+        may_span_nodes : bool, optional
+            whether the step's cores and GPUs may be drawn from more than
+            one node.  Defaults to whether the step has more than one MPI
+            task
+
         openmp_threads : int
             the number of OpenMP threads to use
 
-        max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+        memory : int, optional
+            the amount of memory in MB the step needs.  Declaring one makes
+            it a ceiling on machines that enforce, so declare a peak with
+            margin rather than a typical value
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
+
+        gpus : int, optional
+            the number of GPUs the step would ideally use, as a total for
+            the step rather than a count per task.  A step uses no GPUs
+            unless it says otherwise
+
+        min_gpus : int, optional
+            the number of GPUs the step requires, again as a total
 
         gpus_per_task : int, optional
             the number of GPUs per task the step would ideally use
 
+            .. deprecated:: 1.1.0
+                Use ``gpus`` instead
+
         min_gpus_per_task : int, optional
             the number of GPUs per task the step requires
+
+            .. deprecated:: 1.1.0
+                Use ``min_gpus`` instead
 
         cached : bool, optional
             Whether to get all of the outputs for the step from the database of
@@ -262,10 +367,19 @@ class Step:
         self.min_cpus_per_task = min_cpus_per_task
         self.ntasks = ntasks
         self.min_tasks = min_tasks
+        self._cores = cores
+        self._min_cores = min_cores
+        self._may_span_nodes = may_span_nodes
         self.openmp_threads = openmp_threads
         self.gpus_per_task = gpus_per_task
         self.min_gpus_per_task = min_gpus_per_task
-        self.max_memory = max_memory
+        self._gpus = gpus
+        self._min_gpus = min_gpus
+        _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task)
+        self.memory = memory
+        self.min_memory = min_memory
+        self.memory_budget = None
+        self.placement = None
 
         self.path = os.path.join(self.component.name, self.subdir)
 
@@ -303,14 +417,105 @@ class Step:
         self.cached = cached
         self.default_cached = False
 
+    @property
+    def cores(self):
+        """
+        int : the number of cores this step needs, in total
+
+        A non-MPI step says this directly, because it has no meaningful
+        number of ranks and expressing its cores through MPI-shaped fields
+        is how a Python step ends up being told it has three nodes' worth.
+        An MPI step says ranks and cores per rank, and this is their
+        product.
+        """
+        if self._cores is not None:
+            return self._cores
+        return self.cpus_per_task * self.ntasks
+
+    @cores.setter
+    def cores(self, value):
+        self._cores = value
+
+    @property
+    def min_cores(self):
+        """
+        int : the number of cores this step needs in order to run at all
+        """
+        if self._min_cores is not None:
+            return self._min_cores
+        return self.min_cpus_per_task * self.min_tasks
+
+    @min_cores.setter
+    def min_cores(self, value):
+        self._min_cores = value
+
+    @property
+    def may_span_nodes(self):
+        """
+        bool : whether this step's cores and GPUs may come from several nodes
+
+        Defaults to whether the step has more than one MPI task, since a
+        launcher spreading ranks is the one mechanism Polaris has today for
+        reaching another node.  A step that delegates to a distributed pool
+        will set this itself; nothing does in Phase A.
+        """
+        if self._may_span_nodes is not None:
+            return self._may_span_nodes
+        return self.ntasks is not None and self.ntasks > 1
+
+    @may_span_nodes.setter
+    def may_span_nodes(self, value):
+        self._may_span_nodes = value
+
+    @property
+    def gpus(self):
+        """
+        int : the number of GPUs this step needs, in total
+
+        A total rather than a count per task, because a per-task count does
+        not confine a step to those GPUs when steps run at the same time.
+        Falls back to the deprecated ``gpus_per_task`` when a step has not
+        been updated to say what it needs as a total.
+        """
+        if self._gpus is not None:
+            return self._gpus
+        if self.gpus_per_task and self.ntasks:
+            return self.gpus_per_task * self.ntasks
+        return 0
+
+    @gpus.setter
+    def gpus(self, value):
+        self._gpus = value
+
+    @property
+    def min_gpus(self):
+        """
+        int : the number of GPUs this step requires, in total
+        """
+        if self._min_gpus is not None:
+            return self._min_gpus
+        if self.min_gpus_per_task and self.min_tasks:
+            return self.min_gpus_per_task * self.min_tasks
+        return 0
+
+    @min_gpus.setter
+    def min_gpus(self, value):
+        self._min_gpus = value
+
     def set_resources(
         self,
         cpus_per_task=None,
         min_cpus_per_task=None,
         ntasks=None,
         min_tasks=None,
+        cores=None,
+        min_cores=None,
+        may_span_nodes=None,
         openmp_threads=None,
-        max_memory=None,
+        memory=None,
+        min_memory=None,
+        gpus=None,
+        min_gpus=None,
         gpus_per_task=None,
         min_gpus_per_task=None,
     ):
@@ -343,20 +548,46 @@ class Step:
             few cores to accommodate the number of tasks and cores per task,
             the step will fail
 
+        cores : int, optional
+            the number of cores the step needs in total
+
+        min_cores : int, optional
+            the number of cores the step needs in order to run at all
+
+        may_span_nodes : bool, optional
+            whether the step's cores and GPUs may be drawn from more than
+            one node
+
         openmp_threads : int, optional
             the number of OpenMP threads to use
 
-        max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+        memory : int, optional
+            the amount of memory in MB the step would ideally be given
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
+
+        gpus : int, optional
+            the number of GPUs the step would ideally use, as a total for
+            the step rather than a count per task
+
+        min_gpus : int, optional
+            the number of GPUs the step requires, again as a total
 
         gpus_per_task : int, optional
             the number of GPUs per task the step would ideally use
 
+            .. deprecated:: 1.1.0
+                Use ``gpus`` instead
+
         min_gpus_per_task : int, optional
             the number of GPUs per task the step requires
+
+            .. deprecated:: 1.1.0
+                Use ``min_gpus`` instead
         """
+        _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task)
         if cpus_per_task is not None:
             self.cpus_per_task = cpus_per_task
         if min_cpus_per_task is not None:
@@ -365,14 +596,26 @@ class Step:
             self.ntasks = ntasks
         if min_tasks is not None:
             self.min_tasks = min_tasks
+        if cores is not None:
+            self.cores = cores
+        if min_cores is not None:
+            self.min_cores = min_cores
+        if may_span_nodes is not None:
+            self.may_span_nodes = may_span_nodes
         if openmp_threads is not None:
             self.openmp_threads = openmp_threads
+        if gpus is not None:
+            self.gpus = gpus
+        if min_gpus is not None:
+            self.min_gpus = min_gpus
         if gpus_per_task is not None:
             self.gpus_per_task = gpus_per_task
         if min_gpus_per_task is not None:
             self.min_gpus_per_task = min_gpus_per_task
-        if max_memory is not None:
-            self.max_memory = max_memory
+        if memory is not None:
+            self.memory = memory
+        if min_memory is not None:
+            self.min_memory = min_memory
 
     def constrain_resources(self, available_resources):
         """
@@ -385,6 +628,13 @@ class Step:
             A dictionary containing available resources (cores, tasks, nodes
             and cores_per_node)
         """
+        # read what the step asked for before anything below changes it.
+        # GPUs are constrained in proportion to the tasks that survive, and
+        # the proportion is the one the step declared, not whatever is left
+        # after the cores have already been taken into account.
+        declared_ntasks = self.ntasks
+        declared_gpus = self.gpus
+
         mpi_allowed = available_resources['mpi_allowed']
         if not mpi_allowed and self.ntasks > 1:
             raise ValueError(
@@ -392,8 +642,31 @@ class Step:
                 'Please switch to a compute node.'
             )
 
+        self._constrain_cores(available_resources)
+        # GPUs before memory, because running out of GPUs can cut the task
+        # count again and the memory budget has to describe the cores the
+        # step ends up with.  Budgeting first would hand a step memory for
+        # tasks it no longer has, and break the very thing the default is
+        # chosen for -- that a memory budget stays exactly proportional to
+        # cores, so packing on either comes out the same.
+        self._constrain_gpus(
+            available_resources, declared_ntasks, declared_gpus
+        )
+        self._constrain_memory(available_resources)
+
+    def _constrain_cores(self, available_resources):
+        """
+        Constrain a step's cores to what it can be given.
+
+        Two bounds apply and they are different questions. One process
+        cannot be given cores on a node it is not running on, so
+        ``cpus_per_task`` is always held to a node. Whether the *step* may
+        draw its cores from several nodes is the step's to say, and a step
+        that may not is held to a node in total as well.
+        """
         available_cores = available_resources['cores']
         cores_per_node = available_resources['cores_per_node']
+
         self.cpus_per_task = min(
             self.cpus_per_task, min(available_cores, cores_per_node)
         )
@@ -403,7 +676,29 @@ class Step:
                 f'minimum of {self.min_cpus_per_task} for step {self.name}'
             )
 
-        available_tasks = available_cores // self.cpus_per_task
+        bound = available_cores
+        if not self.may_span_nodes:
+            bound = min(available_cores, cores_per_node)
+            if self.min_cores > cores_per_node:
+                # a reduction is not available here: the step has said it
+                # cannot run any smaller, and no node is any bigger
+                raise ValueError(
+                    f'Step {self.name} needs at least {self.min_cores} cores '
+                    f'and may not use more than one node, but a node here '
+                    f'has {cores_per_node}. If its work can be spread across '
+                    f'nodes, set may_span_nodes on the step.'
+                )
+
+        if self._cores is not None:
+            self.cores = min(self.cores, bound)
+            if self.cores < self.min_cores:
+                raise ValueError(
+                    f'Available cores ({self.cores}) is below the minimum of '
+                    f'{self.min_cores} for step {self.name}'
+                )
+            return
+
+        available_tasks = bound // self.cpus_per_task
         self.ntasks = min(self.ntasks, available_tasks)
 
         if self.ntasks < self.min_tasks:
@@ -412,30 +707,109 @@ class Step:
                 f'minimum of {self.min_tasks} for step {self.name}'
             )
 
+    def _constrain_memory(self, available_resources):
+        """
+        Give a step that declared no memory its proportional share of a node.
+
+        Every step uses memory, so unlike GPUs there is no true statement to
+        default to and the default has to be an assumption. This one is
+        chosen for a property rather than for accuracy: a step's cores times
+        the node's memory per core means a run in which every step defaults
+        packs on memory exactly as it would have packed on cores, so nothing
+        is made worse by memory being accounted for at all. It is rounded
+        down so that the total can never exceed what the nodes hold.
+
+        A step that has been measured says what it needs and is scheduled on
+        that instead.
+
+        The default lands in ``memory_budget`` and never in ``memory``,
+        which stays as the step declared it.  Downstream has to be able to
+        tell the two apart: a declared figure may be enforced as a cap,
+        because getting it wrong is then immediate and attributable, while
+        a defaulted one may not, since capping every step at the
+        framework's own guess would make them all carry a measured number
+        before they could run.
+        """
+        cores_per_node = available_resources['cores_per_node']
+        memory_per_node = available_resources.get('memory_per_node')
+
+        if self.memory is not None:
+            self.memory_budget = self.memory
+        elif memory_per_node and cores_per_node:
+            self.memory_budget = self.cores * memory_per_node // cores_per_node
+
+        if (
+            self.memory_budget is not None
+            and self.min_memory is not None
+            and self.min_memory > self.memory_budget
+        ):
+            raise ValueError(
+                f'Step {self.name} needs at least {self.min_memory} MB of '
+                f'memory but has {self.memory_budget} MB.'
+            )
+
+    def _constrain_gpus(
+        self, available_resources, declared_ntasks, declared_gpus
+    ):
+        """
+        Constrain a step's GPUs, and its tasks, to the GPUs available.
+
+        The step asks for a total, but those GPUs are still spread across its
+        tasks, so running fewer tasks means needing fewer GPUs.  What is held
+        fixed while scaling down is the proportion the step *declared*: by
+        the time this runs, ``ntasks`` may already have been cut back by the
+        cores available, and measuring the proportion against that would make
+        each surviving task look like it needs more GPUs than it does.
+        """
+        if declared_gpus <= 0 or not declared_ntasks:
+            return
+
         available_gpus = available_resources.get('gpus')
-        if self.gpus_per_task > 0:
-            if available_gpus is None or available_gpus == 0:
-                raise ValueError(
-                    f'Step {self.name} requests {self.gpus_per_task} GPUs '
-                    'per task but no GPUs are available on this machine.'
-                )
+        if not available_gpus:
+            raise ValueError(
+                f'Step {self.name} requests {declared_gpus} GPUs but no GPUs '
+                f'are available on this machine.'
+            )
 
-            available_gpu_tasks = available_gpus // self.gpus_per_task
-            self.ntasks = min(self.ntasks, available_gpu_tasks)
-
-            if self.gpus_per_task < self.min_gpus_per_task:
+        gpus_per_node = available_resources.get('gpus_per_node')
+        if not self.may_span_nodes and gpus_per_node:
+            # a step held to one node has to find its GPUs there too, not
+            # its cores on one node and its GPUs on another
+            if self.min_gpus > gpus_per_node:
                 raise ValueError(
-                    f'Available gpus_per_task ({self.gpus_per_task}) is '
-                    f'below the minimum of {self.min_gpus_per_task} for '
-                    f'step {self.name}'
+                    f'Step {self.name} needs at least {self.min_gpus} GPUs '
+                    f'and may not use more than one node, but a node here '
+                    f'has {gpus_per_node}. If its work can be spread across '
+                    f'nodes, set may_span_nodes on the step.'
                 )
+            available_gpus = min(available_gpus, gpus_per_node)
 
-            if self.ntasks < self.min_tasks:
-                raise ValueError(
-                    f'Available number of MPI tasks ({self.ntasks}) is '
-                    f'below the minimum of {self.min_tasks} for step '
-                    f'{self.name} after GPU constraints are applied'
-                )
+        # a step's GPUs are spread over its tasks, so fewer GPUs means fewer
+        # tasks -- but never fewer than one.  A single-task step asking for
+        # several GPUs has nothing to scale, and scaling it would take its
+        # task count to zero rather than trimming its GPUs.
+        available_gpu_tasks = available_gpus * declared_ntasks // declared_gpus
+        ntasks = min(self.ntasks, max(available_gpu_tasks, 1))
+        # round up, so that scaling down the tasks never scales the GPUs
+        # below what the tasks that remain still need
+        gpus = -(-declared_gpus * ntasks // declared_ntasks)
+        # and however the scaling came out, a step cannot have more GPUs
+        # than there are
+        self.gpus = min(gpus, available_gpus)
+        self.ntasks = ntasks
+
+        if self.gpus < self.min_gpus:
+            raise ValueError(
+                f'Available GPUs ({self.gpus}) is below the minimum of '
+                f'{self.min_gpus} for step {self.name}'
+            )
+
+        if self.ntasks < self.min_tasks:
+            raise ValueError(
+                f'Available number of MPI tasks ({self.ntasks}) is '
+                f'below the minimum of {self.min_tasks} for step '
+                f'{self.name} after GPU constraints are applied'
+            )
 
     def setup(self):
         """
@@ -888,3 +1262,17 @@ class Step:
         input_file = os.path.abspath(input_file)
 
         return input_file, database_subdirs
+
+
+def _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task):
+    """Warn that a per-task GPU count is on its way out."""
+    if not gpus_per_task and not min_gpus_per_task:
+        return
+    warnings.warn(
+        'gpus_per_task and min_gpus_per_task are deprecated. Use gpus and '
+        'min_gpus, which say how many GPUs the step needs in total. A '
+        'per-task count does not confine a step to those GPUs when steps '
+        'run at the same time.',
+        DeprecationWarning,
+        stacklevel=3,
+    )

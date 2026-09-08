@@ -1,6 +1,7 @@
 import importlib.resources as imp_res
 import json
 import os
+import warnings
 
 from mache.parallel import ParallelSystem, get_parallel_system
 from mpas_tools.io import open_dataset, write_netcdf
@@ -69,9 +70,18 @@ class Component:
         assert config.combined is not None
         self.parallel_system = get_parallel_system(config.combined)
 
-    def get_available_resources(self):
+    def get_available_resources(self, placement=None):
         """
         Get available resources from the active parallel system
+
+        Parameters
+        ----------
+        placement : mache.parallel.ResourcePlacement, optional
+            The part of the allocation a step is confined to.  When it is
+            given, the resources described are that subset's rather than the
+            whole allocation's, so that a confined step is told about what it
+            can actually use.  Resources withheld from a step have to be
+            genuinely withheld, not merely subtracted from a number.
 
         Returns
         -------
@@ -83,12 +93,23 @@ class Component:
                 f'Parallel system has not been set for component {self.name}'
             )
 
+        if placement is not None:
+            return _placement_resources(placement, self.parallel_system)
+
+        memory_per_node = _get_memory_per_node(self.parallel_system)
+        nodes = self.parallel_system.nodes
+        memory = None
+        if memory_per_node is not None and nodes is not None:
+            memory = memory_per_node * nodes
+
         return dict(
             cores=self.parallel_system.cores,
-            nodes=self.parallel_system.nodes,
+            nodes=nodes,
             cores_per_node=self.parallel_system.cores_per_node,
             gpus=self.parallel_system.gpus,
             gpus_per_node=self.parallel_system.gpus_per_node,
+            memory=memory,
+            memory_per_node=memory_per_node,
             mpi_allowed=self.parallel_system.mpi_allowed,
         )
 
@@ -99,7 +120,9 @@ class Component:
         ntasks,
         openmp_threads,
         logger,
-        gpus_per_task=0,
+        gpus=0,
+        placement=None,
+        gpus_per_task=None,
     ):
         """
         Run a command using the active parallel system
@@ -121,12 +144,42 @@ class Component:
         logger : logging.Logger
             Logger to output command-line execution info
 
+        gpus : int, optional
+            Number of GPUs this launch needs, as a total rather than a count
+            per task
+
+        placement : mache.parallel.ResourcePlacement, optional
+            The part of the allocation to confine this launch to.  Passing
+            none gives exactly the command Polaris has always built.
+
         gpus_per_task : int, optional
             Number of GPUs per task
+
+            .. deprecated:: 1.1.0
+                Use ``gpus`` instead
         """
         if self.parallel_system is None:
             raise ValueError(
                 f'Parallel system has not been set for component {self.name}'
+            )
+
+        if gpus_per_task:
+            warnings.warn(
+                'gpus_per_task is deprecated. Use gpus, which says how many '
+                'GPUs the launch needs in total.',
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            gpus = max(gpus, gpus_per_task * ntasks)
+
+        if placement is not None and placement.gpus != gpus:
+            # a placement carries the GPUs itself, so the two saying
+            # different things means whatever built the placement and the
+            # step have drifted apart.  Much cheaper to catch here than as
+            # silent oversubscription once the work is running.
+            raise ValueError(
+                f'This launch asks for {gpus} GPUs but its placement asks '
+                f'for {placement.gpus}. They must agree.'
             )
 
         env = dict(os.environ)
@@ -138,7 +191,8 @@ class Component:
             args=args,
             ntasks=ntasks,
             cpus_per_task=cpus_per_task,
-            gpus_per_task=gpus_per_task,
+            gpus_per_task=_gpus_per_task(gpus, ntasks),
+            placement=placement,
         )
         check_call(command_line_args, logger, env=env)
 
@@ -322,3 +376,64 @@ class Component:
         except FileNotFoundError:
             # no cached files for this core
             pass
+
+
+def _gpus_per_task(gpus, ntasks):
+    """
+    Convert a launch's total GPUs into the per-task count mache asks for.
+
+    Without a placement to carry a total, mache expresses GPUs per task, so
+    a step's total has to be divided back out.  Rounding up rather than down
+    keeps a launch from being handed fewer GPUs than it asked for.
+    """
+    if gpus <= 0 or ntasks <= 0:
+        return 0
+    return -(-gpus // ntasks)
+
+
+def _placement_resources(placement, parallel_system):
+    """Describe what a placement gives a step, in the usual resource terms."""
+    nodes = max(len(placement.nodes), 1)
+    cores_per_node = len(placement.cores)
+
+    # a placement carries no memory, because no launcher acts on one.  What
+    # a placement does imply is a share of the nodes it names, in the same
+    # proportion as the cores it took from them.
+    memory_per_node = _get_memory_per_node(parallel_system)
+    memory = None
+    machine_cores_per_node = parallel_system.cores_per_node
+    if memory_per_node is not None and machine_cores_per_node:
+        memory = (
+            cores_per_node * nodes * memory_per_node // machine_cores_per_node
+        )
+
+    return dict(
+        cores=cores_per_node * nodes,
+        nodes=nodes,
+        cores_per_node=cores_per_node,
+        gpus=placement.gpus,
+        gpus_per_node=placement.gpus // nodes,
+        memory=memory,
+        memory_per_node=memory_per_node,
+        mpi_allowed=parallel_system.mpi_allowed,
+    )
+
+
+def _get_memory_per_node(parallel_system):
+    """
+    Get the memory a node has, in MB, or ``None`` if this machine has not
+    said.
+
+    Read from the attribute where a newer mache offers one and from the
+    config option otherwise, because the option is arriving in mache while
+    this is being written and Polaris should work either side of it.  A
+    machine that says nothing leaves memory undeclared rather than guessed
+    at: a wrong figure here would propagate into every step's default.
+    """
+    memory_per_node = getattr(parallel_system, 'memory_per_node', None)
+    if memory_per_node:
+        return int(memory_per_node)
+    memory_per_node = parallel_system.get_config_int('memory_per_node')
+    if memory_per_node:
+        return int(memory_per_node)
+    return None

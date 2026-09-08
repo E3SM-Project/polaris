@@ -59,8 +59,6 @@ class VizRiverStep(Step):
             component=component,
             name='viz_river_network',
             subdir=subdir,
-            cpus_per_task=1,
-            min_cpus_per_task=1,
         )
         self.simplify_step = simplify_step
         self.rasterize_step = rasterize_step

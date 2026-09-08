@@ -73,8 +73,8 @@ class CullMeshStep(Step):
             component,
             name=name,
             subdir=subdir,
-            cpus_per_task=None,
-            min_cpus_per_task=None,
+            cores=None,
+            min_cores=None,
         )
         self.base_mesh_step = base_mesh_step
         self.cull_mask_step = cull_mask_step
@@ -122,13 +122,12 @@ class CullMeshStep(Step):
                 self.cull_mask_step.path, 'cull_masks.nc'
             ),
         )
-        self.cpus_per_task = section.getint('cpus_per_task')
-        self.min_cpus_per_task = section.getint('min_cpus_per_task')
+        self.cores = section.getint('cores')
+        self.min_cores = section.getint('min_cores')
 
     def constrain_resources(self, available_resources):
         """
-        Constrain ``cpus_per_task`` and ``ntasks`` based on the number of
-        cores available to this step
+        Constrain the cores this step uses to the cores available to it
 
         Parameters
         ----------
@@ -137,8 +136,8 @@ class CullMeshStep(Step):
         """
         config = self.config
         section = config['cull_mesh']
-        self.cpus_per_task = section.getint('cpus_per_task')
-        self.min_cpus_per_task = section.getint('min_cpus_per_task')
+        self.cores = section.getint('cores')
+        self.min_cores = section.getint('min_cores')
         super().constrain_resources(available_resources)
 
     def run(self):
@@ -190,7 +189,7 @@ class CullMeshStep(Step):
         ds_map_culled_to_base = map_culled_to_base(
             ds_base=ds_base_mesh,
             ds_culled=ds_culled_mesh,
-            workers=self.cpus_per_task,
+            workers=self.cores,
         )
         write_netcdf(ds_map_culled_to_base, f'{prefix}_map_culled_to_base.nc')
 

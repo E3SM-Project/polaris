@@ -105,10 +105,23 @@ Some attributes are available after calling the base class' constructor
 
 : the number of OpenMP threads the step will use
 
-`self.max_memory`
+`self.memory`
 
-: An aspirational attribute that will be used in the future to indicate the
-  amount of memory that the step is allowed to use in MB
+: the memory the step says it needs, in MB, or `None` if it has not said.
+  A declared figure is a ceiling as well as a claim on machines that enforce
+  one, so declare a peak with margin rather than a typical value.  This
+  replaces the former `max_memory` placeholder
+
+`self.min_memory`
+
+: the least memory the step can run in, in MB
+
+`self.memory_budget`
+
+: the memory to account for, whether declared or defaulted.  A step that
+  declares nothing is given its proportional share of a node -- its cores
+  times the node's memory per core.  See {ref}`dev-parallel` for why the
+  declared and defaulted figures are kept apart
 
 `self.cached`
 

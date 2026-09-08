@@ -48,8 +48,6 @@ class VizSizingFieldStep(Step):
             component=component,
             name='sizing_field_viz',
             subdir=subdir,
-            cpus_per_task=1,
-            min_cpus_per_task=1,
         )
         self.sizing_step = sizing_step
         self.output_filenames = [

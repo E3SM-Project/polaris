@@ -102,8 +102,6 @@ class BuildSizingFieldStep(Step):
             component=component,
             name='sizing_field',
             subdir=subdir,
-            cpus_per_task=1,
-            min_cpus_per_task=1,
         )
         self.coastline_step = coastline_step
         self.river_step = river_step
@@ -282,7 +280,7 @@ class BuildSizingFieldStep(Step):
             ocean_mask=effective,
             lon=lon,
             lat=lat,
-            workers=self.cpus_per_task,
+            workers=self.cores,
         )
 
         ds_effective = ds_coastline.copy()

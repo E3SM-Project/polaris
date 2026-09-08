@@ -73,7 +73,8 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         ntasks: Optional[int] = None,
         min_tasks: Optional[int] = None,
         openmp_threads: Optional[int] = None,
-        max_memory: Optional[int] = None,
+        memory: Optional[int] = None,
+        min_memory: Optional[int] = None,
         cached: bool = False,
         yaml: Optional[str] = None,
         update_io_tasks: bool = True,
@@ -117,10 +118,12 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         openmp_threads : int, optional
             the number of OpenMP threads to use
 
-        max_memory : int, optional
-            the amount of memory that the step is allowed to use in MB.
-            This is currently just a placeholder for later use with task
-            parallelism
+        memory : int, optional
+            the amount of memory in MB the step would ideally be given
+
+        min_memory : int, optional
+            the amount of memory in MB the step needs in order to run at
+            all
 
         cached : bool, optional
             Whether to get all of the outputs for the step from the database of
@@ -165,7 +168,8 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             ntasks=ntasks,
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
-            max_memory=max_memory,
+            memory=memory,
+            min_memory=min_memory,
             cached=cached,
             yaml=yaml,
             update_io_tasks=update_io_tasks,
@@ -220,7 +224,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
 
         if self.dynamic_ntasks:
             self._update_ntasks()
-        self._set_gpus_per_task()
+        self._set_gpus()
 
         super().setup()
 
@@ -267,7 +271,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         """
         if self.dynamic_ntasks:
             self._update_ntasks()
-        self._set_gpus_per_task()
+        self._set_gpus()
         super().constrain_resources(available_cores)
 
     def process_inputs_and_outputs(self) -> None:
@@ -646,17 +650,21 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             'init_filename': self.get_init_filename(),
         }
 
-    def _set_gpus_per_task(self) -> None:
+    def _set_gpus(self) -> None:
         """
-        Set ``gpus_per_task`` and ``min_gpus_per_task`` for the step based
-        on whether gpus are available and the model is Omega
+        Set ``gpus`` and ``min_gpus`` for the step based on whether gpus are
+        available and the model is Omega.
+
+        One GPU per task, stated as a total for the step: a per-task count
+        does not confine a step to those GPUs when steps run at the same
+        time.
         """
         if self._use_gpu_resources():
-            self.gpus_per_task = 1
-            self.min_gpus_per_task = 1
+            self.gpus = self.ntasks
+            self.min_gpus = self.min_tasks
         else:
-            self.gpus_per_task = 0
-            self.min_gpus_per_task = 0
+            self.gpus = 0
+            self.min_gpus = 0
 
     def _use_gpu_resources(self) -> bool:
         """
