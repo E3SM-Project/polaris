@@ -1,3 +1,77 @@
+ocean:
+  hmix_del2:
+    config_use_mom_del2: false
+    config_use_tracer_del2: false
+  hmix_del4:
+    config_use_mom_del4: false
+    config_use_tracer_del4: false
+  cvmix:
+    config_cvmix_background_diffusion: 1.e-5
+    config_cvmix_background_viscosity: 1.e-4
+    config_cvmix_num_ri_smooth_loops: 2
+  frazil_ice:
+    config_use_frazil_ice_formation: true
+    config_frazil_fractional_thickness_limit: 0.1
+    config_frazil_maximum_depth: 100.
+  debug:
+    config_disable_tr_sflux: false
+    config_disable_thick_sflux: false
+    config_disable_thick_hadv: true
+    config_disable_thick_vadv: true
+    config_disable_vel_vmix: true
+    config_disable_vel_pgrad: true
+    config_disable_vel_explicit_bottom_drag: true
+    config_disable_vel_vadv: true
+    config_disable_tr_adv: true
+    config_disable_tr_vmix: true
+
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_surface_bulk_forcing: true
+  frazil_ice:
+    config_frazil_ice_density: {{ RhoSw }} # get constant
+    config_frazil_sea_ice_reference_salinity: {{ sea_ice_reference_salinity }} # get constant
+    config_frazil_use_surface_pressure: false
+  debug:
+    config_disable_vel_hadv: true
+    config_disable_vel_coriolis: true
+    config_disable_vel_hmix: true
+    config_disable_vel_topographic_wave_drag: true
+    config_disable_tr_nonlocalflux: true
+    config_disable_redi_k33: true
+  streams:
+    forcing_data:
+      type: input
+      filename_template: forcing.nc
+      input_interval: initial_only
+      contents:
+      - atmosphericPressure
+      - sensibleHeatFlux
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - zMid
+      - zTop
+      - normalVelocity
+      - velocityZonal
+      - velocityMeridional
+      - layerThickness
+      - kineticEnergyCell
+      - accumulatedFrazilIceMass
+      - accumulatedFrazilIceSalinity
+      - frazilLayerThicknessTendency
+      - frazilTemperatureTendency
+      - frazilSalinityTendency
+      - sensibleHeatFlux
+
 Omega:
   IOStreams:
     History:
@@ -16,9 +90,14 @@ Omega:
       - SshCell
       - Eos
       - Forcing
-      # TODO: add PseudoThicknessTend, TracerTend and the accumulated
-      # frazil ice thickness/salinity fields once these are available for
-      # output in Omega
+      - PseudoThicknessTend
+      - TracerTend
+      # TODO: add the accumulated frazil ice thickness/salinity and the
+      # frazil-specific tendency fields (FrazilHTend, FrazilTTend,
+      # FrazilSTend, AccMIce, AccMSalt) once Omega registers them as
+      # Fields; they are currently plain Kokkos arrays in Frazil.cpp with
+      # no Field::create/FieldGroup calls, so requesting them here would
+      # abort with "Field <name> has not been defined"
     Forcing:
       UsePointerFile: false
       Filename: forcing.nc
