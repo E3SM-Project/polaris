@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Validate.cores
+      ~Validate.gpus
+      ~Validate.may_span_nodes
+      ~Validate.min_cores
+      ~Validate.min_gpus
+   
    

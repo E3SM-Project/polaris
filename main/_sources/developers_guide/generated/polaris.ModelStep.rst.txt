@@ -45,4 +45,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ModelStep.cores
+      ~ModelStep.gpus
+      ~ModelStep.may_span_nodes
+      ~ModelStep.min_cores
+      ~ModelStep.min_gpus
+   
    

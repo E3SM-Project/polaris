@@ -57,7 +57,12 @@
 
    .. autosummary::
    
+      ~HeatContentSeries.cores
+      ~HeatContentSeries.gpus
       ~HeatContentSeries.makes_products
+      ~HeatContentSeries.may_span_nodes
+      ~HeatContentSeries.min_cores
+      ~HeatContentSeries.min_gpus
       ~HeatContentSeries.component
       ~HeatContentSeries.config
       ~HeatContentSeries.input_data

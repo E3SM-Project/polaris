@@ -35,4 +35,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RRSBaseMesh.cores
+      ~RRSBaseMesh.gpus
+      ~RRSBaseMesh.may_span_nodes
+      ~RRSBaseMesh.min_cores
+      ~RRSBaseMesh.min_gpus
+   
    

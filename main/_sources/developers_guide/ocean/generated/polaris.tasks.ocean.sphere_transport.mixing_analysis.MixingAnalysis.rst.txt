@@ -52,6 +52,11 @@
 
    .. autosummary::
    
+      ~MixingAnalysis.cores
+      ~MixingAnalysis.gpus
+      ~MixingAnalysis.may_span_nodes
+      ~MixingAnalysis.min_cores
+      ~MixingAnalysis.min_gpus
       ~MixingAnalysis.component
       ~MixingAnalysis.config
       ~MixingAnalysis.input_data

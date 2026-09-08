@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VizBaseMeshStep.cores
+      ~VizBaseMeshStep.gpus
+      ~VizBaseMeshStep.may_span_nodes
+      ~VizBaseMeshStep.min_cores
+      ~VizBaseMeshStep.min_gpus
+   
    

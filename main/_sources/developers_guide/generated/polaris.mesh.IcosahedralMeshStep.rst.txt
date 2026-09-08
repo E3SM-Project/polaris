@@ -37,4 +37,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IcosahedralMeshStep.cores
+      ~IcosahedralMeshStep.gpus
+      ~IcosahedralMeshStep.may_span_nodes
+      ~IcosahedralMeshStep.min_cores
+      ~IcosahedralMeshStep.min_gpus
+   
    

@@ -54,6 +54,11 @@
 
    .. autosummary::
    
+      ~PStarInit.cores
+      ~PStarInit.gpus
+      ~PStarInit.may_span_nodes
+      ~PStarInit.min_cores
+      ~PStarInit.min_gpus
       ~PStarInit.component
       ~PStarInit.config
       ~PStarInit.input_data

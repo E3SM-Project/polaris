@@ -58,6 +58,11 @@
 
    .. autosummary::
    
+      ~Forward.cores
+      ~Forward.gpus
+      ~Forward.may_span_nodes
+      ~Forward.min_cores
+      ~Forward.min_gpus
       ~Forward.component
       ~Forward.write_coeffs_reconstruct
       ~Forward.config

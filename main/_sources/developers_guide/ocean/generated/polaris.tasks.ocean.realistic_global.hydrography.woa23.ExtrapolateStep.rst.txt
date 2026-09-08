@@ -36,6 +36,11 @@
 
    .. autosummary::
    
+      ~ExtrapolateStep.cores
+      ~ExtrapolateStep.gpus
+      ~ExtrapolateStep.may_span_nodes
+      ~ExtrapolateStep.min_cores
+      ~ExtrapolateStep.min_gpus
       ~ExtrapolateStep.output_filename
    
    

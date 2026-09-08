@@ -36,4 +36,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CullMaskStep.cores
+      ~CullMaskStep.gpus
+      ~CullMaskStep.may_span_nodes
+      ~CullMaskStep.min_cores
+      ~CullMaskStep.min_gpus
+   
    

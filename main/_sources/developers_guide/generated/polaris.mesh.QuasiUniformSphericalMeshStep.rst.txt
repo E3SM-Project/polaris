@@ -35,4 +35,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~QuasiUniformSphericalMeshStep.cores
+      ~QuasiUniformSphericalMeshStep.gpus
+      ~QuasiUniformSphericalMeshStep.may_span_nodes
+      ~QuasiUniformSphericalMeshStep.min_cores
+      ~QuasiUniformSphericalMeshStep.min_gpus
+   
    

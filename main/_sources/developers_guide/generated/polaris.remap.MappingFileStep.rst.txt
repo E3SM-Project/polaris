@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MappingFileStep.cores
+      ~MappingFileStep.gpus
+      ~MappingFileStep.may_span_nodes
+      ~MappingFileStep.min_cores
+      ~MappingFileStep.min_gpus
+   
    

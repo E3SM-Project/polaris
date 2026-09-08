@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SimplifyRiverNetworkStep.cores
+      ~SimplifyRiverNetworkStep.gpus
+      ~SimplifyRiverNetworkStep.may_span_nodes
+      ~SimplifyRiverNetworkStep.min_cores
+      ~SimplifyRiverNetworkStep.min_gpus
+   
    

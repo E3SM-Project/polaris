@@ -57,7 +57,12 @@
 
    .. autosummary::
    
+      ~ClimatologyMaps.cores
+      ~ClimatologyMaps.gpus
       ~ClimatologyMaps.makes_products
+      ~ClimatologyMaps.may_span_nodes
+      ~ClimatologyMaps.min_cores
+      ~ClimatologyMaps.min_gpus
       ~ClimatologyMaps.component
       ~ClimatologyMaps.config
       ~ClimatologyMaps.input_data

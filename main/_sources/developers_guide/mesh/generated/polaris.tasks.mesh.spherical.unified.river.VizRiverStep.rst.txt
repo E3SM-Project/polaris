@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VizRiverStep.cores
+      ~VizRiverStep.gpus
+      ~VizRiverStep.may_span_nodes
+      ~VizRiverStep.min_cores
+      ~VizRiverStep.min_gpus
+   
    

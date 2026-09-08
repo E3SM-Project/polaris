@@ -481,10 +481,10 @@
         <span class="n">_symlink_load_script</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">work_dir</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span>
-            <span class="n">min_cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_cpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">min_tasks</span>
-            <span class="n">gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span>
-            <span class="n">min_gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">min_tasks</span>
+            <span class="n">cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">cores</span>
+            <span class="n">min_cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_cores</span>
+            <span class="n">gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">gpus</span>
+            <span class="n">min_gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_gpus</span>
             <span class="n">write_job_script</span><span class="p">(</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
                 <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
@@ -973,10 +973,10 @@
                     <span class="sa">f</span><span class="s1">'The number of CPUs per task (cpus_per_task) was never '</span>
                     <span class="sa">f</span><span class="s1">'set for </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> step </span><span class="si">{</span><span class="n">step_name</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
-            <span class="n">cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span>
-            <span class="n">min_cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_cpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">min_tasks</span>
-            <span class="n">gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span>
-            <span class="n">min_gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">*</span> <span class="n">step</span><span class="o">.</span><span class="n">min_tasks</span>
+            <span class="n">cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">cores</span>
+            <span class="n">min_cores</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_cores</span>
+            <span class="n">gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">gpus</span>
+            <span class="n">min_gpus</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">min_gpus</span>
             <span class="n">max_cores</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_cores</span><span class="p">,</span> <span class="n">cores</span><span class="p">)</span>
             <span class="n">max_of_min_cores</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_of_min_cores</span><span class="p">,</span> <span class="n">min_cores</span><span class="p">)</span>
             <span class="n">max_gpus</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_gpus</span><span class="p">,</span> <span class="n">gpus</span><span class="p">)</span>

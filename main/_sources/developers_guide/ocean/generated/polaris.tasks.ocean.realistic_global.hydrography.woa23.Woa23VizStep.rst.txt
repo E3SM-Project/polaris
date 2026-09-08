@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Woa23VizStep.cores
+      ~Woa23VizStep.gpus
+      ~Woa23VizStep.may_span_nodes
+      ~Woa23VizStep.min_cores
+      ~Woa23VizStep.min_gpus
+   
    

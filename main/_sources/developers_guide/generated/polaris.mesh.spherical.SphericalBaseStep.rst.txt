@@ -33,4 +33,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SphericalBaseStep.cores
+      ~SphericalBaseStep.gpus
+      ~SphericalBaseStep.may_span_nodes
+      ~SphericalBaseStep.min_cores
+      ~SphericalBaseStep.min_gpus
+   
    

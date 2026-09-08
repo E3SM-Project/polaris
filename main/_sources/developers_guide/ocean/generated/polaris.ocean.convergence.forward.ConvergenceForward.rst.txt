@@ -57,6 +57,11 @@
 
    .. autosummary::
    
+      ~ConvergenceForward.cores
+      ~ConvergenceForward.gpus
+      ~ConvergenceForward.may_span_nodes
+      ~ConvergenceForward.min_cores
+      ~ConvergenceForward.min_gpus
       ~ConvergenceForward.component
       ~ConvergenceForward.write_coeffs_reconstruct
       ~ConvergenceForward.config

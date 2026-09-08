@@ -52,6 +52,11 @@
 
    .. autosummary::
    
+      ~VizTransect.cores
+      ~VizTransect.gpus
+      ~VizTransect.may_span_nodes
+      ~VizTransect.min_cores
+      ~VizTransect.min_gpus
       ~VizTransect.component
       ~VizTransect.config
       ~VizTransect.input_data

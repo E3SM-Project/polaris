@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SshAdjustment.cores
+      ~SshAdjustment.gpus
+      ~SshAdjustment.may_span_nodes
+      ~SshAdjustment.min_cores
+      ~SshAdjustment.min_gpus
+   
    

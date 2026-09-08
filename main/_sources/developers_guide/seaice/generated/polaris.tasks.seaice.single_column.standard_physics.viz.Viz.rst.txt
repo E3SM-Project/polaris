@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Viz.cores
+      ~Viz.gpus
+      ~Viz.may_span_nodes
+      ~Viz.min_cores
+      ~Viz.min_gpus
+   
    

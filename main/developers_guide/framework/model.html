@@ -513,9 +513,9 @@ feel this is a safe default.</p>
 between IO tasks) comes from the machine’s resources in
 <a class="reference external" href="https://github.com/E3SM-Project/mache">mache</a> – <code class="docutils literal notranslate"><span class="pre">cores_per_node</span></code>,
 <code class="docutils literal notranslate"><span class="pre">gpus_per_node</span></code> and <code class="docutils literal notranslate"><span class="pre">max_mpi_tasks_per_node</span></code> – combined with the
-<code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> the step requests.  On GPU builds, where
-there is typically one MPI task per GPU, the stride is the number of GPUs per
-node rather than the number of CPU cores per node.</p>
+<code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> the step requests and the <code class="docutils literal notranslate"><span class="pre">gpus</span></code> it requests in total.  On
+GPU builds, where there is typically one MPI task per GPU, the stride is the
+number of GPUs per node rather than the number of CPU cores per node.</p>
 <p>For Omega runs, these same MPAS options are mapped to <code class="docutils literal notranslate"><span class="pre">Omega/IO/IOTasks</span></code> and
 <code class="docutils literal notranslate"><span class="pre">Omega/IO/IOStride</span></code> in yaml config files.</p>
 <p>By default, this function is called in

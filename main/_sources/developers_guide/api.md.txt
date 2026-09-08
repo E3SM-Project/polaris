@@ -419,6 +419,19 @@ seaice/api
    time_index_from_xtime
 ```
 
+### parallel
+
+```{eval-rst}
+.. currentmodule:: polaris.parallel
+
+.. autosummary::
+   :toctree: generated/
+
+   set_parallel_systems
+   check_mache_supports_placement
+```
+
+
 ### namelist
 
 ```{eval-rst}

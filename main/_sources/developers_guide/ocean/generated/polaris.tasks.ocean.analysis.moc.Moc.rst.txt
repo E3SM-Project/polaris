@@ -57,7 +57,12 @@
 
    .. autosummary::
    
+      ~Moc.cores
+      ~Moc.gpus
       ~Moc.makes_products
+      ~Moc.may_span_nodes
+      ~Moc.min_cores
+      ~Moc.min_gpus
       ~Moc.component
       ~Moc.config
       ~Moc.input_data

@@ -186,6 +186,11 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.mpas.time_index_from_xtime.html">polaris.mpas.time_index_from_xtime</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#parallel">parallel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.set_parallel_systems.html">polaris.parallel.set_parallel_systems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.parallel.check_mache_supports_placement.html">polaris.parallel.check_mache_supports_placement</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#namelist">namelist</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.namelist.parse_replacements.html">polaris.namelist.parse_replacements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.namelist.ingest.html">polaris.namelist.ingest</a></li>
@@ -418,7 +423,7 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.set_parallel_system.html#polaris.Component.set_parallel_system" title="polaris.Component.set_parallel_system"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.set_parallel_system</span></code></a>(config)</p></td>
 <td><p>Construct and store the active parallel system for this component</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources" title="polaris.Component.get_available_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.get_available_resources</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources" title="polaris.Component.get_available_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.get_available_resources</span></code></a>([placement])</p></td>
 <td><p>Get available resources from the active parallel system</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.run_parallel_command.html#polaris.Component.run_parallel_command" title="polaris.Component.run_parallel_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.run_parallel_command</span></code></a>(args, ...[, ...])</p></td>
@@ -850,6 +855,19 @@ documentation.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.mpas.time_index_from_xtime.html#polaris.mpas.time_index_from_xtime" title="polaris.mpas.time_index_from_xtime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_index_from_xtime</span></code></a>(xtime, dt_target[, ...])</p></td>
 <td><p>Determine the time index closest to the target time</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="parallel">
+<h3>parallel<a class="headerlink" href="#parallel" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.parallel.set_parallel_systems.html#polaris.parallel.set_parallel_systems" title="polaris.parallel.set_parallel_systems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_parallel_systems</span></code></a>(tasks, config)</p></td>
+<td><p>Set the active parallel system on every component referenced by the task and step graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.parallel.check_mache_supports_placement.html#polaris.parallel.check_mache_supports_placement" title="polaris.parallel.check_mache_supports_placement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_mache_supports_placement</span></code></a>()</p></td>
+<td><p>Check that the installed mache can confine a launch to part of an allocation.</p></td>
 </tr>
 </tbody>
 </table>

@@ -52,6 +52,11 @@
 
    .. autosummary::
    
+      ~FilamentAnalysis.cores
+      ~FilamentAnalysis.gpus
+      ~FilamentAnalysis.may_span_nodes
+      ~FilamentAnalysis.min_cores
+      ~FilamentAnalysis.min_gpus
       ~FilamentAnalysis.component
       ~FilamentAnalysis.config
       ~FilamentAnalysis.input_data

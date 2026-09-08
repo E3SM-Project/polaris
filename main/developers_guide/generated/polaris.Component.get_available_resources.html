@@ -98,6 +98,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#model-step">model_step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#build">build</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#mpas">mpas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#parallel">parallel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#namelist">namelist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#provenance">provenance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#remap">remap</a></li>
@@ -150,11 +151,18 @@
 <h1>polaris.Component.get_available_resources<a class="headerlink" href="#polaris-component-get-available-resources" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.Component.get_available_resources">
-<span class="sig-prename descclassname"><span class="pre">Component.</span></span><span class="sig-name descname"><span class="pre">get_available_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/component.html#Component.get_available_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Component.get_available_resources" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Component.</span></span><span class="sig-name descname"><span class="pre">get_available_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">placement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/component.html#Component.get_available_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Component.get_available_resources" title="Link to this definition"></a></dt>
 <dd><p>Get available resources from the active parallel system</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>available_resources</strong> (<em>dict</em>) – Available CPU and GPU resources and machine capabilities</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>placement</strong> (<em>mache.parallel.ResourcePlacement</em><em>, </em><em>optional</em>) – The part of the allocation a step is confined to.  When it is
+given, the resources described are that subset’s rather than the
+whole allocation’s, so that a confined step is told about what it
+can actually use.  Resources withheld from a step have to be
+genuinely withheld, not merely subtracted from a number.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>available_resources</strong> (<em>dict</em>) – Available CPU and GPU resources and machine capabilities</p>
 </dd>
 </dl>
 </dd></dl>

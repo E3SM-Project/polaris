@@ -198,9 +198,12 @@
         <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">namelist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">streams</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -245,16 +248,31 @@
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads to use</span>
 
+<span class="sd">        gpus : int, optional</span>
+<span class="sd">            the number of GPUs to use, as a total for the step rather than</span>
+<span class="sd">            a count per task</span>
+
+<span class="sd">        min_gpus : int, optional</span>
+<span class="sd">            the minimum number of GPUs required, again as a total</span>
+
 <span class="sd">        gpus_per_task : int, optional</span>
 <span class="sd">            the number of GPUs per task to use</span>
+
+<span class="sd">            .. deprecated:: 1.1.0</span>
+<span class="sd">                Use ``gpus`` instead</span>
 
 <span class="sd">        min_gpus_per_task : int, optional</span>
 <span class="sd">            the minimum number of GPUs per task required</span>
 
-<span class="sd">        max_memory : int, optional</span>
-<span class="sd">            the amount of memory that the step is allowed to use in MB.</span>
-<span class="sd">            This is currently just a placeholder for later use with task</span>
-<span class="sd">            parallelism</span>
+<span class="sd">            .. deprecated:: 1.1.0</span>
+<span class="sd">                Use ``min_gpus`` instead</span>
+
+<span class="sd">        memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step would ideally be given</span>
+
+<span class="sd">        min_memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step needs in order to run at</span>
+<span class="sd">            all</span>
 
 <span class="sd">        cached : bool, optional</span>
 <span class="sd">            Whether to get all of the outputs for the step from the database of</span>
@@ -303,9 +321,12 @@
             <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
             <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">gpus</span><span class="o">=</span><span class="n">gpus</span><span class="p">,</span>
+            <span class="n">min_gpus</span><span class="o">=</span><span class="n">min_gpus</span><span class="p">,</span>
             <span class="n">gpus_per_task</span><span class="o">=</span><span class="n">gpus_per_task</span><span class="p">,</span>
             <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="n">min_gpus_per_task</span><span class="p">,</span>
-            <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+            <span class="n">min_memory</span><span class="o">=</span><span class="n">min_memory</span><span class="p">,</span>
             <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -373,9 +394,12 @@
         <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Update the resources for the step.  This can be done within init,</span>
@@ -399,16 +423,31 @@
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads to use</span>
 
+<span class="sd">        gpus : int, optional</span>
+<span class="sd">            the number of GPUs to use, as a total for the step rather than</span>
+<span class="sd">            a count per task</span>
+
+<span class="sd">        min_gpus : int, optional</span>
+<span class="sd">            the minimum number of GPUs required, again as a total</span>
+
 <span class="sd">        gpus_per_task : int, optional</span>
 <span class="sd">            the number of GPUs per task to use</span>
+
+<span class="sd">            .. deprecated:: 1.1.0</span>
+<span class="sd">                Use ``gpus`` instead</span>
 
 <span class="sd">        min_gpus_per_task : int, optional</span>
 <span class="sd">            the minimum number of GPUs per task required</span>
 
-<span class="sd">        max_memory : int, optional</span>
-<span class="sd">            the amount of memory that the step is allowed to use in MB.</span>
-<span class="sd">            This is currently just a placeholder for later use with task</span>
-<span class="sd">            parallelism</span>
+<span class="sd">            .. deprecated:: 1.1.0</span>
+<span class="sd">                Use ``min_gpus`` instead</span>
+
+<span class="sd">        memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step would ideally be given</span>
+
+<span class="sd">        min_memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step needs in order to run at</span>
+<span class="sd">            all</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_resources</span><span class="p">(</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
@@ -416,9 +455,12 @@
             <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
             <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
+            <span class="n">gpus</span><span class="o">=</span><span class="n">gpus</span><span class="p">,</span>
+            <span class="n">min_gpus</span><span class="o">=</span><span class="n">min_gpus</span><span class="p">,</span>
             <span class="n">gpus_per_task</span><span class="o">=</span><span class="n">gpus_per_task</span><span class="p">,</span>
             <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="n">min_gpus_per_task</span><span class="p">,</span>
-            <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+            <span class="n">min_memory</span><span class="o">=</span><span class="n">min_memory</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -833,17 +875,18 @@
             <span class="n">tasks_per_node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">tasks_per_node</span><span class="p">,</span> <span class="n">max_tasks_per_node</span><span class="p">)</span>
 
         <span class="c1"># if this step requires GPUs, tasks are placed according to the GPUs</span>
-        <span class="c1"># available on each node, not the CPU cores</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># available on each node, not the CPU cores.  The step's GPUs are a</span>
+        <span class="c1"># total spread over its tasks, so a node holds as many tasks as its</span>
+        <span class="c1"># own GPUs cover.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">gpus_per_node</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">gpus_per_node</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> requests </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span><span class="si">}</span><span class="s1"> GPUs per '</span>
-                    <span class="sa">f</span><span class="s1">'task but gpus_per_node is not set in the parallel '</span>
-                    <span class="sa">f</span><span class="s1">'config'</span>
+                    <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> requests </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus</span><span class="si">}</span><span class="s1"> GPUs but '</span>
+                    <span class="sa">f</span><span class="s1">'gpus_per_node is not set in the parallel config'</span>
                 <span class="p">)</span>
             <span class="n">tasks_per_node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
-                <span class="n">tasks_per_node</span><span class="p">,</span> <span class="n">gpus_per_node</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span>
+                <span class="n">tasks_per_node</span><span class="p">,</span> <span class="n">gpus_per_node</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus</span>
             <span class="p">)</span>
 
         <span class="c1"># never more tasks per node than the step has in total, and always at</span>

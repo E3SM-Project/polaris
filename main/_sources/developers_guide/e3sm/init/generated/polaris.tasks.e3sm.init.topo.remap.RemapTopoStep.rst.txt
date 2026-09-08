@@ -33,4 +33,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RemapTopoStep.cores
+      ~RemapTopoStep.gpus
+      ~RemapTopoStep.may_span_nodes
+      ~RemapTopoStep.min_cores
+      ~RemapTopoStep.min_gpus
+   
    

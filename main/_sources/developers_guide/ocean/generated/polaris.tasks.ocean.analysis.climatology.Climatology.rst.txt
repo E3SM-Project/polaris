@@ -57,7 +57,12 @@
 
    .. autosummary::
    
+      ~Climatology.cores
+      ~Climatology.gpus
       ~Climatology.makes_products
+      ~Climatology.may_span_nodes
+      ~Climatology.min_cores
+      ~Climatology.min_gpus
       ~Climatology.component
       ~Climatology.config
       ~Climatology.input_data

@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VizCombinedStep.cores
+      ~VizCombinedStep.gpus
+      ~VizCombinedStep.may_span_nodes
+      ~VizCombinedStep.min_cores
+      ~VizCombinedStep.min_gpus
+   
    

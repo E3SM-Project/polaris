@@ -189,7 +189,7 @@ used by the <code class="docutils literal notranslate"><span class="pre">dcEdge<
 <td><p>This method should be overridden to check properties of step outputs</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code></a>(available_resources)</p></td>
-<td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
+<td><p>Constrain the cores this step uses to the cores available to it</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects.html#polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects" title="polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define_critical_land_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_critical_land_transects</span></code></a>(gf)</p></td>
 <td><p>Define transects along which land must be present (e.g. to block ocean flow).</p></td>
@@ -226,6 +226,26 @@ used by the <code class="docutils literal notranslate"><span class="pre">dcEdge<
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">work_path</span></code>(*filenames)</p></td>
 <td><p>Get the absolute path to a file or directory in the step's work directory</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cores</span></code></p></td>
+<td><p>the number of cores this step needs, in total</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gpus</span></code></p></td>
+<td><p>the number of GPUs this step needs, in total</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">may_span_nodes</span></code></p></td>
+<td><p>whether this step's cores and GPUs may come from several nodes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">min_cores</span></code></p></td>
+<td><p>the number of cores this step needs in order to run at all</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">min_gpus</span></code></p></td>
+<td><p>the number of GPUs this step requires, in total</p></td>
 </tr>
 </tbody>
 </table>

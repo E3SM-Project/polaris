@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BuildSizingFieldStep.cores
+      ~BuildSizingFieldStep.gpus
+      ~BuildSizingFieldStep.may_span_nodes
+      ~BuildSizingFieldStep.min_cores
+      ~BuildSizingFieldStep.min_gpus
+   
    

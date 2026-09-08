@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RasterizeRiverLatLonStep.cores
+      ~RasterizeRiverLatLonStep.gpus
+      ~RasterizeRiverLatLonStep.may_span_nodes
+      ~RasterizeRiverLatLonStep.min_cores
+      ~RasterizeRiverLatLonStep.min_gpus
+   
    

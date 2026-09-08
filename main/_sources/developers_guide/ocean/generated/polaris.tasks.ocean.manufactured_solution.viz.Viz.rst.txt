@@ -52,6 +52,11 @@
 
    .. autosummary::
    
+      ~Viz.cores
+      ~Viz.gpus
+      ~Viz.may_span_nodes
+      ~Viz.min_cores
+      ~Viz.min_gpus
       ~Viz.component
       ~Viz.config
       ~Viz.input_data

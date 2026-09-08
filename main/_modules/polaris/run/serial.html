@@ -772,7 +772,16 @@
         <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
         <span class="n">log_method_call</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">step_logger</span><span class="p">)</span>
         <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">available_resources</span><span class="p">)</span>
+        <span class="c1"># a step confined to part of the allocation has to be told about</span>
+        <span class="c1"># that part, not about the whole job.  Nothing assigns a placement</span>
+        <span class="c1"># yet, so this is the whole job in every case today.</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">placement</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">step_resources</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">get_available_resources</span><span class="p">(</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">placement</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">step_resources</span> <span class="o">=</span> <span class="n">available_resources</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">step_resources</span><span class="p">)</span>
 
         <span class="c1"># runtime_setup() will perform small tasks that require knowing the</span>
         <span class="c1"># resources of the task before the step runs (such as creating</span>
@@ -799,7 +808,8 @@
                     <span class="n">step</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span>
                     <span class="n">step</span><span class="o">.</span><span class="n">openmp_threads</span><span class="p">,</span>
                     <span class="n">step</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
-                    <span class="n">gpus_per_task</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">gpus_per_task</span><span class="p">,</span>
+                    <span class="n">gpus</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
+                    <span class="n">placement</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">placement</span><span class="p">,</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">step_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>

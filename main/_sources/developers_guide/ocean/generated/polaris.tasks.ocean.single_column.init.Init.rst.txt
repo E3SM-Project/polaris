@@ -52,6 +52,11 @@
 
    .. autosummary::
    
+      ~Init.cores
+      ~Init.gpus
+      ~Init.may_span_nodes
+      ~Init.min_cores
+      ~Init.min_gpus
       ~Init.component
       ~Init.config
       ~Init.input_data

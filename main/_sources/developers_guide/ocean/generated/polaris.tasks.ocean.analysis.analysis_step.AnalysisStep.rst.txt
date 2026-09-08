@@ -57,7 +57,12 @@
 
    .. autosummary::
    
+      ~AnalysisStep.cores
+      ~AnalysisStep.gpus
       ~AnalysisStep.makes_products
+      ~AnalysisStep.may_span_nodes
+      ~AnalysisStep.min_cores
+      ~AnalysisStep.min_gpus
       ~AnalysisStep.component
       ~AnalysisStep.config
       ~AnalysisStep.input_data

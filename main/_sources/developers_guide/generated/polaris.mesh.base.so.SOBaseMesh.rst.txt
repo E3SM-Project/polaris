@@ -35,4 +35,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SOBaseMesh.cores
+      ~SOBaseMesh.gpus
+      ~SOBaseMesh.may_span_nodes
+      ~SOBaseMesh.min_cores
+      ~SOBaseMesh.min_gpus
+   
    

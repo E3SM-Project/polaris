@@ -57,7 +57,12 @@
 
    .. autosummary::
    
+      ~GlobalStatsTimeSeries.cores
+      ~GlobalStatsTimeSeries.gpus
       ~GlobalStatsTimeSeries.makes_products
+      ~GlobalStatsTimeSeries.may_span_nodes
+      ~GlobalStatsTimeSeries.min_cores
+      ~GlobalStatsTimeSeries.min_gpus
       ~GlobalStatsTimeSeries.component
       ~GlobalStatsTimeSeries.config
       ~GlobalStatsTimeSeries.input_data

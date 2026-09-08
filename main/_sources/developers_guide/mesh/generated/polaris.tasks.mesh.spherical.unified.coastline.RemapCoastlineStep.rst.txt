@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RemapCoastlineStep.cores
+      ~RemapCoastlineStep.gpus
+      ~RemapCoastlineStep.may_span_nodes
+      ~RemapCoastlineStep.min_cores
+      ~RemapCoastlineStep.min_gpus
+   
    

@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VizRemappedTopoStep.cores
+      ~VizRemappedTopoStep.gpus
+      ~VizRemappedTopoStep.may_span_nodes
+      ~VizRemappedTopoStep.min_cores
+      ~VizRemappedTopoStep.min_gpus
+   
    

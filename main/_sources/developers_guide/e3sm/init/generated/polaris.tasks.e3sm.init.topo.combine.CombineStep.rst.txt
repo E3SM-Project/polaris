@@ -41,5 +41,10 @@
       ~CombineStep.ANTARCTIC
       ~CombineStep.DATASETS
       ~CombineStep.GLOBAL
+      ~CombineStep.cores
+      ~CombineStep.gpus
+      ~CombineStep.may_span_nodes
+      ~CombineStep.min_cores
+      ~CombineStep.min_gpus
    
    

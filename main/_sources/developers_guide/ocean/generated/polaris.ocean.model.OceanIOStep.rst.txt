@@ -52,6 +52,11 @@
 
    .. autosummary::
    
+      ~OceanIOStep.cores
+      ~OceanIOStep.gpus
+      ~OceanIOStep.may_span_nodes
+      ~OceanIOStep.min_cores
+      ~OceanIOStep.min_gpus
       ~OceanIOStep.component
       ~OceanIOStep.config
       ~OceanIOStep.input_data

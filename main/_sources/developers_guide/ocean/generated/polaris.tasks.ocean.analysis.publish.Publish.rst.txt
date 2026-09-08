@@ -33,4 +33,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Publish.cores
+      ~Publish.gpus
+      ~Publish.may_span_nodes
+      ~Publish.min_cores
+      ~Publish.min_gpus
+   
    

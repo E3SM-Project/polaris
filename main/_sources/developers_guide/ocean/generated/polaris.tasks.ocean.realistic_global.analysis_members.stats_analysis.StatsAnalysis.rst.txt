@@ -52,6 +52,11 @@
 
    .. autosummary::
    
+      ~StatsAnalysis.cores
+      ~StatsAnalysis.gpus
+      ~StatsAnalysis.may_span_nodes
+      ~StatsAnalysis.min_cores
+      ~StatsAnalysis.min_gpus
       ~StatsAnalysis.component
       ~StatsAnalysis.config
       ~StatsAnalysis.input_data

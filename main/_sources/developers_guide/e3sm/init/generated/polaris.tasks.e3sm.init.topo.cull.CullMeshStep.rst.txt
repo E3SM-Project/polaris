@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CullMeshStep.cores
+      ~CullMeshStep.gpus
+      ~CullMeshStep.may_span_nodes
+      ~CullMeshStep.min_cores
+      ~CullMeshStep.min_gpus
+   
    

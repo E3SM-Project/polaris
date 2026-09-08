@@ -57,6 +57,11 @@
 
    .. autosummary::
    
+      ~OceanModelStep.cores
+      ~OceanModelStep.gpus
+      ~OceanModelStep.may_span_nodes
+      ~OceanModelStep.min_cores
+      ~OceanModelStep.min_gpus
       ~OceanModelStep.component
       ~OceanModelStep.write_coeffs_reconstruct
       ~OceanModelStep.config

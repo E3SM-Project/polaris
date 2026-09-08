@@ -113,6 +113,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelSystem</span><span class="p">,</span> <span class="n">get_parallel_system</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_dataset</span><span class="p">,</span> <span class="n">write_netcdf</span>
@@ -191,9 +192,18 @@
 
 <div class="viewcode-block" id="Component.get_available_resources">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_available_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_available_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">placement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get available resources from the active parallel system</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        placement : mache.parallel.ResourcePlacement, optional</span>
+<span class="sd">            The part of the allocation a step is confined to.  When it is</span>
+<span class="sd">            given, the resources described are that subset's rather than the</span>
+<span class="sd">            whole allocation's, so that a confined step is told about what it</span>
+<span class="sd">            can actually use.  Resources withheld from a step have to be</span>
+<span class="sd">            genuinely withheld, not merely subtracted from a number.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -205,12 +215,23 @@
                 <span class="sa">f</span><span class="s1">'Parallel system has not been set for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">placement</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_placement_resources</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="p">)</span>
+
+        <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">_get_memory_per_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">nodes</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">memory_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nodes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">memory</span> <span class="o">=</span> <span class="n">memory_per_node</span> <span class="o">*</span> <span class="n">nodes</span>
+
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">cores</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">cores</span><span class="p">,</span>
-            <span class="n">nodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
             <span class="n">cores_per_node</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">cores_per_node</span><span class="p">,</span>
             <span class="n">gpus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
             <span class="n">gpus_per_node</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">gpus_per_node</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+            <span class="n">memory_per_node</span><span class="o">=</span><span class="n">memory_per_node</span><span class="p">,</span>
             <span class="n">mpi_allowed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">mpi_allowed</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -224,7 +245,9 @@
         <span class="n">ntasks</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="p">,</span>
         <span class="n">logger</span><span class="p">,</span>
-        <span class="n">gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">gpus</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">placement</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run a command using the active parallel system</span>
@@ -246,12 +269,42 @@
 <span class="sd">        logger : logging.Logger</span>
 <span class="sd">            Logger to output command-line execution info</span>
 
+<span class="sd">        gpus : int, optional</span>
+<span class="sd">            Number of GPUs this launch needs, as a total rather than a count</span>
+<span class="sd">            per task</span>
+
+<span class="sd">        placement : mache.parallel.ResourcePlacement, optional</span>
+<span class="sd">            The part of the allocation to confine this launch to.  Passing</span>
+<span class="sd">            none gives exactly the command Polaris has always built.</span>
+
 <span class="sd">        gpus_per_task : int, optional</span>
 <span class="sd">            Number of GPUs per task</span>
+
+<span class="sd">            .. deprecated:: 1.1.0</span>
+<span class="sd">                Use ``gpus`` instead</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">'Parallel system has not been set for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">gpus_per_task</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s1">'gpus_per_task is deprecated. Use gpus, which says how many '</span>
+                <span class="s1">'GPUs the launch needs in total.'</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">gpus</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">gpus</span><span class="p">,</span> <span class="n">gpus_per_task</span> <span class="o">*</span> <span class="n">ntasks</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">placement</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">placement</span><span class="o">.</span><span class="n">gpus</span> <span class="o">!=</span> <span class="n">gpus</span><span class="p">:</span>
+            <span class="c1"># a placement carries the GPUs itself, so the two saying</span>
+            <span class="c1"># different things means whatever built the placement and the</span>
+            <span class="c1"># step have drifted apart.  Much cheaper to catch here than as</span>
+            <span class="c1"># silent oversubscription once the work is running.</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'This launch asks for </span><span class="si">{</span><span class="n">gpus</span><span class="si">}</span><span class="s1"> GPUs but its placement asks '</span>
+                <span class="sa">f</span><span class="s1">'for </span><span class="si">{</span><span class="n">placement</span><span class="o">.</span><span class="n">gpus</span><span class="si">}</span><span class="s1">. They must agree.'</span>
             <span class="p">)</span>
 
         <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
@@ -263,7 +316,8 @@
             <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
             <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
             <span class="n">cpus_per_task</span><span class="o">=</span><span class="n">cpus_per_task</span><span class="p">,</span>
-            <span class="n">gpus_per_task</span><span class="o">=</span><span class="n">gpus_per_task</span><span class="p">,</span>
+            <span class="n">gpus_per_task</span><span class="o">=</span><span class="n">_gpus_per_task</span><span class="p">(</span><span class="n">gpus</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">),</span>
+            <span class="n">placement</span><span class="o">=</span><span class="n">placement</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">check_call</span><span class="p">(</span><span class="n">command_line_args</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
 
@@ -464,6 +518,67 @@
             <span class="c1"># no cached files for this core</span>
             <span class="k">pass</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_gpus_per_task</span><span class="p">(</span><span class="n">gpus</span><span class="p">,</span> <span class="n">ntasks</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Convert a launch's total GPUs into the per-task count mache asks for.</span>
+
+<span class="sd">    Without a placement to carry a total, mache expresses GPUs per task, so</span>
+<span class="sd">    a step's total has to be divided back out.  Rounding up rather than down</span>
+<span class="sd">    keeps a launch from being handed fewer GPUs than it asked for.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">gpus</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ntasks</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">gpus</span> <span class="o">//</span> <span class="n">ntasks</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_placement_resources</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">parallel_system</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Describe what a placement gives a step, in the usual resource terms."""</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">cores_per_node</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span>
+
+    <span class="c1"># a placement carries no memory, because no launcher acts on one.  What</span>
+    <span class="c1"># a placement does imply is a share of the nodes it names, in the same</span>
+    <span class="c1"># proportion as the cores it took from them.</span>
+    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">_get_memory_per_node</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">)</span>
+    <span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">machine_cores_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">cores_per_node</span>
+    <span class="k">if</span> <span class="n">memory_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">machine_cores_per_node</span><span class="p">:</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">nodes</span> <span class="o">*</span> <span class="n">memory_per_node</span> <span class="o">//</span> <span class="n">machine_cores_per_node</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">cores</span><span class="o">=</span><span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">nodes</span><span class="p">,</span>
+        <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+        <span class="n">cores_per_node</span><span class="o">=</span><span class="n">cores_per_node</span><span class="p">,</span>
+        <span class="n">gpus</span><span class="o">=</span><span class="n">placement</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>
+        <span class="n">gpus_per_node</span><span class="o">=</span><span class="n">placement</span><span class="o">.</span><span class="n">gpus</span> <span class="o">//</span> <span class="n">nodes</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+        <span class="n">memory_per_node</span><span class="o">=</span><span class="n">memory_per_node</span><span class="p">,</span>
+        <span class="n">mpi_allowed</span><span class="o">=</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">mpi_allowed</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_memory_per_node</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the memory a node has, in MB, or ``None`` if this machine has not</span>
+<span class="sd">    said.</span>
+
+<span class="sd">    Read from the attribute where a newer mache offers one and from the</span>
+<span class="sd">    config option otherwise, because the option is arriving in mache while</span>
+<span class="sd">    this is being written and Polaris should work either side of it.  A</span>
+<span class="sd">    machine that says nothing leaves memory undeclared rather than guessed</span>
+<span class="sd">    at: a wrong figure here would propagate into every step's default.</span>
+<span class="sd">    """</span>
+    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parallel_system</span><span class="p">,</span> <span class="s1">'memory_per_node'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">memory_per_node</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">memory_per_node</span><span class="p">)</span>
+    <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">get_config_int</span><span class="p">(</span><span class="s1">'memory_per_node'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">memory_per_node</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">memory_per_node</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
            </div>

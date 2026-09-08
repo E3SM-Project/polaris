@@ -114,6 +114,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache</span><span class="w"> </span><span class="kn">import</span> <span class="n">MachineInfo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_permissions</span>
@@ -175,16 +176,83 @@
 <span class="sd">    openmp_threads : int</span>
 <span class="sd">        the number of OpenMP threads to use</span>
 
+<span class="sd">    gpus : int</span>
+<span class="sd">        the number of GPUs the step would ideally use, as a total for the</span>
+<span class="sd">        step rather than a count per task.  A step uses no GPUs unless it</span>
+<span class="sd">        says otherwise, so 0 is the common case</span>
+
+<span class="sd">    min_gpus : int</span>
+<span class="sd">        the number of GPUs the step requires, again as a total</span>
+
 <span class="sd">    gpus_per_task : int</span>
 <span class="sd">        the number of GPUs per task the step would ideally use</span>
+
+<span class="sd">        .. deprecated:: 1.1.0</span>
+<span class="sd">            Use ``gpus`` instead.  A per-task count does not confine a step</span>
+<span class="sd">            to those GPUs when steps run at the same time; a total does</span>
 
 <span class="sd">    min_gpus_per_task : int</span>
 <span class="sd">        the number of GPUs per task the step requires</span>
 
-<span class="sd">    max_memory : int</span>
-<span class="sd">        the amount of memory that the step is allowed to use in MB.</span>
-<span class="sd">        This is currently just a placeholder for later use with task</span>
-<span class="sd">        parallelism</span>
+<span class="sd">        .. deprecated:: 1.1.0</span>
+<span class="sd">            Use ``min_gpus`` instead</span>
+
+<span class="sd">    cores : int</span>
+<span class="sd">        the number of cores the step needs in total.  A non-MPI step says</span>
+<span class="sd">        this directly; an MPI step says ``ntasks`` and ``cpus_per_task``</span>
+<span class="sd">        instead and this is their product</span>
+
+<span class="sd">    min_cores : int</span>
+<span class="sd">        the number of cores the step needs in order to run at all</span>
+
+<span class="sd">    memory : int or None</span>
+<span class="sd">        the amount of memory in MB the step declares it needs, or ``None``</span>
+<span class="sd">        if it has not said.  This stays ``None`` for a step that declares</span>
+<span class="sd">        nothing: it is never filled in with the default, because the two</span>
+<span class="sd">        are treated differently.</span>
+
+<span class="sd">        A declared figure is a **ceiling as well as a claim**.  The</span>
+<span class="sd">        launcher will hold a step to a memory figure on machines that</span>
+<span class="sd">        enforce, so a step author should declare a peak with margin rather</span>
+<span class="sd">        than a typical value.</span>
+
+<span class="sd">    memory_budget : int or None</span>
+<span class="sd">        the memory in MB to account for this step: what it declared, or its</span>
+<span class="sd">        proportional share of a node if it declared nothing.  Resolved when</span>
+<span class="sd">        resources are constrained, and ``None`` where the machine has not</span>
+<span class="sd">        said how much memory a node has.</span>
+
+<span class="sd">        Use this for accounting and ``memory`` for capping.  Only a</span>
+<span class="sd">        declared figure may be enforced as a cap -- capping a step at the</span>
+<span class="sd">        framework's own rough estimate of it would make every step carry a</span>
+<span class="sd">        measured number before it could run, which is the burden the</span>
+<span class="sd">        default exists to avoid.</span>
+
+<span class="sd">    min_memory : int</span>
+<span class="sd">        the amount of memory in MB the step needs in order to run at all,</span>
+<span class="sd">        the minimum to ``memory``'s target, in the same style as</span>
+<span class="sd">        ``min_tasks`` and ``min_cpus_per_task``</span>
+
+<span class="sd">    may_span_nodes : bool</span>
+<span class="sd">        whether this step's resources -- its cores and its GPUs alike -- may</span>
+<span class="sd">        be drawn from more than one node.  True for an MPI step, whose</span>
+<span class="sd">        launcher spreads its ranks; false for a step that runs in one</span>
+<span class="sd">        process, which has no way to reach another node.</span>
+
+<span class="sd">        This is not the same question as whether a step uses MPI.  A single</span>
+<span class="sd">        process that hands its work to a distributed pool spans nodes</span>
+<span class="sd">        perfectly well, and one that does its work in its own threads</span>
+<span class="sd">        cannot; both are "not MPI".  Nothing in Polaris sets this true today</span>
+<span class="sd">        beyond the MPI default.</span>
+
+<span class="sd">    placement : mache.parallel.ResourcePlacement or None</span>
+<span class="sd">        the part of the allocation this step is confined to -- which nodes,</span>
+<span class="sd">        which cores on each and how many GPUs -- or ``None`` to run on the</span>
+<span class="sd">        whole allocation, as steps have always done.</span>
+
+<span class="sd">        Nothing assigns this yet.  Deciding which subset a step should get</span>
+<span class="sd">        needs a scheduler, and there is not one: the only caller is the</span>
+<span class="sd">        serial path, which assigns no placement.</span>
 
 <span class="sd">    input_data : list of dict</span>
 <span class="sd">        a list of dict used to define input files typically to be</span>
@@ -294,10 +362,16 @@
         <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">may_span_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">cached</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">run_as_subprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
@@ -340,19 +414,50 @@
 <span class="sd">            few cores to accommodate the number of tasks and cores per task,</span>
 <span class="sd">            the step will fail</span>
 
+<span class="sd">        cores : int, optional</span>
+<span class="sd">            the number of cores the step needs in total.  For a non-MPI</span>
+<span class="sd">            step this is the direct way to say it; an MPI step says</span>
+<span class="sd">            ``ntasks`` and ``cpus_per_task`` instead</span>
+
+<span class="sd">        min_cores : int, optional</span>
+<span class="sd">            the number of cores the step needs in order to run at all</span>
+
+<span class="sd">        may_span_nodes : bool, optional</span>
+<span class="sd">            whether the step's cores and GPUs may be drawn from more than</span>
+<span class="sd">            one node.  Defaults to whether the step has more than one MPI</span>
+<span class="sd">            task</span>
+
 <span class="sd">        openmp_threads : int</span>
 <span class="sd">            the number of OpenMP threads to use</span>
 
-<span class="sd">        max_memory : int, optional</span>
-<span class="sd">            the amount of memory that the step is allowed to use in MB.</span>
-<span class="sd">            This is currently just a placeholder for later use with task</span>
-<span class="sd">            parallelism</span>
+<span class="sd">        memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step needs.  Declaring one makes</span>
+<span class="sd">            it a ceiling on machines that enforce, so declare a peak with</span>
+<span class="sd">            margin rather than a typical value</span>
+
+<span class="sd">        min_memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step needs in order to run at</span>
+<span class="sd">            all</span>
+
+<span class="sd">        gpus : int, optional</span>
+<span class="sd">            the number of GPUs the step would ideally use, as a total for</span>
+<span class="sd">            the step rather than a count per task.  A step uses no GPUs</span>
+<span class="sd">            unless it says otherwise</span>
+
+<span class="sd">        min_gpus : int, optional</span>
+<span class="sd">            the number of GPUs the step requires, again as a total</span>
 
 <span class="sd">        gpus_per_task : int, optional</span>
 <span class="sd">            the number of GPUs per task the step would ideally use</span>
 
+<span class="sd">            .. deprecated:: 1.1.0</span>
+<span class="sd">                Use ``gpus`` instead</span>
+
 <span class="sd">        min_gpus_per_task : int, optional</span>
 <span class="sd">            the number of GPUs per task the step requires</span>
+
+<span class="sd">            .. deprecated:: 1.1.0</span>
+<span class="sd">                Use ``min_gpus`` instead</span>
 
 <span class="sd">        cached : bool, optional</span>
 <span class="sd">            Whether to get all of the outputs for the step from the database of</span>
@@ -378,10 +483,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span> <span class="o">=</span> <span class="n">min_cpus_per_task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="n">ntasks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="n">min_tasks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cores</span> <span class="o">=</span> <span class="n">cores</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min_cores</span> <span class="o">=</span> <span class="n">min_cores</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_may_span_nodes</span> <span class="o">=</span> <span class="n">may_span_nodes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">openmp_threads</span> <span class="o">=</span> <span class="n">openmp_threads</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">=</span> <span class="n">gpus_per_task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">=</span> <span class="n">min_gpus_per_task</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_memory</span> <span class="o">=</span> <span class="n">max_memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gpus</span> <span class="o">=</span> <span class="n">gpus</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min_gpus</span> <span class="o">=</span> <span class="n">min_gpus</span>
+        <span class="n">_warn_if_gpus_per_task</span><span class="p">(</span><span class="n">gpus_per_task</span><span class="p">,</span> <span class="n">min_gpus_per_task</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_memory</span> <span class="o">=</span> <span class="n">min_memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_budget</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">placement</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
 
@@ -420,6 +534,91 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">default_cached</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        int : the number of cores this step needs, in total</span>
+
+<span class="sd">        A non-MPI step says this directly, because it has no meaningful</span>
+<span class="sd">        number of ranks and expressing its cores through MPI-shaped fields</span>
+<span class="sd">        is how a Python step ends up being told it has three nodes' worth.</span>
+<span class="sd">        An MPI step says ranks and cores per rank, and this is their</span>
+<span class="sd">        product.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cores</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span>
+
+    <span class="nd">@cores</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cores</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        int : the number of cores this step needs in order to run at all</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_cores</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span>
+
+    <span class="nd">@min_cores</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min_cores</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">may_span_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        bool : whether this step's cores and GPUs may come from several nodes</span>
+
+<span class="sd">        Defaults to whether the step has more than one MPI task, since a</span>
+<span class="sd">        launcher spreading ranks is the one mechanism Polaris has today for</span>
+<span class="sd">        reaching another node.  A step that delegates to a distributed pool</span>
+<span class="sd">        will set this itself; nothing does in Phase A.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_may_span_nodes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_may_span_nodes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&gt;</span> <span class="mi">1</span>
+
+    <span class="nd">@may_span_nodes</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">may_span_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_may_span_nodes</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        int : the number of GPUs this step needs, in total</span>
+
+<span class="sd">        A total rather than a count per task, because a per-task count does</span>
+<span class="sd">        not confine a step to those GPUs when steps run at the same time.</span>
+<span class="sd">        Falls back to the deprecated ``gpus_per_task`` when a step has not</span>
+<span class="sd">        been updated to say what it needs as a total.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gpus</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="nd">@gpus</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gpus</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_gpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        int : the number of GPUs this step requires, in total</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_gpus</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="nd">@min_gpus</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_gpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min_gpus</span> <span class="o">=</span> <span class="n">value</span>
+
 <div class="viewcode-block" id="Step.set_resources">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.set_resources.html#polaris.Step.set_resources">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_resources</span><span class="p">(</span>
@@ -428,8 +627,14 @@
         <span class="n">min_cpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">may_span_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">max_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_gpus_per_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -462,20 +667,46 @@
 <span class="sd">            few cores to accommodate the number of tasks and cores per task,</span>
 <span class="sd">            the step will fail</span>
 
+<span class="sd">        cores : int, optional</span>
+<span class="sd">            the number of cores the step needs in total</span>
+
+<span class="sd">        min_cores : int, optional</span>
+<span class="sd">            the number of cores the step needs in order to run at all</span>
+
+<span class="sd">        may_span_nodes : bool, optional</span>
+<span class="sd">            whether the step's cores and GPUs may be drawn from more than</span>
+<span class="sd">            one node</span>
+
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads to use</span>
 
-<span class="sd">        max_memory : int, optional</span>
-<span class="sd">            the amount of memory that the step is allowed to use in MB.</span>
-<span class="sd">            This is currently just a placeholder for later use with task</span>
-<span class="sd">            parallelism</span>
+<span class="sd">        memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step would ideally be given</span>
+
+<span class="sd">        min_memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step needs in order to run at</span>
+<span class="sd">            all</span>
+
+<span class="sd">        gpus : int, optional</span>
+<span class="sd">            the number of GPUs the step would ideally use, as a total for</span>
+<span class="sd">            the step rather than a count per task</span>
+
+<span class="sd">        min_gpus : int, optional</span>
+<span class="sd">            the number of GPUs the step requires, again as a total</span>
 
 <span class="sd">        gpus_per_task : int, optional</span>
 <span class="sd">            the number of GPUs per task the step would ideally use</span>
 
+<span class="sd">            .. deprecated:: 1.1.0</span>
+<span class="sd">                Use ``gpus`` instead</span>
+
 <span class="sd">        min_gpus_per_task : int, optional</span>
 <span class="sd">            the number of GPUs per task the step requires</span>
+
+<span class="sd">            .. deprecated:: 1.1.0</span>
+<span class="sd">                Use ``min_gpus`` instead</span>
 <span class="sd">        """</span>
+        <span class="n">_warn_if_gpus_per_task</span><span class="p">(</span><span class="n">gpus_per_task</span><span class="p">,</span> <span class="n">min_gpus_per_task</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cpus_per_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">=</span> <span class="n">cpus_per_task</span>
         <span class="k">if</span> <span class="n">min_cpus_per_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -484,14 +715,26 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="n">ntasks</span>
         <span class="k">if</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="n">min_tasks</span>
+        <span class="k">if</span> <span class="n">cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cores</span> <span class="o">=</span> <span class="n">cores</span>
+        <span class="k">if</span> <span class="n">min_cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_cores</span> <span class="o">=</span> <span class="n">min_cores</span>
+        <span class="k">if</span> <span class="n">may_span_nodes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">may_span_nodes</span> <span class="o">=</span> <span class="n">may_span_nodes</span>
         <span class="k">if</span> <span class="n">openmp_threads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">openmp_threads</span> <span class="o">=</span> <span class="n">openmp_threads</span>
+        <span class="k">if</span> <span class="n">gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gpus</span> <span class="o">=</span> <span class="n">gpus</span>
+        <span class="k">if</span> <span class="n">min_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus</span> <span class="o">=</span> <span class="n">min_gpus</span>
         <span class="k">if</span> <span class="n">gpus_per_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">=</span> <span class="n">gpus_per_task</span>
         <span class="k">if</span> <span class="n">min_gpus_per_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">=</span> <span class="n">min_gpus_per_task</span>
-        <span class="k">if</span> <span class="n">max_memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">max_memory</span> <span class="o">=</span> <span class="n">max_memory</span></div>
+        <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">memory</span>
+        <span class="k">if</span> <span class="n">min_memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_memory</span> <span class="o">=</span> <span class="n">min_memory</span></div>
 
 
 <div class="viewcode-block" id="Step.constrain_resources">
@@ -507,6 +750,13 @@
 <span class="sd">            A dictionary containing available resources (cores, tasks, nodes</span>
 <span class="sd">            and cores_per_node)</span>
 <span class="sd">        """</span>
+        <span class="c1"># read what the step asked for before anything below changes it.</span>
+        <span class="c1"># GPUs are constrained in proportion to the tasks that survive, and</span>
+        <span class="c1"># the proportion is the one the step declared, not whatever is left</span>
+        <span class="c1"># after the cores have already been taken into account.</span>
+        <span class="n">declared_ntasks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span>
+        <span class="n">declared_gpus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus</span>
+
         <span class="n">mpi_allowed</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">'mpi_allowed'</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">mpi_allowed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -514,8 +764,32 @@
                 <span class="s1">'Please switch to a compute node.'</span>
             <span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constrain_cores</span><span class="p">(</span><span class="n">available_resources</span><span class="p">)</span>
+        <span class="c1"># GPUs before memory, because running out of GPUs can cut the task</span>
+        <span class="c1"># count again and the memory budget has to describe the cores the</span>
+        <span class="c1"># step ends up with.  Budgeting first would hand a step memory for</span>
+        <span class="c1"># tasks it no longer has, and break the very thing the default is</span>
+        <span class="c1"># chosen for -- that a memory budget stays exactly proportional to</span>
+        <span class="c1"># cores, so packing on either comes out the same.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constrain_gpus</span><span class="p">(</span>
+            <span class="n">available_resources</span><span class="p">,</span> <span class="n">declared_ntasks</span><span class="p">,</span> <span class="n">declared_gpus</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constrain_memory</span><span class="p">(</span><span class="n">available_resources</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_constrain_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Constrain a step's cores to what it can be given.</span>
+
+<span class="sd">        Two bounds apply and they are different questions. One process</span>
+<span class="sd">        cannot be given cores on a node it is not running on, so</span>
+<span class="sd">        ``cpus_per_task`` is always held to a node. Whether the *step* may</span>
+<span class="sd">        draw its cores from several nodes is the step's to say, and a step</span>
+<span class="sd">        that may not is held to a node in total as well.</span>
+<span class="sd">        """</span>
         <span class="n">available_cores</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">'cores'</span><span class="p">]</span>
         <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">'cores_per_node'</span><span class="p">]</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">available_cores</span><span class="p">,</span> <span class="n">cores_per_node</span><span class="p">)</span>
         <span class="p">)</span>
@@ -525,7 +799,29 @@
                 <span class="sa">f</span><span class="s1">'minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cpus_per_task</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
-        <span class="n">available_tasks</span> <span class="o">=</span> <span class="n">available_cores</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
+        <span class="n">bound</span> <span class="o">=</span> <span class="n">available_cores</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">may_span_nodes</span><span class="p">:</span>
+            <span class="n">bound</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">available_cores</span><span class="p">,</span> <span class="n">cores_per_node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cores</span> <span class="o">&gt;</span> <span class="n">cores_per_node</span><span class="p">:</span>
+                <span class="c1"># a reduction is not available here: the step has said it</span>
+                <span class="c1"># cannot run any smaller, and no node is any bigger</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> needs at least </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cores</span><span class="si">}</span><span class="s1"> cores '</span>
+                    <span class="sa">f</span><span class="s1">'and may not use more than one node, but a node here '</span>
+                    <span class="sa">f</span><span class="s1">'has </span><span class="si">{</span><span class="n">cores_per_node</span><span class="si">}</span><span class="s1">. If its work can be spread across '</span>
+                    <span class="sa">f</span><span class="s1">'nodes, set may_span_nodes on the step.'</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cores</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cores</span><span class="p">,</span> <span class="n">bound</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cores</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_cores</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'Available cores (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cores</span><span class="si">}</span><span class="s1">) is below the minimum of '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cores</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
+                <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">available_tasks</span> <span class="o">=</span> <span class="n">bound</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpus_per_task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">available_tasks</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="p">:</span>
@@ -534,31 +830,109 @@
                 <span class="sa">f</span><span class="s1">'minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_constrain_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Give a step that declared no memory its proportional share of a node.</span>
+
+<span class="sd">        Every step uses memory, so unlike GPUs there is no true statement to</span>
+<span class="sd">        default to and the default has to be an assumption. This one is</span>
+<span class="sd">        chosen for a property rather than for accuracy: a step's cores times</span>
+<span class="sd">        the node's memory per core means a run in which every step defaults</span>
+<span class="sd">        packs on memory exactly as it would have packed on cores, so nothing</span>
+<span class="sd">        is made worse by memory being accounted for at all. It is rounded</span>
+<span class="sd">        down so that the total can never exceed what the nodes hold.</span>
+
+<span class="sd">        A step that has been measured says what it needs and is scheduled on</span>
+<span class="sd">        that instead.</span>
+
+<span class="sd">        The default lands in ``memory_budget`` and never in ``memory``,</span>
+<span class="sd">        which stays as the step declared it.  Downstream has to be able to</span>
+<span class="sd">        tell the two apart: a declared figure may be enforced as a cap,</span>
+<span class="sd">        because getting it wrong is then immediate and attributable, while</span>
+<span class="sd">        a defaulted one may not, since capping every step at the</span>
+<span class="sd">        framework's own guess would make them all carry a measured number</span>
+<span class="sd">        before they could run.</span>
+<span class="sd">        """</span>
+        <span class="n">cores_per_node</span> <span class="o">=</span> <span class="n">available_resources</span><span class="p">[</span><span class="s1">'cores_per_node'</span><span class="p">]</span>
+        <span class="n">memory_per_node</span> <span class="o">=</span> <span class="n">available_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'memory_per_node'</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory_budget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span>
+        <span class="k">elif</span> <span class="n">memory_per_node</span> <span class="ow">and</span> <span class="n">cores_per_node</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory_budget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cores</span> <span class="o">*</span> <span class="n">memory_per_node</span> <span class="o">//</span> <span class="n">cores_per_node</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory_budget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_memory</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory_budget</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> needs at least </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_memory</span><span class="si">}</span><span class="s1"> MB of '</span>
+                <span class="sa">f</span><span class="s1">'memory but has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_budget</span><span class="si">}</span><span class="s1"> MB.'</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_constrain_gpus</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">available_resources</span><span class="p">,</span> <span class="n">declared_ntasks</span><span class="p">,</span> <span class="n">declared_gpus</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Constrain a step's GPUs, and its tasks, to the GPUs available.</span>
+
+<span class="sd">        The step asks for a total, but those GPUs are still spread across its</span>
+<span class="sd">        tasks, so running fewer tasks means needing fewer GPUs.  What is held</span>
+<span class="sd">        fixed while scaling down is the proportion the step *declared*: by</span>
+<span class="sd">        the time this runs, ``ntasks`` may already have been cut back by the</span>
+<span class="sd">        cores available, and measuring the proportion against that would make</span>
+<span class="sd">        each surviving task look like it needs more GPUs than it does.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">declared_gpus</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">declared_ntasks</span><span class="p">:</span>
+            <span class="k">return</span>
+
         <span class="n">available_gpus</span> <span class="o">=</span> <span class="n">available_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'gpus'</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">available_gpus</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">available_gpus</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">available_gpus</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> requests </span><span class="si">{</span><span class="n">declared_gpus</span><span class="si">}</span><span class="s1"> GPUs but no GPUs '</span>
+                <span class="sa">f</span><span class="s1">'are available on this machine.'</span>
+            <span class="p">)</span>
+
+        <span class="n">gpus_per_node</span> <span class="o">=</span> <span class="n">available_resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'gpus_per_node'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">may_span_nodes</span> <span class="ow">and</span> <span class="n">gpus_per_node</span><span class="p">:</span>
+            <span class="c1"># a step held to one node has to find its GPUs there too, not</span>
+            <span class="c1"># its cores on one node and its GPUs on another</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus</span> <span class="o">&gt;</span> <span class="n">gpus_per_node</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> requests </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span><span class="si">}</span><span class="s1"> GPUs '</span>
-                    <span class="s1">'per task but no GPUs are available on this machine.'</span>
+                    <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> needs at least </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_gpus</span><span class="si">}</span><span class="s1"> GPUs '</span>
+                    <span class="sa">f</span><span class="s1">'and may not use more than one node, but a node here '</span>
+                    <span class="sa">f</span><span class="s1">'has </span><span class="si">{</span><span class="n">gpus_per_node</span><span class="si">}</span><span class="s1">. If its work can be spread across '</span>
+                    <span class="sa">f</span><span class="s1">'nodes, set may_span_nodes on the step.'</span>
                 <span class="p">)</span>
+            <span class="n">available_gpus</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">available_gpus</span><span class="p">,</span> <span class="n">gpus_per_node</span><span class="p">)</span>
 
-            <span class="n">available_gpu_tasks</span> <span class="o">=</span> <span class="n">available_gpus</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span> <span class="n">available_gpu_tasks</span><span class="p">)</span>
+        <span class="c1"># a step's GPUs are spread over its tasks, so fewer GPUs means fewer</span>
+        <span class="c1"># tasks -- but never fewer than one.  A single-task step asking for</span>
+        <span class="c1"># several GPUs has nothing to scale, and scaling it would take its</span>
+        <span class="c1"># task count to zero rather than trimming its GPUs.</span>
+        <span class="n">available_gpu_tasks</span> <span class="o">=</span> <span class="n">available_gpus</span> <span class="o">*</span> <span class="n">declared_ntasks</span> <span class="o">//</span> <span class="n">declared_gpus</span>
+        <span class="n">ntasks</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">available_gpu_tasks</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># round up, so that scaling down the tasks never scales the GPUs</span>
+        <span class="c1"># below what the tasks that remain still need</span>
+        <span class="n">gpus</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="n">declared_gpus</span> <span class="o">*</span> <span class="n">ntasks</span> <span class="o">//</span> <span class="n">declared_ntasks</span><span class="p">)</span>
+        <span class="c1"># and however the scaling came out, a step cannot have more GPUs</span>
+        <span class="c1"># than there are</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpus</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">gpus</span><span class="p">,</span> <span class="n">available_gpus</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="n">ntasks</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'Available gpus_per_task (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span><span class="si">}</span><span class="s1">) is '</span>
-                    <span class="sa">f</span><span class="s1">'below the minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span><span class="si">}</span><span class="s1"> for '</span>
-                    <span class="sa">f</span><span class="s1">'step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
-                <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpus</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Available GPUs (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gpus</span><span class="si">}</span><span class="s1">) is below the minimum of '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_gpus</span><span class="si">}</span><span class="s1"> for step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'Available number of MPI tasks (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">) is '</span>
-                    <span class="sa">f</span><span class="s1">'below the minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1"> for step '</span>
-                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> after GPU constraints are applied'</span>
-                <span class="p">)</span></div>
-
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Available number of MPI tasks (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span><span class="si">}</span><span class="s1">) is '</span>
+                <span class="sa">f</span><span class="s1">'below the minimum of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span><span class="si">}</span><span class="s1"> for step '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> after GPU constraints are applied'</span>
+            <span class="p">)</span>
 
 <div class="viewcode-block" id="Step.setup">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Step.setup.html#polaris.Step.setup">[docs]</a>
@@ -1042,6 +1416,20 @@
 
         <span class="k">return</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">database_subdirs</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_if_gpus_per_task</span><span class="p">(</span><span class="n">gpus_per_task</span><span class="p">,</span> <span class="n">min_gpus_per_task</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Warn that a per-task GPU count is on its way out."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">gpus_per_task</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">min_gpus_per_task</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s1">'gpus_per_task and min_gpus_per_task are deprecated. Use gpus and '</span>
+        <span class="s1">'min_gpus, which say how many GPUs the step needs in total. A '</span>
+        <span class="s1">'per-task count does not confine a step to those GPUs when steps '</span>
+        <span class="s1">'run at the same time.'</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
 </pre></div>
 
            </div>

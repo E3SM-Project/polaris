@@ -98,6 +98,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#model-step">model_step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#build">build</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#mpas">mpas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#parallel">parallel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#namelist">namelist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#provenance">provenance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#remap">remap</a></li>
@@ -150,7 +151,7 @@
 <h1>polaris.Component.run_parallel_command<a class="headerlink" href="#polaris-component-run-parallel-command" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.Component.run_parallel_command">
-<span class="sig-prename descclassname"><span class="pre">Component.</span></span><span class="sig-name descname"><span class="pre">run_parallel_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntasks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openmp_threads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/component.html#Component.run_parallel_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Component.run_parallel_command" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Component.</span></span><span class="sig-name descname"><span class="pre">run_parallel_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpus_per_task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntasks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openmp_threads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">placement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/component.html#Component.run_parallel_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.Component.run_parallel_command" title="Link to this definition"></a></dt>
 <dd><p>Run a command using the active parallel system</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -160,7 +161,15 @@
 <li><p><strong>ntasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of parallel tasks</p></li>
 <li><p><strong>openmp_threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of OpenMP threads</p></li>
 <li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a>) – Logger to output command-line execution info</p></li>
-<li><p><strong>gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of GPUs per task</p></li>
+<li><p><strong>gpus</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of GPUs this launch needs, as a total rather than a count
+per task</p></li>
+<li><p><strong>placement</strong> (<em>mache.parallel.ResourcePlacement</em><em>, </em><em>optional</em>) – The part of the allocation to confine this launch to.  Passing
+none gives exactly the command Polaris has always built.</p></li>
+<li><p><strong>gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – <p>Number of GPUs per task</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 1.1.0: </span>Use <code class="docutils literal notranslate"><span class="pre">gpus</span></code> instead</p>
+</div>
+</p></li>
 </ul>
 </dd>
 </dl>

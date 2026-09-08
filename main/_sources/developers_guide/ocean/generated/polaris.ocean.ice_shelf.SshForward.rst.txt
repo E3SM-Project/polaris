@@ -57,6 +57,11 @@
 
    .. autosummary::
    
+      ~SshForward.cores
+      ~SshForward.gpus
+      ~SshForward.may_span_nodes
+      ~SshForward.min_cores
+      ~SshForward.min_gpus
       ~SshForward.component
       ~SshForward.write_coeffs_reconstruct
       ~SshForward.config

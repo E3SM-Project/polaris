@@ -189,7 +189,8 @@
         <span class="n">ntasks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">min_tasks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">max_memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cached</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">yaml</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">update_io_tasks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -233,10 +234,12 @@
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads to use</span>
 
-<span class="sd">        max_memory : int, optional</span>
-<span class="sd">            the amount of memory that the step is allowed to use in MB.</span>
-<span class="sd">            This is currently just a placeholder for later use with task</span>
-<span class="sd">            parallelism</span>
+<span class="sd">        memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step would ideally be given</span>
+
+<span class="sd">        min_memory : int, optional</span>
+<span class="sd">            the amount of memory in MB the step needs in order to run at</span>
+<span class="sd">            all</span>
 
 <span class="sd">        cached : bool, optional</span>
 <span class="sd">            Whether to get all of the outputs for the step from the database of</span>
@@ -281,7 +284,8 @@
             <span class="n">ntasks</span><span class="o">=</span><span class="n">ntasks</span><span class="p">,</span>
             <span class="n">min_tasks</span><span class="o">=</span><span class="n">min_tasks</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="n">openmp_threads</span><span class="p">,</span>
-            <span class="n">max_memory</span><span class="o">=</span><span class="n">max_memory</span><span class="p">,</span>
+            <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+            <span class="n">min_memory</span><span class="o">=</span><span class="n">min_memory</span><span class="p">,</span>
             <span class="n">cached</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span>
             <span class="n">yaml</span><span class="o">=</span><span class="n">yaml</span><span class="p">,</span>
             <span class="n">update_io_tasks</span><span class="o">=</span><span class="n">update_io_tasks</span><span class="p">,</span>
@@ -339,7 +343,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_ntasks</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_gpus_per_task</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_gpus</span><span class="p">()</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
@@ -389,7 +393,7 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_ntasks</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_ntasks</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_gpus_per_task</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_gpus</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">constrain_resources</span><span class="p">(</span><span class="n">available_cores</span><span class="p">)</span></div>
 
 
@@ -781,17 +785,21 @@
             <span class="s1">'init_filename'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_init_filename</span><span class="p">(),</span>
         <span class="p">}</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_set_gpus_per_task</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_gpus</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Set ``gpus_per_task`` and ``min_gpus_per_task`` for the step based</span>
-<span class="sd">        on whether gpus are available and the model is Omega</span>
+<span class="sd">        Set ``gpus`` and ``min_gpus`` for the step based on whether gpus are</span>
+<span class="sd">        available and the model is Omega.</span>
+
+<span class="sd">        One GPU per task, stated as a total for the step: a per-task count</span>
+<span class="sd">        does not confine a step to those GPUs when steps run at the same</span>
+<span class="sd">        time.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_gpu_resources</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gpus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gpus_per_task</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus_per_task</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gpus</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_gpus</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_use_gpu_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>

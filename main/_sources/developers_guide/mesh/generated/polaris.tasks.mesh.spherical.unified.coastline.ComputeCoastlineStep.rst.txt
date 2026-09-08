@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ComputeCoastlineStep.cores
+      ~ComputeCoastlineStep.gpus
+      ~ComputeCoastlineStep.may_span_nodes
+      ~ComputeCoastlineStep.min_cores
+      ~ComputeCoastlineStep.min_gpus
+   
    

@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Step.cores
+      ~Step.gpus
+      ~Step.may_span_nodes
+      ~Step.min_cores
+      ~Step.min_gpus
+   
    

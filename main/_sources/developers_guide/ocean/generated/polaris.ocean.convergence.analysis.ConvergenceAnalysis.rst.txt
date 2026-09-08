@@ -57,6 +57,11 @@
 
    .. autosummary::
    
+      ~ConvergenceAnalysis.cores
+      ~ConvergenceAnalysis.gpus
+      ~ConvergenceAnalysis.may_span_nodes
+      ~ConvergenceAnalysis.min_cores
+      ~ConvergenceAnalysis.min_gpus
       ~ConvergenceAnalysis.component
       ~ConvergenceAnalysis.config
       ~ConvergenceAnalysis.input_data

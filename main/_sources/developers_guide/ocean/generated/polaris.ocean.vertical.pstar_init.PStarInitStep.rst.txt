@@ -34,4 +34,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PStarInitStep.cores
+      ~PStarInitStep.gpus
+      ~PStarInitStep.may_span_nodes
+      ~PStarInitStep.min_cores
+      ~PStarInitStep.min_gpus
+   
    

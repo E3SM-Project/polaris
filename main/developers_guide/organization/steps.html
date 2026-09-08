@@ -222,8 +222,17 @@ is being used, in which case <code class="docutils literal notranslate"><span cl
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.openmp_threads</span></code></dt><dd><p>the number of OpenMP threads the step will use</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">self.max_memory</span></code></dt><dd><p>An aspirational attribute that will be used in the future to indicate the
-amount of memory that the step is allowed to use in MB</p>
+<dt><code class="docutils literal notranslate"><span class="pre">self.memory</span></code></dt><dd><p>the memory the step says it needs, in MB, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if it has not said.
+A declared figure is a ceiling as well as a claim on machines that enforce
+one, so declare a peak with margin rather than a typical value.  This
+replaces the former <code class="docutils literal notranslate"><span class="pre">max_memory</span></code> placeholder</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.min_memory</span></code></dt><dd><p>the least memory the step can run in, in MB</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">self.memory_budget</span></code></dt><dd><p>the memory to account for, whether declared or defaulted.  A step that
+declares nothing is given its proportional share of a node – its cores
+times the node’s memory per core.  See <a class="reference internal" href="../framework/parallel.html#dev-parallel"><span class="std std-ref">Parallel</span></a> for why the
+declared and defaulted figures are kept apart</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">self.cached</span></code></dt><dd><p>Whether to get all of the outputs for the step from the database of
 cached outputs for the component that this step belongs to</p>

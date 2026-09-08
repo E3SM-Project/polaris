@@ -33,4 +33,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MaskTopoStep.cores
+      ~MaskTopoStep.gpus
+      ~MaskTopoStep.may_span_nodes
+      ~MaskTopoStep.min_cores
+      ~MaskTopoStep.min_gpus
+   
    

@@ -98,6 +98,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#model-step">model_step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#build">build</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#mpas">mpas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#parallel">parallel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#namelist">namelist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#provenance">provenance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#remap">remap</a></li>
@@ -150,7 +151,7 @@
 <h1>polaris.ModelStep.set_model_resources<a class="headerlink" href="#polaris-modelstep-set-model-resources" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.ModelStep.set_model_resources">
-<span class="sig-prename descclassname"><span class="pre">ModelStep.</span></span><span class="sig-name descname"><span class="pre">set_model_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ntasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openmp_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_gpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/model_step.html#ModelStep.set_model_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ModelStep.set_model_resources" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ModelStep.</span></span><span class="sig-name descname"><span class="pre">set_model_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ntasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openmp_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_gpus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_gpus_per_task</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/model_step.html#ModelStep.set_model_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ModelStep.set_model_resources" title="Link to this definition"></a></dt>
 <dd><p>Update the resources for the step.  This can be done within init,
 <code class="docutils literal notranslate"><span class="pre">setup()</span></code> or <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> for the step that this step
 belongs to, or init, <code class="docutils literal notranslate"><span class="pre">configure()</span></code> or <code class="docutils literal notranslate"><span class="pre">run()</span></code> for the task
@@ -166,11 +167,22 @@ fewer tasks as long as as this is not below <code class="docutils literal notran
 few cores to accommodate the number of tasks and cores per task,
 the step will fail</p></li>
 <li><p><strong>openmp_threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of OpenMP threads to use</p></li>
-<li><p><strong>gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of GPUs per task to use</p></li>
-<li><p><strong>min_gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the minimum number of GPUs per task required</p></li>
-<li><p><strong>max_memory</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the amount of memory that the step is allowed to use in MB.
-This is currently just a placeholder for later use with task
-parallelism</p></li>
+<li><p><strong>gpus</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of GPUs to use, as a total for the step rather than
+a count per task</p></li>
+<li><p><strong>min_gpus</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the minimum number of GPUs required, again as a total</p></li>
+<li><p><strong>gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – <p>the number of GPUs per task to use</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 1.1.0: </span>Use <code class="docutils literal notranslate"><span class="pre">gpus</span></code> instead</p>
+</div>
+</p></li>
+<li><p><strong>min_gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – <p>the minimum number of GPUs per task required</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 1.1.0: </span>Use <code class="docutils literal notranslate"><span class="pre">min_gpus</span></code> instead</p>
+</div>
+</p></li>
+<li><p><strong>memory</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the amount of memory in MB the step would ideally be given</p></li>
+<li><p><strong>min_memory</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the amount of memory in MB the step needs in order to run at
+all</p></li>
 </ul>
 </dd>
 </dl>

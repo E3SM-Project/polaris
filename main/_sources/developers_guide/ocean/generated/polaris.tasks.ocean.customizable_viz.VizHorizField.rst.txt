@@ -52,6 +52,11 @@
 
    .. autosummary::
    
+      ~VizHorizField.cores
+      ~VizHorizField.gpus
+      ~VizHorizField.may_span_nodes
+      ~VizHorizField.min_cores
+      ~VizHorizField.min_gpus
       ~VizHorizField.component
       ~VizHorizField.config
       ~VizHorizField.input_data

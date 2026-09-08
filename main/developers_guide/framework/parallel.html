@@ -76,6 +76,10 @@
 <li class="toctree-l2"><a class="reference internal" href="build.html">Build utilities</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Parallel</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#public-api">Public API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#placement">Placement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-a-step-says-what-it-needs">How a step says what it needs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#whether-a-step-may-span-nodes">Whether a step may span nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory">Memory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#compiler-specific-parallel-configs">Compiler-specific parallel configs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#gpu-resources">GPU resources</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#supported-parallel-systems">Supported Parallel Systems</a></li>
@@ -164,6 +168,134 @@ runtime.</p>
 <p><code class="docutils literal notranslate"><span class="pre">ParallelSystem.get_parallel_command()</span></code> supports both CPU and GPU resources
 through <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code>.</p>
 </section>
+<section id="placement">
+<h2>Placement<a class="headerlink" href="#placement" title="Link to this heading"></a></h2>
+<p>A step can be confined to a <strong>named part</strong> of the allocation – these nodes,
+these cores on each, this many GPUs – rather than being launched across all
+of it.  That is what makes it possible to run two steps at once without them
+colliding or queueing behind one another.</p>
+<p>The description is machine independent.  Polaris says <em>where</em>, and <code class="docutils literal notranslate"><span class="pre">mache</span></code>
+decides which flags express it, because those differ between machines and
+even between Slurm versions on the same machine:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResourcePlacement</span>
+
+<span class="n">step</span><span class="o">.</span><span class="n">placement</span> <span class="o">=</span> <span class="n">ResourcePlacement</span><span class="p">(</span>
+    <span class="n">nodes</span><span class="o">=</span><span class="p">(</span><span class="s1">'nid001234'</span><span class="p">,),</span> <span class="n">cores</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)),</span> <span class="n">gpus</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Step.placement</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> by default, and a step with no placement produces
+exactly the command Polaris has always produced.  <strong>Nothing assigns a
+placement yet.</strong>  Deciding which subset a step should get needs a scheduler,
+which is a later phase; the only caller today is the serial path, which
+assigns none.</p>
+<p>Two consequences are worth knowing about:</p>
+<ul class="simple">
+<li><p>A placement always states GPUs, including when the answer is zero.  A
+launch that says nothing about GPUs is read by the batch system as a claim
+on every GPU on the node, which stops any other step from starting.</p></li>
+<li><p><a class="reference internal" href="../generated/polaris.Component.get_available_resources.html#polaris.Component.get_available_resources" title="polaris.Component.get_available_resources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_available_resources()</span></code></a> takes an optional
+placement and, when given one, describes that subset rather than the whole
+allocation.  A step confined to part of an allocation has to be told about
+that part: resources withheld from a step have to be genuinely withheld,
+not merely subtracted from a number.  The view carries memory beside cores,
+nodes and GPUs, because a step sizing a worker pool or a chunk size has to
+size it against memory, and the natural mistake is to derive memory from
+cores.</p></li>
+</ul>
+<p>Not every machine can confine a launch.  <code class="docutils literal notranslate"><span class="pre">mache</span></code> reports which mechanism a
+machine has through <code class="docutils literal notranslate"><span class="pre">ParallelSystem.placement_support</span></code>, decided at run time
+from the launcher that is actually installed rather than from configuration.</p>
+<p>Placement needs <code class="docutils literal notranslate"><span class="pre">mache</span></code> 3.12.0 or later, which the deployment pins.</p>
+<p>Setup refuses to go any further against a <code class="docutils literal notranslate"><span class="pre">mache</span></code> that cannot place, rather
+than letting a run fail partway through with a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> from inside the
+launcher.  This will become an ordinary version requirement once the change
+is released.</p>
+</section>
+<section id="how-a-step-says-what-it-needs">
+<h2>How a step says what it needs<a class="headerlink" href="#how-a-step-says-what-it-needs" title="Link to this heading"></a></h2>
+<p>A step describes its resources in one of two shapes, depending on whether it
+has MPI ranks.</p>
+<p>An <strong>MPI step</strong> says <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> ranks of <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> cores each, with
+<code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code> saying how far it can be reduced.  That
+is unchanged.</p>
+<p>A <strong>non-MPI step</strong> says <code class="docutils literal notranslate"><span class="pre">cores</span></code> and <code class="docutils literal notranslate"><span class="pre">min_cores</span></code> directly.  A step with no
+ranks has no meaningful <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, and “one task of two hundred CPUs”
+is a sentence no launcher can act on.  For a step that does speak in ranks,
+<code class="docutils literal notranslate"><span class="pre">cores</span></code> is simply the product, so anything wanting a step’s core count can
+ask for it directly either way.</p>
+<p>GPUs need no second spelling: <code class="docutils literal notranslate"><span class="pre">gpus</span></code> and <code class="docutils literal notranslate"><span class="pre">min_gpus</span></code> are already per-step
+totals, which is the shape a step with no ranks needs.  <code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> is
+deprecated and is the only GPU field a non-MPI step cannot use.</p>
+</section>
+<section id="whether-a-step-may-span-nodes">
+<h2>Whether a step may span nodes<a class="headerlink" href="#whether-a-step-may-span-nodes" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">may_span_nodes</span></code> says whether a step’s cores <strong>and GPUs</strong> may be drawn from
+more than one node.</p>
+<p>This is deliberately not the same question as whether a step uses MPI.  A
+single process that hands its work to a distributed pool spans nodes
+perfectly well; one that does its work in its own threads cannot; both are
+“not MPI”.  Polaris cannot tell them apart, so the step says.</p>
+<p>It defaults to whether the step has more than one task, which is the only
+mechanism Polaris has today for reaching another node.  Nothing sets it
+otherwise yet – it exists so that the worker pool in a later phase has
+something to turn on rather than a rule to remove.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> is held to one node whatever the step says, because one
+process cannot be given cores on a node it is not running on.  The span
+property bounds the step’s <em>total</em>.</p>
+<p>Where a step cannot be given what it asked for, the usual target-and-minimum
+rule decides, with the node boundary as one more thing that can make a
+request unsatisfiable.  A step held to a node may be reduced towards its
+target silently, exactly as it may be today.  A step whose <strong>minimum</strong> cannot
+be met within a node is an error, naming what it needs, what a node holds,
+and the property that would let it span – a step that names a minimum has
+said which reductions it will accept, and shrinking below it is not one.</p>
+</section>
+<section id="memory">
+<h2>Memory<a class="headerlink" href="#memory" title="Link to this heading"></a></h2>
+<p>A step says how much memory it needs as <code class="docutils literal notranslate"><span class="pre">memory</span></code> and <code class="docutils literal notranslate"><span class="pre">min_memory</span></code>, both in
+MB.</p>
+<p><strong>A declared figure is a ceiling as well as a claim.</strong> Asking a launch for a
+share of the node’s memory was measured to be enforced on Perlmutter and
+Frontier – a step allowed 1 GB and told to take 4 GB is killed – and not
+enforced on Chrysalis. So a step that declares memory should declare a
+<strong>peak with margin</strong>, not a typical value: on a machine that enforces, the
+number it gives is the number it dies at.</p>
+<p>Polaris does not yet pass a memory figure to the launcher, and that is a
+consequence of where the work has got to rather than a decision that it
+never should.  <code class="docutils literal notranslate"><span class="pre">mache</span></code> accepts an optional cap alongside a placement, and
+Polaris will pass it for a step that <em>declared</em> a figure once there is a
+scheduler to admit steps – which is a later phase.  Today nothing is
+admitted and nothing is capped.</p>
+<p>What the launcher does not do, on any machine, is <em>reserve</em> memory or say
+whether a step fits.  That stays Polaris’s own accounting: the only thing
+protecting one step’s memory from another’s is Polaris declining to start
+the second.  Enforcement and scheduling are separate, and only enforcement
+is something a launcher offers.</p>
+<p>A step that declares nothing is given <strong>its proportional share of a node</strong>
+as its <code class="docutils literal notranslate"><span class="pre">memory_budget</span></code>, leaving <code class="docutils literal notranslate"><span class="pre">memory</span></code> as <code class="docutils literal notranslate"><span class="pre">None</span></code>: its cores times the
+node’s memory per core, rounded down.</p>
+<p>The two are kept apart on purpose. <code class="docutils literal notranslate"><span class="pre">memory</span></code> is what the step declared and is
+the only figure that may be enforced as a cap; <code class="docutils literal notranslate"><span class="pre">memory_budget</span></code> is what to
+account for, declared or defaulted. Capping a step at the framework’s own
+rough guess would make every step carry a measured number before it could
+run, which is the burden the default exists to avoid – while leaving a
+declared figure unenforced makes it invisible when wrong, which is worse
+than a failure.  The default is
+chosen for a property rather than for accuracy.  A set of steps that fits on
+cores always fits in memory, so a run in which every step defaults packs
+exactly as it would have with no memory accounting at all, and introducing
+memory can never schedule an existing suite worse than before.  A step that
+has been measured says what it needs and is scheduled on that instead.</p>
+<p>That default is weakest on a GPU machine, where a step wanting every GPU on a
+node and four cores to drive them gets four cores’ share of the memory.  The
+answer is for such a step to declare, not to make the default depend on GPUs
+– it is exactly the default’s being core-proportional that makes it safe.</p>
+<p>The per-node figure comes from <code class="docutils literal notranslate"><span class="pre">memory_per_node</span></code> in <code class="docutils literal notranslate"><span class="pre">mache</span></code>’s <code class="docutils literal notranslate"><span class="pre">[parallel]</span></code>
+config, beside <code class="docutils literal notranslate"><span class="pre">cores_per_node</span></code> and <code class="docutils literal notranslate"><span class="pre">gpus_per_node</span></code>.  A machine that does not
+set it leaves memory undeclared rather than guessed at, since a wrong figure
+there would propagate into every step’s default.</p>
+</section>
 <section id="compiler-specific-parallel-configs">
 <h2>Compiler-specific parallel configs<a class="headerlink" href="#compiler-specific-parallel-configs" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">mache.parallel</span></code> combines options in <code class="docutils literal notranslate"><span class="pre">[parallel]</span></code> with
@@ -175,9 +307,17 @@ parallel configuration.</p>
 </section>
 <section id="gpu-resources">
 <h2>GPU resources<a class="headerlink" href="#gpu-resources" title="Link to this heading"></a></h2>
-<p>Polaris step resources now include GPU requirements (<code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> and
-<code class="docutils literal notranslate"><span class="pre">min_gpus_per_task</span></code>) in addition to CPU requirements. Resource constraints use
-both CPU and GPU availability when determining whether a step can run.</p>
+<p>Polaris step resources include GPU requirements in addition to CPU
+requirements. Resource constraints use both CPU and GPU availability when
+determining whether a step can run.</p>
+<p>A step states its GPU need as <code class="docutils literal notranslate"><span class="pre">gpus</span></code> and <code class="docutils literal notranslate"><span class="pre">min_gpus</span></code>, which are totals for
+the <strong>step</strong>, not counts per MPI task. A step that needs no GPUs leaves them
+at zero, which is the common case. The distinction matters once steps run at
+the same time: measurements on both GPU machines showed that asking for a
+number of GPUs per task does not confine a step to those GPUs, while asking
+for a total does.</p>
+<p><code class="docutils literal notranslate"><span class="pre">gpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">min_gpus_per_task</span></code> still work and are translated into a
+total, but they are deprecated and raise a <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>.</p>
 <p>For ocean model steps with dynamic sizing, Omega runs on GPU-capable compiler
 configs use:</p>
 <ul class="simple">

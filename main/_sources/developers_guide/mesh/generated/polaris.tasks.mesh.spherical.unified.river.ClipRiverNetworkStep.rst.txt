@@ -32,4 +32,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ClipRiverNetworkStep.cores
+      ~ClipRiverNetworkStep.gpus
+      ~ClipRiverNetworkStep.may_span_nodes
+      ~ClipRiverNetworkStep.min_cores
+      ~ClipRiverNetworkStep.min_gpus
+   
    
