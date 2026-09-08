@@ -119,10 +119,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRAGMENT_FILENAME</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_summary</span>
 
-<span class="c1">#: The pickle a dependency leaves behind, which is what makes a step that</span>
-<span class="c1">#: did not run report itself by name rather than as an empty gallery</span>
-<span class="n">DEPENDENCY_PICKLE</span> <span class="o">=</span> <span class="s1">'step_after_run.pickle'</span>
-
 <span class="c1">#: The subdirectory the fragments are linked into, one per step</span>
 <span class="n">FRAGMENTS_DIRNAME</span> <span class="o">=</span> <span class="s1">'fragments'</span>
 
@@ -250,14 +246,12 @@
 
 <span class="sd">        The task rebuilds its steps whenever the config is read, so a step</span>
 <span class="sd">        whose work directory did not change is asked a second time for the</span>
-<span class="sd">        pickle it already owes.  The duplicate is dropped rather than left</span>
-<span class="sd">        for Polaris to check twice.</span>
+<span class="sd">        pickle it already owes.  ``add_output_file()`` keeps only the first</span>
+<span class="sd">        of those, so the pickle is listed once however often the step is</span>
+<span class="sd">        rebuilt.</span>
 <span class="sd">        """</span>
-        <span class="n">already_a_dependency</span> <span class="o">=</span> <span class="n">DEPENDENCY_PICKLE</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">outputs</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">already_a_dependency</span><span class="p">:</span>
-            <span class="n">step</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">DEPENDENCY_PICKLE</span><span class="p">)</span>
 
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FRAGMENTS_DIRNAME</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.json'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
