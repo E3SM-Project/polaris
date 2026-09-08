@@ -129,9 +129,6 @@ class Viz(OceanIOStep):
                 ds_list.append(ds_comp.isel(Time=t_index))
             ds_init = self.open_model_dataset('init.nc', config=self.config)
             ds_init = ds_init.isel(Time=0)
-            z_mid_init = ds_init['zMid'].mean(dim='nCells')
-
-            z_mid_final = z_mid_init
             self.logger.warn(
                 'Using initial zMid values; may not represent plotted state'
             )
@@ -169,10 +166,12 @@ class Viz(OceanIOStep):
                             f'Plot {field_name} for '
                             f'{comparison_name} at {t_days} days'
                         )
+                        z_init = ds_init['zMid'].mean(dim='nCells')
+                        z_final = z_init
                         var = ds_comp['velocityZonal'].mean(dim='nCells')
                         plt.plot(
                             var,
-                            z_mid_final,
+                            z_final,
                             '-',
                             color=color,
                             label=f'u {comparison_name}, {t_days:2g} days',
@@ -180,7 +179,7 @@ class Viz(OceanIOStep):
                         var = ds_comp['velocityMeridional'].mean(dim='nCells')
                         plt.plot(
                             var,
-                            z_mid_final,
+                            z_final,
                             '--',
                             color=color,
                             label=f'v {comparison_name}, {t_days:2g} days',
@@ -195,13 +194,24 @@ class Viz(OceanIOStep):
                             continue
                         var = ds_comp[field_name].mean(dim='nCells')
                         if 'nVertLevelsP1' in var.dims:
-                            var = var.isel(nVertLevelsP1=slice(0, -1))
+                            if 'zInterface' in ds_init.keys():
+                                z_init = ds_init['zInterface'].mean(
+                                    dim='nCells'
+                                )
+                                z_final = z_init
+                            else:
+                                var = var.isel(nVertLevelsP1=slice(0, -1))
+                                z_init = ds_init['zMid'].mean(dim='nCells')
+                                z_final = z_init
+                        else:
+                            z_init = ds_init['zMid'].mean(dim='nCells')
+                            z_final = z_init
                         # TODO delete this line when MPAS-O bug is fixed
                         if field_name == 'RiTopOfCell':
                             var[0] = np.nan
                         plt.plot(
                             var,
-                            z_mid_final,
+                            z_final,
                             '-',
                             color=color,
                             label=f'{comparison_name}, {t_days:2g} days',
@@ -219,9 +229,7 @@ class Viz(OceanIOStep):
                             and 'initial' not in existing_labels
                         ):
                             var_init = ds_init[field_name].mean(dim='nCells')
-                            plt.plot(
-                                var_init, z_mid_init, '--k', label='initial'
-                            )
+                            plt.plot(var_init, z_init, '--k', label='initial')
                             curves_plotted += 1
                 if curves_plotted == 0:
                     self.logger.warn(
@@ -232,7 +240,7 @@ class Viz(OceanIOStep):
                 ymin = -100.0
                 ymax = 0.0
                 plt.ylim(ymin, ymax)
-                visible_x = var[(z_mid_final >= ymin) & (z_mid_final <= ymax)]
+                visible_x = var[(z_final >= ymin) & (z_final <= ymax)]
                 x_min = float(visible_x.min().values)
                 x_max = float(visible_x.max().values)
                 x_margin = (x_max - x_min) * 0.05
