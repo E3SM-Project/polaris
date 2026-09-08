@@ -12,6 +12,7 @@ so it must have overlapped" would pass on a machine where nothing
 overlapped at all.
 """
 
+import logging
 import os
 
 import pytest
@@ -22,7 +23,7 @@ from polaris.run.allocation import NodeResources
 from polaris.run.confinement import PLACEMENT_MISMATCH_LOG
 from polaris.run.events import EventStream, read_events
 from polaris.run.graph import build_step_graph
-from polaris.run.parallel import _credit_memory, _loop
+from polaris.run.parallel import _credit_memory, _loop, _report
 from polaris.run.pool import ResourcePool
 
 # what each synthetic step's process runs, in its own work directory
@@ -415,3 +416,33 @@ def test_overlap_can_be_computed_from_what_was_recorded(tmp_path):
     for path, start in starts.items():
         assert ends[path] > start, (path, start, ends[path])
     assert _peak_concurrency(events) == 2
+
+
+def test_what_the_steps_compared_is_added_up(tmp_path):
+    """
+    A hundred steps against a baseline are asking one question.
+
+    Each step compares itself and leaves the verdict beside its own log, so
+    without this the answer is only ever a hundred separate answers that
+    nobody reads.
+    """
+    steps = [
+        _step(tmp_path, 'agrees', 'echo ok > baseline_passed.log\n'),
+        _step(tmp_path, 'differs', 'echo no > baseline_failed.log\n'),
+        # a failed property check is reported and does not fail the run,
+        # which is what the serial path does with one
+        _step(tmp_path, 'unproven', 'echo no > property_check_failed.log\n'),
+        _step(tmp_path, 'quiet', 'true\n'),
+    ]
+
+    outcomes, _ = _run(tmp_path, steps)
+
+    assert all(outcome.succeeded for outcome in outcomes.values())
+    failures = _report(
+        outcomes,
+        [],
+        {step.path: step for step in steps},
+        logging.getLogger('test'),
+        1.0,
+    )
+    assert failures == ['ocean/differs']

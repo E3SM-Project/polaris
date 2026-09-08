@@ -47,6 +47,10 @@ from polaris.run.executor import (
     start_step,
 )
 from polaris.run.graph import build_step_graph
+from polaris.run.lifecycle import (
+    read_baseline_status_from_logs,
+    read_property_status_from_logs,
+)
 from polaris.run.pool import ResourcePool
 from polaris.run.serial import (
     _update_steps_to_run,
@@ -142,7 +146,7 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
     )
     elapsed = time.time() - started
 
-    failures = _report(outcomes, mismatched, logger, elapsed)
+    failures = _report(outcomes, mismatched, steps, logger, elapsed)
     events.record(
         'run_finished', elapsed=round(elapsed, 3), failures=len(failures)
     )
@@ -459,7 +463,55 @@ def _placement_mismatch(step, logger) -> bool:
     return True
 
 
-def _report(outcomes, mismatched, logger, elapsed) -> List[str]:
+def _comparisons(steps, logger) -> List[str]:
+    """
+    Say what the steps' own comparisons decided, and give back what differed.
+
+    Each step compares itself against the baseline in its own process and
+    leaves the verdict beside its log, exactly as the serial path does.  What
+    the serial path also does, and this did not, is add them up: a run of a
+    hundred steps against a baseline is asking one question -- did anything
+    change -- and the answer must not be something you have to go and find.
+    """
+    outcome: Dict[str, List[List[str]]] = {
+        'baseline': [[], []],
+        'property': [[], []],
+    }
+    readers = {
+        'baseline': read_baseline_status_from_logs,
+        'property': read_property_status_from_logs,
+    }
+    for path in sorted(steps):
+        for kind, reader in readers.items():
+            status = reader(steps[path].work_dir)
+            if status is not None:
+                outcome[kind][0 if status else 1].append(path)
+
+    for kind, label in (
+        ('baseline', 'Baseline comparison'),
+        ('property', 'Property checks'),
+    ):
+        passed, failed = outcome[kind]
+        if not passed and not failed:
+            continue
+        logger.info('')
+        logger.info(f'{label}: {len(passed)} passed, {len(failed)} failed')
+        for path in failed:
+            logger.error(f'  {fail_str} {path}')
+
+    # only a baseline difference fails the run, because that is what the
+    # serial path does with one.  A failed property check does not fail
+    # anything there -- `property_passed` is accumulated in serial.py and
+    # never read -- and four steps of omega_pr fail one today.  Failing here
+    # on something serial ignores would make a suite that passes one step at
+    # a time fail when run concurrently, for a reason that has nothing to do
+    # with concurrency, and Phase B would be blamed for it.  Whether a failed
+    # property check ought to fail a task is a real question and is being
+    # settled on its own branch; this follows serial either way.
+    return list(outcome['baseline'][1])
+
+
+def _report(outcomes, mismatched, steps, logger, elapsed) -> List[str]:
     """Say how it went, and how that compares with running one at a time."""
     failures = [
         path for path, outcome in outcomes.items() if not outcome.succeeded
@@ -481,6 +533,11 @@ def _report(outcomes, mismatched, logger, elapsed) -> List[str]:
             f'a time for as long.'
         )
 
+    differed = _comparisons(steps, logger)
+    for path in differed:
+        if path not in failures:
+            failures.append(path)
+
     if mismatched:
         logger.warning('')
         logger.warning(
@@ -491,7 +548,10 @@ def _report(outcomes, mismatched, logger, elapsed) -> List[str]:
         )
 
     if failures:
-        logger.error(f'FAIL: {len(failures)} step(s) failed, see above.')
+        logger.error(
+            f'FAIL: {len(failures)} step(s) failed or differed from '
+            f'the baseline, see above.'
+        )
     else:
         logger.info('PASS: All passed successfully!')
     return failures
