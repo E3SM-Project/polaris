@@ -1,7 +1,7 @@
 import inspect
 
 import mache
-from mache.parallel import ParallelSystem
+from mache.parallel import ParallelSystem, ResourcePlacement
 
 from polaris.config import PolarisConfigParser
 
@@ -9,7 +9,7 @@ from polaris.config import PolarisConfigParser
 def check_mache_supports_placement():
     """
     Check that the installed mache can confine a launch to part of an
-    allocation.
+    allocation, and can do it a node at a time.
 
     A mache without placement takes none of the arguments Polaris now passes
     it, so a run against one fails partway through with a ``TypeError`` from
@@ -22,19 +22,55 @@ def check_mache_supports_placement():
     Raises
     ------
     RuntimeError
-        If the installed mache has no placement support
+        If the installed mache has no placement support, or expresses a
+        placement's cores as one set for the whole launch
     """
     parameters = inspect.signature(
         ParallelSystem.get_parallel_command
     ).parameters
-    if 'placement' in parameters:
-        return
+    if 'placement' not in parameters:
+        raise RuntimeError(
+            f'The installed mache ({mache.__version__}) cannot confine a '
+            f'launch to part of an allocation, which Polaris now requires.\n'
+            f'Install mache 3.13.0 or later.'
+        )
 
-    raise RuntimeError(
-        f'The installed mache ({mache.__version__}) cannot confine a launch '
-        f'to part of an allocation, which Polaris now requires.\n'
-        f'Install mache 3.12.0 or later.'
-    )
+    _check_placement_cores_are_per_node()
+
+
+def _check_placement_cores_are_per_node():
+    """
+    Check that a placement's cores are one set per node.
+
+    An earlier mache took one flat set of unique cores for the whole launch,
+    which cannot describe a launch spanning nodes on the machines whose
+    launchers bind cores explicitly: core numbers are node-local, so two
+    nodes both using core 0 is the ordinary case and a single set forbids
+    it.
+
+    This builds exactly that -- two nodes, each offering core 0 -- rather
+    than reading a version, for the same reason the check above does: the
+    capability is what matters and a version is only a proxy for it.
+    """
+    try:
+        placement = ResourcePlacement(nodes=('a', 'b'), cores=((0,), (0,)))
+        total_cores = placement.total_cores
+    except (AttributeError, TypeError, ValueError) as exception:
+        raise RuntimeError(
+            f'The installed mache ({mache.__version__}) expresses a '
+            f"placement's cores as one set for the whole launch, so Polaris "
+            f'cannot place a step across nodes.\n'
+            f'Install mache 3.13.0 or later.'
+        ) from exception
+
+    if total_cores != 2:
+        raise RuntimeError(
+            f'The installed mache ({mache.__version__}) accepted a placement '
+            f'of one core on each of two nodes and reported {total_cores} '
+            f'cores rather than 2, so Polaris cannot rely on what a '
+            f'placement means.\n'
+            f'Install mache 3.13.0 or later.'
+        )
 
 
 def set_parallel_systems(tasks, config: PolarisConfigParser):
