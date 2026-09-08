@@ -163,6 +163,8 @@ class Viz(OceanIOStep):
                             f'Plot {field_name} for '
                             f'{comparison_name} at {t_days} days'
                         )
+                        z_init = ds_init['zMid'].mean(dim='nCells')
+                        z_final = z_init
                         var = ds_comp['velocityZonal'].mean(dim='nCells')
                         z = vertical_coord_from_location(
                             ds_comp,
