@@ -178,29 +178,11 @@ def add_single_column_tasks(component):
     )
 
     for case in ('melting', 'freezing'):
-        filepath = f'{component.name}/column/frazil/{case}/{case}.cfg'
-        config = PolarisConfigParser(filepath=filepath)
-        config.add_from_package(
-            'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
-        )
-        config.add_from_package('polaris.ocean.eos', 'linear.cfg')
-        config.add_from_package(
-            'polaris.tasks.ocean.single_column.frazil', 'frazil.cfg'
-        )
-        init_step = component.get_or_create_shared_step(
-            step_cls=FrazilInit,
-            subdir=f'column/init/frazil/{case}',
-            config=config,
-            config_filename=f'{case}.cfg',
-            case=case,
-        )
         for frazil_type in ('basic', 'teos'):
             component.add_task(
                 Frazil(
                     component=component,
-                    config=config,
-                    init=init_step,
-                    indir='column/frazil',
+                    subdir=f'column/frazil/{case}/{frazil_type}',
                     case=case,
                     frazil_type=frazil_type,
                 )
