@@ -26,6 +26,7 @@ from polaris.run.lifecycle import (
     run_step_as_subprocess,
     step_is_complete,
 )
+from polaris.run.placement import placement_from_env
 from polaris.run.results import TaskResult, write_suite_results
 from polaris.validate import merge_diff_summary
 from polaris.version import __version__
@@ -209,6 +210,12 @@ def run_single_step(step_is_subprocess=False, quiet=False):
     # This prevents infinite loop of subprocesses
     if step_is_subprocess:
         step.run_as_subprocess = False
+
+    # a scheduler running steps at the same time confines each to part of
+    # the allocation, and says which part in this process's environment.
+    # Nothing sets it when a step is run on its own, which is the case
+    # every `polaris serial` invocation has had until now.
+    step.placement = placement_from_env()
 
     config = setup_config(step.base_work_dir, step.config.filepath)
     task.config = config

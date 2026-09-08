@@ -109,6 +109,7 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
                     step.logger,
                     gpus=step.gpus,
                     placement=step.placement,
+                    memory_cap=step.memory,
                 )
         else:
             step_logger.info('')
