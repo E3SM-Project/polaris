@@ -99,6 +99,7 @@ class Forward(OceanModelStep):
             ntasks=ntasks,
             min_tasks=min_tasks,
             openmp_threads=openmp_threads,
+            graph_target=f'{init.path}/culled_graph.info',
         )
 
         self.add_horiz_mesh_input_file(
@@ -110,10 +111,6 @@ class Forward(OceanModelStep):
         self.add_init_input_file(work_dir_target=f'{init.path}/init.nc')
         self.add_input_file(
             filename='forcing.nc', work_dir_target=f'{init.path}/forcing.nc'
-        )
-        self.add_input_file(
-            filename='graph.info',
-            work_dir_target=f'{init.path}/culled_graph.info',
         )
 
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
