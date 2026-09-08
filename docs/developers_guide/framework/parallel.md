@@ -82,6 +82,47 @@ Two consequences are worth knowing about:
   size it against memory, and the natural mistake is to derive memory from
   cores.
 
+A step's placement is decided by whatever is running it.  When steps run one
+at a time it is `None`, exactly as it has always been.  When a scheduler runs
+them together it puts the placement in the step process's environment, and
+{py:func}`polaris.run.placement.placement_from_env` reads it back before the
+step runs.  A value that cannot be read raises rather than being treated as
+"no placement", because a step that quietly ran on the whole allocation would
+look like it worked while oversubscribing the machine.
+
+## Capping a step's memory
+
+Some machines will hold a launch to a memory figure and some will not, and
+`mache` renders the flag only where it is enforced.  Polaris passes the cap
+for a step that **declared** `memory` and never for one carrying only the
+framework's `memory_budget`:
+
+```python
+self.component.run_parallel_command(
+    args=args,
+    cpus_per_task=self.cpus_per_task,
+    ntasks=self.ntasks,
+    openmp_threads=self.openmp_threads,
+    logger=self.logger,
+    gpus=self.gpus,
+    placement=self.placement,
+    memory_cap=self.memory,
+)
+```
+
+The framework does this for a step that runs its model through `args`, which
+is every {py:class}`polaris.ModelStep`.  A step that calls
+`run_parallel_command()` itself should pass `memory_cap=self.memory` as
+above; `self.memory` is `None` for a step that declared nothing, which
+renders no cap at all, so the line is correct whether or not the step has
+been measured.
+
+The reason it is only for a declared figure is that a step which stated a
+number has made a claim and can fairly be held to it, while a step that said
+nothing is being estimated by the framework, and killing it for exceeding the
+framework's own guess would make every step carry a measured number before it
+could run.
+
 Not every machine can confine a launch.  `mache` reports which mechanism a
 machine has through `ParallelSystem.placement_support`, decided at run time
 from the launcher that is actually installed rather than from configuration.

@@ -33,9 +33,21 @@ class _RecordingSystem:
         return self.config.get(key, default)
 
     def get_parallel_command(
-        self, args, ntasks, cpus_per_task=0, gpus_per_task=0, placement=None
+        self,
+        args,
+        ntasks,
+        cpus_per_task=0,
+        gpus_per_task=0,
+        placement=None,
+        memory_cap=None,
     ):
-        self.calls.append(dict(placement=placement, ntasks=ntasks))
+        self.calls.append(
+            dict(
+                placement=placement,
+                ntasks=ntasks,
+                memory_cap=memory_cap,
+            )
+        )
         return ['true']
 
 
