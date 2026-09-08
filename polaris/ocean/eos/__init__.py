@@ -3,10 +3,11 @@ import xarray as xr
 
 from polaris.config import PolarisConfigParser
 
-from .constant import compute_constant_density
-from .linear import compute_linear_density
+from .constant import compute_constant_ct_freezing, compute_constant_density
+from .linear import compute_linear_ct_freezing, compute_linear_density
 from .teos10 import TRACER_ATTRS as TRACER_ATTRS
 from .teos10 import TRACER_CONVENTIONS as TRACER_CONVENTIONS
+from .teos10 import compute_ct_freezing as compute_teos10_ct_freezing
 from .teos10 import compute_specvol as compute_teos10_specvol
 from .teos10 import convert_tracer_pair as convert_tracer_pair
 from .teos10 import convert_tracers as convert_tracers
@@ -90,6 +91,88 @@ def compute_density(
         density.attrs['units'] = 'kg m-3'
         density.attrs['long_name'] = 'density'
     return density
+
+
+def compute_ct_freezing(
+    config: PolarisConfigParser,
+    salinity: xr.DataArray | float,
+    pressure: xr.DataArray | float | None = None,
+    saturation_fraction: float = 0.0,
+    tracer_convention: str = 'teos-10',
+    lon: xr.DataArray | np.ndarray | float | None = None,
+    lat: xr.DataArray | np.ndarray | float | None = None,
+) -> xr.DataArray | float:
+    """
+    Compute the freezing temperature of seawater based on the equation of
+    state specified in the configuration, following Omega's
+    ``Eos::calcCtFreezing()``.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Configuration object containing ocean parameters.
+
+    salinity : float or xarray.DataArray
+        Salinity (practical or absolute) of the seawater.
+
+    pressure : float or xarray.DataArray, optional
+        Sea (gauge) pressure in Pa, required for the TEOS-10 equation of
+        state.
+
+    saturation_fraction : float, optional
+        The fraction of dissolved air in seawater (0 to 1), used only by the
+        TEOS-10 equation of state.
+
+    tracer_convention : {'teos-10', 'mpas-ocean'}, optional
+        The convention of ``salinity``.  TEOS-10 requires absolute salinity,
+        so salinity straight out of MPAS-Ocean must say so and is converted
+        first, which needs ``lon`` and ``lat``.  The two conventions are
+        indistinguishable for any other equation of state.
+
+    lon : float, numpy.ndarray or xarray.DataArray, optional
+        Longitude(s) in degrees, needed only to convert from the MPAS-Ocean
+        convention.
+
+    lat : float, numpy.ndarray or xarray.DataArray, optional
+        Latitude(s) in degrees, as for ``lon``.
+
+    Returns
+    -------
+    ct_freezing : float or xarray.DataArray
+        The freezing temperature (degC) of the seawater, conservative
+        temperature for the TEOS-10 equation of state.
+    """
+    eos_type = config.get('ocean', 'eos_type')
+    eos_type = eos_type.strip()
+    if eos_type == 'constant':
+        ct_freezing = compute_constant_ct_freezing(salinity)
+    elif eos_type == 'linear':
+        ct_freezing = compute_linear_ct_freezing(salinity)
+    elif eos_type == 'teos-10':
+        if pressure is None:
+            raise ValueError(
+                'Pressure must be provided when using the TEOS-10 equation of '
+                'state.'
+            )
+        _, salinity = _tracers_in_teos10_convention(
+            temperature=0.0,
+            salinity=salinity,
+            tracer_convention=tracer_convention,
+            pressure=pressure,
+            lon=lon,
+            lat=lat,
+        )
+        ct_freezing = compute_teos10_ct_freezing(
+            sa=salinity,
+            p=pressure,
+            saturation_fraction=saturation_fraction,
+        )
+    else:
+        raise ValueError(f'Unsupported equation of state type: {eos_type}')
+    if isinstance(ct_freezing, xr.DataArray):
+        ct_freezing.attrs['units'] = 'degC'
+        ct_freezing.attrs['long_name'] = 'freezing temperature'
+    return ct_freezing
 
 
 def compute_specvol(
@@ -188,3 +271,60 @@ def _tracers_in_teos10_convention(
         return float(cons_temp), float(abs_salin)
 
     return cons_temp, abs_salin
+
+
+def get_freezing_temperature(ds, config=None):
+    """
+    Return the freezing temperature of the top model layer
+
+    The model's own freezing temperature is used if it is available in the
+    output.  Otherwise, it is computed from the surface salinity with the
+    equation of state given by the config options, neglecting the (small)
+    gauge pressure at the surface.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The output dataset
+
+    config : polaris.config.PolarisConfigParser, optional
+        Configuration options, required if the freezing temperature is not
+        in the output
+
+    Returns
+    -------
+    t_freezing : xarray.DataArray
+        The freezing temperature in the top layer of each column
+    """
+    for var in ['freezingTemperature', 'CtFreezing', 'TFreezing']:
+        if var in ds:
+            t_freezing = _drop_time(ds[var])
+            if 'nVertLevels' in t_freezing.dims:
+                t_freezing = t_freezing.isel(nVertLevels=0)
+            return t_freezing
+
+    if 'salinity' not in ds:
+        raise ValueError(
+            'A frozen mass flux carries an enthalpy flux at the freezing '
+            'temperature, but neither a freezing temperature nor "salinity" '
+            'is available in the output to compute it.'
+        )
+    if config is None:
+        raise ValueError(
+            'A frozen mass flux carries an enthalpy flux at the freezing '
+            'temperature, which is not in the output, so config options are '
+            'required to compute it from the equation of state.'
+        )
+    salinity = _drop_time(ds.salinity).isel(nVertLevels=0)
+    return compute_ct_freezing(config, salinity, pressure=0.0)
+
+
+def _drop_time(da):
+    """
+    Return a data array with any time dimension removed, using the first time
+    slice since the forcing is assumed constant in time
+    """
+    for time_dim in ['time', 'Time']:
+        if time_dim in da.dims:
+            da = da.isel({time_dim: 0})
+    return da

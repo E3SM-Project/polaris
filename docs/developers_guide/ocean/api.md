@@ -600,6 +600,12 @@
    init.Init
    init.Init.run
 
+   thermo.Thermo
+   thermo.conservation_summary.ConservationSummary
+   thermo.conservation_summary.ConservationSummary.run
+   thermo.analysis.Analysis
+   thermo.analysis.Analysis.run
+
    viz.Viz
    viz.Viz.run
 ```

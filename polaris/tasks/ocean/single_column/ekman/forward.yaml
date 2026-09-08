@@ -72,6 +72,7 @@ Omega:
       FileFreqUnits: years
       Contents:
       - State
+      - Forcing
       - GeomZMid
       # Tracers supplies Temperature and Salinity, and Eos supplies the
       # SpecVol that layerThickness is derived from, as the baseline
@@ -88,4 +89,5 @@ Omega:
       FreqUnits: OnStartup
       UseStartEnd: false
       Contents:
-      - Forcing
+      - SfcStressZonal
+      - SfcStressMeridional

@@ -7,6 +7,12 @@ A variable that a step lists in ``validate_vars`` but never writes to
 computes, so the two have to be kept in step with one another.
 """
 
+import os
+import tempfile
+from importlib.resources import files as imp_res_files
+
+from jinja2 import Template
+
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.single_column import add_single_column_tasks
 from polaris.yaml import PolarisYaml
@@ -23,6 +29,34 @@ REQUIRED_GROUPS = {
 }
 
 
+# the task yaml files are templates; the values do not matter for this test
+_TEMPLATE_REPLACEMENTS = dict(
+    dt='0000_00:10:00',
+    output_interval='0000_01:00:00',
+    output_freq='3600',
+)
+
+
+def _read_history_contents(package, filename, template_replacements=None):
+    """Return the Omega History stream ``Contents`` in a yaml file, or None"""
+    text = imp_res_files(package).joinpath(filename).read_text()
+    if template_replacements is not None:
+        text = Template(text).render(**template_replacements)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_filename = os.path.join(tmpdir, 'model.yaml')
+        with open(tmp_filename, 'w') as tmp_file:
+            tmp_file.write(text)
+        yaml = PolarisYaml.read(
+            filename=tmp_filename,
+            model='Omega',
+            streams_section='IOStreams',
+        )
+    history = yaml.streams.get('History')
+    if history is None:
+        return None
+    return history.get('Contents', [])
+
+
 def _omega_history_contents(step):
     """Return the Omega History stream contents a step's yaml files ask for,
     or None if none of them define a History stream."""
@@ -31,18 +65,30 @@ def _omega_history_contents(step):
         yaml_filename = entry.get('yaml')
         if yaml_filename is None:
             continue
-        yaml = PolarisYaml.read(
-            filename=yaml_filename,
+        history = _read_history_contents(
             package=entry['package'],
-            model='Omega',
-            streams_section='IOStreams',
+            filename=yaml_filename,
+            template_replacements=entry.get('template_replacements'),
         )
-        history = yaml.streams.get('History')
         if history is None:
             continue
         if contents is None:
             contents = []
-        contents.extend(history.get('Contents', []))
+        contents.extend(history)
+
+    # the task-specific yaml is only added in dynamic_model_config(), which
+    # doesn't run at setup, so read it directly from the task package
+    task_package = getattr(step, 'task_package', None)
+    if task_package is not None:
+        history = _read_history_contents(
+            package=task_package,
+            filename='forward.yaml',
+            template_replacements=_TEMPLATE_REPLACEMENTS,
+        )
+        if history is not None:
+            if contents is None:
+                contents = []
+            contents.extend(history)
     return contents
 
 

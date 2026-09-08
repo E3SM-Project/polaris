@@ -40,6 +40,7 @@ class Inertial(Task):
         self.add_step(
             Forward(
                 component=component,
+                init=init,
                 indir=self.subdir,
                 ntasks=1,
                 min_tasks=1,
@@ -56,6 +57,6 @@ class Inertial(Task):
         )
 
         self.add_step(
-            Viz(component=component, indir=self.subdir),
+            Viz(component=component, init=init, indir=self.subdir),
             run_by_default=False,
         )

@@ -2,6 +2,12 @@ import xarray as xr
 
 from polaris.config import PolarisConfigParser
 
+# Linear salinity dependence of the freezing temperature (degC/PSU) and the
+# absolute-to-practical salinity conversion (g/kg per PSU), matching the
+# LinearEos branch of Omega's Eos::calcCtFreezing()
+FREEZING_SALINITY_COEFF = -0.054
+PSU_TO_GPKG = 35.16504 / 35.0
+
 
 def compute_linear_density(
     config: PolarisConfigParser,
@@ -45,3 +51,24 @@ def compute_linear_density(
     ), 'All linear EOS parameters must be specified in the config options.'
     density = rhoref + -alpha * (temperature - Tref) + beta * (salinity - Sref)
     return density
+
+
+def compute_linear_ct_freezing(
+    salinity: xr.DataArray | float,
+) -> xr.DataArray | float:
+    """
+    Compute the freezing temperature of seawater for the linear equation of
+    state using a simple linear dependence on salinity.
+
+    Parameters
+    ----------
+    salinity : float or xarray.DataArray
+        Salinity of the seawater (g/kg).
+
+    Returns
+    -------
+    ct_freezing : float or xarray.DataArray
+        The freezing temperature (degC) of the seawater.
+    """
+    ct_freezing = FREEZING_SALINITY_COEFF * salinity / PSU_TO_GPKG
+    return ct_freezing
