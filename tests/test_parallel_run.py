@@ -19,6 +19,7 @@ import pytest
 from polaris import Component, Step
 from polaris.run import STEP_COMPLETE_LOG
 from polaris.run.allocation import NodeResources
+from polaris.run.confinement import PLACEMENT_MISMATCH_LOG
 from polaris.run.events import EventStream, read_events
 from polaris.run.graph import build_step_graph
 from polaris.run.parallel import _credit_memory, _loop
@@ -79,7 +80,7 @@ def _run(tmp_path, steps, nodes=None):
     events_path = str(tmp_path / 'events.jsonl')
     by_path = {step.path: step for step in steps}
     with EventStream(events_path) as events:
-        outcomes = _loop(
+        outcomes, _ = _loop(
             graph,
             pool,
             by_path,
@@ -350,3 +351,30 @@ def test_a_view_from_nodes_that_said_nothing_is_left_alone():
     configured = dict(cores=64, memory_per_node=253000, memory=253000)
 
     assert _credit_memory(configured, nodes) == configured
+
+
+def test_a_step_that_did_not_get_its_placement_is_surfaced(tmp_path):
+    """
+    A warning in one of fifteen concurrent logs is a warning nobody reads.
+
+    The step is the only thing in a position to notice, so it leaves a
+    marker beside its own log and the scheduler is what says so out loud.
+    """
+    steps = [
+        _step(
+            tmp_path,
+            'wrong',
+            f'echo "gave it 4, it had 64" > {PLACEMENT_MISMATCH_LOG}\n',
+        ),
+        _step(tmp_path, 'right', 'true\n'),
+    ]
+
+    outcomes, events = _run(tmp_path, steps)
+
+    assert all(outcome.succeeded for outcome in outcomes.values())
+    reported = [
+        event['step']
+        for event in events
+        if event['event'] == 'placement_mismatch'
+    ]
+    assert reported == ['ocean/wrong']

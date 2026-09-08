@@ -38,6 +38,7 @@ from mpas_tools.logging import LoggingContext
 from polaris.parallel import set_parallel_systems
 from polaris.run import setup_config, unpickle_suite
 from polaris.run.allocation import read_allocation
+from polaris.run.confinement import PLACEMENT_MISMATCH_LOG
 from polaris.run.events import EventStream
 from polaris.run.executor import (
     RunningStep,
@@ -136,10 +137,12 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
         cores=sum(node.cores for node in nodes),
     )
     started = time.time()
-    outcomes = _loop(graph, pool, steps, logger, events, work_dir, quiet)
+    outcomes, mismatched = _loop(
+        graph, pool, steps, logger, events, work_dir, quiet
+    )
     elapsed = time.time() - started
 
-    failures = _report(outcomes, logger, elapsed)
+    failures = _report(outcomes, mismatched, logger, elapsed)
     events.record(
         'run_finished', seconds=round(elapsed, 3), failures=len(failures)
     )
@@ -241,6 +244,7 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet):
             logger.info(f'  * {path}: already done')
 
     outcomes: Dict[str, StepOutcome] = {}
+    mismatched: List[str] = []
     blocked: Dict[str, str] = {}
     running: Dict[str, RunningStep] = {}
     finished: queue.Queue = queue.Queue()
@@ -283,11 +287,12 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet):
             succeeded,
             waiting,
             outcomes,
+            mismatched,
             logger,
             events,
             quiet,
         )
-    return outcomes
+    return outcomes, mismatched
 
 
 def _start_what_fits(
@@ -352,12 +357,16 @@ def _finish(
     succeeded,
     waiting,
     outcomes,
+    mismatched,
     logger,
     events,
     quiet,
 ):
     """Take back what a step held and act on how it ended."""
     outcomes[outcome.step_path] = outcome
+    if _placement_mismatch(steps.get(outcome.step_path), logger):
+        mismatched.append(outcome.step_path)
+        events.record('placement_mismatch', step=outcome.step_path)
     neighbors = ''
     if outcome.terminated:
         # asked before the reservation goes back, since afterwards the step
@@ -431,7 +440,26 @@ def _log_filename(work_dir: str, path: str) -> str:
     )
 
 
-def _report(outcomes, logger, elapsed) -> List[str]:
+def _placement_mismatch(step, logger) -> bool:
+    """
+    Say whether a step reported that it did not get what it was placed on.
+
+    The step writes this beside its own log because it is the only thing in
+    a position to look, and the scheduler reads it because a warning in one
+    of fifteen concurrent logs is a warning nobody sees.
+    """
+    if step is None:
+        return False
+    filename = os.path.join(step.work_dir, PLACEMENT_MISMATCH_LOG)
+    if not os.path.exists(filename):
+        return False
+    with open(filename) as handle:
+        logger.warning('')
+        logger.warning(handle.read().rstrip())
+    return True
+
+
+def _report(outcomes, mismatched, logger, elapsed) -> List[str]:
     """Say how it went, and how that compares with running one at a time."""
     failures = [
         path for path, outcome in outcomes.items() if not outcome.succeeded
@@ -451,6 +479,15 @@ def _report(outcomes, logger, elapsed) -> List[str]:
             f'Step time was {step_seconds:.0f}s, so this run did '
             f'{step_seconds / elapsed:.1f}x the work of running one step at '
             f'a time for as long.'
+        )
+
+    if mismatched:
+        logger.warning('')
+        logger.warning(
+            f'{len(mismatched)} step(s) did not get the part of the '
+            f'allocation they were placed on, so the packing above does not '
+            f'describe how this run used the machine: '
+            f'{", ".join(mismatched)}'
         )
 
     if failures:

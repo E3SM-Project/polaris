@@ -98,6 +98,7 @@ seaice/api
    executor.start_step
    executor.RunningStep
    executor.StepOutcome
+   confinement.check_confinement
    events.EventStream
    events.read_events
    parallel.run_tasks
