@@ -9,21 +9,19 @@ Contributors:
 
 ## Summary
 
-Phase C gives the worker pool a fixed share of the allocation for the life of
-the run. That is simple, and it is wrong in one specific way: once the Python
-work is finished, the pool goes on holding its share, and those nodes sit
-idle while model runs queue for resources that are right there.
+Phase C gives the node residents and their workers a fixed share of the
+allocation for the life of the run. Once the Python work is finished, they
+go on holding that share, and those nodes sit idle while model runs queue
+for resources that are right there.
 
-Phase D makes the pool's share change with the work. When Python work is
-ready, the pool grows; when it drains, the pool gives nodes back and ordinary
-steps use them.
+Phase D makes the share change with the work. When Python work is ready, the
+pool grows; when it drains, it gives nodes back.
 
-This is the phase that makes a mixed suite -- model runs and analysis in the
-same job -- use the machine properly. It is also the phase most likely to be
-unnecessary, and that should be tested before it is built: if suites in
-practice do their analysis at the end, after the model runs are done, then a
-pool that appears late and holds resources until the job ends costs nothing,
-and Phase D is optimisation without a problem to solve.
+This is the phase that makes a mixed suite -- model runs and analysis in one
+job -- use the machine properly. It is also the phase most likely to be
+unnecessary. If suites do their analysis at the end, after the model runs,
+then a pool that appears late and holds resources until the job ends costs
+nothing. Test that before building this.
 
 Success in Phase D means a suite mixing model runs and analysis finishes in
 close to the time the work itself requires, with no long stretch where part
@@ -128,7 +126,7 @@ measurable before and after.
 
 ### Algorithm Design: Deciding the Size
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -145,9 +143,16 @@ Resizing should happen in whole nodes. A pool spanning three nodes releasing
 the shape of free resource that looks available and is useless.
 
 Two guards keep this from thrashing. A change should have to be worth more
-than it costs -- the cost being one launch per node added, which measurement
-puts at a fraction of a second to a second -- and a resize should not be
-followed immediately by its opposite.
+than it costs, and a resize should not be followed immediately by its
+opposite.
+
+The cost is not uniform, and the difference shapes the policy. Adding a
+worker to a node that already has a resident is a fork, measured at about a
+tenth of a second. Adding a node means launching a resident there, which
+pays the Polaris import -- tens of seconds. So growing within nodes the pool
+already holds is nearly free, and growing onto new nodes is not. Shrinking
+should give up whole nodes for the same reason: a node given up has to be
+paid for again.
 
 ### Algorithm Design: When Both Kinds of Work Are Waiting
 
@@ -189,7 +194,7 @@ of one still shutting down.
 
 ### Implementation: What Changes
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -199,8 +204,8 @@ Contributors:
 Phase D changes the pool module from Phase C and the scheduler loop from
 Phase B, and adds nothing structurally new:
 
-- the pool gains grow and drain operations, and a notion of workers that are
-  finishing but not yet gone;
+- the residents gain grow and drain operations, and a notion of workers that
+  are finishing but not yet gone;
 - the resource pool distinguishes resources that are free from resources that
   will be free shortly;
 - the scheduler consults a target pool size each time round the loop, and
