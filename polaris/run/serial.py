@@ -91,6 +91,7 @@ def run_tasks(
         total_tasks = len(suite['tasks'])
         exec_fail_tasks: List[str] = []
         diff_fail_tasks: List[str] = []
+        property_fail_tasks: List[str] = []
         for task_name in suite['tasks']:
             stdout_logger.info(f'{task_name}')
 
@@ -110,6 +111,7 @@ def run_tasks(
                 task_time,
                 exec_failed,
                 diff_failed,
+                property_failed,
             ) = _log_and_run_task(
                 task,
                 stdout_logger,
@@ -128,6 +130,8 @@ def run_tasks(
                 exec_fail_tasks.append(task_name)
             if diff_failed:
                 diff_fail_tasks.append(task_name)
+            if property_failed:
+                property_fail_tasks.append(task_name)
             task_times[task_name] = task_time
 
         suite_time = time.time() - suite_start
@@ -142,6 +146,7 @@ def run_tasks(
                 'total': total_tasks,
                 'failures': exec_fail_tasks,
                 'diffs': diff_fail_tasks,
+                'properties': property_fail_tasks,
             },
         )
 
@@ -389,10 +394,13 @@ def _log_and_run_task(
         task_logger.info('')
         task_list = ', '.join(task.steps_to_run)
         task_logger.info(f'Running steps: {task_list}')
-        # Default in case execution fails before setting this
+        # Defaults in case execution fails before these are set
         baselines_passed = None
+        property_passed = None
         try:
-            baselines_passed = _run_task(task, available_resources)
+            baselines_passed, property_passed = _run_task(
+                task, available_resources
+            )
             run_status = success_str
             task_pass = True
         except Exception:
@@ -406,14 +414,24 @@ def _log_and_run_task(
         task_logger.info(f'POLARIS TASK: {"PASS" if task_pass else "FAIL"}')
         if task_pass:
             stdout_logger.info(status)
-            if baselines_passed is None:
-                result_str = pass_str
-                success = True
-            else:
+            result_str = pass_str
+            success = True
+            if property_passed is not None:
+                if property_passed:
+                    property_str = pass_str
+                else:
+                    property_str = fail_str
+                    result_str = fail_str
+                    success = False
+                status = f'  property checks:  {property_str}'
+                stdout_logger.info(status)
+                task_logger.info(
+                    f'POLARIS PROPERTY: '
+                    f'{"PASS" if property_passed else "FAIL"}'
+                )
+            if baselines_passed is not None:
                 if baselines_passed:
                     baseline_str = pass_str
-                    result_str = pass_str
-                    success = True
                 else:
                     baseline_str = fail_str
                     result_str = fail_str
@@ -441,7 +459,15 @@ def _log_and_run_task(
 
     exec_failed = not task_pass
     diff_failed = baselines_passed is False
-    return result_str, success, task_time, exec_failed, diff_failed
+    property_failed = property_passed is False
+    return (
+        result_str,
+        success,
+        task_time,
+        exec_failed,
+        diff_failed,
+        property_failed,
+    )
 
 
 def _read_baseline_status_from_logs(step_work_dir: str) -> Optional[bool]:
@@ -660,7 +686,7 @@ def _run_task(task, available_resources):
             f'{start_time_color}{step_time_str}{end_color}',
         )
 
-    return baselines_passed
+    return baselines_passed, property_passed
 
 
 def _run_step(
@@ -886,28 +912,41 @@ def _write_output_for_pull_request(
 
     # If we have results, summarize them
     if results is not None and isinstance(results, dict):
-        total = int(results.get('total', 0) or 0)
-        failures: List[str] = list(results.get('failures', []) or [])
-        diffs: List[str] = list(results.get('diffs', []) or [])
-
-        if total > 0 and not failures and not diffs:
-            lines.append('- Result: All tests passed')
-        else:
-            lines.append('- Result:')
-            if failures:
-                lines.append(f'  - Failures ({len(failures)} of {total}):')
-                for name in failures:
-                    lines.append(f'    - `{name}`')
-            if diffs:
-                lines.append(f'  - Diffs ({len(diffs)} of {total}):')
-                for name in diffs:
-                    lines.append(f'    - `{name}`')
+        lines.extend(_result_summary_lines(results))
 
     out_path = os.path.join(work_dir, f'{suite_name}_output_for_pr.md')
     print(f'Writing output useful for copy/paste into PRs to:\n  {out_path}')
     with open(out_path, 'w') as out:
         out.write('\n'.join(lines) + '\n')
     print('Done.')
+
+
+def _result_summary_lines(results: dict) -> List[str]:
+    """
+    Summarize the suite results as the lines of the pull request output,
+    listing the tasks in each category of failure
+
+    A task can appear in more than one category, since a task that fails a
+    property check may also differ from the baseline.
+    """
+    total = int(results.get('total', 0) or 0)
+    categories = [
+        ('Failures', list(results.get('failures', []) or [])),
+        ('Diffs', list(results.get('diffs', []) or [])),
+        ('Property checks', list(results.get('properties', []) or [])),
+    ]
+
+    if total > 0 and not any(names for _, names in categories):
+        return ['- Result: All tests passed']
+
+    lines = ['- Result:']
+    for label, names in categories:
+        if not names:
+            continue
+        lines.append(f'  - {label} ({len(names)} of {total}):')
+        for name in names:
+            lines.append(f'    - `{name}`')
+    return lines
 
 
 def _parse_provenance_into(path, labels, target_values):
