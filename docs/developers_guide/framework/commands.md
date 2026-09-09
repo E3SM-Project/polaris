@@ -132,6 +132,49 @@ field or change its meaning, increment `SCHEMA_VERSION` in
 from a given task, skipping any others, displaying the output in the terminal
 window rather than a log file.
 
+(dev-run-parallel)=
+
+## run.parallel module
+
+{py:func}`polaris.run.parallel.run_tasks()` runs a suite or task with its
+steps at the same time, and is what `polaris parallel` calls.  It shares the
+step lifecycle with the serial path -- the checks on a step's inputs and
+outputs, loading what it depends on, `runtime_setup()`, `run()`, the
+completion markers and the baseline comparisons all live in
+`polaris.run.lifecycle` and are the same either way.  What differs is
+deciding *which* step runs and what it is given.
+
+Four pieces do that work, and they are worth knowing apart:
+
+- {py:func}`polaris.run.graph.build_step_graph()` turns the selected steps
+  into a graph, from the dependencies a step declares and the files one step
+  produces that another consumes.  It rejects a graph that cannot be run --
+  a cycle, or an input nothing produces and which does not already exist --
+  before any step starts.
+- {py:func}`polaris.run.allocation.read_allocation()` asks the allocation's
+  nodes what they actually hold, rather than trusting the machine's
+  configured figure, because a node can offer less than its specification
+  says and over-crediting memory kills a job.
+- {py:class}`polaris.run.pool.ResourcePool` decides what may start: it hands
+  out cores, GPUs and a memory budget, and refuses a step that would not fit
+  rather than overcommitting the machine.
+- {py:func}`polaris.run.executor.start_step()` forks a child for a step and
+  {py:func}`polaris.run.executor.reap_one()` waits for whichever finishes
+  next.  The child inherits the scheduler's memory, so it imports nothing and
+  reads no pickle of its own.
+
+Because the scheduler forks, it must hold no thread but its own -- only the
+forking thread survives a fork, and a lock held by any other one at that
+moment is held forever in the child.  That is why `polaris/__init__.py` pins
+the numerical thread pools before numpy can raise one thread per core, and
+why the scheduler reaps in its own loop rather than giving each running step
+a thread to wait on it.
+
+Each step's output goes to its own log under `case_outputs`, since steps no
+longer take turns and cannot share a stream.  The scheduler also writes an
+event stream, `<suite>_events.jsonl`, recording what started when and what
+each step held; {py:func}`polaris.run.events.read_events()` reads it back.
+
 (dev-cache)=
 
 ## cache module
