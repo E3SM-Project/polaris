@@ -17,10 +17,12 @@ import xarray as xr
 from polaris.ocean.conservation import (
     TRACERS_TO_CHECK,
     compute_total_mass,
-    get_elapsed_seconds,
     rho_sw,
 )
-from polaris.ocean.model.ocean_model_step import _expand_properties
+from polaris.ocean.model.ocean_model_step import (
+    _elapsed_seconds,
+    _expand_properties,
+)
 
 
 def _make_dataset(*tracer_names):
@@ -125,15 +127,15 @@ def test_elapsed_seconds_from_xtime():
     # parsing in polaris.mpas.time cannot walk, so the times have to come
     # from the whole dataset.
     ds = _xtime_dataset('0001-01-01_00:00:00', '0001-01-25_00:00:00')
-    elapsed = get_elapsed_seconds(ds, time_index_start=0, time_index_end=-1)
+    elapsed = _elapsed_seconds(ds, time_index_start=0, time_index_end=-1)
     assert elapsed == pytest.approx(24.0 * 86400.0)
 
 
 def test_elapsed_seconds_from_days_since_start():
     ds = xr.Dataset({'daysSinceStartOfSim': ('Time', np.array([1.0, 10.0]))})
-    assert get_elapsed_seconds(ds, time_index_end=-1) == pytest.approx(
+    assert _elapsed_seconds(ds, time_index_end=-1) == pytest.approx(
         10.0 * 86400.0
     )
-    assert get_elapsed_seconds(
+    assert _elapsed_seconds(
         ds, time_index_start=0, time_index_end=-1
     ) == pytest.approx(9.0 * 86400.0)
