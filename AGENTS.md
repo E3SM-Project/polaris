@@ -68,6 +68,46 @@ These instructions apply to the whole repository unless a deeper
 - An issue should say what happens, what was expected instead, and
   enough about the configuration and commands used to reproduce it.
 
+## Writing for human readers
+
+These rules apply to anything a colleague reads: GitHub comments, pull
+request descriptions, issues, plans, design notes. Not code comments or
+commit messages, where a reader who wants the mechanism is already in the
+right place. Per-artifact rules and worked examples are in
+`.claude/skills/<artifact>/SKILL.md`, as plain markdown. Claude Code loads
+the matching one automatically; other agents should read it before writing.
+
+Write less; do not pack the same content into denser sentences. Keep
+headings, tables and links. Colleagues mostly write unstructured prose, and
+structure is an improvement on it. The problem is length.
+
+- **Lead with the answer.** The first two sentences say what you found,
+  changed, or propose. Setup and reproduction go last.
+- **One point per paragraph, and few paragraphs.** Colleagues write one to
+  three per comment; recent AI-written ones ran to eighteen. That gap is
+  the complaint. Say each thing once.
+- **Do not narrate the mechanism.** The chain of calls, and why the fix is
+  right, go in the commit message. Here, say what broke and where to look.
+- **Cut clauses that qualify rather than inform**, and any sentence whose
+  only job is to justify the one before it. One clause per sentence where
+  one will do.
+- **Use backticks about half as often as feels natural.** They are for what
+  a reader would type or grep. Code blocks hold artifacts you did not
+  write, never authored prose.
+- **One document, one decision.** Anything still relevant after this merges
+  is an issue, not a comment.
+
+Sign anything posted to GitHub on someone's behalf:
+
+```
+---
+
+*Posted by <agent> on @<user>'s behalf. The testing, analysis and wording
+above are AI-authored; please check them accordingly.*
+```
+
+Name the agent, not the vendor: `Claude Code`, `Codex`, and so on.
+
 ## Supported machines
 
 - `docs/developers_guide/supported_machines.yaml` is the source of the
