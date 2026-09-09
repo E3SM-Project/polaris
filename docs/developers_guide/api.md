@@ -527,6 +527,7 @@ seaice/api
    plot_horiz_field
    plot_global_lat_lon_field
    plot_global_mpas_field
+   plot_lat_elevation_field
 ```
 
 ### yaml
