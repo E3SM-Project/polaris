@@ -201,7 +201,8 @@ def compute_total_salt(ds_mesh, ds):
 def get_elapsed_seconds(ds, time_index_start=None, time_index_end=-1):
     """
     Elapsed seconds between two states of an output dataset, supporting
-    Omega's numeric ``time`` and MPAS-Ocean's ``daysSinceStartOfSim``.
+    Omega's numeric ``time`` and MPAS-Ocean's ``daysSinceStartOfSim`` or
+    ``xtime``.
 
     Parameters
     ----------
@@ -228,13 +229,16 @@ def get_elapsed_seconds(ds, time_index_start=None, time_index_end=-1):
     # its own.
     from polaris.ocean.model.time import get_days_since_start
 
+    # Take the times from the whole dataset and index the result, rather
+    # than selecting a time slice first.  MPAS-Ocean's times come from
+    # xtime, and a single slice of it is a scalar, which the string parsing
+    # in polaris.mpas.time cannot walk.
+    days = get_days_since_start(ds)
+    end_time = float(days[time_index_end]) * 86400.0
     if time_index_start is None:
         start_time = 0.0
     else:
-        start_time = (
-            get_days_since_start(ds.isel(Time=time_index_start)) * 86400.0
-        )
-    end_time = get_days_since_start(ds.isel(Time=time_index_end)) * 86400.0
+        start_time = float(days[time_index_start]) * 86400.0
     return end_time - start_time
 
 

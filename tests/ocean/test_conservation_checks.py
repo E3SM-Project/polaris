@@ -17,6 +17,7 @@ import xarray as xr
 from polaris.ocean.conservation import (
     TRACERS_TO_CHECK,
     compute_total_mass,
+    get_elapsed_seconds,
     rho_sw,
 )
 from polaris.ocean.model.ocean_model_step import _expand_properties
@@ -111,3 +112,28 @@ def test_more_than_one_time_slice_is_rejected():
     ds_mesh, ds = _mesh_and_state(n_times=2)
     with pytest.raises(ValueError, match='single time slice'):
         compute_total_mass(ds_mesh, ds)
+
+
+def _xtime_dataset(*times):
+    xtime = np.array([t.encode() for t in times])
+    return xr.Dataset({'xtime': ('Time', xtime)})
+
+
+def test_elapsed_seconds_from_xtime():
+    # MPAS-Ocean output without daysSinceStartOfSim carries times as xtime.
+    # Selecting a single time slice first leaves a scalar that the string
+    # parsing in polaris.mpas.time cannot walk, so the times have to come
+    # from the whole dataset.
+    ds = _xtime_dataset('0001-01-01_00:00:00', '0001-01-25_00:00:00')
+    elapsed = get_elapsed_seconds(ds, time_index_start=0, time_index_end=-1)
+    assert elapsed == pytest.approx(24.0 * 86400.0)
+
+
+def test_elapsed_seconds_from_days_since_start():
+    ds = xr.Dataset({'daysSinceStartOfSim': ('Time', np.array([1.0, 10.0]))})
+    assert get_elapsed_seconds(ds, time_index_end=-1) == pytest.approx(
+        10.0 * 86400.0
+    )
+    assert get_elapsed_seconds(
+        ds, time_index_start=0, time_index_end=-1
+    ) == pytest.approx(9.0 * 86400.0)
