@@ -77,6 +77,16 @@ right place. Per-artifact rules and worked examples are in
 `.claude/skills/<artifact>/SKILL.md`, as plain markdown. Claude Code loads
 the matching one automatically; other agents should read it before writing.
 
+Assume that the audience or readership is a polaris developer with
+familiarity at a high level with the overall structure and intention of the
+code base.
+
+Never repeat explanations of existing, unchanged features already explained
+in `docs`; instead, provide links to the relevant sections in `docs`.
+Explanations are appropriate where there is a change, particularly one of a
+conceptual nature. Explanations are also appropriate to highlight nuance
+that informs the current discussion.
+
 Write less; do not pack the same content into denser sentences. Keep
 headings, tables and links. Colleagues mostly write unstructured prose, and
 structure is an improvement on it. The problem is length.
