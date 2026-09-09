@@ -17,13 +17,8 @@ ocean:
     config_disable_tr_sflux: false
     config_disable_thick_sflux: false
     config_disable_thick_hadv: true
-    config_disable_thick_vadv: true
-    config_disable_vel_vmix: true
     config_disable_vel_pgrad: true
     config_disable_vel_explicit_bottom_drag: true
-    config_disable_vel_vadv: true
-    config_disable_tr_adv: true
-    config_disable_tr_vmix: true
 
 mpas-ocean:
   io:
