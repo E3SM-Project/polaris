@@ -22,9 +22,11 @@ class Analysis(OceanIOStep):
         comparisons=None,
     ):
         super().__init__(component=component, name='analysis', indir=indir)
-        self.add_input_file(
-            filename='vert_coord.nc', target='../init/vert_coord.nc'
-        )
+        # Only Omega needs this: it has no zTop in its output, so interface
+        # depths have to be rebuilt from the vertical coordinate.  MPAS-Ocean
+        # writes zTop and has no separate vert_coord file, so the entry is
+        # dropped for it.
+        self.add_vert_coord_input_file(target='../init/vert_coord.nc')
         self.comparisons = (
             dict(comparisons)
             if comparisons
@@ -40,11 +42,7 @@ class Analysis(OceanIOStep):
         """
         Run this step of the test case
         """
-        ds_vert = self.open_model_dataset(
-            'vert_coord.nc',
-            decode_times=False,
-            config=self.config,
-        )
+        ds_vert = None
         for comparison_name in self.comparisons.keys():
             ds_diags = self.open_model_dataset(
                 f'{comparison_name}.nc', decode_times=True, config=self.config
@@ -69,6 +67,12 @@ class Analysis(OceanIOStep):
             if 'zTop' in ds_diags_1day.keys():
                 z_top_final = ds_diags_1day['zTop'].mean(dim='nCells')
             else:
+                if ds_vert is None:
+                    ds_vert = self.open_model_dataset(
+                        self.get_vert_coord_filename(),
+                        decode_times=False,
+                        config=self.config,
+                    )
                 z_int_final, _ = compute_zint_zmid_from_layer_thickness(
                     layer_thickness=ds_diags_1day['layerThickness'],
                     bottom_depth=ds_vert['bottomDepth'],
