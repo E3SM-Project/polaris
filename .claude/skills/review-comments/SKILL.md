@@ -7,24 +7,26 @@ description: Write a review comment, review findings, or a reply to review feedb
 
 The reader is deciding what to change.
 
-- Findings first, ordered by how much they matter. At most one sentence
-  before them.
-- One short paragraph per finding: what is wrong, one piece of evidence,
-  stop. Not how it works.
+- Put each finding as an inline comment on the line it concerns, one point
+  each. That is where colleagues put them, and it is why their review
+  bodies are short.
+- The review body summarizes: what you ran, and the verdict. Two or three
+  sentences.
+- Use a list in the body only for requests that span files.
 - No section on what already works. One line for all of it, if any.
-- Reproduction and configuration go in one paragraph at the end.
-- Headings help once there are several findings. Use them.
+- Say what you could not check.
 
 ## Calibration
 
-Review comments written by colleagues in these repositories run 22 to 32
-words at the median, 63 to 92 at the ninetieth percentile, and 170 at the
-longest seen. A recent AI-written review ran 1117 words, with the findings
-starting 444 words in.
+Measured over review comments from 2023, before any agent wrote here.
+Review bodies run 14 words at the median, 55 at the ninetieth percentile,
+and 239 at the longest. Inline comments run 22 to 32 words at the median
+and 170 at the longest. A recent agent-written review ran 1117 words, with
+the findings starting 444 words in.
 
 ## Enough
 
-Real comments from this project. One point each, one suggestion, done.
+Inline, one point and a suggestion:
 
 > It's preferable to use xarray's `isel()` instead of explicit axis
 > indexing whenever possible. It is generally clearer which axis is being
@@ -35,29 +37,21 @@ Real comments from this project. One point each, one suggestion, done.
 > think we should just remove the `default` test case from the test suite.
 > This might be appropriate to have in the developer's guide instead.
 
-With several findings, label them and keep each to a paragraph. No
-human example of this shape exists in these repositories, so the following
-is constructed:
+In the body, when several requests span the whole change:
 
-> Three things, one blocking.
+> Thanks for putting this together and the overall system looks good.
+> However, I think we need to make this a cleaner, simpler PR with the
+> following changes:
 >
-> **blocking — `MOCLatBinBoundaries` carries a time dimension.** It is
-> static, so a consumer reading twelve months gets twelve times as many
-> latitudes as bins. Verified in the January output file.
->
-> **worth fixing — the streamfunction has no units.** Both attributes are
-> empty; the values are Sverdrups. Raised last review, unchanged.
->
-> **noted — written bin boundaries differ from what the operator bins on**
-> by 1.8e-4 degrees, below anything that matters for a plot.
->
-> Reviewed with the analysis suite from E3SM-Project/polaris#743, QU240,
-> one year, intel. Plots on the LCRC portal.
+> - For the CIME changes and YAKL submodule, I think we need to sync the
+>   OMEGA repo so it's up to date with E3SM.
+> - Can you please remove the logger and spdlog. This will need a separate
+>   PR and discussion.
 
 ## Too much
 
-The same review, actually posted, spent its first 444 words on "How this
-was reviewed", "What the previous review asked for" and four paragraphs of
+A real agent-written review spent its first 444 words on "How this was
+reviewed", "What the previous review asked for" and four paragraphs of
 "What works", then traced each finding's mechanism:
 
 > It is static: computed once in the `MOC` constructor from `NumBins`,

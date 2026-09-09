@@ -5,40 +5,51 @@ description: Write a Testing comment on a pull request, recording what was run a
 
 # Testing comments
 
-Scanned now, re-audited later. Tables carry the results.
+What you ran, where, and whether it passed.
 
-- One line of configuration: machine, compiler, submodule hashes.
-- Results go in tables. Prose only for what a table cannot say.
-- Do not restate in prose what the table already shows.
-- Do not repeat the pull request description.
+- Name the suite, the machine and the compiler. One sentence.
+- Give the work directory or the baseline you compared against.
+- Say the result. Bit-for-bit, passed, or the numbers if they matter.
+- Use a table only when there are several runs to compare.
+- Do not restate in prose what a table or a pasted result already shows.
 - Failures unrelated to the branch go under their own heading at the end.
+
+## Calibration
+
+Measured over Testing comments from 2023, before any agent wrote here.
+They run 21 to 43 words. A recent agent-written one ran 606 words.
 
 ## Enough
 
-A colleague's whole testing report:
-
-> Builds were successful on pm-cpu (gnu), pm-gpu (gnugpu), Frontier CPU
-> (craygnu), and Frontier GPU (craygnu-mphipcc).
+> ## Testing
 >
-> All CTests passed.
+> I ran the cosine bell test suite on Chrysalis with Intel and OpenMPI:
+> ```
+> /lcrc/group/e3sm/ac.xylar/polaris_0.1/chrysalis/test_20230304/cosine_bell_yaml
+> ```
+> Results are bit-for-bit with the current `main`.
 
-With suite results, let the table do it. Constructed, since no human
-example here reports a suite this way:
+> ## Testing
+>
+> I tested this by successfully running several baroclinic channel and
+> cosine bell tests on Chrysalis (comparing with a baseline).
 
-> Chrysalis, gnu, MPAS-Ocean at `b7759691a5`. 840 tests pass, pre-commit
-> clean.
+When the results are worth pasting, paste them and stop:
+
+> ## Testing
 >
-> | suite | main | this branch |
-> | --- | --- | --- |
-> | `mpaso_pr` execution failures | 7 of 24 | 0 |
-> | `mpaso_pr` baseline diffs | not reached | 5 |
->
-> The five diffs are missing baseline files; `main` never wrote those
-> outputs.
+> I ran 4 baroclinic channel test cases on Chrysalis and verified that they
+> are BFB with a baseline from 2 days ago:
+> ```
+> Test Runtimes:
+> 00:07 PASS ocean/baroclinic_channel/10km/decomp_test
+> 00:04 PASS ocean/baroclinic_channel/10km/restart_test
+> ```
 
 ## Too much
 
-A real comment put the table in, then said the same thing again in prose:
+A real agent-written comment put the table in, then said the same thing
+again in prose:
 
 > Every task now runs to completion. The five diffs are all of the form
 > `File ... does not exist`: `main` crashed before writing those outputs,
