@@ -551,6 +551,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             filename = check['filename']
             baseline = check['baseline']
             time_index_end = check['time_index_end']
+            tolerances = check.get('tolerances', {})
             properties = [
                 prop.replace(' conservation', '')
                 for prop in check['properties']
@@ -595,9 +596,13 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     raise ValueError(
                         f'Unknown property to check: {output_property}'
                     )
-                tol = config.getfloat(
-                    'ocean', f'{output_property}_conservation_tolerance'
-                )
+                if output_property in tolerances:
+                    tol = tolerances[output_property]
+                else:
+                    tol = config.getfloat(
+                        'ocean',
+                        f'{output_property}_conservation_tolerance',
+                    )
 
                 expected_change = 0.0
                 if output_property in ['mass', 'energy', 'salt']:

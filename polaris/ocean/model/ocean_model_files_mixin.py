@@ -189,6 +189,7 @@ class OceanModelFilesMixin:
         check_properties=None,
         check_properties_baseline='init',
         check_properties_time_index_end=-1,
+        check_properties_tolerances=None,
         validate_class=None,
     ):
         """
@@ -210,6 +211,9 @@ class OceanModelFilesMixin:
             Forwarded to :py:meth:`polaris.Step.add_output_file`.
 
         check_properties_time_index_end : int, optional
+            Forwarded to :py:meth:`polaris.Step.add_output_file`.
+
+        check_properties_tolerances : dict of float, optional
             Forwarded to :py:meth:`polaris.Step.add_output_file`.
 
         validate_class : str, optional
@@ -262,6 +266,7 @@ class OceanModelFilesMixin:
             check_properties=check_properties,
             check_properties_baseline=check_properties_baseline,
             check_properties_time_index_end=check_properties_time_index_end,
+            check_properties_tolerances=check_properties_tolerances,
         )
 
     # --- shared placeholder resolution ---

@@ -203,9 +203,11 @@ class Step:
         A list of conservation comparisons to perform, each a dictionary
         with the keys ``filename`` (the output file), ``properties`` (the
         list of conservation properties to check), ``baseline`` (either
-        ``'init'`` or the time index in the output file to compare against)
-        and ``time_index_end`` (the time index in the output file at the end
-        of the comparison)
+        ``'init'`` or the time index in the output file to compare against),
+        ``time_index_end`` (the time index in the output file at the end
+        of the comparison) and ``tolerances`` (a mapping from property name
+        to a relative error tolerance that overrides the config option for
+        that property)
 
     property_check_results : list of dict
         The results of the conservation checks performed by
@@ -967,6 +969,7 @@ class Step:
         check_properties=None,
         check_properties_baseline='init',
         check_properties_time_index_end=-1,
+        check_properties_tolerances=None,
     ):
         """
         Add the output file to the step
@@ -999,6 +1002,10 @@ class Step:
         check_properties_time_index_end : int, optional
             The time index in the output file at the end of the conservation
             comparison
+
+        check_properties_tolerances : dict of float, optional
+            Relative error tolerances that override the config options for
+            this comparison, see :py:meth:`add_property_check()`
         """
         if filename not in self.outputs:
             self.outputs.append(filename)
@@ -1010,6 +1017,7 @@ class Step:
                 check_properties=check_properties,
                 baseline=check_properties_baseline,
                 time_index_end=check_properties_time_index_end,
+                tolerances=check_properties_tolerances,
             )
 
     def add_property_check(
@@ -1018,6 +1026,7 @@ class Step:
         check_properties,
         baseline='init',
         time_index_end=-1,
+        tolerances=None,
     ):
         """
         Add a single conservation comparison for an output file
@@ -1039,6 +1048,16 @@ class Step:
 
         time_index_end : int, optional
             The time index in the output file at the end of the comparison
+
+        tolerances : dict of float, optional
+            Relative error tolerances that override the
+            ``<property>_conservation_tolerance`` config options for this
+            comparison only, e.g. ``{'salt conservation': 1e-12}``.  Keys
+            may be given with or without the ``' conservation'`` suffix.
+            Use this when one step's budget cannot be held to the same
+            tolerance as the rest of the component; to change a tolerance
+            for a whole task, set the config option in the task's config
+            file instead.
         """
         if baseline != 'init' and not isinstance(baseline, int):
             raise ValueError(
@@ -1051,6 +1070,7 @@ class Step:
                 properties=list(check_properties),
                 baseline=baseline,
                 time_index_end=time_index_end,
+                tolerances=_normalize_tolerances(tolerances),
             )
         )
 
@@ -1362,3 +1382,23 @@ def _warn_if_gpus_per_task(gpus_per_task, min_gpus_per_task):
         DeprecationWarning,
         stacklevel=3,
     )
+
+
+def _normalize_tolerances(tolerances):
+    """
+    Validate conservation tolerance overrides and strip the
+    ``' conservation'`` suffix from their keys so that they can be looked up
+    by property name
+    """
+    if tolerances is None:
+        return dict()
+    normalized = dict()
+    for name, tolerance in tolerances.items():
+        tolerance = float(tolerance)
+        if tolerance <= 0.0:
+            raise ValueError(
+                f'The conservation tolerance for "{name}" must be positive '
+                f'but is {tolerance}'
+            )
+        normalized[name.replace(' conservation', '')] = tolerance
+    return normalized
