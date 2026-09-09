@@ -45,8 +45,8 @@ class OceanModelFilesMixin:
         **kwargs,
     ):
         """
-        Open a dataset, mapping Omega variable and dimension names to their
-        MPAS-Ocean equivalents if appropriate.
+        Open the given dataset, mapping variable and dimension names from Omega
+        to MPAS-Ocean names if appropriate
 
         Parameters
         ----------
@@ -56,21 +56,29 @@ class OceanModelFilesMixin:
         config : polaris.config.PolarisConfigParser, optional
             Configuration for the task; defaults to the step's config
 
-        tracer_convention : str, optional
-            The tracer convention to use when renaming variables
+        tracer_convention : {'teos-10', 'mpas-ocean'}, optional
+            The convention of ``temperature`` and ``salinity`` in the dataset
+            that is returned.  The default is to leave the tracers in the
+            convention the ocean model wrote them in.  The locations needed
+            for the conversion come from ``mesh_filename`` unless ``lon`` and
+            ``lat`` are given.
 
-        lon : str, optional
-            The name of the longitude coordinate, if any
+        lon : float or xarray.DataArray, optional
+            The longitude(s) in degrees at which to convert tracers, if not
+            the location implied by the mesh
 
-        lat : str, optional
-            The name of the latitude coordinate, if any
+        lat : float or xarray.DataArray, optional
+            The latitude(s) in degrees at which to convert tracers, as for
+            ``lon``
 
         logger : logging.Logger, optional
-            A logger; defaults to the step's logger
+            A logger for logging EOS iteration information; defaults to the
+            step's logger
 
-        **kwargs
-            Additional keyword arguments forwarded to
-            :py:meth:`polaris.tasks.ocean.Ocean.open_model_dataset`
+        kwargs
+            keyword arguments passed to
+            :py:meth:`polaris.tasks.ocean.Ocean.open_model_dataset()` and on
+            to `xarray.open_dataset()`
 
         Returns
         -------
