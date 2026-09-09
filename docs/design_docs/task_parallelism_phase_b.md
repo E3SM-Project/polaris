@@ -47,7 +47,7 @@ on it, and reruns still skip completed steps.
 
 ## Open Questions
 
-### How many threads should a step's process use?
+### What target and minimum threads should a JIGSAW step declare?
 
 Date last modified: 2026/09/09
 
@@ -56,27 +56,30 @@ Contributors:
 - Xylar Asay-Davis
 - Claude
 
-Nothing in Polaris sets the thread count of a step's own Python process.
-`OMP_NUM_THREADS` is set for a launched model command and for nothing else,
-so numpy sizes its OpenBLAS pool from whatever the process can see.
+JIGSAW is the only consumer of thread parallelism in Polaris's own Python
+work, and it is not configured the way the rest of the framework is: the
+binary links `libgomp` and calls `omp_set_num_threads`, but it takes its
+count from `NUMTHREAD` in its own job-config file, which `jigsawpy` exposes
+as `opts.numthread`. So `OMP_NUM_THREADS` does not reach it. Polaris never
+sets it, which means the two steps that shell out to it -- the
+quasi-uniform and unified spherical base meshes -- run at whatever thread
+count the machine offers. Those meshes are therefore not reproducible across
+machines or allocation shapes today, independently of task parallelism.
 
-The three paths therefore disagree today. `polaris serial` runs unconfined
-and gets one thread per core on the node. A subprocess bound to its
-placement got one thread per placed core. A forked child inherits the
-scheduler's count whatever its own placement, so every step gets the same
-number -- which is the only one of the three that is deterministic.
+The agreed shape of the fix is that those steps declare
+`cpus_per_task`/`min_cpus_per_task` -- a true statement about *cores*, which
+is what the pool reserves and the child is bound to -- and pass the number
+they were assigned to `opts.numthread`. The step choosing one thread per
+core is the step's business rather than the framework's, so this needs no
+new resource vocabulary.
 
-Deterministic is not the same as right. If the scheduler holds its pools to
-one for fork safety, every step runs single-threaded BLAS, and a step that
-relied on threading gets slower. If it does not, a child confined to one
-core inherits a pool sized for the whole node, which is oversubscription at
-forty-eight children.
-
-Making the concurrent and serial paths agree, which *Results Match Serial
-Execution* requires, means setting the count explicitly on both. That
-changes results relative to existing baselines once, which is acceptable
-since baselines are regenerated from `main`, but it is a decision to take
-deliberately rather than inherit.
+What is open is the number. JIGSAW should want many cores for a large mesh
+and few for a small one, so a single figure on the base class may be the
+wrong shape and the declaration may have to vary with resolution or be
+derived from the cell count the step already computes. This shall be
+measured rather than guessed: a quasi-uniform mesh at high resolution and at
+factors of four or eight coarser, each at several thread counts, with
+`numthread` set explicitly.
 
 ## Requirements
 
@@ -262,6 +265,25 @@ shall not prevent unrelated work from continuing.
 
 Completed steps shall still be skipped on rerun, cached steps shall still be
 honored, and a rerun after a failure shall resume from what succeeded.
+
+### Requirement: Nothing Outlives the Scheduler
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+A scheduler that stops shall stop the steps it started, whether it is
+finishing, interrupted or failing.
+
+A forked child is a direct child of the scheduler. One left behind holds
+cores with nothing watching it and, for an MPI step, a model still running
+behind it; one never reaped is a zombie for as long as the scheduler lives.
+Inside a batch job the allocation ending hides both, which is why the first
+implementation could go without this and nobody notice until a suite was run
+interactively.
 
 ### Requirement: A Step Killed by the Node Is Reported as Such
 
@@ -553,6 +575,47 @@ so the child-side code should not know which forked it. Log parity is part
 of the contract and is easy to lose -- a first attempt called the lifecycle
 directly and produced correct results with a log missing its `Running step:`
 preamble and its `execution: SUCCESS` footer.
+
+### Implementation: How Many Threads a Step's Process Uses
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The numerical thread pools shall be held to one on both paths, and shall be
+held there before anything imports numpy.
+
+Three paths disagreed. `polaris serial` ran unconfined and got one OpenBLAS
+thread per core on the node -- 128 on Chrysalis. A per-step subprocess bound
+to its placement before importing numpy got one per placed core. A forked
+child inherits the scheduler's count whatever its own placement.
+
+Polaris asks nothing of a threaded BLAS in return: every `np.linalg` call in
+the framework is a vector norm over a one-dimensional array, `polyfit` runs
+on a handful of convergence points, and the one `matmul` is a stack of tiny
+per-point matrices. What the pool costs is reproducibility, since a threaded
+reduction sums in an order that depends on the thread count. Pinning both
+paths is what lets them agree by construction, as *Results Match Serial
+Execution* requires, and it is also what makes the scheduler safe to fork
+from. Baselines shift once against this, which is what regenerating them
+from `main` is for.
+
+It shall be set in `polaris/__init__.py`, above that package's own imports,
+and not in the command-line entry point. OpenBLAS sizes its pool when numpy
+is first imported and nothing resizes it afterwards without `threadpoolctl`,
+which Polaris does not depend on; importing `polaris.__main__` imports the
+package first, so a process that pins there already holds 129 threads. A
+test shall ask for that placement specifically, since the mistake looks
+correct.
+
+It says nothing about a model's threading. `run_parallel_command()` sets
+`OMP_NUM_THREADS` from a step's `openmp_threads` for a launched command,
+which overrides this, and JIGSAW takes its count from its own config file.
+An explicitly chosen value is left alone, so a job script may still say
+otherwise.
 
 ### Implementation: The Scheduler Must Be Safe to Fork From
 
