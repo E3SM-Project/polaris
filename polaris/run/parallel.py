@@ -24,10 +24,8 @@ decomposition depend on scheduling timing, and its results with it.
 
 import argparse
 import os
-import queue
 import socket
 import sys
-import threading
 import time
 from datetime import timedelta
 from typing import Dict, List
@@ -44,6 +42,7 @@ from polaris.run.executor import (
     RunningStep,
     StepOutcome,
     describe_neighbors,
+    reap_one,
     start_step,
 )
 from polaris.run.graph import build_step_graph
@@ -251,7 +250,6 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet):
     mismatched: List[str] = []
     blocked: Dict[str, str] = {}
     running: Dict[str, RunningStep] = {}
-    finished: queue.Queue = queue.Queue()
     waiting = set(graph.nodes) - succeeded
 
     while waiting or running:
@@ -262,7 +260,6 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet):
             running,
             succeeded,
             blocked,
-            finished,
             logger,
             events,
             work_dir,
@@ -280,7 +277,10 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet):
                 f'remaining step(s) can start: {sorted(waiting)}'
             )
 
-        outcome = finished.get()
+        # reaped here rather than by a thread per running step: only the
+        # forking thread survives a fork, so a lock held by any other one at
+        # that moment would be held forever in the child
+        outcome = reap_one(running)
         step_run = running.pop(outcome.step_path)
         _finish(
             outcome,
@@ -306,7 +306,6 @@ def _start_what_fits(
     running,
     succeeded,
     blocked,
-    finished,
     logger,
     events,
     work_dir,
@@ -345,10 +344,6 @@ def _start_what_fits(
         )
         if not quiet:
             logger.info(f'  * {path}: started on {list(reservation.cores)}')
-        thread = threading.Thread(
-            target=lambda run=step_run: finished.put(run.wait()), daemon=True
-        )
-        thread.start()
     return started_any
 
 
@@ -516,7 +511,18 @@ def _report(outcomes, mismatched, steps, logger, elapsed) -> List[str]:
     failures = [
         path for path, outcome in outcomes.items() if not outcome.succeeded
     ]
-    step_seconds = sum(outcome.seconds for outcome in outcomes.values())
+    # the steps' own work, not the time from forking each to reaping it.
+    # Counting startup as work is how an earlier implementation reported
+    # omega_pr as doing 7.2x the work of a serial run on a run that was
+    # slower than serial: 4,200 s of Python imports counted as work, and a
+    # figure that says the run is healthy while the wall clock says
+    # otherwise is worse than no figure.
+    step_seconds = sum(
+        outcome.work_seconds
+        if outcome.work_seconds is not None
+        else outcome.seconds
+        for outcome in outcomes.values()
+    )
 
     logger.info('')
     logger.info('Step runtimes:')

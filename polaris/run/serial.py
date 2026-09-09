@@ -203,9 +203,6 @@ def run_single_step(step_is_subprocess=False, quiet=False):
     """
     with open('step.pickle', 'rb') as handle:
         step = pickle.load(handle)
-    task = Task(component=step.component, name='dummy_task')
-    task.add_step(step)
-    task.new_step_log_file = False
 
     # This prevents infinite loop of subprocesses
     if step_is_subprocess:
@@ -215,7 +212,39 @@ def run_single_step(step_is_subprocess=False, quiet=False):
     # the allocation, and says which part in this process's environment.
     # Nothing sets it when a step is run on its own, which is the case
     # every `polaris serial` invocation has had until now.
-    step.placement = placement_from_env()
+    run_step_in_process(step, placement_from_env(), quiet=quiet)
+
+
+def run_step_in_process(step, placement=None, quiet=False):
+    """
+    Run one step in this process, with the logging the serial path gives it.
+
+    Shared by two callers that differ only in how they got hold of the step.
+    ``polaris serial`` in a step's work directory unpickles it from disk; the
+    concurrent scheduler's forked child inherits the live object and calls
+    this directly. Going through one function is what keeps their logs the
+    same -- a first attempt called the step's own ``run_step()`` and produced
+    byte-identical science output in a log missing its preamble and footer,
+    which is a difference nobody would notice until they went looking for a
+    step that had not run.
+
+    Parameters
+    ----------
+    step : polaris.Step
+        The step to run, already set up and sized
+
+    placement : mache.parallel.ResourcePlacement, optional
+        The part of the allocation this step is confined to, or ``None`` to
+        run it on the whole of what is available
+
+    quiet : bool, optional
+        Whether to leave the step's name out of the output
+    """
+    task = Task(component=step.component, name='dummy_task')
+    task.add_step(step)
+    task.new_step_log_file = False
+
+    step.placement = placement
 
     config = setup_config(step.base_work_dir, step.config.filepath)
     task.config = config
