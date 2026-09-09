@@ -22,7 +22,8 @@ A colleague's whole testing report:
 >
 > All CTests passed.
 
-With suite results, let the table do it:
+With suite results, let the table do it. Constructed, since no human
+example here reports a suite this way:
 
 > Chrysalis, gnu, MPAS-Ocean at `b7759691a5`. 840 tests pass, pre-commit
 > clean.

@@ -35,7 +35,9 @@ Real comments from this project. One point each, one suggestion, done.
 > think we should just remove the `default` test case from the test suite.
 > This might be appropriate to have in the developer's guide instead.
 
-With several findings, label them and keep each to a paragraph:
+With several findings, label them and keep each to a paragraph. No
+human example of this shape exists in these repositories, so the following
+is constructed:
 
 > Three things, one blocking.
 >

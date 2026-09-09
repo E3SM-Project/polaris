@@ -15,6 +15,9 @@ The reader is deciding whether to let you proceed.
 
 ## Enough
 
+Plans are approved in conversation rather than committed, so there is no
+human example in these repositories to copy. The following is constructed.
+
 > **Open:** should `ekman` come out of `omega_pr` too, or wait for #753?
 >
 > 1. Fix the interface-field trim in the single-column viz step.
