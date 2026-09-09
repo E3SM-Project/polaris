@@ -370,7 +370,6 @@ class Forward(OceanModelStep):
         if self.frazil_type is not None:
             omega_options.update(
                 {
-                    'FrazilTendencyEnable': True,
                     'FrazilType': self.frazil_type,
                 }
             )
