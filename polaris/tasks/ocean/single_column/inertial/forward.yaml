@@ -13,6 +13,21 @@ mpas-ocean:
     config_implicit_constant_bottom_drag_coeff: 0.0
   cvmix:
     config_use_cvmix: false
+  streams:
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0000_01:00:00
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - zMid
+      - normalVelocity
+      - velocityZonal
+      - velocityMeridional
+      - layerThickness
 
 Omega:
   IOStreams:

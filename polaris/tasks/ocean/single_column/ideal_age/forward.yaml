@@ -10,5 +10,17 @@ mpas-ocean:
     config_use_idealAgeTracers_idealAge_forcing: true
   streams:
     output:
+      type: output
+      filename_template: output.nc
+      output_interval: 0001_00:00:00
+      clobber_mode: truncate
       contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - zMid
+      - normalVelocity
+      - velocityZonal
+      - velocityMeridional
+      - layerThickness
       - idealAgeTracers
