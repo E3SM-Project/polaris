@@ -7,6 +7,10 @@ where it is defined.  ``isel()`` also changes the length of a dimension but
 not its name, so building the x-axis range from a mask on ``nVertLevels``
 then raised an ``IndexError``.  Interface fields are now plotted against
 ``zInterface``, which is both where they belong and the same dimension.
+
+A field written at layer tops on ``nVertLevels`` cannot be told from a
+layer average by its dimensions, so it is named in ``TOP_OF_LAYER_FIELDS``
+and paired with the top interface of each layer.
 """
 
 import numpy as np
@@ -17,6 +21,9 @@ from polaris.tasks.ocean.single_column.viz import (
     _add_visible_limits,
     _vertical_coord,
 )
+
+# a field the models agree is a layer quantity
+MID = 'temperature'
 
 
 def _interface_field(values):
@@ -39,30 +46,69 @@ def z_interface():
 
 def test_an_interface_field_is_plotted_at_interfaces(z_mid, z_interface):
     z = _vertical_coord(
-        _interface_field([1.0, 2.0, 3.0, 4.0]), z_mid, z_interface
+        MID, _interface_field([1.0, 2.0, 3.0, 4.0]), z_mid, z_interface
     )
     assert z.dims == ('nVertLevelsP1',)
     np.testing.assert_array_equal(z.values, z_interface.values)
 
 
 def test_a_mid_level_field_is_plotted_at_midpoints(z_mid, z_interface):
-    z = _vertical_coord(_mid_level_field([1.0, 2.0, 3.0]), z_mid, z_interface)
+    z = _vertical_coord(
+        MID, _mid_level_field([1.0, 2.0, 3.0]), z_mid, z_interface
+    )
     assert z.dims == ('nVertLevels',)
     np.testing.assert_array_equal(z.values, z_mid.values)
+
+
+def test_a_named_top_of_layer_field_is_plotted_at_layer_tops(
+    z_mid, z_interface
+):
+    # MPAS-Ocean writes BruntVaisalaFreqTop at layer tops but on
+    # nVertLevels, so the dimensions alone would send it to zMid
+    z = _vertical_coord(
+        'BruntVaisalaFreqTop',
+        _mid_level_field([1.0, 2.0, 3.0]),
+        z_mid,
+        z_interface,
+    )
+    assert z.dims == ('nVertLevels',)
+    np.testing.assert_array_equal(z.values, z_interface.values[:-1])
+
+
+def test_a_named_field_on_interfaces_is_left_on_interfaces(z_mid, z_interface):
+    # Omega writes the same field on nVertLevelsP1; the dimensions win, so
+    # naming a field is harmless for the model that gets it right
+    z = _vertical_coord(
+        'BruntVaisalaFreqTop',
+        _interface_field([1.0, 2.0, 3.0, 4.0]),
+        z_mid,
+        z_interface,
+    )
+    assert z.dims == ('nVertLevelsP1',)
+    np.testing.assert_array_equal(z.values, z_interface.values)
 
 
 def test_an_interface_field_keeps_every_value(z_mid, z_interface):
     # the bottom interface used to be dropped so that the field could be
     # plotted against zMid; nothing is dropped now
     var = _interface_field([1.0, 2.0, 3.0, 4.0])
-    z = _vertical_coord(var, z_mid, z_interface)
+    z = _vertical_coord(MID, var, z_mid, z_interface)
     assert var.sizes['nVertLevelsP1'] == z.sizes['nVertLevelsP1']
 
 
 def test_an_interface_field_can_be_masked_by_depth(z_mid, z_interface):
     # this is the combination that used to raise an IndexError
     var = _interface_field([1.0, 2.0, 3.0, 4.0])
-    z = _vertical_coord(var, z_mid, z_interface)
+    z = _vertical_coord(MID, var, z_mid, z_interface)
+    x_limits: list[tuple[float, float]] = []
+    _add_visible_limits(x_limits, var, z, -100.0, 0.0)
+    assert x_limits == [(1.0, 3.0)]
+
+
+def test_a_top_of_layer_field_can_be_masked_by_depth(z_mid, z_interface):
+    # the renamed coordinate has to match the field's own dimension
+    var = _mid_level_field([1.0, 2.0, 3.0])
+    z = _vertical_coord('BruntVaisalaFreqTop', var, z_mid, z_interface)
     x_limits: list[tuple[float, float]] = []
     _add_visible_limits(x_limits, var, z, -100.0, 0.0)
     assert x_limits == [(1.0, 3.0)]
@@ -118,11 +164,19 @@ def test_curves_on_different_coordinates_share_one_range(z_mid, z_interface):
     x_limits: list[tuple[float, float]] = []
     var = _interface_field([1.0, 2.0, 3.0, 4.0])
     _add_visible_limits(
-        x_limits, var, _vertical_coord(var, z_mid, z_interface), -100.0, 0.0
+        x_limits,
+        var,
+        _vertical_coord(MID, var, z_mid, z_interface),
+        -100.0,
+        0.0,
     )
     var = _mid_level_field([-1.0, 0.5, 99.0])
     _add_visible_limits(
-        x_limits, var, _vertical_coord(var, z_mid, z_interface), -100.0, 0.0
+        x_limits,
+        var,
+        _vertical_coord(MID, var, z_mid, z_interface),
+        -100.0,
+        0.0,
     )
     assert min(limits[0] for limits in x_limits) == -1.0
     assert max(limits[1] for limits in x_limits) == 3.0
