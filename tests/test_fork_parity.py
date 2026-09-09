@@ -14,6 +14,7 @@ what is under test.
 
 import os
 import re
+import time
 
 import pytest
 
@@ -22,6 +23,7 @@ from polaris.config import PolarisConfigParser
 from polaris.run import STEP_COMPLETE_LOG
 from polaris.run.allocation import NodeResources
 from polaris.run.executor import reap_one, start_step
+from polaris.run.parallel import _abandon
 from polaris.run.pool import ResourcePool
 from polaris.run.serial import run_step_in_process
 
@@ -168,3 +170,49 @@ def test_a_child_is_confined_to_the_cores_it_was_given(tmp_path, cores):
 
     with open(os.path.join(step.work_dir, 'made.txt')) as handle:
         assert int(handle.read()) == cores
+
+
+class _Quiet:
+    """A logger and an event stream that say nothing."""
+
+    def warning(self, *args, **kwargs):
+        pass
+
+    def record(self, *args, **kwargs):
+        pass
+
+
+def test_a_torn_down_run_leaves_nothing_running(tmp_path):
+    """
+    A forked child is a direct child of the scheduler.
+
+    An interrupt that left one running would leave a step holding cores with
+    nothing watching it, and a child never reaped is a zombie for as long as
+    the scheduler lives.
+    """
+
+    class _Sleeper(_Writer):
+        def run(self):
+            time.sleep(120)
+
+    step = _writer(tmp_path, 'sleeper')
+    step.__class__ = _Sleeper
+    step.outputs = []
+    running = {
+        step.path: start_step(
+            step, _reserve(step), str(tmp_path / 'sleeper.log'), 'node0'
+        )
+    }
+    pid = running[step.path].pid
+
+    _abandon(running, _Quiet(), _Quiet())
+
+    assert running == {}
+    # reaped rather than left a zombie, so the pid is gone entirely
+    for _ in range(100):
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return
+        time.sleep(0.02)
+    raise AssertionError(f'pid {pid} is still there after tearing down')

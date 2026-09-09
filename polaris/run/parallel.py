@@ -252,51 +252,80 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet):
     running: Dict[str, RunningStep] = {}
     waiting = set(graph.nodes) - succeeded
 
-    while waiting or running:
-        started_any = _start_what_fits(
-            graph,
-            pool,
-            waiting,
-            running,
-            succeeded,
-            blocked,
-            logger,
-            events,
-            work_dir,
-            quiet,
-        )
-        if not running:
-            if started_any:
-                continue
-            # nothing is running and nothing could start, so nothing ever
-            # will.  This is a bug in the scheduler rather than in the run,
-            # and saying which steps are stuck is what makes it findable.
-            events.record('run_stalled', waiting=sorted(waiting))
-            raise RuntimeError(
-                f'Nothing is running and none of the {len(waiting)} '
-                f'remaining step(s) can start: {sorted(waiting)}'
+    try:
+        while waiting or running:
+            started_any = _start_what_fits(
+                graph,
+                pool,
+                waiting,
+                running,
+                succeeded,
+                blocked,
+                logger,
+                events,
+                work_dir,
+                quiet,
             )
+            if not running:
+                if started_any:
+                    continue
+                # nothing is running and nothing could start, so nothing ever
+                # will.  This is a bug in the scheduler rather than in the run,
+                # and saying which steps are stuck is what makes it findable.
+                events.record('run_stalled', waiting=sorted(waiting))
+                raise RuntimeError(
+                    f'Nothing is running and none of the {len(waiting)} '
+                    f'remaining step(s) can start: {sorted(waiting)}'
+                )
 
-        # reaped here rather than by a thread per running step: only the
-        # forking thread survives a fork, so a lock held by any other one at
-        # that moment would be held forever in the child
-        outcome = reap_one(running)
-        step_run = running.pop(outcome.step_path)
-        _finish(
-            outcome,
-            step_run,
-            graph,
-            pool,
-            steps,
-            succeeded,
-            waiting,
-            outcomes,
-            mismatched,
-            logger,
-            events,
-            quiet,
-        )
+            # reaped here rather than by a thread per running step:
+            # only the forking thread survives a fork, so a lock held
+            # by any other one then is held forever in the child
+            outcome = reap_one(running)
+            step_run = running.pop(outcome.step_path)
+            _finish(
+                outcome,
+                step_run,
+                graph,
+                pool,
+                steps,
+                succeeded,
+                waiting,
+                outcomes,
+                mismatched,
+                logger,
+                events,
+                quiet,
+            )
+    finally:
+        # nothing may outlive the scheduler.  A forked child is a
+        # direct child of this process, so an interrupt that left one
+        # running would leave a model holding cores with nothing
+        # watching it, and a child never reaped is a zombie for as
+        # long as the scheduler lives.
+        _abandon(running, logger, events)
+
     return outcomes, mismatched
+
+
+def _abandon(running, logger, events) -> None:
+    """
+    Stop and reap whatever is still running, on the way out.
+
+    Reached when the loop ends early -- an interrupt, or a bug in the
+    scheduler -- and does nothing in the ordinary case, where every step has
+    already been reaped.
+    """
+    for path, step_run in sorted(running.items()):
+        logger.warning(f'  * {path}: stopping, the run is being torn down')
+        events.record('step_abandoned', step=path, pid=step_run.pid)
+        step_run.kill()
+    for _ in running:
+        try:
+            os.waitpid(-1, 0)
+        except ChildProcessError:
+            break
+    running.clear()
 
 
 def _start_what_fits(
