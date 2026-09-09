@@ -136,9 +136,15 @@ class Viz(OceanIOStep):
                 'Using initial zMid values; may not represent plotted state'
             )
 
+            # The depth range of the plots, also used to select the data
+            # that sets the x-axis range
+            ymin = -100.0
+            ymax = 0.0
+
             # Plot depth profiles of variables
             for field_name, field_units in self.variables.items():
                 curves_plotted = 0
+                x_limits: list[tuple[float, float]] = []
                 fig = plt.figure(figsize=(3, 5))
                 colors = ['k', 'b', 'r', 'darkgreen']
                 for comparison_name, ds_comp, t_days, color in zip(
@@ -177,6 +183,9 @@ class Viz(OceanIOStep):
                             color=color,
                             label=f'u {comparison_name}, {t_days:2g} days',
                         )
+                        _add_visible_limits(
+                            x_limits, var, z_mid_final, ymin, ymax
+                        )
                         var = ds_comp['velocityMeridional'].mean(dim='nCells')
                         plt.plot(
                             var,
@@ -184,6 +193,9 @@ class Viz(OceanIOStep):
                             '--',
                             color=color,
                             label=f'v {comparison_name}, {t_days:2g} days',
+                        )
+                        _add_visible_limits(
+                            x_limits, var, z_mid_final, ymin, ymax
                         )
                         curves_plotted += 1
                     else:
@@ -194,8 +206,7 @@ class Viz(OceanIOStep):
                             )
                             continue
                         var = ds_comp[field_name].mean(dim='nCells')
-                        if 'nVertLevelsP1' in var.dims:
-                            var = var.isel(nVertLevelsP1=slice(0, -1))
+                        var = _interfaces_to_mid_levels(var)
                         # TODO delete this line when MPAS-O bug is fixed
                         if field_name == 'RiTopOfCell':
                             var[0] = np.nan
@@ -205,6 +216,9 @@ class Viz(OceanIOStep):
                             '-',
                             color=color,
                             label=f'{comparison_name}, {t_days:2g} days',
+                        )
+                        _add_visible_limits(
+                            x_limits, var, z_mid_final, ymin, ymax
                         )
                         curves_plotted += 1
                         # Plot initial state if available and
@@ -219,8 +233,12 @@ class Viz(OceanIOStep):
                             and 'initial' not in existing_labels
                         ):
                             var_init = ds_init[field_name].mean(dim='nCells')
+                            var_init = _interfaces_to_mid_levels(var_init)
                             plt.plot(
                                 var_init, z_mid_init, '--k', label='initial'
+                            )
+                            _add_visible_limits(
+                                x_limits, var_init, z_mid_init, ymin, ymax
                             )
                             curves_plotted += 1
                 if curves_plotted == 0:
@@ -229,14 +247,17 @@ class Viz(OceanIOStep):
                     )
                     plt.close()
                     continue
-                ymin = -100.0
-                ymax = 0.0
                 plt.ylim(ymin, ymax)
-                visible_x = var[(z_mid_final >= ymin) & (z_mid_final <= ymax)]
-                x_min = float(visible_x.min().values)
-                x_max = float(visible_x.max().values)
-                x_margin = (x_max - x_min) * 0.05
-                plt.xlim(x_min - x_margin, x_max + x_margin)
+                if x_limits:
+                    x_min = min(limits[0] for limits in x_limits)
+                    x_max = max(limits[1] for limits in x_limits)
+                    x_margin = (x_max - x_min) * 0.05
+                    if x_margin == 0.0:
+                        # the field is constant over the visible depths, so
+                        # fall back to a margin that does not collapse the
+                        # axis to a single value
+                        x_margin = 0.05 * max(abs(x_min), 1.0)
+                    plt.xlim(x_min - x_margin, x_max + x_margin)
                 plt.xlabel(f'{field_name} ({field_units})')
                 plt.ylabel('z (m)')
                 # Place a single legend centered below the x-axis
@@ -248,3 +269,38 @@ class Viz(OceanIOStep):
                 )
                 plt.savefig(f'{field_name}.png', bbox_inches='tight')
                 plt.close()
+
+
+def _interfaces_to_mid_levels(var):
+    """
+    Trim a field defined at layer interfaces so that it can be plotted
+    against mid-level depths
+
+    ``isel()`` changes the length of the dimension but not its name, so the
+    trimmed field is also renamed.  Dropping the bottom interface and
+    plotting the result at mid-level depths is an approximation, but it is
+    the one these plots already make; the rename only states it explicitly.
+    """
+    if 'nVertLevelsP1' not in var.dims:
+        return var
+    var = var.isel(nVertLevelsP1=slice(0, -1))
+    return var.rename({'nVertLevelsP1': 'nVertLevels'})
+
+
+def _add_visible_limits(x_limits, var, z_mid, ymin, ymax):
+    """
+    Add the range of ``var`` over the visible depths to the ``x_limits``
+    list
+
+    Depths outside ``ymin`` to ``ymax`` are excluded because they are not
+    plotted and NaNs are ignored.  Nothing is added if no finite value is
+    visible.
+    """
+    visible = var[(z_mid >= ymin) & (z_mid <= ymax)]
+    if int(visible.count()) == 0:
+        return
+    x_min = float(visible.min().values)
+    x_max = float(visible.max().values)
+    if not (np.isfinite(x_min) and np.isfinite(x_max)):
+        return
+    x_limits.append((x_min, x_max))
