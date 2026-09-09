@@ -1,7 +1,11 @@
 ocean/column/ekman
-ocean/column/vmix_stable
+# fails its conservation checks with MPAS-Ocean, see
+# https://github.com/E3SM-Project/polaris/issues/748
+#ocean/column/vmix_stable
 ocean/column/vmix_unstable
-ocean/column/ideal_age
+# fails its conservation checks with MPAS-Ocean, see
+# https://github.com/E3SM-Project/polaris/issues/748
+#ocean/column/ideal_age
 ocean/column/inertial
 ocean/planar/baroclinic_channel/10km/threads
 ocean/planar/baroclinic_channel/10km/decomp
