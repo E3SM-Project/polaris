@@ -323,3 +323,70 @@ def test_default_declarations_pack_exactly_as_cores_alone_do(seed):
             admitted_on_cores.append(index)
 
     assert admitted_with_memory == admitted_on_cores
+
+
+def test_a_step_that_spans_nodes_takes_the_same_cores_on_each():
+    """
+    The only core numbering a launcher can be given for several nodes.
+
+    Slurm's ``--cpu-bind=mask_cpu`` assigns masks by a task's index on its
+    own node and reuses the list on every node, so the first node's masks
+    are what every node applies.  Two nodes with different core sets means
+    the second silently runs on the first one's cores -- measured on
+    Chrysalis, where the launch succeeded and the pool went on believing
+    cores were free that were not.
+    """
+    # node0 loses its first two cores to something else, so taking each
+    # node's own first free cores would give the two nodes different numbers
+    pool = ResourcePool(_nodes(count=2, cores=8))
+    _reserve(pool, _step('resident', ntasks=2))
+
+    # twelve cores, so it cannot fit on one node
+    reservation = _reserve(
+        pool, _step('wide', ntasks=6, cpus_per_task=2, may_span_nodes=True)
+    )
+
+    assert set(reservation.cores) == {'node0', 'node1'}
+    assert reservation.cores['node0'] == reservation.cores['node1']
+
+
+def test_uneven_ranks_still_take_a_prefix_of_the_same_cores():
+    """
+    A node with fewer ranks gets the front of the same list.
+
+    That is what the launcher would apply to it in any case, since it takes
+    the first masks of the one list it was given.
+    """
+    pool = ResourcePool(_nodes(count=2, cores=8))
+
+    # five ranks of two cores over two nodes: three ranks on one, two on
+    # the other, so the nodes want six cores and four
+    reservation = _reserve(
+        pool, _step('lopsided', ntasks=5, cpus_per_task=2, may_span_nodes=True)
+    )
+
+    first = reservation.cores['node0']
+    second = reservation.cores['node1']
+    shorter, longer = sorted((first, second), key=len)
+    assert shorter == longer[: len(shorter)]
+
+
+def test_nodes_without_cores_free_in_common_wait():
+    """
+    Correct rather than eager.
+
+    The two nodes have four cores free each and none of them the same, so
+    there is no placement a launcher could be given.  Refusing now is right;
+    the step is not impossible, and a later moment may serve it.
+    """
+    pool = ResourcePool(_nodes(count=2, cores=8))
+    # take the front of node0 and the back of node1, leaving disjoint halves
+    first = pool.reserve(_step('front', ntasks=4))
+    assert first is not None
+    pool._nodes[1].free_cores = [0, 1, 2, 3]
+    pool._nodes[0].free_cores = [4, 5, 6, 7]
+
+    wide = _step('wide', ntasks=8, may_span_nodes=True)
+
+    assert pool.reserve(wide) is None
+    assert pool.why_impossible(wide) is None
