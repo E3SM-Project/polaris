@@ -25,6 +25,7 @@ fewer cores than it was promised.
 """
 
 import os
+import shutil
 import signal
 import subprocess
 import time
@@ -37,6 +38,11 @@ from polaris.run.pool import Reservation
 # what a step's process is: `polaris serial` in the step's work directory,
 # told that it is a subprocess so that it does not start another one
 STEP_COMMAND = ['polaris', 'serial', '--step_is_subprocess']
+
+# how a step's process is confined to its cores.  `taskset` execs the command
+# with the affinity already set, which is what lets this happen without
+# running any Python between the fork and the exec -- see `_bind_prefix`
+TASKSET = 'taskset'
 
 
 @dataclass(frozen=True)
@@ -162,12 +168,11 @@ def start_step(
 
     cores = _local_cores(reservation, local_node)
     process = subprocess.Popen(
-        STEP_COMMAND,
+        _bind_prefix(cores) + STEP_COMMAND,
         cwd=step.work_dir,
         env=environ,
         stdout=handle,
         stderr=subprocess.STDOUT,
-        preexec_fn=None if cores is None else _bind_to(cores),
     )
     return RunningStep(step, reservation, process, log_filename, handle)
 
@@ -193,20 +198,35 @@ def _local_cores(
     return cores or None
 
 
-def _bind_to(cores: List[int]):
-    """Make a function that confines the new process to these cores."""
+def _bind_prefix(cores: Optional[List[int]]) -> List[str]:
+    """
+    The command prefix that confines a step's process to these cores.
 
-    def bind():
-        try:
-            os.sched_setaffinity(0, set(cores))
-        except (AttributeError, OSError):
-            # a platform without affinity, or cores the kernel will not
-            # give us.  The step still runs; the scheduler's accounting
-            # describes it and nothing enforces that, which is the same
-            # footing memory is on.
-            pass
+    This used to be a ``preexec_fn`` calling ``os.sched_setaffinity`` -- that
+    is, Python running in the forked child between the fork and the exec.
+    Python's own documentation calls that unsafe when the parent has threads,
+    and this parent has them without looking like it does: ``import polaris``
+    leaves the process with 129 OS threads on Chrysalis, 128 of them an
+    OpenBLAS pool numpy brings up, where ``threading.enumerate()`` reports
+    one.  Only the forking thread survives a fork, so a lock held by any of
+    the others is held forever in the child, and the symptom would be a step
+    that hangs rather than one that fails.
 
-    return bind
+    ``taskset`` does the same binding in the exec'd process instead, so
+    nothing of ours runs in that window.  It also sets the affinity before
+    the step imports numpy, which is what the ``preexec_fn`` did and what
+    keeps OpenBLAS sized to the placement rather than to the whole node.
+
+    Where ``taskset`` is missing the step runs unconfined, which is what the
+    old code did when ``sched_setaffinity`` raised.  The scheduler's
+    accounting still describes the step and nothing enforces that, which is
+    the same footing memory is on.
+    """
+    if not cores:
+        return []
+    if shutil.which(TASKSET) is None:
+        return []
+    return [TASKSET, '-c', ','.join(str(core) for core in sorted(cores))]
 
 
 def _outcome(step_path: str, returncode: int, seconds: float) -> StepOutcome:
