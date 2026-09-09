@@ -244,23 +244,33 @@ class Forward(OceanModelStep):
 
 ## Conservation checks
 
-Mass, salt and energy conservation checks are available for ocean model output.
-The checks will fail if the relative change in the total quantity exceeds the
-tolerance given in
+Mass, salt, tracer and energy conservation checks are available for ocean model
+output.  A check fails if the relative error in the budget exceeds the
+tolerance given in `polaris/ocean/ocean.cfg`:
 
 ```cfg
 # Options related the ocean component
 [ocean]
 
 # Tolerance for mass conservation, normalized by total mass
-mass_conservation_tolerance = 1e-8
+mass_conservation_tolerance = 1e-14
 
 # Tolerance for salt conservation, normalized by total salt
-salt_conservation_tolerance = 1e-8
+salt_conservation_tolerance = 1e-14
+
+# Tolerance for tracer conservation, normalized by total tracer value
+tracer_conservation_tolerance = 1e-14
 
 # Tolerance for thermal energy conservation, normalized by total energy
-energy_conservation_tolerance = 1e-8
+energy_conservation_tolerance = 1e-14
 ```
+
+A failed property check makes the task fail, in the same way that a failed
+baseline comparison does.
+
+A `'tracer conservation'` check expands to one check for each tracer that is
+present in the output file, so a task that transports several tracers checks
+all of them rather than only the first.
 
 As shown in the previous example, we have added a mesh file with the name
 'mesh.nc' because conservation checks require the area of cells.
@@ -284,7 +294,38 @@ self.add_property_check('output.nc', ['mass conservation'],
 ```
 
 The surface forcing fluxes are accumulated over the duration of each
-comparison and used as the expected change in the corresponding budget.
+comparison and used as the expected change in the corresponding budget.  A
+budget with a source or sink that is not among these fluxes -- salinity
+restoring, for example -- will not close, so do not check that budget for
+such a step.
+
+## Overriding the tolerances
+
+The tolerances above are component-wide defaults.  To change one for a whole
+task, set the config option in the task's own config file, which takes
+precedence over the component's:
+
+```cfg
+[ocean]
+
+# this task mixes strongly, so its budgets close only to round-off
+salt_conservation_tolerance = 1e-12
+```
+
+To change a tolerance for a single check rather than a whole task, pass
+`tolerances` to {py:meth}`polaris.Step.add_property_check()` (or
+`check_properties_tolerances` to {py:meth}`polaris.Step.add_output_file()`).
+Keys may be given with or without the `' conservation'` suffix:
+
+```python
+self.add_property_check('output.nc',
+                        ['mass conservation', 'salt conservation'],
+                        tolerances={'salt conservation': 1e-12})
+```
+
+Prefer the config option when the whole task needs the same tolerance, and
+the keyword argument when one step's budget cannot be held to the same
+tolerance as its siblings.
 
 The results of the checks are written to `property_check_passed.log` (which
 lists the properties that passed) or `property_check_failed.log` (which lists

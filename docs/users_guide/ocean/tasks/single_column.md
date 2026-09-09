@@ -578,3 +578,39 @@ All config options shown in {ref}`ocean-single-column` are also used.
 ### cores
 
 See {ref}`ocean-single-column`.
+
+(ocean-single-column-known-conservation-failures)=
+
+## known conservation check failures
+
+Four forward steps currently fail their conservation checks with Omega.  A
+failed property check makes the task fail, so `ekman` and `vmix_unstable`
+fail in the `omega_pr` suite until these are resolved.  They are listed here
+so that the failures are not mistaken for a regression.
+
+| step | budget | relative error |
+| --- | --- | --- |
+| `ekman/forward_constant` | salt, energy | 7.3e-14 |
+| `vmix_unstable/forward` | salt, energy | 1.6e-13, 1.9e-13 |
+| `vmix_unstable/forward_no_hadv` | salt, energy | 1.6e-13, 1.9e-13 |
+| `vmix_unstable/forward_no_hadv_restoring` | energy | 2.1e-13 |
+| `vmix_unstable/forward_no_hadv_restoring` | salt | 4.6e-04 |
+
+These are two separate problems:
+
+- The errors near 1e-13 are round-off, but they are one to two orders of
+  magnitude larger than the rest of the suite, which stays below 5e-15, and
+  they exceed the 1e-14 tolerance.  The steps that show them are the ones
+  with active convective and shear mixing, so the most likely explanation is
+  round-off amplified by the implicit vertical mixing solve.  Whether the
+  tolerance should be loosened for these steps, and by how much, needs
+  someone familiar with these budgets; see
+  {ref}`dev-validation` for how to set a tolerance per task or per check.
+- The 4.6e-04 salt error in `forward_no_hadv_restoring` is not round-off.
+  That step turns on surface salinity restoring, which adds salt that the
+  check does not account for: the restoring flux is not among the surface
+  fluxes in `polaris.ocean.conservation`, and neither model writes it to the
+  output stream.  The same step in `vmix_stable` passes only because its
+  surface salinity already equals the restoring target, so the flux is zero.
+  Either the restoring flux has to enter the salt budget or the salt check
+  should be dropped for steps with restoring enabled.
