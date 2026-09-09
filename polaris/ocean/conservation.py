@@ -1,7 +1,6 @@
 import numpy as np
 
 from polaris.constants import get_constant
-from polaris.ocean.model.time import get_days_since_start
 
 # TODO update once this is used by Omega
 # cp_sw = get_constant('seawater_specific_heat_capacity_reference')
@@ -211,6 +210,13 @@ def get_elapsed_seconds(ds, time_index_start=None, time_index_end=-1):
     dt : float
         The elapsed time in seconds
     """
+    # Keep get_days_since_start as a function-level import.  Importing
+    # polaris.ocean.model.time runs polaris/ocean/model/__init__.py, which
+    # imports the step classes, which import this module, so importing it at
+    # module scope makes polaris.ocean.conservation impossible to import on
+    # its own.
+    from polaris.ocean.model.time import get_days_since_start
+
     if time_index_start is None:
         start_time = 0.0
     else:
