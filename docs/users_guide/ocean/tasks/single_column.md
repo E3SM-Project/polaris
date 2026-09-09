@@ -506,6 +506,101 @@ All config options shown in {ref}`ocean-single-column` are also used.
 
 See {ref}`ocean-single-column`.
 
+## frazil
+
+### description
+
+The `frazil` task creates four single-column cases that combine the two
+initial-condition regimes (``melting`` and ``freezing``) with the two frazil
+algorithms (``FixedProperty`` and ``teos``). Each run uses the default
+single-column 10-day forward setup and outputs the state and diagnostics needed
+for frazil growth and melting. For MPAS-Ocean, the ``teos`` variant is omitted
+because that model only supports the ``FixedProperty`` algorithm.
+
+The melting case uses a linear salinity profile with depth and a temperature
+profile that transitions from warm water near the surface to colder water below
+`transition_depth_melting`. The freezing case uses a uniform negative
+temperature profile with a sustained negative surface latent heat flux so that
+frazil can form under cooling.
+
+### mesh
+
+See {ref}`ocean-single-column`.
+
+### vertical grid
+
+See {ref}`ocean-single-column`.
+
+### initial conditions
+
+The frazil tests use the standard single-column vertical profile setup, with
+salinity and temperature defined by the options in the
+`single_column_frazil` config section. The default values are:
+
+```cfg
+[single_column_frazil]
+
+# Salinity at the surface [PSU]
+salinity_surface = 34.0
+
+# Salinity gradient with depth (salinity increases with depth) [PSU/m]
+dsdz = 0.01
+
+# Temperature near the surface for the melting case, above the local
+# freezing point [degC]
+temperature_upper_melting = 2.0
+
+# Temperature at depth for the melting case, below the local freezing
+# point [degC]
+temperature_lower_melting = -2.0
+
+# Depth of the transition between the upper and lower temperature for the
+# melting case [m]
+transition_depth_melting = 50.0
+
+# Temperature applied uniformly through the water column for the freezing
+# case [degC]
+temperature_freezing = -1.8
+
+# Net latent heat flux applied at the surface for the freezing case.
+# Negative values indicate a net loss of heat from the ocean, consistent
+# with surface freezing [W/m^2]
+latent_heat_flux_freezing = -50.0
+```
+
+### forcing
+
+The freezing case sets the surface latent heat flux via the shared forcing
+section:
+
+```cfg
+[single_column_forcing]
+
+# Net latent heat flux applied when bulk forcing is used, set to the
+# freezing-case latent heat flux above.  Only applied to the freezing task,
+# since the melting task does not include latent_heat_flux in its list of
+# active forcing variables.
+latent_heat_flux = ${single_column_frazil:latent_heat_flux_freezing}
+```
+
+The frazil algorithm is selected in the forward step via `frazil_type`, with
+`FixedProperty` and `teos` both available for Omega and `FixedProperty` the
+only supported option for MPAS-Ocean.
+
+### time step and run duration
+
+The time step is given in {ref}`ocean-single-column`. The run duration is 10
+days.
+
+### config options
+
+See {ref}`ocean-single-column` and the frazil-specific options in the
+`single_column_frazil` and `single_column_forcing` sections above.
+
+### cores
+
+See {ref}`ocean-single-column`.
+
 ## thermo
 
 ### description
