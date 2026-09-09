@@ -1,3 +1,4 @@
+import numpy as np
 import xarray as xr
 
 from polaris.tasks.ocean.single_column.init import Init
@@ -80,10 +81,13 @@ class FrazilInit(Init):
             temperature_upper = section.getfloat('temperature_upper_melting')
             temperature_lower = section.getfloat('temperature_lower_melting')
             transition_depth = section.getfloat('transition_depth_melting')
-            temperature_vert = xr.where(
-                z_mid > -transition_depth,
-                temperature_upper,
-                temperature_lower,
+            transition_width = section.getfloat('transition_width_melting')
+            depth = -z_mid
+            transition = (depth - transition_depth) / transition_width
+            smooth = 0.5 * (1.0 + np.tanh(transition))
+            temperature_vert = (
+                temperature_upper
+                + (temperature_lower - temperature_upper) * smooth
             )
         else:
             temperature_freezing = section.getfloat('temperature_freezing')
