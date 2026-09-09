@@ -12,8 +12,10 @@ so it must have overlapped" would pass on a machine where nothing
 overlapped at all.
 """
 
+import json
 import logging
 import os
+import subprocess
 
 import pytest
 
@@ -32,9 +34,29 @@ STEP_SCRIPT = 'run.sh'
 
 @pytest.fixture(autouse=True)
 def _run_the_script(monkeypatch):
-    """Make a step's process run its own script rather than polaris."""
+    """
+    Make a forked child run the step's script rather than the step.
+
+    Patching in this process is enough: the child is a copy of it, so it
+    inherits the patch along with everything else.  That is the same
+    property the scheduler relies on to avoid importing anything per step.
+    """
+
+    def run_the_script(step, placement=None, quiet=False):
+        # the child has already chdir'd into the step's work directory
+        if placement is not None:
+            with open('placement.json', 'w') as handle:
+                json.dump(
+                    {
+                        'nodes': list(placement.nodes),
+                        'cores': [list(each) for each in placement.cores],
+                    },
+                    handle,
+                )
+        subprocess.run(['sh', STEP_SCRIPT], check=True)
+
     monkeypatch.setattr(
-        'polaris.run.executor.STEP_COMMAND', ['sh', STEP_SCRIPT]
+        'polaris.run.executor.run_step_in_process', run_the_script
     )
 
 
@@ -170,7 +192,9 @@ def test_a_failure_blocks_what_depended_on_it_and_nothing_else(tmp_path):
     outcomes, events = _run(tmp_path, [failing, dependent, unrelated])
 
     assert not outcomes['ocean/failing'].succeeded
-    assert outcomes['ocean/failing'].returncode == 3
+    # a forked child exits 1 for any failure, where a subprocess passed the
+    # exit code of whatever it ran back up
+    assert outcomes['ocean/failing'].returncode != 0
     assert outcomes['ocean/unrelated'].succeeded
     assert 'ocean/dependent' not in outcomes
     skipped = [
@@ -185,7 +209,8 @@ def test_a_step_killed_by_a_signal_is_reported_as_terminated(tmp_path):
     used more than it declared exhausts the node and the operating system
     kills whichever process it chooses.
     """
-    killed = _step(tmp_path, 'killed', 'kill -9 $$\n')
+    # the script's parent is the forked child, which is the step's process
+    killed = _step(tmp_path, 'killed', 'kill -9 $PPID\n')
 
     outcomes, events = _run(tmp_path, [killed])
 
@@ -217,13 +242,14 @@ def test_a_completed_step_is_skipped_on_a_rerun(tmp_path):
 
 
 def test_a_step_is_told_where_it_was_placed(tmp_path):
-    """The placement crosses into the process, which is what confines it."""
-    reader = _step(
-        tmp_path,
-        'reader',
-        'printf "%s" "$POLARIS_PLACEMENT" > placement.json\n',
-        cores=2,
-    )
+    """
+    The placement reaches the step's process, which is what confines it.
+
+    A forked child inherits the object rather than reading it back out of an
+    environment variable, so what this checks is that the scheduler hands the
+    reservation's placement to the child at all.
+    """
+    reader = _step(tmp_path, 'reader', 'true\n', cores=2)
 
     outcomes, _ = _run(tmp_path, [reader])
 
@@ -446,3 +472,24 @@ def test_what_the_steps_compared_is_added_up(tmp_path):
         1.0,
     )
     assert failures == ['ocean/differs']
+
+
+def test_the_work_a_run_did_excludes_starting_the_steps(tmp_path):
+    """
+    Counting startup as work is how a run reports itself healthy while the
+    wall clock says otherwise.
+
+    An earlier implementation summed the time from starting each step's
+    process to reaping it and reported omega_pr as doing 7.2x the work of a
+    serial run, on a run that was slower than serial.
+    """
+    steps = [_step(tmp_path, 'quick', 'true\n')]
+
+    outcomes, _ = _run(tmp_path, steps)
+
+    outcome = outcomes['ocean/quick']
+    assert outcome.succeeded
+    assert outcome.work_seconds is not None
+    # the step did nothing, so its own work is a small fraction of what the
+    # scheduler measured around it
+    assert outcome.work_seconds <= outcome.seconds
