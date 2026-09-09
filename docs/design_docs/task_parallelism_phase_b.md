@@ -14,32 +14,69 @@ Phase B makes Polaris run independent steps at the same time.
 Phase A gave Polaris the ability to confine a step to part of its allocation.
 Phase B adds the parts that decide what to run and when: a graph of which
 steps depend on which, a record of which resources are in use, and an
-executor that runs each step in its own process.
+executor that runs each step in a forked child process.
 
-MPI steps and Python steps are treated the same way. This is worth stating
-plainly because earlier designs staged them separately, running Python work
-concurrently while MPI steps waited their turn. That separation existed
-because we could not confine an MPI step to part of the allocation. Phase A
-removes that reason, and with it the need for a barrier between the two kinds
-of work, the machinery to switch between modes, and the cost of switching.
+MPI steps and Python steps are treated the same way. Earlier designs staged
+them separately because an MPI step could not be confined to part of the
+allocation. Phase A removes that reason, and with it the barrier between the
+two kinds of work and the cost of switching between them.
 
-Each step runs in its own operating-system process. Polaris already knows how
-to do this: `polaris serial` can run a single step in a fresh process from
-its pickle file, and that is the unit the scheduler dispatches. Running a step
-in its own process means it cannot disturb another step by changing the
-working directory, setting a module-level default or writing to a global
-logger -- all of which Polaris steps legitimately do today.
+Each step runs in a process of its own, forked from the scheduler. The two
+halves of that are separate decisions and the difference decides the phase.
+*Isolation* is required: Polaris steps change the working directory, set
+library defaults and use `pyplot` globals, so two steps sharing a process
+would race. *Forking* is how the process is made, and it matters because the
+alternative was measured and does not work. A step started as a fresh
+`polaris serial` subprocess spends about 35 s importing Python before it
+does any work, and paying that once per step consumed the whole speedup: on
+`omega_pr` the concurrent run took 13:04 against a serial baseline of 12:15.
+A forked child inherits the modules the scheduler has already imported and
+the live `Step` object it already holds, so it pays neither. Measured on
+four `omega_pr` steps, forking saved about 48 s per step.
 
 This is where the regression-suite speedup arrives. On a recent `omega_pr`
 run on Chrysalis, three nodes, 12:26 total: the MPI work amounts to roughly
 236 s of core-time on 192 cores, against a dependency floor of about 106 s,
 so something in the range of 2.5-3x is the expectation on the same
-allocation. That number is an estimate from one run's timings and should be
-treated as a target to measure against, not a promise.
+allocation. That is an estimate from one run's timings, to measure against
+rather than a promise.
 
 Success in Phase B means a suite's independent steps run together, results
 match serial execution exactly, a failure stops only the work that depended
 on it, and reruns still skip completed steps.
+
+## Open Questions
+
+### How many threads should a step's process use?
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+Nothing in Polaris sets the thread count of a step's own Python process.
+`OMP_NUM_THREADS` is set for a launched model command and for nothing else,
+so numpy sizes its OpenBLAS pool from whatever the process can see.
+
+The three paths therefore disagree today. `polaris serial` runs unconfined
+and gets one thread per core on the node. A subprocess bound to its
+placement got one thread per placed core. A forked child inherits the
+scheduler's count whatever its own placement, so every step gets the same
+number -- which is the only one of the three that is deterministic.
+
+Deterministic is not the same as right. If the scheduler holds its pools to
+one for fork safety, every step runs single-threaded BLAS, and a step that
+relied on threading gets slower. If it does not, a child confined to one
+core inherits a pool sized for the whole node, which is oversubscription at
+forty-eight children.
+
+Making the concurrent and serial paths agree, which *Results Match Serial
+Execution* requires, means setting the count explicitly on both. That
+changes results relative to existing baselines once, which is acceptable
+since baselines are regenerated from `main`, but it is a decision to take
+deliberately rather than inherit.
 
 ## Requirements
 
@@ -83,7 +120,7 @@ Steps shared between tasks shall be recognized as one step and run once.
 
 ### Requirement: Resource-Aware Scheduling
 
-Date last modified: 2026/09/08
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -98,78 +135,47 @@ minimum requirements cannot be met by the whole allocation shall be reported
 as impossible before the run starts.
 
 The memory a node is credited with shall be what that node reports, not what
-its machine's configuration estimates. Phase A requires the allocation's
-nodes to be read at the start of a run, because a configured figure is an
-estimate of a machine while the scheduler is packing particular nodes, and
-over-admitting memory is the failure that kills a job rather than the one
-that slows it. Nodes shall be tracked individually rather than as so many
-copies of one node, which costs nothing if they turn out to be identical and
-is the only correct answer if they are not.
-
-This was written before any machine was known to be heterogeneous, on the
-argument that the configured figure is the weaker source of truth in every
-case and that reading the nodes removes a whole class of error -- a stale
-configuration, a machine that has changed, a job that is not on the machine
-it was thought to be -- without requiring any of them to be anticipated.
-That argument still stands on its own.
-
-It no longer has to. Aurora is heterogeneous, from a survey of all 10,624 of
-its nodes: about one in nine holds roughly 1007 GiB where the majority holds
-1135, so a figure taken from the majority would over-admit by about 13%
-whenever a step landed on a small node. A run that packs against what its
-own nodes report cannot make that mistake; a run that packs against one
-number per machine can only avoid it by using the smallest, and thereby
-wasting the difference everywhere else.
+its machine's configuration estimates, and nodes shall be tracked
+individually rather than as copies of one node. Aurora is heterogeneous: a
+survey of all 10,624 of its nodes found about one in nine holding roughly
+1007 GiB where the majority holds 1135, so a figure taken from the majority
+over-admits by about 13% whenever a step lands on a small node.
+Over-admitting memory kills a job rather than slowing it.
 
 A step that has not said its resources may span nodes shall have its cores
 and its GPUs drawn from a single node. This is a packing constraint rather
-than a total: an allocation with cores free on several nodes and none of
-them holding enough may be unable to start such a step while showing plenty
-free, and the pool has to be able to say so rather than deadlocking or
-overcommitting. The same applies to GPUs, and a step needing both must find
-both on one node rather than each somewhere. A step that may span is bounded
-only by what the allocation holds.
+than a total: an allocation with cores free on several nodes and none
+holding enough shall report that such a step cannot start, rather than
+deadlocking or overcommitting. A step needing both cores and GPUs shall find
+both on one node. A step that may span is bounded only by what the
+allocation holds.
 
-Memory is accounted for differently from the rest, and the difference should
-be understood rather than smoothed over. Cores, GPUs and nodes are handed to
-the launcher, which keeps steps off each other's; memory is not, because
-nothing below Polaris will act on it. The pool's memory accounting is
-therefore admission control and nothing more: it decides what may start, and
-a step that starts and then uses more than it declared is not stopped by
-anything. This is the correct amount of mechanism, since the alternative --
-a step killed part-way through for exceeding a figure someone estimated --
-trades a rare failure for a routine one. But it means memory accounting is
-only as good as the declarations, and the design should say so rather than
-imply a guarantee it does not have.
+Memory accounting is admission control and nothing more. Cores, GPUs and
+nodes are handed to the launcher, which keeps steps off each other's; memory
+is not, because nothing below Polaris acts on it. A step that starts and
+then exceeds what it declared is not stopped. So the accounting is only as
+good as the declarations, and this design claims no more than that.
 
-Since a step that declares no memory is taken to want its proportional share
-of the node, a run in which nothing declares memory packs exactly as it
-would with no memory accounting at all -- the two constraints reduce to the
-same inequality. Memory accounting can therefore only ever remove a
+A step that declares no memory is taken to want its proportional share of a
+node, so a run in which nothing declares memory packs exactly as it would
+with no memory accounting at all. Memory accounting can only ever remove a
 schedule that a measured declaration says would not have fit.
 
 A step's resources shall be decided from the whole allocation, exactly as
 `polaris serial` decides them, and the scheduler shall wait until that much
 is free rather than starting the step on less.
 
-The target-and-minimum rule keeps the job it already has: it fits a step to
-the machine once, at the start of a run, and a step whose minimum the
-allocation cannot meet is reported as impossible. What it must not also
-become is a packing lever. A step handed whatever happened to be free when
-its turn came is a step whose width depends on scheduling timing, and for an
-MPI model step the width is the decomposition, so the same suite on the same
-allocation would produce different outputs on different runs. That is not a
-trade against the requirement that results match serial execution; it
-contradicts it. A pleasant consequence is that a step's memory budget, being
-proportional to its cores, stops moving too.
+Width must not become a packing lever. A step handed whatever happened to be
+free when its turn came has a width that depends on scheduling timing, and
+for an MPI model step the width is the decomposition -- so the same suite on
+the same allocation would produce different outputs on different runs, which
+contradicts *Results Match Serial Execution*. A step's memory budget, being
+proportional to its cores, stops moving for the same reason.
 
-This does cost packing. A wide step waits for room that a narrower version of
-it would not have needed, and the allocation can sit partly idle while it
-waits. It is still the right trade, because the alternative is not slower but
-wrong. If the cost proves large, the way to buy it back is to let a step say
-that its results do not depend on its width -- which is true of most steps
-that are not model runs -- rather than to make every step's width a
-scheduling accident.
+This costs packing: a wide step waits for room a narrower version would not
+have needed. If that cost proves large, the way to buy it back is to let a
+step declare that its results do not depend on its width, which is true of
+most steps that are not model runs.
 
 ### Requirement: Each Step in Its Own Process
 
@@ -187,6 +193,44 @@ changes the working directory into each step's work directory, and sets
 library-level defaults for NetCDF output. These are correct today and would
 be races if two steps shared a process. Process isolation makes them
 harmless without requiring every existing step to be rewritten.
+
+### Requirement: Starting a Step Shall Cost Almost Nothing
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The cost of starting a step shall not depend on how many steps the run
+contains, and shall be small beside the work the step does.
+
+Running a suite concurrently must not be slower than running it serially.
+That is not a performance target but a correctness-of-purpose one: a
+concurrent path that loses to the serial path has no reason to exist.
+
+The first Phase B implementation started each step as a fresh `polaris
+serial` subprocess and failed this. Measured on `omega_pr`, three Chrysalis
+nodes, 115 steps: 5807 s of measured step time against 1668 s of actual
+work, so 71% of it was startup, 36.6 s per step. Both kinds of step pay it
+-- 34.6 s median for 1-core Python steps and 37.6 s for MPI steps, because
+an MPI step's driver is itself a full Polaris process before it reaches
+`srun`. The result was a concurrent run of 13:04 against a serial baseline
+of 12:15.
+
+The asymmetry is what makes this fatal rather than merely wasteful. A serial
+run imports once for the whole suite; a per-step subprocess imports once per
+step. So the cost is one the concurrent path introduces against a baseline
+that does not pay it, and it grows with the node count: more concurrency
+shrinks the science and leaves the startup untouched.
+
+Reducing the constant does not satisfy this requirement. The startup is
+about 2,880 module imports from a parallel filesystem, and deferring the
+component imports in `polaris/tasks/__init__.py` was tried and measured --
+2,880 modules to 2,868, because unpickling a step needs the same set anyway.
+Import cost is worth reducing on its own merits and does not change that it
+would be paid once per step.
 
 ### Requirement: Deterministic Ordering
 
@@ -249,7 +293,7 @@ neighbor's declaration is obviously too small, into an obvious fix.
 
 ### Requirement: A Declared Memory Figure May Be Enforced
 
-Date last modified: 2026/08/24
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -259,53 +303,35 @@ Contributors:
 Where the machine can hold a launch to a memory figure, Polaris shall do so
 for a step that declared one, and shall not for a step that did not.
 
-Measurement settled that this is possible on newer Slurm and not on older:
-a launch allowed 1024 MB and told to take 4 GB is killed at 960 MB on
-Perlmutter GPU and on Frontier, and runs to completion on Chrysalis. PALS
-appears to offer no per-launch memory size at all, so Aurora is expected not
-to enforce either.
-
-The reason to use it is that an unenforced declaration is invisible when it
-is wrong. It does not fail; it quietly makes the scheduler's accounting a
-fiction, and the error surfaces much later as an exhausted node that someone
-has to trace back, or never surfaces while costing throughput the whole
-time. Holding a step to its own number turns that into an immediate,
-attributable failure, and the fix -- correct the number -- improves packing
-on every machine, including the ones that cannot enforce.
-
-The reason to use it only for a declared figure is that most steps will
-never declare one. They take the proportional default, which is deliberately
-a rough guess and is known to be poor for steps whose memory has little to
-do with their core count. Capping a step at the framework's estimate of it
-would not produce better estimates; it would require every step to carry a
-measured figure before it could run, which is the burden Phase A was built
-to avoid, and it would arrive as a wave of failures in steps nobody had
-touched. A step that stated a number is making a claim and can fairly be
-held to it. A step that said nothing is being guessed at, and the framework
-should carry the risk of its own guess.
-
-Enforcement will therefore be uneven across machines, and that is accepted.
-It replaces silent divergence with loud divergence, which is the better of
-the two, and it reaches only steps whose authors opted in by declaring.
-
 Polaris shall not rely on enforcement in place of its own accounting.
-Admission control works on every machine; capping does not, and the
-reporting required above is needed regardless.
+Admission control works on every machine; capping does not.
 
-A question that could have reshaped this has been answered and did not.
-Placement on newer Slurm asks for exactly what a step needs rather than the
-job's resources, so a placed step might have received a memory ceiling
-nobody set -- in which case the choice would not have been whether to cap
-but whether Polaris names the number or lets the scheduler pick one it never
-reports. It does not: on Perlmutter CPU and on Frontier, a placed
-single-core launch and an unplaced control, neither mentioning memory, both
-allocated twice what a single core's proportional share would be and neither
-was touched. The amount was chosen to be what would bite if placement scaled
-memory with cores.
+This is possible on newer Slurm and not on older: a launch allowed 1024 MB
+and told to take 4 GB is killed at 960 MB on Perlmutter GPU and on Frontier,
+and runs to completion on Chrysalis. PALS offers no per-launch memory size,
+so Aurora is expected not to enforce. Enforcement is therefore uneven across
+machines, which is accepted: it reaches only steps whose authors opted in by
+declaring, and replaces silent divergence with loud.
 
-That bounds rather than settles -- it shows no ceiling below the amount
-tried, and Perlmutter GPU was not tested on this point -- but it removes the
-mechanism that would have forced Polaris's hand.
+An unenforced declaration is invisible when it is wrong. It makes the
+scheduler's accounting a fiction, and surfaces much later as an exhausted
+node, or never surfaces while costing throughput. A step that stated a
+number is making a claim and can fairly be held to it.
+
+A step that said nothing takes the proportional default, which is a rough
+guess and is known to be poor where memory has little to do with core count.
+Capping a step at the framework's own estimate would not improve the
+estimate; it would require every step to carry a measured figure before it
+could run, and arrive as a wave of failures in steps nobody had touched.
+
+One question that could have reshaped this was answered and did not.
+Placement on newer Slurm asks for exactly what a step needs, so a placed
+step might have received a memory ceiling nobody set. It does not: on
+Perlmutter CPU and Frontier, a placed single-core launch and an unplaced
+control, neither mentioning memory, both allocated twice a single core's
+proportional share and neither was touched. That bounds rather than settles
+-- no ceiling below the amount tried, and Perlmutter GPU untested -- but it
+removes the mechanism that would have forced Polaris's hand.
 
 ### Requirement: Results Match Serial Execution
 
@@ -321,7 +347,7 @@ final outputs as running serially.
 
 ### Requirement: The Run Can Be Understood Afterwards
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -331,6 +357,14 @@ Contributors:
 A concurrent run shall record enough to reconstruct what happened: which
 steps ran when, what resources each held, what each was waiting for, and how
 the total compares with running serially.
+
+Where the run reports how much work it did, the figure shall be the steps'
+own work and shall exclude the cost of starting them. The first
+implementation summed the time from starting a step's process to reaping it,
+and reported `omega_pr` as doing 7.2x the work of a serial run on a run that
+was slower than serial -- because 4,200 s of Python imports counted as work.
+A metric that reports health while the wall clock says otherwise is worse
+than none.
 
 This is not optional polish. A concurrent run that is slower than expected
 is otherwise very hard to diagnose, because the interesting question --
@@ -385,61 +419,79 @@ the gap, and rely on the largest steps being started early by the stable
 order. If starvation shows up in practice, that is the point to add a rule,
 with evidence for it.
 
-### Algorithm Design: Running a Step in Its Own Process
+### Algorithm Design: Running a Step in a Forked Child
 
-Date last modified: 2026/09/08
+Date last modified: 2026/09/09
 
 Contributors:
 
 - Xylar Asay-Davis
 - Claude
 
-Polaris already has exactly the right unit. `polaris serial` run inside a
-step's work directory loads `step.pickle` and executes that one step, with
-configuration, parallel system, resources, logging and completion markers all
-handled. The scheduler starts that as a subprocess, with the step's placement
-in its environment, and waits for it.
+The scheduler forks a child for each step it starts, and waits for it.
 
-This has a property worth spelling out: the *same* mechanism serves MPI and
-non-MPI steps. An MPI step's subprocess goes on to launch its model through
-the parallel command; a Python step's subprocess simply runs Python. The
-scheduler does not need two executors, two policies or a barrier between
-them.
+The child inherits the parent's address space, which is what makes this both
+correct and fast. It is a private copy, so the step may change the working
+directory, set library defaults and use `pyplot` globals exactly as it does
+today. It already holds every module the scheduler imported and the live
+`Step` object the scheduler selected, so it imports nothing and unpickles
+nothing -- the two costs that made a per-step subprocess unaffordable.
 
-What the two do not share is how they are confined, and saying so matters
-because otherwise a placement means nothing for half the steps. An MPI step's
-placement reaches a launcher, which puts the work on the nodes and cores it
-names. A non-MPI step does its work in the subprocess itself, and nothing
-between the scheduler and that process acts on a placement: the executor has
-to apply the affinity, and it can only do that on the node it is running on.
-So a step that is not launched shall be given cores on the scheduler's own
-node and bound to them by the executor.
+Measured on Chrysalis, four `omega_pr` steps run both ways in the same
+allocation, 32 trials, all of which exited cleanly:
 
-That puts a ceiling on Python concurrency at one node's worth of cores. It is
-the ceiling Phase C exists to lift, and the same one MPAS-Analysis has today.
-It is not a ceiling on what Phase B is for: the regression suites this phase
-targets are dominated by MPI work, which is placed across the whole
-allocation as designed.
+| step | cores | forked | subprocess |
+| --- | --- | --- | --- |
+| `column/inertial/analysis` | 1 | 3.7 s | 56.3 s |
+| `column/thermo/conservation_summary` | 1 | 0.1 s | 46.8 s |
+| `manufactured_solution/.../del4/analysis` | 1 | 1.9 s | 46.2 s |
+| `baroclinic_channel/10km/restart/full_run` | 4 | 2.4 s | 51.4 s |
 
-The alternative -- launching every step's driver through the launcher, so
-that a Python step lands wherever it was placed -- was rejected here because
-an MPI step's driver would then start its model from inside a job step, which
-needs care on newer Slurm and is a known way to hang. That is a reason to
-leave it out of Phase B, not a finding; it is worth revisiting with a
-measurement rather than by argument.
+Forking saved 48.2 s per step. The subprocess column is almost entirely
+startup: `conservation_summary` reports its own runtime as under a second,
+so the 46.8 s bought nothing. A forked child produced output identical to
+the subprocess digit for digit.
 
-One consequence to acknowledge rather than discover: every step has a driver
-process on the scheduler's node for as long as it runs, MPI steps included,
-and those are not reserved. A driver blocked waiting for its model consumes
-no core, so reserving one each would cost more concurrency than the drivers
-cost the node. The point at which that stops being true is a driver that does
-real work while its model runs, and that is the point to revisit it.
+Sharing is nearly complete. Twenty-four concurrent children held 347 MiB
+between them against the parent's own 322 MiB, where naive resident-set
+accounting reports 7,700 MiB and would size a node wrongly by a factor of
+twenty.
 
-The alternative we considered and rejected was to run steps as functions
-inside a pool of worker processes. It is a good fit for fine-grained Python
-work -- and Phase C adds exactly that, for exactly that reason -- but it is a
-poor fit for whole Polaris steps, which are coarse, mutate process state and
-launch their own subprocesses.
+A forked child shall, before running the step: restore the default
+disposition of the signals the scheduler handles, change to the step's work
+directory, redirect its own file descriptors 1 and 2 to the step's log, run
+the shared step lifecycle, and end with `_exit` so that it never runs the
+scheduler's exit handlers or flushes buffers the scheduler still owns. The
+redirection is by file descriptor rather than by reassigning Python's
+streams, so that output from a model an MPI step launches lands in the log
+too. The parent shall flush its own streams before forking, or a child
+inherits the buffer and the output is written twice.
+
+The same mechanism serves MPI and non-MPI steps. An MPI step's child goes on
+to launch its model through the parallel command; a Python step's child
+simply runs Python. The scheduler needs no second executor and no barrier
+between them. A forked child reaching `srun` and returning was measured, not
+assumed.
+
+What the two do not share is how they are confined. An MPI step's placement
+reaches a launcher, which puts the work on the nodes and cores it names. A
+non-MPI step does its work in the child itself, and nothing between the
+scheduler and that child acts on a placement, so the child sets its own
+affinity -- which it can only do on the node it is running on. A step that
+is not launched shall therefore be given cores on the scheduler's own node.
+
+That puts a ceiling on Python concurrency at one node's worth of cores. It
+is the ceiling Phase C lifts. It costs little in the suites this phase
+targets: `omega_pr`'s 85 one-core steps hold about 979 core-seconds of work
+between them, which is some 15 s on one 64-core node against a suite of
+twelve minutes.
+
+Every step has a child on the scheduler's node for as long as it runs, MPI
+steps included, and those are not reserved. A child blocked waiting for its
+model consumes no core, so reserving one each would cost more concurrency
+than the children cost the node. The point at which that stops being true is
+a child that does real work while its model runs.
+
 
 ### Algorithm Design: Building the Graph
 
@@ -479,7 +531,7 @@ markers confirm it. Nothing asks the batch system anything.
 
 ### Implementation: Shared Step Lifecycle
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -490,16 +542,96 @@ The per-step lifecycle -- runtime input checks, dependency loading,
 `runtime_setup()`, `run()`, output checks, validation, completion markers --
 currently lives inside `polaris/run/serial.py`. It should be moved into a
 shared module that both the serial and concurrent paths call, with no change
-in behavior.
+in behavior. This is a pure refactor and should land as its own change,
+ahead of the scheduler.
 
-This is worth landing as its own change, ahead of the scheduler, because it
-is a pure refactor and reviewable as one. Earlier task-parallel work already
-did this and the result was sound; it is the piece of that work most worth
-carrying forward.
+What runs in a forked child shall be one entry point, taking a `Step` and
+producing a step's log, outputs and completion markers indistinguishable
+from the serial path's. This is the seam Phase C reuses: a child forked by a
+resident process on another node differs only in where its `Step` came from,
+so the child-side code should not know which forked it. Log parity is part
+of the contract and is easy to lose -- a first attempt called the lifecycle
+directly and produced correct results with a log missing its `Running step:`
+preamble and its `execution: SUCCESS` footer.
+
+### Implementation: The Scheduler Must Be Safe to Fork From
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The scheduler process shall hold no thread but its own at the moment it
+forks, and shall verify this rather than assume it.
+
+Only the forking thread survives a fork. A lock held by any other thread at
+that moment is held forever in the child, and the symptom is a step that
+hangs rather than one that fails.
+
+Polaris is multi-threaded on import and does not look it. Measured on
+Chrysalis, `import polaris` leaves the process with **129 OS threads** --
+128 from the OpenBLAS pool numpy brings up, one thread per visible core, and
+one from the allocator. `threading.enumerate()` reports one, because it sees
+Python threads only. Any check shall read `/proc/self/status`, which is
+also what CPython's own fork warning uses.
+
+Setting `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS` and `MKL_NUM_THREADS` to
+one before anything is imported takes the same process to two threads. The
+scheduler does no numerical work, so this costs it nothing.
+
+The scheduler shall also not wait on its children with a thread each. The
+first implementation started a daemon thread per running step to wait on it,
+which is a reasonable design under `subprocess` and an unsafe one here. It
+shall reap children in its own loop instead.
+
+Forking with the OpenBLAS pool present was measured not to hang, over
+sixteen trials on four steps. That bounds the risk rather than settling it:
+sixteen trials on one machine cannot establish that a lock is never held,
+and the mitigation is cheap enough that there is no reason to run without
+it.
+
+### Implementation: What a Forked Child Inherits
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The scheduler shall not mutate a step's state after the step graph is built.
+
+A subprocess re-read `step.pickle` from disk, which isolated each step from
+whatever the scheduler had done to its object in memory. A forked child
+inherits the scheduler's objects instead. That is what removes the unpickle
+cost, and it means a step's behaviour now depends on what the scheduler
+holds at the moment it forks.
+
+Sizing a step's resources is the one mutation that has to happen, and it
+already happens in the right place: `constrain_resources()` runs against the
+whole allocation once, before the loop starts, which the target-and-minimum
+rule requires anyway.
+
+Thread pools are inherited the same way, and not as one would guess. A
+forked child keeps the parent's pool size whatever its own affinity: a child
+confined to one core, four cores and sixteen cores returned an identical
+checksum and the same thread count in each case. Under a subprocess this was
+not so -- OpenBLAS sizes itself from the affinity mask at import, so a
+placed step bound to one core got one thread while an unconfined serial run
+got 128.
+
+That difference is a candidate explanation for the six baseline comparisons
+that differed by 0.01-0.02% in the first concurrent `omega_pr` run, since
+threaded reductions change summation order. It is a mechanism that fits the
+observation, not a demonstration that it caused it; one run of that mesh
+step under two thread counts would settle it. Forking removes the mechanism
+either way, because every child then shares one thread count.
 
 ### Implementation: The mache Side
 
-Date last modified: 2026/09/08
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -509,55 +641,53 @@ Contributors:
 Phase A described a placement as the nodes a step may use and how many cores
 it may use *on each*. `mache` 3.12.0 implements it as one flat tuple of
 unique core ids, divided into one chunk per rank. For a single node the two
-are the same statement. For several they are not, and the difference stops
+are the same statement; for several they are not, and the difference stops
 Phase B from placing a step wider than a node on two of the five machines.
 
 Where the batch system reserves what a job step asks for -- Slurm 20.11 and
-newer, so Perlmutter and Frontier -- only the *count* is used and the ids are
+newer, so Perlmutter and Frontier -- only the count is used and the ids are
 ignored, so a multi-node placement renders correctly today. Where the
-launcher binds explicitly -- Chrysalis on Slurm 20.02, and Aurora on PALS --
-each chunk becomes a CPU mask or core list for one rank, and those ids are
-node-local. Since a placement's ids must be unique, two nodes cannot both use
-core 0, so a launch spanning nodes is expressible only while its total cores
-fit inside one node's id space, which is to say not usefully at all.
+launcher binds explicitly -- Chrysalis on Slurm 20.02, Aurora on PALS -- each
+chunk becomes a CPU mask for one rank, and those ids are node-local. Since a
+placement's ids must be unique, two nodes cannot both use core 0, so a
+spanning launch is expressible only while its total cores fit inside one
+node's id space.
 
 This is a reading of the 3.12.0 renderers rather than a measured failure. No
-multi-node placement has been rendered on any machine: Phase A's five-machine
-verification put all four concurrent launches on one node deliberately,
-because sharing a node was the hard case. The cross-machine validation below
-is where it gets tested.
+multi-node placement has been rendered on any machine, since Phase A's
+verification put all four concurrent launches on one node deliberately. The
+cross-machine validation below is where it gets tested.
 
-Phase B needs it. The allocation `omega_pr` sizes itself to on Chrysalis is
-three 64-core nodes, and that node count comes from the geometric mean of the
-widest step's target and the largest minimum, so the widest step asks for
-more than 128 cores -- more than two nodes. That is arithmetic on the figure
-in the summary above rather than a measurement of the suite, and it is worth
-measuring before the pool is built.
+Phase B needs it: the three 64-core Chrysalis nodes `omega_pr` sizes itself
+to come from a widest step asking for more than 128 cores. That is
+arithmetic on the figure in the summary rather than a measurement of the
+suite, and is worth measuring before the pool is built.
 
 So `mache` gains two things, and Polaris develops against the branch until
-they are released, exactly as Phase A did:
+they are released, as Phase A did:
 
 - **a placement carrying one core list per node**, aligned with the nodes it
-  names. This is what the pool naturally produces, since it tracks free cores
-  per node, and it removes the coupling that would otherwise require every
-  node of a spanning launch to have the same ids free.
+  names. This is what the pool naturally produces, and it removes the
+  coupling that would require every node of a spanning launch to have the
+  same ids free.
 - **the allocation's individual nodes**, by name. Polaris cannot build a
-  placement without them, and reading them from the job's own environment
-  rather than from the batch system also removes a query Polaris would
-  otherwise make once per step -- `ParallelSystem` asks `squeue` or `qstat`
-  for its node count when it is constructed, which is once per step process
-  under this design, and a suite of a hundred steps compressed into minutes
-  would breach the request in the requirement below by an order of magnitude.
+  placement without them.
 
-One thing on the Polaris side has to move with them.
-`Component.get_available_resources()` reads a placement's cores as a per-node
-set and multiplies by the node count, following Phase A's description rather
-than what `mache` renders. Nothing builds a multi-node placement today, so
-the disagreement is inert; it stops being inert here.
+Reading the nodes from the job's environment rather than from the batch
+system also keeps *Do Not Poll the Batch System* satisfied. `ParallelSystem`
+asks `squeue` or `qstat` for its node count when constructed, which under
+the subprocess model happened once per step; forking constructs it once in
+the scheduler and every child inherits it, so the pressure is off either
+way.
+
+`Component.get_available_resources()` reads a placement's cores as a
+per-node set and multiplies by the node count, following Phase A's
+description rather than what `mache` renders. Nothing builds a multi-node
+placement today, so the disagreement is inert; it stops being inert here.
 
 ### Implementation: New Modules
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/09
 
 Contributors:
 
@@ -572,15 +702,15 @@ Contributors:
   is not. The pool's accounting is what keeps the machine from being
   oversubscribed and must cover everything a step claims, whether or not any
   of it reaches a launcher;
-- an executor, starting a step as a subprocess with its placement and
+- an executor, forking a child for a step with its placement, reaping it and
   reporting completion;
 - a scheduler, owning the loop above;
 - an event stream, recording scheduling decisions as structured records.
 
 These should be small and separately testable. The scheduler in the earlier
 attempt grew past three thousand lines, largely because worker-pool lifecycle
-and mode-switching policy lived inside it; with a subprocess executor there
-is no lifecycle to manage and the loop stays short.
+and mode-switching policy lived inside it; forking has no lifecycle to
+manage and the loop stays short.
 
 ### Implementation: Step Eligibility
 
@@ -602,6 +732,94 @@ needs, and it should be one mechanism, not two. That document has since
 landed and its rules are in the developer guide under
 {ref}`dev-task-parallelism`; the shared mechanism does not exist yet, and
 building it twice is what this is written to prevent.
+
+## Decisions
+
+Alternatives considered and set aside. Cited from the sections they affect
+rather than argued there.
+
+### Decision: A Fresh `polaris serial` Subprocess per Step
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+**Superseded.** This is what Phase B first specified and first implemented,
+and it reached `main` in `09bc9c60e8`. It was chosen because one mechanism
+served MPI and non-MPI steps and each step got a clean process; what it
+never accounted for was startup. Measured, that startup was about the size
+of the median step's own work, and the concurrent run lost to the serial
+one. See *Starting a Step Shall Cost Almost Nothing* for the figures.
+
+The scheduling half of Phase B was unaffected and is carried forward
+unchanged: the step graph, the resource pool and admission control, the
+allocation reader, placement transport and the standing placement check, the
+event stream, and the opt-in concurrent job script. What changed is confined
+to how a step is started.
+
+### Decision: Steps as Functions in a Pool of Worker Processes
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+**Rejected for whole steps.** A pool removes the startup cost too, but runs
+steps in a shared process, which requires the task-parallel safety that
+{ref}`dev-task-parallelism` says most steps do not have. It is a good fit
+for fine-grained Python work, and Phase C adds it for exactly that.
+
+### Decision: Launching Every Step's Driver Through the Launcher
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+**Rejected.** It would let a non-MPI step run wherever it was placed rather
+than on the scheduler's node. An MPI step's driver would then start its
+model from inside a job step, which needs care on newer Slurm and is a known
+way to hang. This is a reason to leave it out rather than a finding, and is
+worth revisiting with a measurement.
+
+### Decision: A Resident Fork Server on Every Node
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+**Deferred to Phase C.** One long-lived process per node, importing Polaris
+once and forking a child per step, would lift the one-node ceiling on
+non-MPI steps. It buys about 15 s on `omega_pr`, and costs Phase B a control
+channel and a process lifecycle -- the thing this phase is written to keep
+out of the scheduler. Phase C needs a resident process per node for its own
+reasons, so the mechanism is built once, there.
+
+### Decision: Reducing the Number of Imports
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+**Insufficient on its own.** Importing one ocean init step pulls 2,313
+modules, because `polaris.mesh.info` reaches `polaris.mesh.spherical` and a
+task module imports its own analysis and viz. Deferring the component
+imports in `polaris/tasks/__init__.py` was measured: 2,880 modules to 2,868,
+because unpickling a step needs the same set. Worth doing on its own merits;
+it does not change that the cost would be paid once per step.
 
 ## Testing
 
@@ -692,6 +910,34 @@ slower than serial with nothing in the log to say why.
 Overlap shall be checked from recorded start and end times, not inferred
 from wall time. A test that concludes "it was faster, so it must have run
 concurrently" will pass on a machine where nothing overlapped at all.
+
+### Testing and Validation: Forking
+
+Date last modified: 2026/09/09
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+A test shall confirm that the scheduler holds no thread but its own before
+it forks, reading the count from `/proc/self/status` rather than from
+`threading.enumerate()`, which sees Python threads only and reported one
+where the kernel reported 129.
+
+A test shall confirm that a forked child's log, outputs and completion
+markers match what the same step produces on the serial path. Results
+matching while logs differ is the failure mode a first attempt actually
+had.
+
+Per-step start cost shall be measured on a real suite and recorded, since
+this is the quantity the phase was rebuilt around. It should be small beside
+the shortest real step. Measured on Chrysalis it was under 4 s against 46-56
+s for a subprocess.
+
+An MPI step shall be included. Its child launches a model, which is the case
+that would break first if forking interfered with the launcher, and it is
+79% of the work in the suites this phase targets.
 
 ### Testing and Validation: Equivalence and Speedup
 
