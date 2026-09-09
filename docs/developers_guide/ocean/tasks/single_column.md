@@ -11,6 +11,8 @@ the vertical dynamics of the ocean model only. The test cases are:
 - Testing the Ekman solution under wind forcing
 - Testing KPP boundary-layer regimes; see
   {ref}`dev-ocean-single-column-kpp`.
+- Testing frazil ice formation under melting and freezing conditions for
+  the ``FixedProperty`` and ``teos`` algorithms
 
 Here, we describe the tests and their shared framework.
 
@@ -284,6 +286,29 @@ its shared init path unique. Add any special paired-forward controls to
 analysis. Record whether the case adapts a published experiment or tests
 a specific implementation feature, and distinguish its intended physical
 signature from an enforced validation threshold.
+## frazil
+
+The {py:class}`polaris.tasks.ocean.single_column.frazil.Frazil` task creates
+four single-column cases covering the combinations of the two initial
+conditions (``melting`` and ``freezing``) and the two frazil algorithms
+(``FixedProperty`` and ``teos``).  Each case uses the standard 10-day run
+length from the shared `single_column` config and runs the shared `Viz` step
+from the single-column framework.
+
+The melting case sets a linear salinity profile with depth and a vertical
+profile with warm water near the surface and colder water below, using the
+config options in `single_column_frazil` including
+`temperature_upper_melting`, `temperature_lower_melting`, and
+`transition_depth_melting`.  The freezing case uses a linear salinity profile
+and a negative surface latent heat flux, with `latent_heat_flux_freezing`
+set in the `single_column_forcing` section.  In both cases, the profile is built
+with `salinity_surface` and `dsdz`, while the frazil algorithm is selected by
+`frazil_type` in the forward step.
+
+Each case runs a forward step that writes the state and diagnostics needed to
+track frazil formation, while the shared `Viz` step plots the depth-dependent
+state and tendency fields.  The conservation summary step records aggregated
+frazil thickness and salinity for each algorithm variant.
 
 ## thermo
 
