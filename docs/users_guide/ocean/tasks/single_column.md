@@ -583,10 +583,15 @@ See {ref}`ocean-single-column`.
 
 ## known conservation check failures
 
-Four forward steps currently fail their conservation checks with Omega.  A
-failed property check makes the task fail, so `ekman` and `vmix_unstable`
-fail in the `omega_pr` suite until these are resolved.  They are listed here
-so that the failures are not mistaken for a regression.
+Some forward steps currently fail their conservation checks.  A failed
+property check makes the task fail, so those tasks fail in the `omega_pr`
+and `mpaso_pr` suites until the failures are resolved.  They are listed here
+so that they are not mistaken for a regression.
+
+### with Omega
+
+Four forward steps fail, and `ekman` and `vmix_unstable` fail in `omega_pr`
+as a result.
 
 | step | budget | relative error |
 | --- | --- | --- |
@@ -614,3 +619,29 @@ These are two separate problems:
   surface salinity already equals the restoring target, so the flux is zero.
   Either the restoring flux has to enter the salt budget or the salt check
   should be dropped for steps with restoring enabled.
+
+### with MPAS-Ocean
+
+MPAS-Ocean fails a great deal more, and differently.  Every forward step of
+`vmix_stable`, and the `ideal_age` forward step, fail with:
+
+| budget | relative error |
+| --- | --- |
+| mass | 1.368e-03 |
+| energy | 2.8e-04 to 1.4e-03 |
+| salt | 2.4e-04 to 7.1e-04 |
+
+The mass error is the same value to every digit across five `vmix_stable`
+steps that enable different physics, and in `ideal_age` as well.  What those
+tasks have in common is evaporation forcing, and a residual that does not
+vary with the physics points at the surface mass flux term on its own rather
+than at anything the run does.  Omega closes the same budgets on the same
+tasks, so this is a difference between the two models, or between MPAS-Ocean
+and the flux accounting in `polaris.ocean.conservation`, rather than
+round-off.  It has not been diagnosed.
+
+`vmix_unstable` fails under MPAS-Ocean for the same two reasons it does
+under Omega, at similar magnitudes.
+
+Whether these tasks should stay in `mpaso_pr` while this is outstanding is
+an open question.
