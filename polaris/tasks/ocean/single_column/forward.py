@@ -117,7 +117,7 @@ class Forward(OceanModelStep):
 
         frazil_type : str, optional
             If provided, enables the frazil ice tendency and selects the
-            frazil algorithm to use in Omega, either ``'basic'`` or
+            frazil algorithm to use in Omega, either ``'FixedProperty'`` or
             ``'teos'``.  If ``None``, the frazil tendency is left disabled.
         """
         if disable_coriolis is None:
@@ -287,7 +287,17 @@ class Forward(OceanModelStep):
         self.add_yaml_file(
             self.task_package,
             'forward.yaml',
-            template_replacements=template_replacements,
+            template_replacements=dict(
+                output_interval=output_interval_str,
+                output_freq=f'{int(output_interval_seconds)}',
+                RhoSw=get_constant('seawater_density_reference'),
+                sea_ice_reference_salinity=get_constant(
+                    'sea_ice_reference_salinity'
+                ),
+                latent_heat_of_fusion=get_constant(
+                    'latent_heat_of_fusion_reference'
+                ),
+            ),
         )
 
         # Preserve legacy mixing in non-KPP tests even when model defaults
@@ -358,46 +368,21 @@ class Forward(OceanModelStep):
             )
 
         if self.frazil_type is not None:
-            # NOTE: MPAS-O frazil namelist/streams options are not yet
-            # wired up here; this currently only affects Omega.  Frazil
-            # output fields (e.g. PseudoThicknessTend, TracerTend and the
-            # accumulated frazil ice thickness/salinity) are also not yet
-            # available for output in Omega, so they are not requested here.
-            latent_heat_of_fusion = get_constant(
-                'latent_heat_of_fusion_reference'
-            )
             omega_options.update(
                 {
                     'FrazilTendencyEnable': True,
                     'FrazilType': self.frazil_type,
                 }
             )
-            lat_str = f'{latent_heat_of_fusion:1.6f}'
-            mpas_options.update(
-                {
-                    'config_frazil_heat_of_fusion': lat_str,
-                }
-            )
-            print(f'{latent_heat_of_fusion:1.6f}')
 
-            # The basic frazil algorithm is only valid for a linear EOS,
-            # while the teos frazil algorithm requires TEOS-10.  Compute
-            # the appropriate EOS options directly (rather than through
-            # the shared ``update_eos`` mechanism) since the ``eos_type``
+            # Both the basic and teos frazil algorithms require TEOS-10;
+            # compute the EOS options directly (rather than through the
+            # shared ``update_eos`` mechanism) since the ``eos_type``
             # config option may be shared between basic and teos variants
             # of the same frazil task.
-            if self.frazil_type == 'basic':
-                eos_options = self._get_linear_eos_replacements(
-                    eos_type='linear', model=model
-                )
-            elif self.frazil_type == 'teos':
-                eos_options = self._get_teos10_eos_replacements(
-                    eos_type='teos-10', model=model
-                )
-            else:
-                raise ValueError(
-                    f'Unsupported frazil_type: {self.frazil_type}'
-                )
+            eos_options = self._get_teos10_eos_replacements(
+                eos_type='teos-10', model=model
+            )
             self.add_model_config_options(
                 options=eos_options,
                 config_model='ocean',

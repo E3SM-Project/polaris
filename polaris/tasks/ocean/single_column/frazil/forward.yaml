@@ -31,8 +31,9 @@ mpas-ocean:
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: true
   frazil_ice:
-    config_frazil_ice_density: {{ RhoSw }} # get constant
-    config_frazil_sea_ice_reference_salinity: {{ sea_ice_reference_salinity }} # get constant
+    config_frazil_ice_density: {{ RhoSw }}
+    config_frazil_sea_ice_reference_salinity: {{ sea_ice_reference_salinity }}
+    config_frazil_heat_of_fusion: {{ latent_heat_of_fusion }}
     config_frazil_use_surface_pressure: false
   debug:
     config_disable_vel_hadv: true
