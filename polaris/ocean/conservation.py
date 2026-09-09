@@ -1,6 +1,10 @@
+import logging
+
 import numpy as np
 
 from polaris.constants import get_constant
+
+logger = logging.getLogger(__name__)
 
 # TODO update once this is used by Omega
 # cp_sw = get_constant('seawater_specific_heat_capacity_reference')
@@ -440,7 +444,7 @@ def _reduce_dataset_time_dim(ds, caller):
         The dataset to reduce
 
     caller : str
-        The name of the calling function, used in the error message
+        The name of the calling function, used in the warning message
 
     Returns
     -------
@@ -450,9 +454,9 @@ def _reduce_dataset_time_dim(ds, caller):
     for time_dim in ['time', 'Time']:
         if time_dim in ds.dims:
             if ds.sizes[time_dim] > 1:
-                print(
-                    f'Warning: {caller} requires a dataset with a single '
-                    f'time slice but the "{time_dim}" dimension has size '
+                logger.warning(
+                    f'{caller} requires a dataset with a single time slice '
+                    f'but the "{time_dim}" dimension has size '
                     f'{ds.sizes[time_dim]}, using last time slice.'
                 )
                 ds = ds.isel({time_dim: -1})
