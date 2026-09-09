@@ -2,10 +2,10 @@
 
 # Command-line interface
 
-The command-line interface for polaris acts essentially like 4 independent
-scripts: `polaris list`, `polaris setup`, `polaris suite`, and
-`polaris serial`.  These are the primary user interface to the package, as
-described below.
+The command-line interface for polaris acts essentially like 5 independent
+scripts: `polaris list`, `polaris setup`, `polaris suite`, `polaris serial`
+and `polaris parallel`.  These are the primary user interface to the package,
+as described below.
 
 When the `polaris` package is installed into your deployment environment, you can
 run these commands as above.  If you are developing polaris from a local
@@ -336,6 +336,8 @@ same as listed above for `polaris setup`.
 
 (dev-polaris-run)=
 
+(dev-polaris-serial)=
+
 ## polaris serial
 
 The `polaris serial` command is used to run (in sequence, as opposed to in task
@@ -396,6 +398,74 @@ To see which steps are are available in a given task, you need to run
 
 The `--step_is_subprocess` flag is for internal use by the framework so you
 shouldn't need to use that flag.
+
+See {ref}`dev-run` for more about the underlying framework.
+
+(dev-polaris-parallel)=
+
+## polaris parallel
+
+The `polaris parallel` command runs the steps of a suite or task at the same
+time, rather than one after another as {ref}`dev-polaris-serial` does:
+
+```none
+$ polaris parallel --help
+usage: polaris parallel [-h] [-q] [suite]
+```
+
+Like `polaris serial`, it is run in a work directory rather than in a clone
+of the polaris repo, and takes the name of a suite when more than one has
+been set up in the same place.  With no argument it looks for a `task.pickle`
+in the current directory.
+
+It must be run inside a job allocation.  Everything it does depends on
+knowing how many nodes and cores it has, and a login node has neither the
+resources nor the launcher to place work on them.
+
+### What it does differently
+
+It works out what may run at the same time from what each step **declares**:
+the dependencies a step names directly, and the files one step produces that
+another consumes.  The order steps happen to be listed in contributes nothing
+except as a tie-break.  A suite that relies on listed order without declaring
+a real dependency is reported as an unrunnable graph before anything starts,
+rather than failing forty minutes in.
+
+Each step still runs in its own process, so a step may change the working
+directory or set library defaults exactly as it does today.  The scheduler
+forks a child for each step rather than starting a new `polaris serial`,
+which is what makes starting one cost almost nothing.
+
+Every step is confined to the part of the allocation it was given.  An MPI
+step's placement reaches its launcher; a step that is not launched is bound
+to its cores by the child itself, which can only be done on the node the
+scheduler is running on -- so such steps are given cores there, and Python
+concurrency is bounded by one node's worth of cores.
+
+### Asking setup for a concurrent job script
+
+`polaris setup` writes a `polaris serial` job script by default.  To have it
+write one that runs `polaris parallel` instead, set the option in a config
+file passed with `-f`:
+
+```cfg
+[job]
+concurrent_steps = True
+```
+
+The serial path is what every suite has been validated against, so it stays
+the default.  A single step's job script is unaffected, having nothing to run
+at the same time.
+
+### Reading a run afterwards
+
+Steps no longer take turns, so their output cannot share a stream.  Each
+step's log goes to `case_outputs/<step path>.log`, and the scheduler writes
+`<suite>_events.jsonl` beside it recording what started when, what each step
+held, what it was waiting for and how it ended.  That file is what to read
+when a run was slower than expected, because the interesting question -- why
+was nothing running at this moment -- cannot be answered from a step's own
+log.
 
 See {ref}`dev-run` for more about the underlying framework.
 

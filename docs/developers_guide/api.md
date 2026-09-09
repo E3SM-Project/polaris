@@ -94,6 +94,7 @@ seaice/api
    pool.ResourcePool
    pool.Reservation
    executor.start_step
+   executor.reap_one
    executor.RunningStep
    executor.StepOutcome
    confinement.check_confinement
@@ -102,6 +103,7 @@ seaice/api
    parallel.run_tasks
    serial.run_tasks
    serial.run_single_step
+   serial.run_step_in_process
    results.TaskResult
    results.write_suite_results
 
