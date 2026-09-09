@@ -84,11 +84,10 @@ Two consequences are worth knowing about:
 
 A step's placement is decided by whatever is running it.  When steps run one
 at a time it is `None`, exactly as it has always been.  When a scheduler runs
-them together it puts the placement in the step process's environment, and
-{py:func}`polaris.run.placement.placement_from_env` reads it back before the
-step runs.  A value that cannot be read raises rather than being treated as
-"no placement", because a step that quietly ran on the whole allocation would
-look like it worked while oversubscribing the machine.
+them together it forks a child per step, and the child is handed the
+placement directly -- it inherits the scheduler's memory, so the placement is
+already an object it holds rather than something to be encoded, written into
+an environment and read back.
 
 ## Capping a step's memory
 

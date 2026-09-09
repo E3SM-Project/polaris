@@ -91,8 +91,6 @@ seaice/api
    graph.StepNode
    allocation.read_allocation
    allocation.NodeResources
-   placement.placement_to_env
-   placement.placement_from_env
    pool.ResourcePool
    pool.Reservation
    executor.start_step
