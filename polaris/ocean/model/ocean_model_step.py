@@ -23,9 +23,9 @@ from polaris.ocean.conservation import (
     compute_total_mass,
     compute_total_salt,
     compute_total_tracer,
-    get_elapsed_seconds,
 )
 from polaris.ocean.model.ocean_model_files_mixin import OceanModelFilesMixin
+from polaris.ocean.model.time import get_time_since_start
 
 if TYPE_CHECKING:
     # Keep Ocean as a type-only import. Importing it at runtime pulls
@@ -564,12 +564,12 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             if baseline == 'init':
                 ds_start = ds_init
                 time_index_start = 0
-                dt = get_elapsed_seconds(ds, time_index_end=time_index_end)
+                dt = _elapsed_seconds(ds, time_index_end=time_index_end)
                 baseline_str = 'init'
             else:
                 ds_start = None
                 time_index_start = baseline
-                dt = get_elapsed_seconds(
+                dt = _elapsed_seconds(
                     ds,
                     time_index_start=time_index_start,
                     time_index_end=time_index_end,
@@ -913,3 +913,42 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     f'{type(value)}'
                 )
         return option, value
+
+
+def _elapsed_seconds(
+    ds: Any, time_index_start: Optional[int] = None, time_index_end: int = -1
+) -> float:
+    """
+    Elapsed seconds between two states of an output dataset, supporting
+    Omega's numeric ``time`` and MPAS-Ocean's ``daysSinceStartOfSim`` or
+    ``xtime``.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The output dataset
+
+    time_index_start : int, optional
+        The time index in ``ds`` at the start of the interval.  By default,
+        the interval starts at the beginning of the simulation (the initial
+        condition), rather than at a time in the output file.
+
+    time_index_end : int, optional
+        The time index in ``ds`` at the end of the interval
+
+    Returns
+    -------
+    dt : float
+        The elapsed time in seconds
+    """
+    # Take the times from the whole dataset and index the result, rather
+    # than selecting a time slice first.  MPAS-Ocean's times come from
+    # xtime, and a single slice of it is a scalar, which the string parsing
+    # in polaris.mpas.time cannot walk.
+    seconds = get_time_since_start(ds, units='seconds')
+    end_time = float(seconds[time_index_end])
+    if time_index_start is None:
+        start_time = 0.0
+    else:
+        start_time = float(seconds[time_index_start])
+    return end_time - start_time

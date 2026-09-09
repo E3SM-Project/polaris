@@ -2,7 +2,7 @@ import cmocean  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
 
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.ocean.rpe import compute_rpe
 from polaris.viz import mplstyle_context, plot_horiz_field
 
@@ -89,7 +89,7 @@ class Analysis(OceanIOStep):
         ds = self.open_model_dataset(
             f'output_nu_{nus[0]:g}.nc', self.config, decode_times=True
         )
-        times = get_days_since_start(ds)
+        times = get_time_since_start(ds, units='days')
 
         with mplstyle_context():
             fig = plt.figure()
@@ -115,7 +115,7 @@ class Analysis(OceanIOStep):
                     f'output_nu_{nu:g}.nc', self.config, decode_times=True
                 )
                 ds = ds.isel(nVertLevels=0)
-                times = get_days_since_start(ds)
+                times = get_time_since_start(ds, units='days')
                 time_index = np.argmin(np.abs(times - time))
 
                 cell_mask = ds_vert_coord.maxLevelCell >= 1

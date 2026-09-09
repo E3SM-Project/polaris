@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 
 from polaris.constants import get_constant
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 
 # Omega hard-codes the TEOS-10 reference specific heat of seawater in
 # GlobalConstants.h (Cp0Sw = 1 / HFluxFac / RhoSw).  This differs from the PCD
@@ -150,7 +150,7 @@ class Analysis(OceanIOStep):
         ds_out = xr.open_dataset(f'output_{name}.nc', decode_times=False)
 
         # elapsed time from the initial condition (t=0) to the final snapshot
-        dt = _elapsed_seconds(ds_out)
+        dt = get_time_since_start(ds_out, units='seconds')[-1]
 
         # column-integrated content per cell (mass, heat, salt) at t=0 and at
         # the final snapshot
@@ -312,21 +312,3 @@ def _surface_field(ds, name):
     elif 'time' in da.dims:
         da = da.isel(time=0)
     return da.values.astype(float)
-
-
-def _elapsed_seconds(ds):
-    """
-    Return the elapsed time in seconds from the start of the simulation (the
-    time of the initial condition) to the final snapshot of ``ds``.  Omega
-    writes a numeric ``time`` variable holding elapsed seconds since the start
-    of the simulation; MPAS-Ocean writes ``daysSinceStartOfSim``.
-    """
-    if 'daysSinceStartOfSim' in ds:
-        days = ds['daysSinceStartOfSim'].values.astype(float)
-        return float(days[-1]) * 86400.0
-    if 'time' in ds.variables:
-        t = np.asarray(ds['time'].values)
-        if np.issubdtype(t.dtype, np.number):
-            return float(t[-1])
-    t_days = get_days_since_start(ds)
-    return float(t_days[-1] * 86400.0)

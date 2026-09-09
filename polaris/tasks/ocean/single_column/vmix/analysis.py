@@ -3,7 +3,7 @@ import numpy as np
 from polaris.constants import get_constant
 from polaris.ocean.model import (
     OceanIOStep,
-    get_days_since_start,
+    get_time_since_start,
 )
 from polaris.ocean.vertical import (
     compute_zint_zmid_from_layer_thickness,
@@ -54,7 +54,7 @@ class Analysis(OceanIOStep):
                 )
                 continue
             t_target = 1.0  # empirical relationship hold for up to 30h
-            t_arr = get_days_since_start(ds_diags)
+            t_arr = get_time_since_start(ds_diags, units='days')
             t_index = np.argmin(np.abs(t_arr - t_target))
             t_days = float(t_arr[t_index])
             if abs(t_days - t_target) > (1 / 24):

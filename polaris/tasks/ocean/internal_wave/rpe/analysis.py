@@ -4,7 +4,7 @@ import numpy as np
 import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.ocean.rpe import compute_rpe
 from polaris.viz import mplstyle_context
 
@@ -86,7 +86,7 @@ class Analysis(OceanIOStep):
         ds = self.open_model_dataset(
             f'output_nu_{nus[0]:g}.nc', self.config, decode_times=True
         )
-        times = get_days_since_start(ds)
+        times = get_time_since_start(ds, units='days')
 
         with mplstyle_context():
             fig = plt.figure()
@@ -117,7 +117,7 @@ class Analysis(OceanIOStep):
                 ds = self.open_model_dataset(
                     f'output_nu_{nu:g}.nc', self.config, decode_times=True
                 )
-                times = get_days_since_start(ds)
+                times = get_time_since_start(ds, units='days')
                 time_index = np.argmin(np.abs(times - time))
                 ds_transect = compute_transect(
                     x=x,

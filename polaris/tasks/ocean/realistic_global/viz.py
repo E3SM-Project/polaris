@@ -1,7 +1,7 @@
 import cmocean  # noqa: F401
 
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.model.time import get_days_since_start
+from polaris.ocean.model.time import get_time_since_start
 from polaris.viz import plot_global_mpas_field
 
 
@@ -86,7 +86,7 @@ class Viz(OceanIOStep):
             mesh_filename='mesh.nc',
         )
 
-        time = get_days_since_start(ds_out)
+        time = get_time_since_start(ds_out, units='days')
         ds_final = ds_out.isel(Time=-1, nVertLevels=0)
         t_days = int(round(time[-1]))
 

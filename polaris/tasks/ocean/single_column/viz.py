@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.viz import mplstyle_context
 
 # TODO import rho_0 from constants
@@ -123,7 +123,7 @@ class Viz(OceanIOStep):
                         decode_times=True,
                         config=self.config,
                     )
-                t_arr = get_days_since_start(ds_comp)
+                t_arr = get_time_since_start(ds_comp, units='days')
                 t_index = np.argmin(np.abs(t_arr - t_target))
                 time_ds.append(float(t_arr[t_index]))
                 ds_list.append(ds_comp.isel(Time=t_index))

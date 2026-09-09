@@ -1,7 +1,6 @@
 import numpy as np
 
 from polaris.constants import get_constant
-from polaris.ocean.model.time import get_days_since_start
 
 # TODO update once this is used by Omega
 # cp_sw = get_constant('seawater_specific_heat_capacity_reference')
@@ -186,39 +185,6 @@ def compute_total_salt(ds_mesh, ds):
     """
     total_salinity = compute_total_tracer(ds_mesh, ds, tracer_name='salinity')
     return (rho_sw / 1000.0) * total_salinity
-
-
-def get_elapsed_seconds(ds, time_index_start=None, time_index_end=-1):
-    """
-    Elapsed seconds between two states of an output dataset, supporting
-    Omega's numeric ``time`` and MPAS-Ocean's ``daysSinceStartOfSim``.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        The output dataset
-
-    time_index_start : int, optional
-        The time index in ``ds`` at the start of the interval.  By default,
-        the interval starts at the beginning of the simulation (the initial
-        condition), rather than at a time in the output file.
-
-    time_index_end : int, optional
-        The time index in ``ds`` at the end of the interval
-
-    Returns
-    -------
-    dt : float
-        The elapsed time in seconds
-    """
-    if time_index_start is None:
-        start_time = 0.0
-    else:
-        start_time = (
-            get_days_since_start(ds.isel(Time=time_index_start)) * 86400.0
-        )
-    end_time = get_days_since_start(ds.isel(Time=time_index_end)) * 86400.0
-    return end_time - start_time
 
 
 def compute_flux_forcing(

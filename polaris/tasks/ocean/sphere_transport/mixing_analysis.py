@@ -10,7 +10,7 @@ from polaris.ocean.convergence import (
 from polaris.ocean.convergence import (
     get_timestep_for_task as get_timestep_for_task,
 )
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.resolution import resolution_to_string
 from polaris.viz import mplstyle_context
 
@@ -129,7 +129,7 @@ class MixingAnalysis(OceanIOStep):
                     ax.set_ylabel('tracer3')
                 if int(i / 2) == nrows - 1:
                     ax.set_xlabel('tracer2')
-                t_days = get_days_since_start(ds)
+                t_days = get_time_since_start(ds, units='days')
                 time_index = np.argmin(
                     np.abs(np.subtract(t_days, eval_time * s_per_day))
                 )
