@@ -367,12 +367,33 @@ class ResourcePool:
 
         Rounding goes to the last node so that the charges add up to the
         budget exactly rather than to a little less than it.
+
+        A step on several nodes takes the *same* core numbers on each of
+        them.  That is not tidiness, it is the only thing a launcher can
+        express: Slurm's ``--cpu-bind=mask_cpu`` assigns masks by a task's
+        index *on its own node* and reuses the list on every node, so the
+        first node's masks are what every node applies.  Give two nodes
+        different core sets and the second one silently runs on the first
+        one's cores -- measured on Chrysalis, where three launches of
+        omega_pr did exactly that and every one of them succeeded while the
+        pool believed cores were free that were not.
+
+        Taking a prefix of one shared ordering also serves the uneven case,
+        where a node with fewer ranks needs fewer cores: its set is then the
+        front of the same list, which is what the launcher would apply to it
+        anyway.
         """
         budget = step.memory_budget or 0
+        shared = _shared_cores(chosen) if len(chosen) > 1 else None
         layout = []
         charged = 0
         for index, node in enumerate(chosen):
             cores_here = wanted[index]
+            available = node.free_cores if shared is None else shared
+            if len(available) < cores_here:
+                # the nodes are free enough separately but do not have these
+                # cores free in common; another moment may do
+                return None
             if index == len(chosen) - 1:
                 charge = budget - charged
             else:
@@ -383,7 +404,7 @@ class ResourcePool:
             layout.append(
                 (
                     node,
-                    tuple(node.free_cores[:cores_here]),
+                    tuple(available[:cores_here]),
                     gpu_ids,
                     charge,
                 )
@@ -435,6 +456,14 @@ class ResourcePool:
             gpus=gpus,
             memory=memory,
         )
+
+
+def _shared_cores(chosen: List[_Node]) -> List[int]:
+    """The cores free on every one of these nodes, in a stable order."""
+    common = set(chosen[0].free_cores)
+    for node in chosen[1:]:
+        common &= set(node.free_cores)
+    return sorted(common)
 
 
 def _memory_fits(node: _Node, charge: Optional[int]) -> bool:
