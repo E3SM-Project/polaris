@@ -244,23 +244,31 @@ class Forward(OceanModelStep):
 
 ## Conservation checks
 
-Mass, salt and energy conservation checks are available for ocean model output.
-The checks will fail if the relative change in the total quantity exceeds the
-tolerance given in
+Mass, salt, tracer and energy conservation checks are available for ocean
+model output.  A check fails if the relative error in the budget exceeds the
+tolerance given in `polaris/ocean/ocean.cfg`:
 
 ```cfg
 # Options related the ocean component
 [ocean]
 
 # Tolerance for mass conservation, normalized by total mass
-mass_conservation_tolerance = 1e-8
+mass_conservation_tolerance = 1e-14
 
 # Tolerance for salt conservation, normalized by total salt
-salt_conservation_tolerance = 1e-8
+salt_conservation_tolerance = 1e-14
+
+# Tolerance for tracer conservation, normalized by total tracer value
+tracer_conservation_tolerance = 1e-14
 
 # Tolerance for thermal energy conservation, normalized by total energy
-energy_conservation_tolerance = 1e-8
+energy_conservation_tolerance = 1e-14
 ```
+
+A failed check does not currently fail its step or task.  The result is
+logged and recorded, and nothing else acts on it.  Whether that should
+change, and what the tolerances should be, is under discussion in
+[issue #753](https://github.com/E3SM-Project/polaris/issues/753).
 
 As shown in the previous example, we have added a mesh file with the name
 'mesh.nc' because conservation checks require the area of cells.

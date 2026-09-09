@@ -368,22 +368,29 @@ As an example:</p>
 </div>
 <section id="conservation-checks">
 <h2>Conservation checks<a class="headerlink" href="#conservation-checks" title="Link to this heading"></a></h2>
-<p>Mass, salt and energy conservation checks are available for ocean model output.
-The checks will fail if the relative change in the total quantity exceeds the
-tolerance given in</p>
+<p>Mass, salt, tracer and energy conservation checks are available for ocean
+model output.  A check fails if the relative error in the budget exceeds the
+tolerance given in <code class="docutils literal notranslate"><span class="pre">polaris/ocean/ocean.cfg</span></code>:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related the ocean component</span>
 <span class="k">[ocean]</span>
 
 <span class="c1"># Tolerance for mass conservation, normalized by total mass</span>
-<span class="na">mass_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-8</span>
+<span class="na">mass_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-14</span>
 
 <span class="c1"># Tolerance for salt conservation, normalized by total salt</span>
-<span class="na">salt_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-8</span>
+<span class="na">salt_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-14</span>
+
+<span class="c1"># Tolerance for tracer conservation, normalized by total tracer value</span>
+<span class="na">tracer_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-14</span>
 
 <span class="c1"># Tolerance for thermal energy conservation, normalized by total energy</span>
-<span class="na">energy_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-8</span>
+<span class="na">energy_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-14</span>
 </pre></div>
 </div>
+<p>A failed check does not currently fail its step or task.  The result is
+logged and recorded, and nothing else acts on it.  Whether that should
+change, and what the tolerances should be, is under discussion in
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/issues/753">issue #753</a>.</p>
 <p>As shown in the previous example, we have added a mesh file with the name
 ‘mesh.nc’ because conservation checks require the area of cells.</p>
 <p>Each call to <a class="reference internal" href="../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a> adds a single
