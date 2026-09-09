@@ -231,6 +231,15 @@ def _be_the_step(step, placement, log_filename, cores, saying) -> NoReturn:
         os.dup2(opened, 2)
         os.close(opened)
 
+        # and point Python's own streams at the descriptors just redirected.
+        # Redirecting the descriptors is what catches a model an MPI step
+        # launches, which knows nothing of Python's streams; rebinding these
+        # is what catches Python's own writes when the parent's streams were
+        # not the descriptors -- under pytest they are not, and neither are
+        # they under anything else that captures output.
+        sys.stdout = os.fdopen(1, 'w', buffering=1, closefd=False)
+        sys.stderr = os.fdopen(2, 'w', buffering=1, closefd=False)
+
         os.chdir(step.work_dir)
         # this child *is* the separate process that flag asks for
         step.run_as_subprocess = False
