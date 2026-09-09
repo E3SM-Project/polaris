@@ -325,6 +325,24 @@
    viz.Viz.run
 ```
 
+### frazil
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.single_column
+
+.. autosummary::
+   :toctree: generated/
+
+   Frazil
+   Frazil.configure
+
+   frazil.init.FrazilInit
+   frazil.init.FrazilInit._compute_temperature_salinity
+
+   forward.Forward
+   forward.Forward.dynamic_model_config
+```
+
 ### inertial_gravity_wave
 
 ```{eval-rst}
@@ -600,9 +618,10 @@
    init.Init
    init.Init.run
 
+   conservation_summary.ConservationSummary
+   conservation_summary.ConservationSummary.run
+
    thermo.Thermo
-   thermo.conservation_summary.ConservationSummary
-   thermo.conservation_summary.ConservationSummary.run
    thermo.analysis.Analysis
    thermo.analysis.Analysis.run
 
