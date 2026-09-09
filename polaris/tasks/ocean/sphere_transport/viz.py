@@ -48,7 +48,7 @@ class Viz(OceanIOStep):
         super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
-            work_dir_target=f'{init.path}/base_mesh_with_weights.nc',
+            work_dir_target=f'{init.path}/culled_mesh.nc',
         )
         self.add_input_file(
             filename='initial_state.nc',
