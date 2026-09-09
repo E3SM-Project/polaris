@@ -50,6 +50,17 @@ HEAT_FLUX_VARS = [
 
 SALT_FLUX_VARS = ['seaIceSalinityFlux']
 
+# The tracers that a 'tracer conservation' check expands to, if they are
+# present in the output file.  These are all of the tracers in
+# ``mpaso_to_omega.yaml``.
+TRACERS_TO_CHECK = [
+    'temperature',
+    'salinity',
+    'tracer1',
+    'tracer2',
+    'tracer3',
+]
+
 # Mass fluxes that may also carry an enthalpy flux, ``flux * cp_sw * T``.
 # Which of these are active, and the temperature ``T`` applied to each, is
 # model dependent and is resolved by ``_get_enthalpy_flux_vars``.

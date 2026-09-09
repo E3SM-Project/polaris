@@ -18,6 +18,7 @@ from ruamel.yaml import YAML
 from polaris.constants import get_constant
 from polaris.model_step import ModelStep
 from polaris.ocean.conservation import (
+    TRACERS_TO_CHECK,
     compute_flux_forcing,
     compute_total_energy,
     compute_total_mass,
@@ -575,7 +576,9 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     time_index_end=time_index_end,
                 )
                 baseline_str = f'time index {time_index_start}'
-            for output_property in properties:
+            for output_property, tracer_name in _expand_properties(
+                properties, ds
+            ):
                 func: Callable[..., Any]
                 kwargs: Dict[str, Any] = {}
                 if output_property == 'mass':
@@ -587,7 +590,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     func = compute_total_salt
                 elif output_property == 'tracer':
                     func = compute_total_tracer
-                    kwargs = {'tracer_name': 'tracer1'}
+                    kwargs = {'tracer_name': tracer_name}
                 else:
                     raise ValueError(
                         f'Unknown property to check: {output_property}'
@@ -621,8 +624,14 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                 relative_error = float(relative_error)
                 passed = bool(relative_error <= tol)
                 status = 'PASS' if passed else 'FAIL'
+                if tracer_name is None:
+                    property_str = f'{output_property} conservation'
+                else:
+                    property_str = (
+                        f'{output_property} conservation ({tracer_name})'
+                    )
                 description = (
-                    f'{output_property} conservation in {filename} '
+                    f'{property_str} in {filename} '
                     f'({baseline_str} to time index {time_index_end})'
                 )
                 logger.info(
@@ -632,6 +641,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                 results.append(
                     dict(
                         property=output_property,
+                        tracer=tracer_name,
                         filename=filename,
                         baseline=baseline,
                         time_index_start=int(time_index_start),
@@ -913,3 +923,26 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     f'{type(value)}'
                 )
         return option, value
+
+
+def _expand_properties(
+    properties: List[str], ds: Any
+) -> List[Tuple[str, Optional[str]]]:
+    """
+    Expand a list of conservation properties into ``(property, tracer name)``
+    pairs
+
+    A ``tracer`` check is expanded into one check for each tracer in
+    ``TRACERS_TO_CHECK`` that is present in the dataset, so that tasks
+    transporting several tracers check all of them.  Every other property
+    produces a single pair with a tracer name of ``None``.
+    """
+    expanded: List[Tuple[str, Optional[str]]] = []
+    for output_property in properties:
+        if output_property == 'tracer':
+            for tracer_name in TRACERS_TO_CHECK:
+                if tracer_name in ds:
+                    expanded.append((output_property, tracer_name))
+        else:
+            expanded.append((output_property, None))
+    return expanded
