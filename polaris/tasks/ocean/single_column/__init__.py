@@ -178,12 +178,10 @@ def add_single_column_tasks(component):
     )
 
     for case in ('melting', 'freezing'):
-        for frazil_type in ('basic', 'teos'):
-            component.add_task(
-                Frazil(
-                    component=component,
-                    subdir=f'column/frazil/{case}/{frazil_type}',
-                    case=case,
-                    frazil_type=frazil_type,
-                )
+        component.add_task(
+            Frazil(
+                component=component,
+                subdir=f'column/frazil/{case}',
+                case=case,
             )
+        )
