@@ -70,10 +70,9 @@ is a step for plotting the initial and final states of the advection test for
 each resolution.  The colormap is controlled by the config options discussed in
 {ref}`ocean-geostrophic-config`.
 
-This step supports only MPAS-Ocean.  It plots `velocityZonal` and
-`velocityMeridional`, which MPAS-Ocean writes to its output stream but Omega
-does not, and neither Omega nor Polaris can yet reconstruct them from the
-normal velocity on edges.
+It plots `velocityZonal` and `velocityMeridional`.  MPAS-Ocean writes those
+to its output stream; Omega does not, so `open_model_dataset()` reconstructs
+them from the normal velocity on edges (see {ref}`dev-ocean-model`).
 
 See {ref}`dev-visualization-global` for more details on the global lat-lon
 plots.
