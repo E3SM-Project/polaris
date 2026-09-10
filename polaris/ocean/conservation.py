@@ -46,6 +46,17 @@ HEAT_FLUX_VARS = [
 
 SALT_FLUX_VARS = ['seaIceSalinityFlux']
 
+# The tracers that a 'tracer conservation' check expands to, if they are
+# present in the output file.  These are all of the tracers in
+# ``mpaso_to_omega.yaml``.
+TRACERS_TO_CHECK = [
+    'temperature',
+    'salinity',
+    'tracer1',
+    'tracer2',
+    'tracer3',
+]
+
 # Mass fluxes that may also carry an enthalpy flux, ``flux * cp_sw * T``.
 # Which of these are active, and the temperature ``T`` applied to each, is
 # model dependent and is resolved by ``_get_enthalpy_flux_vars``.
@@ -406,16 +417,21 @@ def _reduce_dataset_time_dim(ds, caller):
     -------
     ds : xarray.Dataset
         The dataset with any time dimension removed
+
+    Raises
+    ------
+    ValueError
+        If the dataset has more than one time slice
     """
     for time_dim in ['time', 'Time']:
         if time_dim in ds.dims:
             if ds.sizes[time_dim] > 1:
-                print(
-                    f'Warning: {caller} requires a dataset with a single '
-                    f'time slice but the "{time_dim}" dimension has size '
-                    f'{ds.sizes[time_dim]}, using last time slice.'
+                raise ValueError(
+                    f'{caller} requires a dataset with a single time slice '
+                    f'but the "{time_dim}" dimension has size '
+                    f'{ds.sizes[time_dim]}.  Select a time slice with '
+                    f'isel() before calling it.'
                 )
-                ds = ds.isel({time_dim: -1})
     return ds
 
 
