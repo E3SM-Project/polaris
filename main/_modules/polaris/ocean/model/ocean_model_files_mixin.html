@@ -159,8 +159,8 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Open a dataset, mapping Omega variable and dimension names to their</span>
-<span class="sd">        MPAS-Ocean equivalents if appropriate.</span>
+<span class="sd">        Open the given dataset, mapping variable and dimension names from Omega</span>
+<span class="sd">        to MPAS-Ocean names if appropriate</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -170,21 +170,29 @@
 <span class="sd">        config : polaris.config.PolarisConfigParser, optional</span>
 <span class="sd">            Configuration for the task; defaults to the step's config</span>
 
-<span class="sd">        tracer_convention : str, optional</span>
-<span class="sd">            The tracer convention to use when renaming variables</span>
+<span class="sd">        tracer_convention : {'teos-10', 'mpas-ocean'}, optional</span>
+<span class="sd">            The convention of ``temperature`` and ``salinity`` in the dataset</span>
+<span class="sd">            that is returned.  The default is to leave the tracers in the</span>
+<span class="sd">            convention the ocean model wrote them in.  The locations needed</span>
+<span class="sd">            for the conversion come from ``mesh_filename`` unless ``lon`` and</span>
+<span class="sd">            ``lat`` are given.</span>
 
-<span class="sd">        lon : str, optional</span>
-<span class="sd">            The name of the longitude coordinate, if any</span>
+<span class="sd">        lon : float or xarray.DataArray, optional</span>
+<span class="sd">            The longitude(s) in degrees at which to convert tracers, if not</span>
+<span class="sd">            the location implied by the mesh</span>
 
-<span class="sd">        lat : str, optional</span>
-<span class="sd">            The name of the latitude coordinate, if any</span>
+<span class="sd">        lat : float or xarray.DataArray, optional</span>
+<span class="sd">            The latitude(s) in degrees at which to convert tracers, as for</span>
+<span class="sd">            ``lon``</span>
 
 <span class="sd">        logger : logging.Logger, optional</span>
-<span class="sd">            A logger; defaults to the step's logger</span>
+<span class="sd">            A logger for logging EOS iteration information; defaults to the</span>
+<span class="sd">            step's logger</span>
 
-<span class="sd">        **kwargs</span>
-<span class="sd">            Additional keyword arguments forwarded to</span>
-<span class="sd">            :py:meth:`polaris.tasks.ocean.Ocean.open_model_dataset`</span>
+<span class="sd">        kwargs</span>
+<span class="sd">            keyword arguments passed to</span>
+<span class="sd">            :py:meth:`polaris.tasks.ocean.Ocean.open_model_dataset()` and on</span>
+<span class="sd">            to `xarray.open_dataset()`</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
