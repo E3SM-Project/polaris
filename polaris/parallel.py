@@ -32,7 +32,8 @@ def check_mache_supports_placement():
         raise RuntimeError(
             f'The installed mache ({mache.__version__}) cannot confine a '
             f'launch to part of an allocation, which Polaris now requires.\n'
-            f'Install mache 3.13.0 or later.'
+            f'Update mache to a release whose get_parallel_command() '
+            f'takes a placement.'
         )
 
     _check_placement_cores_are_per_node()
@@ -60,7 +61,8 @@ def _check_placement_cores_are_per_node():
             f'The installed mache ({mache.__version__}) expresses a '
             f"placement's cores as one set for the whole launch, so Polaris "
             f'cannot place a step across nodes.\n'
-            f'Install mache 3.13.0 or later.'
+            f'Update mache to a release that gives a placement one set '
+            f'of cores per node.'
         ) from exception
 
     if total_cores != 2:
@@ -69,7 +71,8 @@ def _check_placement_cores_are_per_node():
             f'of one core on each of two nodes and reported {total_cores} '
             f'cores rather than 2, so Polaris cannot rely on what a '
             f'placement means.\n'
-            f'Install mache 3.13.0 or later.'
+            f'Update mache to a release that gives a placement one set '
+            f'of cores per node.'
         )
 
 
