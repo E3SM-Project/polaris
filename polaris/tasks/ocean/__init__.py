@@ -1197,8 +1197,8 @@ def _add_reconstructed_variables_to_dataset(
             )
 
         elif reconstruct_method == 'LSTSQ':
-            stencil = ds_mesh.reconstructStencilCell
-            weights = ds_mesh.reconstructWeightsCell
+            stencil = ds_mesh.ReconStencilCell
+            weights = ds_mesh.ReconWeightsCell
 
             u_x, u_y, u_z = tangential_reconstruction(
                 ds_mesh, ds[variable], stencil=stencil, weights=weights
