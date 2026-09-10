@@ -28,7 +28,7 @@ def time_index_from_xtime(xtime, dt_target, start_xtime=None):
     return time_index
 
 
-def time_since_start(xtime, start_xtime='0001-01-01_01:00:00'):
+def time_since_start(xtime, start_xtime=None):
     """
     Determine the time elapsed since the start of the simulation
 
