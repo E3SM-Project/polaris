@@ -43,8 +43,29 @@ mpas-ocean:
       filename_template: forcing.nc
       input_interval: initial_only
       contents:
+      - tracersSurfaceRestoringFields
+      - tracersInteriorRestoringFields
+      - tracersExponentialDecayFields
+      - tracersIdealAgeFields
+      - tracersTTDFields
+      - windStressZonal
+      - windStressMeridional
+      - landIceSurfaceTemperature
       - atmosphericPressure
+      - latentHeatFlux
       - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - longWaveHeatFluxUp
+      - longWaveHeatFluxDown
+      - evaporationFlux
+      - rainFlux
+      - snowFlux
+      - seaIceFreshWaterFlux
+      - seaIceHeatFlux
+      - seaIceSalinityFlux
+      - icebergFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
     output:
       type: output
       filename_template: output.nc
@@ -69,6 +90,8 @@ mpas-ocean:
       - sensibleHeatFlux
 
 Omega:
+  Frazil:
+    ConservationCheck: false
   IOStreams:
     History:
       Filename: output.nc
