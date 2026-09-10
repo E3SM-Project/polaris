@@ -276,9 +276,14 @@ def setup_tasks(
 
     _symlink_load_script(work_dir)
 
-    max_cores, max_of_min_cores, max_gpus, max_of_min_gpus = (
-        _get_required_resources(tasks)
-    )
+    (
+        max_cores,
+        max_of_min_cores,
+        max_gpus,
+        max_of_min_gpus,
+        sum_of_min_cores,
+        sum_of_min_gpus,
+    ) = _get_required_resources(tasks)
 
     print(f'target cores: {max_cores}')
     print(f'minimum cores: {max_of_min_cores}')
@@ -298,6 +303,8 @@ def setup_tasks(
             min_cores=max_of_min_cores,
             target_gpus=max_gpus,
             min_gpus=max_of_min_gpus,
+            sum_min_cores=sum_of_min_cores,
+            sum_min_gpus=sum_of_min_gpus,
             work_dir=work_dir,
             suite=suite_name,
             concurrent=_run_steps_concurrently(suite_config),
@@ -411,9 +418,14 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
     _symlink_load_script(task_dir)
 
     if machine is not None:
-        max_cores, max_of_min_cores, max_gpus, max_of_min_gpus = (
-            _get_required_resources({path: task})
-        )
+        (
+            max_cores,
+            max_of_min_cores,
+            max_gpus,
+            max_of_min_gpus,
+            sum_of_min_cores,
+            sum_of_min_gpus,
+        ) = _get_required_resources({path: task})
         write_job_script(
             config=task.config,
             machine=machine,
@@ -421,6 +433,8 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
             min_cores=max_of_min_cores,
             target_gpus=max_gpus,
             min_gpus=max_of_min_gpus,
+            sum_min_cores=sum_of_min_cores,
+            sum_min_gpus=sum_of_min_gpus,
             work_dir=task_dir,
             concurrent=_run_steps_concurrently(task.config),
         )
@@ -966,18 +980,33 @@ def _clean_tasks_and_steps(tasks, base_work_dir):
 
 def _get_required_resources(tasks):
     """
-    Get max target and minimum CPU and GPU resource counts across task steps
+    Get target and minimum CPU and GPU resource counts across task steps.
+
+    The maxima describe the widest single step, which is what bounds a run
+    that takes one step at a time.  The sums of the minima describe every
+    step at once at its smallest, which is what a run taking steps at the
+    same time can put to use, and they are what let an allocation grow as
+    a suite gains tests rather than staying fixed at its widest step.
+
+    A step shared between tasks appears once per task that runs it but is
+    run once, so it is counted once here.  That makes no difference to a
+    maximum and a large one to a sum: `omega_pr` shares enough steps that
+    counting them per task overstates its minima by a node's worth.
     """
 
     max_cores = 0
     max_of_min_cores = 0
     max_gpus = 0
     max_of_min_gpus = 0
+    sum_of_min_cores = 0
+    sum_of_min_gpus = 0
+    counted = set()
     for task in tasks.values():
         for step_name in task.steps_to_run:
             step = task.steps[step_name]
-            if step.cached:
+            if step.cached or step.path in counted:
                 continue
+            counted.add(step.path)
             if step.ntasks is None:
                 raise ValueError(
                     f'The number of tasks (ntasks) was never set for '
@@ -996,8 +1025,17 @@ def _get_required_resources(tasks):
             max_of_min_cores = max(max_of_min_cores, min_cores)
             max_gpus = max(max_gpus, gpus)
             max_of_min_gpus = max(max_of_min_gpus, min_gpus)
+            sum_of_min_cores += min_cores
+            sum_of_min_gpus += min_gpus
 
-    return max_cores, max_of_min_cores, max_gpus, max_of_min_gpus
+    return (
+        max_cores,
+        max_of_min_cores,
+        max_gpus,
+        max_of_min_gpus,
+        sum_of_min_cores,
+        sum_of_min_gpus,
+    )
 
 
 def __get_machine_and_check_params(

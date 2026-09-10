@@ -2,10 +2,13 @@ import os
 
 import pytest
 
-from polaris import provenance
+from polaris import Component, Step, Task, provenance
 from polaris.config import PolarisConfigParser
 from polaris.job import write_job_script
-from polaris.setup import _run_steps_concurrently
+from polaris.setup import (
+    _get_required_resources,
+    _run_steps_concurrently,
+)
 
 
 def get_config(machine=None, **job_options):
@@ -379,3 +382,137 @@ def test_setup_and_suite_can_be_asked_without_a_config_file():
         assert '--concurrent_steps' in helped.stdout, (
             f'polaris {command} does not offer the flag'
         )
+
+
+def _sized_job(tmp_path, concurrent, **resources):
+    """Write a job script sized from resources rather than a node count."""
+    config = get_config('chrysalis')
+    write_job_script(
+        config=config,
+        machine='chrysalis',
+        work_dir=str(tmp_path),
+        concurrent=concurrent,
+        **resources,
+    )
+    with open(os.path.join(str(tmp_path), 'job_script.sh')) as handle:
+        return handle.read()
+
+
+def _nodes_in(text):
+    for line in text.splitlines():
+        if line.startswith('#SBATCH --nodes='):
+            return int(line.split('=')[1])
+    raise AssertionError(f'no node count in:\n{text}')
+
+
+def test_a_serial_job_is_sized_by_its_widest_step(tmp_path):
+    """One step at a time means only the widest step can use the machine."""
+    # sqrt(800 * 36) = 169.7 cores, which is 3 of Chrysalis' 64-core nodes
+    text = _sized_job(
+        tmp_path,
+        concurrent=False,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=310,
+    )
+    assert _nodes_in(text) == 3
+
+
+def test_a_concurrent_job_holds_every_step_at_once(tmp_path):
+    """Steps running together can use more than the widest of them."""
+    # the same suite, whose steps need 310 cores between them at their
+    # smallest: 5 nodes rather than 3
+    text = _sized_job(
+        tmp_path,
+        concurrent=True,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=310,
+    )
+    assert _nodes_in(text) == 5
+
+
+def test_a_concurrent_job_grows_as_a_suite_gains_steps(tmp_path):
+    """The point of the sum: more tests ask for more of the machine."""
+    smaller = _sized_job(
+        tmp_path,
+        concurrent=True,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=310,
+    )
+    larger = _sized_job(
+        tmp_path,
+        concurrent=True,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=620,
+    )
+    assert _nodes_in(larger) == 2 * _nodes_in(smaller)
+
+
+def test_one_step_is_sized_the_same_either_way(tmp_path):
+    """
+    With one step the sum is that step's own minimum, which the geometric
+    mean already exceeds, so concurrency cannot change the answer.
+    """
+    resources = dict(target_cores=800, min_cores=36, sum_min_cores=36)
+    serial = _sized_job(tmp_path, concurrent=False, **resources)
+    concurrent = _sized_job(tmp_path, concurrent=True, **resources)
+    assert _nodes_in(serial) == _nodes_in(concurrent) == 3
+
+
+def test_a_concurrent_job_never_asks_for_less_than_the_widest_step(tmp_path):
+    """A suite of tiny steps is still sized to run its one big one."""
+    text = _sized_job(
+        tmp_path,
+        concurrent=True,
+        target_cores=800,
+        min_cores=36,
+        sum_min_cores=40,
+    )
+    assert _nodes_in(text) == 3
+
+
+def _task_using(component, name, steps):
+    task = Task(component=component, name=name, subdir=name)
+    for step in steps:
+        task.add_step(step)
+    return task
+
+
+def test_a_shared_step_is_counted_once(tmp_path):
+    """
+    A step shared between tasks runs once, so the sum of the minima has to
+    count it once.  It appears once per task that runs it, which makes no
+    difference to a maximum and inflates a sum.
+    """
+    component = Component(name='ocean')
+    shared = Step(
+        component=component,
+        name='shared',
+        subdir='shared',
+        ntasks=8,
+        cpus_per_task=1,
+        min_tasks=4,
+        min_cpus_per_task=1,
+    )
+    own = Step(
+        component=component,
+        name='own',
+        subdir='own',
+        ntasks=2,
+        cpus_per_task=1,
+        min_tasks=1,
+        min_cpus_per_task=1,
+    )
+    tasks = {
+        'one': _task_using(component, 'one', [shared, own]),
+        'two': _task_using(component, 'two', [shared]),
+    }
+    _, max_of_min_cores, _, _, sum_of_min_cores, _ = _get_required_resources(
+        tasks
+    )
+    # 4 for the shared step and 1 for the other, not 4 + 1 + 4
+    assert sum_of_min_cores == 5
+    assert max_of_min_cores == 4
