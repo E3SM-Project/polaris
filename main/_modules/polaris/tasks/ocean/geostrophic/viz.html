@@ -197,11 +197,11 @@
             <span class="n">v</span><span class="o">=</span><span class="s1">'geostrophic_viz_vel'</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="c1"># the init step writes velocityZonal and velocityMeridional</span>
+        <span class="c1"># analytically for both models, so there is nothing to reconstruct</span>
         <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
             <span class="s1">'initial_state.nc'</span><span class="p">,</span>
             <span class="n">config</span><span class="p">,</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
-            <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_vert_coord_dataset</span><span class="p">(</span><span class="n">ds_init</span><span class="p">)</span>
         <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">bottomDepth</span>

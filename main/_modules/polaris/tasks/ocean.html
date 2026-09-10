@@ -770,12 +770,16 @@
 <span class="sd">            where the locations needed for a tracer conversion come from.</span>
 
 <span class="sd">        reconstruct_variables : list of str, optional</span>
-<span class="sd">            List of variable names to reconstruct in the dataset.</span>
+<span class="sd">            List of variable names to reconstruct in the dataset.  A variable</span>
+<span class="sd">            whose zonal and meridional components are already in the dataset</span>
+<span class="sd">            (as they are in MPAS-Ocean output, which the model reconstructs</span>
+<span class="sd">            itself) is skipped, and nothing is reconstructed if that is true</span>
+<span class="sd">            of all of them.</span>
 
 <span class="sd">        coeffs_filename : str, optional</span>
 <span class="sd">            Path to the coefficients NetCDF file.</span>
 
-<span class="sd">        reonstruct_method : {'RBF', 'LSTSQ'}, optional</span>
+<span class="sd">        reconstruct_method : {'RBF', 'LSTSQ'}, optional</span>
 <span class="sd">            Method to use for reconstructing vector variables.</span>
 <span class="sd">            RBF: Radial Basis Function; approach used in MPAS-Ocean.</span>
 <span class="sd">            LSTSQ: Least-squares reconstruction; new approach in Omega</span>
@@ -898,34 +902,43 @@
             <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">'mesh_filename must be provided to open_model_dataset '</span>
-                    <span class="s1">'for variable reconstruction'</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'RBF'</span> <span class="ow">and</span> <span class="n">coeffs_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">'coeffs_filename must be provided to open_model_dataset '</span>
-                    <span class="s1">'for variable reconstruction'</span>
-                <span class="p">)</span>
-            <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'LSTSQ'</span>
-                <span class="ow">and</span> <span class="ow">not</span> <span class="n">_reconstruction_weights_in_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
-            <span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">'Reconstruction weights are not present in the mesh '</span>
-                    <span class="s1">'dataset; cannot reconstruct variables using LSTSQ method'</span>
-                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ds</span>
 
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
-                <span class="n">ds</span><span class="p">,</span>
-                <span class="n">reconstruct_variables</span><span class="p">,</span>
-                <span class="n">ds_mesh</span><span class="p">,</span>
-                <span class="n">coeffs_filename</span><span class="p">,</span>
-                <span class="n">reconstruct_method</span><span class="p">,</span>
+        <span class="n">out_var_names</span> <span class="o">=</span> <span class="n">_vars_to_reconstruct</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">reconstruct_variables</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_var_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># the model already wrote the zonal and meridional components, as</span>
+            <span class="c1"># MPAS-Ocean does with its own RBF reconstruction, so no mesh,</span>
+            <span class="c1"># weights or coefficients are needed</span>
+            <span class="k">return</span> <span class="n">ds</span>
+
+        <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'mesh_filename must be provided to open_model_dataset '</span>
+                <span class="s1">'for variable reconstruction'</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'RBF'</span> <span class="ow">and</span> <span class="n">coeffs_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'coeffs_filename must be provided to open_model_dataset '</span>
+                <span class="s1">'for variable reconstruction'</span>
+            <span class="p">)</span>
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'LSTSQ'</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">_reconstruction_weights_in_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'Reconstruction weights are not present in the mesh '</span>
+                <span class="s1">'dataset; cannot reconstruct variables using LSTSQ method'</span>
+            <span class="p">)</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span>
+            <span class="n">out_var_names</span><span class="p">,</span>
+            <span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">coeffs_filename</span><span class="p">,</span>
+            <span class="n">reconstruct_method</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span></div>
 
 
@@ -1254,22 +1267,64 @@
     <span class="k">return</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'nominal_lon'</span><span class="p">),</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'nominal_lat'</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_vars_to_reconstruct</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">reconstruct_variables</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Find the variables that still need to be reconstructed and the base name</span>
+<span class="sd">    of the zonal and meridional components each one produces.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The dataset the variables will be reconstructed in.</span>
+
+<span class="sd">    reconstruct_variables : list of str</span>
+<span class="sd">        List of variable names to reconstruct.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out_var_names : dict</span>
+<span class="sd">        A map from each variable that still needs to be reconstructed to the</span>
+<span class="sd">        base name of its reconstructed components.  Variables whose components</span>
+<span class="sd">        are already in ``ds`` are left out.</span>
+<span class="sd">    """</span>
+    <span class="n">out_var_names</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">reconstruct_variables</span><span class="p">:</span>
+        <span class="n">out_var_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">variable</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'normal'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">'normal'</span> <span class="ow">in</span> <span class="n">variable</span>
+            <span class="k">else</span> <span class="n">variable</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># already reconstructed, e.g. by MPAS-Ocean itself</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"User requested vector reconstruction for '</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">' "</span>
+                <span class="s2">"but it isn't present in the dataset."</span>
+            <span class="p">)</span>
+        <span class="n">out_var_names</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_var_name</span>
+
+    <span class="k">return</span> <span class="n">out_var_names</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">,</span>
-    <span class="n">reconstruct_variables</span><span class="p">,</span>
+    <span class="n">out_var_names</span><span class="p">,</span>
     <span class="n">ds_mesh</span><span class="p">,</span>
     <span class="n">coeffs_filename</span><span class="p">,</span>
     <span class="n">reconstruct_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'RBF'</span><span class="p">,</span> <span class="s1">'LSTSQ'</span><span class="p">],</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Add reconstructed vector variables to the dataset if requested.</span>
+<span class="sd">    Add reconstructed vector variables to the dataset.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        The dataset to add reconstructed variables to.</span>
 
-<span class="sd">    reconstruct_variables : list of str or None</span>
-<span class="sd">        List of variable names to reconstruct.</span>
+<span class="sd">    out_var_names : dict</span>
+<span class="sd">        A map from each variable to reconstruct to the base name of its</span>
+<span class="sd">        reconstructed components, as returned by ``_vars_to_reconstruct()``.</span>
 
 <span class="sd">    ds_mesh : xarray.Dataset</span>
 <span class="sd">        Mesh dataset on which to perform the reconstruction.</span>
@@ -1285,31 +1340,6 @@
 <span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        The dataset with reconstructed variables added.</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">reconstruct_variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ds</span>
-
-    <span class="n">out_var_names</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">reconstruct_variables</span><span class="p">:</span>
-        <span class="n">out_var_name</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">variable</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'normal'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="s1">'normal'</span> <span class="ow">in</span> <span class="n">variable</span>
-            <span class="k">else</span> <span class="n">variable</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-            <span class="c1"># already reconstructed, e.g. by MPAS-Ocean itself</span>
-            <span class="k">continue</span>
-        <span class="n">out_var_names</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_var_name</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_var_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ds</span>
-
-    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">out_var_names</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"User requested vector reconstruction for '</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">' "</span>
-                <span class="s2">"but it isn't present in the dataset."</span>
-            <span class="p">)</span>
-
     <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'RBF'</span><span class="p">:</span>
         <span class="n">ds_coeff</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">coeffs_filename</span><span class="p">)</span>
         <span class="n">coeffs_reconstruct</span> <span class="o">=</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">coeffs_reconstruct</span>
@@ -1317,7 +1347,7 @@
         <span class="k">if</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]:</span>
             <span class="nb">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">'The sizes of coefficient dataset do not match mesh dataset;'</span>
-                <span class="sa">f</span><span class="s1">' exiting without reconstructing </span><span class="si">{</span><span class="n">reconstruct_variables</span><span class="si">}</span><span class="s1">'</span>
+                <span class="sa">f</span><span class="s1">' exiting without reconstructing </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">out_var_names</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">ds</span>
 

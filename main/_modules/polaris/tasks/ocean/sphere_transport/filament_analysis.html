@@ -218,7 +218,6 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">case_name</span><span class="p">]</span>
         <span class="n">eval_time</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'filament_evaluation_time'</span><span class="p">)</span>
-        <span class="n">s_per_day</span> <span class="o">=</span> <span class="mf">86400.0</span>
         <span class="n">zidx</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">variable_name</span> <span class="o">=</span> <span class="s1">'tracer2'</span>
         <span class="n">num_tau</span> <span class="o">=</span> <span class="mi">21</span>
@@ -235,9 +234,7 @@
                     <span class="sa">f</span><span class="s1">'output_r</span><span class="si">{</span><span class="n">refinement_factor</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
                 <span class="p">)</span>
                 <span class="n">t_days</span> <span class="o">=</span> <span class="n">get_time_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'days'</span><span class="p">)</span>
-                <span class="n">time_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">t_days</span><span class="p">,</span> <span class="n">eval_time</span> <span class="o">*</span> <span class="n">s_per_day</span><span class="p">))</span>
-                <span class="p">)</span>
+                <span class="n">time_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">t_days</span><span class="p">,</span> <span class="n">eval_time</span><span class="p">)))</span>
                 <span class="n">tracer</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span>
                 <span class="n">area_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'areaCell'</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">tau</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filament_tau</span><span class="p">):</span>
