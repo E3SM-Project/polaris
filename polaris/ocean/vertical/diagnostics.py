@@ -192,7 +192,7 @@ def get_z_mid_and_interface(ds, allow_reconstruct=False):
             f'fields, so a simulation has to write it for its output to be '
             f'analysed at an elevation.'
         )
-    return _z_from_thickness(ds)
+    return _reconstruct_z_mid_and_interface(ds)
 
 
 def depth_from_thickness(ds):
@@ -243,8 +243,8 @@ def vertical_coord_from_location(ds, location, allow_reconstruct=False):
 
     allow_reconstruct : bool, optional
         Whether to reconstruct the coordinate from ``layerThickness`` via
-        :py:func:`_z_from_thickness` when the data set does not carry the
-        field directly
+        :py:func:`_reconstruct_z_mid_and_interface` when the data set does
+        not carry the field directly
 
     Returns
     -------
@@ -282,7 +282,7 @@ def vertical_coord_from_location(ds, location, allow_reconstruct=False):
         raise ValueError(
             f'{var_name} ({location}) is not present in the dataset'
         )
-    z_mid, z_interface = _z_from_thickness(ds)
+    z_mid, z_interface = _reconstruct_z_mid_and_interface(ds)
     if location == 'cell-center':
         coord = z_mid
     elif location == 'cell-interfaces':
@@ -326,20 +326,101 @@ def location_for_field(var, field_name=None):
     return 'cell-center'
 
 
-def _z_from_thickness(ds):
+def _z_from_thickness(
+    layer_thickness, bottom_depth, min_level_cell, max_level_cell
+):
     """
-    Compute the depth of the midpoint of each layer from `layerThickness`.
+    Compute z at layer interfaces and midpoints from layer thickness,
+    anchored at ``bottom_depth`` and summed upward from the seafloor.
 
-    It is assumed that the `layerThickness` of invalid levels is 0. If
-    `ssh` is present in the dataset, depths will be offset by `ssh`. If
-    `bottomDepth` is present in the dataset, the location of the bottom
-    of the bottommost vertical level will be compared with `bottomDepth`.
+    This is the shared core used both by
+    :py:func:`polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness`,
+    which builds the vertical coordinate at init time, and by
+    :py:func:`_reconstruct_z_mid_and_interface`, which reconstructs it for
+    analysis when a simulation did not write it.
+
+    Parameters
+    ----------
+    layer_thickness : xarray.DataArray
+        The layer thickness of each layer
+
+    bottom_depth : xarray.DataArray
+        The positive-down depth of the seafloor
+
+    min_level_cell : xarray.DataArray
+        The zero-based minimum vertical index of each column
+
+    max_level_cell : xarray.DataArray
+        The zero-based maximum vertical index of each column
+
+    Returns
+    -------
+    z_mid : xarray.DataArray
+        The elevation of layer midpoints, in m, positive up
+
+    z_interface : xarray.DataArray
+        The elevation of layer interfaces, in m, positive up
+    """
+    n_vert_levels = layer_thickness.sizes['nVertLevels']
+
+    z_index = xr.DataArray(np.arange(n_vert_levels), dims=['nVertLevels'])
+    mask_mid = np.logical_and(
+        z_index >= min_level_cell, z_index <= max_level_cell
+    )
+
+    dz = layer_thickness.where(mask_mid, 0.0)
+    dz_rev = dz.isel(nVertLevels=slice(None, None, -1))
+    sum_from_level = dz_rev.cumsum(dim='nVertLevels').isel(
+        nVertLevels=slice(None, None, -1)
+    )
+
+    z_bot = (
+        xr.zeros_like(layer_thickness.isel(nVertLevels=0, drop=True))
+        - bottom_depth
+    )
+    z_interface_top = z_bot + sum_from_level
+    z_interface = z_interface_top.pad(nVertLevels=(0, 1), mode='constant')
+    z_interface[dict(nVertLevels=n_vert_levels)] = z_bot
+    z_interface = z_interface.rename({'nVertLevels': 'nVertLevelsP1'})
+
+    z_index_p1 = xr.DataArray(
+        np.arange(n_vert_levels + 1), dims=['nVertLevelsP1']
+    )
+    mask_interface = np.logical_and(
+        z_index_p1 >= min_level_cell,
+        z_index_p1 - 1 <= max_level_cell,
+    )
+    z_interface = z_interface.where(mask_interface)
+
+    z_interface_upper = z_interface.isel(nVertLevelsP1=slice(0, -1)).rename(
+        {'nVertLevelsP1': 'nVertLevels'}
+    )
+    z_interface_lower = z_interface.isel(nVertLevelsP1=slice(1, None)).rename(
+        {'nVertLevelsP1': 'nVertLevels'}
+    )
+    z_mid = (0.5 * (z_interface_upper + z_interface_lower)).where(mask_mid)
+
+    dims = list(layer_thickness.dims)
+    interface_dims = [dim for dim in dims if dim != 'nVertLevels']
+    interface_dims.append('nVertLevelsP1')
+    z_interface = z_interface.transpose(*interface_dims)
+    z_mid = z_mid.transpose(*dims)
+
+    return z_mid, z_interface
+
+
+def _reconstruct_z_mid_and_interface(ds):
+    """
+    Reconstruct z_mid and z_interface for a dataset that did not write them,
+    anchored at ``bottomDepth`` via :py:func:`_z_from_thickness`
 
     Parameters
     ----------
     ds : xarray.Dataset
-        An ocean dataset containing `layerThickness` and optionally `ssh`
-        and `bottomDepth`
+        An ocean dataset containing the geometric layer thickness (or the
+        fields needed to compute it, see :py:func:`geom_thickness_from_ds`)
+        and ``bottomDepth``, and optionally ``minLevelCell``,
+        ``maxLevelCell`` and a ``Time`` dimension of length one
 
     Returns
     -------
@@ -347,72 +428,43 @@ def _z_from_thickness(ds):
         The location in meters from the sea surface of the midpoint of
         each layer (level), positive upward
 
+    z_interface : xarray.DataArray
+        The elevation of layer interfaces, in m, positive up
+
     Raises
     ------
     ValueError
-        If `layerThickness` is not present in the dataset, or if required
-        dimensions are missing
+        If ``bottomDepth`` or the geometric layer thickness cannot be
+        obtained from the dataset, or if required dimensions are missing
     """
-    # TODO when Omega supports these variables, just fetch them
-    # if 'zMid' in ds.keys():
-    #    z_mid = ds['zMid']
-    # elif 'layerThickness' in ds.keys():
-
-    if 'layerThickness' not in ds.keys():
+    layer_thickness = geom_thickness_from_ds(ds, config=None)
+    if 'bottomDepth' not in ds.keys():
         raise ValueError(
-            'Could not reconstruct zMid, zinterface: '
-            'Could not find layerThickness in dataset'
+            'Could not reconstruct zMid, GeomZInterface: bottomDepth is '
+            'not present in the dataset'
         )
     if 'Time' in ds.dims:
         print('Time dimension present in dataset; using first time index')
         ds = ds.isel(Time=0)
+        layer_thickness = layer_thickness.isel(Time=0)
     if 'nCells' not in ds.sizes and 'nVertLevels' not in ds.sizes:
         raise ValueError('nCells, and nVertLevels must be dimensions of ds')
-    if 'ssh' in ds.keys():
-        ssh = ds.ssh.values
-    # TODO remove this because it could lead to errors
-    else:
-        ssh = np.zeros((ds.sizes['nCells']))
-    if 'nVertLevelsP1' in ds.dims:
-        nz = ds.sizes['nVertLevelsP1']
-    else:
-        nz = ds.sizes['nVertLevels'] + 1
 
-    # mask out thickness where vertical index exceeds maxLevelCell
-    layer_thickness = ds.layerThickness
+    bottom_depth = ds.bottomDepth
+    if 'minLevelCell' in ds.keys():
+        min_level_cell = ds.minLevelCell
+    else:
+        min_level_cell = xr.zeros_like(bottom_depth)
     if 'maxLevelCell' in ds.keys():
         max_level_cell = ds.maxLevelCell
     else:
-        max_level_cell = xr.DataArray(nz * np.ones_like(ssh), dims=('nCells'))
-    z_idx = xr.DataArray(
-        np.tile(
-            np.arange(1, ds.sizes['nVertLevels'] + 1),
-            (ds.sizes['nCells'], 1),
-        ),
-        dims=('nCells', 'nVertLevels'),
+        max_level_cell = (ds.sizes['nVertLevels'] - 1) * xr.ones_like(
+            bottom_depth
+        )
+
+    return _z_from_thickness(
+        layer_thickness=layer_thickness,
+        bottom_depth=bottom_depth,
+        min_level_cell=min_level_cell,
+        max_level_cell=max_level_cell,
     )
-    layer_thickness = layer_thickness.where(z_idx <= max_level_cell, np.nan)
-    z_int_array = np.zeros((ds.sizes['nCells'], nz))
-    z_int_array[:, 0] = ssh
-    z_int_array[:, 1:] = np.add(
-        -layer_thickness.cumsum(dim='nVertLevels', skipna=False).values,
-        ssh[:, np.newaxis],
-    )
-    z_interface = xr.DataArray(
-        z_int_array,
-        dims=('nCells', 'nVertLevelsP1'),
-    )
-    z_mid = xr.DataArray(
-        z_int_array[:, :-1] - 0.5 * layer_thickness,
-        dims=('nCells', 'nVertLevels'),
-    )
-    if 'bottomDepth' in ds.keys():
-        z_bed_infer = z_interface.isel(nVertLevelsP1=-1)
-        z_bed_data = ds.bottomDepth
-        cell_diff = (z_bed_infer - z_bed_data).values
-        if np.max(np.abs(cell_diff)) > 1.0e-3:
-            print(
-                'The maximum discrepancy between bottom_depth and the lower'
-                f'boundary of z_interface is {np.max(np.abs(cell_diff))}'
-            )
-    return z_mid, z_interface
