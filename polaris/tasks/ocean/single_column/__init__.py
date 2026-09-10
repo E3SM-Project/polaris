@@ -1,5 +1,9 @@
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.tasks.ocean.single_column.ekman import Ekman as Ekman
+from polaris.tasks.ocean.single_column.frazil import Frazil as Frazil
+from polaris.tasks.ocean.single_column.frazil.init import (
+    FrazilInit as FrazilInit,
+)
 from polaris.tasks.ocean.single_column.ideal_age import IdealAge as IdealAge
 from polaris.tasks.ocean.single_column.inertial import Inertial as Inertial
 from polaris.tasks.ocean.single_column.init import Init
@@ -172,3 +176,12 @@ def add_single_column_tasks(component):
             indir='column',
         )
     )
+
+    for case in ('melting', 'freezing'):
+        component.add_task(
+            Frazil(
+                component=component,
+                subdir=f'column/frazil/{case}',
+                case=case,
+            )
+        )

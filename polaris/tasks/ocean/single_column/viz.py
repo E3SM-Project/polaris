@@ -68,11 +68,6 @@ class Viz(OceanIOStep):
         self.add_input_file(
             filename='init.nc', work_dir_target=f'{init.path}/init.nc'
         )
-        for comparison_name, comparison_path in self.comparisons.items():
-            self.add_input_file(
-                filename=f'{comparison_name}.nc',
-                target=f'{comparison_path}/{output_file}',
-            )
 
     def setup(self):
         if self.config.get('ocean', 'model') == 'omega':
@@ -96,42 +91,64 @@ class Viz(OceanIOStep):
                 )
                 t_target = 10.0
 
-            ds_list = []
-            time_ds = []
-            # Remove missing comparison so it won't be used later
-            comparisons = dict()
-            for comparison_name in self.comparisons.keys():
-                if os.path.exists(f'{comparison_name}.nc'):
-                    comparisons[comparison_name] = self.comparisons[
-                        comparison_name
-                    ]
-                else:
+            comparison_data = []
+            for comparison_name, comparison_path in self.comparisons.items():
+                source = os.path.join(comparison_path, 'output.nc')
+                target = f'{comparison_name}.nc'
+                if not os.path.exists(source):
+                    self.logger.warning(
+                        'Missing comparison output for %s: %s',
+                        comparison_name,
+                        source,
+                    )
                     continue
-                if os.path.exists('coeffs.nc'):
-                    ds_comp = self.open_model_dataset(
-                        f'{comparison_name}.nc',
-                        decode_times=True,
-                        mesh_filename='mesh.nc',
-                        reconstruct_variables=['normalVelocity'],
-                        reconstruct_method='RBF',
-                        coeffs_filename='coeffs.nc',
-                        config=self.config,
+                try:
+                    if os.path.lexists(target):
+                        os.remove(target)
+                    os.symlink(source, target)
+                except OSError as exc:
+                    self.logger.warning(
+                        'Could not link comparison output for %s to %s: %s',
+                        comparison_name,
+                        target,
+                        exc,
                     )
-                else:
-                    ds_comp = self.open_model_dataset(
-                        f'{comparison_name}.nc',
-                        decode_times=True,
-                        config=self.config,
+                    continue
+                try:
+                    if os.path.exists('coeffs.nc'):
+                        ds_comp = self.open_model_dataset(
+                            target,
+                            decode_times=True,
+                            mesh_filename='mesh.nc',
+                            reconstruct_variables=['normalVelocity'],
+                            reconstruct_method='RBF',
+                            coeffs_filename='coeffs.nc',
+                            config=self.config,
+                        )
+                    else:
+                        ds_comp = self.open_model_dataset(
+                            target,
+                            decode_times=True,
+                            config=self.config,
+                        )
+                except FileNotFoundError:
+                    self.logger.warning(
+                        'Skipping unavailable comparison input %s for %s',
+                        target,
+                        comparison_name,
                     )
+                    continue
                 t_arr = get_days_since_start(ds_comp)
                 t_index = np.argmin(np.abs(t_arr - t_target))
-                time_ds.append(float(t_arr[t_index]))
-                ds_list.append(ds_comp.isel(Time=t_index))
+                comparison_data.append(
+                    (
+                        comparison_name,
+                        ds_comp.isel(Time=t_index),
+                        float(t_arr[t_index]),
+                    )
+                )
             ds_init = self.open_model_dataset('init.nc', config=self.config)
             ds_init = ds_init.isel(Time=0)
-            z_mid_init = ds_init['zMid'].mean(dim='nCells')
-
-            z_mid_final = z_mid_init
             self.logger.warn(
                 'Using initial zMid values; may not represent plotted state'
             )
@@ -142,9 +159,9 @@ class Viz(OceanIOStep):
                 fig = plt.figure(figsize=(3, 5))
                 colors = ['k', 'b', 'r', 'darkgreen']
                 for comparison_name, ds_comp, t_days, color in zip(
-                    self.comparisons.keys(),
-                    ds_list,
-                    time_ds,
+                    [name for name, _, _ in comparison_data],
+                    [ds for _, ds, _ in comparison_data],
+                    [t for _, _, t in comparison_data],
                     colors,
                     strict=False,
                 ):
@@ -169,10 +186,12 @@ class Viz(OceanIOStep):
                             f'Plot {field_name} for '
                             f'{comparison_name} at {t_days} days'
                         )
+                        z_init = ds_init['zMid'].mean(dim='nCells')
+                        z_final = z_init
                         var = ds_comp['velocityZonal'].mean(dim='nCells')
                         plt.plot(
                             var,
-                            z_mid_final,
+                            z_final,
                             '-',
                             color=color,
                             label=f'u {comparison_name}, {t_days:2g} days',
@@ -180,7 +199,7 @@ class Viz(OceanIOStep):
                         var = ds_comp['velocityMeridional'].mean(dim='nCells')
                         plt.plot(
                             var,
-                            z_mid_final,
+                            z_final,
                             '--',
                             color=color,
                             label=f'v {comparison_name}, {t_days:2g} days',
@@ -195,13 +214,24 @@ class Viz(OceanIOStep):
                             continue
                         var = ds_comp[field_name].mean(dim='nCells')
                         if 'nVertLevelsP1' in var.dims:
-                            var = var.isel(nVertLevelsP1=slice(0, -1))
+                            if 'zInterface' in ds_init.keys():
+                                z_init = ds_init['zInterface'].mean(
+                                    dim='nCells'
+                                )
+                                z_final = z_init
+                            else:
+                                var = var.isel(nVertLevelsP1=slice(0, -1))
+                                z_init = ds_init['zMid'].mean(dim='nCells')
+                                z_final = z_init
+                        else:
+                            z_init = ds_init['zMid'].mean(dim='nCells')
+                            z_final = z_init
                         # TODO delete this line when MPAS-O bug is fixed
                         if field_name == 'RiTopOfCell':
                             var[0] = np.nan
                         plt.plot(
                             var,
-                            z_mid_final,
+                            z_final,
                             '-',
                             color=color,
                             label=f'{comparison_name}, {t_days:2g} days',
@@ -219,9 +249,7 @@ class Viz(OceanIOStep):
                             and 'initial' not in existing_labels
                         ):
                             var_init = ds_init[field_name].mean(dim='nCells')
-                            plt.plot(
-                                var_init, z_mid_init, '--k', label='initial'
-                            )
+                            plt.plot(var_init, z_init, '--k', label='initial')
                             curves_plotted += 1
                 if curves_plotted == 0:
                     self.logger.warn(
@@ -232,7 +260,7 @@ class Viz(OceanIOStep):
                 ymin = -100.0
                 ymax = 0.0
                 plt.ylim(ymin, ymax)
-                visible_x = var[(z_mid_final >= ymin) & (z_mid_final <= ymax)]
+                visible_x = var[(z_final >= ymin) & (z_final <= ymax)]
                 x_min = float(visible_x.min().values)
                 x_max = float(visible_x.max().values)
                 x_margin = (x_max - x_min) * 0.05

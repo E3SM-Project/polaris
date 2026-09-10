@@ -113,16 +113,21 @@ variables:
   # eos
   BruntVaisalaFreqTop: BruntVaisalaFreqSq
 
-  # Note: the variables in each model's global statistics output are not
-  #       mapped here.  Both models name a statistic after the field and the
-  #       statistic, so the names are built from the two in
-  #       polaris/ocean/global_stats_names.py, which needs an entry only for
-  #       the field itself.  Mapping the composite names instead would take
-  #       one entry per (field, statistic), and one per (field, statistic,
-  #       period) once Omega writes time means.  It would also have to claim
-  #       that MPAS-Ocean's Rms and Omega's SpatialStdDev are the same
-  #       quantity, which they are not: one is a root-mean-square and the
-  #       other a standard deviation.
+  # frazil
+  # NOTE: none of these Omega arrays are registered as Fields (no
+  # Field::create/FieldGroup calls exist for them in Frazil.cpp), so
+  # referencing them in an IOStream Contents list currently aborts with
+  # "Field <name> has not been defined". Do not use this mapping for
+  # output until Omega exposes these as Fields.
+  frazilLayerThicknessTendency: FrazilHTend
+  frazilTemperatureTendency: FrazilTTend
+  frazilSalinityTendency: FrazilSTend
+  accumulatedFrazilIceMass: AccMIce
+  accumulatedFrazilIceSalinity: AccMSalt
+  # Note: Omega additionally tracks AccMLiq/AccELiq/AccEIce (liquid mass and
+  # enthalpy accumulators used internally by the teos frazil formulation),
+  # which have no MPAS-Ocean equivalent, and MPAS-Ocean's
+  # frazilSurfacePressure has no Omega equivalent yet.
 
 config:
 - section:
@@ -305,3 +310,26 @@ config:
     config_cvmix_shear_KPP_Ri_zero: RiCrit
     config_cvmix_shear_KPP_exp: Exponent
     config_cvmix_num_ri_smooth_loops: RiSmoothLoops
+
+- section:
+    frazil_ice: Tendencies
+  options:
+    config_use_frazil_ice_formation: FrazilTendencyEnable
+
+- section:
+    frazil_ice: Frazil
+  options:
+    # Omega's FrazilType selects between "basic" (FixedPropertyFrazil) and
+    # "teos" (TeosFrazil); MPAS-Ocean does not have an equivalent switch,
+    # since it always uses the fixed-property-style formulation
+    config_frazil_fractional_thickness_limit: MassLimit
+    config_frazil_maximum_depth: DepthLimit
+    # Note: config_frazil_heat_of_fusion, config_frazil_ice_density,
+    #       config_frazil_sea_ice_reference_salinity,
+    #       config_frazil_use_surface_pressure,
+    #       config_frazil_maximum_freezing_temperature,
+    #       config_use_frazil_ice_porosity and config_frazil_ice_porosity
+    #       have no Omega equivalent; Omega currently uses fixed global
+    #       constants (LatIce, IceRefSal) instead of configurable values
+    #       for these quantities.  Similarly, Omega's Phi and
+    #       ConservationCheck options have no MPAS-Ocean equivalent.
