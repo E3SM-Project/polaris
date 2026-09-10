@@ -86,11 +86,12 @@ Not every machine can confine a launch.  `mache` reports which mechanism a
 machine has through `ParallelSystem.placement_support`, decided at run time
 from the launcher that is actually installed rather than from configuration.
 
-Placement needs `mache` 3.13.0 or later, which the deployment pins.  3.12.0
-brought placement and expressed a launch's cores as one flat set, which
-cannot describe a launch spanning nodes wherever the launcher binds cores
-explicitly: it required the numbers to be unique, and node-local numbering
-means two nodes normally use the same ones.
+Placement needs a `mache` that gives a placement one set of cores per node,
+which the deployment pins.  The release that first brought placement
+expressed a launch's cores as one flat set instead, which cannot describe a
+launch spanning nodes wherever the launcher binds cores explicitly: it
+required the numbers to be unique, and node-local numbering means two nodes
+normally use the same ones.
 
 Setup refuses to go any further against a `mache` that cannot place, rather
 than letting a run fail partway through with a `TypeError` from inside the
