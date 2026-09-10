@@ -22,7 +22,8 @@ class PolarisConfigParser(Tranche):
         out
 
     tasks : set of polaris.Task
-        A list of tasks that use this config
+        A list of tasks that use this config.  Setup only: this is empty in
+        a config that has been unpickled (see ``__getstate__()``).
     """
 
     def __init__(self, filepath=None):
@@ -38,6 +39,38 @@ class PolarisConfigParser(Tranche):
         super().__init__()
         self.filepath: Union[str, None] = filepath
         self.tasks = set()
+
+    def __getstate__(self):
+        """
+        Get the state to pickle, leaving out ``tasks``
+
+        ``tasks`` is a back-reference that lets setup find the tasks sharing
+        a config, and nothing reads it once setup is over.  Each task in it
+        points at its whole component, so pickling the set makes every step
+        that uses this config carry the component along with it.
+
+        Returns
+        -------
+        state : dict
+            The attributes to pickle
+        """
+        state = dict(self.__dict__)
+        state.pop('tasks', None)
+        return state
+
+    def __setstate__(self, state):
+        """
+        Restore a pickled config, giving ``tasks`` an empty set so that a
+        config is always usable
+
+        Parameters
+        ----------
+        state : dict
+            The unpickled attributes
+        """
+        self.__dict__.update(state)
+        if 'tasks' not in state:
+            self.tasks = set()
 
     def setup(self):
         """
