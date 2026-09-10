@@ -1,5 +1,8 @@
+import importlib.resources as imp_res
+
 import numpy as np
 import xarray as xr
+from ruamel.yaml import YAML
 
 from polaris.constants import get_constant
 from polaris.ocean.vertical.ztilde import (
@@ -9,6 +12,20 @@ from polaris.ocean.vertical.ztilde import (
 )
 
 RhoSw = get_constant('seawater_density_reference')
+
+
+def _variables_at_layer_tops():
+    """
+    The MPAS-Ocean variables that ``variables.yaml`` lists as defined at
+    the top of each layer but written on ``nVertLevels``
+    """
+    text = (
+        imp_res.files('polaris.ocean.model')
+        .joinpath('variables.yaml')
+        .read_text()
+    )
+    nested_dict = YAML(typ='rt').load(text)
+    return nested_dict['mpas-ocean']['variables_at_layer_tops']
 
 
 def geom_thickness_from_ds(ds, config):
@@ -200,6 +217,95 @@ def depth_from_thickness(ds):
     """
     z_mid, _ = get_z_mid_and_interface(ds, allow_reconstruct=True)
     return z_mid
+
+
+_VERT_COORD_VAR_NAMES = {
+    'cell-center': 'zMid',
+    'cell-interfaces': 'GeomZInterface',
+    'cell-top': 'zTop',
+}
+
+
+def vertical_coord_from_location(ds, location):
+    """
+    Get the vertical coordinate field appropriate for a variable at a given
+    location in ``ds``
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset with no ``Time`` dimension or a ``Time`` dimension of
+        length one
+
+    location : {'cell-center', 'cell-interfaces', 'cell-top'}
+        Where the variable is defined: layer midpoints, layer interfaces,
+        or the top of each layer
+
+    Returns
+    -------
+    coord : xarray.DataArray
+        The elevation of ``ds[var_name]``, in m, positive up, where
+        ``var_name`` is ``zMid``, ``GeomZInterface`` or ``zTop`` for
+        ``location`` ``'cell-center'``, ``'cell-interfaces'`` or
+        ``'cell-top'``, respectively
+
+    Raises
+    ------
+    ValueError
+        If ``location`` is not one of the supported values, or the
+        corresponding field is not present in the dataset
+    """
+    if location not in _VERT_COORD_VAR_NAMES:
+        raise ValueError(
+            f'Unsupported variable location {location!r}, expected one of '
+            f'{sorted(_VERT_COORD_VAR_NAMES)}'
+        )
+    var_name = _VERT_COORD_VAR_NAMES[location]
+    if var_name not in ds:
+        raise ValueError(
+            f'{var_name} ({location}) is not present in the dataset'
+        )
+    coord = ds[var_name]
+    if 'Time' in coord.dims:
+        if ds.sizes['Time'] != 1:
+            raise ValueError(
+                'vertical_coord_from_location() requires ds to have no '
+                'Time dimension or a Time dimension of length one'
+            )
+        coord = coord.isel(Time=0)
+    return coord.mean(dim='nCells')
+
+
+def location_for_field(var, field_name=None):
+    """
+    The variable location of ``var`` to look up its vertical coordinate
+
+    A field on ``nVertLevelsP1`` is defined at layer interfaces --- the top
+    of each layer, plus one more for the bottom of the column.  A field
+    listed under ``variables_at_layer_tops`` in ``variables.yaml`` is
+    defined at the top of each layer but written on ``nVertLevels``.
+    Everything else is a layer quantity, defined at layer midpoints.
+
+    Parameters
+    ----------
+    var : xarray.DataArray
+        The field to plot or analyze
+
+    field_name : str, optional
+        The name of ``var`` in its dataset, used to check whether it is a
+        layer-top field
+
+    Returns
+    -------
+    location : {'cell-center', 'cell-interfaces', 'cell-top'}
+        The variable location suitable for
+        :py:func:`vertical_coord_from_location`
+    """
+    if 'nVertLevelsP1' in var.dims:
+        return 'cell-interfaces'
+    if field_name in _variables_at_layer_tops():
+        return 'cell-top'
+    return 'cell-center'
 
 
 def _z_from_thickness(ds):
