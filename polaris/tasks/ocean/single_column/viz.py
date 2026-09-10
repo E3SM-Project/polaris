@@ -153,8 +153,8 @@ class Viz(OceanIOStep):
                         )
                         var = ds_comp['velocityZonal'].mean(dim='nCells')
                         z = vertical_coord_from_location(
-                            ds_comp, location_for_field(var)
-                        )
+                            ds_init, location_for_field(var)
+                        ).mean(dim='nCells')
                         plt.plot(
                             var,
                             z,
@@ -165,8 +165,8 @@ class Viz(OceanIOStep):
                         _add_visible_limits(x_limits, var, z, ymin, ymax)
                         var = ds_comp['velocityMeridional'].mean(dim='nCells')
                         z = vertical_coord_from_location(
-                            ds_comp, location_for_field(var)
-                        )
+                            ds_init, location_for_field(var)
+                        ).mean(dim='nCells')
                         plt.plot(
                             var,
                             z,
@@ -185,8 +185,10 @@ class Viz(OceanIOStep):
                             continue
                         var = ds_comp[field_name].mean(dim='nCells')
                         z = vertical_coord_from_location(
-                            ds_comp, location_for_field(var, field_name)
-                        )
+                            ds_comp,
+                            location_for_field(var, field_name),
+                            allow_reconstruct=True,
+                        ).mean(dim='nCells')
                         # TODO delete this line when MPAS-O bug is fixed
                         if field_name == 'RiTopOfCell':
                             var[0] = np.nan
@@ -214,7 +216,7 @@ class Viz(OceanIOStep):
                             z_init = vertical_coord_from_location(
                                 ds_init,
                                 location_for_field(var_init, field_name),
-                            )
+                            ).mean(dim='nCells')
                             plt.plot(var_init, z_init, '--k', label='initial')
                             _add_visible_limits(
                                 x_limits, var_init, z_init, ymin, ymax
