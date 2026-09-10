@@ -76,11 +76,11 @@ class Viz(OceanIOStep):
             v='geostrophic_viz_vel',
         )
 
+        # the init step writes velocityZonal and velocityMeridional
+        # analytically for both models, so there is nothing to reconstruct
         ds_init = self.open_model_dataset(
             'initial_state.nc',
             config,
-            mesh_filename='mesh.nc',
-            reconstruct_variables=['normalVelocity'],
         )
         ds_vert_coord = self.open_vert_coord_dataset(ds_init)
         bottom_depth = ds_vert_coord.bottomDepth

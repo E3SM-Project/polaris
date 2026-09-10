@@ -86,12 +86,12 @@ class Viz(OceanIOStep):
 
         variables_to_plot = self.variables_to_plot
 
+        # the init step writes velocityZonal and velocityMeridional
+        # analytically for both models, so there is nothing to reconstruct
         ds_init = self.open_model_dataset(
             'initial_state.nc',
             config,
             decode_times=False,
-            mesh_filename='mesh.nc',
-            reconstruct_variables=['normalVelocity'],
         )
         variables_in_init = [
             var for var in variables_to_plot.keys() if var in ds_init.variables
