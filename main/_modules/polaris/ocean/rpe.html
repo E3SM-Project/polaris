@@ -116,7 +116,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_days_since_start</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_time_since_start</span>
 
 
 <div class="viewcode-block" id="compute_rpe">
@@ -191,7 +191,7 @@
 
     <span class="k">for</span> <span class="n">file_index</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ds_outputs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span> <span class="o">==</span> <span class="n">nt</span><span class="p">:</span>
-            <span class="n">days</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+            <span class="n">days</span> <span class="o">=</span> <span class="n">get_time_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'days'</span><span class="p">)</span>
         <span class="n">hFull</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">values</span>
         <span class="k">if</span> <span class="s1">'density'</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
             <span class="n">densityFull</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">values</span>

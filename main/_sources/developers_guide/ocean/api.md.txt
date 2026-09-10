@@ -770,7 +770,7 @@
 
    OceanModelFilesMixin
 
-   get_days_since_start
+   get_time_since_start
    get_simulation_years
    days_per_year
    get_time_interval_string

@@ -135,9 +135,9 @@
     <span class="n">compute_total_mass</span><span class="p">,</span>
     <span class="n">compute_total_salt</span><span class="p">,</span>
     <span class="n">compute_total_tracer</span><span class="p">,</span>
-    <span class="n">get_elapsed_seconds</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.ocean_model_files_mixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelFilesMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_time_since_start</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="c1"># Keep Ocean as a type-only import. Importing it at runtime pulls</span>
@@ -698,12 +698,12 @@
             <span class="k">if</span> <span class="n">baseline</span> <span class="o">==</span> <span class="s1">'init'</span><span class="p">:</span>
                 <span class="n">ds_start</span> <span class="o">=</span> <span class="n">ds_init</span>
                 <span class="n">time_index_start</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="n">dt</span> <span class="o">=</span> <span class="n">get_elapsed_seconds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">time_index_end</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">)</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">_elapsed_seconds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">time_index_end</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">)</span>
                 <span class="n">baseline_str</span> <span class="o">=</span> <span class="s1">'init'</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">ds_start</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">time_index_start</span> <span class="o">=</span> <span class="n">baseline</span>
-                <span class="n">dt</span> <span class="o">=</span> <span class="n">get_elapsed_seconds</span><span class="p">(</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">_elapsed_seconds</span><span class="p">(</span>
                     <span class="n">ds</span><span class="p">,</span>
                     <span class="n">time_index_start</span><span class="o">=</span><span class="n">time_index_start</span><span class="p">,</span>
                     <span class="n">time_index_end</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">,</span>
@@ -1049,6 +1049,45 @@
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_elapsed_seconds</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">time_index_start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">time_index_end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Elapsed seconds between two states of an output dataset, supporting</span>
+<span class="sd">    Omega's numeric ``time`` and MPAS-Ocean's ``daysSinceStartOfSim`` or</span>
+<span class="sd">    ``xtime``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        The output dataset</span>
+
+<span class="sd">    time_index_start : int, optional</span>
+<span class="sd">        The time index in ``ds`` at the start of the interval.  By default,</span>
+<span class="sd">        the interval starts at the beginning of the simulation (the initial</span>
+<span class="sd">        condition), rather than at a time in the output file.</span>
+
+<span class="sd">    time_index_end : int, optional</span>
+<span class="sd">        The time index in ``ds`` at the end of the interval</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dt : float</span>
+<span class="sd">        The elapsed time in seconds</span>
+<span class="sd">    """</span>
+    <span class="c1"># Take the times from the whole dataset and index the result, rather</span>
+    <span class="c1"># than selecting a time slice first.  MPAS-Ocean's times come from</span>
+    <span class="c1"># xtime, and a single slice of it is a scalar, which the string parsing</span>
+    <span class="c1"># in polaris.mpas.time cannot walk.</span>
+    <span class="n">seconds</span> <span class="o">=</span> <span class="n">get_time_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'seconds'</span><span class="p">)</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">seconds</span><span class="p">[</span><span class="n">time_index_end</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">time_index_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">seconds</span><span class="p">[</span><span class="n">time_index_start</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
 </pre></div>
 
            </div>

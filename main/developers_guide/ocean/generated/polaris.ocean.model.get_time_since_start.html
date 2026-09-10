@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.model.get_days_since_start</title>
+  <title>polaris.ocean.model.get_time_since_start</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -126,9 +126,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.model.get_days_since_start</li>
+      <li class="breadcrumb-item active">polaris.ocean.model.get_time_since_start</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.model.get_days_since_start.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.model.get_time_since_start.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -136,13 +136,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-model-get-days-since-start">
-<h1>polaris.ocean.model.get_days_since_start<a class="headerlink" href="#polaris-ocean-model-get-days-since-start" title="Link to this heading"></a></h1>
+  <section id="polaris-ocean-model-get-time-since-start">
+<h1>polaris.ocean.model.get_time_since_start<a class="headerlink" href="#polaris-ocean-model-get-time-since-start" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.ocean.model.get_days_since_start">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.model.</span></span><span class="sig-name descname"><span class="pre">get_days_since_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/model/time.html#get_days_since_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.model.get_days_since_start" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="polaris.ocean.model.get_time_since_start">
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.model.</span></span><span class="sig-name descname"><span class="pre">get_time_since_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/model/time.html#get_time_since_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.model.get_time_since_start" title="Link to this definition"></a></dt>
 <dd><p>Ocean model output may or may not include ‘daysSinceStartOfSim’. This
-routine uses ‘daysSinceStartOfSim’ if available, otherwise it uses ‘Time’</p>
+routine uses ‘daysSinceStartOfSim’ if available, otherwise it uses a
+numeric ‘time’ variable (Omega’s elapsed seconds), ‘xtime’ or ‘Time’ to
+compute the time elapsed since the start of the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – The output dataset</p></li>
+<li><p><strong>units</strong> (<em>{'seconds'</em><em>, </em><em>'minutes'</em><em>, </em><em>'hours'</em><em>, </em><em>'days'}</em>) – The units of time elapsed since the start of the simulation to
+return</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>t_arr</strong> (<em>numpy.ndarray</em>) – The time elapsed since the start of the simulation in the
+requested units</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">units</span></code> is not one of the supported units</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

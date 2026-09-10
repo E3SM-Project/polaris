@@ -113,7 +113,6 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_days_since_start</span>
 
 <span class="c1"># TODO update once this is used by Omega</span>
 <span class="c1"># cp_sw = get_constant('seawater_specific_heat_capacity_reference')</span>
@@ -307,39 +306,6 @@
     <span class="n">total_salinity</span> <span class="o">=</span> <span class="n">compute_total_tracer</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">tracer_name</span><span class="o">=</span><span class="s1">'salinity'</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">rho_sw</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">total_salinity</span></div>
 
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">get_elapsed_seconds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">time_index_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_index_end</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Elapsed seconds between two states of an output dataset, supporting</span>
-<span class="sd">    Omega's numeric ``time`` and MPAS-Ocean's ``daysSinceStartOfSim``.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        The output dataset</span>
-
-<span class="sd">    time_index_start : int, optional</span>
-<span class="sd">        The time index in ``ds`` at the start of the interval.  By default,</span>
-<span class="sd">        the interval starts at the beginning of the simulation (the initial</span>
-<span class="sd">        condition), rather than at a time in the output file.</span>
-
-<span class="sd">    time_index_end : int, optional</span>
-<span class="sd">        The time index in ``ds`` at the end of the interval</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    dt : float</span>
-<span class="sd">        The elapsed time in seconds</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">time_index_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">start_time</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">start_time</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index_start</span><span class="p">))</span> <span class="o">*</span> <span class="mf">86400.0</span>
-        <span class="p">)</span>
-    <span class="n">end_time</span> <span class="o">=</span> <span class="n">get_days_since_start</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index_end</span><span class="p">))</span> <span class="o">*</span> <span class="mf">86400.0</span>
-    <span class="k">return</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_flux_forcing</span><span class="p">(</span>
