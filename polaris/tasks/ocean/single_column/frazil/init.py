@@ -1,6 +1,8 @@
 import numpy as np
 import xarray as xr
 
+from polaris.constants import get_constant
+from polaris.ocean.eos import compute_ct_freezing
 from polaris.tasks.ocean.single_column.init import Init
 
 
@@ -97,4 +99,39 @@ class FrazilInit(Init):
         temperature = temperature.transpose('nCells', 'nVertLevels')
         temperature = temperature.expand_dims(dim='Time', axis=0)
 
+        self._report_below_freezing_fraction(
+            config=config,
+            temperature=temperature,
+            salinity=salinity,
+            z_mid=z_mid,
+            layer_thickness=ds.layerThickness,
+        )
+
         return temperature, salinity
+
+    def _report_below_freezing_fraction(
+        self, config, temperature, salinity, z_mid, layer_thickness
+    ):
+        """Report the water-column fraction below the EOS freezing point."""
+        pressure = (
+            -z_mid
+            * get_constant('seawater_density_reference')
+            * get_constant('standard_acceleration_of_gravity')
+        )
+        freezing_temperature = compute_ct_freezing(
+            config, salinity.isel(Time=0, nCells=0), pressure=pressure
+        )
+        below_freezing = (
+            temperature.isel(Time=0, nCells=0) < freezing_temperature
+        )
+        below_freezing_thickness = (
+            layer_thickness.isel(Time=0, nCells=0) * below_freezing
+        ).sum()
+        fraction = (
+            below_freezing_thickness
+            / layer_thickness.isel(Time=0, nCells=0).sum()
+        )
+        self.logger.info(
+            'Initial water column below the EOS freezing point: '
+            f'{100.0 * float(fraction):.1f}%',
+        )
