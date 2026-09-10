@@ -47,39 +47,11 @@ on it, and reruns still skip completed steps.
 
 ## Open Questions
 
-### What target and minimum threads should a JIGSAW step declare?
-
-Date last modified: 2026/09/09
-
-Contributors:
-
-- Xylar Asay-Davis
-- Claude
-
-JIGSAW is the only consumer of thread parallelism in Polaris's own Python
-work, and it is not configured the way the rest of the framework is: the
-binary links `libgomp` and calls `omp_set_num_threads`, but it takes its
-count from `NUMTHREAD` in its own job-config file, which `jigsawpy` exposes
-as `opts.numthread`. So `OMP_NUM_THREADS` does not reach it. Polaris never
-sets it, which means the two steps that shell out to it -- the
-quasi-uniform and unified spherical base meshes -- run at whatever thread
-count the machine offers. Those meshes are therefore not reproducible across
-machines or allocation shapes today, independently of task parallelism.
-
-The agreed shape of the fix is that those steps declare
-`cpus_per_task`/`min_cpus_per_task` -- a true statement about *cores*, which
-is what the pool reserves and the child is bound to -- and pass the number
-they were assigned to `opts.numthread`. The step choosing one thread per
-core is the step's business rather than the framework's, so this needs no
-new resource vocabulary.
-
-What is open is the number. JIGSAW should want many cores for a large mesh
-and few for a small one, so a single figure on the base class may be the
-wrong shape and the declaration may have to vary with resolution or be
-derived from the cell count the step already computes. This shall be
-measured rather than guessed: a quasi-uniform mesh at high resolution and at
-factors of four or eight coarser, each at several thread counts, with
-`numthread` set explicitly.
+None outstanding. The question of how many threads a step's process should
+use was settled in *Implementation: How Many Threads a Step's Process Uses*,
+and the narrower one it left -- what the JIGSAW steps should declare -- was
+measured and settled in *Implementation: Telling JIGSAW How Many Threads to
+Use*.
 
 ## Requirements
 
@@ -616,6 +588,51 @@ It says nothing about a model's threading. `run_parallel_command()` sets
 which overrides this, and JIGSAW takes its count from its own config file.
 An explicitly chosen value is left alone, so a job script may still say
 otherwise.
+
+### Implementation: Telling JIGSAW How Many Threads to Use
+
+Date last modified: 2026/09/10
+
+Contributors:
+
+- Xylar Asay-Davis
+- Claude
+
+The spherical mesh steps shall declare the cores JIGSAW can use and pass what
+they were given to `opts.numthread`, rather than leaving JIGSAW to size
+itself.
+
+JIGSAW is the only consumer of thread parallelism in Polaris's own Python
+work, and it is configured unlike anything else: the binary links `libgomp`,
+but it takes its count from `NUMTHREAD` in its own job-config file, so
+nothing in the environment reaches it. Left unset it sizes itself from the
+cores it can see, which respects the CPU affinity mask.
+
+**The mesh JIGSAW produces depends on that count.** Measured on Chrysalis, a
+quasi-uniform 120 km mesh has 41,154 points at one, two and four threads and
+41,155 above that; a 30 km mesh takes four distinct point counts across the
+range, not monotonically. So a mesh built on a node with more cores was a
+different mesh, independently of task parallelism, and a step confined to
+part of an allocation built a different one again. That is the cause of the
+six baseline comparisons that differed in the first concurrent `omega_pr`
+run: two serial runs on different nodes and commits are byte-identical, while
+serial against concurrent differs, and the icosahedral path reaches the
+binary through `jigsawpy`'s `refine()`.
+
+Sixteen cores is what the base class asks for, with a minimum of one. Over
+five resolutions JIGSAW returned 2 to 2.8x however many threads it was given,
+and the point at which it stopped improving rose with resolution -- 4 threads
+at 240 km, 8 at 120 km, about 16 from 60 km down -- so sixteen captures
+nearly all of what is available and asking for more would reserve cores no
+mesh can use. A subclass that knows its mesh is coarse may ask for fewer. It
+is a single figure rather than a function of resolution because five points
+on one machine do not earn a curve.
+
+The number passed to JIGSAW shall be the cores the step was *given*, not the
+cores it asked for, which is why it is set in `runtime_setup()` after
+`constrain_resources()` has run. Otherwise the serial and concurrent paths
+would disagree again, and *Results Match Serial Execution* would fail for the
+same reason in a new place.
 
 ### Implementation: The Scheduler Must Be Safe to Fork From
 
