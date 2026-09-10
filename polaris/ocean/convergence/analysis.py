@@ -480,7 +480,7 @@ class ConvergenceAnalysis(OceanIOStep):
         )
 
         model = config.get('ocean', 'model')
-        if model == 'mpas-o':
+        if model == 'mpas-ocean':
             dt = time_since_start(ds_out.xtime.values)
         else:
             # time is seconds since the start of the simulation in Omega

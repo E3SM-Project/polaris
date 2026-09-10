@@ -171,7 +171,7 @@ class Viz(OceanIOStep):
 
                 exact = ExactSolution(config, ds_mesh)
 
-                if model == 'mpas-o':
+                if model == 'mpas-ocean':
                     dt = time_since_start(ds.xtime.values)
                 else:
                     # time is seconds since the start of the
