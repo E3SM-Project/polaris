@@ -68,11 +68,6 @@ class Viz(OceanIOStep):
         self.add_input_file(
             filename='init.nc', work_dir_target=f'{init.path}/init.nc'
         )
-        for comparison_name, comparison_path in self.comparisons.items():
-            self.add_input_file(
-                filename=f'{comparison_name}.nc',
-                target=f'{comparison_path}/{output_file}',
-            )
 
     def setup(self):
         if self.config.get('ocean', 'model') == 'omega':
@@ -96,37 +91,62 @@ class Viz(OceanIOStep):
                 )
                 t_target = 10.0
 
-            ds_list = []
-            time_ds = []
-            # Remove missing comparison so it won't be used later
-            comparisons = dict()
-            for comparison_name in self.comparisons.keys():
-                if os.path.exists(f'{comparison_name}.nc'):
-                    comparisons[comparison_name] = self.comparisons[
-                        comparison_name
-                    ]
-                else:
+            comparison_data = []
+            for comparison_name, comparison_path in self.comparisons.items():
+                source = os.path.join(comparison_path, 'output.nc')
+                target = f'{comparison_name}.nc'
+                if not os.path.exists(source):
+                    self.logger.warning(
+                        'Missing comparison output for %s: %s',
+                        comparison_name,
+                        source,
+                    )
                     continue
-                if os.path.exists('coeffs.nc'):
-                    ds_comp = self.open_model_dataset(
-                        f'{comparison_name}.nc',
-                        decode_times=True,
-                        mesh_filename='mesh.nc',
-                        reconstruct_variables=['normalVelocity'],
-                        reconstruct_method='RBF',
-                        coeffs_filename='coeffs.nc',
-                        config=self.config,
+                try:
+                    if os.path.lexists(target):
+                        os.remove(target)
+                    os.symlink(source, target)
+                except OSError as exc:
+                    self.logger.warning(
+                        'Could not link comparison output for %s to %s: %s',
+                        comparison_name,
+                        target,
+                        exc,
                     )
-                else:
-                    ds_comp = self.open_model_dataset(
-                        f'{comparison_name}.nc',
-                        decode_times=True,
-                        config=self.config,
+                    continue
+                try:
+                    if os.path.exists('coeffs.nc'):
+                        ds_comp = self.open_model_dataset(
+                            target,
+                            decode_times=True,
+                            mesh_filename='mesh.nc',
+                            reconstruct_variables=['normalVelocity'],
+                            reconstruct_method='RBF',
+                            coeffs_filename='coeffs.nc',
+                            config=self.config,
+                        )
+                    else:
+                        ds_comp = self.open_model_dataset(
+                            target,
+                            decode_times=True,
+                            config=self.config,
+                        )
+                except FileNotFoundError:
+                    self.logger.warning(
+                        'Skipping unavailable comparison input %s for %s',
+                        target,
+                        comparison_name,
                     )
+                    continue
                 t_arr = get_days_since_start(ds_comp)
                 t_index = np.argmin(np.abs(t_arr - t_target))
-                time_ds.append(float(t_arr[t_index]))
-                ds_list.append(ds_comp.isel(Time=t_index))
+                comparison_data.append(
+                    (
+                        comparison_name,
+                        ds_comp.isel(Time=t_index),
+                        float(t_arr[t_index]),
+                    )
+                )
             ds_init = self.open_model_dataset('init.nc', config=self.config)
             ds_init = ds_init.isel(Time=0)
             self.logger.warn(
@@ -139,9 +159,9 @@ class Viz(OceanIOStep):
                 fig = plt.figure(figsize=(3, 5))
                 colors = ['k', 'b', 'r', 'darkgreen']
                 for comparison_name, ds_comp, t_days, color in zip(
-                    self.comparisons.keys(),
-                    ds_list,
-                    time_ds,
+                    [name for name, _, _ in comparison_data],
+                    [ds for _, ds, _ in comparison_data],
+                    [t for _, _, t in comparison_data],
                     colors,
                     strict=False,
                 ):
