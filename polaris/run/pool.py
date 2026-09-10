@@ -297,10 +297,21 @@ class ResourcePool:
         if ntasks > 1:
             # ranks fill each node in turn, and a node's cores are the cores
             # of the ranks that land on it
-            tasks_per_node = -(-ntasks // count)
+            # the launchers *balance* tasks over the nodes they are
+            # given, they do not fill each one in turn and leave the
+            # remainder on the last.  Getting this wrong under-reserves on
+            # the nodes that end up with more tasks than the model expected:
+            # 800 tasks over 13 nodes is seven nodes of 62 and six of 61,
+            # where filling in turn would say twelve of 62 and one of 56.
+            # Measured on Chrysalis, where the last node was reserved 56
+            # cores and Slurm put 61 tasks on it, and the placement check
+            # reported a launch allowed more cores than it was given.
+            #
+            # It only shows when the tasks do not divide evenly by the
+            # nodes, which is why 192 over 3 and 320 over 5 never did.
+            base, extra = divmod(ntasks, count)
             wanted = [
-                min(tasks_per_node, ntasks - index * tasks_per_node)
-                * cpus_per_task
+                (base + (1 if index < extra else 0)) * cpus_per_task
                 for index in range(count)
             ]
             wanted = [cores for cores in wanted if cores > 0]

@@ -390,3 +390,42 @@ def test_nodes_without_cores_free_in_common_wait():
 
     assert pool.reserve(wide) is None
     assert pool.why_impossible(wide) is None
+
+
+def test_tasks_are_balanced_over_nodes_the_way_a_launcher_balances_them():
+    """
+    The launchers balance; they do not fill each node and leave a remainder.
+
+    Getting this wrong under-reserves on the nodes that end up with more
+    tasks than the model expected, so other steps are placed on cores that
+    are already in use.  Measured on Chrysalis with omega_nightly on 13
+    nodes: the last node was reserved 56 cores and Slurm put 61 tasks on it.
+    """
+    pool = ResourcePool(_nodes(count=13, cores=64))
+
+    reservation = _reserve(
+        pool, _step('wide', ntasks=800, may_span_nodes=True)
+    )
+
+    counts = sorted((len(c) for c in reservation.cores.values()), reverse=True)
+    # 800 over 13 is seven nodes of 62 and six of 61 -- not twelve of 62 and
+    # one of 56, which is what filling each node in turn would say
+    assert counts == [62] * 7 + [61] * 6
+    assert sum(counts) == 800
+
+
+def test_an_even_division_is_unchanged():
+    """
+    The case that always worked, and hid the one above.
+
+    Sized to need every node: a step is given the fewest nodes that can
+    serve it, so 128 tasks would take two of these rather than four.
+    """
+    pool = ResourcePool(_nodes(count=4, cores=64))
+
+    reservation = _reserve(
+        pool, _step('even', ntasks=256, may_span_nodes=True)
+    )
+
+    counts = [len(c) for c in reservation.cores.values()]
+    assert counts == [64, 64, 64, 64]
