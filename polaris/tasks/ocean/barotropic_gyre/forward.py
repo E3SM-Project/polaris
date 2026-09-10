@@ -263,16 +263,6 @@ class Forward(OceanModelStep):
             template_replacements=replacements,
         )
 
-    def setup(self):
-        super().setup()
-        model = self.config.get('ocean', 'model')
-        if model == 'omega':
-            self.add_input_file(
-                target='coeffs.nc',
-                filename='coeffs.nc',
-                database='barotropic_gyre',
-            )
-
     def compute_max_time_step(self, config):
         """
         Compute the approximate maximum time step for stability
