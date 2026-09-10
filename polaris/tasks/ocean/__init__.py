@@ -1160,8 +1160,8 @@ def _add_reconstructed_variables_to_dataset(ds, out_var_names, ds_mesh):
     ds : xarray.Dataset
         The dataset with reconstructed variables added.
     """
-    stencil = ds_mesh.reconstructStencilCell
-    weights = ds_mesh.reconstructWeightsCell
+    stencil = ds_mesh.ReconStencilCell
+    weights = ds_mesh.ReconWeightsCell
 
     for variable, out_var_name in out_var_names.items():
         u_x, u_y, u_z = tangential_reconstruction(
@@ -1200,12 +1200,12 @@ def _reconstruction_weights_in_dataset(ds, vertices=False):
     present
         True if reconstruction weights are present, False otherwise.
     """
-    present = any(var.lower() == 'reconstructstencilcell' for var in ds)
-    present &= any(var.lower() == 'reconstructweightscell' for var in ds)
+    present = any(var.lower() == 'reconstencilcell' for var in ds)
+    present &= any(var.lower() == 'reconweightscell' for var in ds)
 
     if vertices:
-        present &= any(var.lower() == 'reconstructstencilvertex' for var in ds)
-        present &= any(var.lower() == 'reconstructweightsvertex' for var in ds)
+        present &= any(var.lower() == 'reconstencilvertex' for var in ds)
+        present &= any(var.lower() == 'reconweightsvertex' for var in ds)
 
     return present
 
