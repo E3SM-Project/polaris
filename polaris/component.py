@@ -9,6 +9,10 @@ from mpas_tools.logging import check_call
 
 from polaris.config import PolarisConfigParser
 
+# attributes that describe how a component was set up rather than what a step
+# needs to run, so they are left out of pickles
+_SETUP_ONLY_ATTRIBUTES = ('tasks', 'steps', 'configs')
+
 
 class Component:
     """
@@ -22,11 +26,17 @@ class Component:
 
     tasks : dict
         A dictionary of tasks in the component with the subdirectories of the
-        tasks in the component as keys
+        tasks in the component as keys.  Setup only: this is empty in a
+        component that has been unpickled (see ``__getstate__()``).
 
     steps : dict
         A dictionary of steps in the component with the subdirectories of the
-        steps in the component as keys
+        steps in the component as keys.  Setup only, like ``tasks``.
+
+    configs : dict
+        A dictionary of the shared configs in the component with the
+        filepaths the configs are written to as keys.  Setup only, like
+        ``tasks``.
 
     cached_files : dict
         A dictionary that maps from output file names in steps within tasks to
@@ -55,6 +65,42 @@ class Component:
         self.cached_files = dict()
         self.parallel_system: ParallelSystem | None = None
         self._read_cached_files()
+
+    def __getstate__(self):
+        """
+        Get the state to pickle, leaving out ``tasks``, ``steps`` and
+        ``configs``
+
+        Those three are built up by ``add_task()``, ``add_step()`` and
+        ``add_config()`` as a component is set up, and nothing reads them
+        once setup is over.  Every task and step in them points back at this
+        component, so pickling them makes each step's pickle a copy of the
+        whole component rather than a description of the step.
+
+        Returns
+        -------
+        state : dict
+            The attributes to pickle
+        """
+        state = dict(self.__dict__)
+        for attribute in _SETUP_ONLY_ATTRIBUTES:
+            state.pop(attribute, None)
+        return state
+
+    def __setstate__(self, state):
+        """
+        Restore a pickled component, giving the attributes that were left out
+        of the pickle empty dictionaries so that a component is always usable
+
+        Parameters
+        ----------
+        state : dict
+            The unpickled attributes
+        """
+        self.__dict__.update(state)
+        for attribute in _SETUP_ONLY_ATTRIBUTES:
+            if attribute not in state:
+                setattr(self, attribute, dict())
 
     def set_parallel_system(self, config: PolarisConfigParser) -> None:
         """
