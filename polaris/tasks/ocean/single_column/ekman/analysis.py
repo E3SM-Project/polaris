@@ -46,11 +46,6 @@ class Analysis(OceanIOStep):
             filename='output.nc',
             target=f'{self.base_work_dir}/{self.forward.path}/output.nc',
         )
-        if self.config.get('ocean', 'model') == 'omega':
-            self.add_input_file(
-                filename='coeffs.nc',
-                target=f'{self.base_work_dir}/{self.forward.path}/coeffs.nc',
-            )
 
     def run(self):
         """
@@ -74,8 +69,6 @@ class Analysis(OceanIOStep):
                 decode_times=True,
                 mesh_filename='mesh.nc',
                 reconstruct_variables=['normalVelocity'],
-                reconstruct_method='RBF',
-                coeffs_filename='coeffs.nc',
             )
 
             t_index = -1

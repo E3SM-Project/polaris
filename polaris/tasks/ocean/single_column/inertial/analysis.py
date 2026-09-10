@@ -31,18 +31,11 @@ class Analysis(OceanIOStep):
         super().__init__(component=component, name='analysis', indir=indir)
         self.config = config
         self.add_input_file(
+            filename='mesh.nc', target='../init/culled_mesh.nc'
+        )
+        self.add_input_file(
             filename='output.nc', target='../forward/output.nc'
         )
-
-    # def setup(self):
-    #    model = self.config.get('ocean', 'model')
-    #    # TODO: remove as soon as Omega no longer needs this file
-    #    if model == 'omega':
-    #        self.add_input_file(
-    #            target='coeffs.nc',
-    #            filename='coeffs.nc',
-    #            database='single_column',
-    #        )
 
     def run(self):
         """
@@ -60,10 +53,8 @@ class Analysis(OceanIOStep):
                 'output.nc',
                 config=config,
                 decode_times=True,
-                mesh_filename='../init/culled_mesh.nc',
+                mesh_filename='mesh.nc',
                 reconstruct_variables=['normalVelocity'],
-                reconstruct_method='RBF',
-                coeffs_filename='../forward/coeffs.nc',
             )
             t = get_time_since_start(ds, units='days')
             s_per_day = 24.0 * 3600.0
