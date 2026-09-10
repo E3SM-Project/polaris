@@ -166,6 +166,14 @@ def main():
         help='If the model should be built in debug mode.',
     )
     add_component_model_args(parser)
+    parser.add_argument(
+        '--concurrent_steps',
+        dest='concurrent_steps',
+        action='store_true',
+        help='If the job script should run the steps of the suite at the '
+        'same time with `polaris parallel` rather than one after another '
+        'with `polaris serial`.',
+    )
 
     args = parser.parse_args(sys.argv[2:])
 
@@ -187,6 +195,7 @@ def main():
         cmake_flags=args.cmake_flags,
         debug=args.debug,
         component_args=get_component_model_args(args),
+        concurrent_steps=args.concurrent_steps,
     )
 
 
