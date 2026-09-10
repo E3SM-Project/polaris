@@ -97,7 +97,6 @@ class FilamentAnalysis(OceanIOStep):
         config = self.config
         section = config[self.case_name]
         eval_time = section.getfloat('filament_evaluation_time')
-        s_per_day = 86400.0
         zidx = 0
         variable_name = 'tracer2'
         num_tau = 21
@@ -114,9 +113,7 @@ class FilamentAnalysis(OceanIOStep):
                     f'output_r{refinement_factor:02g}.nc', self.config
                 )
                 t_days = get_time_since_start(ds, units='days')
-                time_index = np.argmin(
-                    np.abs(np.subtract(t_days, eval_time * s_per_day))
-                )
+                time_index = np.argmin(np.abs(np.subtract(t_days, eval_time)))
                 tracer = ds[variable_name]
                 area_cell = ds_mesh['areaCell']
                 for j, tau in enumerate(filament_tau):
