@@ -47,14 +47,6 @@ variables:
   kiteAreasOnVertex: KiteAreasOnVertex
   weightsOnEdge: WeightsOnEdge
 
-  # variables used for LSTSQ vector reconstruction
-  reconstructStencilCell: ReconStencilCell
-  reconstructStencilVertex: ReconStencilVertex
-  nEdgesReconstructOnCell: NEdgesReconOnCell
-  nEdgesReconstructOnVertex: NEdgesReconOnVertex
-  reconstructWeightsCell: ReconWeightsCell
-  reconstructWeightsVertex: ReconWeightsVertex
-
   # Coriolis
   fCell: FCell
   fEdge: FEdge
@@ -107,7 +99,6 @@ variables:
 
   # vertical coordinate diagnostics
   zMid: GeomZMid
-  zInterface: GeomZInterface
   pressure: PressureMid
 
   # eos

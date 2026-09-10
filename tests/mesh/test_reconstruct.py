@@ -145,8 +145,8 @@ def reconstruct_planar_field(ds, u_of_edge, v_of_edge, location='cell'):
     return tangential_reconstruction(
         ds,
         normal_velocity,
-        stencil=weights_ds[f'reconstructStencil{suffix}'],
-        weights=weights_ds[f'reconstructWeights{suffix}'],
+        stencil=weights_ds[f'ReconStencil{suffix}'],
+        weights=weights_ds[f'ReconWeights{suffix}'],
     )
 
 
@@ -248,12 +248,12 @@ def test_reconstruction_weights_have_expected_dims(location):
 
     weights_ds = compute_reconstruction_weights(ds, location)
 
-    assert weights_ds[f'reconstructStencil{suffix}'].dims == (
+    assert weights_ds[f'ReconStencil{suffix}'].dims == (
         point_dim,
         stencil_dim,
     )
-    assert weights_ds[f'nEdgesReconstructOn{suffix}'].dims == (point_dim,)
-    assert weights_ds[f'reconstructWeights{suffix}'].dims == (
+    assert weights_ds[f'NEdgesReconOn{suffix}'].dims == (point_dim,)
+    assert weights_ds[f'ReconWeights{suffix}'].dims == (
         point_dim,
         'R3',
         stencil_dim,
