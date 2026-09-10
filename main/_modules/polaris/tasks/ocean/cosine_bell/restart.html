@@ -195,6 +195,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">init_step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="sa">f</span><span class="s1">'init/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="n">step_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'full_run'</span><span class="p">,</span> <span class="s1">'restart_run'</span><span class="p">]</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">step_names</span><span class="p">:</span>
             <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task_subdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span>
             <span class="n">do_restart</span> <span class="o">=</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'restart_run'</span>
@@ -209,7 +210,17 @@
                 <span class="n">do_restart</span><span class="o">=</span><span class="n">do_restart</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+            <span class="n">steps</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
+
+        <span class="c1"># The restart run reads the restart file that the full run writes to</span>
+        <span class="c1"># the shared ``restarts`` directory.  The name of that file comes from</span>
+        <span class="c1"># a time stamp that is not known at setup, so the ordering has to be</span>
+        <span class="c1"># declared as a dependency rather than as an input file.</span>
+        <span class="n">full_run</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="s1">'full_run'</span><span class="p">]</span>
+        <span class="n">steps</span><span class="p">[</span><span class="s1">'restart_run'</span><span class="p">]</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">full_run</span><span class="p">,</span> <span class="n">full_run</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">step_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">steps</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Validate</span><span class="p">(</span>
