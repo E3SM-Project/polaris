@@ -121,6 +121,10 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 
+<span class="c1"># attributes that describe how a component was set up rather than what a step</span>
+<span class="c1"># needs to run, so they are left out of pickles</span>
+<span class="n">_SETUP_ONLY_ATTRIBUTES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'tasks'</span><span class="p">,</span> <span class="s1">'steps'</span><span class="p">,</span> <span class="s1">'configs'</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="Component">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.html#polaris.Component">[docs]</a>
@@ -136,11 +140,17 @@
 
 <span class="sd">    tasks : dict</span>
 <span class="sd">        A dictionary of tasks in the component with the subdirectories of the</span>
-<span class="sd">        tasks in the component as keys</span>
+<span class="sd">        tasks in the component as keys.  Setup only: this is empty in a</span>
+<span class="sd">        component that has been unpickled (see ``__getstate__()``).</span>
 
 <span class="sd">    steps : dict</span>
 <span class="sd">        A dictionary of steps in the component with the subdirectories of the</span>
-<span class="sd">        steps in the component as keys</span>
+<span class="sd">        steps in the component as keys.  Setup only, like ``tasks``.</span>
+
+<span class="sd">    configs : dict</span>
+<span class="sd">        A dictionary of the shared configs in the component with the</span>
+<span class="sd">        filepaths the configs are written to as keys.  Setup only, like</span>
+<span class="sd">        ``tasks``.</span>
 
 <span class="sd">    cached_files : dict</span>
 <span class="sd">        A dictionary that maps from output file names in steps within tasks to</span>
@@ -172,6 +182,42 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">parallel_system</span><span class="p">:</span> <span class="n">ParallelSystem</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_cached_files</span><span class="p">()</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the state to pickle, leaving out ``tasks``, ``steps`` and</span>
+<span class="sd">        ``configs``</span>
+
+<span class="sd">        Those three are built up by ``add_task()``, ``add_step()`` and</span>
+<span class="sd">        ``add_config()`` as a component is set up, and nothing reads them</span>
+<span class="sd">        once setup is over.  Every task and step in them points back at this</span>
+<span class="sd">        component, so pickling them makes each step's pickle a copy of the</span>
+<span class="sd">        whole component rather than a description of the step.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        state : dict</span>
+<span class="sd">            The attributes to pickle</span>
+<span class="sd">        """</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">_SETUP_ONLY_ATTRIBUTES</span><span class="p">:</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Restore a pickled component, giving the attributes that were left out</span>
+<span class="sd">        of the pickle empty dictionaries so that a component is always usable</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        state : dict</span>
+<span class="sd">            The unpickled attributes</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">_SETUP_ONLY_ATTRIBUTES</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attribute</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="nb">dict</span><span class="p">())</span>
 
 <div class="viewcode-block" id="Component.set_parallel_system">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.set_parallel_system.html#polaris.Component.set_parallel_system">[docs]</a>

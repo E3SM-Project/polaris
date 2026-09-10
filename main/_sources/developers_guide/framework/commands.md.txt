@@ -31,6 +31,15 @@ pickle files are not intended for users (or developers) to read or modify.
 Properties of the task and step objects are not intended to change between
 setting up and running a suite, task or step.
 
+A pickle holds the task or step itself, the config it uses and, for a step,
+the dependencies it was given.  It does not hold the component's `tasks`,
+`steps` and `configs` dictionaries, nor the `tasks` a config has been shared
+with.  Those four describe how a component was assembled during setup and
+nothing reads them afterwards, but every task and step in them points back at
+the component, so pickling them would make each step's pickle a copy of the
+whole component.  They come back from a pickle empty, so anything that needs
+them has to run during setup.
+
 (dev-suite)=
 
 ## suite module

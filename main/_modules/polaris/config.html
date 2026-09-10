@@ -136,7 +136,8 @@
 <span class="sd">        out</span>
 
 <span class="sd">    tasks : set of polaris.Task</span>
-<span class="sd">        A list of tasks that use this config</span>
+<span class="sd">        A list of tasks that use this config.  Setup only: this is empty in</span>
+<span class="sd">        a config that has been unpickled (see ``__getstate__()``).</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="PolarisConfigParser.__init__">
@@ -155,6 +156,38 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">filepath</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get the state to pickle, leaving out ``tasks``</span>
+
+<span class="sd">        ``tasks`` is a back-reference that lets setup find the tasks sharing</span>
+<span class="sd">        a config, and nothing reads it once setup is over.  Each task in it</span>
+<span class="sd">        points at its whole component, so pickling the set makes every step</span>
+<span class="sd">        that uses this config carry the component along with it.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        state : dict</span>
+<span class="sd">            The attributes to pickle</span>
+<span class="sd">        """</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'tasks'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Restore a pickled config, giving ``tasks`` an empty set so that a</span>
+<span class="sd">        config is always usable</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        state : dict</span>
+<span class="sd">            The unpickled attributes</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'tasks'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
 <div class="viewcode-block" id="PolarisConfigParser.setup">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.config.PolarisConfigParser.setup.html#polaris.config.PolarisConfigParser.setup">[docs]</a>
