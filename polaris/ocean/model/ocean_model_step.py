@@ -66,17 +66,11 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
     graph_target : str
         The name of the graph partition file to link to (relative to the base
         working directory)
-
-    write_coeffs_reconstruct : bool
-        Whether to write the coefficients for reconstructing vector
-        quantities during the forward run
     """
 
     # make sure component is of type Ocean, using a string to avoid circular
     # imports
     component: 'Ocean'
-
-    write_coeffs_reconstruct: bool
 
     def __init__(
         self,
@@ -277,19 +271,6 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
 
         if self.update_eos:
             self.update_namelist_eos()
-        self.write_coeffs_reconstruct = self.config.getboolean(
-            'ocean', 'write_coeffs_reconstruct', fallback=False
-        )
-        if self.write_coeffs_reconstruct:
-            model = self.config.get('ocean', 'model')
-            if model != 'mpas-ocean':
-                raise ValueError(
-                    'Coefficients for vector reconstruction can only be '
-                    'written for ocean model MPAS-Ocean'
-                )
-            self.add_yaml_file(
-                'polaris.ocean.config', 'coeffs_reconstruct.yaml'
-            )
 
     def constrain_resources(self, available_cores: Dict[str, Any]) -> None:
         """
