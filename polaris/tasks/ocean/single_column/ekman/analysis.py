@@ -5,7 +5,7 @@ import numpy as np
 
 from polaris.constants import get_constant
 from polaris.mpas import area_for_field
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.viz import mplstyle_context
 
 
@@ -80,7 +80,7 @@ class Analysis(OceanIOStep):
 
             t_index = -1
             ds = ds.isel(Time=t_index)
-            t_days = get_days_since_start(ds)
+            t_days = get_time_since_start(ds, units='days')
             z_mid = ds.zMid.mean(dim='nCells').values
             if 'density' in ds.keys():
                 rho_0 = (

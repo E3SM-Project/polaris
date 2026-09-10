@@ -4,7 +4,7 @@ import numpy as np
 import xarray as xr
 
 from polaris.constants import get_constant
-from polaris.ocean.model import get_days_since_start
+from polaris.ocean.model import get_time_since_start
 
 
 def compute_rpe(ds_mesh, ds_init, ds_outputs, config=None, ds_vert_coord=None):
@@ -77,7 +77,7 @@ def compute_rpe(ds_mesh, ds_init, ds_outputs, config=None, ds_vert_coord=None):
 
     for file_index, ds in enumerate(ds_outputs):
         if ds.sizes['Time'] == nt:
-            days = get_days_since_start(ds)
+            days = get_time_since_start(ds, units='days')
         hFull = ds.layerThickness.values
         if 'density' in ds:
             densityFull = ds.density.values

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from polaris.ocean.convergence import get_resolution_for_task
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.resolution import resolution_to_string
 from polaris.viz import mplstyle_context
 
@@ -113,7 +113,7 @@ class FilamentAnalysis(OceanIOStep):
                 ds = self.open_model_dataset(
                     f'output_r{refinement_factor:02g}.nc', self.config
                 )
-                t_days = get_days_since_start(ds)
+                t_days = get_time_since_start(ds, units='days')
                 time_index = np.argmin(
                     np.abs(np.subtract(t_days, eval_time * s_per_day))
                 )

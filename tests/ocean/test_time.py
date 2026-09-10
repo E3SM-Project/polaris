@@ -4,7 +4,7 @@ import pytest
 import xarray as xr
 from numpy.testing import assert_allclose
 
-from polaris.ocean.model.time import get_days_since_start
+from polaris.ocean.model.time import get_time_since_start
 
 # days since the reference date below that the test datasets sample
 DAYS = np.array([0.0, 1.5, 10.25])
@@ -54,7 +54,7 @@ def test_xarray_round_trip(tmp_path):
     assert 'Units' not in ds['Time'].attrs
     assert 'units' not in ds['Time'].attrs
     assert ds['Time'].encoding['units'].startswith('seconds since')
-    assert_allclose(get_days_since_start(ds), DAYS)
+    assert_allclose(get_time_since_start(ds, units='days'), DAYS)
 
 
 @pytest.mark.parametrize('units', ['seconds', 'hours', 'days'])
@@ -64,7 +64,7 @@ def test_omega_style_file(units, tmp_path):
     that Omega writes, and is now right for other reference units too."""
     ds = _round_trip(_make_dataset(units=units, omega_attrs=True), tmp_path)
     assert ds['Time'].attrs['Units'] == f'{units} since {REFERENCE}'
-    assert_allclose(get_days_since_start(ds), DAYS)
+    assert_allclose(get_time_since_start(ds, units='days'), DAYS)
 
 
 def test_undecoded_units_in_attrs():
@@ -73,21 +73,21 @@ def test_undecoded_units_in_attrs():
     ds = _make_dataset()
     units = ds['Time'].encoding.pop('units')
     ds['Time'].attrs['units'] = units
-    assert_allclose(get_days_since_start(ds), DAYS)
+    assert_allclose(get_time_since_start(ds, units='days'), DAYS)
 
 
 @pytest.mark.parametrize('units', ['seconds', 'hours', 'days'])
 def test_reference_units(units, tmp_path):
     """The reference units are not assumed to be seconds."""
     ds = _round_trip(_make_dataset(units=units), tmp_path)
-    assert_allclose(get_days_since_start(ds), DAYS)
+    assert_allclose(get_time_since_start(ds, units='days'), DAYS)
 
 
 def test_missing_units_raises():
     """A time variable with no CF units at all is named in the error."""
     ds = _make_dataset(with_units=False)
     with pytest.raises(ValueError, match="'units' for time variable 'Time'"):
-        get_days_since_start(ds)
+        get_time_since_start(ds, units='days')
 
 
 def test_malformed_units_raises():
@@ -95,11 +95,35 @@ def test_malformed_units_raises():
     ds = _make_dataset()
     ds['Time'].encoding['units'] = 'seconds'
     with pytest.raises(ValueError, match="time variable 'Time'"):
-        get_days_since_start(ds)
+        get_time_since_start(ds, units='days')
 
 
 def test_no_time_variable():
     """The existing error for a dataset with no time variable is kept."""
     ds = xr.Dataset({'SomeField': xr.DataArray(np.zeros(3), dims=('x',))})
     with pytest.raises(ValueError, match='Could not find a time variable'):
-        get_days_since_start(ds)
+        get_time_since_start(ds, units='days')
+
+
+@pytest.mark.parametrize(
+    ('units', 'factor'),
+    [('seconds', 86400.0), ('minutes', 1440.0), ('hours', 24.0)],
+)
+def test_units_conversion(units, factor):
+    """Seconds, minutes and hours are the days converted by the expected
+    factor."""
+    ds = xr.Dataset({'daysSinceStartOfSim': ('Time', DAYS)})
+    assert_allclose(get_time_since_start(ds, units=units), DAYS * factor)
+
+
+def test_unknown_units_raises():
+    """An unsupported units string is named in the error."""
+    ds = xr.Dataset({'daysSinceStartOfSim': ('Time', DAYS)})
+    with pytest.raises(ValueError, match="Unknown time units 'years'"):
+        get_time_since_start(ds, units='years')
+
+
+def test_omega_numeric_time_variable():
+    """Omega's raw numeric 'time' coordinate is already elapsed seconds."""
+    ds = xr.Dataset({'time': ('Time', DAYS * 86400.0)})
+    assert_allclose(get_time_since_start(ds, units='days'), DAYS)

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.viz import mplstyle_context
 
 
@@ -65,7 +65,7 @@ class Analysis(OceanIOStep):
                 reconstruct_method='RBF',
                 coeffs_filename='../forward/coeffs.nc',
             )
-            t = get_days_since_start(ds)
+            t = get_time_since_start(ds, units='days')
             s_per_day = 24.0 * 3600.0
             dt = (t[1] - t[0]) * s_per_day
             u = ds['velocityZonal'].mean(dim='nCells')

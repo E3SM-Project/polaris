@@ -7,7 +7,7 @@ from polaris.ocean.global_stats_names import (
     select_global_stats,
 )
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.model.time import get_days_since_start
+from polaris.ocean.model.time import get_time_since_start
 
 
 class StatsAnalysis(OceanIOStep):
@@ -66,7 +66,7 @@ class StatsAnalysis(OceanIOStep):
         )
 
         ds_time = ds.rename({'time': 'Time'}) if 'time' in ds.dims else ds
-        time = get_days_since_start(ds_time)
+        time = get_time_since_start(ds_time, units='days')
         for field, field_stats in found.items():
             values = {
                 stat: ds[var_name].values.astype(float)

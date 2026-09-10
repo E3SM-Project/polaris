@@ -5,7 +5,7 @@ import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.mpas import cell_mask_to_edge_mask
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.viz import plot_horiz_field
 
 
@@ -118,7 +118,7 @@ class Viz(OceanIOStep):
         # Plot the time series of max velocity
         plt.figure(figsize=[12, 6], dpi=100)
         umax = np.amax(ds.normalVelocity[:, :, 0].values, axis=1)
-        t_days = get_days_since_start(ds)
+        t_days = get_time_since_start(ds, units='days')
         plt.plot(t_days, umax, 'k-o', label='max(normalVelocity)')
         plt.xlabel('Time (days)')
         plt.ylabel('Maximum Velocity (m/s)')
