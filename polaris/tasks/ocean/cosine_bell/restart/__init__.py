@@ -77,6 +77,7 @@ class Restart(Task):
         self.add_step(init_step, symlink=f'init/{mesh_name}')
 
         step_names = ['full_run', 'restart_run']
+        steps = {}
         for name in step_names:
             subdir = f'{task_subdir}/{name}'
             do_restart = name == 'restart_run'
@@ -91,7 +92,17 @@ class Restart(Task):
                 do_restart=do_restart,
             )
             step.set_shared_config(config, link=config_filename)
-            self.add_step(step)
+            steps[name] = step
+
+        # The restart run reads the restart file that the full run writes to
+        # the shared ``restarts`` directory.  The name of that file comes from
+        # a time stamp that is not known at setup, so the ordering has to be
+        # declared as a dependency rather than as an input file.
+        full_run = steps['full_run']
+        steps['restart_run'].add_dependency(full_run, full_run.name)
+
+        for name in step_names:
+            self.add_step(steps[name])
 
         self.add_step(
             Validate(
