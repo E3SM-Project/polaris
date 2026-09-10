@@ -181,9 +181,9 @@ def get_z_mid_and_interface(ds, allow_reconstruct=False):
     ValueError
         If the data set lacks the geometry and it may not be reconstructed
     """
-    missing = [name for name in ('zMid', 'zInterface') if name not in ds]
+    missing = [name for name in ('zMid', 'GeomZInterface') if name not in ds]
     if not missing:
-        return ds.zMid, ds.zInterface
+        return ds.zMid, ds.GeomZInterface
     if not allow_reconstruct:
         raise ValueError(
             f'The data set has no {", ".join(missing)}, which is the '
@@ -226,7 +226,7 @@ _VERT_COORD_VAR_NAMES = {
 }
 
 
-def vertical_coord_from_location(ds, location):
+def vertical_coord_from_location(ds, location, allow_reconstruct=False):
     """
     Get the vertical coordinate field appropriate for a variable at a given
     location in ``ds``
@@ -241,10 +241,17 @@ def vertical_coord_from_location(ds, location):
         Where the variable is defined: layer midpoints, layer interfaces,
         or the top of each layer
 
+    allow_reconstruct : bool, optional
+        Whether to reconstruct the coordinate from ``layerThickness`` via
+        :py:func:`_z_from_thickness` when the data set does not carry the
+        field directly
+
     Returns
     -------
     coord : xarray.DataArray
-        The elevation of ``ds[var_name]``, in m, positive up, where
+        The elevation of ``ds[var_name]``, in m, positive up, on
+        ``nCells`` and the vertical dimension appropriate to ``location``.
+        A ``Time`` dimension of length one is retained if present.
         ``var_name`` is ``zMid``, ``GeomZInterface`` or ``zTop`` for
         ``location`` ``'cell-center'``, ``'cell-interfaces'`` or
         ``'cell-top'``, respectively
@@ -252,8 +259,10 @@ def vertical_coord_from_location(ds, location):
     Raises
     ------
     ValueError
-        If ``location`` is not one of the supported values, or the
-        corresponding field is not present in the dataset
+        If ``location`` is not one of the supported values, the
+        corresponding field is not present in the dataset and it may not
+        be reconstructed, or ``ds`` has a ``Time`` dimension of length
+        other than one
     """
     if location not in _VERT_COORD_VAR_NAMES:
         raise ValueError(
@@ -261,19 +270,28 @@ def vertical_coord_from_location(ds, location):
             f'{sorted(_VERT_COORD_VAR_NAMES)}'
         )
     var_name = _VERT_COORD_VAR_NAMES[location]
-    if var_name not in ds:
-        raise ValueError(
-            f'{var_name} ({location}) is not present in the dataset'
-        )
-    coord = ds[var_name]
-    if 'Time' in coord.dims:
-        if ds.sizes['Time'] != 1:
+    if var_name in ds:
+        coord = ds[var_name]
+        if 'Time' in coord.dims and ds.sizes['Time'] != 1:
             raise ValueError(
                 'vertical_coord_from_location() requires ds to have no '
                 'Time dimension or a Time dimension of length one'
             )
-        coord = coord.isel(Time=0)
-    return coord.mean(dim='nCells')
+        return coord
+    if not allow_reconstruct:
+        raise ValueError(
+            f'{var_name} ({location}) is not present in the dataset'
+        )
+    z_mid, z_interface = _z_from_thickness(ds)
+    if location == 'cell-center':
+        coord = z_mid
+    elif location == 'cell-interfaces':
+        coord = z_interface
+    else:
+        coord = z_interface.isel(nVertLevelsP1=slice(0, -1)).rename(
+            {'nVertLevelsP1': 'nVertLevels'}
+        )
+    return coord
 
 
 def location_for_field(var, field_name=None):
@@ -351,7 +369,7 @@ def _z_from_thickness(ds):
     if 'nCells' not in ds.sizes and 'nVertLevels' not in ds.sizes:
         raise ValueError('nCells, and nVertLevels must be dimensions of ds')
     if 'ssh' in ds.keys():
-        ssh = ds.ssh.isel(nVertLevels=0).values
+        ssh = ds.ssh.values
     # TODO remove this because it could lead to errors
     else:
         ssh = np.zeros((ds.sizes['nCells']))
