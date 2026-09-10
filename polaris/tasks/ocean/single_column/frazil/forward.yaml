@@ -77,6 +77,7 @@ mpas-ocean:
       - daysSinceStartOfSim
       - zMid
       - zTop
+      - ssh
       - normalVelocity
       - velocityZonal
       - velocityMeridional
