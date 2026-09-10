@@ -41,6 +41,7 @@ def setup_tasks(
     cmake_flags=None,
     debug=None,
     component_args=None,
+    concurrent_steps=False,
 ):
     """
     Set up one or more tasks
@@ -132,6 +133,10 @@ def setup_tasks(
         that owns the tasks, with the component names as keys.  These come from
         the ``--<component>_model``, ``--<component>_path`` and
         ``--<component>_branch`` flags.
+    concurrent_steps : bool, optional
+        Whether the job script should run the steps of a suite or task at the
+        same time with ``polaris parallel`` rather than one after another with
+        ``polaris serial``
 
     Returns
     -------
@@ -179,6 +184,12 @@ def setup_tasks(
         quiet_build=quiet_build,
         work_dir=work_dir,
     )
+
+    if concurrent_steps:
+        # the flag writes the config option rather than travelling beside it,
+        # so there is one thing that decides this and it is recorded in the
+        # config the run is set up with
+        basic_config.set('job', 'concurrent_steps', 'True', user=True)
 
     components_in_use = get_components_in_use(tasks)
 
@@ -289,7 +300,7 @@ def setup_tasks(
             min_gpus=max_of_min_gpus,
             work_dir=work_dir,
             suite=suite_name,
-            concurrent=_run_steps_concurrently(basic_config),
+            concurrent=_run_steps_concurrently(suite_config),
         )
 
     # Rewrite provenance (it was written earlier so that it exists even if
@@ -578,6 +589,14 @@ def main():
         help='If the model should be built in debug mode.',
     )
     add_component_model_args(parser)
+    parser.add_argument(
+        '--concurrent_steps',
+        dest='concurrent_steps',
+        action='store_true',
+        help='If the job script should run the steps of a suite or task at '
+        'the same time with `polaris parallel` rather than one after '
+        'another with `polaris serial`.',
+    )
 
     args = parser.parse_args(sys.argv[2:])
     cached = None
@@ -627,6 +646,7 @@ def main():
         cmake_flags=args.cmake_flags,
         debug=args.debug,
         component_args=get_component_model_args(args),
+        concurrent_steps=args.concurrent_steps,
     )
 
 

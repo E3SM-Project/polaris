@@ -337,3 +337,45 @@ def test_asking_for_the_concurrent_path_is_reading_the_option(tmp_path):
     assert not _run_steps_concurrently(
         get_config('chrysalis', concurrent_steps='False')
     )
+
+
+def test_the_flag_and_the_config_option_are_one_mechanism():
+    """
+    `--concurrent_steps` writes the config option rather than travelling
+    beside it, so there is one thing that decides this and it is recorded in
+    the config a run was set up with.
+    """
+    config = get_config('chrysalis')
+    assert not _run_steps_concurrently(config)
+
+    config.set('job', 'concurrent_steps', 'True', user=True)
+
+    assert _run_steps_concurrently(config)
+
+
+def test_setup_and_suite_can_be_asked_without_a_config_file():
+    """
+    Asking for a concurrent run should not require writing a config file.
+
+    It did, and the awkwardness showed up the moment cross-machine
+    instructions had to say "a config file containing this option".
+    """
+    import inspect
+    import subprocess
+    import sys
+
+    from polaris.setup import setup_tasks
+
+    assert 'concurrent_steps' in inspect.signature(setup_tasks).parameters
+
+    # `polaris suite` passes its arguments through to `setup_tasks`, so the
+    # only thing left to check is that each front end offers the flag
+    for command in ('setup', 'suite'):
+        helped = subprocess.run(
+            [sys.executable, '-m', 'polaris', command, '--help'],
+            capture_output=True,
+            text=True,
+        )
+        assert '--concurrent_steps' in helped.stdout, (
+            f'polaris {command} does not offer the flag'
+        )
