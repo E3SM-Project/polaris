@@ -40,7 +40,15 @@ class SphericalBaseStep(Step):
         The name of the mesh
     """
 
-    def __init__(self, component, name, subdir, mesh_name='mesh'):
+    def __init__(
+        self,
+        component,
+        name,
+        subdir,
+        mesh_name='mesh',
+        cpus_per_task=16,
+        min_cpus_per_task=1,
+    ):
         """
         Create a new step
 
@@ -57,8 +65,29 @@ class SphericalBaseStep(Step):
 
         mesh_name : str, optional
             The name of the mesh
+
+        cpus_per_task : int, optional
+            The cores this step would ideally have, which is what JIGSAW is
+            told to use as threads.  Measured on Chrysalis over five
+            quasi-uniform resolutions, JIGSAW returns about 2 to 2.8x however
+            many threads it is given, and the point at which it stops
+            improving rises with resolution -- 4 threads at 240 km, 8 at
+            120 km and about 16 from 60 km down.  So 16 captures nearly all
+            of what is available at the resolutions Polaris builds, and
+            asking for more would reserve cores no mesh can use.  A subclass
+            that knows its mesh is coarse may ask for fewer.
+
+        min_cpus_per_task : int, optional
+            The cores this step requires.  JIGSAW runs on one, just more
+            slowly, so a mesh is never blocked for want of cores.
         """
-        super().__init__(component=component, name=name, subdir=subdir)
+        super().__init__(
+            component=component,
+            name=name,
+            subdir=subdir,
+            cpus_per_task=cpus_per_task,
+            min_cpus_per_task=min_cpus_per_task,
+        )
 
         # setup files for JIGSAW
         self.opts = jigsawpy.jigsaw_jig_t()
@@ -109,6 +138,25 @@ class SphericalBaseStep(Step):
             filename = getattr(opts, attr)
             if filename is not None:
                 setattr(opts, attr, self.work_path(filename))
+
+        # Tell JIGSAW how many threads it may use, rather than letting it
+        # decide.  It takes this from `NUMTHREAD` in its own config file and
+        # not from `OMP_NUM_THREADS`, so nothing in the environment reaches
+        # it; left unset it sizes itself from whatever cores it can see.
+        #
+        # That is not merely untidy.  The mesh JIGSAW produces depends on the
+        # thread count -- measured directly, a quasi-uniform 120 km mesh has
+        # 41154 points at one, two and four threads and 41155 above that, and
+        # a 30 km mesh takes four distinct point counts across the range.  So
+        # a mesh built on a node with more cores was a different mesh, and a
+        # step confined to part of an allocation built a different one again.
+        # Six baseline comparisons in the first concurrent omega_pr run
+        # differed for exactly this reason.
+        #
+        # `cpus_per_task` has been reduced by now to what this step was
+        # actually given, so the number is the same on the serial and
+        # concurrent paths and the mesh is reproducible between them.
+        opts.numthread = self.cpus_per_task
 
     def setup(self):
         """
