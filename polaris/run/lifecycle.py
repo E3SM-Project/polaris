@@ -82,6 +82,7 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
         else:
             step_resources = available_resources
         step.constrain_resources(step_resources)
+        _log_sizing(step, step_resources, step_logger, 'after sizing')
 
         # a placement is a promise about part of the machine, and nothing
         # enforces it.  Ask, once, whether this step got what it was given.
@@ -106,6 +107,7 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
                     logger=step_logger,
                 )
                 step_logger.info('')
+                _log_sizing(step, step_resources, step_logger, 'at launch')
                 step.component.run_parallel_command(
                     args,
                     step.cpus_per_task,
@@ -237,3 +239,31 @@ def accumulate_baselines(
     if baselines_passed is None:
         return status
     return baselines_passed and status
+
+
+def _log_sizing(step, step_resources, logger, when):
+    """
+    Record what the step is sized to and what its placement offers.
+
+    A launch that asks for more tasks than its placement has cores for is
+    rejected by the launcher, and the rejection names one node and two
+    numbers.  Reconstructing which of the two sides moved from that alone
+    is guesswork, so both are written down: what the step is sized to, and
+    what the placement gives, per node and in total.
+    """
+    placement = step.placement
+    if placement is None:
+        shape = 'no placement; the whole allocation'
+    else:
+        per_node = [len(node_cores) for node_cores in placement.cores]
+        shape = (
+            f'{len(placement.nodes)} nodes, {placement.total_cores} cores, '
+            f'per node {per_node}'
+        )
+    logger.info(
+        f'sizing ({when}): ntasks={step.ntasks} '
+        f'cpus_per_task={step.cpus_per_task} cores={step.cores} '
+        f'min_tasks={step.min_tasks}; offered '
+        f'{step_resources["cores"]} cores on '
+        f'{step_resources["nodes"]} nodes; placement: {shape}'
+    )
