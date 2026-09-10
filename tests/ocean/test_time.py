@@ -127,3 +127,17 @@ def test_omega_numeric_time_variable():
     """Omega's raw numeric 'time' coordinate is already elapsed seconds."""
     ds = xr.Dataset({'time': ('Time', DAYS * 86400.0)})
     assert_allclose(get_time_since_start(ds, units='days'), DAYS)
+
+
+def test_xtime_variable():
+    """MPAS-Ocean's xtime is measured from the first time in the file, so
+    the initial condition is at zero."""
+    xtime = np.array(
+        [
+            b'0001-01-01_00:00:00',
+            b'0001-01-02_12:00:00',
+            b'0001-01-11_06:00:00',
+        ]
+    )
+    ds = xr.Dataset({'xtime': ('Time', xtime)})
+    assert_allclose(get_time_since_start(ds, units='days'), DAYS)
