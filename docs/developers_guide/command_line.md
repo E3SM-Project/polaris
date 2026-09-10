@@ -465,6 +465,37 @@ The serial path is what every suite has been validated against, so it stays
 the default.  A single step's job script is unaffected, having nothing to run
 at the same time.
 
+### How many nodes a concurrent job asks for
+
+A serial job script asks for the geometric mean of what the widest step wants
+and what that step can be squeezed to.  That is the right question when steps
+take turns: nothing else is running, so no more of the machine can be used
+than the widest step can use.
+
+Steps running at the same time can use more than the widest of them, and how
+much more follows from how many steps there are rather than from how big the
+biggest one is.  So a concurrent job script asks for the larger of that same
+geometric mean and the minimum cores of every step added together -- enough
+to hold the whole suite at once with each step squeezed to its smallest:
+
+```none
+serial:      sqrt(widest target x widest minimum)
+concurrent:  max(that, sum of every step's minimum)
+```
+
+For a single step the sum is that step's own minimum, which the geometric
+mean already exceeds, so a one-step job is sized exactly as it was before.
+For `omega_pr` the rule asks for 5 nodes where the serial rule asks for 3,
+and for `omega_nightly` 16 where the serial rule asks for 5.
+
+The point of the sum is that the allocation follows a suite that gains tests
+instead of staying fixed at its widest step.  Measured on Chrysalis, a
+concurrent suite's wall time falls as the inverse square root of the nodes it
+is given, so growing the nodes with the suite means the wall time grows as
+the square root of what the suite contains rather than in proportion to it: a
+suite that doubles its tests takes about 1.4 times as long on twice the
+nodes, where a fixed allocation would take twice as long.
+
 ### Reading a run afterwards
 
 Steps no longer take turns, so their output cannot share a stream.  Each

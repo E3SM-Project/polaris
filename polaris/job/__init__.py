@@ -19,6 +19,8 @@ def write_job_script(
     min_cores=None,
     target_gpus=None,
     min_gpus=None,
+    sum_min_cores=None,
+    sum_min_gpus=None,
     suite='',
     script_filename=None,
     run_command=None,
@@ -57,6 +59,15 @@ def write_job_script(
     min_gpus : int, optional
         The minimum number of GPUs for the job to use if ``nodes`` not
         provided
+
+    sum_min_cores : int, optional
+        The minimum cores of every step added together, used instead of
+        ``target_cores`` and ``min_cores`` when they ask for less and the
+        job is ``concurrent``.  Ignored otherwise.
+
+    sum_min_gpus : int, optional
+        The minimum GPUs of every step added together, used the same way as
+        ``sum_min_cores`` when the job is sized by GPUs
 
     suite : str, optional
         The name of the suite
@@ -114,10 +125,30 @@ mache.parallel.pbs.PbsOptions, None}
             and min_gpus is not None
             and max(target_gpus, min_gpus) > 0
         )
+        # The allocation is the geometric mean of what the widest step wants
+        # and what it can be squeezed to, which is the right question when
+        # steps run one at a time: nothing else is running, so only that step
+        # can use the machine.
+        #
+        # Steps running at the same time can use more than the widest of them,
+        # and how much more depends on how many steps there are rather than on
+        # how big the biggest is.  So a concurrent job also asks for enough to
+        # hold every step at once at its smallest, and takes whichever is
+        # larger.  For one step the sum is that step's own minimum and the
+        # geometric mean already exceeds it, so a single-step job is sized
+        # exactly as it was before.
+        #
+        # This is what lets an allocation follow a suite that gains tests.
+        # Measured on Chrysalis, wall time falls as the inverse square root of
+        # the nodes, so growing the nodes with the suite means its wall time
+        # grows as the square root of what it contains rather than in
+        # proportion to it.
         if use_gpu_nodes:
             assert target_gpus is not None
             assert min_gpus is not None
             gpus = np.sqrt(target_gpus * min_gpus)
+            if concurrent and sum_min_gpus is not None:
+                gpus = max(gpus, sum_min_gpus)
             nodes = int(np.ceil(gpus / gpus_per_node))
             nodes = max(nodes, 1)
         else:
@@ -127,6 +158,8 @@ mache.parallel.pbs.PbsOptions, None}
                     'CPU resources'
                 )
             cores = np.sqrt(target_cores * min_cores)
+            if concurrent and sum_min_cores is not None:
+                cores = max(cores, sum_min_cores)
             nodes = int(np.ceil(cores / cores_per_node))
             nodes = max(nodes, 1)
 
