@@ -286,7 +286,7 @@
                 <span class="p">)</span>
                 <span class="n">exact</span> <span class="o">=</span> <span class="n">ExactSolution</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-o'</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
                     <span class="n">dt</span> <span class="o">=</span> <span class="n">time_since_start</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">xtime</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
                     <span class="n">t</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dt</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
