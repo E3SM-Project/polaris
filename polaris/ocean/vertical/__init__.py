@@ -115,7 +115,7 @@ def init_vertical_coord(config, ds):
         dim='Time', axis=0
     )
 
-    ds['zInterface'], ds['zMid'] = compute_zint_zmid_from_layer_thickness(
+    ds['GeomZInterface'], ds['zMid'] = compute_zint_zmid_from_layer_thickness(
         layer_thickness=ds.layerThickness,
         bottom_depth=ds.bottomDepth,
         min_level_cell=ds.minLevelCell,

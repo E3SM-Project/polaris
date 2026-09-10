@@ -125,7 +125,7 @@ class Viz(OceanIOStep):
             ds_init = self.open_model_dataset('init.nc', config=self.config)
             ds_init = ds_init.isel(Time=0)
             z_mid_init = ds_init['zMid'].mean(dim='nCells')
-            z_interface_init = ds_init['zInterface'].mean(dim='nCells')
+            z_interface_init = ds_init['GeomZInterface'].mean(dim='nCells')
 
             z_mid_final = z_mid_init
             z_interface_final = z_interface_init
