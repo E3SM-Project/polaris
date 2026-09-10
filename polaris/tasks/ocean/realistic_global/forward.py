@@ -109,7 +109,6 @@ class Forward(OceanModelStep):
                 database=target_location,
             )
         else:
-            self.replacements['time_integrator'] = 'RK4'
             input_filename = f'{input_filename}.zerovel.nc'
             self.add_input_file(
                 target=input_filename,
@@ -121,6 +120,28 @@ class Forward(OceanModelStep):
                 filename='init.nc',
                 database=target_location,
             )
+        # Ensure replacements dict exists
+        if self.replacements is None:
+            self.replacements = {}
+
+        # Map MPAS-O time integrator names to Omega names when needed
+        time_integrator_map = {
+            'split_explicit': 'SplitExplicitRK2',
+            'RK4': 'RungeKutta4',
+        }
+
+        # MPAS-O integrator name from config
+        mpas_integrator = config.get('realistic_global', 'time_integrator')
+
+        if model == 'omega':
+            # Use Omega-specific integrator name
+            self.replacements['time_integrator'] = time_integrator_map.get(
+                mpas_integrator, mpas_integrator
+            )
+        else:
+            # Keep MPAS-O name
+            self.replacements['time_integrator'] = mpas_integrator
+
         self.add_yaml_file(
             package=self.package,
             yaml='forward.yaml',
