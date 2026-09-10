@@ -106,7 +106,6 @@ class MixingAnalysis(OceanIOStep):
         config = self.config
         section = config[self.case_name]
         eval_time = section.getfloat('mixing_evaluation_time')
-        s_per_day = 86400.0
         zidx = 0
         nrows = int(ceil(len(resolutions) / 2))
         with mplstyle_context():
@@ -130,9 +129,7 @@ class MixingAnalysis(OceanIOStep):
                 if int(i / 2) == nrows - 1:
                     ax.set_xlabel('tracer2')
                 t_days = get_time_since_start(ds, units='days')
-                time_index = np.argmin(
-                    np.abs(np.subtract(t_days, eval_time * s_per_day))
-                )
+                time_index = np.argmin(np.abs(np.subtract(t_days, eval_time)))
                 ds = ds.isel(Time=time_index)
                 ds = ds.isel(nVertLevels=zidx)
                 tracer2 = ds['tracer2'].values

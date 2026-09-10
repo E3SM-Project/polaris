@@ -72,7 +72,8 @@ mpas-ocean:
       - refLayerThickness
       - kineticEnergyCell
       - relativeVorticityCell
-      - velocityX
+      - velocityZonal
+      - velocityMeridional
       - vertVelocityTop
 
 Omega:

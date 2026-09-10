@@ -636,12 +636,16 @@ class Ocean(Component):
             where the locations needed for a tracer conversion come from.
 
         reconstruct_variables : list of str, optional
-            List of variable names to reconstruct in the dataset.
+            List of variable names to reconstruct in the dataset.  A variable
+            whose zonal and meridional components are already in the dataset
+            (as they are in MPAS-Ocean output, which the model reconstructs
+            itself) is skipped, and nothing is reconstructed if that is true
+            of all of them.
 
         coeffs_filename : str, optional
             Path to the coefficients NetCDF file.
 
-        reonstruct_method : {'RBF', 'LSTSQ'}, optional
+        reconstruct_method : {'RBF', 'LSTSQ'}, optional
             Method to use for reconstructing vector variables.
             RBF: Radial Basis Function; approach used in MPAS-Ocean.
             LSTSQ: Least-squares reconstruction; new approach in Omega
@@ -764,34 +768,43 @@ class Ocean(Component):
             lat=lat,
             logger=logger,
         )
-        if reconstruct_variables is not None:
-            if mesh_filename is None:
-                raise ValueError(
-                    'mesh_filename must be provided to open_model_dataset '
-                    'for variable reconstruction'
-                )
-            if reconstruct_method == 'RBF' and coeffs_filename is None:
-                raise ValueError(
-                    'coeffs_filename must be provided to open_model_dataset '
-                    'for variable reconstruction'
-                )
-            ds_mesh = self.open_model_dataset(mesh_filename, config)
-            if (
-                reconstruct_method == 'LSTSQ'
-                and not _reconstruction_weights_in_dataset(ds_mesh)
-            ):
-                raise ValueError(
-                    'Reconstruction weights are not present in the mesh '
-                    'dataset; cannot reconstruct variables using LSTSQ method'
-                )
+        if reconstruct_variables is None:
+            return ds
 
-            ds = _add_reconstructed_variables_to_dataset(
-                ds,
-                reconstruct_variables,
-                ds_mesh,
-                coeffs_filename,
-                reconstruct_method,
+        out_var_names = _vars_to_reconstruct(ds, reconstruct_variables)
+        if len(out_var_names) == 0:
+            # the model already wrote the zonal and meridional components, as
+            # MPAS-Ocean does with its own RBF reconstruction, so no mesh,
+            # weights or coefficients are needed
+            return ds
+
+        if mesh_filename is None:
+            raise ValueError(
+                'mesh_filename must be provided to open_model_dataset '
+                'for variable reconstruction'
             )
+        if reconstruct_method == 'RBF' and coeffs_filename is None:
+            raise ValueError(
+                'coeffs_filename must be provided to open_model_dataset '
+                'for variable reconstruction'
+            )
+        ds_mesh = self.open_model_dataset(mesh_filename, config)
+        if (
+            reconstruct_method == 'LSTSQ'
+            and not _reconstruction_weights_in_dataset(ds_mesh)
+        ):
+            raise ValueError(
+                'Reconstruction weights are not present in the mesh '
+                'dataset; cannot reconstruct variables using LSTSQ method'
+            )
+
+        ds = _add_reconstructed_variables_to_dataset(
+            ds,
+            out_var_names,
+            ds_mesh,
+            coeffs_filename,
+            reconstruct_method,
+        )
         return ds
 
     def _convert_tracers_for_model(
@@ -1118,22 +1131,64 @@ def _lon_lat_for_tracer_conversion(
     return section.getfloat('nominal_lon'), section.getfloat('nominal_lat')
 
 
+def _vars_to_reconstruct(ds, reconstruct_variables):
+    """
+    Find the variables that still need to be reconstructed and the base name
+    of the zonal and meridional components each one produces.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The dataset the variables will be reconstructed in.
+
+    reconstruct_variables : list of str
+        List of variable names to reconstruct.
+
+    Returns
+    -------
+    out_var_names : dict
+        A map from each variable that still needs to be reconstructed to the
+        base name of its reconstructed components.  Variables whose components
+        are already in ``ds`` are left out.
+    """
+    out_var_names = {}
+    for variable in reconstruct_variables:
+        out_var_name = (
+            variable.replace('normal', '').lower()
+            if 'normal' in variable
+            else variable
+        )
+        if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
+            # already reconstructed, e.g. by MPAS-Ocean itself
+            continue
+        if variable not in ds:
+            raise ValueError(
+                f"User requested vector reconstruction for '{variable}' "
+                "but it isn't present in the dataset."
+            )
+        out_var_names[variable] = out_var_name
+
+    return out_var_names
+
+
 def _add_reconstructed_variables_to_dataset(
     ds,
-    reconstruct_variables,
+    out_var_names,
     ds_mesh,
     coeffs_filename,
     reconstruct_method: Literal['RBF', 'LSTSQ'],
 ):
     """
-    Add reconstructed vector variables to the dataset if requested.
+    Add reconstructed vector variables to the dataset.
+
     Parameters
     ----------
     ds : xarray.Dataset
         The dataset to add reconstructed variables to.
 
-    reconstruct_variables : list of str or None
-        List of variable names to reconstruct.
+    out_var_names : dict
+        A map from each variable to reconstruct to the base name of its
+        reconstructed components, as returned by ``_vars_to_reconstruct()``.
 
     ds_mesh : xarray.Dataset
         Mesh dataset on which to perform the reconstruction.
@@ -1149,31 +1204,6 @@ def _add_reconstructed_variables_to_dataset(
     ds : xarray.Dataset
         The dataset with reconstructed variables added.
     """
-    if reconstruct_variables is None:
-        return ds
-
-    out_var_names = {}
-    for variable in reconstruct_variables:
-        out_var_name = (
-            variable.replace('normal', '').lower()
-            if 'normal' in variable
-            else variable
-        )
-        if f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds:
-            # already reconstructed, e.g. by MPAS-Ocean itself
-            continue
-        out_var_names[variable] = out_var_name
-
-    if len(out_var_names) == 0:
-        return ds
-
-    for variable in out_var_names:
-        if variable not in ds:
-            raise ValueError(
-                f"User requested vector reconstruction for '{variable}' "
-                "but it isn't present in the dataset."
-            )
-
     if reconstruct_method == 'RBF':
         ds_coeff = open_dataset(coeffs_filename)
         coeffs_reconstruct = ds_coeff.coeffs_reconstruct
@@ -1181,7 +1211,7 @@ def _add_reconstructed_variables_to_dataset(
         if ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']:
             print(
                 f'The sizes of coefficient dataset do not match mesh dataset;'
-                f' exiting without reconstructing {reconstruct_variables}'
+                f' exiting without reconstructing {list(out_var_names)}'
             )
             return ds
 

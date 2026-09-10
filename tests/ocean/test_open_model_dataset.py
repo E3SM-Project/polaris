@@ -383,3 +383,73 @@ def test_open_model_dataset_raises_without_a_pressure(tmp_path):
             lon=0.0,
             lat=0.0,
         )
+
+
+def _write_velocity_file(path, zonal_and_meridional, normal_velocity=True):
+    """Write a file with ``normalVelocity`` and, if requested, the zonal and
+    meridional components MPAS-Ocean reconstructs for itself."""
+    data_vars = {}
+    if normal_velocity:
+        data_vars['normalVelocity'] = (('nEdges',), np.array([1.0, 2.0]))
+    if zonal_and_meridional:
+        data_vars['velocityZonal'] = (('nCells',), np.array([1.0, 2.0]))
+        data_vars['velocityMeridional'] = (('nCells',), np.array([3.0, 4.0]))
+    xr.Dataset(data_vars=data_vars).to_netcdf(path)
+    return str(path)
+
+
+def test_open_model_dataset_skips_present_reconstruction(tmp_path):
+    """MPAS-Ocean reconstructs the zonal and meridional velocity itself, so a
+    step asking for the reconstruction needs neither a mesh nor least-squares
+    weights to read that output."""
+    component = _make_component('mpas-ocean')
+    filename = _write_velocity_file(
+        tmp_path / 'output.nc', zonal_and_meridional=True
+    )
+
+    ds = component.open_model_dataset(
+        filename,
+        _make_config('mpas-ocean', eos_type='linear'),
+        reconstruct_variables=['normalVelocity'],
+    )
+
+    assert_allclose(ds.velocityZonal.values, [1.0, 2.0])
+    assert_allclose(ds.velocityMeridional.values, [3.0, 4.0])
+
+
+def test_open_model_dataset_raises_without_lstsq_weights(tmp_path):
+    """A reconstruction that has to be done needs the weights, so a mesh
+    without them is still an error."""
+    component = _make_component('mpas-ocean')
+    filename = _write_velocity_file(
+        tmp_path / 'output.nc', zonal_and_meridional=False
+    )
+    mesh_filename = _write_mesh_file(tmp_path / 'mesh.nc', on_a_sphere='NO')
+
+    with pytest.raises(ValueError, match='Reconstruction weights'):
+        component.open_model_dataset(
+            filename,
+            _make_config('mpas-ocean', eos_type='linear'),
+            mesh_filename=mesh_filename,
+            reconstruct_variables=['normalVelocity'],
+        )
+
+
+def test_open_model_dataset_raises_on_missing_reconstruct_variable(tmp_path):
+    """Asking to reconstruct a variable that is in neither the file nor its
+    reconstructed form is a mistake rather than something to skip silently."""
+    component = _make_component('mpas-ocean')
+    filename = _write_velocity_file(
+        tmp_path / 'output.nc',
+        zonal_and_meridional=False,
+        normal_velocity=False,
+    )
+    mesh_filename = _write_mesh_file(tmp_path / 'mesh.nc', on_a_sphere='NO')
+
+    with pytest.raises(ValueError, match='normalVelocity'):
+        component.open_model_dataset(
+            filename,
+            _make_config('mpas-ocean', eos_type='linear'),
+            mesh_filename=mesh_filename,
+            reconstruct_variables=['normalVelocity'],
+        )

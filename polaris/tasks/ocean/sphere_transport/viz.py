@@ -48,7 +48,7 @@ class Viz(OceanIOStep):
         super().__init__(component=component, name=name, subdir=subdir)
         self.add_input_file(
             filename='mesh.nc',
-            work_dir_target=f'{init.path}/base_mesh_with_weights.nc',
+            work_dir_target=f'{init.path}/culled_mesh.nc',
         )
         self.add_input_file(
             filename='initial_state.nc',
@@ -86,12 +86,12 @@ class Viz(OceanIOStep):
 
         variables_to_plot = self.variables_to_plot
 
+        # the init step writes velocityZonal and velocityMeridional
+        # analytically for both models, so there is nothing to reconstruct
         ds_init = self.open_model_dataset(
             'initial_state.nc',
             config,
             decode_times=False,
-            mesh_filename='mesh.nc',
-            reconstruct_variables=['normalVelocity'],
         )
         variables_in_init = [
             var for var in variables_to_plot.keys() if var in ds_init.variables
