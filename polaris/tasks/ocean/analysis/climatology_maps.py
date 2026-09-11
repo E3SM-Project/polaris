@@ -3,6 +3,7 @@ import os
 import xarray as xr
 from mpas_tools.io import write_netcdf
 
+from polaris.analysis.units import units_to_mathtext
 from polaris.ocean.vertical.diagnostics import get_z_mid_and_interface
 from polaris.ocean.vertical.elevation import (
     apply_vertical_reduction,
@@ -339,7 +340,7 @@ class ClimatologyMaps(AnalysisStep):
             mesh_filename=self.work_path('mesh.nc'),
             descriptor=descriptor,
             title=f'{simulation_name}: {title}, years {self._range_key()}',
-            colorbar_label=da_map.attrs.get('units', ''),
+            colorbar_label=units_to_mathtext(da_map.attrs.get('units', '')),
         )
 
         # The outputs are registered here rather than in setup() because a

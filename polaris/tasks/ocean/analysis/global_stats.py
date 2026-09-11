@@ -1,5 +1,6 @@
 import xarray as xr
 
+from polaris.analysis.units import units_to_mathtext
 from polaris.ocean.analysis_plots import plot_global_stats
 from polaris.ocean.global_stats_names import (
     STAT_DESCRIPTIONS,
@@ -229,7 +230,7 @@ class GlobalStatsTimeSeries(AnalysisStep):
 
 def _axis_label(ds, field, field_stats):
     """Label the vertical axes with the field and its units, if it has any"""
-    units = _units(ds, field_stats)
+    units = units_to_mathtext(_units(ds, field_stats))
     if units:
         return f'{field} ({units})'
     return field
