@@ -179,9 +179,13 @@ def run_logged(command, cwd, log_file, log, dry_run=False):
         return True
     with open(log_file, 'w', encoding='utf-8') as f:
         f.write(f'[{_now()}] {" ".join(command)}\n[{_now()}] in {cwd}\n')
+        # python children write to a pipe here, so without this their output
+        # would arrive in blocks rather than as it happens
+        env = dict(os.environ, PYTHONUNBUFFERED='1')
         process = subprocess.Popen(
             command,
             cwd=cwd,
+            env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
