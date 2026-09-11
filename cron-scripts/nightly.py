@@ -69,6 +69,12 @@ def main():
     log.write(f'tasks {", ".join(tasks)}')
     log.write(f'PIXI_CACHE_DIR {os.environ["PIXI_CACHE_DIR"]}')
 
+    # deploy.py bootstraps the newest mache and rattler-build, which can write
+    # a package index an older pixi cannot read, so bring pixi up to date
+    # first.  A failed update (no route to GitHub, say) is logged and the
+    # night goes on with the pixi it has.
+    update_pixi(polaris_root, log_dir, log, dry_run)
+
     failures = []
     for index, compiler in enumerate(compilers):
         # one fresh environment per night; later compilers update it
@@ -117,6 +123,31 @@ def main():
     if failures:
         report_failures(machine, failures)
         sys.exit(1)
+
+
+def update_pixi(polaris_root, log_dir, log, dry_run):
+    """
+    Update pixi to the current release if it is older, the way deploy.py
+    finds it: on the path, or else in ``~/.pixi/bin``.
+    """
+    pixi = shutil.which('pixi')
+    if pixi is None:
+        pixi = os.path.expanduser('~/.pixi/bin/pixi')
+    if not os.path.isfile(pixi):
+        log.write(f'no pixi to update at {pixi}; deploy.py will say so')
+        return
+    pixi_log = os.path.join(log_dir, 'pixi_self_update.log')
+    if not run_logged(
+        [pixi, 'self-update'], polaris_root, pixi_log, log, dry_run
+    ):
+        log.write(
+            'pixi self-update failed; continuing with the pixi installed'
+        )
+    if not dry_run:
+        version = subprocess.run(
+            [pixi, '--version'], capture_output=True, text=True, check=False
+        ).stdout.strip()
+        log.write(f'{version} at {pixi}')
 
 
 def read_machine_config(machine):

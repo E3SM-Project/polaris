@@ -42,10 +42,12 @@ cron-scripts/
    `launch_all.sh`.
 2. `launch_all.sh` sources `machines/<machine>.sh`, takes a lock so two
    nights cannot overlap, and runs `nightly.py`.
-3. `nightly.py` reads `machines/<machine>.cfg`.  For each compiler it runs
-   `./deploy.py` (with `--recreate` for the first, so there is one fresh
-   environment a night), then each task with that compiler's load script
-   sourced.  Output goes to `<cron root>/logs/<date>/`, one file per step,
+3. `nightly.py` reads `machines/<machine>.cfg` and runs `pixi self-update`,
+   because `deploy.py` bootstraps the newest mache and rattler-build and
+   an old pixi cannot read the package index they write.  For each
+   compiler it then runs `./deploy.py` (with `--recreate` for the first,
+   so there is one fresh environment a night), then each task with that
+   compiler's load script sourced.  Output goes to `<cron root>/logs/<date>/`, one file per step,
    and old dates are pruned.  Nothing is printed unless something failed,
    so that the mail cron sends carries only failures.
 4. `omega_cdash.py` keeps `<cron root>/omega_develop` at the tip of Omega
