@@ -186,14 +186,19 @@ its netCDF file linked beside it.  Every page carries the simulation name, the
 ranges and the Polaris provenance, so a page found later can be traced back to
 what produced it.
 
-Three config options control what a page costs to load, which matters on a
+Four config options control what a page costs to load, which matters on a
 portal that throttles:
 
 ```cfg
 [ocean_analysis]
 
-# the box, in pixels, each thumbnail is scaled to fit inside
+# the box, in displayed pixels, each thumbnail is scaled to fit inside
 thumbnail_size = 320, 240
+
+# image pixels per displayed pixel, so a thumbnail is sharp on a
+# high-resolution display; need not be whole, and 2 is about three times
+# the bytes of 1
+thumbnail_scale = 2.0
 
 # jpeg or webp; webp is a third to a half smaller at the same quality
 thumbnail_format = jpeg
@@ -202,10 +207,10 @@ thumbnail_format = jpeg
 thumbnail_quality = 75
 ```
 
-Reducing `thumbnail_size` is the first thing to try if gallery pages are slow
-to appear.  Thumbnails are the only images a page fetches, they are one to two
-hundred times smaller than the plots they stand for, and a browser fetches
-only the ones that have been scrolled to.
+Reducing `thumbnail_size`, then `thumbnail_scale`, is the first thing to try
+if gallery pages are slow to appear.  Thumbnails are the only images a page
+fetches, they are tens to a hundred times smaller than the plots they stand
+for, and a browser fetches only the ones that have been scrolled to.
 
 Publishing again is cheap and safe.  A thumbnail is regenerated only when it
 is missing or older than its plot, so adding one product to an analysis costs
