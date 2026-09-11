@@ -1,7 +1,7 @@
 import numpy as np
 
 from polaris.constants import get_constant
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 
 
 def f11_boundary_layer_depth(time_days, buoyancy_flux, n_squared):
@@ -85,7 +85,7 @@ class Analysis(OceanIOStep):
                 continue
             datasets[comparison_name] = ds
 
-            t_arr = get_days_since_start(ds)
+            t_arr = get_time_since_start(ds, units='days')
             t_index = int(np.argmin(np.abs(t_arr - t_target)))
             t_days = float(t_arr[t_index])
             if abs(t_days - t_target) > (1 / 24):
@@ -204,7 +204,7 @@ class Analysis(OceanIOStep):
         if flux_name is not None:
             buoyancy_flux = float(-ds[flux_name].min().values)
             n_squared = self._initial_n_squared()
-            time_days = get_days_since_start(ds)
+            time_days = get_time_since_start(ds, units='days')
             f11_bld = f11_boundary_layer_depth(
                 time_days, buoyancy_flux, n_squared
             )
