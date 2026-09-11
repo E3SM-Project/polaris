@@ -2,8 +2,9 @@
 
 # barotropic_channel
 
-The barotropic channel task group is currently comprised of one `default` task for quick
-testing of lateral boundary conditions.
+The barotropic channel task group is comprised of a `default` task for quick
+testing of lateral boundary conditions and a `short` variant of it for the
+Omega regression suites.
 
 ## framework
 
@@ -32,7 +33,9 @@ stream is also generated with wind stress fields.
 The class {py:class}`polaris.tasks.ocean.barotropic_channel.forward.Forward`
 defines a step for running the ocean from the initial condition produced in
 the `init` step. Namelist and streams files are updated in
-{py:meth}`polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config()`.
+{py:meth}`polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config()`,
+where the run duration comes from the `[barotropic_channel_<task_name>]`
+config section for the task the step belongs to.
 The number of cells is approximated from config options in
 {py:meth}`polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count()`
 so that this can be used to constrain the number of MPI tasks that Polaris
@@ -52,5 +55,14 @@ vertical layer.
 ## default
 
 The {py:class}`polaris.tasks.ocean.barotropic_channel.default.Default`
-test runs the `init` step, a short `forward` step, and the `viz` step.
+test runs the `init` step, a 2 day `forward` step, and the `viz` step.
+
+(dev-ocean-barotropic-channel-short)=
+
+## short
+
+The {py:class}`polaris.tasks.ocean.barotropic_channel.short.Short`
+test runs the same steps with a 2 hour `forward` step.  Omega takes an
+order of magnitude longer than MPAS-Ocean per time step on this mesh, so
+this is the variant in the `omega_pr` and `omega_nightly` suites.
 

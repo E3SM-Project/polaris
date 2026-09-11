@@ -154,6 +154,8 @@
    viz.Viz.run
 
    default.Default
+
+   short.Short
 ```
 
 ### barotropic_gyre
