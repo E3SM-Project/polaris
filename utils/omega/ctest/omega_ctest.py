@@ -237,8 +237,11 @@ def dashboard_ctest_command(stage, branch, build_dir, dashboard):
     else:
         source_dir = os.path.join(os.path.abspath(branch), 'components/omega')
 
+    # -V: script mode is silent otherwise, and the logs and the summary the
+    # job prints depend on seeing the build and test output
     parts = [
         'ctest',
+        '-V',
         '-S',
         f'"{CTEST_DASHBOARD_SCRIPT}"',
         f'-DSTAGE={stage}',
