@@ -5,9 +5,7 @@ from polaris.ocean.model import (
     OceanIOStep,
     get_time_since_start,
 )
-from polaris.ocean.vertical import (
-    compute_zint_zmid_from_layer_thickness,
-)
+from polaris.ocean.vertical.diagnostics import vertical_coord_from_location
 
 
 class Analysis(OceanIOStep):
@@ -65,7 +63,9 @@ class Analysis(OceanIOStep):
             ds_diags_1day = ds_diags.isel(Time=t_index)
             N_sq = ds_diags_1day['BruntVaisalaFreqTop'].mean(dim='nCells')
             if 'zTop' in ds_diags_1day.keys():
-                z_top_final = ds_diags_1day['zTop'].mean(dim='nCells')
+                z_top_final = vertical_coord_from_location(
+                    ds_diags_1day, 'cell-top'
+                ).mean(dim='nCells')
             else:
                 if ds_vert is None:
                     ds_vert = self.open_model_dataset(
@@ -73,16 +73,14 @@ class Analysis(OceanIOStep):
                         decode_times=False,
                         config=self.config,
                     )
-                z_int_final, _ = compute_zint_zmid_from_layer_thickness(
-                    layer_thickness=ds_diags_1day['layerThickness'],
-                    bottom_depth=ds_vert['bottomDepth'],
-                    min_level_cell=ds_vert['minLevelCell'] - 1,
-                    max_level_cell=ds_vert['maxLevelCell'] - 1,
+                ds_for_reconstruct = ds_diags_1day.assign(
+                    bottomDepth=ds_vert['bottomDepth'],
+                    minLevelCell=ds_vert['minLevelCell'] - 1,
+                    maxLevelCell=ds_vert['maxLevelCell'] - 1,
                 )
-                z_top_final = z_int_final[:-1].mean(dim='nCells')
-                z_top_final = z_top_final.rename(
-                    {'nVertLevelsP1': 'nVertLevels'}
-                )
+                z_top_final = vertical_coord_from_location(
+                    ds_for_reconstruct, 'cell-top', allow_reconstruct=True
+                ).mean(dim='nCells')
             index_bld = int(np.nanargmax(N_sq.values))
             bld = z_top_final.isel(nVertLevels=index_bld)
             self.logger.info(
