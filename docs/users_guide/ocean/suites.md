@@ -77,8 +77,14 @@ Polaris changes on Omega results.
 Here are the tests in the suite:
 ```none
 ocean/column/horiz_press_grad/salinity_gradient
-ocean/planar/baroclinic_channel/10km/default
-ocean/planar/barotropic_channel/short
+ocean/planar/baroclinic_channel/split_explicit/short
+ocean/planar/baroclinic_channel/split_explicit/10km/decomp
+ocean/planar/baroclinic_channel/split_explicit/10km/restart
+ocean/planar/baroclinic_channel/split_explicit/10km/threads
+ocean/planar/barotropic_channel/rk4/short
+ocean/planar/baroclinic_channel/rk4/10km/decomp
+ocean/planar/baroclinic_channel/rk4/10km/restart
+ocean/planar/baroclinic_channel/rk4/10km/threads
 ocean/planar/barotropic_gyre/munk/free-slip
 ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2
