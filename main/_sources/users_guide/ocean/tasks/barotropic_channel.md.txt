@@ -70,7 +70,10 @@ determined by cfg options `barotropic_channel:zonal_wind_stress` and
 
 ## time step and run duration
 
-The time step for forward integration is 1 minute and the duration is 10 days.
+The time step for forward integration is 1 second.  The run duration is
+2 days for the `default` task and 2 hours for the `short` task, set by the
+`run_duration` option in the `[barotropic_channel_default]` and
+`[barotropic_channel_short]` config sections respectively.
 
 ## config options
 
@@ -92,6 +95,21 @@ resolution = 10.
 horizontal_viscosity = 1.e-2
 
 bottom_drag = 1.e2
+
+
+# config options for the default barotropic channel task
+[barotropic_channel_default]
+
+# Run duration (hours)
+run_duration = 48.
+
+
+# config options for the short barotropic channel task, a regression test
+# rather than a spun-up channel
+[barotropic_channel_short]
+
+# Run duration (hours)
+run_duration = 2.
 ```
 
 ## cores
@@ -106,5 +124,16 @@ The number of cores is determined by `goal_cells_per_core` and
 ### description
 
 The default test case runs the `init`, `forward`, and `viz` steps and uses the
-same config options as the test group.
+same config options as the test group.  It runs for 2 days.
+
+(ocean-barotropic-channel-short)=
+
+## short
+
+### description
+
+The short test case runs the same steps as `default` for 2 hours.  That is
+too short for the wind-driven jet to spin up, but long enough to catch a
+regression, and it is the variant in the `omega_pr` and `omega_nightly`
+suites, where the 2 day run is too expensive under Omega.
 

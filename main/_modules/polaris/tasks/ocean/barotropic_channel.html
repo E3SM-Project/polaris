@@ -116,6 +116,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span> <span class="k">as</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.barotropic_channel.default</span><span class="w"> </span><span class="kn">import</span> <span class="n">Default</span> <span class="k">as</span> <span class="n">Default</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.barotropic_channel.short</span><span class="w"> </span><span class="kn">import</span> <span class="n">Short</span> <span class="k">as</span> <span class="n">Short</span>
 
 
 <div class="viewcode-block" id="add_barotropic_channel_tasks">
@@ -148,7 +149,11 @@
     <span class="p">)</span>
     <span class="n">default</span> <span class="o">=</span> <span class="n">Default</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
     <span class="n">default</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">default</span><span class="p">)</span></div>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="n">short</span> <span class="o">=</span> <span class="n">Short</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
+    <span class="n">short</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">short</span><span class="p">)</span></div>
 
 </pre></div>
 

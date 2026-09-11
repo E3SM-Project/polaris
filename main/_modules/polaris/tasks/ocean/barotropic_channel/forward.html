@@ -113,7 +113,7 @@
              
   <h1>Source code for polaris.tasks.ocean.barotropic_channel.forward</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.planar</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_planar_hex_nx_ny</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span><span class="p">,</span> <span class="n">get_time_interval_string</span>
 
 
 <div class="viewcode-block" id="Forward">
@@ -127,6 +127,10 @@
 <span class="sd">    ----------</span>
 <span class="sd">    yaml_filename : str</span>
 <span class="sd">       The name of the yaml file for this forward step</span>
+
+<span class="sd">    task_name : str</span>
+<span class="sd">        The name of the task this step belongs to, which selects the</span>
+<span class="sd">        ``[barotropic_channel_&lt;task_name&gt;]`` config section</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Forward.__init__">
@@ -134,6 +138,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component</span><span class="p">,</span>
+        <span class="n">task_name</span><span class="p">,</span>
         <span class="n">graph_target</span><span class="o">=</span><span class="s1">'culled_graph.info'</span><span class="p">,</span>
         <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">'forward.yaml'</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="s1">'forward'</span><span class="p">,</span>
@@ -151,11 +156,11 @@
 <span class="sd">        component : polaris.Component</span>
 <span class="sd">            The component the step belongs to</span>
 
-<span class="sd">        name : str</span>
-<span class="sd">            the name of the task</span>
-
 <span class="sd">        task_name : str</span>
 <span class="sd">           The name of the task that this step belongs to</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            the name of the step</span>
 
 <span class="sd">        yaml_filename : str</span>
 <span class="sd">           The name of the yaml file for this forward step</span>
@@ -192,6 +197,7 @@
             <span class="n">graph_target</span><span class="o">=</span><span class="n">graph_target</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span> <span class="o">=</span> <span class="n">yaml_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">=</span> <span class="n">task_name</span>
 
         <span class="c1"># make sure output is double precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.ocean.config'</span><span class="p">,</span> <span class="s1">'output.yaml'</span><span class="p">)</span>
@@ -219,7 +225,12 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'barotropic_channel'</span><span class="p">,</span> <span class="s1">'horizontal_viscosity'</span><span class="p">)</span>
         <span class="n">drag</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'barotropic_channel'</span><span class="p">,</span> <span class="s1">'bottom_drag'</span><span class="p">)</span>
-        <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nu</span><span class="o">=</span><span class="n">nu</span><span class="p">,</span> <span class="n">drag</span><span class="o">=</span><span class="n">drag</span><span class="p">)</span>
+        <span class="n">task_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s1">'barotropic_channel_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">task_name</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
+        <span class="n">run_duration</span> <span class="o">=</span> <span class="n">task_section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'run_duration'</span><span class="p">)</span>
+        <span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span>
+            <span class="n">seconds</span><span class="o">=</span><span class="n">run_duration</span> <span class="o">*</span> <span class="mf">3600.0</span>
+        <span class="p">)</span>
+        <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nu</span><span class="o">=</span><span class="n">nu</span><span class="p">,</span> <span class="n">drag</span><span class="o">=</span><span class="n">drag</span><span class="p">,</span> <span class="n">run_duration</span><span class="o">=</span><span class="n">run_duration_str</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
             <span class="s1">'polaris.tasks.ocean.barotropic_channel'</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span><span class="p">,</span>

@@ -66,6 +66,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#short">short</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic gyre</a></li>
@@ -222,7 +223,10 @@ determined by cfg options <code class="docutils literal notranslate"><span class
 </section>
 <section id="time-step-and-run-duration">
 <h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
-<p>The time step for forward integration is 1 minute and the duration is 10 days.</p>
+<p>The time step for forward integration is 1 second.  The run duration is
+2 days for the <code class="docutils literal notranslate"><span class="pre">default</span></code> task and 2 hours for the <code class="docutils literal notranslate"><span class="pre">short</span></code> task, set by the
+<code class="docutils literal notranslate"><span class="pre">run_duration</span></code> option in the <code class="docutils literal notranslate"><span class="pre">[barotropic_channel_default]</span></code> and
+<code class="docutils literal notranslate"><span class="pre">[barotropic_channel_short]</span></code> config sections respectively.</p>
 </section>
 <section id="config-options">
 <h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
@@ -243,6 +247,21 @@ determined by cfg options <code class="docutils literal notranslate"><span class
 <span class="na">horizontal_viscosity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.e-2</span>
 
 <span class="na">bottom_drag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.e2</span>
+
+
+<span class="c1"># config options for the default barotropic channel task</span>
+<span class="k">[barotropic_channel_default]</span>
+
+<span class="c1"># Run duration (hours)</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">48.</span>
+
+
+<span class="c1"># config options for the short barotropic channel task, a regression test</span>
+<span class="c1"># rather than a spun-up channel</span>
+<span class="k">[barotropic_channel_short]</span>
+
+<span class="c1"># Run duration (hours)</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.</span>
 </pre></div>
 </div>
 </section>
@@ -256,7 +275,17 @@ determined by cfg options <code class="docutils literal notranslate"><span class
 <section id="description">
 <h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>The default test case runs the <code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">forward</span></code>, and <code class="docutils literal notranslate"><span class="pre">viz</span></code> steps and uses the
-same config options as the test group.</p>
+same config options as the test group.  It runs for 2 days.</p>
+</section>
+</section>
+<section id="short">
+<span id="ocean-barotropic-channel-short"></span><h2>short<a class="headerlink" href="#short" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The short test case runs the same steps as <code class="docutils literal notranslate"><span class="pre">default</span></code> for 2 hours.  That is
+too short for the wind-driven jet to spin up, but long enough to catch a
+regression, and it is the variant in the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_nightly</span></code>
+suites, where the 2 day run is too expensive under Omega.</p>
 </section>
 </section>
 </section>

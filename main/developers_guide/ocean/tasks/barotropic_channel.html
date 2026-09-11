@@ -70,6 +70,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">barotropic_channel</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#short">short</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="barotropic_gyre.html">barotropic_gyre</a></li>
@@ -150,8 +151,9 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="barotropic-channel">
 <span id="dev-ocean-barotropic-channel"></span><h1>barotropic_channel<a class="headerlink" href="#barotropic-channel" title="Link to this heading"></a></h1>
-<p>The barotropic channel task group is currently comprised of one <code class="docutils literal notranslate"><span class="pre">default</span></code> task for quick
-testing of lateral boundary conditions.</p>
+<p>The barotropic channel task group is comprised of a <code class="docutils literal notranslate"><span class="pre">default</span></code> task for quick
+testing of lateral boundary conditions and a <code class="docutils literal notranslate"><span class="pre">short</span></code> variant of it for the
+Omega regression suites.</p>
 <section id="framework">
 <h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The shared config options for <code class="docutils literal notranslate"><span class="pre">barotropic_channel</span></code> tests  are described in
@@ -176,7 +178,9 @@ stream is also generated with wind stress fields.</p>
 <p>The class <a class="reference internal" href="../generated/polaris.tasks.ocean.barotropic_channel.forward.Forward.html#polaris.tasks.ocean.barotropic_channel.forward.Forward" title="polaris.tasks.ocean.barotropic_channel.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.barotropic_channel.forward.Forward</span></code></a>
 defines a step for running the ocean from the initial condition produced in
 the <code class="docutils literal notranslate"><span class="pre">init</span></code> step. Namelist and streams files are updated in
-<a class="reference internal" href="../generated/polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config()</span></code></a>.
+<a class="reference internal" href="../generated/polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config.html#polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config" title="polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.barotropic_channel.forward.Forward.dynamic_model_config()</span></code></a>,
+where the run duration comes from the <code class="docutils literal notranslate"><span class="pre">[barotropic_channel_&lt;task_name&gt;]</span></code>
+config section for the task the step belongs to.
 The number of cells is approximated from config options in
 <a class="reference internal" href="../generated/polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.barotropic_channel.forward.Forward.compute_cell_count()</span></code></a>
 so that this can be used to constrain the number of MPI tasks that Polaris
@@ -195,7 +199,14 @@ vertical layer.</p>
 <section id="default">
 <span id="dev-ocean-barotropic-channel-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.barotropic_channel.default.Default.html#polaris.tasks.ocean.barotropic_channel.default.Default" title="polaris.tasks.ocean.barotropic_channel.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.barotropic_channel.default.Default</span></code></a>
-test runs the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, a short <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, and the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step.</p>
+test runs the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, a 2 day <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, and the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step.</p>
+</section>
+<section id="short">
+<span id="dev-ocean-barotropic-channel-short"></span><h2>short<a class="headerlink" href="#short" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.barotropic_channel.short.Short.html#polaris.tasks.ocean.barotropic_channel.short.Short" title="polaris.tasks.ocean.barotropic_channel.short.Short"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.barotropic_channel.short.Short</span></code></a>
+test runs the same steps with a 2 hour <code class="docutils literal notranslate"><span class="pre">forward</span></code> step.  Omega takes an
+order of magnitude longer than MPAS-Ocean per time step on this mesh, so
+this is the variant in the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> and <code class="docutils literal notranslate"><span class="pre">omega_nightly</span></code> suites.</p>
 </section>
 </section>
 
