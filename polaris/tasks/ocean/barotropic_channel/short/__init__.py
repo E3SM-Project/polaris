@@ -4,10 +4,13 @@ from polaris.tasks.ocean.barotropic_channel.init import Init as Init
 from polaris.tasks.ocean.barotropic_channel.viz import Viz as Viz
 
 
-class Default(Task):
+class Short(Task):
     """
-    The default barotropic channel test case creates the mesh and initial
-    condition, then performs a 2 day forward run and plots the results.
+    The short barotropic channel test case creates the mesh and initial
+    condition, then performs a 2 hour forward run and plots the results.  It
+    is too short for the wind-driven jet to spin up but long enough to catch
+    a regression, so it is the variant that belongs in the Omega suites,
+    where the 2 day default is too expensive.
     """
 
     def __init__(self, component, indir=None):
@@ -26,7 +29,7 @@ class Default(Task):
         base_dir = f'planar/{group_name}'
         if indir is None:
             indir = base_dir
-        test_name = 'default'
+        test_name = 'short'
         super().__init__(component=component, name=test_name, indir=indir)
 
         init_step = Init(component=component, indir=f'{indir}/{test_name}')
@@ -41,4 +44,5 @@ class Default(Task):
             )
         )
 
+        # the plots are what was broken for Omega, and they cost seconds
         self.add_step(Viz(component=component, indir=self.subdir))

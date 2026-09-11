@@ -78,6 +78,7 @@ Here are the tests in the suite:
 ```none
 ocean/column/horiz_press_grad/salinity_gradient
 ocean/planar/baroclinic_channel/10km/default
+ocean/planar/barotropic_channel/short
 ocean/planar/barotropic_gyre/munk/free-slip
 ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2

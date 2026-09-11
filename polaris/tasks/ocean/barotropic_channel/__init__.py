@@ -3,6 +3,7 @@ import os
 from polaris.config import PolarisConfigParser as PolarisConfigParser
 from polaris.constants import get_constant
 from polaris.tasks.ocean.barotropic_channel.default import Default as Default
+from polaris.tasks.ocean.barotropic_channel.short import Short as Short
 
 
 def add_barotropic_channel_tasks(component):
@@ -34,3 +35,7 @@ def add_barotropic_channel_tasks(component):
     default = Default(component=component)
     default.set_shared_config(config, link=config_filename)
     component.add_task(default)
+
+    short = Short(component=component)
+    short.set_shared_config(config, link=config_filename)
+    component.add_task(short)

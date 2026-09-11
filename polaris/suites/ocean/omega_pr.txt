@@ -5,6 +5,7 @@ ocean/column/thermo
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
 ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/barotropic_channel/short
 ocean/planar/barotropic_gyre/munk/free-slip
 ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2
@@ -19,8 +20,5 @@ ocean/planar/seamount/nonlinear/sigma/short
 ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 ocean/spherical/realistic_global/QU.240km/analysis_members_test
-
-# Supported but fails
-#ocean/planar/barotropic_channel/default
 ocean/column/ekman
 ocean/column/inertial

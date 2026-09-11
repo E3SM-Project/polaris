@@ -1,5 +1,5 @@
 from polaris.mesh.planar import compute_planar_hex_nx_ny
-from polaris.ocean.model import OceanModelStep
+from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
 class Forward(OceanModelStep):
@@ -11,11 +11,16 @@ class Forward(OceanModelStep):
     ----------
     yaml_filename : str
        The name of the yaml file for this forward step
+
+    task_name : str
+        The name of the task this step belongs to, which selects the
+        ``[barotropic_channel_<task_name>]`` config section
     """
 
     def __init__(
         self,
         component,
+        task_name,
         graph_target='culled_graph.info',
         yaml_filename='forward.yaml',
         name='forward',
@@ -33,11 +38,11 @@ class Forward(OceanModelStep):
         component : polaris.Component
             The component the step belongs to
 
-        name : str
-            the name of the task
-
         task_name : str
            The name of the task that this step belongs to
+
+        name : str
+            the name of the step
 
         yaml_filename : str
            The name of the yaml file for this forward step
@@ -74,6 +79,7 @@ class Forward(OceanModelStep):
             graph_target=graph_target,
         )
         self.yaml_filename = yaml_filename
+        self.task_name = task_name
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -98,7 +104,12 @@ class Forward(OceanModelStep):
         config = self.config
         nu = config.getfloat('barotropic_channel', 'horizontal_viscosity')
         drag = config.getfloat('barotropic_channel', 'bottom_drag')
-        replacements = dict(nu=nu, drag=drag)
+        task_section = config[f'barotropic_channel_{self.task_name}']
+        run_duration = task_section.getfloat('run_duration')
+        run_duration_str = get_time_interval_string(
+            seconds=run_duration * 3600.0
+        )
+        replacements = dict(nu=nu, drag=drag, run_duration=run_duration_str)
         self.add_yaml_file(
             'polaris.tasks.ocean.barotropic_channel',
             self.yaml_filename,
