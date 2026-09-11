@@ -54,9 +54,16 @@ def parse_task_args(description):
         choices=['Nightly', 'Experimental', 'Continuous'],
         help='The CTest model (default: Nightly)',
     )
+    parser.add_argument(
+        '--site',
+        help='The site name shown on CDash (default: the machine); a test '
+        'run of the nightly jobs should use its own',
+    )
     args = parser.parse_args()
     args.cron_root = os.path.abspath(args.cron_root)
     args.machine = os.environ['POLARIS_MACHINE']
+    if args.site is None:
+        args.site = args.machine
     args.compiler = os.environ['POLARIS_COMPILER']
     args.polaris_root = os.environ['POLARIS_BRANCH']
 
@@ -143,7 +150,7 @@ def omega_ctest_command(polaris_root, args, branch, build_name, extra):
         '--clean',
         '--dashboard',
         '--cdash_site',
-        args.machine,
+        args.site,
         '--cdash_build_name',
         build_name,
         '--cdash_model',

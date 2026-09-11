@@ -37,6 +37,11 @@ def main():
         action='store_true',
         help='Log what would run without running it',
     )
+    parser.add_argument(
+        '--site',
+        help='The site name shown on CDash (default: the machine); a test '
+        'run should use its own so it does not replace the nightly rows',
+    )
     args = parser.parse_args()
     machine = args.machine
     dry_run = args.dry_run
@@ -90,6 +95,8 @@ def main():
             )
             if account is not None:
                 command = f'{command} --account {account}'
+            if args.site is not None:
+                command = f'{command} --site {args.site}'
             task_log = os.path.join(log_dir, f'{task}_{compiler}.log')
             if not run_logged(
                 ['bash', '-l', '-c', command],

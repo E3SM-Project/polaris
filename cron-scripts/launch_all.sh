@@ -26,14 +26,14 @@ main() {
                 shift 2
                 ;;
             *)
-                echo "ERROR: unknown option '$1'" >&2
-                echo "Usage: $(basename "${BASH_SOURCE[0]}") -m MACHINE" >&2
-                exit 1
+                break
                 ;;
         esac
     done
     if [[ -z "${machine}" ]]; then
         echo "ERROR: -m MACHINE is required" >&2
+        echo "Usage: $(basename "${BASH_SOURCE[0]}") -m MACHINE" \
+            "[nightly.py options]" >&2
         exit 1
     fi
     if [[ ! -f "${here}/machines/${machine}.sh" ]]; then
@@ -58,7 +58,8 @@ main() {
         exit 1
     fi
 
-    exec python3 "${here}/nightly.py" -m "${machine}"
+    # further options, such as --site for a test run, go to nightly.py
+    exec python3 "${here}/nightly.py" -m "${machine}" "$@"
 }
 
 main "$@"

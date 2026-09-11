@@ -117,9 +117,17 @@ python cron-scripts/tasks/omega_cdash.py \
 ```
 
 `--model Experimental` keeps a hand run out of the nightly groups on CDash.
-To try the full chain without touching the dashboard entries the nightly
-jobs own, run `omega_ctest.py --dashboard` directly with a `--cdash_site`
-and `--cdash_build_name` of your own.
+
+A whole night can be run by hand from a cron root of your own, without a
+crontab, by calling the driver directly.  `--site` gives the CDash rows a
+site name of their own, so they sit beside the nightly rows for the machine
+rather than replacing them:
+
+```bash
+export POLARIS_CRON_ROOT=/path/to/cron_root
+bash "$POLARIS_CRON_ROOT/polaris/cron-scripts/driver/cronjob.sh" \
+    -m chrysalis --site chrysalis-test
+```
 
 ## What is not covered
 

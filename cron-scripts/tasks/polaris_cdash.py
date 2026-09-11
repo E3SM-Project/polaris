@@ -103,7 +103,7 @@ def main():
     )
 
     dashboard = omega_ctest.DashboardOptions(
-        site=args.machine,
+        site=args.site,
         build_name=build_name,
         model=args.model,
         submit_url=omega_ctest.CDASH_SUBMIT_URL,

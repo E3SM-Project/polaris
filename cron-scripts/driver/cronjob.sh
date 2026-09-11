@@ -34,14 +34,14 @@ main() {
                 shift 2
                 ;;
             *)
-                echo "ERROR: unknown option '$1'" >&2
-                echo "Usage: $(basename "${BASH_SOURCE[0]}") -m MACHINE" >&2
-                exit 1
+                break
                 ;;
         esac
     done
     if [[ -z "${machine}" ]]; then
         echo "ERROR: -m MACHINE is required" >&2
+        echo "Usage: $(basename "${BASH_SOURCE[0]}") -m MACHINE" \
+            "[launch_all.sh options]" >&2
         exit 1
     fi
 
@@ -64,7 +64,7 @@ main() {
     git submodule --quiet update --init e3sm_submodules/Omega
 
     export POLARIS_ROOT="${polaris_root}"
-    exec bash "${polaris_root}/cron-scripts/launch_all.sh" -m "${machine}"
+    exec bash "${polaris_root}/cron-scripts/launch_all.sh" -m "${machine}" "$@"
 }
 
 main "$@"
