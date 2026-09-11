@@ -29,10 +29,17 @@ class Forward(OceanModelStep):
         update_eos=True,
         enable_vadv=True,
         enable_hadv=True,
+        disable_coriolis=None,
         enable_restoring=False,
         constant_diff=False,
         conservation_intervals=None,
+        check_properties=None,
         run_duration_steps=None,
+        match_technique=None,
+        use_langmuir_circulation=None,
+        mpas_langmuir_mixing_opt=None,
+        mpas_use_theory_wave=None,
+        minimum_obl_under_sea_ice=None,
     ):
         """
         Create a new test case
@@ -82,7 +89,31 @@ class Forward(OceanModelStep):
             the time index in ``output.nc`` at the end of the interval.  By
             default, conservation is checked between the initial condition
             and the end of the run.
+
+        check_properties : list of str, optional
+            Conservation properties to check. If not provided, mass, salt and
+            energy conservation are checked.
+
+        match_technique : str, optional
+            Omega KPP ``MatchTechnique`` override (``'SimpleShapes'`` or
+            ``'MatchBoth'``). If not provided, the model default is used.
+            The equivalent MPAS-Ocean ``config_cvmix_kpp_matching`` option is
+            set to the same value.
+
+        use_langmuir_circulation : bool, optional
+            Omega KPP ``UseLangmuirTurbulence`` override.  If not provided,
+            the model default is used.
+
+        disable_coriolis : bool, optional
+            Whether to disable Omega's ``PVTendencyEnable`` (which carries
+            both relative and planetary vorticity/Coriolis in a single
+            term), independent of ``enable_hadv``.  If not provided,
+            defaults to ``not enable_hadv`` to preserve prior behavior.
+            MPAS-Ocean has no equivalent option, so Coriolis there is
+            always governed solely by the ``[coriolis]`` config section.
         """
+        if disable_coriolis is None:
+            disable_coriolis = not enable_hadv
         if not enable_vadv:
             name = f'{name}_no_vadv'
         if not enable_hadv:
@@ -91,6 +122,11 @@ class Forward(OceanModelStep):
             name = f'{name}_restoring'
         if constant_diff:
             name = f'{name}_constant'
+        if match_technique is not None:
+            name = f'{name}_{match_technique.lower()}'
+        if use_langmuir_circulation is not None:
+            suffix = 'langmuir' if use_langmuir_circulation else 'no_langmuir'
+            name = f'{name}_{suffix}'
         super().__init__(
             component=component,
             name=name,
@@ -124,11 +160,12 @@ class Forward(OceanModelStep):
         )
         if conservation_intervals is None:
             conservation_intervals = [('init', -1)]
-        check_properties = [
-            'mass conservation',
-            'salt conservation',
-            'energy conservation',
-        ]
+        if check_properties is None:
+            check_properties = [
+                'mass conservation',
+                'salt conservation',
+                'energy conservation',
+            ]
         for baseline, time_index_end in conservation_intervals:
             self.add_property_check(
                 filename='output.nc',
@@ -143,10 +180,17 @@ class Forward(OceanModelStep):
         self.task_name = task_name
 
         self.enable_hadv = enable_hadv
+        self.disable_coriolis = disable_coriolis
         self.enable_vadv = enable_vadv
         self.enable_restoring = enable_restoring
 
         self.constant_diff = constant_diff
+
+        self.match_technique = match_technique
+        self.use_langmuir_circulation = use_langmuir_circulation
+        self.mpas_langmuir_mixing_opt = mpas_langmuir_mixing_opt
+        self.mpas_use_theory_wave = mpas_use_theory_wave
+        self.minimum_obl_under_sea_ice = minimum_obl_under_sea_ice
 
     def setup(self):
         """
@@ -248,10 +292,15 @@ class Forward(OceanModelStep):
             omega_options.update(
                 {
                     'TracerHorzAdvTendencyEnable': False,
-                    'PVTendencyEnable': False,
                     'KETendencyEnable': False,
                 }
             )
+        if self.disable_coriolis:
+            # PVTendencyEnable carries both relative vorticity and Coriolis
+            # in one term, so it's gated separately from enable_hadv: tasks
+            # that need Coriolis (e.g. wind-driven regimes) must not disable
+            # it just to turn off horizontal advection.
+            omega_options.update({'PVTendencyEnable': False})
         if self.enable_restoring:
             shared_options.update(
                 {
@@ -274,6 +323,59 @@ class Forward(OceanModelStep):
                 }
             )
 
+        if self.match_technique is not None:
+            omega_options.update(
+                {
+                    'MatchTechnique': self.match_technique,
+                }
+            )
+            mpas_options.update(
+                {
+                    'config_cvmix_kpp_matching': self.match_technique,
+                }
+            )
+        if self.use_langmuir_circulation is not None:
+            omega_options.update(
+                {
+                    'UseLangmuirTurbulence': self.use_langmuir_circulation,
+                }
+            )
+        if self.mpas_langmuir_mixing_opt is not None:
+            mpas_options.update(
+                {
+                    (
+                        'config_cvmix_kpp_langmuir_mixing_opt'
+                    ): self.mpas_langmuir_mixing_opt,
+                    # entrainment_opt is what actually boosts Vt2 in the
+                    # bulk-Richardson search (and thus the OBL depth);
+                    # mixing_opt alone only reshapes the in-layer
+                    # diffusivity/viscosity profile.
+                    (
+                        'config_cvmix_kpp_langmuir_entrainment_opt'
+                    ): self.mpas_langmuir_mixing_opt,
+                }
+            )
+        if self.mpas_use_theory_wave is not None:
+            mpas_options.update(
+                {
+                    (
+                        'config_cvmix_kpp_use_theory_wave'
+                    ): self.mpas_use_theory_wave,
+                }
+            )
+        if self.minimum_obl_under_sea_ice is not None:
+            omega_options.update(
+                {
+                    'MinimumOSBLUnderSeaIce': self.minimum_obl_under_sea_ice,
+                }
+            )
+            mpas_options.update(
+                {
+                    (
+                        'configure_cvmix_kpp_minimum_OBL_under_sea_ice'
+                    ): self.minimum_obl_under_sea_ice,
+                }
+            )
         self.add_model_config_options(
             options=shared_options,
             config_model='ocean',
