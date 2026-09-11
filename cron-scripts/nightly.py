@@ -63,6 +63,7 @@ def main():
     compilers = dict(config.items('compilers'))
 
     log = Log(os.path.join(log_dir, 'nightly.log'))
+    log.write(f'python {sys.version.split()[0]} at {sys.executable}')
     log.write(f'machine {machine}, compilers {", ".join(compilers)}')
     log.write(f'tasks {", ".join(tasks)}')
     log.write(f'PIXI_CACHE_DIR {os.environ["PIXI_CACHE_DIR"]}')

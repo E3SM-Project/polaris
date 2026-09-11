@@ -82,7 +82,7 @@ without installing it.  `--mailto` sets where failures are mailed,
 `E3SM-Project/polaris` `main`.
 
 Cron gives a job almost no environment.  `machines/<machine>.sh` provides
-what `deploy.py` needs before any Polaris environment exists (a Python 3.8
+what `deploy.py` needs before any Polaris environment exists (a Python 3.7
 or newer, `module`, and on Aurora the path to `qsub`); everything after
 that comes from the load script `deploy.py` writes.
 
