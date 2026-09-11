@@ -6,6 +6,7 @@ import gsw
 import numpy as np
 import pytest
 import xarray as xr
+from mpas_tools.planar_hex import make_planar_hex_mesh
 from numpy.testing import assert_allclose
 
 from polaris.model_step import ModelStep
@@ -586,13 +587,27 @@ def test_write_horiz_mesh_dataset_raises_without_on_a_sphere(tmp_path):
         component.write_horiz_mesh_dataset(ds, str(filename), config)
 
 
+def _make_planar_horiz_mesh_ds(nx=4, ny=4, dc=1000.0):
+    """A real planar hex mesh with the Coriolis fields filled in.
+
+    Omega's reconstruction weights are computed from the mesh itself, so
+    the dummy dataset above will not do.
+    """
+    ds = make_planar_hex_mesh(
+        nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=False
+    )
+    for location in ['Cell', 'Edge', 'Vertex']:
+        ds[f'f{location}'] = xr.zeros_like(ds[f'x{location}'])
+    return ds
+
+
 def test_write_horiz_mesh_dataset_writes_omega(tmp_path):
     component = Ocean()
     component.model = 'omega'
     component._read_var_map()
 
     config = MagicMock()
-    ds = _make_horiz_mesh_ds(component)
+    ds = _make_planar_horiz_mesh_ds()
 
     filename = tmp_path / 'mesh.nc'
     component.write_horiz_mesh_dataset(ds, str(filename), config)
@@ -601,6 +616,44 @@ def test_write_horiz_mesh_dataset_writes_omega(tmp_path):
     assert 'XCell' in ds_out
     assert 'FCell' in ds_out
     assert 'xCell' not in ds_out
+
+
+def test_write_horiz_mesh_dataset_computes_planar_weights(tmp_path):
+    """Nothing computes weights for a planar mesh before this point, so
+    Omega's mesh file gets them here."""
+    component = Ocean()
+    component.model = 'omega'
+    component._read_var_map()
+
+    config = MagicMock()
+    ds = _make_planar_horiz_mesh_ds()
+
+    filename = tmp_path / 'mesh.nc'
+    component.write_horiz_mesh_dataset(ds, str(filename), config)
+
+    ds_out = xr.open_dataset(filename)
+    for var in ['ReconStencilCell', 'NEdgesReconOnCell', 'ReconWeightsCell']:
+        assert var in ds_out
+
+
+def test_write_horiz_mesh_dataset_skips_planar_weights_for_mpas_ocean(
+    tmp_path,
+):
+    """MPAS-Ocean reconstructs vectors itself and has no use for the
+    least-squares weights."""
+    component = Ocean()
+    component.model = 'mpas-ocean'
+    component._read_var_map()
+
+    config = MagicMock()
+    ds = _make_planar_horiz_mesh_ds()
+
+    filename = tmp_path / 'mesh.nc'
+    component.write_horiz_mesh_dataset(ds, str(filename), config)
+
+    ds_out = xr.open_dataset(filename)
+    assert 'reconstructWeightsCell' not in ds_out
+    assert 'ReconWeightsCell' not in ds_out
 
 
 def test_process_inputs_and_outputs_resolves_model_input_filenames(

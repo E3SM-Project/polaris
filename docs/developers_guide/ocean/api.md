@@ -757,6 +757,7 @@
    OceanIOStep.open_vert_coord_dataset
    OceanIOStep.map_to_native_model_vars
    OceanIOStep.write_model_dataset
+   OceanIOStep.write_horiz_mesh_dataset
    OceanIOStep.map_from_native_model_vars
    OceanIOStep.open_model_dataset
 

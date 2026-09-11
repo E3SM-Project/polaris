@@ -88,18 +88,8 @@ class Forward(ConvergenceForward):
             validate_vars=['layerThickness', 'normalVelocity'],
             check_properties=['mass conservation'],
         )
-        self.init = init
         self.del2 = del2
         self.del4 = del4
-
-    def setup(self):
-        super().setup()
-        mesh_name = self.init.path.split('/')[-1]
-        self.add_input_file(
-            target=f'{mesh_name}_coeffs.nc',
-            filename='coeffs.nc',
-            database='manufactured_solution',
-        )
 
     def compute_cell_count(self):
         """

@@ -1,17 +1,17 @@
 import importlib.resources as imp_res
 import os
-from typing import Dict, Literal, Tuple, Union
+from typing import Dict, Tuple, Union
 
 import numpy as np
 import xarray as xr
 from mpas_tools.io import open_dataset, write_netcdf
-from mpas_tools.vector.reconstruct import reconstruct_variable
 from ruamel.yaml import YAML
 
 from polaris import Component
 from polaris.constants import get_constant
 from polaris.mesh.info import is_planar, is_spherical
 from polaris.mesh.reconstruct import (
+    add_reconstruction_weights_to_dataset,
     cartesian_to_local_geographic,
     tangential_reconstruction,
 )
@@ -54,11 +54,6 @@ class Ocean(Component):
     vert_coord_vars : list of str
         Variables that belong in the vertical coordinate file (Omega only)
         rather than the initial condition file
-
-    omega_only_horiz_mesh_vars : list of str
-        Horizontal mesh variables that are specific to Omega (currently
-        just the cell-centered vector-reconstruction fields), read from
-        the ``Omega`` section of variables.yaml
     """
 
     def __init__(self):
@@ -72,7 +67,6 @@ class Ocean(Component):
         self.horiz_mesh_vars: Union[None, list[str]] = None
         self.vert_coord_vars: Union[None, list[str]] = None
         self.state_vars: Union[None, list[str]] = None
-        self.omega_only_horiz_mesh_vars: Union[None, list[str]] = None
 
     def configure(self, config, tasks):
         """
@@ -274,18 +268,21 @@ class Ocean(Component):
         Write a horizontal mesh dataset, validating that all expected mesh
         variables are present.
 
-        For Omega on spherical meshes, the vector-reconstruction stencil
-        and weight fields are merged in from ``reconstruction_weights.nc``
-        in the current working directory, since MPAS-Ocean does not
-        support least-squares vector reconstruction. This file must be
-        added as an input to the step, pointing at whichever mesh ``ds``
-        was built from: the base mesh's ``reconstruction_weights.nc``
-        (from ``polaris.mesh.spherical.SphericalBaseStep``) or, for
-        culled meshes, a culled mesh's
+        Omega has no vector reconstruction of its own, so its mesh file
+        must carry the least-squares stencil and weight fields.  Where
+        they come from depends on the mesh.  A spherical mesh is built by
+        an earlier step, which computes the weights along with it, so
+        they are merged in from ``reconstruction_weights.nc`` in the
+        current working directory.  That file must be added as an input
+        to the step, pointing at whichever mesh ``ds`` was built from:
+        the base mesh's ``reconstruction_weights.nc`` (from
+        ``polaris.mesh.spherical.SphericalBaseStep``) or, for culled
+        meshes, a culled mesh's
         ``culled_{prefix}_reconstruction_weights.nc`` (from
-        ``polaris.tasks.e3sm.init.topo.cull.CullMeshStep``). Planar
-        meshes (``on_a_sphere == 'NO'``) never compute or require these
-        fields.
+        ``polaris.tasks.e3sm.init.topo.cull.CullMeshStep``).  A planar
+        mesh is built and culled in the step that writes it, so there is
+        no earlier step to have computed its weights and they are
+        computed here instead.
 
         Parameters
         ----------
@@ -307,30 +304,24 @@ class Ocean(Component):
 
         spherical = is_spherical(ds)
 
-        if self.model == 'omega' and spherical:
-            recon_filename = 'reconstruction_weights.nc'
-            if not os.path.exists(recon_filename):
-                raise FileNotFoundError(
-                    f'{recon_filename} not found but is required to write '
-                    'the horizontal mesh dataset for Omega. Make sure the '
-                    'base mesh (or culled mesh) step ran with '
-                    'vector-reconstruction weight generation enabled and '
-                    'that its weights file is added as an input to this '
-                    'step, renamed to reconstruction_weights.nc.'
-                )
-            ds_recon = open_dataset(recon_filename)
-            ds = ds.merge(ds_recon)
+        if self.model == 'omega':
+            if spherical:
+                recon_filename = 'reconstruction_weights.nc'
+                if not os.path.exists(recon_filename):
+                    raise FileNotFoundError(
+                        f'{recon_filename} not found but is required to '
+                        'write the horizontal mesh dataset for Omega. Make '
+                        'sure the base mesh (or culled mesh) step ran with '
+                        'vector-reconstruction weight generation enabled '
+                        'and that its weights file is added as an input to '
+                        'this step, renamed to reconstruction_weights.nc.'
+                    )
+                ds_recon = open_dataset(recon_filename)
+                ds = ds.merge(ds_recon)
+            else:
+                ds = add_reconstruction_weights_to_dataset(ds, 'cell')
         ds = self.map_to_native_model_vars(ds)
-        horiz_mesh_vars = self.horiz_mesh_vars
-        if self.model == 'omega' and not spherical:
-            # planar meshes never have reconstruction weights and don't
-            # need them (least-squares vector reconstruction is only used
-            # on spherical meshes)
-            omega_only = self.omega_only_horiz_mesh_vars or []
-            horiz_mesh_vars = [
-                var for var in horiz_mesh_vars if var not in omega_only
-            ]
-        native_vars = self.map_var_list_to_native_model(horiz_mesh_vars)
+        native_vars = self.map_var_list_to_native_model(self.horiz_mesh_vars)
         self._check_vars_present(ds, native_vars, 'write_horiz_mesh_dataset')
         write_netcdf(ds=ds, fileName=filename)
 
@@ -609,8 +600,6 @@ class Ocean(Component):
         mesh_filename=None,
         vert_filename=None,
         reconstruct_variables=None,
-        coeffs_filename=None,
-        reconstruct_method: Literal['RBF', 'LSTSQ'] = 'LSTSQ',
         tracer_convention=None,
         lon=None,
         lat=None,
@@ -631,9 +620,10 @@ class Ocean(Component):
             compute geometric layer thickness from pseudo-thickness.
 
         mesh_filename : str, optional
-            Path to the mesh NetCDF file. Should contain the reconstruction
-            weights if using the LSTSQ reconstruction method.  It is also
-            where the locations needed for a tracer conversion come from.
+            Path to the mesh NetCDF file.  It must contain the least-squares
+            reconstruction weights if anything is to be reconstructed, and it
+            is also where the locations needed for a tracer conversion come
+            from.
 
         reconstruct_variables : list of str, optional
             List of variable names to reconstruct in the dataset.  A variable
@@ -641,14 +631,6 @@ class Ocean(Component):
             (as they are in MPAS-Ocean output, which the model reconstructs
             itself) is skipped, and nothing is reconstructed if that is true
             of all of them.
-
-        coeffs_filename : str, optional
-            Path to the coefficients NetCDF file.
-
-        reconstruct_method : {'RBF', 'LSTSQ'}, optional
-            Method to use for reconstructing vector variables.
-            RBF: Radial Basis Function; approach used in MPAS-Ocean.
-            LSTSQ: Least-squares reconstruction; new approach in Omega
 
         tracer_convention : {'teos-10', 'mpas-ocean'}, optional
             The convention of ``temperature`` and ``salinity`` in the dataset
@@ -774,8 +756,8 @@ class Ocean(Component):
         out_var_names = _vars_to_reconstruct(ds, reconstruct_variables)
         if len(out_var_names) == 0:
             # the model already wrote the zonal and meridional components, as
-            # MPAS-Ocean does with its own RBF reconstruction, so no mesh,
-            # weights or coefficients are needed
+            # MPAS-Ocean does with its own RBF reconstruction, so neither the
+            # mesh nor its weights are needed
             return ds
 
         if mesh_filename is None:
@@ -783,27 +765,15 @@ class Ocean(Component):
                 'mesh_filename must be provided to open_model_dataset '
                 'for variable reconstruction'
             )
-        if reconstruct_method == 'RBF' and coeffs_filename is None:
-            raise ValueError(
-                'coeffs_filename must be provided to open_model_dataset '
-                'for variable reconstruction'
-            )
         ds_mesh = self.open_model_dataset(mesh_filename, config)
-        if (
-            reconstruct_method == 'LSTSQ'
-            and not _reconstruction_weights_in_dataset(ds_mesh)
-        ):
+        if not _reconstruction_weights_in_dataset(ds_mesh):
             raise ValueError(
                 'Reconstruction weights are not present in the mesh '
-                'dataset; cannot reconstruct variables using LSTSQ method'
+                'dataset; cannot reconstruct variables'
             )
 
         ds = _add_reconstructed_variables_to_dataset(
-            ds,
-            out_var_names,
-            ds_mesh,
-            coeffs_filename,
-            reconstruct_method,
+            ds, out_var_names, ds_mesh
         )
         return ds
 
@@ -967,9 +937,6 @@ class Ocean(Component):
         if model_key:
             extra = nested_dict.get(model_key, {}).get(
                 'horiz_mesh_variables', []
-            )
-            self.omega_only_horiz_mesh_vars = (
-                list(extra) if model_key == 'Omega' else []
             )
             self.horiz_mesh_vars.extend(extra)
             extra = nested_dict.get(model_key, {}).get(
@@ -1171,13 +1138,7 @@ def _vars_to_reconstruct(ds, reconstruct_variables):
     return out_var_names
 
 
-def _add_reconstructed_variables_to_dataset(
-    ds,
-    out_var_names,
-    ds_mesh,
-    coeffs_filename,
-    reconstruct_method: Literal['RBF', 'LSTSQ'],
-):
+def _add_reconstructed_variables_to_dataset(ds, out_var_names, ds_mesh):
     """
     Add reconstructed vector variables to the dataset.
 
@@ -1191,66 +1152,34 @@ def _add_reconstructed_variables_to_dataset(
         reconstructed components, as returned by ``_vars_to_reconstruct()``.
 
     ds_mesh : xarray.Dataset
-        Mesh dataset on which to perform the reconstruction.
-
-    coeffs_filename : str
-        Path to the coefficients NetCDF file.
-
-    reconstruct_method : {'RBF', 'LSTSQ'}
-        Method to use for reconstructing vector variables.
+        Mesh dataset on which to perform the reconstruction, including the
+        least-squares reconstruction stencil and weights.
 
     Returns
     -------
     ds : xarray.Dataset
         The dataset with reconstructed variables added.
     """
-    if reconstruct_method == 'RBF':
-        ds_coeff = open_dataset(coeffs_filename)
-        coeffs_reconstruct = ds_coeff.coeffs_reconstruct
-
-        if ds_coeff.sizes['nCells'] != ds_mesh.sizes['nCells']:
-            print(
-                f'The sizes of coefficient dataset do not match mesh dataset;'
-                f' exiting without reconstructing {list(out_var_names)}'
-            )
-            return ds
+    stencil = ds_mesh.reconstructStencilCell
+    weights = ds_mesh.reconstructWeightsCell
 
     for variable, out_var_name in out_var_names.items():
-        if reconstruct_method == 'RBF':
-            reconstruct_variable(
-                out_var_name,
-                ds[variable],
-                ds_mesh,
-                coeffs_reconstruct,
-                ds,
-                quiet=True,
+        u_x, u_y, u_z = tangential_reconstruction(
+            ds_mesh, ds[variable], stencil=stencil, weights=weights
+        )
+        if is_planar(ds_mesh):
+            # on a planar mesh, the x and y axes are the "zonal" and
+            # "meridional" directions, following the convention MPAS-Ocean
+            # uses for its own reconstruction
+            u_zonal = u_x
+            u_merid = u_y
+        else:
+            u_zonal, u_merid, _ = cartesian_to_local_geographic(
+                ds_mesh, u_x, u_y, u_z
             )
 
-        elif reconstruct_method == 'LSTSQ':
-            stencil = ds_mesh.reconstructStencilCell
-            weights = ds_mesh.reconstructWeightsCell
-
-            u_x, u_y, u_z = tangential_reconstruction(
-                ds_mesh, ds[variable], stencil=stencil, weights=weights
-            )
-            if is_planar(ds_mesh):
-                # on a planar mesh, the x and y axes are the "zonal" and
-                # "meridional" directions, as in MPAS-Ocean and in
-                # mpas_tools' reconstruct_variable()
-                u_zonal = u_x
-                u_merid = u_y
-            else:
-                u_zonal, u_merid, _ = cartesian_to_local_geographic(
-                    ds_mesh, u_x, u_y, u_z
-                )
-
-            ds[f'{out_var_name}Zonal'] = u_zonal
-            ds[f'{out_var_name}Meridional'] = u_merid
-
-        if not (
-            f'{out_var_name}Zonal' in ds and f'{out_var_name}Meridional' in ds
-        ):
-            print(f'Failed to reconstruct {out_var_name}')
+        ds[f'{out_var_name}Zonal'] = u_zonal
+        ds[f'{out_var_name}Meridional'] = u_merid
 
     return ds
 

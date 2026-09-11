@@ -27,10 +27,9 @@ Visualizations of the fields themselves can be added in viz steps by appending
 
 These tasks support both MPAS-Ocean and Omega.
 
-The `viz` steps, and therefore the `with_viz` variants of each task, support
-only MPAS-Ocean.  They plot the zonal and meridional components of the
-velocity, which Omega does not yet write out and which Polaris cannot yet
-reconstruct from the normal velocity on edges.
+The `viz` steps plot the zonal and meridional components of the velocity.
+MPAS-Ocean writes those out; for Omega, Polaris reconstructs them from the
+normal velocity on edges.
 
 ## mesh
 

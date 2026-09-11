@@ -588,6 +588,7 @@ def build_reconstruction_weights(
         local_edge_coords = local_edge_coords - get_coordinate_matrix(
             ds, location
         )
+        local_edge_coords = _wrap_planar_separations(ds, local_edge_coords)
 
     # weight the LSTSQ matrix following Renka (1984) pg. 422
     w = compute_lstsq_weights(ds, local_edge_coords, stencil)
@@ -621,6 +622,44 @@ def build_reconstruction_weights(
     weights = rotate_local_to_cartesian(rotation_matrix, weights)
 
     return stencil, weights
+
+
+def _wrap_planar_separations(
+    ds: xr.Dataset, separations: xr.DataArray
+) -> xr.DataArray:
+    """
+    Wrap separations on a periodic planar mesh into the nearest periodic
+    image of the reconstruction point.
+
+    A stencil edge on the far side of a periodic boundary is a whole
+    period away in the mesh's absolute coordinates.  Left that way it
+    lands far outside the reconstruction point's neighborhood, which
+    gives it both the wrong position in the least-squares fit and, since
+    the Renka weight goes as one over the distance, almost no say in it.
+
+    Parameters
+    ----------
+    ds: xr.Dataset
+        MPAS mesh dataset, whose ``x_period`` and ``y_period`` attributes
+        give the periods (zero where the mesh is not periodic)
+
+    separations: xr.DataArray (..., R3)
+        Coordinates relative to the reconstruction point
+
+    Returns
+    -------
+    xr.DataArray
+        The same separations, each wrapped into its nearest image
+    """
+    components = [separations.isel(R3=index) for index in range(3)]
+    for index, name in enumerate(['x_period', 'y_period']):
+        period = float(ds.attrs.get(name, 0.0))
+        if period <= 0.0:
+            continue
+        component = components[index]
+        components[index] = component - period * np.round(component / period)
+
+    return xr.concat(components, dim='R3').transpose(*separations.dims)
 
 
 def tangential_reconstruction(

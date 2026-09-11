@@ -171,6 +171,40 @@ def test_planar_reconstruction_of_uniform_field_is_exact(location):
     np.testing.assert_array_equal(u_z.values, 0.0)
 
 
+def test_planar_reconstruction_wraps_across_a_periodic_boundary():
+    """
+    A stencil edge on the far side of a periodic boundary is a whole period
+    away in the mesh's absolute coordinates.  Unwrapped, it enters the fit
+    at the wrong position and carries almost no Renka weight, so a cell at
+    the seam reconstructs a field that has no cross-flow component with a
+    spurious one of about a percent.
+
+    Every cell of a uniform doubly periodic hex mesh has the same local
+    neighborhood, so reconstructing a field with the domain's own period
+    must give the same error at the seam as in the interior.
+    """
+    ds = periodic_hex_mesh()
+    k_x = 2.0 * np.pi / ds.x_period
+
+    u_x, u_y, _ = reconstruct_planar_field(
+        ds,
+        lambda x, y: np.cos(k_x * x),
+        lambda x, y: 0.0 * x,
+        location='cell',
+    )
+
+    x, y = point_coords(ds, 'cell')
+    error = np.abs(u_x - np.cos(k_x * x))
+    inside = interior_points(ds, margin=3.0 * ds.dc)
+    seam = ~inside
+    assert int(seam.sum()) > 0
+
+    assert float(error.where(seam).max()) < 1.05 * float(
+        error.where(inside).max()
+    )
+    np.testing.assert_allclose(u_y.values, 0.0, atol=1e-12)
+
+
 @pytest.mark.parametrize('location', ['cell', 'vertex'])
 def test_planar_reconstruction_of_linear_field_is_exact(location):
     """

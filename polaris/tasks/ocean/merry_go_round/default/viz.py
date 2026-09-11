@@ -70,13 +70,6 @@ class Viz(OceanIOStep):
             filename='output.nc',
             work_dir_target=f'{forward.path}/output.nc',
         )
-        model = self.config.get('ocean', 'model')
-        # TODO: remove as soon as Omega no longer needs this file
-        if model == 'omega':
-            self.add_input_file(
-                filename='coeffs.nc',
-                work_dir_target=f'{forward.path}/coeffs.nc',
-            )
 
     def run(self):
         """
@@ -110,10 +103,8 @@ class Viz(OceanIOStep):
                 config,
                 mesh_filename='mesh.nc',
                 vert_filename='vert_coord.nc',
-                coeffs_filename='coeffs.nc',
                 decode_times=False,
                 reconstruct_variables=['normalVelocity'],
-                reconstruct_method='RBF',
             )
             x_min = ds_mesh.xVertex.min().values
             x_max = ds_mesh.xVertex.max().values
