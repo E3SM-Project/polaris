@@ -50,7 +50,8 @@ optionally submit the job script.
    ```
    usage: omega_ctest.py [-h] [-o OMEGA_BRANCH] [-c] [-s] [-d]
                       [-p COMPONENT_PATH] [--cmake_flags CMAKE_FLAGS]
-                      [--account ACCOUNT] [--build_only] [--dashboard]
+                      [--account ACCOUNT] [--build_only]
+                      [--build_jobs BUILD_JOBS] [--dashboard]
                       [--cdash_site CDASH_SITE]
                       [--cdash_build_name CDASH_BUILD_NAME]
                       [--cdash_model {Nightly,Experimental,Continuous}]
@@ -80,6 +81,10 @@ optionally submit the job script.
 
    * `--build_only`: build Omega and link the meshes, but do not write or
      submit a job script for the CTests
+
+   * `--build_jobs N`: build with `make -j N` instead of Omega's own
+     `omega_build.sh`, for a host that cannot afford its parallelism (the
+     nightly cron job on Perlmutter runs in one core and 4 GiB)
 
    * `--dashboard`: record the build and the tests with CTest so they can be
      submitted to CDash.  Plain `ctest` writes only a log; the dashboard mode

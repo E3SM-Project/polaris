@@ -54,6 +54,12 @@ def parse_task_args(description):
         help='The site name shown on CDash (default: the machine); a test '
         'run of the nightly jobs should use its own',
     )
+    parser.add_argument(
+        '--build_jobs',
+        type=int,
+        help="Cap the Omega build at make -j BUILD_JOBS (default: Omega's "
+        'own omega_build.sh)',
+    )
     args = parser.parse_args()
     args.cron_root = os.path.abspath(args.cron_root)
     args.machine = os.environ['POLARIS_MACHINE']
@@ -153,6 +159,8 @@ def omega_ctest_command(polaris_root, args, branch, build_name, extra):
     ]
     if args.account is not None:
         command.extend(['--account', args.account])
+    if args.build_jobs is not None:
+        command.extend(['--build_jobs', str(args.build_jobs)])
     command.extend(extra)
     return command
 

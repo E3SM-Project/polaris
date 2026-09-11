@@ -68,13 +68,16 @@ def make_build_script(
     cmake_flags,
     account,
     dashboard=None,
+    build_jobs=None,
 ):
     """
     Make a shell script using the standard Omega builder, then append
     CTest-specific commands (link meshes and optionally run ctests).
 
     With ``dashboard`` set, the build goes through ``ctest_build()`` so that
-    CTest records it under ``Testing/<tag>/`` for CDash.
+    CTest records it under ``Testing/<tag>/`` for CDash.  With ``build_jobs``
+    set, the build is ``make -j <build_jobs>`` rather than Omega's own
+    ``omega_build.sh``, for hosts that cannot afford its parallelism.
     """
 
     if branch is None:
@@ -99,14 +102,18 @@ def make_build_script(
             shutil.rmtree(build_dir)
         os.makedirs(build_dir, exist_ok=True)
 
-        if dashboard is None:
-            build_command = None
+        if build_jobs is None:
+            build_command = './omega_build.sh'
         else:
+            build_command = write_build_jobs_script(build_dir, build_jobs)
+
+        if dashboard is not None:
             build_command = dashboard_ctest_command(
                 stage='build',
                 branch=branch,
                 build_dir=build_dir,
                 dashboard=dashboard,
+                build_command=build_command,
             )
 
         base_script = make_base_build_script(
@@ -208,7 +215,26 @@ def download_meshes(config):
     return download_targets
 
 
-def dashboard_ctest_command(stage, branch, build_dir, dashboard):
+def write_build_jobs_script(build_dir, build_jobs):
+    """
+    Write a stand-in for Omega's ``omega_build.sh`` that builds with
+    ``make -j build_jobs``, and return its name relative to ``build_dir``.
+    """
+    name = 'omega_build_jobs.sh'
+    filename = os.path.join(build_dir, name)
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(
+            '#!/usr/bin/env bash\n\n'
+            'source ./omega_env.sh\n\n'
+            f'make -j {build_jobs}\n'
+        )
+    os.chmod(filename, 0o755)
+    return f'./{name}'
+
+
+def dashboard_ctest_command(
+    stage, branch, build_dir, dashboard, build_command='./omega_build.sh'
+):
     """
     The ``ctest -S`` command that runs one stage of the dashboard script.
 
@@ -226,6 +252,9 @@ def dashboard_ctest_command(stage, branch, build_dir, dashboard):
 
     dashboard : DashboardOptions
         The CDash options
+
+    build_command : str, optional
+        The build command for the build stage, run from ``build_dir``
 
     Returns
     -------
@@ -254,7 +283,7 @@ def dashboard_ctest_command(stage, branch, build_dir, dashboard):
         f'-DCTEST_SUBMIT_URL="{dashboard.submit_url}"',
     ]
     if stage == 'build':
-        parts.append('-DCTEST_BUILD_COMMAND=./omega_build.sh')
+        parts.append(f'-DCTEST_BUILD_COMMAND={build_command}')
     if stage == 'test':
         submit = 'ON' if dashboard.submit else 'OFF'
         parts.append(f'-DSUBMIT={submit}')
@@ -372,6 +401,13 @@ def main():
         help='Build Omega but do not write or submit a job to run ctests',
     )
     parser.add_argument(
+        '--build_jobs',
+        dest='build_jobs',
+        type=int,
+        help="Build with make -j BUILD_JOBS instead of Omega's own "
+        'omega_build.sh, for hosts that cannot afford its parallelism',
+    )
+    parser.add_argument(
         '--dashboard',
         dest='dashboard',
         action='store_true',
@@ -482,6 +518,7 @@ def main():
         cmake_flags=cmake_flags,
         account=account,
         dashboard=dashboard,
+        build_jobs=args.build_jobs,
     )
 
     # clear environment variables and start fresh with those from login
