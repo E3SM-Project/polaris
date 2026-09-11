@@ -75,8 +75,9 @@ From any checkout of Polaris:
 ```
 
 This clones Polaris to `<cron root>/polaris` if it is not there and installs
-the crontab entry from `driver/crontab.template` between marker lines, so
-running it again replaces only that entry.  `--dry-run` shows the crontab
+the crontab entry from `driver/crontab.template` between marker lines that
+name the machine, so running it again replaces only that machine's entry and
+leaves any other machine's alone (pm-cpu and pm-gpu share one scrontab).  `--dry-run` shows the crontab
 without installing it.  `--mailto` sets where failures are mailed,
 `--remote` and `--branch` what the clone tracks; the defaults are
 `E3SM-Project/polaris` `main`.

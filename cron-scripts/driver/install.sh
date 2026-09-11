@@ -6,9 +6,10 @@
 #   install.sh -m MACHINE --cron-root PATH [options]
 #
 # The entry is rendered from crontab.template, or scrontab.template on
-# machines whose cron config says scheduler = scrontab, and kept between BEGIN/END
-# marker lines, so reinstalling replaces only that block and leaves the rest
-# of the user's crontab alone.
+# machines whose cron config says scheduler = scrontab, and kept between
+# BEGIN/END marker lines that name the machine, so reinstalling replaces only
+# that machine's block and leaves the rest of the user's crontab alone,
+# including the blocks for other machines that share it (pm-cpu and pm-gpu).
 
 set -eo pipefail
 
@@ -148,15 +149,20 @@ block="$(sed \
     -e "s|@MACHINE@|${machine}|g" \
     "${template}")"
 
-# the existing crontab, with any earlier managed block removed
-existing="$("${scheduler}" -l 2>/dev/null || true)"
+# the existing crontab, with any earlier managed block for this machine
+# removed.  scrontab -l reports an empty crontab on stdout and exits 0, so
+# that line has to be dropped rather than installed.
+existing="$("${scheduler}" -l 2>/dev/null | grep -v '^no crontab for ' || true)"
 kept="$(printf '%s\n' "${existing}" |
-    sed "/^${begin_marker}/,/^${end_marker}/d")"
+    sed "/^${begin_marker} ${machine}\( \|$\)/,/^${end_marker} ${machine}$/d")"
 
-if printf '%s\n' "${kept}" | grep -q -E 'cronjob|launch_all'; then
+# Polaris entries outside any managed block, other machines' blocks included
+unmanaged="$(printf '%s\n' "${kept}" |
+    sed "/^${begin_marker}/,/^${end_marker}/d")"
+if printf '%s\n' "${unmanaged}" | grep -q -E 'cronjob|launch_all'; then
     echo "The existing crontab has Polaris cron entries outside the" \
         "managed block:" >&2
-    printf '%s\n' "${kept}" | grep -E 'cronjob|launch_all' >&2
+    printf '%s\n' "${unmanaged}" | grep -E 'cronjob|launch_all' >&2
     if [[ "${force}" != true ]]; then
         echo "Remove them, or pass --force to install alongside them." >&2
         exit 1
