@@ -49,6 +49,11 @@ main() {
     # shellcheck disable=SC1090
     source "${here}/machines/${machine}.sh"
 
+    # under scrontab this is itself a Slurm job, and what it exports would
+    # be inherited by every sbatch below (SLURM_MEM_PER_CPU makes srun refuse
+    # a full node) and make omega_ctest.py think it is on a compute node
+    unset "${!SLURM_@}"
+
     # the lock is inherited by nightly.py through the exec and released
     # when it exits
     exec 9>"${POLARIS_CRON_ROOT}/.launch_all.lock"
