@@ -317,7 +317,8 @@ model writes non-compliant metadata.
 To opt in, call {py:meth}`polaris.Step.add_cf_check()` with each file to
 check.  A glob pattern stands for a series of files with the same metadata,
 such as a time series from one output stream, so only its first match is
-checked:
+checked, and a pattern with no match is skipped as a series that never
+started (a restart stream whose interval is longer than the run):
 
 ```python
 self.add_cf_check('output.nc')

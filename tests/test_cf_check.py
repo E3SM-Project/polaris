@@ -100,12 +100,15 @@ def _noncompliant(path):
     )
 
 
-def test_resolve_keeps_explicit_files_and_missing_patterns(tmp_path):
+def test_resolve_keeps_explicit_files_and_skips_unmatched_patterns(
+    tmp_path,
+):
     (tmp_path / 'output.nc').touch()
     filenames = resolve_cf_check_files(
-        ['output.nc', 'restarts/rst.*.nc', 'output.nc'], str(tmp_path)
+        ['output.nc', 'missing.nc', 'restarts/rst.*.nc', 'output.nc'],
+        str(tmp_path),
     )
-    assert filenames == ['output.nc', 'restarts/rst.*.nc']
+    assert filenames == ['output.nc', 'missing.nc']
 
 
 def test_resolve_checks_only_the_first_file_of_a_series(tmp_path):

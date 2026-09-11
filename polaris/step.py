@@ -1087,7 +1087,8 @@ class Step:
             The relative path of the file within the step's work directory.
             A glob pattern stands for a series of files with the same
             metadata (a time series from one output stream), so only its
-            first match is checked.  With no filename, the step is only
+            first match is checked, and a pattern with no match is skipped
+            as a series that never started.  With no filename, the step is only
             opted into the check, for subclasses that find their output
             files at run time and add them in :py:meth:`check_cf()`.
         """
