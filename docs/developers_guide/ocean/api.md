@@ -553,11 +553,16 @@
 
    add_seamount_tasks
 
+   analysis.Analysis
+   analysis.Analysis.run
+
    default.Default
+   default.Default.configure
 
    forward.Forward
    forward.Forward.dynamic_model_config
    forward.Forward.compute_cell_count
+   forward.forward_step_name
 
    init.Init
    init.Init.setup
@@ -565,6 +570,7 @@
 
    init_utils.compute_target_density
    init_utils.compute_tracers
+   init_utils.compute_tracers_linear_in_pressure
 
    short.Short
 
