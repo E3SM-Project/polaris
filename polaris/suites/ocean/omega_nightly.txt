@@ -5,6 +5,7 @@ ocean/column/horiz_press_grad/ztilde_gradient
 ocean/planar/baroclinic_channel/10km/decomp
 ocean/planar/baroclinic_channel/10km/restart
 ocean/planar/baroclinic_channel/10km/threads
+ocean/planar/barotropic_channel/short
 ocean/planar/barotropic_gyre/munk/free-slip
 ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2
@@ -23,6 +24,3 @@ ocean/spherical/icos/divergent_2d
 ocean/spherical/icos/nondivergent_2d
 ocean/spherical/icos/rotation_2d
 ocean/spherical/qu/rotation_2d
-
-# Supported but fails
-#ocean/planar/barotropic_channel/default
