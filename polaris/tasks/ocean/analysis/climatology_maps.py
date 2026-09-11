@@ -295,7 +295,6 @@ class ClimatologyMaps(AnalysisStep):
                 min_level_cell=min_level_cell,
                 max_level_cell=max_level_cell,
             )
-            da_map.attrs = dict(da.attrs)
             descriptor = self._plot_map(
                 da_map=da_map,
                 field=field,
