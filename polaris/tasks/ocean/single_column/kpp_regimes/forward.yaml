@@ -1,0 +1,181 @@
+ocean:
+  hmix_del2:
+    config_use_mom_del2: false
+    config_use_tracer_del2: false
+  hmix_del4:
+    config_use_mom_del4: false
+    config_use_tracer_del4: false
+  cvmix:
+    config_cvmix_background_diffusion: 1.e-5
+    config_cvmix_background_viscosity: 1.e-4
+    config_cvmix_num_ri_smooth_loops: 2
+  eos:
+    config_eos_type: linear
+  eos_linear:
+    config_eos_linear_alpha: 0.2
+    config_eos_linear_beta: 0.01
+    # 1000.0 + 0.2 * 5 - 0.01 * 35
+    config_eos_linear_densityref: 1000.65
+  forcing:
+    config_use_bulk_wind_stress: true
+  debug:
+    config_disable_vel_explicit_bottom_drag: true
+    config_disable_tr_adv: false
+    config_disable_vel_pgrad: true
+  tracer_forcing_activeTracers:
+    config_salinity_restoring_constant_piston_velocity: 1.585e-5
+
+mpas-ocean:
+  frazil_ice:
+    config_use_frazil_ice_formation: false
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_surface_bulk_forcing: true
+    config_use_activeTracers_surface_restoring: false
+    config_use_activeTracers_interior_restoring: false
+  cvmix:
+    config_use_cvmix_kpp: true
+    config_cvmix_background_scheme: constant
+    config_cvmix_shear_mixing_scheme: KPP
+    config_cvmix_kpp_langmuir_mixing_opt: LWF16
+    # quadratic (the model default) can produce a discontinuous OBL-depth
+    # jump at the first Richardson-number crossing in this configuration;
+    # linear interpolation is an equally valid, more robust alternative
+    config_cvmix_kpp_interpolationOMLType: linear
+  debug:
+    config_disable_vel_vmix: false
+    config_disable_tr_vmix: false
+    config_disable_vel_hadv: true
+    # Coriolis (unlike vmix, which uses constant mixing) must stay enabled
+    # here: real KPP + wind stress with no Coriolis/pgrad/advection to
+    # balance it accelerates without bound and blows up (NaN in
+    # normalVelocity within ~40 min, confirmed via block stats).
+    config_disable_vel_coriolis: false
+  streams:
+    forcing_data:
+      type: input
+      filename_template: forcing.nc
+      input_interval: initial_only
+      contents:
+      - tracersSurfaceRestoringFields
+      - tracersInteriorRestoringFields
+      - tracersExponentialDecayFields
+      - tracersIdealAgeFields
+      - tracersTTDFields
+      - windStressZonal
+      - windStressMeridional
+      - windSpeed10m
+      - iceFraction
+      - landIceSurfaceTemperature
+      - atmosphericPressure
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - evaporationFlux
+      - rainFlux
+      - seaIceFreshWaterFlux
+      - icebergFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
+    KPP_testing: {}
+    mixedLayerDepthsOutput:
+      type: output
+      contents:
+      - xtime
+      - dThreshMLD
+      - tThreshMLD
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - zMid
+      - zTop
+      - normalVelocity
+      - velocityZonal
+      - velocityMeridional
+      - layerThickness
+      - kineticEnergyCell
+      - relativeVorticityCell
+      - accumulatedFrazilIceMass
+      - accumulatedFrazilIceSalinity
+      - frazilLayerThicknessTendency
+      - frazilTemperatureTendency
+      - frazilSalinityTendency
+      - vertNonLocalFlux
+      - bulkRichardsonNumber
+      - bulkRichardsonNumberBuoy
+      - potentialDensity
+      - unresolvedShear
+      - boundaryLayerDepth
+      - surfaceFrictionVelocity
+      - surfaceBuoyancyForcing
+      - transportVelocityZonal
+      - transportVelocityMeridional
+      - RiTopOfCell
+      - BruntVaisalaFreqTop
+      - vertViscTopOfCell
+      - vertDiffTopOfCell
+      - windSpeed10m
+      - iceFraction
+      - langmuirNumber
+      # needed so conservation property checks can integrate the applied
+      # surface heat/mass fluxes (compute_flux_forcing treats a missing
+      # flux field as zero forcing)
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - longWaveHeatFluxUp
+      - longWaveHeatFluxDown
+      - seaIceHeatFlux
+      - evaporationFlux
+      - rainFlux
+      - snowFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
+      - seaIceFreshWaterFlux
+      - seaIceSalinityFlux
+
+Omega:
+  # This is needed for consistency with MPAS-O
+  SurfaceRestoring:
+    TracersToRestore: [Salinity]
+  # Default.yml disables these; without them SurfaceBuoyancyFlux stays zero
+  # regardless of heat/salt forcing in forcing.nc
+  Tendencies:
+    SfcThicknessForcingTendencyEnable: true
+    SfcTracerForcingTendencyEnable: true
+  IOStreams:
+    History:
+      Filename: output.nc
+      Freq: 1
+      FreqUnits: Hours
+      IfExists: append
+      FileFreq: 1
+      FileFreqUnits: hours
+      Contents:
+      - AuxiliaryState
+      - State
+      - GeomZMid
+      - Tracers
+      - SshCell
+      - Eos
+      - KPPMix
+      - VertMix
+      # needed so conservation property checks can integrate the applied
+      # surface heat/salt fluxes (compute_flux_forcing treats missing
+      # flux fields as zero forcing)
+      - Forcing
+    Forcing:
+      UsePointerFile: false
+      Filename: forcing.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - Forcing
