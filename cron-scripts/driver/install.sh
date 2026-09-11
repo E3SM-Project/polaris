@@ -153,10 +153,10 @@ existing="$("${scheduler}" -l 2>/dev/null || true)"
 kept="$(printf '%s\n' "${existing}" |
     sed "/^${begin_marker}/,/^${end_marker}/d")"
 
-if printf '%s\n' "${kept}" | grep -q -E 'cronjob\.sh|launch_all\.sh'; then
+if printf '%s\n' "${kept}" | grep -q -E 'cronjob|launch_all'; then
     echo "The existing crontab has Polaris cron entries outside the" \
         "managed block:" >&2
-    printf '%s\n' "${kept}" | grep -E 'cronjob\.sh|launch_all\.sh' >&2
+    printf '%s\n' "${kept}" | grep -E 'cronjob|launch_all' >&2
     if [[ "${force}" != true ]]; then
         echo "Remove them, or pass --force to install alongside them." >&2
         exit 1
