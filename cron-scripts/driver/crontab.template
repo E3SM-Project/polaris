@@ -1,0 +1,7 @@
+# BEGIN polaris cron-scripts (installed by cron-scripts/driver/install.sh)
+MAILTO=@MAILTO@
+POLARIS_CRON_ROOT=@CRON_ROOT@
+POLARIS_CRON_REMOTE=@REMOTE@
+POLARIS_CRON_BRANCH=@BRANCH@
+0 1 * * * bash "$POLARIS_CRON_ROOT/polaris/cron-scripts/driver/cronjob.sh" -m @MACHINE@
+# END polaris cron-scripts
