@@ -29,7 +29,7 @@ def parse_task_args(description):
     Returns
     -------
     args : argparse.Namespace
-        With ``cron_root``, ``arch``, ``account`` and ``model``, plus
+        With ``cron_root``, ``account``, ``model`` and ``site``, plus
         ``machine``, ``compiler`` and ``polaris_root`` from the environment
     """
     parser = argparse.ArgumentParser(description=description)
@@ -37,11 +37,6 @@ def parse_task_args(description):
         '--cron_root',
         required=True,
         help='The directory the nightly jobs work in',
-    )
-    parser.add_argument(
-        '--arch',
-        required=True,
-        help='The Omega architecture to build (OMEGA_ARCH)',
     )
     parser.add_argument(
         '--account',
@@ -155,8 +150,6 @@ def omega_ctest_command(polaris_root, args, branch, build_name, extra):
         build_name,
         '--cdash_model',
         args.model,
-        '--cmake_flags',
-        f'-DOMEGA_ARCH={args.arch}',
     ]
     if args.account is not None:
         command.extend(['--account', args.account])

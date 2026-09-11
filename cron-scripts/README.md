@@ -25,7 +25,7 @@ cron-scripts/
 ├── launch_all.sh           # machine environment, lock, then nightly.py
 ├── nightly.py              # deploy and run the tasks for each compiler
 ├── machines/
-│   ├── <machine>.cfg       # the compilers and Omega architectures to test
+│   ├── <machine>.cfg       # the compilers to test
 │   └── <machine>.sh        # the shell environment cron lacks
 └── tasks/
     ├── omega_cdash.py
@@ -90,10 +90,11 @@ that comes from the load script `deploy.py` writes.
 
 1. Make sure the machine is set up for Polaris and Omega (see the
    [Developer's Guide](https://docs.e3sm.org/polaris/main/developers_guide/machines/index.html)).
-2. Add `machines/<machine>.cfg` listing each compiler to test and the
-   `OMEGA_ARCH` to build with it.  The tasks check the compilers against
-   `docs/developers_guide/supported_machines.yaml` and refuse ones it does
-   not list for Omega on that machine.
+2. Add `machines/<machine>.cfg` listing the compilers to test.  The tasks
+   check them against `docs/developers_guide/supported_machines.yaml` and
+   refuse ones it does not list for Omega on that machine.  Omega picks the
+   architecture from the compiler, as it does for every other Polaris
+   build, so the nightly tests what developers build.
 3. Add `machines/<machine>.sh` with the module loads and paths cron needs.
 4. Run `install.sh` as above.
 
@@ -113,7 +114,7 @@ does:
 ```bash
 source load_polaris_chrysalis_intel_openmpi.sh
 python cron-scripts/tasks/omega_cdash.py \
-    --cron_root /path/to/cron_root --arch SERIAL --model Experimental
+    --cron_root /path/to/cron_root --model Experimental
 ```
 
 `--model Experimental` keeps a hand run out of the nightly groups on CDash.

@@ -60,7 +60,7 @@ def main():
 
     tasks = _list(config.get('cron', 'tasks'))
     account = config.get('cron', 'account', fallback=None)
-    compilers = dict(config.items('compilers'))
+    compilers = _list(config.get('cron', 'compilers'))
 
     log = Log(os.path.join(log_dir, 'nightly.log'))
     log.write(f'python {sys.version.split()[0]} at {sys.executable}')
@@ -69,7 +69,7 @@ def main():
     log.write(f'PIXI_CACHE_DIR {os.environ["PIXI_CACHE_DIR"]}')
 
     failures = []
-    for index, (compiler, arch) in enumerate(compilers.items()):
+    for index, compiler in enumerate(compilers):
         # one fresh environment per night; later compilers update it
         deploy = ['./deploy.py', '--machine', machine, '--compiler', compiler]
         if index == 0:
@@ -92,7 +92,7 @@ def main():
             task_script = os.path.join(HERE, 'tasks', f'{task}.py')
             command = (
                 f'source "{load_script}" && python "{task_script}" '
-                f'--cron_root "{cron_root}" --arch {arch}'
+                f'--cron_root "{cron_root}"'
             )
             if account is not None:
                 command = f'{command} --account {account}'
