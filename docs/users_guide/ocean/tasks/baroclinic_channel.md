@@ -13,6 +13,13 @@ model, and some variation on `forward` (given another name in many test cases
 to distinguish multiple forward runs), which performs time integration of the
 model.
 
+The tasks use the split-explicit time stepper.  So that the two time steppers
+can be run side by side, the `decomp`, `restart` and `threads` tests are also
+available at 10 km under `ocean/planar/baroclinic_channel/split_explicit`,
+identical to those under `ocean/planar/baroclinic_channel/10km`, and under
+`ocean/planar/baroclinic_channel/rk4` with the RK4 time stepper, whose stages
+and halo exchanges differ from those of the split-explicit stepper.
+
 ## suppported models
 
 These tasks support both Omega and MPAS-Ocean.
@@ -203,6 +210,20 @@ output_interval = 2
 output_interval_units = hours
 ```
 
+The tasks under `ocean/planar/baroclinic_channel/rk4` also read these
+overrides, which switch to RK4 and the shorter time step it needs:
+
+```cfg
+# Overrides for the baroclinic channel tasks that use the RK4 time stepper
+[baroclinic_channel]
+
+# Time integration scheme
+time_integrator = RK4
+
+# time step per resolution (s/km), shorter since RK4 is unsplit
+dt_per_km = 5.0
+```
+
 ## default
 
 ### description
@@ -247,10 +268,13 @@ The number of processors is hard-coded to be 4 for this case.
 
 ### description
 
-`ocean/baroclinic_channel/10km/decomp` runs a short (15 min) integration
-of the model forward in time on 4 (`4proc` step) and then on 8 processors
-(`8proc` step) to make sure the resulting prognostic variables are
+`ocean/planar/baroclinic_channel/10km/decomp` runs a short (3 time step)
+integration of the model forward in time on 4 (`4proc` step) and then on 8
+processors (`8proc` step) to make sure the resulting prognostic variables are
 bit-for-bit identical between the two runs.
+`ocean/planar/baroclinic_channel/split_explicit/10km/decomp` is the same test,
+and `ocean/planar/baroclinic_channel/rk4/10km/decomp` repeats it with the RK4
+time stepper.
 
 ### mesh
 
@@ -287,10 +311,13 @@ step.
 
 ### description
 
-`ocean/baroclinic_channel/10km/threads` runs a short (15 min) integration
-of the model forward in time on 1 threads per processor (`1thread` step) and
-then on 2 threads (`2thread` step) to make sure the resulting prognostic
-variables are bit-for-bit identical between the two runs.
+`ocean/planar/baroclinic_channel/10km/threads` runs a short (3 time step)
+integration of the model forward in time on 1 thread per processor (`1thread`
+step) and then on 2 threads (`2thread` step) to make sure the resulting
+prognostic variables are bit-for-bit identical between the two runs.
+`ocean/planar/baroclinic_channel/split_explicit/10km/threads` is the same test,
+and `ocean/planar/baroclinic_channel/rk4/10km/threads` repeats it with the RK4
+time stepper.
 
 ### mesh
 
@@ -327,12 +354,15 @@ per processor and the `2thread` step is run on 2 threads per processor.
 
 ### description
 
-`ocean/baroclinic_channel/10km/restart` runs a short (10 min)
+`ocean/planar/baroclinic_channel/10km/restart` runs a short (2 time step)
 integration of the model forward in time (`full_run` step), saving a restart
-file every 5 minutes.  Then, a second run (`restart_run` step) is performed
-from the restart file 5 minutes into the simulation and prognostic variables
-are compared between the "full" and "restart" runs at minute 10 to make sure
-they are bit-for-bit identical.
+file after every time step.  Then, a second run (`restart_run` step) is
+performed from the restart file one time step into the simulation and
+prognostic variables are compared between the "full" and "restart" runs at
+the end of the second time step to make sure they are bit-for-bit identical.
+`ocean/planar/baroclinic_channel/split_explicit/10km/restart` is the same test,
+and `ocean/planar/baroclinic_channel/rk4/10km/restart` repeats it with the RK4
+time stepper.
 
 ### mesh
 
