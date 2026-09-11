@@ -2,7 +2,7 @@ import os
 
 import matplotlib.pyplot as plt
 
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.tasks.ocean.single_column.kpp_regimes.analysis import (
     f11_boundary_layer_depth,
     initial_n_squared,
@@ -78,7 +78,7 @@ class KPPViz(OceanIOStep):
         for comparison_name, ds in datasets.items():
             if 'boundaryLayerDepth' not in ds:
                 continue
-            time_days = get_days_since_start(ds)
+            time_days = get_time_since_start(ds, units='days')
             bld = ds['boundaryLayerDepth'].mean(dim='nCells')
             ax.plot(time_days, bld, label=comparison_name)
             plotted = True
@@ -105,7 +105,7 @@ class KPPViz(OceanIOStep):
                 None,
             )
             if flux_name is not None:
-                time_days = get_days_since_start(ds)
+                time_days = get_time_since_start(ds, units='days')
                 f11_bld = f11_boundary_layer_depth(
                     time_days,
                     -float(ds[flux_name].min().values),
@@ -144,7 +144,7 @@ class KPPViz(OceanIOStep):
             vertical_dim = profile.dims[-1]
             if vertical_dim != z_mid.dims[-1]:
                 profile = profile.isel({vertical_dim: slice(0, -1)})
-            time_days = get_days_since_start(ds)
+            time_days = get_time_since_start(ds, units='days')
             if profile.shape[-1] != z_mid.shape[-1]:
                 continue
 
