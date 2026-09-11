@@ -180,10 +180,9 @@ velocity as functions of the mesh resolution:</p>
 <section id="suppported-models">
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support both MPAS-Ocean and Omega.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> steps, and therefore the <code class="docutils literal notranslate"><span class="pre">with_viz</span></code> variants of each task, support
-only MPAS-Ocean.  They plot the zonal and meridional components of the
-velocity, which Omega does not yet write out and which Polaris cannot yet
-reconstruct from the normal velocity on edges.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">viz</span></code> steps plot the zonal and meridional components of the velocity.
+MPAS-Ocean writes those out; for Omega, Polaris reconstructs them from the
+normal velocity on edges.</p>
 </section>
 <section id="mesh">
 <h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>

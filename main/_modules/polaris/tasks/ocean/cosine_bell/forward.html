@@ -189,25 +189,8 @@
             <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
             <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">do_restart</span> <span class="o">=</span> <span class="n">do_restart</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_path</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">path</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_mesh_filepath</span>
-
-        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
-            <span class="n">component</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">parse_mesh_filepath</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">mesh_path</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
-                <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">_coeffs.nc'</span><span class="p">,</span>
-                <span class="n">database_component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-                <span class="n">database</span><span class="o">=</span><span class="n">database</span><span class="p">,</span>
-            <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_restart</span> <span class="o">=</span> <span class="n">do_restart</span></div>
+</div>
 
 </pre></div>
 

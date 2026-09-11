@@ -65,7 +65,6 @@
       ~Forward.min_cores
       ~Forward.min_gpus
       ~Forward.component
-      ~Forward.write_coeffs_reconstruct
       ~Forward.config
       ~Forward.input_data
       ~Forward.logger

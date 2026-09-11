@@ -112,18 +112,18 @@
   <h1>Source code for polaris.tasks.ocean</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_dataset</span><span class="p">,</span> <span class="n">write_netcdf</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.vector.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="n">reconstruct_variable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.info</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_planar</span><span class="p">,</span> <span class="n">is_spherical</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">add_reconstruction_weights_to_dataset</span><span class="p">,</span>
     <span class="n">cartesian_to_local_geographic</span><span class="p">,</span>
     <span class="n">tangential_reconstruction</span><span class="p">,</span>
 <span class="p">)</span>
@@ -168,11 +168,6 @@
 <span class="sd">    vert_coord_vars : list of str</span>
 <span class="sd">        Variables that belong in the vertical coordinate file (Omega only)</span>
 <span class="sd">        rather than the initial condition file</span>
-
-<span class="sd">    omega_only_horiz_mesh_vars : list of str</span>
-<span class="sd">        Horizontal mesh variables that are specific to Omega (currently</span>
-<span class="sd">        just the cell-centered vector-reconstruction fields), read from</span>
-<span class="sd">        the ``Omega`` section of variables.yaml</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Ocean.__init__">
@@ -187,8 +182,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mpaso_to_omega_var_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vert_coord_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omega_only_horiz_mesh_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_vars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
@@ -400,18 +394,21 @@
 <span class="sd">        Write a horizontal mesh dataset, validating that all expected mesh</span>
 <span class="sd">        variables are present.</span>
 
-<span class="sd">        For Omega on spherical meshes, the vector-reconstruction stencil</span>
-<span class="sd">        and weight fields are merged in from ``reconstruction_weights.nc``</span>
-<span class="sd">        in the current working directory, since MPAS-Ocean does not</span>
-<span class="sd">        support least-squares vector reconstruction. This file must be</span>
-<span class="sd">        added as an input to the step, pointing at whichever mesh ``ds``</span>
-<span class="sd">        was built from: the base mesh's ``reconstruction_weights.nc``</span>
-<span class="sd">        (from ``polaris.mesh.spherical.SphericalBaseStep``) or, for</span>
-<span class="sd">        culled meshes, a culled mesh's</span>
+<span class="sd">        Omega has no vector reconstruction of its own, so its mesh file</span>
+<span class="sd">        must carry the least-squares stencil and weight fields.  Where</span>
+<span class="sd">        they come from depends on the mesh.  A spherical mesh is built by</span>
+<span class="sd">        an earlier step, which computes the weights along with it, so</span>
+<span class="sd">        they are merged in from ``reconstruction_weights.nc`` in the</span>
+<span class="sd">        current working directory.  That file must be added as an input</span>
+<span class="sd">        to the step, pointing at whichever mesh ``ds`` was built from:</span>
+<span class="sd">        the base mesh's ``reconstruction_weights.nc`` (from</span>
+<span class="sd">        ``polaris.mesh.spherical.SphericalBaseStep``) or, for culled</span>
+<span class="sd">        meshes, a culled mesh's</span>
 <span class="sd">        ``culled_{prefix}_reconstruction_weights.nc`` (from</span>
-<span class="sd">        ``polaris.tasks.e3sm.init.topo.cull.CullMeshStep``). Planar</span>
-<span class="sd">        meshes (``on_a_sphere == 'NO'``) never compute or require these</span>
-<span class="sd">        fields.</span>
+<span class="sd">        ``polaris.tasks.e3sm.init.topo.cull.CullMeshStep``).  A planar</span>
+<span class="sd">        mesh is built and culled in the step that writes it, so there is</span>
+<span class="sd">        no earlier step to have computed its weights and they are</span>
+<span class="sd">        computed here instead.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -433,30 +430,24 @@
 
         <span class="n">spherical</span> <span class="o">=</span> <span class="n">is_spherical</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="n">spherical</span><span class="p">:</span>
-            <span class="n">recon_filename</span> <span class="o">=</span> <span class="s1">'reconstruction_weights.nc'</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">recon_filename</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">recon_filename</span><span class="si">}</span><span class="s1"> not found but is required to write '</span>
-                    <span class="s1">'the horizontal mesh dataset for Omega. Make sure the '</span>
-                    <span class="s1">'base mesh (or culled mesh) step ran with '</span>
-                    <span class="s1">'vector-reconstruction weight generation enabled and '</span>
-                    <span class="s1">'that its weights file is added as an input to this '</span>
-                    <span class="s1">'step, renamed to reconstruction_weights.nc.'</span>
-                <span class="p">)</span>
-            <span class="n">ds_recon</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">recon_filename</span><span class="p">)</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ds_recon</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">spherical</span><span class="p">:</span>
+                <span class="n">recon_filename</span> <span class="o">=</span> <span class="s1">'reconstruction_weights.nc'</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">recon_filename</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">recon_filename</span><span class="si">}</span><span class="s1"> not found but is required to '</span>
+                        <span class="s1">'write the horizontal mesh dataset for Omega. Make '</span>
+                        <span class="s1">'sure the base mesh (or culled mesh) step ran with '</span>
+                        <span class="s1">'vector-reconstruction weight generation enabled '</span>
+                        <span class="s1">'and that its weights file is added as an input to '</span>
+                        <span class="s1">'this step, renamed to reconstruction_weights.nc.'</span>
+                    <span class="p">)</span>
+                <span class="n">ds_recon</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">recon_filename</span><span class="p">)</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ds_recon</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">add_reconstruction_weights_to_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'cell'</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_to_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-        <span class="n">horiz_mesh_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">spherical</span><span class="p">:</span>
-            <span class="c1"># planar meshes never have reconstruction weights and don't</span>
-            <span class="c1"># need them (least-squares vector reconstruction is only used</span>
-            <span class="c1"># on spherical meshes)</span>
-            <span class="n">omega_only</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_only_horiz_mesh_vars</span> <span class="ow">or</span> <span class="p">[]</span>
-            <span class="n">horiz_mesh_vars</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">horiz_mesh_vars</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">omega_only</span>
-            <span class="p">]</span>
-        <span class="n">native_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="n">horiz_mesh_vars</span><span class="p">)</span>
+        <span class="n">native_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_var_list_to_native_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_vars_present</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">native_vars</span><span class="p">,</span> <span class="s1">'write_horiz_mesh_dataset'</span><span class="p">)</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
 
@@ -743,8 +734,6 @@
         <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">vert_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">reconstruct_variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">coeffs_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">reconstruct_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'RBF'</span><span class="p">,</span> <span class="s1">'LSTSQ'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'LSTSQ'</span><span class="p">,</span>
         <span class="n">tracer_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -765,9 +754,10 @@
 <span class="sd">            compute geometric layer thickness from pseudo-thickness.</span>
 
 <span class="sd">        mesh_filename : str, optional</span>
-<span class="sd">            Path to the mesh NetCDF file. Should contain the reconstruction</span>
-<span class="sd">            weights if using the LSTSQ reconstruction method.  It is also</span>
-<span class="sd">            where the locations needed for a tracer conversion come from.</span>
+<span class="sd">            Path to the mesh NetCDF file.  It must contain the least-squares</span>
+<span class="sd">            reconstruction weights if anything is to be reconstructed, and it</span>
+<span class="sd">            is also where the locations needed for a tracer conversion come</span>
+<span class="sd">            from.</span>
 
 <span class="sd">        reconstruct_variables : list of str, optional</span>
 <span class="sd">            List of variable names to reconstruct in the dataset.  A variable</span>
@@ -775,14 +765,6 @@
 <span class="sd">            (as they are in MPAS-Ocean output, which the model reconstructs</span>
 <span class="sd">            itself) is skipped, and nothing is reconstructed if that is true</span>
 <span class="sd">            of all of them.</span>
-
-<span class="sd">        coeffs_filename : str, optional</span>
-<span class="sd">            Path to the coefficients NetCDF file.</span>
-
-<span class="sd">        reconstruct_method : {'RBF', 'LSTSQ'}, optional</span>
-<span class="sd">            Method to use for reconstructing vector variables.</span>
-<span class="sd">            RBF: Radial Basis Function; approach used in MPAS-Ocean.</span>
-<span class="sd">            LSTSQ: Least-squares reconstruction; new approach in Omega</span>
 
 <span class="sd">        tracer_convention : {'teos-10', 'mpas-ocean'}, optional</span>
 <span class="sd">            The convention of ``temperature`` and ``salinity`` in the dataset</span>
@@ -908,8 +890,8 @@
         <span class="n">out_var_names</span> <span class="o">=</span> <span class="n">_vars_to_reconstruct</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">reconstruct_variables</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_var_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># the model already wrote the zonal and meridional components, as</span>
-            <span class="c1"># MPAS-Ocean does with its own RBF reconstruction, so no mesh,</span>
-            <span class="c1"># weights or coefficients are needed</span>
+            <span class="c1"># MPAS-Ocean does with its own RBF reconstruction, so neither the</span>
+            <span class="c1"># mesh nor its weights are needed</span>
             <span class="k">return</span> <span class="n">ds</span>
 
         <span class="k">if</span> <span class="n">mesh_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -917,27 +899,15 @@
                 <span class="s1">'mesh_filename must be provided to open_model_dataset '</span>
                 <span class="s1">'for variable reconstruction'</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'RBF'</span> <span class="ow">and</span> <span class="n">coeffs_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">'coeffs_filename must be provided to open_model_dataset '</span>
-                <span class="s1">'for variable reconstruction'</span>
-            <span class="p">)</span>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">mesh_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'LSTSQ'</span>
-            <span class="ow">and</span> <span class="ow">not</span> <span class="n">_reconstruction_weights_in_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
-        <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_reconstruction_weights_in_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s1">'Reconstruction weights are not present in the mesh '</span>
-                <span class="s1">'dataset; cannot reconstruct variables using LSTSQ method'</span>
+                <span class="s1">'dataset; cannot reconstruct variables'</span>
             <span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
-            <span class="n">ds</span><span class="p">,</span>
-            <span class="n">out_var_names</span><span class="p">,</span>
-            <span class="n">ds_mesh</span><span class="p">,</span>
-            <span class="n">coeffs_filename</span><span class="p">,</span>
-            <span class="n">reconstruct_method</span><span class="p">,</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">out_var_names</span><span class="p">,</span> <span class="n">ds_mesh</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span></div>
 
@@ -1102,9 +1072,6 @@
         <span class="k">if</span> <span class="n">model_key</span><span class="p">:</span>
             <span class="n">extra</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                 <span class="s1">'horiz_mesh_variables'</span><span class="p">,</span> <span class="p">[]</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">omega_only_horiz_mesh_vars</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span> <span class="k">if</span> <span class="n">model_key</span> <span class="o">==</span> <span class="s1">'Omega'</span> <span class="k">else</span> <span class="p">[]</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">horiz_mesh_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
             <span class="n">extra</span> <span class="o">=</span> <span class="n">nested_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_key</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -1307,13 +1274,7 @@
     <span class="k">return</span> <span class="n">out_var_names</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_add_reconstructed_variables_to_dataset</span><span class="p">(</span>
-    <span class="n">ds</span><span class="p">,</span>
-    <span class="n">out_var_names</span><span class="p">,</span>
-    <span class="n">ds_mesh</span><span class="p">,</span>
-    <span class="n">coeffs_filename</span><span class="p">,</span>
-    <span class="n">reconstruct_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'RBF'</span><span class="p">,</span> <span class="s1">'LSTSQ'</span><span class="p">],</span>
-<span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_reconstructed_variables_to_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">out_var_names</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add reconstructed vector variables to the dataset.</span>
 
@@ -1327,66 +1288,34 @@
 <span class="sd">        reconstructed components, as returned by ``_vars_to_reconstruct()``.</span>
 
 <span class="sd">    ds_mesh : xarray.Dataset</span>
-<span class="sd">        Mesh dataset on which to perform the reconstruction.</span>
-
-<span class="sd">    coeffs_filename : str</span>
-<span class="sd">        Path to the coefficients NetCDF file.</span>
-
-<span class="sd">    reconstruct_method : {'RBF', 'LSTSQ'}</span>
-<span class="sd">        Method to use for reconstructing vector variables.</span>
+<span class="sd">        Mesh dataset on which to perform the reconstruction, including the</span>
+<span class="sd">        least-squares reconstruction stencil and weights.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        The dataset with reconstructed variables added.</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'RBF'</span><span class="p">:</span>
-        <span class="n">ds_coeff</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">coeffs_filename</span><span class="p">)</span>
-        <span class="n">coeffs_reconstruct</span> <span class="o">=</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">coeffs_reconstruct</span>
-
-        <span class="k">if</span> <span class="n">ds_coeff</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'The sizes of coefficient dataset do not match mesh dataset;'</span>
-                <span class="sa">f</span><span class="s1">' exiting without reconstructing </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">out_var_names</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">ds</span>
+    <span class="n">stencil</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">reconstructStencilCell</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">reconstructWeightsCell</span>
 
     <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">out_var_name</span> <span class="ow">in</span> <span class="n">out_var_names</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'RBF'</span><span class="p">:</span>
-            <span class="n">reconstruct_variable</span><span class="p">(</span>
-                <span class="n">out_var_name</span><span class="p">,</span>
-                <span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span>
-                <span class="n">ds_mesh</span><span class="p">,</span>
-                <span class="n">coeffs_reconstruct</span><span class="p">,</span>
-                <span class="n">ds</span><span class="p">,</span>
-                <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span> <span class="o">=</span> <span class="n">tangential_reconstruction</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="n">stencil</span><span class="o">=</span><span class="n">stencil</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_planar</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
+            <span class="c1"># on a planar mesh, the x and y axes are the "zonal" and</span>
+            <span class="c1"># "meridional" directions, following the convention MPAS-Ocean</span>
+            <span class="c1"># uses for its own reconstruction</span>
+            <span class="n">u_zonal</span> <span class="o">=</span> <span class="n">u_x</span>
+            <span class="n">u_merid</span> <span class="o">=</span> <span class="n">u_y</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_merid</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cartesian_to_local_geographic</span><span class="p">(</span>
+                <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span>
             <span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">reconstruct_method</span> <span class="o">==</span> <span class="s1">'LSTSQ'</span><span class="p">:</span>
-            <span class="n">stencil</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">reconstructStencilCell</span>
-            <span class="n">weights</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">reconstructWeightsCell</span>
-
-            <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span> <span class="o">=</span> <span class="n">tangential_reconstruction</span><span class="p">(</span>
-                <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="n">stencil</span><span class="o">=</span><span class="n">stencil</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">is_planar</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
-                <span class="c1"># on a planar mesh, the x and y axes are the "zonal" and</span>
-                <span class="c1"># "meridional" directions, as in MPAS-Ocean and in</span>
-                <span class="c1"># mpas_tools' reconstruct_variable()</span>
-                <span class="n">u_zonal</span> <span class="o">=</span> <span class="n">u_x</span>
-                <span class="n">u_merid</span> <span class="o">=</span> <span class="n">u_y</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_merid</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cartesian_to_local_geographic</span><span class="p">(</span>
-                    <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span>
-                <span class="p">)</span>
-
-            <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_zonal</span>
-            <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_merid</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span> <span class="ow">in</span> <span class="n">ds</span>
-        <span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Failed to reconstruct </span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Zonal'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_zonal</span>
+        <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_var_name</span><span class="si">}</span><span class="s1">Meridional'</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_merid</span>
 
     <span class="k">return</span> <span class="n">ds</span>
 

@@ -211,10 +211,9 @@ as fast as possible when visualization isn’t needed.</p>
 is a step for plotting the initial and final states of the advection test for
 each resolution.  The colormap is controlled by the config options discussed in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/geostrophic.html#ocean-geostrophic-config"><span class="std std-ref">config options</span></a>.</p>
-<p>This step supports only MPAS-Ocean.  It plots <code class="docutils literal notranslate"><span class="pre">velocityZonal</span></code> and
-<code class="docutils literal notranslate"><span class="pre">velocityMeridional</span></code>, which MPAS-Ocean writes to its output stream but Omega
-does not, and neither Omega nor Polaris can yet reconstruct them from the
-normal velocity on edges.</p>
+<p>It plots <code class="docutils literal notranslate"><span class="pre">velocityZonal</span></code> and <code class="docutils literal notranslate"><span class="pre">velocityMeridional</span></code>.  MPAS-Ocean writes those
+to its output stream; Omega does not, so <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code> reconstructs
+them from the normal velocity on edges (see <a class="reference internal" href="../framework.html#dev-ocean-model"><span class="std std-ref">Model</span></a>).</p>
 <p>See <a class="reference internal" href="../../framework/visualization.html#dev-visualization-global"><span class="std std-ref">global lat/lon plots</span></a> for more details on the global lat-lon
 plots.</p>
 </section>

@@ -65,7 +65,6 @@
       ~SshForward.min_cores
       ~SshForward.min_gpus
       ~SshForward.component
-      ~SshForward.write_coeffs_reconstruct
       ~SshForward.config
       ~SshForward.input_data
       ~SshForward.logger

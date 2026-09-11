@@ -65,7 +65,6 @@
       ~RestartStep.min_cores
       ~RestartStep.min_gpus
       ~RestartStep.component
-      ~RestartStep.write_coeffs_reconstruct
       ~RestartStep.config
       ~RestartStep.input_data
       ~RestartStep.logger

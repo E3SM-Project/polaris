@@ -150,19 +150,12 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'analysis'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../init/culled_mesh.nc'</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../forward/output.nc'</span>
         <span class="p">)</span></div>
 
-
-    <span class="c1"># def setup(self):</span>
-    <span class="c1">#    model = self.config.get('ocean', 'model')</span>
-    <span class="c1">#    # TODO: remove as soon as Omega no longer needs this file</span>
-    <span class="c1">#    if model == 'omega':</span>
-    <span class="c1">#        self.add_input_file(</span>
-    <span class="c1">#            target='coeffs.nc',</span>
-    <span class="c1">#            filename='coeffs.nc',</span>
-    <span class="c1">#            database='single_column',</span>
-    <span class="c1">#        )</span>
 
 <div class="viewcode-block" id="Analysis.run">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.inertial.analysis.Analysis.run.html#polaris.tasks.ocean.single_column.inertial.analysis.Analysis.run">[docs]</a>
@@ -182,10 +175,8 @@
                 <span class="s1">'output.nc'</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'../init/culled_mesh.nc'</span><span class="p">,</span>
+                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
                 <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
-                <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">'RBF'</span><span class="p">,</span>
-                <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">'../forward/coeffs.nc'</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">get_time_since_start</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'days'</span><span class="p">)</span>
             <span class="n">s_per_day</span> <span class="o">=</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="mf">3600.0</span>

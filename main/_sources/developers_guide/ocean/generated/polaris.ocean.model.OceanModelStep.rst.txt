@@ -65,7 +65,6 @@
       ~OceanModelStep.min_cores
       ~OceanModelStep.min_gpus
       ~OceanModelStep.component
-      ~OceanModelStep.write_coeffs_reconstruct
       ~OceanModelStep.config
       ~OceanModelStep.input_data
       ~OceanModelStep.logger

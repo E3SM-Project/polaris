@@ -65,7 +65,6 @@
       ~ConvergenceForward.min_cores
       ~ConvergenceForward.min_gpus
       ~ConvergenceForward.component
-      ~ConvergenceForward.write_coeffs_reconstruct
       ~ConvergenceForward.config
       ~ConvergenceForward.input_data
       ~ConvergenceForward.logger

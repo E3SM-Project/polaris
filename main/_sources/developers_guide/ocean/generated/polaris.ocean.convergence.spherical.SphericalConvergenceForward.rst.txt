@@ -65,7 +65,6 @@
       ~SphericalConvergenceForward.min_cores
       ~SphericalConvergenceForward.min_gpus
       ~SphericalConvergenceForward.component
-      ~SphericalConvergenceForward.write_coeffs_reconstruct
       ~SphericalConvergenceForward.config
       ~SphericalConvergenceForward.input_data
       ~SphericalConvergenceForward.logger

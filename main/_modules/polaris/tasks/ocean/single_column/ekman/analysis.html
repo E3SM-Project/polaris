@@ -166,11 +166,6 @@
             <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc'</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
-                <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/coeffs.nc'</span><span class="p">,</span>
-            <span class="p">)</span>
 
 <div class="viewcode-block" id="Analysis.run">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.ekman.analysis.Analysis.run.html#polaris.tasks.ocean.single_column.ekman.analysis.Analysis.run">[docs]</a>
@@ -196,8 +191,6 @@
                 <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
                 <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
-                <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">'RBF'</span><span class="p">,</span>
-                <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="n">t_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>

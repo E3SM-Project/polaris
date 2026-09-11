@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup</title>
+  <title>polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.barotropic_gyre.init.Init" href="polaris.tasks.ocean.barotropic_gyre.init.Init.html" />
-    <link rel="prev" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config" href="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config.html" />
+    <link rel="next" title="polaris.ocean.model.OceanIOStep.map_from_native_model_vars" href="polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html" />
+    <link rel="prev" title="polaris.ocean.model.OceanIOStep.write_model_dataset" href="polaris.ocean.model.OceanIOStep.write_model_dataset.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -89,8 +89,8 @@
 <li class="toctree-l4"><a class="reference internal" href="polaris.tasks.ocean.Ocean.map_var_list_from_native_model.html">polaris.tasks.ocean.Ocean.map_var_list_from_native_model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.tasks.ocean.Ocean.open_model_dataset.html">polaris.tasks.ocean.Ocean.open_model_dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.tasks.ocean.add_tasks.add_ocean_tasks.html">polaris.tasks.ocean.add_tasks.add_ocean_tasks</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../api.html#tasks">Tasks</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api.html#ocean-framework">Ocean Framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api.html#tasks">Tasks</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../api.html#ocean-framework">Ocean Framework</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../seaice/api.html">seaice</a></li>
@@ -126,9 +126,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup</li>
+      <li class="breadcrumb-item active">polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -136,14 +136,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-tasks-ocean-barotropic-gyre-forward-forward-setup">
-<h1>polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup<a class="headerlink" href="#polaris-tasks-ocean-barotropic-gyre-forward-forward-setup" title="Link to this heading"></a></h1>
+  <section id="polaris-ocean-model-oceaniostep-write-horiz-mesh-dataset">
+<h1>polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset<a class="headerlink" href="#polaris-ocean-model-oceaniostep-write-horiz-mesh-dataset" title="Link to this heading"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup">
-<span class="sig-prename descclassname"><span class="pre">Forward.</span></span><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#polaris.tasks.ocean.barotropic_gyre.forward.Forward.setup" title="Link to this definition"></a></dt>
-<dd><p>Determine if we will make yaml files or namelists and streams files,
-then, determine the number of MPI tasks to use based on the estimated
-mesh size</p>
+<dt class="sig sig-object py" id="polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset">
+<span class="sig-prename descclassname"><span class="pre">OceanIOStep.</span></span><span class="sig-name descname"><span class="pre">write_horiz_mesh_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/model/ocean_io_step.html#OceanIOStep.write_horiz_mesh_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset" title="Link to this definition"></a></dt>
+<dd><p>Write a horizontal mesh dataset, validating that all expected mesh
+variables are present before writing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – A dataset containing MPAS-Ocean variable names including all
+horizontal mesh variables</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The path for the NetCDF file to write</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration for the task; forwarded to the Ocean component.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -152,8 +161,8 @@ mesh size</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.barotropic_gyre.forward.Forward.dynamic_model_config" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.barotropic_gyre.init.Init.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.barotropic_gyre.init.Init" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.model.OceanIOStep.write_model_dataset.html" class="btn btn-neutral float-left" title="polaris.ocean.model.OceanIOStep.write_model_dataset" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html" class="btn btn-neutral float-right" title="polaris.ocean.model.OceanIOStep.map_from_native_model_vars" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

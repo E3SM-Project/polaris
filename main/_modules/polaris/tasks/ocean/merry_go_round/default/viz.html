@@ -191,14 +191,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
             <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/output.nc'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
-        <span class="c1"># TODO: remove as soon as Omega no longer needs this file</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
-                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forward</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/coeffs.nc'</span><span class="p">,</span>
-            <span class="p">)</span></div>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Viz.run">
@@ -235,10 +228,8 @@
                 <span class="n">config</span><span class="p">,</span>
                 <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
                 <span class="n">vert_filename</span><span class="o">=</span><span class="s1">'vert_coord.nc'</span><span class="p">,</span>
-                <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
                 <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
-                <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">'RBF'</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">x_min</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
             <span class="n">x_max</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>

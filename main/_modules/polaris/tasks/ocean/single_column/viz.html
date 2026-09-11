@@ -204,13 +204,6 @@
             <span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-                <span class="n">filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
-                <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="si">}</span><span class="s1">/coeffs.nc'</span><span class="p">,</span>
-            <span class="p">)</span>
-
 <div class="viewcode-block" id="Viz.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.viz.Viz.run.html#polaris.tasks.ocean.single_column.viz.Viz.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -239,22 +232,13 @@
                     <span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'coeffs.nc'</span><span class="p">):</span>
-                    <span class="n">ds_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
-                        <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                        <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
-                        <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
-                        <span class="n">reconstruct_method</span><span class="o">=</span><span class="s1">'RBF'</span><span class="p">,</span>
-                        <span class="n">coeffs_filename</span><span class="o">=</span><span class="s1">'coeffs.nc'</span><span class="p">,</span>
-                        <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ds_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
-                        <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                        <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-                    <span class="p">)</span>
+                <span class="n">ds_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
+                    <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                    <span class="n">reconstruct_variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">],</span>
+                    <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="n">t_arr</span> <span class="o">=</span> <span class="n">get_time_since_start</span><span class="p">(</span><span class="n">ds_comp</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'days'</span><span class="p">)</span>
                 <span class="n">t_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t_arr</span> <span class="o">-</span> <span class="n">t_target</span><span class="p">))</span>
                 <span class="n">time_ds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t_arr</span><span class="p">[</span><span class="n">t_index</span><span class="p">]))</span>
