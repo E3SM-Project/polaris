@@ -382,7 +382,8 @@ def apply_vertical_reduction(
     -------
     da_map : xarray.DataArray
         The reduced field, without an ``nVertLevels`` dimension, masked where
-        the reduction falls outside the column
+        the reduction falls outside the column, and with the attributes of
+        ``da``, since a slice of a field has the field's units and name
 
     Raises
     ------
@@ -403,7 +404,7 @@ def apply_vertical_reduction(
         )
 
     if reduction.kind == 'elevation':
-        return _interpolate_to_elevation(
+        da_map = _interpolate_to_elevation(
             da=da,
             elevation=reduction.elevation,
             z_mid=z_mid,
@@ -411,7 +412,22 @@ def apply_vertical_reduction(
             min_level_cell=min_level_cell,
             max_level_cell=max_level_cell,
         )
+    else:
+        da_map = _select_layer(
+            da=da,
+            reduction=reduction,
+            min_level_cell=min_level_cell,
+            max_level_cell=max_level_cell,
+        )
+    # interpolating drops the attributes and slicing is not promised to keep
+    # them, while the units and long name of a field are those of a slice of
+    # it, so they are carried over here rather than by every caller
+    da_map.attrs = dict(da.attrs)
+    return da_map
 
+
+def _select_layer(da, reduction, min_level_cell, max_level_cell):
+    """Pick one layer of each column: its top, its bottom or a fixed index"""
     n_levels = da.sizes['nVertLevels']
     if reduction.kind == 'top':
         index = min_level_cell
