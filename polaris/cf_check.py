@@ -48,8 +48,10 @@ def resolve_cf_check_files(patterns: List[str], work_dir: str) -> List[str]:
     Resolve the file patterns registered for a CF check to the files to
     check.  A pattern with wildcards stands for a series of files with the
     same metadata (a time series from one output stream), so only its first
-    match is checked.  A pattern with no match is kept so the check can
-    report it as missing.
+    match is checked, and a pattern with no match is a series that never
+    started (a restart stream whose interval is longer than the run), so it
+    is skipped.  A plain filename is kept whether or not it exists, so the
+    check can report it as missing.
 
     Parameters
     ----------
@@ -69,8 +71,9 @@ def resolve_cf_check_files(patterns: List[str], work_dir: str) -> List[str]:
         path = os.path.join(work_dir, pattern)
         if glob.has_magic(pattern):
             matches = sorted(glob.glob(path))
-            if matches:
-                path = matches[0]
+            if not matches:
+                continue
+            path = matches[0]
         filename = os.path.relpath(path, work_dir)
         if filename.startswith('..'):
             filename = path
