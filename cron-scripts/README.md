@@ -86,6 +86,30 @@ what `deploy.py` needs before any Polaris environment exists (a Python 3.7
 or newer, `module`, and on Aurora the path to `qsub`); everything after
 that comes from the load script `deploy.py` writes.
 
+### Perlmutter: scrontab
+
+Perlmutter's login nodes have no cron.  The nightly runs instead as a Slurm
+[scrontab](https://docs.nersc.gov/jobs/workflow/scrontab/) job in the
+`cron` QOS, which gives it one core, 4 GiB of memory and 24 hours, and
+whose times are UTC.  `machines/pm-cpu.cfg` and `machines/pm-gpu.cfg` say
+`scheduler = scrontab`, so `install.sh` renders `driver/scrontab.template`
+(with `#SCRON` headers, the account from the config, and Slurm's failure
+mail in place of `MAILTO`) and installs it with `scrontab`.  Two things
+follow from the envelope:
+
+* Omega's own `omega_build.sh` is `make -j 10` there and is killed at
+  4 GiB, so those configs set `build_jobs = 2`, which `omega_ctest.py`
+  honors with a `make -j 2` in place of `omega_build.sh`.  The build takes
+  about thirteen minutes instead of two.
+* A scrontab job is itself a Slurm job, so `launch_all.sh` unsets every
+  `SLURM_*` variable before anything runs.  Otherwise `sbatch` inherits
+  `SLURM_MEM_PER_CPU` and `srun` refuses a full node, and `omega_ctest.py`
+  takes `SLURM_JOB_ID` to mean it is already on a compute node.
+
+Inside the job `/tmp` is a job-private tmpfs charged against the same
+4 GiB and discarded at the end, which is why the pixi cache has to be on
+scratch there ([#630](https://github.com/E3SM-Project/polaris/issues/630)).
+
 ## Adding a machine
 
 1. Make sure the machine is set up for Polaris and Omega (see the
@@ -94,7 +118,9 @@ that comes from the load script `deploy.py` writes.
    check them against `docs/developers_guide/supported_machines.yaml` and
    refuse ones it does not list for Omega on that machine.  Omega picks the
    architecture from the compiler, as it does for every other Polaris
-   build, so the nightly tests what developers build.
+   build, so the nightly tests what developers build.  Set
+   `scheduler = scrontab`, `account` and `build_jobs` if the machine runs
+   cron jobs the way Perlmutter does.
 3. Add `machines/<machine>.sh` with the module loads and paths cron needs.
 4. Run `install.sh` as above.
 
