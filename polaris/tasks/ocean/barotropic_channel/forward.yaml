@@ -1,7 +1,7 @@
 ocean:
   time_management:
     config_stop_time: none
-    config_run_duration: 0002_00:00:00
+    config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: 00:00:01
   hmix_del2:
