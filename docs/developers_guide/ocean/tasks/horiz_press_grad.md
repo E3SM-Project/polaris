@@ -6,12 +6,19 @@ The {py:class}`polaris.tasks.ocean.horiz_press_grad.task.HorizPressGradTask`
 provides two-column Omega tests for pressure-gradient-acceleration (`HPGA`)
 accuracy and convergence across horizontal and vertical resolutions.
 
-The task family includes four variants:
+The task family includes four such variants:
 
 - `salinity_gradient`
 - `temperature_gradient`
 - `ztilde_gradient`
 - `surface_pressure_gradient`
+
+{py:class}`polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask`
+provides two further variants that are exact resting states, in which the true
+HPGA is identically zero and no reference solution is used:
+
+- `hydrostatic_consistency`
+- `bathymetry_step`
 
 ## framework
 
@@ -26,6 +33,119 @@ the code.
 The task dynamically rebuilds `init` and `forward` steps in `configure()` so
 user-supplied `horiz_resolutions` and `vert_resolutions` in config files are
 reflected in the work directory setup.
+
+### metrics
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.metrics` is a dependency-light
+leaf module (numpy and xarray only) holding the pieces both analysis steps
+need: `get_internal_edge()`, `rms()`, `power_law_fit()`,
+`write_metric_dataset()`, `format_value_list()` and
+`format_value_error_pairs()`.  It exists so the two step modules can share them
+without importing private names from one another.
+
+### the finite-volume pressure gradient
+
+Four leaf modules implement the `FiniteVolume` scheme of the
+`PGradHighOrder.md` design, as the Python counterpart of Omega's
+`PressureGradFiniteVolume`.  They are written from that design rather than from
+the C++, so that the Omega-vs-Polaris comparison in `analysis` compares two
+independent implementations.
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.edge` holds the two-column edge
+operator, `edge_delta()` and `edge_mean()`.  It has no dependencies inside the
+package so the modules below can share it without importing one another.
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.eos_expansion` gives the four
+Taylor coefficients of the equation of state from one `gsw` evaluation per cell
+per layer, averages them and the reference state to the edge, and evaluates the
+resulting shared profile.  Note that `gsw.specvol_first_derivatives()` takes
+pressure in dbar but returns the pressure derivative per Pa; the tests assert
+this rather than trusting it.
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.reconstruction` builds the
+mean-preserving linear reconstruction of temperature and salinity in pressure.
+The slope is a centred difference of the layer means against *mid-layer
+pressure*, which is what makes it exact on a non-uniform grid.
+
+{py:mod}`polaris.tasks.ocean.horiz_press_grad.finite_volume` assembles the
+scheme.  The essential piece is `delta_specvol_at_pressure()`, which
+differences the integrand at **matched pressure** rather than at matched layer
+index: for each quadrature point, `layer_containing_pressure()` finds the layer
+of *each column* that contains that pressure.  Under tilt those are not the
+same layer -- at 50 m/km and 64 m layers the two columns' layer `k` do not
+overlap in pressure at all -- and getting this wrong silently turns the scheme
+into a different one.  `column_scan()` then accumulates the fixed-pressure
+height difference along the column from `anchor_difference()`, and
+`finite_volume_hpga()` forms the layer mean and the tendency.
+
+**The scan anchors at the sea floor**, per design §3.7.4, at the deepest
+interface valid in both columns.  This is not a conditioning preference:
+`VertCoord` builds geometric height upward from a prescribed bathymetry by
+accumulating over each column's *own* layers, so two columns partitioned
+differently by a tilt derive sea-surface heights that differ at
+$O(\tilde h^2)$, and a surface anchor would feed that straight into the answer.
+Note that §3.5.1 of the design still describes a surface anchor; §3.7.4 is
+later, gives the argument, and is what Omega implements.
+
+One consequence is worth knowing before reading the tests: on these states the
+sea-floor anchor is **not** zero, even on `hydrostatic_consistency_linear`.
+
+The cause is the midpoint rule both codes use to turn pressure into geometric
+height, `geom_thickness = spec_vol * h_tilde * RhoSw`.  At 256 m layers it
+truncates each column's 3500 m integral by $1.096\times10^{-3}$ m.  `Init`
+holds `bottomDepth` at the prescribed bathymetry and solves for
+`BottomPressure`, which is the right assignment of known and unknown, and each
+column converges exactly -- to the bottom pressure that makes *its own*
+midpoint sum 3500 m.  Under tilt the two columns' interfaces fall in different
+places, so their truncation errors differ, by $7.138\times10^{-8}$ m; that
+difference is the anchor, to four significant figures.  At a common pressure
+the two columns' heights genuinely differ by that much, and the scheme is right
+to report it.
+
+Three things follow that are worth stating because each closes off a plausible
+fix:
+
+- **more iterations do not help.**  The iteration is at its exact fixed point;
+  over 6 to 40 iterations the inter-column pressure difference is unchanged to
+  seven digits;
+- **anchoring `pstar_init` at the sea floor would be a no-op.**  It already
+  builds the column sea-floor-anchored and shifts it afterwards, and that shift
+  is exactly zero wherever the iteration converges -- which is everywhere in
+  this task, since these variants set `partial_cell_type = None`;
+- **Polaris must not integrate more accurately.**  The increment is
+  byte-identical to `VertCoord::computeGeomZHeight` on purpose; that is what
+  closes the round trip and gives `omega_vs_polaris` its meaning.  A better
+  quadrature here would break it by ~1 mm to remove $7\times10^{-8}$ m.
+
+What the tests assert on the exact set is therefore that the scan stays *flat*
+-- every increment zero to round-off -- and that the assembled tendency is the
+anchor and nothing else, which holds to a part in $10^7$ across the sweep.  The
+residual is $1.75\times10^{-10}$ m s$^{-2}$, against $9.1\times10^{-8}$ for
+`Centered` on the same state, so it is a ceiling on how exact the test can be
+rather than a limit on the scheme.  The `anchor_at_surface` guard switches ends
+so the gap can be measured rather than assumed.
+
+The module also retains `centered_shift()` and `centered_shift_accumulated()`.
+These are no longer on the computational path; they are kept as diagnostics,
+because `hpga_from_shift(centered_shift(ds), dx)` reproduces the centered
+scheme's `HPGA` exactly and is the cheapest available regression test of it.
+
+`finite_volume_hpga()` accepts a `guards` argument holding verification-only
+switches, each deliberately breaking one rule of the design.  They exist to
+confirm the test suite can detect a broken implementation; they are not
+supported settings.
+
+The Gauss-Legendre rule these integrals use comes from the `quadrature_points`
+config option, which is the *same* option that fills in Omega's
+`PressureGrad:QuadraturePoints`.  That is deliberate and is not a convenience.
+`omega_vs_polaris_rms_threshold` is the only check in this task family that
+tests Omega's arithmetic against an independent implementation, and it is a
+check on the implementations only if both integrate with the same rule; two
+sides quadrating differently are two algorithms, and their disagreement would
+not be distinguishable from a bug in either.  Exactness itself does not depend
+on the rule -- on the exact set the integrand is zero at every point, so any
+rule integrates it to zero -- which is exactly why a mismatch here would show
+up only off the exact set, where it is hardest to attribute.
 
 ### reference
 
@@ -108,44 +228,207 @@ holds the p-star coordinate variables written for Omega.
 ### forward
 
 The class {py:class}`polaris.tasks.ocean.horiz_press_grad.forward.Forward`
-defines one model step per horizontal resolution.
+defines one model step per horizontal resolution **and per pressure-gradient
+scheme**, named `forward_<res>_<scheme>`.
 
 It runs Omega from the corresponding `init` output and writes `output.nc`
 (with `NormalVelocityTend` validation), using options from `forward.yaml`.
+`forward.yaml` is a Jinja2 template whose `PressureGrad` block is filled in per
+step from the `scheme` argument and the `quadrature_points` config option.
+
+The schemes are listed by the `pressure_grad_types` config option and named in
+the module-level `SCHEMES` dict, which maps the config spelling to Omega's
+`PressureGradType`.  `SCHEME_HPGA` maps each to the field in `init.nc` that is
+its Polaris counterpart, which is what the analysis steps compare Omega
+against.
+
+Two things about this axis are worth stating, because both were decided
+against plausible alternatives:
+
+- **Both schemes share one `Init` step.**  `Init` is scheme-independent -- it
+  writes `HPGA` and `HPGAFiniteVolume` from the same state -- so duplicating it
+  per scheme would cost run time and, worse, would leave the comparison open to
+  the objection that the two schemes ran on different initial conditions.  The
+  cost is that the scheme label is in every forward step's directory, so
+  baselines recorded before the axis existed do not carry over.
+- **There is no "centered limit" of the finite-volume scheme.**  The two are
+  separate implementations and no setting reduces one to the other, so this is
+  a choice between schemes rather than a parameter of one.  Omega treats an
+  unrecognized `PressureGradType` as fatal rather than falling back to
+  `Centered`, so a typo aborts the run instead of producing centered answers
+  that read as a pass.
 
 ### analysis
 
 The class {py:class}`polaris.tasks.ocean.horiz_press_grad.analysis.Analysis`
 compares each `forward` result with:
 
-- the analytic reference solution (built from `ReferenceColumn`), and
-- the Python-computed HPGA from `init.nc`.
+- the analytic reference solution (built from `ReferenceColumn`), which is a
+  property of the state and so is shared by both schemes, and
+- the Python-computed HPGA from `init.nc` **for the matching scheme**:
+  `HPGA` for `centered`, `HPGAFiniteVolume` for `finite_volume`.  Comparing
+  Omega's finite-volume output against the centered `HPGA` would measure the
+  difference between two schemes and report it as an implementation
+  disagreement.
 
 The step writes:
 
 - `omega_vs_reference.nc` and `omega_vs_reference.png`
 - `omega_vs_python.nc` and `omega_vs_python.png`
 
-and enforces regression criteria from `[horiz_press_grad]`, including:
+Both files carry one series per scheme, as variables suffixed with the scheme
+name, and both plots draw the schemes on one panel -- the comparison between
+them at the same resolution is the measurement, so separating them would hide
+it.
 
-- allowed convergence-slope range for Omega-vs-reference,
-- high-resolution RMS threshold for Omega-vs-reference, and
-- RMS threshold for Omega-vs-Python consistency.
+The step enforces regression criteria from `[horiz_press_grad]`:
+
+- allowed convergence-slope range for Omega-vs-reference, **per scheme**
+  (`omega_vs_reference_convergence_rate_{min,max}_{scheme}`);
+- high-resolution RMS threshold for Omega-vs-reference, per scheme;
+- RMS threshold for Omega-vs-Python consistency, per scheme; and
+- `omega_vs_reference_accuracy_ratio_min`, the ratio of the centered to the
+  finite-volume RMS error at the **coarsest** resolution.
+
+Three things about the last two are worth knowing, because each was set from
+measurement against a plausible alternative:
+
+- **Bands are per scheme because the schemes genuinely differ in order on one
+  variant.**  Measured offline over 4, 2, 1 and 0.5 km, centered against finite
+  volume: 1.68/1.68 (`temperature_gradient`), 1.77/1.77 (`salinity_gradient`),
+  **0.93/1.98** (`ztilde_gradient`), 2.00/1.99 (`surface_pressure_gradient`).
+  Only `ztilde_gradient` needs its own pair, and it is the one that shows what
+  the scheme is for: the centered scheme is first order there and the
+  finite-volume scheme restores second.
+- **The accuracy gate is a ratio, not a comparison of orders.**  Gating on the
+  new scheme's slope beating the old one would fail on three variants out of
+  four, where the two converge at the same rate and nothing is wrong.
+- **Its default is 0.98, which asserts only "not worse".**  On
+  `temperature_gradient` and `salinity_gradient` the two schemes agree to five
+  digits -- the layers are level there, so matched-pressure and matched-index
+  coincide, and the error is the two-column representation of the tracer
+  gradient, which both schemes share.  Demanding an improvement would fail on a
+  configuration with nothing to improve.  `ztilde_gradient` raises it to 1.5
+  (measured 1.80 at the coarse end) and `surface_pressure_gradient` to 1.8
+  (measured 2.19).
+
+`ztilde_gradient` is also where the design's own guidance needs qualifying: the
+advantage there **widens** under refinement, 1.80x at 4 km against 14.8x at
+0.5 km, because the orders differ.  Elsewhere it is the constant factor the
+design describes.
 
 Implementation-wise, `Analysis.run()` iterates over configured horizontal
-resolutions.  For each resolution it:
+resolutions and, within each, over schemes.  For each resolution it:
 
 1. reads `init_r*.nc`, `culled_mesh_r*.nc`, `vert_coord_r*.nc`, and
-   `output_r*.nc`;
+   `output_r*_<scheme>.nc`;
 2. identifies the single internal edge via `_get_internal_edge()` and derives
    the forward pseudo-heights via `_get_forward_z_tilde_edge_mid()`;
 3. constructs a `ReferenceColumn` with the mesh-derived `x_sign` and calls
-   `ref.layer_mean_hpga()` on the edge interface pseudo-heights from
-   `init.nc`, dropping the deepest valid layer (which abuts bathymetry);
+   `ref.layer_mean_hpga()` on the edge interface pseudo-heights from `init.nc`,
+   over interfaces `0 .. max_level_index + 1` so that every layer valid in both
+   columns is included, down to and including the bottom partial cell.  An
+   earlier version dropped that layer because the then-current five-column
+   finite-difference reference could not form its stencil there; the analytic
+   single-column reference is valid to the seafloor, so it is now kept;
 4. checks that Python and Omega pseudo-heights agree with
    `_check_vertical_match()`, then computes the Omega-vs-Python RMS difference
    from `init.nc` HPGA.
 
 The forward solution always comes from `output.nc` via `NormalVelocityTend`.
-Helper routines `_rms_error()` and `_power_law_fit()` produce the convergence
-datasets and plots.
+`rms()` and `power_law_fit()` from `metrics` produce the convergence datasets
+and plots.
+
+## the resting-state variants
+
+{py:class}`polaris.tasks.ocean.horiz_press_grad.resting_state_task.HorizPressGradRestingStateTask`
+is a sibling of `HorizPressGradTask` rather than a mode of it.  The existing
+task pairs each entry of `horiz_resolutions` with one entry of
+`vert_resolutions` and keys its step dictionaries by horizontal resolution
+alone, so it cannot express the repeated horizontal resolutions the tilt sweep
+needs.  The resting-state task keys its steps by the
+`(horiz_res, vert_res, tilt)` triple instead, and builds the outer product of
+the resolution pairs with `tilt_values`.
+
+`Init` and `Forward` are reused unchanged apart from two optional arguments:
+
+- `subdir_suffix` replaces the horizontal resolution in the step name, so
+  repeated horizontal resolutions do not collide.  It is built by
+  `sweep_suffix(horiz_res, vert_res, tilt)`, giving names like
+  `init_4km_256m_tilt0p5`.  When it is not given, the horizontal resolution is
+  used, giving `init_<res>` and `forward_<res>_<scheme>`.
+- `tilt_option` and `tilt` (on `Init` only) name a `[horiz_press_grad]` config
+  option that `Init.run()` sets in its own config before building the columns,
+  in the same way it already sets `vertical_grid:vert_levels`.
+
+`Init.run()` also calls `_check_reference_grid_head_room()` after
+`run_pstar_init()`.  The p-star iteration converges to a pseudo-bottom depth
+somewhat greater than the geometric water-column thickness, because in-situ
+density exceeds `RhoSw` at depth.  If a tilt makes a column's `z_tilde_bot`
+shallower than that, the reference grid cannot span the water column, the
+iteration diverges, and the resulting HPGA is of order 1 m s$^{-2}$ rather than
+the order 1e-5 m s$^{-2}$ being measured.  The guard raises with the head room
+available in each column.
+
+### resting_analysis
+
+{py:class}`polaris.tasks.ocean.horiz_press_grad.resting_analysis.RestingAnalysis`
+replaces `Analysis` for these variants.  Per sweep point it:
+
+1. locates the internal edge with `get_internal_edge()`;
+2. forms the valid layer range `0 .. min(maxLevelCell) - 1`, **inclusive** of
+   the deepest layer valid in both columns — the bottom partial cell, which
+   carries the entire `bathymetry_step` signal.  `Analysis` includes it too;
+3. takes the RMS of Omega's `NormalVelocityTend` at that edge over those
+   layers, for each scheme.  The truth is zero, so this is the error, not a
+   difference from a reference;
+4. does the same for the matching Polaris-side field from `init.nc` --
+   `HPGA` or `HPGAFiniteVolume` per `SCHEME_HPGA` -- and RMS-differences the
+   two.
+
+It then groups the sweep by resolution pair, fits the tilt exponent within each
+group and scheme over the points at or below `tilt_fit_max` when `tilt_fit` is
+set, writes `resting_state.nc` and `resting_state.png`, and applies four
+checks:
+
+- `_check_bathymetry()` — `bottomDepth` must match the `bottomDepthRequested`
+  written by `Init` to within `resting_state_max_bathy_error`.  The p-star
+  column is anchored at the prescribed sea surface, so `ssh` is exact by
+  construction and cannot reveal a problem; partial-cell snapping instead moves
+  the sea floor, which leaves the state at rest but means the swept tilt is no
+  longer the geometry under test;
+- `_check_omega_vs_polaris()` — the retained `omega_vs_polaris_rms_threshold`
+  consistency check, applied per scheme and independent of the resting-state
+  property;
+- `_check_sensitivity()` — the largest RMS anywhere in the sweep must reach
+  `resting_state_sensitivity_min_rms`, or the sweep is not exercising the
+  failure mode and must be redesigned.  This is applied to **`centered` only**:
+  it asks whether the sweep is severe enough to exercise the failure the
+  higher-order scheme exists to fix, so demanding it of `finite_volume` would
+  be requiring the new scheme to fail;
+- `_check_max_rms()` — the consistency gate, applied per scheme and skipped
+  while `resting_state_max_rms` is `none`;
+- `_check_improvement()` — the centered RMS divided by the finite-volume RMS
+  must reach `resting_state_improvement_min` at **every** sweep point.  The
+  true HPGA is zero here, so both are pure error and the ratio is a clean
+  statement of what the higher-order scheme buys, with no reference solution
+  and none of its discretization involved.  The ratio is logged whether or not
+  a threshold is set.
+
+The improvement gate is set **per variant** because the advantage spans four
+orders of magnitude, and a shared value would be vacuous at one end and
+unreachable at the other.  Measured offline, the smallest ratio anywhere in
+each sweep:
+
+| variant | worst ratio | at | gate |
+| --- | --- | --- | --- |
+| `hydrostatic_consistency` | 2.58x | 4 km, 128 m, tilt 50 | 1.5 |
+| `hydrostatic_consistency_linear` | 7.71x | 4 km, 64 m, tilt 50 | 4.0 |
+| `bathymetry_step` | 1170x | 4 km, 256 m, grad 200 | 500 |
+| `bathymetry_step_linear` | 58828x | 4 km, 256 m, grad 200 | 20000 |
+
+The ordering is the result, not an accident of the sweeps: the advantage is
+smallest where the profile is curved and only the coordinate tilts, and largest
+where the profile is resolved and the sea floor steps.  Those numbers are
+pinned by `test_improvement_gate_is_below_what_the_kernel_delivers`, so the
+gates and the measurements cannot drift apart silently.

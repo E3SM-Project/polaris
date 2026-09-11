@@ -313,8 +313,8 @@ def test_surface_pressure_sets_ztilde_surface_correctly():
     This is the invariant that the reference solution relies on: it computes
     z_tilde_surf = -surface_pressure / (RhoSw * Gravity) and expects the
     z-tilde grid to start there.  If the surface is stuck at zero the tracer
-    interpolation in init_tracers (which uses ZTildeMid) and the reference
-    solution will be offset from each other.
+    initialization in init_tracers (which is built on the z-tilde grid) and the
+    reference solution will be offset from each other.
     """
     target_depth = 500.0
     ssp = RhoSw * Gravity * 1.0  # ~1 m water-column equivalent
