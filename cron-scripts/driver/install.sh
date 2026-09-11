@@ -5,16 +5,24 @@
 #
 #   install.sh -m MACHINE --cron-root PATH [options]
 #
-# The entry is rendered from crontab.template and kept between BEGIN/END
+# The entry is rendered from crontab.template, or scrontab.template on
+# machines whose cron config says scheduler = scrontab, and kept between BEGIN/END
 # marker lines, so reinstalling replaces only that block and leaves the rest
 # of the user's crontab alone.
 
 set -eo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-template="${here}/crontab.template"
 begin_marker="# BEGIN polaris cron-scripts"
 end_marker="# END polaris cron-scripts"
+
+# one value from an INI-style cron config, or nothing
+cfg_get() {
+    local section="[$1]" key="$2" file="$3"
+    awk -F' *= *' -v s="${section}" -v k="${key}" \
+        '$0 == s { f = 1; next } /^\[/ { f = 0 } f && $1 == k { print $2; exit }' \
+        "${file}"
+}
 
 usage() {
     cat <<USAGE
@@ -26,6 +34,9 @@ Usage: $(basename "${BASH_SOURCE[0]}") -m MACHINE --cron-root PATH [options]
                           cloned to PATH/polaris if it is not there already
   --mailto ADDRESS        where cron mails failures
                           (default: xylarstorm@gmail.com)
+  --account ACCOUNT       the account for the scrontab job, on machines whose
+                          cron config says scheduler = scrontab (default: the
+                          account in the cron config)
   --remote URL            the Polaris remote to track
                           (default: https://github.com/E3SM-Project/polaris.git)
   --branch NAME           the branch to track (default: main)
@@ -38,6 +49,7 @@ USAGE
 
 machine=""
 cron_root=""
+account=""
 mailto="xylarstorm@gmail.com"
 remote="https://github.com/E3SM-Project/polaris.git"
 branch="main"
@@ -56,6 +68,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --mailto)
             mailto="$2"
+            shift 2
+            ;;
+        --account)
+            account="$2"
             shift 2
             ;;
         --remote)
@@ -100,16 +116,40 @@ fi
 cron_root="$(mkdir -p "${cron_root}" && cd "${cron_root}" && pwd)"
 polaris_root="${cron_root}/polaris"
 
+# crontab, or Slurm's scrontab where the login nodes have no cron
+config="${here}/../machines/${machine}.cfg"
+scheduler="$(cfg_get cron scheduler "${config}")"
+scheduler="${scheduler:-crontab}"
+case "${scheduler}" in
+    crontab | scrontab) ;;
+    *)
+        echo "ERROR: unknown scheduler '${scheduler}' in ${config}" >&2
+        exit 1
+        ;;
+esac
+template="${here}/${scheduler}.template"
+if [[ "${scheduler}" == scrontab ]]; then
+    if [[ -z "${account}" ]]; then
+        account="$(cfg_get cron account "${config}")"
+    fi
+    if [[ -z "${account}" ]]; then
+        echo "ERROR: scrontab needs an account: pass --account or set" \
+            "account in ${config}" >&2
+        exit 1
+    fi
+fi
+
 block="$(sed \
-    -e "s|@MAILTO@|${mailto}|" \
-    -e "s|@CRON_ROOT@|${cron_root}|" \
-    -e "s|@REMOTE@|${remote}|" \
-    -e "s|@BRANCH@|${branch}|" \
-    -e "s|@MACHINE@|${machine}|" \
+    -e "s|@MAILTO@|${mailto}|g" \
+    -e "s|@ACCOUNT@|${account}|g" \
+    -e "s|@CRON_ROOT@|${cron_root}|g" \
+    -e "s|@REMOTE@|${remote}|g" \
+    -e "s|@BRANCH@|${branch}|g" \
+    -e "s|@MACHINE@|${machine}|g" \
     "${template}")"
 
 # the existing crontab, with any earlier managed block removed
-existing="$(crontab -l 2>/dev/null || true)"
+existing="$("${scheduler}" -l 2>/dev/null || true)"
 kept="$(printf '%s\n' "${existing}" |
     sed "/^${begin_marker}/,/^${end_marker}/d")"
 
@@ -125,7 +165,7 @@ fi
 
 new_crontab="$(printf '%s\n%s\n' "${kept}" "${block}" | sed '/./,$!d')"
 
-echo "Crontab to install:"
+echo "${scheduler} to install:"
 echo "-------------------"
 printf '%s\n' "${new_crontab}"
 echo "-------------------"
@@ -139,5 +179,5 @@ if [[ ! -d "${polaris_root}/.git" ]]; then
     git clone --quiet -b "${branch}" "${remote}" "${polaris_root}"
 fi
 
-printf '%s\n' "${new_crontab}" | crontab -
-echo "Installed.  Check with: crontab -l"
+printf '%s\n' "${new_crontab}" | "${scheduler}" -
+echo "Installed.  Check with: ${scheduler} -l"

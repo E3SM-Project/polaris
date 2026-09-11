@@ -1,0 +1,11 @@
+# BEGIN polaris cron-scripts (installed by cron-scripts/driver/install.sh)
+#SCRON -q cron
+#SCRON -C cron
+#SCRON -A @ACCOUNT@
+#SCRON -t 24:00:00
+#SCRON -o @CRON_ROOT@/logs/scrontab-%j.out
+#SCRON --open-mode=append
+#SCRON --mail-type=FAIL
+#SCRON --mail-user=@MAILTO@
+0 8 * * * POLARIS_CRON_ROOT=@CRON_ROOT@ POLARIS_CRON_REMOTE=@REMOTE@ POLARIS_CRON_BRANCH=@BRANCH@ bash "@CRON_ROOT@/polaris/cron-scripts/driver/cronjob.sh" -m @MACHINE@
+# END polaris cron-scripts
