@@ -329,7 +329,9 @@ filename and add the files in an override of
 {py:meth}`polaris.Step.check_cf()` before calling the base-class method.
 {py:class}`polaris.ocean.model.OceanModelStep` does this for Omega: every
 step running Omega checks the first file of each stream in write mode in its
-`omega.yml`.  MPAS-Ocean output is not checked.
+`omega.yml`.  MPAS-Ocean output is not checked.  Omega writes the model
+start time as the origin of the `time` variable's units, and udunits rejects
+a year-0 origin, so a task that starts in year 0 cannot pass the check.
 
 The checker needs the CF standard-name, area-type and region-name tables.
 Their versions are pinned in the `[cf]` section of `default.cfg`, so a table
