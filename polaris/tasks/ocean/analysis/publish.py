@@ -84,6 +84,9 @@ class Publish(Step):
             thumbnail_size=tuple(
                 config.getlist('ocean_analysis', 'thumbnail_size', dtype=int)
             ),
+            thumbnail_scale=config.getfloat(
+                'ocean_analysis', 'thumbnail_scale'
+            ),
             thumbnail_format=config.get('ocean_analysis', 'thumbnail_format'),
             thumbnail_quality=config.getint(
                 'ocean_analysis', 'thumbnail_quality'

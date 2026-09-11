@@ -5,8 +5,13 @@ from PIL import Image
 #: The subdirectory of the staging tree holding the thumbnails
 THUMBNAILS_DIRNAME = 'thumbnails'
 
-#: The default bounding box, in pixels, a thumbnail is scaled to fit inside
+#: The default bounding box, in displayed pixels, a thumbnail is scaled to
+#: fit inside
 DEFAULT_SIZE = (320, 240)
+
+#: The default number of image pixels rendered per displayed pixel, so that
+#: a thumbnail is sharp on a high-resolution display
+DEFAULT_SCALE = 2
 
 #: The default image format for thumbnails
 DEFAULT_FORMAT = 'jpeg'
