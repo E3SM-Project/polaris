@@ -7,11 +7,11 @@ Two tasks run each night for each compiler:
 | task | what it tests | CDash group | build name |
 |---|---|---|---|
 | `omega_cdash` | the CTests of Omega `develop` | `Omega_Nightly_CTests` | `unitest-develop-<compiler>` |
-| `polaris_cdash` | the `omega_nightly` suite against the Omega submodule pinned in Polaris | `Polaris_Omega_Nightly_Tests` | `Baseline_<compiler>` |
+| `polaris_cdash` | the `omega_nightly` suite against the Omega submodule pinned in Polaris | `Polaris_Omega_Nightly_Tests` | `polaris_omega_nightly-<compiler>` |
 
 CDash files a build into a group by rules on its name, set on the CDash
 side, so the build names above must not change without changing the rules.
-No baseline is compared by `polaris_cdash` despite its build name; see
+No baseline is compared by `polaris_cdash`; see
 [#770](https://github.com/E3SM-Project/polaris/issues/770).
 
 ## Layout

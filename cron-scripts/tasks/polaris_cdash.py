@@ -6,9 +6,9 @@ and submit the results to CDash.
 The build goes through ``omega_ctest.py --dashboard --build_only`` so CTest
 records it, the suite runs in the job ``polaris suite`` writes, and the
 task results are turned into ``Test.xml`` beside the recorded build before
-the dashboard script's submit stage sends both.  The build name is
-``Baseline_<compiler>``, which CDash's group rules expect; no baseline is
-compared (see #770).
+the dashboard script's submit stage sends both.  The build name,
+``polaris_omega_nightly-<compiler>``, is what CDash's group rules file into
+``Polaris_Omega_Nightly_Tests``.
 """
 
 import glob
@@ -43,7 +43,7 @@ def main():
     )
     os.makedirs(work_dir, exist_ok=True)
 
-    build_name = f'Baseline_{args.compiler}'
+    build_name = f'polaris_{SUITE}-{args.compiler}'
     branch = os.path.join(args.polaris_root, 'e3sm_submodules', 'Omega')
     command = omega_ctest_command(
         polaris_root=args.polaris_root,
