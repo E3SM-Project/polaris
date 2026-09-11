@@ -301,3 +301,55 @@ error tolerance) in the step's work directory.  The full details of every
 check are also written to `property_check_results.json` and stored in the
 step's `property_check_results` attribute, so that other steps can summarize
 them.
+
+(dev-cf-check)=
+
+# CF compliance checks
+
+A step can have its output files checked for compliance with the
+[CF conventions](https://cfconventions.org/) after it runs, using the
+[CF checker](https://github.com/cedadev/cf-checker) (`cfchecks`).  A file
+passes when the checker reports no errors; warnings and informational
+messages go to the step's log but do not fail the check.  Unlike a property
+check, a failed CF check fails the task, so a suite cannot pass while a
+model writes non-compliant metadata.
+
+To opt in, call {py:meth}`polaris.Step.add_cf_check()` with each file to
+check.  A glob pattern stands for a series of files with the same metadata,
+such as a time series from one output stream, so only its first match is
+checked:
+
+```python
+self.add_cf_check('output.nc')
+self.add_cf_check('restarts/rst.*.nc')
+```
+
+A step that only knows its output files at run time can opt in with no
+filename and add the files in an override of
+{py:meth}`polaris.Step.check_cf()` before calling the base-class method.
+{py:class}`polaris.ocean.model.OceanModelStep` does this for Omega: every
+step running Omega checks the first file of each stream in write mode in its
+`omega.yml`.  MPAS-Ocean output is not checked.
+
+The checker needs the CF standard-name, area-type and region-name tables.
+Their versions are pinned in the `[cf]` section of `default.cfg`, so a table
+update cannot change what a check reports, and each is downloaded once per
+machine into the `cf/tables` database and linked into the step:
+
+```cfg
+# Options for checking netCDF files for CF compliance
+[cf]
+
+# Versions of the CF standard-name, area-type and region-name tables, pinned
+# so that a table update cannot change what a check reports
+standard_name_table_version = 94
+area_type_table_version = 13
+region_name_table_version = 5
+```
+
+The result of the check is written to `cf_check_passed.log` or
+`cf_check_failed.log` (which lists the errors for each failing file) in the
+step's work directory and stored in the step's `cf_check_results` attribute.
+When a suite runs, each step that ran a check gets a `CF compliance` line
+next to its property checks and baseline comparison, and tasks that failed
+the check are listed in the suite's pull-request summary.

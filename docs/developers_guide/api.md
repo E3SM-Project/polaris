@@ -164,9 +164,11 @@ seaice/api
    Step.add_input_file
    Step.add_output_file
    Step.add_property_check
+   Step.add_cf_check
    Step.add_dependency
    Step.validate_baselines
    Step.check_properties
+   Step.check_cf
    Step.set_shared_config
 ```
 
@@ -254,6 +256,19 @@ seaice/api
 
    generate_site
    gallery_filename
+```
+
+### cf_check
+
+```{eval-rst}
+.. currentmodule:: polaris.cf_check
+
+.. autosummary::
+   :toctree: generated/
+
+   add_cf_tables
+   resolve_cf_check_files
+   check_cf_compliance
 ```
 
 ### config

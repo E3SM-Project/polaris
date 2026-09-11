@@ -72,7 +72,9 @@ ocean/spherical/icos/cosine_bell/restart
 # omega_pr suite
 
 The `omega_pr` suite is designed to test changes in Omega or the affects of
-Polaris changes on Omega results.
+Polaris changes on Omega results.  Every file Omega writes in the suite is
+checked for CF compliance, and a task fails if the checker reports errors
+(see {ref}`dev-cf-check`).
 
 Here are the tests in the suite:
 ```none
