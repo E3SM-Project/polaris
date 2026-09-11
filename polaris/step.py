@@ -7,6 +7,11 @@ import warnings
 from mache import MachineInfo
 from mache.permissions import update_permissions
 
+from polaris.cf_check import (
+    add_cf_tables,
+    check_cf_compliance,
+    resolve_cf_check_files,
+)
 from polaris.config import PolarisConfigParser
 from polaris.io import download, symlink
 from polaris.validate import compare_variables
@@ -212,6 +217,19 @@ class Step:
         :py:meth:`check_properties()`, each a dictionary with at least the
         keys ``description``, ``relative_error``, ``tolerance`` and
         ``passed``
+
+    cf_check : bool
+        Whether to check output files for CF compliance after the step
+        runs, set by :py:meth:`add_cf_check()`
+
+    cf_check_files : list of str
+        Files or glob patterns, relative to the step's work directory, to
+        check for CF compliance, added with :py:meth:`add_cf_check()`
+
+    cf_check_results : list of dict
+        The results of the CF checks performed by :py:meth:`check_cf()`,
+        each a dictionary with at least the keys ``filename``, ``passed``,
+        ``errors`` and ``report``
 
     logger : logging.Logger
         A logger for output from the step
@@ -419,6 +437,9 @@ class Step:
         self.validate_vars = dict()
         self.properties_to_check = list()
         self.property_check_results = list()
+        self.cf_check = False
+        self.cf_check_files = list()
+        self.cf_check_results = list()
         self.setup_complete = False
 
         # these will be set before running the step, dummy placeholders for now
@@ -1054,6 +1075,26 @@ class Step:
             )
         )
 
+    def add_cf_check(self, filename=None):
+        """
+        Check an output file for CF compliance after the step runs.  The
+        step fails its CF check if the CF checker reports any errors for the
+        file.
+
+        Parameters
+        ----------
+        filename : str, optional
+            The relative path of the file within the step's work directory.
+            A glob pattern stands for a series of files with the same
+            metadata (a time series from one output stream), so only its
+            first match is checked.  With no filename, the step is only
+            opted into the check, for subclasses that find their output
+            files at run time and add them in :py:meth:`check_cf()`.
+        """
+        self.cf_check = True
+        if filename is not None and filename not in self.cf_check_files:
+            self.cf_check_files.append(filename)
+
     def add_dependency(self, step, name=None):
         """
         Add `step` as a dependency of this step (i.e. this step can't run
@@ -1102,6 +1143,35 @@ class Step:
             Whether all checked properties were within tolerance
         """
         return False, True
+
+    def check_cf(self):
+        """
+        Check the files added with :py:meth:`add_cf_check()` for CF
+        compliance.  Each file's full report from the checker goes to the
+        step's logger, and the results are stored in
+        ``self.cf_check_results``.  Subclasses that find their output files
+        at run time can add to ``self.cf_check_files`` before calling this
+        method.
+
+        Returns
+        -------
+        checked : bool
+            Whether any files were checked
+
+        success : bool
+            Whether every checked file was free of errors
+        """
+        if not self.cf_check or not self.cf_check_files:
+            return False, True
+        filenames = resolve_cf_check_files(self.cf_check_files, self.work_dir)
+        results = check_cf_compliance(filenames, self.work_dir)
+        self.cf_check_results = results
+        logger = self.logger
+        success = True
+        for result in results:
+            logger.info(result['report'])
+            success = success and result['passed']
+        return True, success
 
     def validate_baselines(self):
         """
@@ -1216,6 +1286,9 @@ class Step:
                 self.add_input_file(
                     filename=output, target=target, database='polaris_cache'
                 )
+
+        if self.cf_check:
+            add_cf_tables(self)
 
         inputs = []
         databases_with_downloads = set()
