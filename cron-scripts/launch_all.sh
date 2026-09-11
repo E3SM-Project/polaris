@@ -1,62 +1,64 @@
 #!/usr/bin/env bash
-set -eo pipefail
+#
+# Entry point for the nightly jobs on one machine:
+#
+#   launch_all.sh -m <machine>
+#
+# The driver (driver/cronjob.sh) runs this after bringing the clone up to
+# date.  It sets up the machine's shell environment, takes a lock so two
+# nights cannot overlap, and hands over to nightly.py, which does the rest.
+#
+# Environment:
+#   POLARIS_CRON_ROOT   the directory the nightly jobs work in (required)
+#   POLARIS_ROOT        the Polaris clone (default: the one this script is in)
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+main() {
+    set -eo pipefail
 
-# --- Parse command-line arguments ---
-CLI_MACHINE=""
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    -m|--machine)
-      CLI_MACHINE="$2"
-      shift 2
-      ;;
-    *)
-      echo "ERROR: Unknown option '$1'" >&2
-      echo "Usage: $SCRIPT_NAME [-m|--machine MACHINE_NAME]"
-      exit 1
-      ;;
-  esac
-done
+    local here
+    here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "[$(date)] Starting $SCRIPT_NAME"
+    local machine=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -m | --machine)
+                machine="$2"
+                shift 2
+                ;;
+            *)
+                echo "ERROR: unknown option '$1'" >&2
+                echo "Usage: $(basename "${BASH_SOURCE[0]}") -m MACHINE" >&2
+                exit 1
+                ;;
+        esac
+    done
+    if [[ -z "${machine}" ]]; then
+        echo "ERROR: -m MACHINE is required" >&2
+        exit 1
+    fi
+    if [[ ! -f "${here}/machines/${machine}.sh" ]]; then
+        echo "ERROR: no cron environment for '${machine}':" \
+            "expected ${here}/machines/${machine}.sh" >&2
+        exit 1
+    fi
 
-# set CRONJOB_BASEDIR and machine-specific variables
-# pass -m through so config_machine.sh uses CLI override if provided
-if [[ -n "$CLI_MACHINE" ]]; then
-    source "${HERE}/machines/config_machine.sh" -m "$CLI_MACHINE"
-else
-    source "${HERE}/machines/config_machine.sh"
-fi
+    : "${POLARIS_CRON_ROOT:?POLARIS_CRON_ROOT must be set}"
+    mkdir -p "${POLARIS_CRON_ROOT}"
+    export POLARIS_ROOT="${POLARIS_ROOT:-$(cd "${here}/.." && pwd)}"
 
-export CRONJOB_LOGDIR="${CRONJOB_BASEDIR}/logs"
-mkdir -p "$CRONJOB_LOGDIR"
+    # shellcheck disable=SC1090
+    source "${here}/machines/${machine}.sh"
 
-export CRONJOB_DATE=$(date +"%d")
-export CRONJOB_TIME=$(date +"%T")
+    # the lock is inherited by nightly.py through the exec and released
+    # when it exits
+    exec 9>"${POLARIS_CRON_ROOT}/.launch_all.lock"
+    if ! flock -n 9; then
+        echo "ERROR: the nightly jobs are already running on ${machine}" \
+            "(${POLARIS_CRON_ROOT}/.launch_all.lock is held)" >&2
+        exit 1
+    fi
 
-LOCKFILE="${TMPDIR:-/tmp}/${USER:?USER must be set}_cronjob.lock"
-exec 9>"$LOCKFILE"
-if ! flock -n 9; then
-    echo "[$(date)] launch_all.sh is already running, exiting."
-    exit 0
-fi
+    exec python3 "${here}/nightly.py" -m "${machine}"
+}
 
-if [[ ! -d "$POLARIS_CRON_ROOT" ]]; then
-    echo "ERROR: POLARIS_CRON_ROOT does not exist: $POLARIS_CRON_ROOT" >&2
-    exit 1
-fi
-
-echo "Removing: outputs from previous tasks"
-rm -rf -- "$POLARIS_CRON_ROOT/tasks"
-
-# Run all launch*.sh scripts under immediate subdirectories of $HERE/tasks
-while IFS= read -r script; do
-    /bin/bash "$script"
-done < <(
-    find "$HERE/tasks" -mindepth 2 -maxdepth 2 \
-        -type f -name 'launch*.sh' | sort
-)
-
-echo "[$(date)] Finished $SCRIPT_NAME"
+main "$@"
