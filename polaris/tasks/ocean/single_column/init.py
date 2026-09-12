@@ -216,9 +216,14 @@ class Init(OceanIOStep):
             restoring_values = np.zeros((2, ds.sizes['nCells']))
             restoring_values[0, :] = temperature_surface_restoring_value
             restoring_values[1, :] = salinity_surface_restoring_value
+            # the tracers have different units, so the array has none
             ds['TracersMonthlySurfClimoCell'] = xr.DataArray(
                 restoring_values[np.newaxis, :, :],
                 dims=('time', 'NTracers', 'NCells'),
+                attrs={
+                    'long_name': 'surface climatology the tracers are '
+                    'restored toward'
+                },
             )
         self.write_initial_state_dataset(ds, 'init.nc', config)
 

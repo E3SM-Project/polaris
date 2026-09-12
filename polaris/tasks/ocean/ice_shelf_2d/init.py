@@ -150,10 +150,14 @@ class Init(OceanIOStep):
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
 
         mask_variable = config.get('ssh_adjustment', 'mask_variable')
-        mask = xr.zeros_like(ds_mesh.yCell)
         mask = np.logical_and(ds.maxLevelCell > 0, ds_mesh.yCell < y3).astype(
             float
         )
+        # replace the attributes inherited from maxLevelCell
+        mask.attrs = {
+            'long_name': 'mask of cells where the sea surface height or '
+            'land-ice pressure is adjusted'
+        }
         ds[mask_variable] = mask
 
         ds['normalVelocity'] = normal_velocity
