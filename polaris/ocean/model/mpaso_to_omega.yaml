@@ -107,7 +107,6 @@ variables:
 
   # vertical coordinate diagnostics
   zMid: GeomZMid
-  zInterface: GeomZInterface
   pressure: PressureMid
 
   # eos

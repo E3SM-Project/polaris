@@ -4,20 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from polaris.ocean.model import OceanIOStep, get_time_since_start
+from polaris.ocean.vertical.diagnostics import (
+    location_for_field,
+    vertical_coord_from_location,
+)
 from polaris.viz import mplstyle_context
 
 # TODO import rho_0 from constants
-
-# Fields defined at the top of each layer that a model nonetheless writes on
-# ``nVertLevels``, leaving the bottom of the column off, rather than on
-# ``nVertLevelsP1``.  MPAS-Ocean writes ``BruntVaisalaFreqTop`` this way
-# while giving ``RiTopOfCell`` and ``vertViscTopOfCell`` the interface
-# dimension; Omega writes ``BruntVaisalaFreqTop`` on ``nVertLevelsP1``.
-# Dimensions cannot tell such a field from a layer average, so it is named
-# here.  A field is only ever read from this list when it arrives on
-# ``nVertLevels``, so listing one that a model writes at interfaces is
-# harmless.
-TOP_OF_LAYER_FIELDS = ('BruntVaisalaFreqTop',)
 
 
 class Viz(OceanIOStep):
@@ -79,10 +72,18 @@ class Viz(OceanIOStep):
         self.add_input_file(
             filename='init.nc', work_dir_target=f'{init.path}/init.nc'
         )
+        self.init = init
         for comparison_name, comparison_path in self.comparisons.items():
             self.add_input_file(
                 filename=f'{comparison_name}.nc',
                 target=f'{comparison_path}/{output_file}',
+            )
+
+    def setup(self):
+        if self.config.get('ocean', 'model') == 'omega':
+            self.add_input_file(
+                filename='vert_coord.nc',
+                work_dir_target=f'{self.init.path}/vert_coord.nc',
             )
 
     def run(self):
@@ -124,15 +125,11 @@ class Viz(OceanIOStep):
                 ds_list.append(ds_comp.isel(Time=t_index))
             ds_init = self.open_model_dataset('init.nc', config=self.config)
             ds_init = ds_init.isel(Time=0)
-            z_mid_init = ds_init['zMid'].mean(dim='nCells')
-            z_interface_init = ds_init['zInterface'].mean(dim='nCells')
 
-            z_mid_final = z_mid_init
-            z_interface_final = z_interface_init
-            self.logger.warn(
-                'Using the initial vertical coordinate; may not represent '
-                'the plotted state'
-            )
+            if self.config.get('ocean', 'model') == 'omega':
+                ds_vert = self.open_model_dataset('vert_coord.nc')
+            else:
+                ds_vert = ds_init
 
             # The depth range of the plots, also used to select the data
             # that sets the x-axis range
@@ -152,12 +149,6 @@ class Viz(OceanIOStep):
                     colors,
                     strict=False,
                 ):
-                    # TODO use this line when Omega zMid is correct
-                    # z_mid_final = ds_comp['zMid'].mean(dim='nCells')
-                    # TODO compare with z_mid computed from layerThickness
-                    # z_mid_final = depth_from_thickness(ds_comp).mean(
-                    #    dim='nCells'
-                    # )
                     if field_name == 'velocity':
                         if (
                             'velocityZonal' not in ds_comp.keys()
@@ -174,12 +165,12 @@ class Viz(OceanIOStep):
                             f'{comparison_name} at {t_days} days'
                         )
                         var = ds_comp['velocityZonal'].mean(dim='nCells')
-                        z = _vertical_coord(
-                            'velocityZonal',
-                            var,
-                            z_mid_final,
-                            z_interface_final,
-                        )
+                        z = vertical_coord_from_location(
+                            ds_comp,
+                            location_for_field(var),
+                            allow_reconstruct=True,
+                            ds_vert=ds_init,
+                        ).mean(dim='nCells')
                         plt.plot(
                             var,
                             z,
@@ -189,12 +180,12 @@ class Viz(OceanIOStep):
                         )
                         _add_visible_limits(x_limits, var, z, ymin, ymax)
                         var = ds_comp['velocityMeridional'].mean(dim='nCells')
-                        z = _vertical_coord(
-                            'velocityMeridional',
-                            var,
-                            z_mid_final,
-                            z_interface_final,
-                        )
+                        z = vertical_coord_from_location(
+                            ds_comp,
+                            location_for_field(var),
+                            allow_reconstruct=True,
+                            ds_vert=ds_vert,
+                        ).mean(dim='nCells')
                         plt.plot(
                             var,
                             z,
@@ -212,9 +203,12 @@ class Viz(OceanIOStep):
                             )
                             continue
                         var = ds_comp[field_name].mean(dim='nCells')
-                        z = _vertical_coord(
-                            field_name, var, z_mid_final, z_interface_final
-                        )
+                        z = vertical_coord_from_location(
+                            ds_comp,
+                            location_for_field(var, field_name),
+                            allow_reconstruct=True,
+                            ds_vert=ds_vert,
+                        ).mean(dim='nCells')
                         # TODO delete this line when MPAS-O bug is fixed
                         if field_name == 'RiTopOfCell':
                             var[0] = np.nan
@@ -239,12 +233,12 @@ class Viz(OceanIOStep):
                             and 'initial' not in existing_labels
                         ):
                             var_init = ds_init[field_name].mean(dim='nCells')
-                            z_init = _vertical_coord(
-                                field_name,
-                                var_init,
-                                z_mid_init,
-                                z_interface_init,
-                            )
+                            z_init = vertical_coord_from_location(
+                                ds_init,
+                                location_for_field(var_init, field_name),
+                                allow_reconstruct=True,
+                                ds_vert=ds_init,
+                            ).mean(dim='nCells')
                             plt.plot(var_init, z_init, '--k', label='initial')
                             _add_visible_limits(
                                 x_limits, var_init, z_init, ymin, ymax
@@ -278,36 +272,6 @@ class Viz(OceanIOStep):
                 )
                 plt.savefig(f'{field_name}.png', bbox_inches='tight')
                 plt.close()
-
-
-def _vertical_coord(field_name, var, z_mid, z_interface):
-    """
-    The vertical coordinate to plot ``var`` against
-
-    A field on ``nVertLevelsP1`` is defined at layer interfaces --- the top
-    of each layer, plus one more for the bottom of the column --- so it is
-    plotted at interface elevations.  A field in
-    :py:data:`TOP_OF_LAYER_FIELDS` is defined at the top of each layer but
-    written on ``nVertLevels``, so it is plotted at the top interface of
-    each layer.  Everything else is a layer quantity and is plotted at
-    layer midpoints.
-    """
-    if 'nVertLevelsP1' in var.dims:
-        return z_interface
-    if field_name in TOP_OF_LAYER_FIELDS:
-        return _layer_tops(z_interface)
-    return z_mid
-
-
-def _layer_tops(z_interface):
-    """
-    The elevation of the top interface of each layer, on ``nVertLevels``
-
-    ``isel()`` changes the length of the dimension but not its name, so the
-    result is renamed to the dimension the field it pairs with is on.
-    """
-    z_top = z_interface.isel(nVertLevelsP1=slice(0, -1))
-    return z_top.rename({'nVertLevelsP1': 'nVertLevels'})
 
 
 def _add_visible_limits(x_limits, var, z, ymin, ymax):
