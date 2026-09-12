@@ -9,6 +9,8 @@ from mpas_tools.mesh.cull import map_culled_to_base
 from pyremap import MpasCellMeshDescriptor
 
 from polaris import Step
+from polaris.cf import add_cf_conventions
+from polaris.mesh.attrs import add_mesh_var_attrs
 from polaris.mesh.reconstruct import (
     compute_reconstruction_weights,
     get_reconstruction_validate_vars,
@@ -84,6 +86,7 @@ class CullMeshStep(Step):
                 filename=f'culled_{prefix}_mesh.nc',
                 validate_vars=MPAS_MESH_VALIDATE_VARS,
             )
+            self.add_cf_check(f'culled_{prefix}_mesh.nc')
             self.add_output_file(
                 filename=f'{prefix}_map_culled_to_base.nc',
                 validate_vars=MAP_CULLED_TO_BASE_VALIDATE_VARS,
@@ -98,6 +101,7 @@ class CullMeshStep(Step):
                         location='cell'
                     ),
                 )
+                self.add_cf_check(f'culled_{prefix}_reconstruction_weights.nc')
 
     def setup(self):
         """
@@ -182,6 +186,7 @@ class CullMeshStep(Step):
         ds_culled_mesh = sort_mesh(ds_culled_mesh)
 
         out_filename = f'culled_{prefix}_mesh.nc'
+        ds_culled_mesh = add_cf_conventions(add_mesh_var_attrs(ds_culled_mesh))
         write_netcdf(ds_culled_mesh, out_filename)
         if prefix in SCRIP_PREFIXES:
             self._create_scrip_file(mesh_filename=out_filename, prefix=prefix)
@@ -208,7 +213,8 @@ class CullMeshStep(Step):
                 ds_culled_mesh, location='cell'
             )
             write_netcdf(
-                ds_weights, f'culled_{prefix}_reconstruction_weights.nc'
+                add_cf_conventions(ds_weights),
+                f'culled_{prefix}_reconstruction_weights.nc',
             )
 
     def _create_scrip_file(self, mesh_filename, prefix):

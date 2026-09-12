@@ -63,6 +63,9 @@ class OceanIOStep(OceanModelFilesMixin, Step):
         """
         Register output files that will be consumed by the ocean model as
         inputs (horizontal mesh, initial condition, and model-specific files).
+        Each netCDF file is also checked for CF compliance after the step
+        runs (see :py:meth:`polaris.Step.add_cf_check()`), which the
+        component's write methods make it pass by filling in the metadata.
 
         Parameters
         ----------
@@ -100,13 +103,16 @@ class OceanIOStep(OceanModelFilesMixin, Step):
 
         if base_mesh_filename is not None:
             self.add_output_file(filename=base_mesh_filename)
+            self.add_cf_check(base_mesh_filename)
         self.add_output_file(filename=horiz_mesh_filename)
+        self.add_cf_check(horiz_mesh_filename)
         if skip_validation:
             self.add_output_file(filename=init_filename)
         else:
             self.add_output_file(
                 filename=init_filename, validate_class='state'
             )
+        self.add_cf_check(init_filename)
         if model == 'omega':
             if skip_validation:
                 self.add_output_file(filename=vert_coord_filename)
@@ -114,6 +120,7 @@ class OceanIOStep(OceanModelFilesMixin, Step):
                 self.add_output_file(
                     filename=vert_coord_filename, validate_class='vert_coord'
                 )
+            self.add_cf_check(vert_coord_filename)
         if model == 'mpas-ocean' and graph_filename is not None:
             self.add_output_file(filename=graph_filename)
 
