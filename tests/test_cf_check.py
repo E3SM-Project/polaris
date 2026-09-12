@@ -33,6 +33,9 @@ STANDARD_NAMES = """<?xml version="1.0"?>
   <entry id="sea_surface_height_above_geoid">
     <canonical_units>m</canonical_units>
   </entry>
+  <entry id="coriolis_parameter">
+    <canonical_units>s-1</canonical_units>
+  </entry>
 </standard_name_table>
 """
 
