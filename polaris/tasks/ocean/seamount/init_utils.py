@@ -126,7 +126,7 @@ def compute_tracers(
         )
         temperature.attrs['long_name'] = 'potential temperature'
         salinity.attrs['long_name'] = 'practical salinity'
-        salinity.attrs['units'] = 'PSU'
+        salinity.attrs['units'] = '1'
     elif eos_type == 'teos-10':
         temperature = ct_from_potential_density(density, salinity)
         salinity.attrs['long_name'] = 'absolute salinity'

@@ -237,7 +237,7 @@ def _add_coriolis_attrs(
         {
             'long_name': f'Coriolis parameter at {location}',
             'standard_name': 'coriolis_parameter',
-            'units': 'radians s^-1',
+            'units': 'radians s-1',
         }
     )
     return data_array
