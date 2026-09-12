@@ -5,7 +5,7 @@ CF metadata for the netCDF files Polaris writes
 import importlib.resources as imp_res
 import re
 from functools import lru_cache
-from typing import Dict, Mapping
+from typing import Dict, Iterable, Mapping
 
 import xarray as xr
 from ruamel.yaml import YAML
@@ -33,14 +33,15 @@ def add_cf_conventions(ds: xr.Dataset) -> xr.Dataset:
     Returns
     -------
     ds : xarray.Dataset
-        A shallow copy of the dataset with the ``Conventions`` attribute set
+        A shallow copy of the dataset with the ``Conventions`` attribute set,
+        or the dataset itself if it already names a CF version
     """
-    ds = ds.copy()
     existing = str(ds.attrs.get('Conventions', ''))
     entries = [entry for entry in re.split(r'[\s,]+', existing) if entry]
-    if not any(_CF_ENTRY.match(entry) for entry in entries):
-        entries.insert(0, f'CF-{CF_VERSION}')
-    ds.attrs['Conventions'] = ' '.join(entries)
+    if any(_CF_ENTRY.match(entry) for entry in entries):
+        return ds
+    ds = ds.copy()
+    ds.attrs['Conventions'] = ' '.join([f'CF-{CF_VERSION}'] + entries)
     return ds
 
 
@@ -73,6 +74,46 @@ def add_var_attrs(
         for attr, value in attrs.items():
             if attr not in ds[name].attrs:
                 ds[name].attrs[attr] = value
+    return ds
+
+
+def drop_inherited_attrs(ds: xr.Dataset, names: Iterable[str]) -> xr.Dataset:
+    """
+    Clear the attributes of each named variable whose attributes are
+    identical to another variable's.  xarray propagates attributes through
+    arithmetic, comparisons, ``where()`` and ``ones_like()``, so a variable
+    with exactly another's attributes was derived from it and describes
+    itself as that variable (a ``bottomDepth`` made from ``ones_like(xCell)``
+    calls itself the x coordinate of cell centers).  A label someone wrote
+    for a variable never duplicates another variable's whole attribute set,
+    so those are kept.  Use before :py:func:`add_var_attrs()` to give the
+    cleared variables their own attributes.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset about to be written
+
+    names : iterable of str
+        The variables to consider, typically the ones a table of attributes
+        can describe.  Variables not in the dataset are ignored.
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        A shallow copy of the dataset with the inherited attributes cleared
+    """
+    ds = ds.copy()
+    for name in names:
+        if name not in ds.variables:
+            continue
+        attrs = ds[name].attrs
+        if not attrs:
+            continue
+        for other, var in ds.variables.items():
+            if other != name and var.attrs == attrs:
+                ds[name].attrs = {}
+                break
     return ds
 
 

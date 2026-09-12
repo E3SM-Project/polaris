@@ -8,7 +8,12 @@ from mpas_tools.io import open_dataset, write_netcdf
 from ruamel.yaml import YAML
 
 from polaris import Component
-from polaris.cf import add_cf_conventions, add_var_attrs, read_var_attrs
+from polaris.cf import (
+    add_cf_conventions,
+    add_var_attrs,
+    drop_inherited_attrs,
+    read_var_attrs,
+)
 from polaris.constants import get_constant
 from polaris.mesh.attrs import add_mesh_var_attrs
 from polaris.mesh.info import is_planar, is_spherical
@@ -505,6 +510,14 @@ class Ocean(Component):
         """
         if self.model is None:
             self.model = config.get('ocean', 'model')
+        target = 'teos-10' if self.model == 'omega' else 'mpas-ocean'
+        # a state variable made from a mesh variable (``ones_like(xCell)``)
+        # inherits its attributes, so clear those while the mesh variables
+        # are still here to compare against
+        ocean_attrs = read_var_attrs('polaris.ocean.model', 'attrs.yaml')
+        ds = drop_inherited_attrs(
+            ds, list(ocean_attrs) + list(TRACER_ATTRS[target])
+        )
         ds = self._convert_tracers_for_model(
             ds,
             config,
@@ -534,7 +547,6 @@ class Ocean(Component):
         # tracers converted above already carry the attributes of the
         # model's convention; label any others with them too, since the
         # conventions only differ for the TEOS-10 equation of state
-        target = 'teos-10' if self.model == 'omega' else 'mpas-ocean'
         ds = add_var_attrs(ds, TRACER_ATTRS[target])
 
         self.write_model_dataset(ds, filename, config, contains_state=True)
@@ -793,13 +805,15 @@ class Ocean(Component):
         Fill in ``units`` and ``long_name`` for the mesh, vertical-coordinate,
         state and forcing variables that do not have them and add the CF
         version to the ``Conventions`` attribute, so that every file the
-        ocean component writes passes the CF checker.  This is done before
+        ocean component writes passes the CF checker.  A variable that
+        inherited another's attributes (``bottomDepth`` made from
+        ``ones_like(xCell)``) gets its own instead.  This is done before
         variables are renamed for Omega, so the tables use MPAS-Ocean names.
         """
+        ocean_attrs = read_var_attrs('polaris.ocean.model', 'attrs.yaml')
+        ds = drop_inherited_attrs(ds, ocean_attrs.keys())
         ds = add_mesh_var_attrs(ds)
-        ds = add_var_attrs(
-            ds, read_var_attrs('polaris.ocean.model', 'attrs.yaml')
-        )
+        ds = add_var_attrs(ds, ocean_attrs)
         return add_cf_conventions(ds)
 
     def _convert_tracers_for_model(
