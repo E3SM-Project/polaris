@@ -371,10 +371,11 @@ def plot_global_lat_lon_field(
         gl.top_labels = False
         make_room_for_gridline_labels(ax)
 
-        plotHandle = ax.pcolormesh(
+        plotHandle = ax.contourf(
             lon_corner,
             lat_corner,
             data_array,
+            levels=64,
             cmap=colormap,
             norm=norm,
             transform=ref_projection,
