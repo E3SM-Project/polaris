@@ -11,6 +11,7 @@ import numpy as np
 import xarray as xr
 from cartopy.geodesic import Geodesic
 from matplotlib import colormaps
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from mpas_tools.io import open_dataset
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -34,6 +35,12 @@ _CONNECTIVITY_ARRAYS = [
     'edgesOnVertex',
 ]
 
+# the sizing of a figure to its map settles in a few tries, and the layout
+# at each size in a few passes; these are only guards against either never
+# doing so
+_MAX_FIT_ITERATIONS = 10
+_MAX_LAYOUT_PASSES = 10
+
 
 def plot_global_mpas_field(
     da,
@@ -46,7 +53,8 @@ def plot_global_mpas_field(
     plot_land=True,
     colorbar_label='',
     central_longitude=0.0,
-    figsize=(8, 4.5),
+    fig_width=None,
+    fig_height=None,
     patch_edge_color=None,
     descriptor=None,
     projection_name='PlateCarree',
@@ -94,8 +102,16 @@ def plot_global_mpas_field(
     central_longitude : float, optional
         The longitude of the center of the plot
 
-    figsize : tuple, optional
-        The size of the figure in inches
+    fig_width : float, optional
+        The width of the figure in inches.  The height is whatever leaves no
+        empty canvas above and below the map, which depends on the
+        projection, the extent and the title.  Defaults to 8 if neither
+        ``fig_width`` nor ``fig_height`` is given.
+
+    fig_height : float, optional
+        The height of the figure in inches, as an alternative to
+        ``fig_width``.  The width is then whatever leaves no empty canvas to
+        either side of the map and its colorbar.
 
     dpi : int, optional
         Dots per inch for the output plot
@@ -116,9 +132,10 @@ def plot_global_mpas_field(
         Transect dataset produced by mpas_tools which will be traced on the
         global field
 
-    enforce_aspect_ratio : logical, optional
-        Whether to enforce the aspect ratio of the figure according to lat,
-        lon bounds
+    enforce_aspect_ratio : bool, optional
+        Whether to stretch the map so that its height and width are in the
+        ratio of the geodesic distances across the mesh's latitude and
+        longitude bounds
 
     extent : tuple of float, optional
         The ``(lon_min, lon_max, lat_min, lat_max)`` the map covers, in
@@ -136,6 +153,13 @@ def plot_global_mpas_field(
         For reuse with future plots. Patches are cached, so the Descriptor only
         needs to be created once per mesh file.
     """
+    if fig_width is not None and fig_height is not None:
+        raise ValueError(
+            'Give either fig_width or fig_height, not both: the other is '
+            'set by the aspect ratio of the map'
+        )
+    if fig_width is None and fig_height is None:
+        fig_width = 8.0
 
     with mplstyle_context(dpi=dpi):
         transform = cartopy.crs.Geodetic()
@@ -188,16 +212,15 @@ def plot_global_mpas_field(
                 use_latlon=True,
             )
 
-        fig = Figure(figsize=figsize, constrained_layout=True)
+        # the figure is sized to the map once everything that takes up room
+        # around the map has been drawn
+        fig = Figure(constrained_layout=True)
         ax = fig.add_subplot(111, projection=projection)
 
         if extent is not None:
             ax.set_extent(extent, crs=cartopy.crs.PlateCarree())
         if circular_boundary:
             _set_circular_boundary(ax)
-
-        if title is not None:
-            add_fitted_suptitle(fig, title)
 
         colormap, norm, ticks = setup_colormap(config, colormap_section)
 
@@ -232,28 +255,21 @@ def plot_global_mpas_field(
             )
 
         if enforce_aspect_ratio:
-            min_latitude = np.rad2deg(mesh_ds.latCell.min().values)
-            max_latitude = np.rad2deg(mesh_ds.latCell.max().values)
-            min_longitude = np.rad2deg(mesh_ds.lonCell.min().values)
-            max_longitude = np.rad2deg(mesh_ds.lonCell.max().values)
-            geod = Geodesic()
-            x_distance = geod.inverse(
-                [min_longitude, min_latitude], [max_longitude, min_latitude]
-            )[0, 0]
-            y_distance = geod.inverse(
-                [min_longitude, min_latitude], [min_longitude, max_latitude]
-            )[0, 0]
-            ax.set_aspect(y_distance / x_distance)
+            ax.set_aspect(_geodesic_aspect_ratio(descriptor))
 
         if ticks is not None:
             cbar.set_ticks(ticks)
             cbar.set_ticklabels([f'{tick}' for tick in ticks])
+
+        _fit_figure_to_map(fig, ax, cbar, title, fig_width, fig_height)
 
         # Let constrained_layout manage the margins; combining it with
         # bbox_inches='tight' on a fixed-aspect GeoAxes with an
         # attached colorbar can collapse the map axes so only part of
         # the globe is drawn.
         fig.savefig(out_filename)
+
+    return descriptor
 
 
 def plot_global_lat_lon_field(
@@ -475,6 +491,202 @@ def setup_colormap(config, colormap_section):
         colormap.set_over(over_color)
 
     return colormap, norm, ticks
+
+
+def _fit_figure_to_map(
+    fig, ax, cbar, title, fig_width, fig_height, tolerance=0.01
+):
+    """
+    Size a figure so that its map fills it
+
+    A map has a fixed aspect ratio, and the layout engine centers it in
+    whatever room is left once the title, the gridline labels and the
+    colorbar have taken theirs, so a figure of the wrong shape has empty
+    canvas above and below the map or to either side of it.  One dimension
+    is fixed by the caller and the other is chosen here to leave no such
+    room.
+
+    A first guess comes from the map's aspect ratio, widened by the fraction
+    of the figure the colorbar takes.  What that guess cannot know is how
+    much room the layout engine gives the labels and title, since that
+    depends on the font and on the projection, so the figure is then laid
+    out, the room the map did not fill is trimmed, and the process repeated
+    until the size settles.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        The figure, with constrained layout
+
+    ax : cartopy.mpl.geoaxes.GeoAxes
+        The map axes, with everything already plotted on them
+
+    cbar : matplotlib.colorbar.Colorbar
+        The map's colorbar
+
+    title : str or None
+        The figure title, refitted to the figure each time its width changes
+
+    fig_width : float or None
+        The width of the figure in inches, if that is what is fixed
+
+    fig_height : float or None
+        The height of the figure in inches, if that is what is fixed
+
+    tolerance : float, optional
+        The room the map may leave empty in the free dimension, in inches
+    """
+    # measuring the layout needs a canvas that can produce a renderer; a
+    # bare figure carries one that cannot, and savefig would attach an Agg
+    # canvas anyway, so attaching it here changes nothing that is drawn
+    if not hasattr(fig.canvas, 'get_renderer'):
+        FigureCanvasAgg(fig)
+
+    # the map's height over its width, in inches; a map's aspect is 'equal'
+    # unless set to a number, and matplotlib stores 'equal' as 1
+    x0, x1 = ax.get_xlim()
+    y0, y1 = ax.get_ylim()
+    map_aspect = float(ax.get_aspect()) * abs(y1 - y0) / abs(x1 - x0)
+
+    # the colorbar is given this fraction of the map's width plus a pad, so
+    # the map gets the rest
+    cbar_info = cbar.ax._colorbar_info
+    map_fraction = 1.0 / (1.0 + cbar_info['fraction'] + cbar_info['pad'])
+
+    fixed_width = fig_width is not None
+    if fixed_width:
+        free = map_fraction * fig_width * map_aspect
+    else:
+        free = fig_height / map_aspect / map_fraction
+
+    # the layout engine reserves room for the gridline labels only where they
+    # overhang the map's layout cell, and a map centered in a cell it does
+    # not fill has its labels inside the cell; anchoring the map to the
+    # corner the labels are on keeps them overhanging
+    ax.set_anchor('SW')
+
+    # a size at which the map falls short of its cell and one at which the
+    # cell falls short of the map bracket the size wanted
+    too_big = None
+    too_small = None
+    for _ in range(_MAX_FIT_ITERATIONS):
+        if fixed_width:
+            fig.set_size_inches(fig_width, free)
+        else:
+            fig.set_size_inches(free, fig_height)
+        if title is not None:
+            add_fitted_suptitle(fig, title)
+        cell_width, cell_height = _settle_layout(fig, ax, tolerance)
+        # how much of the room the layout engine left the map it does not
+        # fill
+        if fixed_width:
+            slack = cell_height - cell_width * map_aspect
+        else:
+            slack = cell_width - cell_height / map_aspect
+        if abs(slack) < tolerance:
+            break
+        if slack > 0.0:
+            too_big = (free, slack)
+        else:
+            too_small = (free, slack)
+        if too_big is None or too_small is None:
+            # the room around the map depends only weakly on its size, so
+            # trimming the slack is nearly right
+            free -= slack
+        else:
+            # the room the layout engine reserves for a label changes
+            # abruptly as the map goes from filling its cell to not, so
+            # trimming the slack can overshoot; between the bracketing sizes
+            # the size is taken where the line through them has no slack
+            (small, small_slack), (big, big_slack) = too_small, too_big
+            free = small - small_slack * (big - small) / (
+                big_slack - small_slack
+            )
+
+
+def _settle_layout(fig, ax, tolerance):
+    """
+    Lay the figure out until the room left for the map stops changing
+
+    The layout is computed from bounding boxes, without drawing the field,
+    which is what takes the time.  Each pass measures the colorbar and the
+    gridline labels where the previous pass put them, and where a label
+    sits on a curved map boundary, where it lands depends on how big the
+    map is, so a single pass does not settle the layout and the pass that
+    ``savefig`` makes would differ from the one measured here.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        The figure, with constrained layout
+
+    ax : cartopy.mpl.geoaxes.GeoAxes
+        The map axes
+
+    tolerance : float
+        The change in the map's cell, in inches, below which the layout has
+        settled
+
+    Returns
+    -------
+    cell_width : float
+        The width of the room left for the map, in inches
+
+    cell_height : float
+        The height of the room left for the map, in inches
+    """
+    layout_engine = fig.get_layout_engine()
+    previous = None
+    for _ in range(_MAX_LAYOUT_PASSES):
+        layout_engine.execute(fig)
+        cell = ax.get_position(original=True)
+        cell_width, cell_height = fig.get_size_inches() * (
+            cell.width,
+            cell.height,
+        )
+        if previous is not None:
+            change = max(
+                abs(cell_width - previous[0]), abs(cell_height - previous[1])
+            )
+            if change < tolerance:
+                break
+        previous = (cell_width, cell_height)
+    return cell_width, cell_height
+
+
+def _geodesic_aspect_ratio(descriptor):
+    """
+    The height over the width of a map of a mesh, taking the distance across
+    its latitude and longitude bounds in each direction as the measure
+
+    Parameters
+    ----------
+    descriptor : mosaic.Descriptor
+        The descriptor of the mesh, whose cell coordinates are in the map
+        projection
+
+    Returns
+    -------
+    aspect_ratio : float
+        The height over the width
+    """
+    # the descriptor keeps only the projected cell coordinates, so they are
+    # taken back to longitude and latitude in degrees
+    lon_lat = cartopy.crs.PlateCarree().transform_points(
+        descriptor.projection,
+        descriptor.ds.xCell.values,
+        descriptor.ds.yCell.values,
+    )
+    min_longitude, min_latitude = lon_lat[:, :2].min(axis=0)
+    max_longitude, max_latitude = lon_lat[:, :2].max(axis=0)
+    geod = Geodesic()
+    x_distance = geod.inverse(
+        [min_longitude, min_latitude], [max_longitude, min_latitude]
+    )[0, 0]
+    y_distance = geod.inverse(
+        [min_longitude, min_latitude], [min_longitude, max_latitude]
+    )[0, 0]
+    return y_distance / x_distance
 
 
 def _set_circular_boundary(ax):
