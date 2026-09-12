@@ -180,7 +180,13 @@ class ConvergenceForward(OceanModelStep):
         output_freq = int(output_interval * s_per_hour)
 
         time_integrator = section.get('time_integrator')
-        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        time_integrator_map = dict(
+            [
+                ('RK4', 'RungeKutta4'),
+                ('split_explicit', 'SplitExplicitRK2'),
+                ('unsplit_explicit', 'UnsplitRK2'),
+            ]
+        )
         model = config.get('ocean', 'model')
         if model == 'omega':
             if time_integrator in time_integrator_map.keys():

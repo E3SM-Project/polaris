@@ -129,10 +129,10 @@ output of MPAS-Ocean and Omega on the same mesh and initial condition.
 
 A task is defined for each of two meshes:
 
-| mesh | cells | time step | run duration |
-|------|-------|-----------|--------------|
-| `QU.240km` | 7,153 | 10 min | 10 days |
-| `EC30to60E2r2` | 236,853 | 45 s | 1 day |
+| mesh | cells | time step | barotropic step | run duration |
+|------|-------|-----------|-----------------|--------------|
+| `QU.240km` | 7,153 | 2 h | 4 min | 5 days |
+| `EC30to60E2r2` | 236,853 | 30 min | 1 min | 1 day |
 
 They can be set up with, e.g.:
 
@@ -193,7 +193,9 @@ and shear mixing enabled, and a constant implicit bottom drag coefficient of
 ### time step and run duration
 
 The time step and run duration are set per mesh as shown in the table above.
-Output, including the global statistics, is written once per day.
+The forward run uses the split-explicit time stepper (`SplitExplicitRK2` in
+Omega), so each baroclinic step is 30 barotropic substeps long and divides a
+day evenly.  Output, including the global statistics, is written once per day.
 
 ### config options
 

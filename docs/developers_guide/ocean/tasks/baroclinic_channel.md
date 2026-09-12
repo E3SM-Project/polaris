@@ -14,6 +14,13 @@ we describe the 5 test cases and their shared framework.
 The shared config options for `baroclinic_channel` tests  are described in
 {ref}`ocean-baroclinic-channel` in the User's Guide.
 
+The `decomp`, `restart` and `threads` tests are also added at 10 km under
+`split_explicit` and `rk4`, each with its own shared config file and `init`
+step, so that a suite can run the two time steppers side by side.  The
+`split_explicit` tasks are identical to those at `10km`; the `rk4` tasks also
+read the overrides in `baroclinic_channel_rk4.cfg`, which switch the time
+integrator to RK4.
+
 Additionally, the tests share a `forward.yaml` file with a few common model
 config options related to run duration and default horizontal  and vertical
 momentum and tracer diffusion, as well as defining `mesh`, `input`, `restart`,
@@ -33,7 +40,8 @@ velocity.  Finally, if a baseline is available, the step ensures that of
 `temperature`, `salinity` and `layerThickness` in the `initial_state.nc` file
 identical to those same fields from the baseline run.
 
-The same `init` step is shared by all tasks at a given resolution.
+The same `init` step is shared by all tasks at a given resolution, except
+that the `split_explicit` and `rk4` tasks each have their own.
 
 ### forward
 

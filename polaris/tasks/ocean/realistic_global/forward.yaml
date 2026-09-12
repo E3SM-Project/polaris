@@ -5,6 +5,8 @@ ocean:
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
   forcing:
     config_use_bulk_wind_stress: true
   advection:
@@ -89,8 +91,6 @@ mpas-ocean:
       - rmsGlobalStats
 
 Omega:
-  TimeIntegration:
-    TimeStepper: RungeKutta4
   Tendencies:
     TracerDiffTendencyEnable: false
     TracerHyperDiffTendencyEnable: false
