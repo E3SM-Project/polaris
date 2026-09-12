@@ -11,7 +11,10 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from polaris.constants import get_constant
 from polaris.ocean.vertical.diagnostics import (
+    depth_from_thickness,
+    get_z_mid_and_interface,
     location_for_field,
     pseudothickness_from_ds,
     vertical_coord_from_location,
@@ -168,3 +171,104 @@ def test_location_for_field_defaults_to_cell_center():
     var = xr.DataArray(np.zeros(3), dims=('nVertLevels',))
     assert location_for_field(var, 'temperature') == 'cell-center'
     assert location_for_field(var) == 'cell-center'
+
+
+def _make_reconstruction_datasets():
+    ds = xr.Dataset(
+        data_vars=dict(
+            layerThickness=(('nCells', 'nVertLevels'), [[10.0, 10.0]]),
+        )
+    )
+    ds_vert = xr.Dataset(
+        data_vars=dict(
+            bottomDepth=('nCells', [20.0]),
+            minLevelCell=('nCells', [1]),
+            maxLevelCell=('nCells', [2]),
+        )
+    )
+    return ds, ds_vert
+
+
+def test_get_z_mid_and_interface_reconstruct():
+    ds, ds_vert = _make_reconstruction_datasets()
+    with pytest.raises(ValueError, match='no zMid, GeomZInterface'):
+        get_z_mid_and_interface(ds, allow_reconstruct=False)
+
+    with pytest.raises(
+        ValueError, match='without the vertical coordinate dataset'
+    ):
+        get_z_mid_and_interface(ds, allow_reconstruct=True, ds_vert=None)
+
+    z_mid, z_interface = get_z_mid_and_interface(
+        ds, allow_reconstruct=True, ds_vert=ds_vert
+    )
+    np.testing.assert_allclose(z_interface.values, [[0.0, -10.0, -20.0]])
+    np.testing.assert_allclose(z_mid.values, [[-5.0, -15.0]])
+
+
+def test_depth_from_thickness_with_ds_vert():
+    ds, ds_vert = _make_reconstruction_datasets()
+    with pytest.raises(
+        ValueError, match='without the vertical coordinate dataset'
+    ):
+        depth_from_thickness(ds, ds_vert=None)
+
+    z_mid = depth_from_thickness(ds, ds_vert=ds_vert)
+    np.testing.assert_allclose(z_mid.values, [[-5.0, -15.0]])
+
+
+def test_vertical_coord_from_location_reconstruct():
+    ds, ds_vert = _make_reconstruction_datasets()
+    with pytest.raises(
+        ValueError, match='without the vertical coordinate dataset'
+    ):
+        vertical_coord_from_location(
+            ds, 'cell-center', allow_reconstruct=True, ds_vert=None
+        )
+
+    z_center = vertical_coord_from_location(
+        ds, 'cell-center', allow_reconstruct=True, ds_vert=ds_vert
+    )
+    np.testing.assert_allclose(z_center.values, [[-5.0, -15.0]])
+
+    z_inter = vertical_coord_from_location(
+        ds, 'cell-interfaces', allow_reconstruct=True, ds_vert=ds_vert
+    )
+    np.testing.assert_allclose(z_inter.values, [[0.0, -10.0, -20.0]])
+
+    z_top = vertical_coord_from_location(
+        ds, 'cell-top', allow_reconstruct=True, ds_vert=ds_vert
+    )
+    np.testing.assert_allclose(z_top.values, [[0.0, -10.0]])
+
+
+def test_reconstruct_from_omega_state():
+    rho_sw = get_constant('seawater_density_reference')
+    spec_vol = 1.0 / rho_sw
+    ds = xr.Dataset(
+        data_vars=dict(
+            SpecVol=(('nCells', 'nVertLevels'), [[spec_vol, spec_vol]]),
+            PseudoThickness=(('nCells', 'nVertLevels'), [[10.0, 10.0]]),
+        )
+    )
+    ds_vert = xr.Dataset(
+        data_vars=dict(
+            bottomDepth=('nCells', [20.0]),
+        )
+    )
+    z_mid, z_interface = get_z_mid_and_interface(
+        ds, allow_reconstruct=True, ds_vert=ds_vert
+    )
+    np.testing.assert_allclose(z_interface.values, [[0.0, -10.0, -20.0]])
+    np.testing.assert_allclose(z_mid.values, [[-5.0, -15.0]])
+
+
+def test_reconstruct_missing_bottom_depth():
+    ds = xr.Dataset(
+        data_vars=dict(
+            layerThickness=(('nCells', 'nVertLevels'), [[10.0, 10.0]]),
+        )
+    )
+    ds_vert = xr.Dataset()
+    with pytest.raises(ValueError, match='bottomDepth is not present'):
+        get_z_mid_and_interface(ds, allow_reconstruct=True, ds_vert=ds_vert)

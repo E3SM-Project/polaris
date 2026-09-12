@@ -149,7 +149,7 @@ def pseudothickness_from_ds(
     return pseudothickness, spec_vol
 
 
-def get_z_mid_and_interface(ds, allow_reconstruct=False):
+def get_z_mid_and_interface(ds, allow_reconstruct=False, ds_vert=None):
     """
     Get the elevation of layer midpoints and of layer interfaces
 
@@ -167,6 +167,11 @@ def get_z_mid_and_interface(ds, allow_reconstruct=False):
     allow_reconstruct : bool, optional
         Whether to reconstruct the geometry from ``layerThickness`` when the
         data set does not carry it
+
+    ds_vert : xarray.Dataset, optional
+        The vertical coordinate dataset containing ``bottomDepth`` and
+        optionally ``minLevelCell`` and ``maxLevelCell``, used when
+        reconstructing the geometry
 
     Returns
     -------
@@ -192,10 +197,15 @@ def get_z_mid_and_interface(ds, allow_reconstruct=False):
             f'fields, so a simulation has to write it for its output to be '
             f'analysed at an elevation.'
         )
-    return _reconstruct_z_mid_and_interface(ds)
+    if ds_vert is None:
+        raise ValueError(
+            'Cannot reconstruct vertical geometry without the vertical '
+            'coordinate dataset.'
+        )
+    return _reconstruct_z_mid_and_interface(ds, ds_vert)
 
 
-def depth_from_thickness(ds):
+def depth_from_thickness(ds, ds_vert=None):
     """
     Get the elevation of the midpoint of each layer
 
@@ -209,13 +219,20 @@ def depth_from_thickness(ds):
         An ocean dataset carrying the geometry or ``layerThickness``, and
         optionally ``ssh`` and ``bottomDepth``
 
+    ds_vert : xarray.Dataset, optional
+        The vertical coordinate dataset containing ``bottomDepth`` and
+        optionally ``minLevelCell`` and ``maxLevelCell``, used when
+        reconstructing the geometry
+
     Returns
     -------
     z_mid : xarray.DataArray
         The location in meters from the sea surface of the midpoint of each
         layer, positive upward
     """
-    z_mid, _ = get_z_mid_and_interface(ds, allow_reconstruct=True)
+    z_mid, _ = get_z_mid_and_interface(
+        ds, allow_reconstruct=True, ds_vert=ds_vert
+    )
     return z_mid
 
 
@@ -226,7 +243,9 @@ _VERT_COORD_VAR_NAMES = {
 }
 
 
-def vertical_coord_from_location(ds, location, allow_reconstruct=False):
+def vertical_coord_from_location(
+    ds, location, allow_reconstruct=False, ds_vert=None
+):
     """
     Get the vertical coordinate field appropriate for a variable at a given
     location in ``ds``
@@ -245,6 +264,11 @@ def vertical_coord_from_location(ds, location, allow_reconstruct=False):
         Whether to reconstruct the coordinate from ``layerThickness`` via
         :py:func:`_reconstruct_z_mid_and_interface` when the data set does
         not carry the field directly
+
+    ds_vert : xarray.Dataset, optional
+        The vertical coordinate dataset containing ``bottomDepth`` and
+        optionally ``minLevelCell`` and ``maxLevelCell``, used when
+        reconstructing the geometry
 
     Returns
     -------
@@ -282,7 +306,12 @@ def vertical_coord_from_location(ds, location, allow_reconstruct=False):
         raise ValueError(
             f'{var_name} ({location}) is not present in the dataset'
         )
-    z_mid, z_interface = _reconstruct_z_mid_and_interface(ds)
+    if ds_vert is None:
+        raise ValueError(
+            'Cannot reconstruct vertical geometry without the vertical '
+            'coordinate dataset.'
+        )
+    z_mid, z_interface = _reconstruct_z_mid_and_interface(ds, ds_vert)
     if location == 'cell-center':
         coord = z_mid
     elif location == 'cell-interfaces':
@@ -409,7 +438,7 @@ def _z_from_thickness(
     return z_mid, z_interface
 
 
-def _reconstruct_z_mid_and_interface(ds):
+def _reconstruct_z_mid_and_interface(ds, ds_vert):
     """
     Reconstruct z_mid and z_interface for a dataset that did not write them,
     anchored at ``bottomDepth`` via :py:func:`_z_from_thickness`
@@ -419,8 +448,11 @@ def _reconstruct_z_mid_and_interface(ds):
     ds : xarray.Dataset
         An ocean dataset containing the geometric layer thickness (or the
         fields needed to compute it, see :py:func:`geom_thickness_from_ds`)
-        and ``bottomDepth``, and optionally ``minLevelCell``,
-        ``maxLevelCell`` and a ``Time`` dimension of length one
+
+    ds_vert : xarray.Dataset, optional
+        The vertical coordinate dataset containing ``bottomDepth``, and
+        optionally ``minLevelCell``, ``maxLevelCell`` and a ``Time`` dimension
+        of length one
 
     Returns
     -------
@@ -438,7 +470,7 @@ def _reconstruct_z_mid_and_interface(ds):
         obtained from the dataset, or if required dimensions are missing
     """
     layer_thickness = geom_thickness_from_ds(ds, config=None)
-    if 'bottomDepth' not in ds.keys():
+    if 'bottomDepth' not in ds_vert.keys():
         raise ValueError(
             'Could not reconstruct zMid, GeomZInterface: bottomDepth is '
             'not present in the dataset'
@@ -450,13 +482,13 @@ def _reconstruct_z_mid_and_interface(ds):
     if 'nCells' not in ds.sizes and 'nVertLevels' not in ds.sizes:
         raise ValueError('nCells, and nVertLevels must be dimensions of ds')
 
-    bottom_depth = ds.bottomDepth
-    if 'minLevelCell' in ds.keys():
-        min_level_cell = ds.minLevelCell
+    bottom_depth = ds_vert.bottomDepth
+    if 'minLevelCell' in ds_vert.keys():
+        min_level_cell = ds_vert.minLevelCell - 1
     else:
         min_level_cell = xr.zeros_like(bottom_depth)
-    if 'maxLevelCell' in ds.keys():
-        max_level_cell = ds.maxLevelCell
+    if 'maxLevelCell' in ds_vert.keys():
+        max_level_cell = ds_vert.maxLevelCell - 1
     else:
         max_level_cell = (ds.sizes['nVertLevels'] - 1) * xr.ones_like(
             bottom_depth
