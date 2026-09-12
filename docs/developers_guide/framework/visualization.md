@@ -154,6 +154,13 @@ The `central_longitude` defaults to `0.0` and can be set to another value
 (typically 180 degrees) for visualizing quantities that would otherwise be
 divided across the antimeridian.
 
+The figure is sized to the map.  Give either `fig_width` (the default is 8
+inches) or `fig_height`, and the other dimension is whatever leaves no empty
+canvas around the map once the title, the gridline labels and the colorbar
+have taken their room.  A global map in the `Robinson` projection therefore
+gets a taller figure than one in `PlateCarree`, and a polar map with a
+circular boundary a nearly square one.
+
 The `<task>_viz` section of the config file must contain config options for
 specifying the colormap:
 
@@ -227,4 +234,5 @@ class Viz(Step):
 ```
 
 The `<task>_viz` of the config file is the same as what's used by
-{py:func}`polaris.viz.plot_global_mpas_field()`.
+{py:func}`polaris.viz.plot_global_mpas_field()`, and the figure is sized to
+the map by `fig_width` or `fig_height` in the same way.
