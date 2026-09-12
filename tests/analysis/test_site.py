@@ -167,9 +167,11 @@ def test_images_are_lazy_and_carry_their_size(tmp_path):
         assert images
         for image in images:
             assert 'loading="lazy"' in image
-            # the thumbnails are made from a 160x90 stand-in plot
-            assert 'width="160"' in image
-            assert 'height="90"' in image
+            # the thumbnails are made from a 160x90 stand-in plot, which is
+            # smaller than the box so is not scaled, and are laid out at
+            # half that under the default thumbnail_scale of 2
+            assert 'width="80"' in image
+            assert 'height="45"' in image
 
 
 def test_a_page_asks_for_nothing_but_its_images(tmp_path):

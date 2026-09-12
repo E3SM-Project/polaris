@@ -244,6 +244,17 @@ seaice/api
    image_size
 ```
 
+#### analysis.units
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.units
+
+.. autosummary::
+   :toctree: generated/
+
+   units_to_mathtext
+```
+
 #### analysis.site
 
 ```{eval-rst}
