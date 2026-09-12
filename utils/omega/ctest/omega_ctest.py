@@ -130,7 +130,7 @@ def download_meshes(config):
     files = [
         'ocean.QU.240km.omega_vars.260807.nc',
         'PlanarPeriodic48x48.omega_vars.260825.nc',
-        'cosine_bell_icos480.omega_vars.260807.nc',
+        'cosine_bell_icos480.omega_vars.260911.nc',
     ]
 
     database_path = 'ocean/omega_ctest'
