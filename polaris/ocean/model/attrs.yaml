@@ -1,0 +1,176 @@
+# The units and long_name attributes of the vertical-coordinate, state and
+# forcing variables that ocean init steps write, added before a dataset is
+# written when a variable does not already have them.  Names are MPAS-Ocean
+# names, since the attributes are added before any renaming for Omega, plus
+# the Omega-only fields Polaris adds itself.  Units are in the CF plain form
+# that udunits parses (m s-1, N m-2, 1 for dimensionless); integer masks and
+# indices have no units.
+
+# vertical coordinate
+minLevelCell:
+  long_name: index of the first active layer in each column
+maxLevelCell:
+  long_name: index of the last active layer in each column
+bottomDepth:
+  long_name: depth of the sea floor, positive downward
+  units: m
+bottomDepthObserved:
+  long_name: depth of the sea floor before any alteration for modeling
+  units: m
+vertCoordMovementWeights:
+  long_name: weights distributing sea surface height changes over layers
+  units: '1'
+restingThickness:
+  long_name: layer thickness with the ocean at rest
+  units: m
+layerThickness:
+  long_name: layer thickness
+  units: m
+RefPseudoThickness:
+  long_name: pseudo-thickness of each layer with the ocean at rest
+  units: m
+PseudoThickness:
+  long_name: pseudo-thickness of each layer
+  units: m
+refTopDepth:
+  long_name: reference depth of the top of each layer
+  units: m
+refBottomDepth:
+  long_name: reference depth of the bottom of each layer
+  units: m
+refZMid:
+  long_name: reference elevation of the middle of each layer
+  units: m
+refLayerThickness:
+  long_name: reference thickness of each layer
+  units: m
+refInterfaces:
+  long_name: reference elevation of each layer interface
+  units: m
+zMid:
+  long_name: elevation of the middle of each layer
+  units: m
+zInterface:
+  long_name: elevation of each layer interface
+  units: m
+GeomZMid:
+  long_name: geometric elevation of the middle of each layer
+  units: m
+GeomZInterface:
+  long_name: geometric elevation of each layer interface
+  units: m
+ZTildeMid:
+  long_name: pseudo-height of the middle of each layer
+  units: m
+cellMask:
+  long_name: mask of active cells in each layer
+
+# state
+ssh:
+  long_name: sea surface height
+  units: m
+normalVelocity:
+  long_name: horizontal velocity normal to each edge
+  units: m s-1
+velocityZonal:
+  long_name: zonal velocity
+  units: m s-1
+velocityMeridional:
+  long_name: meridional velocity
+  units: m s-1
+SurfacePressure:
+  long_name: sea surface pressure
+  units: Pa
+density:
+  long_name: in-situ density
+  units: kg m-3
+Density:
+  long_name: in-situ density
+  units: kg m-3
+SpecVol:
+  long_name: specific volume
+  units: m3 kg-1
+pressure:
+  long_name: pressure at the middle of each layer
+  units: Pa
+BottomPressure:
+  long_name: pressure at the sea floor
+  units: Pa
+
+# tracers other than temperature and salinity, whose attributes depend on
+# the tracer convention
+tracer1:
+  long_name: debug tracer 1
+  units: '1'
+tracer2:
+  long_name: debug tracer 2
+  units: '1'
+tracer3:
+  long_name: debug tracer 3
+  units: '1'
+idealAgeTracers:
+  long_name: ideal age tracers
+  units: s
+
+# forcing
+windStressZonal:
+  long_name: zonal wind stress at the sea surface
+  units: N m-2
+windStressMeridional:
+  long_name: meridional wind stress at the sea surface
+  units: N m-2
+atmosphericPressure:
+  long_name: atmospheric pressure at the sea surface
+  units: Pa
+tidalInputMask:
+  long_name: mask of cells where tidal forcing is applied
+  units: '1'
+temperatureSurfaceRestoringValue:
+  long_name: temperature to which the surface layer is restored
+  units: degC
+salinitySurfaceRestoringValue:
+  long_name: salinity to which the surface layer is restored
+  units: '1'
+temperaturePistonVelocity:
+  long_name: piston velocity of surface temperature restoring
+  units: m s-1
+salinityPistonVelocity:
+  long_name: piston velocity of surface salinity restoring
+  units: m s-1
+temperatureInteriorRestoringValue:
+  long_name: temperature to which the interior is restored
+  units: degC
+salinityInteriorRestoringValue:
+  long_name: salinity to which the interior is restored
+  units: '1'
+temperatureInteriorRestoringRate:
+  long_name: rate of interior temperature restoring
+  units: s-1
+salinityInteriorRestoringRate:
+  long_name: rate of interior salinity restoring
+  units: s-1
+
+# land ice
+landIceMask:
+  long_name: mask of cells with land ice
+landIceFloatingMask:
+  long_name: mask of cells with floating land ice
+landIceFraction:
+  long_name: fraction of each cell covered by land ice
+  units: '1'
+landIceFloatingFraction:
+  long_name: fraction of each cell covered by floating land ice
+  units: '1'
+landIcePressure:
+  long_name: pressure at the sea surface due to land ice
+  units: Pa
+landIceDraft:
+  long_name: elevation of the interface between land ice and the ocean
+  units: m
+sshAdjustmentMask:
+  long_name: mask of cells where the sea surface height may be adjusted
+modifyLandIcePressureMask:
+  long_name: mask of cells where the land-ice pressure may be adjusted
+effectiveDensityInLandIce:
+  long_name: effective density of land ice
+  units: kg m-3
