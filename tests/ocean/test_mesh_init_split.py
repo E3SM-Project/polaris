@@ -294,7 +294,7 @@ def test_write_initial_state_dataset_converts_tracers_for_mpas_ocean(tmp_path):
     assert_allclose(ds_out.temperature.values, pot_temp)
     assert_allclose(ds_out.salinity.values, prac_sal)
     assert ds_out.temperature.attrs['long_name'] == 'potential temperature'
-    assert ds_out.salinity.attrs['units'] == 'PSU'
+    assert ds_out.salinity.attrs['units'] == '1'
     # the in-memory dataset the step handed over is untouched
     assert_allclose(ds.temperature.values, CT)
     assert_allclose(ds.salinity.values, SA)

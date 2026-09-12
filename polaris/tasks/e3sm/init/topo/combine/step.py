@@ -901,7 +901,7 @@ class CombineStep(Step):
         for field in ['ice_draft', 'ice_thickness']:
             combined[field] = ds_antarctic[field]
         for field in ['base_elevation', 'ice_draft', 'ice_thickness']:
-            combined[field].attrs['unit'] = 'meters'
+            combined[field].attrs['units'] = 'm'
 
         # Add masks
         for field in ['ice_mask', 'grounded_mask']:
