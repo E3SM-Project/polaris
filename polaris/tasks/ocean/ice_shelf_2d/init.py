@@ -1,6 +1,5 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
@@ -72,7 +71,7 @@ class Init(OceanIOStep):
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=True
         )
-        write_netcdf(ds_mesh, 'base_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
 
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
@@ -178,7 +177,9 @@ class Init(OceanIOStep):
         ds_forcing['tidalInputMask'] = xr.where(
             y_cell > (y_max - 0.6 * dc), 1.0, 0.0
         )
-        write_netcdf(ds_forcing, 'init_mode_forcing_data.nc')
+        self.write_model_dataset(
+            ds_forcing, 'init_mode_forcing_data.nc', config
+        )
 
 
 def _compute_land_ice_pressure_from_draft(
