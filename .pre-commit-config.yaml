@@ -9,6 +9,21 @@ repos:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
 
+  # The shell scripts under cron-scripts/ run unattended on five machines, so
+  # they are linted and formatted.  deploy/load.sh is a mache contract and
+  # the *.template files are jinja, so the hooks are scoped to cron-scripts.
+-   repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+    -   id: shellcheck
+        files: ^cron-scripts/.*\.sh$
+-   repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.12.0-2
+    hooks:
+    -   id: shfmt
+        files: ^cron-scripts/.*\.sh$
+        args: [-i, "4", -ci, -sr]
+
   # Can run individually with `flynt [file]` or `flynt [source]`
 -   repo: https://github.com/ikamensh/flynt
     rev: '1.0.6'

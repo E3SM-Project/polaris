@@ -50,6 +50,12 @@ optionally submit the job script.
    ```
    usage: omega_ctest.py [-h] [-o OMEGA_BRANCH] [-c] [-s] [-d]
                       [-p COMPONENT_PATH] [--cmake_flags CMAKE_FLAGS]
+                      [--account ACCOUNT] [--build_only]
+                      [--build_jobs BUILD_JOBS] [--dashboard]
+                      [--cdash_site CDASH_SITE]
+                      [--cdash_build_name CDASH_BUILD_NAME]
+                      [--cdash_model {Nightly,Experimental,Continuous}]
+                      [--cdash_url CDASH_URL] [--cdash_submit]
    ```
 
    * `-o <path_to_omega_branch>`: point to a branch of Omega
@@ -72,6 +78,29 @@ optionally submit the job script.
    * `-d`: build Omega in debug mode
 
    * `--cmake_flags="<flags>"`: Extra flags to pass to the `cmake` command
+
+   * `--build_only`: build Omega and link the meshes, but do not write or
+     submit a job script for the CTests
+
+   * `--build_jobs N`: build with `make -j N` instead of Omega's own
+     `omega_build.sh`, for a host that cannot afford its parallelism (the
+     nightly cron job on Perlmutter runs in one core and 4 GiB)
+
+   * `--dashboard`: record the build and the tests with CTest so they can be
+     submitted to CDash.  Plain `ctest` writes only a log; the dashboard mode
+     runs the build through `ctest_build()` and the tests through
+     `ctest_test()`, which write `Build.xml` and `Test.xml` under
+     `Testing/<tag>/` in the build directory.  The build stage runs where the
+     utility runs and the test stage in the job, appending to the same tag.
+
+   * `--cdash_site`, `--cdash_build_name`, `--cdash_model`, `--cdash_url`:
+     what the dashboard entry is called and where it goes.  The defaults are
+     the machine, `omega_ctest_<machine>_<compiler>`, `Experimental` and the
+     Omega project on my.cdash.org.  The nightly cron jobs pass `Nightly`
+     and their own build names.
+
+   * `--cdash_submit`: submit to CDash when the tests finish (implies
+     `--dashboard`)
 
    Example reusing an existing build created by `polaris setup` or
    `polaris suite`:
