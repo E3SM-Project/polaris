@@ -73,13 +73,11 @@ class Analysis(OceanIOStep):
                         decode_times=False,
                         config=self.config,
                     )
-                ds_for_reconstruct = ds_diags_1day.assign(
-                    bottomDepth=ds_vert['bottomDepth'],
-                    minLevelCell=ds_vert['minLevelCell'] - 1,
-                    maxLevelCell=ds_vert['maxLevelCell'] - 1,
-                )
                 z_top_final = vertical_coord_from_location(
-                    ds_for_reconstruct, 'cell-top', allow_reconstruct=True
+                    ds_diags_1day,
+                    'cell-top',
+                    allow_reconstruct=True,
+                    ds_vert=ds_vert,
                 ).mean(dim='nCells')
             index_bld = int(np.nanargmax(N_sq.values))
             bld = z_top_final.isel(nVertLevels=index_bld)
