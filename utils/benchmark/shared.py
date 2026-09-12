@@ -10,6 +10,15 @@ import os
 import subprocess
 import sys
 
+#: The shell to run commands in.
+#:
+#: ``shell=True`` runs ``/bin/sh``, and where that is a symlink to bash --
+#: as it is on the machines polaris runs on -- bash started under that name
+#: enters POSIX mode, where process substitution is a syntax error.  The
+#: load scripts source bash-completion files that use ``< <(...)``, so
+#: sourcing one under ``/bin/sh`` fails before polaris is ever reached.
+SHELL = '/bin/bash'
+
 
 def to_abs(path, base_path):
     """
@@ -91,12 +100,13 @@ def check_call(args, logger=None, **kwargs):
         If the command returns a non-zero exit code
     """
     if logger is None:
-        subprocess.check_call(args, shell=True, **kwargs)
+        subprocess.check_call(args, shell=True, executable=SHELL, **kwargs)
         return
 
     process = subprocess.Popen(
         args,
         shell=True,
+        executable=SHELL,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         **kwargs,
@@ -142,6 +152,7 @@ def check_output(args, cwd=None):
     process = subprocess.run(
         args,
         shell=True,
+        executable=SHELL,
         cwd=cwd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
