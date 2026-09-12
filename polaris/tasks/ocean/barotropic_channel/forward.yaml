@@ -143,6 +143,7 @@ Omega:
       Contents:
       - AuxiliaryState
       - State
+      - Tracers
       - Eos
       - SshCell
       - VerticalPseudoVelocity
