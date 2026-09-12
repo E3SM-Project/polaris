@@ -104,6 +104,19 @@ variables:
   seaIceHeatFlux: SeaIceHeatFlux
   shortWaveHeatFlux: ShortWaveHeatFlux
   seaIceSalinityFlux: SeaIceSaltFlux
+  windSpeed10m: WindSpeed10m
+  iceFraction: IceFraction
+
+  # KPP diagnostics
+  boundaryLayerDepth: OSBLDepth
+  vertNonLocalFlux: VertNonLocalFlux
+  bulkRichardsonNumber: BulkRichardsonNumber
+  unresolvedShear: UnresolvedShear
+  surfaceFrictionVelocity: SurfaceFrictionVelocity
+  surfaceBuoyancyForcing: SurfaceBuoyancyFlux
+  potentialDensity: PotentialDensity
+  vertDiffTopOfCell: VertDiff
+  vertViscTopOfCell: VertVisc
 
   # vertical coordinate diagnostics
   zMid: GeomZMid
