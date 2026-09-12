@@ -63,7 +63,11 @@ def download(url, dest_path, config, exceptions=True):  # noqa: C901
         pass
 
     try:
-        response = session.get(url, stream=True)
+        # ask for an uncompressed response so the content length is the
+        # size of the file, which the size check and progress bar assume
+        response = session.get(
+            url, stream=True, headers={'Accept-Encoding': 'identity'}
+        )
         total_size = response.headers.get('content-length')
     except requests.exceptions.RequestException:
         if exceptions:

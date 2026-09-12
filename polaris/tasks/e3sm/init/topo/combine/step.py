@@ -11,6 +11,7 @@ from mpas_tools.logging import check_call
 from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 
 from polaris.archive import extract_zip_member
+from polaris.cf import add_cf_conventions
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
 
@@ -901,7 +902,7 @@ class CombineStep(Step):
         for field in ['ice_draft', 'ice_thickness']:
             combined[field] = ds_antarctic[field]
         for field in ['base_elevation', 'ice_draft', 'ice_thickness']:
-            combined[field].attrs['unit'] = 'meters'
+            combined[field].attrs['units'] = 'm'
 
         # Add masks
         for field in ['ice_mask', 'grounded_mask']:
@@ -926,6 +927,7 @@ class CombineStep(Step):
             combined[field] = combined[field].where(valid, fill_val)
 
         # Save combined bathy to NetCDF
+        combined = add_cf_conventions(combined)
         _write_netcdf_with_fill_values(combined, netcdf4_filename)
 
         # writing directly in NETCDF3_64BIT_DATA proved prohibitively slow

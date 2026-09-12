@@ -65,6 +65,37 @@ For standalone conversion of an existing MPAS-Ocean initial-condition file to
 Omega format outside a Polaris task, see
 {ref}`dev-ocean-convert-mpaso-ic-to-omega`.
 
+(dev-ocean-framework-cf-metadata)=
+
+#### CF metadata
+
+Every file these write methods produce passes the CF checker (see
+{ref}`dev-cf-check`), and the files that
+{py:meth}`polaris.ocean.model.OceanIOStep.add_output_files_for_ocean_model_input()`
+declares are checked after the step runs.  The methods take care of the
+metadata themselves, so an init step does not normally need to: they add
+`CF-1.8` to the `Conventions` attribute (keeping the `MPAS` entry the
+MPAS-Tools converter writes) and fill in `units` and `long_name` for any
+mesh variable (from
+[polaris/mesh/attrs.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/mesh/attrs.yaml))
+or vertical-coordinate, state or forcing variable (from
+[polaris/ocean/model/attrs.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/attrs.yaml))
+that does not already have them.  `temperature` and `salinity` are labelled
+with the attributes of the model's tracer convention.  An attribute a
+variable already has is kept, except when a variable's attributes are
+identical to another variable's: xarray propagates attributes through
+arithmetic, `where()` and `ones_like()`, so such a variable was derived from
+the other (a `bottomDepth` made from `ones_like(xCell)`) and gets its own
+attributes from the table instead.
+
+A variable a task adds that is not in either table (a task-specific mask or
+forcing field) gets a `long_name` and, unless it is dimensionless or holds
+fields with different units, `units` where the task creates it, in the plain
+form udunits parses (`m s-1`, `N m-2`, `1`).  Add a variable that several
+tasks write to `attrs.yaml` instead.  Set the attributes wholesale (`da.attrs =
+{...}`) rather than one key at a time, so that nothing inherited from the
+variable it was derived from survives.
+
 #### Canonical staged files
 
 The three files that flow through the ocean pipeline — horizontal mesh,

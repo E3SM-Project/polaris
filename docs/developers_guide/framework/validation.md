@@ -301,3 +301,74 @@ error tolerance) in the step's work directory.  The full details of every
 check are also written to `property_check_results.json` and stored in the
 step's `property_check_results` attribute, so that other steps can summarize
 them.
+
+(dev-cf-check)=
+
+# CF compliance checks
+
+A step can have its output files checked for compliance with the
+[CF conventions](https://cfconventions.org/) after it runs, using the
+[CF checker](https://github.com/cedadev/cf-checker) (`cfchecks`).  A file
+passes when the checker reports no errors; warnings and informational
+messages go to the step's log but do not fail the check.  Unlike a property
+check, a failed CF check fails the task, so a suite cannot pass while a
+model writes non-compliant metadata.
+
+To opt in, call {py:meth}`polaris.Step.add_cf_check()` with each file to
+check.  A glob pattern stands for a series of files with the same metadata,
+such as a time series from one output stream, so only its first match is
+checked, and a pattern with no match is skipped as a series that never
+started (a restart stream whose interval is longer than the run):
+
+```python
+self.add_cf_check('output.nc')
+self.add_cf_check('restarts/rst.*.nc')
+```
+
+A step that only knows its output files at run time can opt in with no
+filename and add the files in an override of
+{py:meth}`polaris.Step.check_cf()` before calling the base-class method.
+{py:class}`polaris.ocean.model.OceanModelStep` does this for Omega: every
+step running Omega checks the first file of each stream in write mode in its
+`omega.yml`.  MPAS-Ocean output is not checked.  Omega writes the model
+start time as the origin of the `time` variable's units, and udunits rejects
+a year-0 origin, so a task that starts in year 0 cannot pass the check.
+
+The files Polaris writes itself are checked too: the meshes,
+vertical-coordinate and initial-condition files from the ocean init steps
+(see {ref}`dev-ocean-framework-cf-metadata`), the spherical base meshes and
+their reconstruction weights, and the culled meshes and remapped topography
+from `e3sm/init`.  A step that writes a netCDF file with xarray or
+`write_netcdf()` makes it pass by calling
+{py:func}`polaris.cf.add_cf_conventions()` on the dataset first, which adds
+`CF-1.8` to its `Conventions` attribute while keeping any other conventions
+listed (the `MPAS` entry from the MPAS-Tools mesh converter), and, for an
+MPAS mesh, {py:func}`polaris.mesh.attrs.add_mesh_var_attrs()`, which fills
+in `units` and `long_name` for the mesh variables that MPAS-Tools writes
+without them.  Both leave what a variable already has alone.  A units string
+must be one udunits parses: the plain CF form (`m s-1`, `N m-2`, `radians`)
+with `1` for a dimensionless quantity, never `unitless`, `dimensionless` or
+`PSU`.
+
+The checker needs the CF standard-name, area-type and region-name tables.
+Their versions are pinned in the `[cf]` section of `default.cfg`, so a table
+update cannot change what a check reports, and each is downloaded once per
+machine into the `cf/tables` database and linked into the step:
+
+```cfg
+# Options for checking netCDF files for CF compliance
+[cf]
+
+# Versions of the CF standard-name, area-type and region-name tables, pinned
+# so that a table update cannot change what a check reports
+standard_name_table_version = 94
+area_type_table_version = 13
+region_name_table_version = 5
+```
+
+The result of the check is written to `cf_check_passed.log` or
+`cf_check_failed.log` (which lists the errors for each failing file) in the
+step's work directory and stored in the step's `cf_check_results` attribute.
+When a suite runs, each step that ran a check gets a `CF compliance` line
+next to its property checks and baseline comparison, and tasks that failed
+the check are listed in the suite's pull-request summary.

@@ -278,11 +278,11 @@ class Forward(OceanModelStep):
                 os.path.join(self.work_dir, '..', 'restarts')
             )
             os.makedirs(restart_dir, exist_ok=True)
-            restart_filename = f'{restart_dir}/ocn.rst.$Y-$M-$D_$h.$m.$s'
+            restart_filename = f'{restart_dir}/ocn.rst.$Y-$M-$D_$h.$m.$s.nc'
             restart_freq = int(dt)
         else:
             restart_interval = get_time_interval_string(days=1)
-            restart_filename = 'ocn.rst.$Y-$M-$D_$h.$m.$s'
+            restart_filename = 'ocn.rst.$Y-$M-$D_$h.$m.$s.nc'
             restart_freq = int(24 * 3600)
 
         if self.do_restart:

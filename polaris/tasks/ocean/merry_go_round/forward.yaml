@@ -130,7 +130,7 @@ Omega:
     RestartWrite:
       UsePointerFile: true
       PointerFilename: ocn.pointer
-      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s.nc
       Mode: write
       IfExists: replace
       Precision: double
@@ -152,7 +152,7 @@ Omega:
         - TotalVerticalPseudoVelocity
     Highfreq:
       UsePointerFile: false
-      Filename: ocn.hifreq.$Y-$M
+      Filename: ocn.hifreq.$Y-$M.nc
       Mode: write
       IfExists: append
       Precision: single

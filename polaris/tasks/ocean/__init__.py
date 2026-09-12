@@ -8,14 +8,21 @@ from mpas_tools.io import open_dataset, write_netcdf
 from ruamel.yaml import YAML
 
 from polaris import Component
+from polaris.cf import (
+    add_cf_conventions,
+    add_var_attrs,
+    drop_inherited_attrs,
+    read_var_attrs,
+)
 from polaris.constants import get_constant
+from polaris.mesh.attrs import add_mesh_var_attrs
 from polaris.mesh.info import is_planar, is_spherical
 from polaris.mesh.reconstruct import (
     add_reconstruction_weights_to_dataset,
     cartesian_to_local_geographic,
     tangential_reconstruction,
 )
-from polaris.ocean.eos import convert_tracers
+from polaris.ocean.eos import TRACER_ATTRS, convert_tracers
 from polaris.ocean.init_state import pressure_for_tracer_conversion
 from polaris.ocean.surface_pressure import surface_pressure_from_config
 from polaris.ocean.vertical.diagnostics import (
@@ -246,6 +253,7 @@ class Ocean(Component):
                             )
                             ds[omega_var] = ds[mpas_var] / (spec_vol * RhoSw)
 
+        ds = self._add_cf_metadata(ds)
         ds = self.map_to_native_model_vars(ds)
 
         if contains_state:
@@ -320,6 +328,7 @@ class Ocean(Component):
                 ds = ds.merge(ds_recon)
             else:
                 ds = add_reconstruction_weights_to_dataset(ds, 'cell')
+        ds = self._add_cf_metadata(ds)
         ds = self.map_to_native_model_vars(ds)
         native_vars = self.map_var_list_to_native_model(self.horiz_mesh_vars)
         self._check_vars_present(ds, native_vars, 'write_horiz_mesh_dataset')
@@ -412,11 +421,12 @@ class Ocean(Component):
                 ),
                 dims=['Time', 'nVertLevels', 'nCells'],
                 attrs={
-                    'units': '',
+                    'units': '1',
                     'long_name': 'Vertical coordinate movement weights',
                 },
             )
 
+        ds_vc = self._add_cf_metadata(ds_vc)
         ds_vc = self.map_to_native_model_vars(ds_vc)
         self._check_vars_present(
             ds_vc, native_vars, 'write_vert_coord_dataset'
@@ -500,6 +510,14 @@ class Ocean(Component):
         """
         if self.model is None:
             self.model = config.get('ocean', 'model')
+        target = 'teos-10' if self.model == 'omega' else 'mpas-ocean'
+        # a state variable made from a mesh variable (``ones_like(xCell)``)
+        # inherits its attributes, so clear those while the mesh variables
+        # are still here to compare against
+        ocean_attrs = read_var_attrs('polaris.ocean.model', 'attrs.yaml')
+        ds = drop_inherited_attrs(
+            ds, list(ocean_attrs) + list(TRACER_ATTRS[target])
+        )
         ds = self._convert_tracers_for_model(
             ds,
             config,
@@ -525,6 +543,11 @@ class Ocean(Component):
                 ds['SurfacePressure'] = surface_pressure_from_config(
                     config, ds.sizes['nCells']
                 )
+
+        # tracers converted above already carry the attributes of the
+        # model's convention; label any others with them too, since the
+        # conventions only differ for the TEOS-10 equation of state
+        ds = add_var_attrs(ds, TRACER_ATTRS[target])
 
         self.write_model_dataset(ds, filename, config, contains_state=True)
 
@@ -776,6 +799,22 @@ class Ocean(Component):
             ds, out_var_names, ds_mesh
         )
         return ds
+
+    def _add_cf_metadata(self, ds):
+        """
+        Fill in ``units`` and ``long_name`` for the mesh, vertical-coordinate,
+        state and forcing variables that do not have them and add the CF
+        version to the ``Conventions`` attribute, so that every file the
+        ocean component writes passes the CF checker.  A variable that
+        inherited another's attributes (``bottomDepth`` made from
+        ``ones_like(xCell)``) gets its own instead.  This is done before
+        variables are renamed for Omega, so the tables use MPAS-Ocean names.
+        """
+        ocean_attrs = read_var_attrs('polaris.ocean.model', 'attrs.yaml')
+        ds = drop_inherited_attrs(ds, ocean_attrs.keys())
+        ds = add_mesh_var_attrs(ds)
+        ds = add_var_attrs(ds, ocean_attrs)
+        return add_cf_conventions(ds)
 
     def _convert_tracers_for_model(
         self, ds, config, tracer_convention, lon, lat, logger

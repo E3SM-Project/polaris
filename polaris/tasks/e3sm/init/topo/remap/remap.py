@@ -7,6 +7,7 @@ from mpas_tools.logging import check_call
 from pyremap import MpasCellMeshDescriptor
 
 from polaris import Step
+from polaris.cf import add_cf_conventions
 from polaris.io import symlink
 from polaris.tasks.e3sm.init.topo.combine.step import (
     COMBINE_TOPO_VALIDATE_VARS,
@@ -140,6 +141,7 @@ class RemapTopoStep(Step):
             filename='topography_remapped.nc',
             validate_vars=get_remapped_topo_validate_vars(),
         )
+        self.add_cf_check('topography_remapped.nc')
         self.expand_distance = 0.0
         self.expand_factor = 1.0
         self.do_remapping = True
@@ -420,6 +422,6 @@ class RemapTopoStep(Step):
 
             ds_out[var_out].attrs = ds_in[var].attrs
 
-        write_netcdf(ds_out, 'topography_remapped.nc')
+        write_netcdf(add_cf_conventions(ds_out), 'topography_remapped.nc')
 
         logger.info('  Done.')
