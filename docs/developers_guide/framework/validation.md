@@ -334,6 +334,22 @@ step running Omega checks the first file of each stream in write mode in its
 start time as the origin of the `time` variable's units, and udunits rejects
 a year-0 origin, so a task that starts in year 0 cannot pass the check.
 
+The files Polaris writes itself are checked too: the meshes,
+vertical-coordinate and initial-condition files from the ocean init steps
+(see {ref}`dev-ocean-framework-cf-metadata`), the spherical base meshes and
+their reconstruction weights, and the culled meshes and remapped topography
+from `e3sm/init`.  A step that writes a netCDF file with xarray or
+`write_netcdf()` makes it pass by calling
+{py:func}`polaris.cf.add_cf_conventions()` on the dataset first, which adds
+`CF-1.8` to its `Conventions` attribute while keeping any other conventions
+listed (the `MPAS` entry from the MPAS-Tools mesh converter), and, for an
+MPAS mesh, {py:func}`polaris.mesh.attrs.add_mesh_var_attrs()`, which fills
+in `units` and `long_name` for the mesh variables that MPAS-Tools writes
+without them.  Both leave what a variable already has alone.  A units string
+must be one udunits parses: the plain CF form (`m s-1`, `N m-2`, `radians`)
+with `1` for a dimensionless quantity, never `unitless`, `dimensionless` or
+`PSU`.
+
 The checker needs the CF standard-name, area-type and region-name tables.
 Their versions are pinned in the `[cf]` section of `default.cfg`, so a table
 update cannot change what a check reports, and each is downloaded once per
