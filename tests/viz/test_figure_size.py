@@ -12,6 +12,7 @@ plots are actually drawn with.
 """
 
 import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -24,6 +25,7 @@ from polaris.viz.helper import get_projection, make_room_for_gridline_labels
 from polaris.viz.spherical import (
     _fit_figure_to_map,
     _set_circular_boundary,
+    plot_global_lat_lon_field,
     plot_global_mpas_field,
 )
 from polaris.viz.style import mplstyle_context
@@ -162,6 +164,55 @@ def test_giving_both_dimensions_is_an_error():
             fig_width=8.0,
             fig_height=4.0,
         )
+    with pytest.raises(ValueError, match='not both'):
+        plot_global_lat_lon_field(
+            lon=None,
+            lat=None,
+            data_array=None,
+            out_filename='unused.png',
+            config=config,
+            colormap_section='viz',
+            fig_width=8.0,
+            fig_height=4.0,
+        )
+
+
+def _colormap_config():
+    config = PolarisConfigParser()
+    config.add_section('viz')
+    config.set('viz', 'colormap_name', 'viridis')
+    config.set('viz', 'norm_type', 'linear')
+    config.set('viz', 'norm_args', '{"vmin": 0.0, "vmax": 0.1}')
+    return config
+
+
+def test_the_lat_lon_plot_is_written_at_the_given_width(tmp_path):
+    """The whole function, without the land features that would have to be
+    downloaded"""
+    lon = np.linspace(-180.0, 180.0, 13)
+    lat = np.linspace(-90.0, 90.0, 7)
+    data_array = np.zeros((lat.shape[0] - 1, lon.shape[0] - 1))
+    out_filename = str(tmp_path / 'plot.png')
+    with mplstyle_context():
+        dpi = plt.rcParams['savefig.dpi']
+
+    plot_global_lat_lon_field(
+        lon,
+        lat,
+        data_array,
+        out_filename,
+        _colormap_config(),
+        'viz',
+        title='a title',
+        plot_land=False,
+        fig_width=2.0,
+    )
+
+    with Image.open(out_filename) as image:
+        assert image.size[0] == round(2.0 * dpi)
+        # a PlateCarree map of the globe is twice as wide as it is tall, so
+        # the figure is a good deal shorter than it is wide
+        assert image.size[1] < round(2.0 * dpi) * 2 / 3
 
 
 def test_the_plot_is_written_at_the_given_width(tmp_path):
@@ -171,13 +222,9 @@ def test_the_plot_is_written_at_the_given_width(tmp_path):
     mesh_filename = str(tmp_path / 'mesh.nc')
     mesh_ds.to_netcdf(mesh_filename)
     da = mesh_ds.latCell
-    config = PolarisConfigParser()
+    config = _colormap_config()
     config.add_section('ocean')
     config.set('ocean', 'model', 'mpas-ocean')
-    config.add_section('viz')
-    config.set('viz', 'colormap_name', 'viridis')
-    config.set('viz', 'norm_type', 'linear')
-    config.set('viz', 'norm_args', '{"vmin": 0.0, "vmax": 0.1}')
     out_filename = str(tmp_path / 'plot.png')
 
     descriptor = plot_global_mpas_field(

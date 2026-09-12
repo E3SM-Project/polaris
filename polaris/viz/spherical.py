@@ -14,7 +14,6 @@ from matplotlib import colormaps
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from mpas_tools.io import open_dataset
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pyremap.descriptor.utility import interp_extrap_corner
 from ruamel.yaml import YAML
 
@@ -153,13 +152,7 @@ def plot_global_mpas_field(
         For reuse with future plots. Patches are cached, so the Descriptor only
         needs to be created once per mesh file.
     """
-    if fig_width is not None and fig_height is not None:
-        raise ValueError(
-            'Give either fig_width or fig_height, not both: the other is '
-            'set by the aspect ratio of the map'
-        )
-    if fig_width is None and fig_height is None:
-        fig_width = 8.0
+    fig_width, fig_height = _check_figure_size(fig_width, fig_height)
 
     with mplstyle_context(dpi=dpi):
         transform = cartopy.crs.Geodetic()
@@ -282,7 +275,8 @@ def plot_global_lat_lon_field(
     title=None,
     plot_land=True,
     colorbar_label=None,
-    figsize=(8, 4.5),
+    fig_width=None,
+    fig_height=None,
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -330,10 +324,18 @@ def plot_global_lat_lon_field(
     colorbar_label : str, optional
         Label on the colorbar
 
-    figsize : tuple, optional
-        The size of the figure in inches.  A size that matches the aspect
-        ratio of the map leaves the least empty canvas around it
+    fig_width : float, optional
+        The width of the figure in inches.  The height is whatever leaves no
+        empty canvas above and below the map, which depends on the extent
+        of the data and the title.  Defaults to 8 if neither ``fig_width``
+        nor ``fig_height`` is given.
+
+    fig_height : float, optional
+        The height of the figure in inches, as an alternative to
+        ``fig_width``.  The width is then whatever leaves no empty canvas to
+        either side of the map and its colorbar.
     """
+    fig_width, fig_height = _check_figure_size(fig_width, fig_height)
 
     with mplstyle_context():
         nlat, nlon = data_array.shape
@@ -357,9 +359,9 @@ def plot_global_lat_lon_field(
                 f'be either {nlat} or {nlat + 1}'
             )
 
-        fig = Figure(figsize=figsize)
-        if title is not None:
-            add_fitted_suptitle(fig, title)
+        # the figure is sized to the map once everything that takes up room
+        # around the map has been drawn
+        fig = Figure(constrained_layout=True)
 
         subplots = [111]
         ref_projection = cartopy.crs.PlateCarree()
@@ -400,23 +402,16 @@ def plot_global_lat_lon_field(
         if plot_land:
             _add_land_lakes_coastline(ax)
 
-        cax = inset_axes(
-            ax,
-            width='3%',
-            height='60%',
-            loc='center right',
-            bbox_to_anchor=(0.08, 0.0, 1, 1),
-            bbox_transform=ax.transAxes,
-            borderpad=0,
+        cbar = fig.colorbar(
+            plotHandle, ax=ax, label=colorbar_label, extend='both', shrink=0.6
         )
-
-        cbar = fig.colorbar(plotHandle, cax=cax, extend='both')
-        cbar.set_label(colorbar_label)
         if ticks is not None:
             cbar.set_ticks(ticks)
             cbar.set_ticklabels([f'{tick}' for tick in ticks])
 
-        fig.savefig(out_filename, bbox_inches='tight', pad_inches=0.2)
+        _fit_figure_to_map(fig, ax, cbar, title, fig_width, fig_height)
+
+        fig.savefig(out_filename)
 
 
 def setup_colormap(config, colormap_section):
@@ -491,6 +486,37 @@ def setup_colormap(config, colormap_section):
         colormap.set_over(over_color)
 
     return colormap, norm, ticks
+
+
+def _check_figure_size(fig_width, fig_height):
+    """
+    Check that only one dimension of a figure is given, and fill in the
+    default width if neither is
+
+    Parameters
+    ----------
+    fig_width : float or None
+        The width of the figure in inches
+
+    fig_height : float or None
+        The height of the figure in inches
+
+    Returns
+    -------
+    fig_width : float or None
+        The width of the figure in inches, 8 if neither dimension was given
+
+    fig_height : float or None
+        The height of the figure in inches
+    """
+    if fig_width is not None and fig_height is not None:
+        raise ValueError(
+            'Give either fig_width or fig_height, not both: the other is '
+            'set by the aspect ratio of the map'
+        )
+    if fig_width is None and fig_height is None:
+        fig_width = 8.0
+    return fig_width, fig_height
 
 
 def _fit_figure_to_map(

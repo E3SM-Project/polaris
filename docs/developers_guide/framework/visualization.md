@@ -234,4 +234,5 @@ class Viz(Step):
 ```
 
 The `<task>_viz` of the config file is the same as what's used by
-{py:func}`polaris.viz.plot_global_mpas_field()`.
+{py:func}`polaris.viz.plot_global_mpas_field()`, and the figure is sized to
+the map by `fig_width` or `fig_height` in the same way.
