@@ -1,6 +1,5 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
@@ -117,7 +116,7 @@ class Init(PStarInitStep, OceanIOStep):
         cull_cell[ncells - 2 * (nx + 2) : ncells + 1] = 1
         ds_mesh['cullCell'] = xr.DataArray(data=cull_cell, dims=['nCells'])
 
-        write_netcdf(ds_mesh, 'base_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
             ds_mesh, graphInfoFileName='culled_graph.info', logger=logger
