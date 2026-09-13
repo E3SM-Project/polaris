@@ -60,7 +60,7 @@ The velocity field is spatially uniform and set according to cfg options
 `barotropic_channel:zonal_velocity` and `barotropic_channel:meridional_velocity`.
 
 Temperature and salinity are spatially uniform and hard-coded to
-1 degC and 35 PSU. These fields do not play a role in the dynamics. 
+1 degC and 35 PSU. These fields do not play a role in the dynamics.
 
 ## forcing
 
@@ -70,10 +70,12 @@ determined by cfg options `barotropic_channel:zonal_wind_stress` and
 
 ## time step and run duration
 
-The time step for forward integration is 1 second.  The run duration is
-2 days for the `default` task and 2 hours for the `short` task, set by the
-`run_duration` option in the `[barotropic_channel_default]` and
-`[barotropic_channel_short]` config sections respectively.
+The time step for forward integration is 1 second in MPAS-Ocean. Omega uses
+its split-explicit time stepper instead, with a 15 second time step and a
+0.5 second barotropic time step.  The run duration is 2 days for the
+`default` task and 2 hours for the `short` task, set by the `run_duration`
+option in the `[barotropic_channel_default]` and `[barotropic_channel_short]`
+config sections respectively.
 
 ## config options
 

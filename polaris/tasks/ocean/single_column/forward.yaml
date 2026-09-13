@@ -6,7 +6,7 @@ ocean:
     config_time_integrator: {{ time_integrator }}
     config_dt: {{ dt }}
   split_explicit_ts:
-    config_btr_dt: 0000_00:00:30
+    config_btr_dt: {{ btr_dt }}
   forcing:
     config_use_bulk_wind_stress: false
   hmix_del2:
