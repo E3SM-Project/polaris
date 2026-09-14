@@ -11,8 +11,14 @@ ocean:
     config_horiz_tracer_adv_order: 2
   hmix_del2:
     config_use_mom_del2: true
+    config_mom_del2: {{ mom_del2 }}
+    config_use_tracer_del2: true
+    config_tracer_del2: {{ tr_del2 }}
   hmix_del4:
     config_use_mom_del4: true
+    config_mom_del4: {{ mom_del4 }}
+    config_use_tracer_del4: true
+    config_tracer_del4: {{ tr_del4 }}
   cvmix:
     config_use_cvmix_convection: true
     # shear mixing is off by default in MPAS-Ocean and on by default in
@@ -90,10 +96,8 @@ mpas-ocean:
 
 Omega:
   TimeIntegration:
-    TimeStepper: RungeKutta4
-  Tendencies:
-    TracerDiffTendencyEnable: false
-    TracerHyperDiffTendencyEnable: false
+    StopTime: 0002-01-01_00:00:00
+    RunDuration: none
   Tracers:
     Debug: []
   Analysis:
