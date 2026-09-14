@@ -8,6 +8,7 @@ from polaris.tasks.ocean.analysis.sim_files import (
     check_files_exist,
     expand_template,
     read_omega_config,
+    time_mean_suffix,
     year_range_key,
 )
 
@@ -32,6 +33,21 @@ def test_expand_template_over_years_and_months(tmp_path):
         str(tmp_path), 'output/ocn.hist.0004-12.nc'
     )
     assert (sim_files[-1].year, sim_files[-1].month) == (4, 12)
+
+
+def test_expand_template_with_a_month_offset(tmp_path):
+    """A file named for the month after the one it covers is found under
+    that name but keeps the year and month it covers."""
+    sim_files = expand_template(
+        'means.$Y-$M.nc', 1, 2, str(tmp_path), month_offset=1
+    )
+    assert len(sim_files) == 24
+    assert sim_files[0].path == str(tmp_path / 'means.0001-02.nc')
+    assert (sim_files[0].year, sim_files[0].month) == (1, 1)
+    assert sim_files[11].path == str(tmp_path / 'means.0002-01.nc')
+    assert (sim_files[11].year, sim_files[11].month) == (1, 12)
+    assert sim_files[23].path == str(tmp_path / 'means.0003-01.nc')
+    assert (sim_files[23].year, sim_files[23].month) == (2, 12)
 
 
 def test_expand_template_over_years_only(tmp_path):
@@ -192,6 +208,10 @@ Omega:
       Freq: 1
       FreqUnits: months
   Analysis:
+    MonthlyAverages:
+      Enable: true
+      Filename: monthly_means.$Y-$M.nc
+      ReductionPeriod: [1Month]
     GlobalStats:
       Enable: true
       Filename: global_stats
@@ -295,6 +315,9 @@ def _make_simulation(tmp_path, text=OMEGA_CONFIG):
     (tmp_path / 'output').mkdir()
     for month in range(1, 13):
         (tmp_path / 'output' / f'ocn.hist.0001-{month:02d}.nc').touch()
+    # a monthly mean is named for the month after the one it covers
+    for name in [f'0001-{month:02d}' for month in range(2, 13)] + ['0002-01']:
+        (tmp_path / f'monthly_means_1MonthTimeStats.{name}.nc').touch()
     (tmp_path / 'global_stats_1MonthTimeStats').touch()
     return omega_config_filename
 
@@ -311,7 +334,16 @@ def test_simulation_files_come_from_the_omega_config(tmp_path):
     assert sim.vert_coord_filename() == str(tmp_path / 'vert_coord.nc')
     monthly = sim.monthly_mean_files(1, 1)
     assert len(monthly) == 12
-    assert monthly[0].path == str(tmp_path / 'output' / 'ocn.hist.0001-01.nc')
+    # the mean for January is in the file Omega named for February
+    assert monthly[0].path == str(
+        tmp_path / 'monthly_means_1MonthTimeStats.0001-02.nc'
+    )
+    assert (monthly[0].year, monthly[0].month) == (1, 1)
+    assert monthly[-1].path == str(
+        tmp_path / 'monthly_means_1MonthTimeStats.0002-01.nc'
+    )
+    assert (monthly[-1].year, monthly[-1].month) == (1, 12)
+    assert time_mean_suffix(sim.monthly_mean_stream()) == '_TimeMean1Month'
     stats = sim.global_stats_files(1, 1)
     assert [sim_file.path for sim_file in stats] == [
         str(tmp_path / 'global_stats_1MonthTimeStats')
