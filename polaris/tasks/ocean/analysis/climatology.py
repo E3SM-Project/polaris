@@ -5,6 +5,10 @@ import xarray as xr
 from mpas_tools.logging import check_call
 
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+from polaris.tasks.ocean.analysis.sim_files import (
+    SimulationFiles,
+    time_mean_suffix,
+)
 
 # ``ncclimo`` in background mode runs one process per month, so this is what
 # the step will start and therefore what it declares.  The pool is sized from
@@ -184,20 +188,38 @@ class Climatology(AnalysisStep):
     def run(self):
         """
         Compute the climatology with ``ncclimo``
+
+        Omega names each field of a monthly mean for the field and the
+        period, ``Temperature_TimeMean1Month``, and ``ncclimo`` keeps the
+        names it is given, so the suffix is stripped from every file it
+        writes.  The climatology then carries each field's own name, which
+        is what the rest of Polaris translates and derives from.
         """
         self.log_inputs()
         seasons = self.config.getlist('ocean_analysis_climatology', 'seasons')
-        variables = self._native_variables()
+        sim_files = SimulationFiles(self.config, log=self.logger.info)
+        suffix = time_mean_suffix(sim_files.monthly_mean_stream())
+        variables = self._native_variables(suffix)
         check_call(
-            self._ncclimo_args(variables, seasons),
+            self._ncclimo_args(
+                [f'{variable}{suffix}' for variable in variables], seasons
+            ),
             self.logger,
             env=self._ncclimo_env(),
         )
+        if suffix:
+            self._strip_suffix(variables, suffix)
 
-    def _native_variables(self):
+    def _native_variables(self, suffix):
         """
         Get the variables to compute the climatology for, under the names
-        they have in the files, dropping the ones the simulation did not write
+        the model gives the fields, dropping the ones the simulation did not
+        write
+
+        Parameters
+        ----------
+        suffix : str
+            What the files append to each field's name
         """
         variables = get_climatology_variables(self.config)
         native = self.component.map_var_list_to_native_model(variables)
@@ -207,11 +229,15 @@ class Climatology(AnalysisStep):
         pairs.append((MASS_THICKNESS_VARIABLE, MASS_THICKNESS_VARIABLE))
 
         written = self._variables_written()
-        present = [native for _, native in pairs if native in written]
+        present = [
+            native for _, native in pairs if f'{native}{suffix}' in written
+        ]
         missing = [
-            f'{polaris} ({native})' if native != polaris else polaris
+            f'{polaris} ({native}{suffix})'
+            if native != polaris
+            else f'{polaris}{suffix}'
             for polaris, native in pairs
-            if native not in written
+            if f'{native}{suffix}' not in written
         ]
         if missing:
             self.logger.info(
@@ -224,10 +250,19 @@ class Climatology(AnalysisStep):
                 'The simulation wrote none of the variables the analysis '
                 'asked for, so there is nothing to compute a climatology '
                 'of.  Check the [ocean_analysis_climatology] fields option '
-                'against the contents of the History stream.'
+                'against the Fields of the MonthlyAverages analysis group.'
             )
         self.logger.info(f'climatology variables: {", ".join(present)}')
         return present
+
+    def _strip_suffix(self, variables, suffix):
+        """Rename the variables of every climatology file in place"""
+        args = ['ncrename', '-O', '-h']
+        for variable in variables:
+            args.extend(['-v', f'{variable}{suffix},{variable}'])
+        filenames = sorted(glob.glob(self.work_path('*_climo.nc')))
+        for filename in filenames:
+            check_call(args + [filename], self.logger)
 
     def _variables_written(self):
         """Get the names of the variables in the monthly means"""
