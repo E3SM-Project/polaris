@@ -304,6 +304,13 @@ Two conventions are worth knowing:
   no data from outside the range are needed.  This is what MPAS-Analysis
   does.
 
+The monthly means are the output of Omega's `MonthlyAverages` analysis
+group, which has to be enabled in the simulation with the fields the analysis
+reads in its `Fields` list.  Omega names each field of a monthly mean for the
+field and the period, `Temperature_TimeMean1Month`, and names each file for
+the month after the one it averages; the climatology strips the suffix and
+takes the file named `0001-02` as January of year 1.
+
 Only the variables the analysis needs are averaged, so the cost scales with
 what is being plotted rather than with the size of the monthly means.  A
 variable the simulation did not write is reported in the step's log and left
