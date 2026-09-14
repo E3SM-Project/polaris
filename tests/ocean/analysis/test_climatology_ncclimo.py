@@ -4,12 +4,17 @@ Validate the ``ncclimo`` invocation of the climatology step.
 A synthetic monthly-mean data set with Omega names and CF time metadata is
 run through the step, and the resulting climatologies are compared against
 day-weighted means computed here.  What this tests is our invocation --- the
-seasonally discontinuous December convention, the day weighting, and the
-claim that ``ncclimo`` reads Omega-style files without ``-P mpaso`` --- and
-not ``ncclimo`` itself.
+seasonally discontinuous December convention, the day weighting, the
+stripping of Omega's time-mean suffix, and the claim that ``ncclimo`` reads
+Omega-style files without ``-P mpaso`` --- and not ``ncclimo`` itself.
+
+The files are named and their variables spelled the way Omega's
+``MonthlyAverages`` group writes them: ``Temperature_TimeMean1Month`` in a
+file named for the month after the one it averages.
 """
 
 import logging
+import os
 import shutil
 
 import numpy as np
@@ -22,6 +27,7 @@ from polaris.tasks.ocean.analysis.climatology import (
     Climatology,
     find_climatology_file,
 )
+from polaris.tasks.ocean.analysis.sim_files import SimulationFiles
 
 # the noleap calendar the simulation is run on
 DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -31,6 +37,22 @@ END_YEAR = 3
 
 N_CELLS = 4
 N_LEVELS = 3
+
+# what Omega appends to each field of a monthly mean
+SUFFIX = '_TimeMean1Month'
+
+OMEGA_CONFIG = """\
+Omega:
+  IOStreams:
+    HorzMeshIn:
+      Filename: mesh.nc
+      Mode: read
+  Analysis:
+    MonthlyAverages:
+      Enable: true
+      Filename: monthly_means.$Y-$M.nc
+      ReductionPeriod: [1Month]
+"""
 
 SEASON_MONTHS = {
     'ANN': list(range(1, 13)),
@@ -112,14 +134,40 @@ def test_a_variable_the_simulation_did_not_write_is_left_out(climatology):
         assert 'mixedLayerDepth' not in ds
 
 
+def test_the_time_mean_suffix_is_stripped(climatology):
+    """The climatology carries each field's own name, not the name Omega
+    gave its monthly mean."""
+    for season in ['ANN', 'JAN']:
+        filename = find_climatology_file(climatology, season)
+        with xr.open_dataset(filename) as ds:
+            assert f'Temperature{SUFFIX}' not in ds
+            assert 'Temperature' in ds
+
+
 @pytest.fixture(scope='module')
 def climatology(tmp_path_factory):
     """Run the climatology step on a synthetic data set, once."""
     work_dir = tmp_path_factory.mktemp('climatology')
-    filenames = _write_monthly_means(str(work_dir))
+    _write_monthly_means(str(work_dir))
+    omega_config_filename = work_dir / 'omega.yml'
+    omega_config_filename.write_text(OMEGA_CONFIG)
 
     config = PolarisConfigParser()
+    config.add_from_package('polaris.ocean', 'ocean.cfg')
     config.add_from_package('polaris.tasks.ocean.analysis', 'analysis.cfg')
+    config.set('ocean', 'model', 'omega')
+    config.set(
+        'ocean_analysis', 'omega_config_filename', str(omega_config_filename)
+    )
+    # the files the step is given are found the way the real step finds
+    # them, so that the month each is named for is what is being tested;
+    # the step is given their names in its work directory, as the symlinks
+    # setup() makes would be
+    sim_files = SimulationFiles(config, log=lambda message: None)
+    filenames = [
+        os.path.basename(sim_file.path)
+        for sim_file in sim_files.monthly_mean_files(START_YEAR, END_YEAR)
+    ]
 
     component = Ocean()
     # the analysis reads Omega output only; a step that never runs a model
@@ -142,22 +190,28 @@ def climatology(tmp_path_factory):
 
 
 def _write_monthly_means(work_dir):
-    """Write one file per month with Omega names and CF time metadata"""
-    filenames = []
+    """
+    Write one file per month with Omega names and CF time metadata, each
+    named for the month after the one it covers, as Omega names them
+    """
     day = 0.0
     for year in range(START_YEAR, END_YEAR + 1):
         for month in range(1, 13):
             first, last = day, day + DAYS_IN_MONTH[month - 1]
             day = last
-            filename = f'ocn.hist.{year:04d}-{month:02d}.nc'
+            named_year, named_month = year, month + 1
+            if named_month > 12:
+                named_year, named_month = year + 1, 1
+            filename = (
+                f'monthly_means_1MonthTimeStats.'
+                f'{named_year:04d}-{named_month:02d}.nc'
+            )
             _write_month(
                 f'{work_dir}/{filename}',
                 monthly_mean(year, month),
                 first,
                 last,
             )
-            filenames.append(filename)
-    return filenames
 
 
 def _write_month(filename, value, first_day, last_day):
@@ -165,25 +219,32 @@ def _write_month(filename, value, first_day, last_day):
     cells = np.arange(N_CELLS)[:, None]
     levels = np.arange(N_LEVELS)[None, :]
     field = value + cells + 100.0 * levels
-    ds = xr.Dataset(
-        data_vars=dict(
-            Temperature=(
-                ('time', 'NCells', 'NVertLayers'),
-                field[None, :, :],
-            ),
-            Salinity=(('time', 'NCells', 'NVertLayers'), field[None, :, :]),
-            SshCell=(('time', 'NCells'), value + cells.T),
-            PseudoThickness=(
-                ('time', 'NCells', 'NVertLayers'),
-                np.full((1, N_CELLS, N_LEVELS), 10.0),
-            ),
-            GeomZMid=(('time', 'NCells', 'NVertLayers'), field[None, :, :]),
-            GeomZInterface=(
-                ('time', 'NCells', 'NVertLayersP1'),
-                np.zeros((1, N_CELLS, N_LEVELS + 1)),
-            ),
-            time_bnds=(('time', 'd2'), [[first_day, last_day]]),
+    data_vars = {
+        f'Temperature{SUFFIX}': (
+            ('time', 'NCells', 'NVertLayers'),
+            field[None, :, :],
         ),
+        f'Salinity{SUFFIX}': (
+            ('time', 'NCells', 'NVertLayers'),
+            field[None, :, :],
+        ),
+        f'SshCell{SUFFIX}': (('time', 'NCells'), value + cells.T),
+        f'PseudoThickness{SUFFIX}': (
+            ('time', 'NCells', 'NVertLayers'),
+            np.full((1, N_CELLS, N_LEVELS), 10.0),
+        ),
+        f'GeomZMid{SUFFIX}': (
+            ('time', 'NCells', 'NVertLayers'),
+            field[None, :, :],
+        ),
+        f'GeomZInterface{SUFFIX}': (
+            ('time', 'NCells', 'NVertLayersP1'),
+            np.zeros((1, N_CELLS, N_LEVELS + 1)),
+        ),
+        'time_bnds': (('time', 'd2'), [[first_day, last_day]]),
+    }
+    ds = xr.Dataset(
+        data_vars=data_vars,
         coords=dict(time=('time', [0.5 * (first_day + last_day)])),
     )
     ds.time.attrs = dict(
