@@ -82,34 +82,29 @@ class KPPRegimes(Task):
                 if name in ('kpp_non_local_flux_suppression', 'kpp_combined')
                 else None
             ),
-            # Default to disabled for every task; kpp_langmuir overrides
-            # these per-step below so MPAS-Ocean's on/off comparison
-            # actually differs (previously both steps shared this value).
-            mpas_langmuir_mixing_opt='NONE',
-            mpas_use_theory_wave=False,
-            minimum_obl_under_sea_ice=(
-                30.0 if name == 'kpp_sea_ice' else None
-            ),
         )
 
         if name == 'kpp_langmuir':
-            langmuir_on_kwargs = dict(
-                common_kwargs,
-                use_langmuir_circulation=True,
-                mpas_langmuir_mixing_opt='LWF16',
-                mpas_use_theory_wave=True,
-            )
-            langmuir_off_kwargs = dict(
-                common_kwargs,
-                use_langmuir_circulation=False,
-                mpas_langmuir_mixing_opt='NONE',
-                mpas_use_theory_wave=False,
-            )
-            self.add_step(Forward(**langmuir_on_kwargs))
-            self.add_step(Forward(**langmuir_off_kwargs))
+            self.add_step(Forward(**common_kwargs, use_theory_wave=True))
+            self.add_step(Forward(**common_kwargs))
             comparisons = {
                 'langmuir': '../forward_no_vadv_no_hadv_langmuir',
                 'no_langmuir': '../forward_no_vadv_no_hadv_no_langmuir',
+            }
+        elif name == 'kpp_sea_ice':
+            self.add_step(
+                Forward(**common_kwargs, min_obl_under_sea_ice=30.0),
+            )
+            self.add_step(
+                Forward(
+                    **common_kwargs,
+                    min_obl_under_sea_ice=30.0,
+                    match_technique='MatchBoth',
+                )
+            )
+            comparisons = {
+                'standard': '../forward_no_vadv_no_hadv',
+                'matchboth': '../forward_no_vadv_no_hadv_matchboth',
             }
         else:
             self.add_step(Forward(**common_kwargs))

@@ -6,9 +6,15 @@ ocean:
     config_use_mom_del4: false
     config_use_tracer_del4: false
   cvmix:
+    config_use_cvmix_kpp: true
     config_cvmix_background_diffusion: 1.e-5
     config_cvmix_background_viscosity: 1.e-4
     config_cvmix_num_ri_smooth_loops: 2
+    config_cvmix_kpp_criticalBulkRichardsonNumber: 0.25
+    config_cvmix_kpp_surface_layer_extent: 0.1
+    config_cvmix_kpp_matching: {{ match_technique }}
+    config_cvmix_kpp_use_theory_wave: {{ use_theory_wave }}
+    configure_cvmix_kpp_minimum_OBL_under_sea_ice: {{ min_OBL_under_sea_ice }}
   eos:
     config_eos_type: linear
   eos_linear:
@@ -33,10 +39,11 @@ mpas-ocean:
     config_use_activeTracers_surface_restoring: false
     config_use_activeTracers_interior_restoring: false
   cvmix:
-    config_use_cvmix_kpp: true
+    config_use_cvmix: true
     config_cvmix_background_scheme: constant
     config_cvmix_shear_mixing_scheme: KPP
     config_cvmix_kpp_langmuir_mixing_opt: LWF16
+    config_cvmix_kpp_langmuir_entrainment_opt: LF17
     # quadratic (the model default) can produce a discontinuous OBL-depth
     # jump at the first Richardson-number crossing in this configuration;
     # linear interpolation is an equally valid, more robust alternative
