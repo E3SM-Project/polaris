@@ -224,7 +224,7 @@ class AnalysisStep(OceanIOStep):
         for sim_file in sim_files:
             self.add_sim_input_file(sim_file.path)
 
-    def read_fields(self, filename, fields):
+    def read_fields(self, filename, fields, suffix=''):
         """
         Read a few named fields from a file of the simulation, translating
         their names but nothing else
@@ -245,6 +245,12 @@ class AnalysisStep(OceanIOStep):
             The MPAS-Ocean names of the fields to read; a field the file does
             not have is left out
 
+        suffix : str, optional
+            What the file appends to each field's name, which is removed
+            again: Omega names each field of a monthly mean for the field
+            and the period, ``Temperature_TimeMean1Month``.  See
+            :py:func:`polaris.tasks.ocean.analysis.sim_files.time_mean_suffix`
+
         Returns
         -------
         ds : xarray.Dataset
@@ -252,8 +258,13 @@ class AnalysisStep(OceanIOStep):
         """
         wanted = self.component.map_var_list_to_native_model(fields)
         with xr.open_dataset(self.work_path(filename)) as ds_native:
-            present = [name for name in wanted if name in ds_native]
-            return self.map_from_native_model_vars(ds_native[present]).load()
+            present = {
+                f'{name}{suffix}': name
+                for name in wanted
+                if f'{name}{suffix}' in ds_native
+            }
+            ds_native = ds_native[list(present)].rename(present)
+            return self.map_from_native_model_vars(ds_native).load()
 
     def valid_level_range(self):
         """

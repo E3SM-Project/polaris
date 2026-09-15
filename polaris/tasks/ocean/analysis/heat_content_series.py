@@ -36,7 +36,11 @@ from polaris.tasks.ocean.analysis.heat_content_config import (
     get_elevation_ranges,
     get_specific_heat,
 )
-from polaris.tasks.ocean.analysis.sim_files import year_range_key
+from polaris.tasks.ocean.analysis.sim_files import (
+    SimulationFiles,
+    time_mean_suffix,
+    year_range_key,
+)
 from polaris.viz.style import mplstyle_context
 
 # The version of the kernel below, which is part of the provenance stamp of
@@ -128,6 +132,7 @@ class HeatContentSeries(Accumulator):
         self.mesh_path = ''
         self._area_cell: Optional[xr.DataArray] = None
         self._level_range: Optional[tuple] = None
+        self._suffix = ''
 
     def setup(self):
         """
@@ -223,6 +228,9 @@ class HeatContentSeries(Accumulator):
         """
         self._area_cell = None
         self._level_range = None
+        # what the monthly means append to each field's name
+        sim_files = SimulationFiles(self.config, log=self.logger.info)
+        self._suffix = time_mean_suffix(sim_files.monthly_mean_stream())
         for reduction in get_elevation_ranges(self.config):
             if not is_whole_column(reduction):
                 self.logger.info(
@@ -263,16 +271,16 @@ class HeatContentSeries(Accumulator):
         min_level_cell, max_level_cell = self._get_level_range()
 
         thickness = MASS_THICKNESS_VARIABLES[config.get('ocean', 'model')]
-        with self.open_model_dataset(filename, config) as ds_month:
-            if 'Time' in ds_month.dims:
-                # a monthly mean holds one time, which the series gives back
-                ds_month = ds_month.isel(Time=0)
-            self._check_fields(ds_month, filename)
-            # only the two fields the integral needs are read: a month of
-            # global three-dimensional output is what this step's memory
-            # footprint and its cost are, so reading the rest of the file
-            # would be most of both
-            ds = ds_month[['temperature', thickness]].load()
+        # only the two fields the integral needs are read: a month of global
+        # three-dimensional output is what this step's memory footprint and
+        # its cost are, so reading the rest of the file would be most of both
+        ds = self.read_fields(
+            filename, ['temperature', thickness], suffix=self._suffix
+        )
+        if 'Time' in ds.dims:
+            # a monthly mean holds one time, which the series gives back
+            ds = ds.isel(Time=0)
+        self._check_fields(ds, filename)
 
         temperature = ds.temperature
         layer_mass = get_layer_mass(ds, config)
@@ -388,8 +396,8 @@ class HeatContentSeries(Accumulator):
                 f'{filename} has no {", ".join(missing)}, so its heat '
                 f'content cannot be computed.  Unlike a map of one field, '
                 f'there is nothing else for this step to produce, so this is '
-                f'an error rather than something to skip; check what the '
-                f'History stream writes.'
+                f'an error rather than something to skip; check the Fields '
+                f'of the MonthlyAverages analysis group.'
             )
 
     def _get_area_cell(self):
