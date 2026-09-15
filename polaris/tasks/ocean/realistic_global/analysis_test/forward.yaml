@@ -1,0 +1,86 @@
+Omega:
+  Analysis:
+    GlobalStats:
+      # Omega's default list plus the two remaining fields the ocean analysis
+      # plots time series of.  Both KineticEnergyCell (2D) and SshCell (1D)
+      # have spatial operators registered for their rank.
+      Fields: [NormalVelocity, PseudoThickness, Temperature, Salinity,
+               KineticEnergyCell, SshCell]
+      ReductionPeriod: []
+      SnapshotPeriod: [1Day]
+      Filename: global_stats
+    MonthlyAverages:
+      Enable: true
+      # The fields the ocean analysis reads: the plotted fields, and what is
+      # needed to turn pseudo-thickness into geometric thickness and layer
+      # elevations offline.  Omega has no cell-centered reconstructed
+      # velocity yet, so the edge-normal velocity is written instead.
+      Fields: [Temperature, Salinity, PseudoThickness, SpecVol, GeomZMid,
+               GeomZInterface, SshCell, NormalVelocity, KineticEnergyCell]
+      ReductionPeriod: [1Month]
+      # Omega inserts "_1MonthTimeStats" before the timestamp template, so
+      # the files are monthly_means_1MonthTimeStats.$Y-$M.nc; the ".nc"
+      # suffix is part of the template.  Each is named for the month after
+      # the one it averages (E3SM-Project/Omega#554).
+      Filename: monthly_means.$Y-$M.nc
+      Stream:
+        FileFreq: 1
+        FileFreqUnits: months
+    MOC:
+      Enable: true
+      # Omega's default of one degree is finer than this mesh: a bin with no
+      # cells in it adds nothing to the running sum, and the streamfunction
+      # comes out as a staircase in latitude.  Three degrees stays coarser
+      # than 240 km.
+      NumBins: 60
+      MinLat: -90.0
+      MaxLat: 90.0
+      # Region masks are not implemented in Omega yet, and the ocean analysis
+      # plots only the global streamfunction
+      Regions: [Global]
+      Transects: []
+      # Monthly means, so that the analysis averages the same months it
+      # makes the climatology from.  Omega multiplies the streamfunction by
+      # 1e-6, so the output is in Sv, and attaches the latitude bin
+      # boundaries and the horizontally averaged interface elevation to the
+      # stream as the two axes.
+      ReductionPeriod: [1Month]
+      SnapshotPeriod: []
+      # the files are moc_1MonthTimeStats.$Y-$M.nc, as for the monthly means
+      Filename: moc.$Y-$M.nc
+      Stream:
+        FileFreq: 1
+        FileFreqUnits: months
+  IOStreams:
+    History:
+      # Monthly snapshots of the same fields as the monthly means, taken at
+      # the instant each mean is finalized, as a check on the means.  Omega
+      # does not append the ".nc" suffix itself, so it is part of the
+      # template, and it does not create the directory; the step does.
+      Filename: output/ocn.hist.$Y-$M.nc
+      Freq: 1
+      FreqUnits: months
+      # One time record per file.  The shared yaml's FileFreq of 9999 years
+      # would put every month in one file, since a stream's options merge.
+      FileFreq: 1
+      FileFreqUnits: months
+      IfExists: replace
+      Precision: double
+      Contents:
+        - Tracers
+        - PseudoThickness
+        - SpecVol
+        - GeomZMid
+        - GeomZInterface
+        - SshCell
+        - NormalVelocity
+        - KineticEnergyCell
+    RestartWrite:
+      # Monthly, which is what a 1Month reduction requires: Omega checks
+      # that the restart interval is divisible by every averaging period,
+      # and on a variable-month calendar that holds only for an interval in
+      # months or years.  The shared yaml's OnShutdown has no alarm and
+      # fails the check.  The run is a whole number of months, so the last
+      # restart still lands on the last time step.
+      Freq: 1
+      FreqUnits: months
