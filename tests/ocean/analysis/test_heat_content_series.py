@@ -30,7 +30,7 @@ from polaris.tasks.ocean.analysis.heat_content_series import (
     HeatContentSeries,
     series_variable,
 )
-from polaris.tasks.ocean.analysis.sim_files import SimFile, year_range_key
+from polaris.tasks.ocean.analysis.sim_files import year_range_key
 
 N_CELLS = 4
 N_LEVELS = 3
@@ -156,39 +156,27 @@ def step(tmp_path):
     return _make_step(tmp_path)
 
 
-class _FakeOmegaConfig:
-    def __init__(self, filename):
-        self.filename = filename
+# what Omega appends to each field of a monthly mean
+SUFFIX = '_TimeMean1Month'
 
-
-class _FakeSimulationFiles:
-    """The simulation's files, without an Omega configuration to read"""
-
-    def __init__(self, simulation_path):
-        self.simulation_path = simulation_path
-        self.omega_config = _FakeOmegaConfig(
-            os.path.join(simulation_path, 'omega.yml')
-        )
-        self.simulation_name = 'sim'
-
-    def mesh_filename(self):
-        return os.path.join(self.simulation_path, 'mesh.nc')
-
-    def vert_coord_filename(self):
-        return os.path.join(self.simulation_path, 'vert_coord.nc')
-
-    def monthly_mean_files(self, start_year, end_year):
-        return [
-            SimFile(
-                path=os.path.join(
-                    self.simulation_path, f'hist.{year:04d}-{month:02d}.nc'
-                ),
-                year=year,
-                month=month,
-            )
-            for year in range(start_year, end_year + 1)
-            for month in range(1, 13)
-        ]
+# The simulation's Omega configuration, which is how the step finds its
+# files.  The monthly means come from the MonthlyAverages group, so each is
+# named for the month after the one it covers, as Omega names them.
+OMEGA_CONFIG = """\
+Omega:
+  IOStreams:
+    HorzMeshIn:
+      Filename: mesh.nc
+      Mode: read
+    InitialVertCoord:
+      Filename: vert_coord.nc
+      Mode: read
+  Analysis:
+    MonthlyAverages:
+      Enable: true
+      Filename: monthly_means.$Y-$M.nc
+      ReductionPeriod: [1Month]
+"""
 
 
 def _temperature(month):
@@ -215,7 +203,12 @@ def _expected(config, month):
 
 
 def _write_simulation(sim_path, start_year, end_year, with_temperature):
-    """The mesh, the vertical coordinate and the monthly means, Omega-style"""
+    """
+    The Omega configuration, the mesh, the vertical coordinate and the
+    monthly means, Omega-style
+    """
+    with open(os.path.join(sim_path, 'omega.yml'), 'w') as handle:
+        handle.write(OMEGA_CONFIG)
     xr.Dataset(
         dict(
             AreaCell=('NCells', AREA_CELL),
@@ -235,18 +228,25 @@ def _write_simulation(sim_path, start_year, end_year, with_temperature):
 
     for year in range(start_year, end_year + 1):
         for month in range(1, 13):
-            data = dict(
-                PseudoThickness=(
+            data = {
+                f'PseudoThickness{SUFFIX}': (
                     ('time', 'NCells', 'NVertLayers'),
                     np.full((1, N_CELLS, N_LEVELS), THICKNESS),
                 ),
-            )
+            }
             if with_temperature:
-                data['Temperature'] = (
+                data[f'Temperature{SUFFIX}'] = (
                     ('time', 'NCells', 'NVertLayers'),
                     _temperature(month)[None, :, :],
                 )
-            filename = f'hist.{year:04d}-{month:02d}.nc'
+            # named for the month after the one it covers
+            named_year, named_month = year, month + 1
+            if named_month > 12:
+                named_year, named_month = year + 1, 1
+            filename = (
+                f'monthly_means_1MonthTimeStats.'
+                f'{named_year:04d}-{named_month:02d}.nc'
+            )
             xr.Dataset(data).to_netcdf(os.path.join(sim_path, filename))
 
 
@@ -270,6 +270,11 @@ def _make_step(
     config.add_from_package('polaris.ocean', 'ocean.cfg')
     config.add_from_package('polaris.tasks.ocean.analysis', 'analysis.cfg')
     config.set('ocean', 'model', 'omega')
+    config.set(
+        'ocean_analysis',
+        'omega_config_filename',
+        str(sim_path / 'omega.yml'),
+    )
     config.set('ocean_analysis_ohc', 'elevation_ranges', ranges, user=True)
 
     component = Ocean()
@@ -283,9 +288,6 @@ def _make_step(
     step.work_dir = str(work_dir)
     step.config = config
     step.logger = logging.getLogger('heat_content_series')
-    step.get_sim_files = lambda: _FakeSimulationFiles(  # type: ignore[method-assign]
-        str(sim_path)
-    )
     step.setup()
     for entry in step.input_data:
         os.symlink(
