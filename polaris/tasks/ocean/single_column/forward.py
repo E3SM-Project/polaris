@@ -35,11 +35,9 @@ class Forward(OceanModelStep):
         conservation_intervals=None,
         check_properties=None,
         run_duration_steps=None,
-        match_technique=None,
-        use_langmuir_circulation=None,
-        mpas_langmuir_mixing_opt=None,
-        mpas_use_theory_wave=None,
-        minimum_obl_under_sea_ice=None,
+        match_technique='SimpleShapes',
+        use_theory_wave=False,
+        min_obl_under_sea_ice=5.0,
     ):
         """
         Create a new test case
@@ -100,10 +98,6 @@ class Forward(OceanModelStep):
             The equivalent MPAS-Ocean ``config_cvmix_kpp_matching`` option is
             set to the same value.
 
-        use_langmuir_circulation : bool, optional
-            Omega KPP ``UseLangmuirTurbulence`` override.  If not provided,
-            the model default is used.
-
         disable_coriolis : bool, optional
             Whether to disable Omega's ``PVTendencyEnable`` (which carries
             both relative and planetary vorticity/Coriolis in a single
@@ -124,9 +118,8 @@ class Forward(OceanModelStep):
             name = f'{name}_constant'
         if match_technique is not None:
             name = f'{name}_{match_technique.lower()}'
-        if use_langmuir_circulation is not None:
-            suffix = 'langmuir' if use_langmuir_circulation else 'no_langmuir'
-            name = f'{name}_{suffix}'
+        if use_theory_wave:
+            name = f'{name}_langmuir'
         super().__init__(
             component=component,
             name=name,
@@ -187,10 +180,8 @@ class Forward(OceanModelStep):
         self.constant_diff = constant_diff
 
         self.match_technique = match_technique
-        self.use_langmuir_circulation = use_langmuir_circulation
-        self.mpas_langmuir_mixing_opt = mpas_langmuir_mixing_opt
-        self.mpas_use_theory_wave = mpas_use_theory_wave
-        self.minimum_obl_under_sea_ice = minimum_obl_under_sea_ice
+        self.use_theory_wave = use_theory_wave
+        self.min_obl_under_sea_ice = min_obl_under_sea_ice
 
     def setup(self):
         """
@@ -250,13 +241,21 @@ class Forward(OceanModelStep):
                 time_integrator=time_integrator,
             ),
         )
+        template_replacements = dict(
+            output_interval=output_interval_str,
+            output_freq=f'{int(output_interval_seconds)}',
+        )
+        if 'kpp_regimes' in self.task_package:
+            template_replacements['match_technique'] = self.match_technique
+            template_replacements['use_theory_wave'] = self.use_theory_wave
+            template_replacements['min_OBL_under_sea_ice'] = (
+                self.min_obl_under_sea_ice
+            )
+
         self.add_yaml_file(
             self.task_package,
             'forward.yaml',
-            template_replacements=dict(
-                output_interval=output_interval_str,
-                output_freq=f'{int(output_interval_seconds)}',
-            ),
+            template_replacements=template_replacements,
         )
 
         shared_options = {}
@@ -323,59 +322,6 @@ class Forward(OceanModelStep):
                 }
             )
 
-        if self.match_technique is not None:
-            omega_options.update(
-                {
-                    'MatchTechnique': self.match_technique,
-                }
-            )
-            mpas_options.update(
-                {
-                    'config_cvmix_kpp_matching': self.match_technique,
-                }
-            )
-        if self.use_langmuir_circulation is not None:
-            omega_options.update(
-                {
-                    'UseLangmuirTurbulence': self.use_langmuir_circulation,
-                }
-            )
-        if self.mpas_langmuir_mixing_opt is not None:
-            mpas_options.update(
-                {
-                    (
-                        'config_cvmix_kpp_langmuir_mixing_opt'
-                    ): self.mpas_langmuir_mixing_opt,
-                    # entrainment_opt is what actually boosts Vt2 in the
-                    # bulk-Richardson search (and thus the OBL depth);
-                    # mixing_opt alone only reshapes the in-layer
-                    # diffusivity/viscosity profile.
-                    (
-                        'config_cvmix_kpp_langmuir_entrainment_opt'
-                    ): self.mpas_langmuir_mixing_opt,
-                }
-            )
-        if self.mpas_use_theory_wave is not None:
-            mpas_options.update(
-                {
-                    (
-                        'config_cvmix_kpp_use_theory_wave'
-                    ): self.mpas_use_theory_wave,
-                }
-            )
-        if self.minimum_obl_under_sea_ice is not None:
-            omega_options.update(
-                {
-                    'MinimumOSBLUnderSeaIce': self.minimum_obl_under_sea_ice,
-                }
-            )
-            mpas_options.update(
-                {
-                    (
-                        'configure_cvmix_kpp_minimum_OBL_under_sea_ice'
-                    ): self.minimum_obl_under_sea_ice,
-                }
-            )
         self.add_model_config_options(
             options=shared_options,
             config_model='ocean',
