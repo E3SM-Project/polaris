@@ -123,6 +123,59 @@ def test_publishing_renders_a_thumbnail_for_every_plot(tmp_path):
         assert os.path.exists(os.path.join(output_path, entry['thumbnail']))
 
 
+def test_a_thumbnail_carries_more_pixels_than_it_is_shown_at(tmp_path):
+    """The box is in displayed pixels and the image has ``scale`` times as
+    many along each side, so it is sharp on a high-resolution display while
+    the page lays it out at the same size."""
+    work_dir = str(tmp_path / 'work')
+    output_path = str(tmp_path / 'output')
+    step_path = _make_step(
+        work_dir,
+        'maps',
+        'climatology_maps/0021-0040/temperature',
+        seasons=['ANN'],
+        plot_size=(1600, 900),
+    )
+
+    published, _ = publish(
+        _fragments(step_path),
+        output_path,
+        thumbnail_size=(320, 240),
+        thumbnail_scale=2,
+    )
+
+    entry = published[0]
+    with Image.open(os.path.join(output_path, entry['thumbnail'])) as image:
+        assert image.size == (640, 360)
+    assert entry['thumbnail_width'] == 320
+    assert entry['thumbnail_height'] == 180
+
+
+def test_the_scale_need_not_be_a_whole_number(tmp_path):
+    work_dir = str(tmp_path / 'work')
+    output_path = str(tmp_path / 'output')
+    step_path = _make_step(
+        work_dir,
+        'maps',
+        'climatology_maps/0021-0040/temperature',
+        seasons=['ANN'],
+        plot_size=(1600, 900),
+    )
+
+    published, _ = publish(
+        _fragments(step_path),
+        output_path,
+        thumbnail_size=(320, 240),
+        thumbnail_scale=1.5,
+    )
+
+    entry = published[0]
+    with Image.open(os.path.join(output_path, entry['thumbnail'])) as image:
+        assert image.size == (480, 270)
+    assert entry['thumbnail_width'] == 320
+    assert entry['thumbnail_height'] == 180
+
+
 def test_thumbnails_are_files_not_symlinks(tmp_path):
     """They are generated here, so nothing upstream owns them."""
     work_dir = str(tmp_path / 'work')

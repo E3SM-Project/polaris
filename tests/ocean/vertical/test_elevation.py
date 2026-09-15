@@ -140,6 +140,23 @@ def test_the_vertical_dimension_is_gone(columns):
     assert da_map.dims == ('nCells',)
 
 
+def test_the_attributes_survive_every_reduction(columns):
+    """A slice of a field has the field's units and name, whether it is a
+    layer or an interpolation, which drops them in its arithmetic."""
+    ds = columns.copy()
+    ds['field'] = ds.field.assign_attrs(units='degC', long_name='temperature')
+    for spec in ('top', 'bottom', 'k1', '-100.0'):
+        da_map = apply_vertical_reduction(
+            ds.field,
+            parse_vertical_reduction(spec),
+            z_mid=ds.zMid,
+            z_interface=ds.zInterface,
+            min_level_cell=ds.minLevelCell,
+            max_level_cell=ds.maxLevelCell,
+        )
+        assert da_map.attrs == ds.field.attrs, spec
+
+
 def test_a_time_dimension_survives(columns):
     """Maps are made from a climatology, which has a length-one time axis."""
     ds = columns.copy()
