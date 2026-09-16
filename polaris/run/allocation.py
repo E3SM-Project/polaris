@@ -18,10 +18,11 @@ unreclaimable cache have taken their share before any step starts.  Only a
 reading taken on the node sees that.
 """
 
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from mache.parallel import PlacementSupport, ResourcePlacement
 
@@ -107,7 +108,12 @@ class NodeResources:
         The node's hostname, which is how a placement names it.
 
     cores : int
-        The cores a launch may use on it.
+        How many cores a launch may use on it.
+
+    core_ids : tuple of int
+        Which cores those are, by number.  Not always ``range(cores)``: a
+        site may keep some cores back for itself, and a launcher refuses a
+        core the job was never given.  Aurora keeps core 0.
 
     gpus : int
         The GPUs it has.
@@ -139,6 +145,16 @@ class NodeResources:
     memory_source: str
     memory_total: Optional[int]
     memory_configured: Optional[int]
+    core_ids: Tuple[int, ...] = ()
+
+    def __post_init__(self):
+        # not given: the cores are numbered from zero, as they were before
+        # anything asked which ones a job may use
+        if not self.core_ids:
+            object.__setattr__(self, 'core_ids', tuple(range(self.cores)))
+        else:
+            object.__setattr__(self, 'core_ids', tuple(self.core_ids))
+            object.__setattr__(self, 'cores', len(self.core_ids))
 
 
 def read_allocation(component, logger) -> List[NodeResources]:
@@ -179,16 +195,23 @@ def read_allocation(component, logger) -> List[NodeResources]:
 
     cores_per_node = parallel_system.cores_per_node or 0
     gpus_per_node = parallel_system.gpus_per_node or 0
+    core_ids = usable_cores(cores_per_node, logger)
 
-    readings = _read_nodes(parallel_system, names, logger)
+    readings = _read_nodes(parallel_system, names, core_ids, logger)
 
+    # the nodes report their short names and the batch system may list
+    # them fully qualified, as PBS does on Aurora
     nodes = [
         _credit(
-            name, readings.get(name), cores_per_node, gpus_per_node, configured
+            name,
+            readings.get(_short(name)),
+            core_ids,
+            gpus_per_node,
+            configured,
         )
         for name in names
     ]
-    silent = [name for name in names if name not in readings]
+    silent = [name for name in names if _short(name) not in readings]
     if silent and readings:
         # some nodes answered and some did not, which is worth more than a
         # line saying the quiet ones fell back: a launch that reaches only
@@ -202,7 +225,9 @@ def read_allocation(component, logger) -> List[NodeResources]:
     return nodes
 
 
-def _read_nodes(parallel_system, names, logger) -> Dict[str, Dict[str, int]]:
+def _read_nodes(
+    parallel_system, names, core_ids, logger
+) -> Dict[str, Dict[str, int]]:
     """
     Ask every node what memory a job may use on it.
 
@@ -224,9 +249,12 @@ def _read_nodes(parallel_system, names, logger) -> Dict[str, Dict[str, int]]:
         )
         return {}
 
+    # one rank per node, on the first core the job may use there.  Not
+    # core 0: Aurora keeps that one for itself and PALS refuses a launch
+    # bound to it, with `affinity setup: object has too few CPUs for rank`.
     placement = ResourcePlacement(
         nodes=tuple(name for name in names if name != ''),
-        cores=tuple((0,) for _ in names),
+        cores=tuple((core_ids[0],) for _ in names),
         gpus=0,
     )
     command = parallel_system.get_parallel_command(
@@ -292,7 +320,7 @@ def _parse(output: str) -> Dict[str, Dict[str, int]]:
 
 
 def _credit(
-    name, reading, cores_per_node, gpus_per_node, configured
+    name, reading, core_ids, gpus_per_node, configured
 ) -> NodeResources:
     """
     Decide what one node is credited with, from what it reported.
@@ -328,13 +356,76 @@ def _credit(
 
     return NodeResources(
         name=name,
-        cores=cores_per_node,
+        cores=len(core_ids),
+        core_ids=core_ids,
         gpus=gpus_per_node,
         memory=memory,
         memory_source=source,
         memory_total=total,
         memory_configured=configured,
     )
+
+
+def usable_cores(cores_per_node: int, logger) -> Tuple[int, ...]:
+    """
+    Which cores a launch may use on a node of this allocation, by number.
+
+    The configuration says how many; it does not say which, and the two
+    differ where a site keeps cores back for itself.  Aurora keeps core 0,
+    and PALS refuses a launch bound to a core the job was not given, so a
+    scheduler numbering cores from zero hands out one that cannot be used.
+
+    What the kernel allows this process is what the job may use on this
+    node, and nodes in an allocation are alike, which is the assumption
+    ``cores_per_node`` already makes.  The set is held to the configured
+    count so that hardware threads on a machine that exposes them -- 256
+    on a Perlmutter CPU node whose configuration says 128 -- are not taken
+    for cores.
+
+    A reading that leaves fewer than half the configured cores is not
+    believed: the process may have been started bound to a corner of the
+    node, and numbering the whole allocation from that corner would starve
+    every step.  The configured range is used instead, and said so.
+
+    Parameters
+    ----------
+    cores_per_node : int
+        The configured number of cores on a node
+
+    logger : logging.Logger
+        Where a distrusted reading is reported
+
+    Returns
+    -------
+    core_ids : tuple of int
+        The usable cores, in order
+    """
+    configured = tuple(range(cores_per_node))
+    if not hasattr(os, 'sched_getaffinity'):
+        return configured
+
+    allowed = sorted(
+        core for core in os.sched_getaffinity(0) if core < cores_per_node
+    )
+    if len(allowed) * 2 < cores_per_node:
+        logger.warning(
+            f'This process is allowed only {len(allowed)} of the '
+            f'{cores_per_node} cores a node is configured with, which is '
+            f'too few to describe a node. Numbering cores from zero.'
+        )
+        return configured
+    if allowed != list(configured):
+        held_back = sorted(set(configured) - set(allowed))
+        logger.info(
+            f'A node here keeps back core(s) {held_back}; steps are placed '
+            f'on the other {len(allowed)}.'
+        )
+    return tuple(allowed)
+
+
+def _short(name: str) -> str:
+    """A node's short name, which is how the node itself reports it."""
+    return name.split('.')[0]
 
 
 def _report(nodes: List[NodeResources], logger) -> None:
