@@ -277,6 +277,30 @@ def test_the_memory_probe_lands_on_a_core_the_job_may_use(monkeypatch):
     assert placement.cores == ((1,), (1,))
 
 
+def test_aurora_keeps_every_core_the_job_was_given(monkeypatch):
+    """
+    Aurora's job cpuset, from job 8828650: 204 hyperthreads with 0, 52
+    and their siblings held back, on a node configured with 102 cores.
+    The usable cores are 1-51 and 53-103.  Taking the ids below 102 would
+    lose 102 and 103 to the two held back before them.
+    """
+    cpuset = (
+        set(range(1, 52))
+        | set(range(53, 104))
+        | set(range(105, 156))
+        | set(range(157, 208))
+    )
+    _allowed(monkeypatch, cpuset)
+    system = _FakeSystem(['x1'], stdout='host=x1\n')
+    system.cores_per_node = 102
+
+    nodes = _run(monkeypatch, system)
+
+    assert nodes[0].core_ids == tuple(range(1, 52)) + tuple(range(53, 104))
+    assert nodes[0].cores == 102
+    assert {0, 52, 104, 156}.isdisjoint(nodes[0].core_ids)
+
+
 def test_hardware_threads_are_not_taken_for_cores(monkeypatch):
     """
     A Perlmutter CPU node exposes 256 threads and is configured with 128

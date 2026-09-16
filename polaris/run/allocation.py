@@ -377,10 +377,14 @@ def usable_cores(cores_per_node: int, logger) -> Tuple[int, ...]:
 
     What the kernel allows this process is what the job may use on this
     node, and nodes in an allocation are alike, which is the assumption
-    ``cores_per_node`` already makes.  The set is held to the configured
-    count so that hardware threads on a machine that exposes them -- 256
-    on a Perlmutter CPU node whose configuration says 128 -- are not taken
-    for cores.
+    ``cores_per_node`` already makes.  The first ``cores_per_node`` of
+    those ids are taken, so that hardware threads on a machine that
+    exposes them are not taken for cores: a Perlmutter CPU node allows
+    256 ids and is configured with 128, and an Aurora node allows 204 --
+    ids 1-51, 53-103 and their siblings 105-155, 157-207, with 0, 52 and
+    their siblings held back -- and is configured with 102.  Taking the
+    ids *below* the count instead would lose Aurora's cores 102 and 103
+    to the two it holds back before them.
 
     A reading that leaves fewer than half the configured cores is not
     believed: the process may have been started bound to a corner of the
@@ -404,9 +408,7 @@ def usable_cores(cores_per_node: int, logger) -> Tuple[int, ...]:
     if not hasattr(os, 'sched_getaffinity'):
         return configured
 
-    allowed = sorted(
-        core for core in os.sched_getaffinity(0) if core < cores_per_node
-    )
+    allowed = sorted(os.sched_getaffinity(0))[:cores_per_node]
     if len(allowed) * 2 < cores_per_node:
         logger.warning(
             f'This process is allowed only {len(allowed)} of the '
