@@ -90,7 +90,12 @@ seaice/api
    graph.StepGraph
    graph.StepNode
    allocation.read_allocation
+   allocation.usable_cores
    allocation.NodeResources
+   topology.thread_siblings
+   topology.one_thread_per_core
+   topology.physical_cores
+   topology.with_siblings
    pool.ResourcePool
    pool.Reservation
    executor.start_step

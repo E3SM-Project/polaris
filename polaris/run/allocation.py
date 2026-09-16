@@ -27,6 +27,7 @@ from typing import Dict, List, Optional, Tuple
 from mache.parallel import PlacementSupport, ResourcePlacement
 
 from polaris.parallel import get_memory_per_node
+from polaris.run.topology import one_thread_per_core
 
 # read on each node, one line per fact, so that a machine which cannot
 # answer one of them simply omits it
@@ -377,19 +378,22 @@ def usable_cores(cores_per_node: int, logger) -> Tuple[int, ...]:
 
     What the kernel allows this process is what the job may use on this
     node, and nodes in an allocation are alike, which is the assumption
-    ``cores_per_node`` already makes.  The first ``cores_per_node`` of
-    those ids are taken, so that hardware threads on a machine that
-    exposes them are not taken for cores: a Perlmutter CPU node allows
-    256 ids and is configured with 128, and an Aurora node allows 204 --
-    ids 1-51, 53-103 and their siblings 105-155, 157-207, with 0, 52 and
-    their siblings held back -- and is configured with 102.  Taking the
-    ids *below* the count instead would lose Aurora's cores 102 and 103
-    to the two it holds back before them.
+    ``cores_per_node`` already makes.  Those ids are hardware threads on
+    every machine Polaris runs on, two to a core, and Polaris places one
+    rank or thread per physical core and leaves the sibling idle -- so
+    the ids are reduced to one per core by what the kernel says shares a
+    core, and the first ``cores_per_node`` of those are taken.  A
+    Perlmutter CPU node allows 256 ids and is configured with 128 cores;
+    an Aurora node allows 204 -- ids 1-51, 53-103 and their siblings, with
+    0, 52 and theirs held back -- and is configured with 102.
 
-    A reading that leaves fewer than half the configured cores is not
-    believed: the process may have been started bound to a corner of the
-    node, and numbering the whole allocation from that corner would starve
-    every step.  The configured range is used instead, and said so.
+    The count of cores the job may use is held against the configured one
+    and a disagreement is reported, since it means the machine's
+    configuration and the machine differ.  A reading that leaves fewer
+    than half the configured cores is not believed at all: the process may
+    have been started bound to a corner of the node, and numbering the
+    whole allocation from that corner would starve every step.  The
+    configured range is used instead, and said so.
 
     Parameters
     ----------
@@ -397,32 +401,40 @@ def usable_cores(cores_per_node: int, logger) -> Tuple[int, ...]:
         The configured number of cores on a node
 
     logger : logging.Logger
-        Where a distrusted reading is reported
+        Where a distrusted or disagreeing reading is reported
 
     Returns
     -------
     core_ids : tuple of int
-        The usable cores, in order
+        The usable cores, one id per physical core, in order
     """
     configured = tuple(range(cores_per_node))
     if not hasattr(os, 'sched_getaffinity'):
         return configured
 
-    allowed = sorted(os.sched_getaffinity(0))[:cores_per_node]
-    if len(allowed) * 2 < cores_per_node:
+    allowed = os.sched_getaffinity(0)
+    cores = one_thread_per_core(allowed)
+    if len(cores) * 2 < cores_per_node:
         logger.warning(
-            f'This process is allowed only {len(allowed)} of the '
+            f'This process is allowed only {len(cores)} of the '
             f'{cores_per_node} cores a node is configured with, which is '
             f'too few to describe a node. Numbering cores from zero.'
         )
         return configured
-    if allowed != list(configured):
-        held_back = sorted(set(configured) - set(allowed))
+    if len(cores) != cores_per_node:
+        logger.warning(
+            f'A node here has {len(cores)} cores the job may use, on '
+            f'{len(allowed)} hardware threads, but is configured with '
+            f'{cores_per_node}. Using the first {cores_per_node}.'
+        )
+    cores = cores[:cores_per_node]
+    if cores != list(configured):
+        held_back = sorted(set(configured) - set(cores))
         logger.info(
             f'A node here keeps back core(s) {held_back}; steps are placed '
-            f'on the other {len(allowed)}.'
+            f'on the other {len(cores)}.'
         )
-    return tuple(allowed)
+    return tuple(cores)
 
 
 def _short(name: str) -> str:

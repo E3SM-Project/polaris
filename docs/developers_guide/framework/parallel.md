@@ -160,6 +160,30 @@ GPUs need no second spelling: `gpus` and `min_gpus` are already per-step
 totals, which is the shape a step with no ranks needs.  `gpus_per_task` is
 deprecated and is the only GPU field a non-MPI step cannot use.
 
+## Hardware threads
+
+A core, everywhere above, is a physical core.  Polaris does not use
+hardware threads: a step given a core is given the whole of it, one rank or
+thread is placed there, and the sibling thread idles.  This is what E3SM
+does, and for the same reason -- the codes are memory-bound and a second
+thread on the same core buys nothing they can measure.
+
+The machines Polaris runs on all expose their threads, so the ids the
+kernel offers a job are twice the cores its configuration counts: a
+Perlmutter CPU node offers 256 ids and is configured with 128 cores, an
+Aurora node 204 ids and 102 cores.  `mache`'s `cores_per_node` is the count
+without hyperthreading, and `polaris/run/topology.py` reads the kernel's
+word on which ids share a core, so that the pool numbers a node by one id
+per core and the placement check counts a rank's cores rather than its
+ids.  The numbering is read, not assumed: on every machine seen so far
+thread 0 of every core is enumerated first, but nothing promises it, and a
+machine that interleaved siblings would otherwise place two ranks on one
+core with no error.
+
+This is a policy rather than a limit.  A step that genuinely wanted both
+threads of its cores has no way to ask for them today, which is the right
+default and should not be mistaken for an oversight.
+
 ## Whether a step may span nodes
 
 `may_span_nodes` says whether a step's cores **and GPUs** may be drawn from
