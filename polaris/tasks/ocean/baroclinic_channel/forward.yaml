@@ -14,9 +14,6 @@ ocean:
     config_use_cvmix_shear: true
     config_cvmix_background_diffusion: 1.0e-5
     config_cvmix_background_viscosity: 1.0e-4
-  advection:
-    config_horiz_tracer_adv_order: 2
-    config_vert_tracer_adv_flux_order: 3
 
 mpas-ocean:
   io:
@@ -24,7 +21,6 @@ mpas-ocean:
   cvmix:
     config_use_cvmix: false
   advection:
-    config_flux_limiter: 'none'
     config_remap_limiter: 'none'
   debug:
     config_check_ssh_consistency: false
@@ -53,8 +49,6 @@ mpas-ocean:
 Omega:
   IO:
     IOStride: 1
-  Advection:
-    VerticalTracerFluxLimiterEnable: false
   Eos:
     EosType: linear
   Tracers:
