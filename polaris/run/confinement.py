@@ -36,13 +36,33 @@ it stands in for.
 A probe that cannot run is reported as *not checked*.  A launcher hiccup is
 not evidence of a placement mismatch, and recording it as one would train
 whoever reads these reports to ignore them.
+
+What the ranks' answer is held against depends on what the machine
+promised.  Where the launcher binds cores explicitly -- Slurm before 20.11,
+PALS -- the placement names the cores and the ranks must be on those.
+Where the scheduler reserves resources -- Slurm 20.11 and later, with
+``--exact`` -- it promises a *count* and picks the cores itself, so holding
+the ranks to particular numbers reports every launch: measured on
+Perlmutter, where thirty steps were reported for running on the right
+number of the wrong cores.  There the count is what is checked, with one
+allowance: a launch given a whole node sees that node's hardware threads
+too, which is twice the cores and not a mismatch.
+
+GPUs are asked about the same way, through the visible-devices variable
+the machine's vendor uses.  The ranks report what they can see and that is
+held against what the placement gave; more devices than given is a
+mismatch, fewer is only reported, since a launcher may renumber a rank's
+devices from zero and a rank that sees one device numbered zero says
+nothing about how many its neighbours see.
 """
 
 import os
 import socket
 import subprocess
 import sys
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, NamedTuple, Optional, Set, Tuple
+
+from mache.parallel import PlacementSupport
 
 # written in a step's work directory when the check found a mismatch, so the
 # scheduler can say so without reading the step's whole log
@@ -52,12 +72,24 @@ PLACEMENT_MISMATCH_LOG = 'polaris_placement_mismatch.log'
 # some launchers label the output they collect.
 MARKER = 'POLARIS_CONFINEMENT'
 
-# the probe payload: one line per rank saying where it is and what it may use
+# the variables through which each vendor tells a process which of a
+# node's GPUs it may use, in the order they are looked for.  A rank reports
+# the first one that is set, and '-' where none is.
+DEVICE_VARIABLES = (
+    'CUDA_VISIBLE_DEVICES',
+    'ROCR_VISIBLE_DEVICES',
+    'ZE_AFFINITY_MASK',
+)
+
+# the probe payload: one line per rank saying where it is, what cores it may
+# use, and what devices it can see
 PROBE = (
     'import os, socket; '
+    f'devices = next((os.environ[name] for name in {DEVICE_VARIABLES!r} '
+    "if os.environ.get(name)), '-'); "
     f"print('{MARKER}', socket.gethostname().split('.')[0], "
     "','.join(str(core) for core in sorted(os.sched_getaffinity(0))), "
-    'flush=True)'
+    'devices, flush=True)'
 )
 
 # a probe is the step's own launch, so one that has not answered in this long
@@ -208,28 +240,52 @@ def _check_launch(step, placement, logger) -> List[str]:
         )
         return []
 
-    return _compare(placement, seen, logger)
+    return _compare(
+        placement,
+        seen,
+        logger,
+        support=system.placement_support,
+        cores_per_node=system.cores_per_node,
+    )
 
 
-def _parse(output: str) -> Dict[str, Set[int]]:
-    """Collect the cores each node's ranks reported, by node."""
-    seen: Dict[str, Set[int]] = {}
+class Report(NamedTuple):
+    """What one node's ranks reported, taken together."""
+
+    cores: Set[int]
+    devices: Set[str]
+
+
+def _parse(output: str) -> Dict[str, Report]:
+    """Collect what each node's ranks reported, by node."""
+    seen: Dict[str, Report] = {}
     for line in output.splitlines():
         if MARKER not in line:
             continue
         fields = line.split(MARKER, 1)[1].split()
-        if len(fields) != 2:
+        if len(fields) != 3:
             continue
-        node, cores = fields
+        node, cores, devices = fields
         try:
             reported = {int(core) for core in cores.split(',') if core}
         except ValueError:
             continue
-        seen.setdefault(node, set()).update(reported)
+        report = seen.setdefault(node, Report(set(), set()))
+        report.cores.update(reported)
+        if devices != '-':
+            report.devices.update(
+                device for device in devices.split(',') if device
+            )
     return seen
 
 
-def _compare(placement, seen: Dict[str, Set[int]], logger) -> List[str]:
+def _compare(
+    placement,
+    seen: Dict[str, Report],
+    logger,
+    support: PlacementSupport = PlacementSupport.CPU_BINDING,
+    cores_per_node: Optional[int] = None,
+) -> List[str]:
     """Hold what the ranks reported against what the placement promised."""
     promised = _promised(placement)
     problems = []
@@ -250,20 +306,125 @@ def _compare(placement, seen: Dict[str, Set[int]], logger) -> List[str]:
         allowed = promised.get(node)
         if allowed is None:
             continue
-        extra = seen[node] - allowed
-        if extra:
-            problems.append(
-                f'On {node} the launch was allowed {len(seen[node])} cores '
-                f'({_ranges(seen[node])}) but was given {len(allowed)} '
-                f'({_ranges(allowed)}).'
-            )
+        problem = _compare_cores(
+            node, seen[node].cores, allowed, support, cores_per_node
+        )
+        if problem:
+            problems.append(problem)
+
+    problems.extend(_compare_devices(placement, seen, logger))
 
     if not problems:
-        total = sum(len(cores) for cores in seen.values())
+        total = sum(len(report.cores) for report in seen.values())
+        what = (
+            'cores'
+            if support is PlacementSupport.CPU_BINDING
+            else ('cores, by count')
+        )
         logger.info(
-            f'placement: the launch used {total} cores on '
+            f'placement: the launch used {total} {what} on '
             f'{len(seen)} node(s), all of them within its placement'
         )
+    return problems
+
+
+def _compare_cores(
+    node: str,
+    reported: Set[int],
+    allowed: Set[int],
+    support: PlacementSupport,
+    cores_per_node: Optional[int],
+) -> Optional[str]:
+    """
+    Say how one node's ranks differ from their placement, if they do.
+
+    Which comparison applies is what the machine promised.  An explicit
+    binding names the cores, so the ranks have to be on those.  A scheduler
+    that reserves resources promises a count and chooses the cores itself,
+    so only the count can be held -- and a launch given a whole node is
+    allowed that node's hardware threads as well, which is twice the cores.
+    A launch given part of a node and allowed more than that is a mismatch
+    on either kind of machine: that is the escape this exists to see.
+    """
+    if support is PlacementSupport.CPU_BINDING:
+        if reported - allowed:
+            return (
+                f'On {node} the launch was allowed {len(reported)} cores '
+                f'({_ranges(reported)}) but was given {len(allowed)} '
+                f'({_ranges(allowed)}).'
+            )
+        return None
+
+    if len(reported) <= len(allowed):
+        return None
+    whole_node = cores_per_node is not None and len(allowed) >= cores_per_node
+    if whole_node and len(reported) <= 2 * len(allowed):
+        return None
+    return (
+        f'On {node} the launch was allowed {len(reported)} cores but was '
+        f'given {len(allowed)}. This machine reserves cores by count and '
+        f'chooses which, so only the count is held.'
+    )
+
+
+def _compare_devices(placement, seen: Dict[str, Report], logger) -> List[str]:
+    """
+    Hold the devices the ranks saw against the GPUs the placement gave.
+
+    More than given is reported.  Fewer is only logged: a launcher may
+    number each rank's devices from zero, so every rank of a four-GPU
+    launch may report a single device 0 and the union say one.  That
+    cannot be told from a rank that really was given one, and reporting it
+    would have every GPU step on such a machine reported.
+
+    No rank reporting a device at all, for a step that was given GPUs, is
+    said as not checked rather than passed.
+    """
+    given = placement.gpus
+    if given <= 0:
+        return []
+
+    reported = {node: report.devices for node, report in seen.items()}
+    if not any(reported.values()):
+        logger.warning(
+            f'placement: GPUs not checked; the step was given {given} but '
+            f'no rank reported a visible-devices variable '
+            f'({", ".join(DEVICE_VARIABLES)})'
+        )
+        return []
+
+    for node in sorted(reported):
+        logger.info(
+            f'placement: on {node} the ranks see device(s) '
+            f'{",".join(sorted(reported[node])) or "none"}'
+        )
+
+    problems = []
+    named = placement.gpu_ids
+    if named is not None and len(placement.nodes) <= 1:
+        # a single-node placement names its devices, so the ranks are held
+        # to those
+        wanted = {str(index) for index in named}
+        for node, devices in sorted(reported.items()):
+            extra = devices - wanted
+            if extra:
+                problems.append(
+                    f'On {node} the launch can see device(s) '
+                    f'{",".join(sorted(extra))} that its placement did not '
+                    f'give it ({",".join(sorted(wanted))}).'
+                )
+        return problems
+
+    # a launch spanning nodes leaves its devices to the scheduler and says
+    # only how many in total, so each node is held to its share
+    nodes = max(len(placement.nodes), 1)
+    per_node = -(-given // nodes)
+    for node, devices in sorted(reported.items()):
+        if len(devices) > per_node:
+            problems.append(
+                f'On {node} the launch can see {len(devices)} device(s) '
+                f'({",".join(sorted(devices))}) but was given {per_node}.'
+            )
     return problems
 
 

@@ -25,6 +25,7 @@ from polaris.config import PolarisConfigParser
 from polaris.run.confinement import (
     MARKER,
     PLACEMENT_MISMATCH_LOG,
+    Report,
     _bound_cores,
     _check_launch,
     _compare,
@@ -113,6 +114,11 @@ def _mismatch_file(step):
     return os.path.join(step.work_dir, PLACEMENT_MISMATCH_LOG)
 
 
+def _seen(cores, devices=()):
+    """What a node's ranks reported, as ``_parse`` collects it."""
+    return Report(set(cores), set(devices))
+
+
 def test_core_numbers_are_reported_the_way_a_person_reads_them():
     assert _ranges([]) == 'none'
     assert _ranges([3]) == '3'
@@ -121,28 +127,52 @@ def test_core_numbers_are_reported_the_way_a_person_reads_them():
 
 
 def test_what_each_rank_reported_is_collected_by_node():
-    output = f'{MARKER} nodeA 0,1\n{MARKER} nodeA 2,3\n{MARKER} nodeB 0,1\n'
+    output = (
+        f'{MARKER} nodeA 0,1 -\n{MARKER} nodeA 2,3 -\n{MARKER} nodeB 0,1 -\n'
+    )
 
-    assert _parse(output) == {'nodeA': {0, 1, 2, 3}, 'nodeB': {0, 1}}
+    assert _parse(output) == {
+        'nodeA': _seen({0, 1, 2, 3}),
+        'nodeB': _seen({0, 1}),
+    }
 
 
 def test_a_launcher_that_labels_its_output_is_still_read():
     """Some launchers prefix every line with the rank that wrote it."""
-    output = f'0: {MARKER} nodeA 0,1\n1: {MARKER} nodeA 2\n'
+    output = f'0: {MARKER} nodeA 0,1 -\n1: {MARKER} nodeA 2 -\n'
 
-    assert _parse(output) == {'nodeA': {0, 1, 2}}
+    assert _parse(output) == {'nodeA': _seen({0, 1, 2})}
 
 
 def test_a_line_that_is_not_a_report_is_ignored():
     """A launcher's own chatter shares the stream with the payload."""
     output = (
         'srun: job 12 queued and waiting for resources\n'
+        f'{MARKER} nodeA 0,1 -\n'
+        f'{MARKER} nodeA not,numbers -\n'
         f'{MARKER} nodeA 0,1\n'
-        f'{MARKER} nodeA not,numbers\n'
         f'{MARKER} nodeA\n'
     )
 
-    assert _parse(output) == {'nodeA': {0, 1}}
+    assert _parse(output) == {'nodeA': _seen({0, 1})}
+
+
+def test_the_devices_each_rank_can_see_are_collected_by_node():
+    """
+    Each rank reports the devices it can see, and a node's ranks are
+    taken together.  The identifiers are whatever the vendor's variable
+    holds, so they are kept as they are rather than read as numbers.
+    """
+    output = (
+        f'{MARKER} nodeA 0 0\n{MARKER} nodeA 1 1\n'
+        f'{MARKER} nodeB 0 0.0,0.1\n{MARKER} nodeC 0 -\n'
+    )
+
+    seen = _parse(output)
+
+    assert seen['nodeA'].devices == {'0', '1'}
+    assert seen['nodeB'].devices == {'0.0', '0.1'}
+    assert seen['nodeC'].devices == set()
 
 
 def test_a_placement_on_this_node_is_one_the_executor_bound():
@@ -279,7 +309,7 @@ def test_a_rank_on_a_node_the_placement_does_not_name_is_reported():
     placement = ResourcePlacement(
         nodes=('nodeA', 'nodeB'), cores=((0, 1), (0, 1))
     )
-    seen = {'nodeA': {0, 1}, 'nodeC': {0, 1}}
+    seen = {'nodeA': _seen({0, 1}), 'nodeC': _seen({0, 1})}
 
     problems = _compare(placement, seen, _logger())
 
@@ -290,7 +320,7 @@ def test_ranks_within_a_multi_node_placement_are_confirmed():
     placement = ResourcePlacement(
         nodes=('nodeA', 'nodeB'), cores=((0, 1), (4, 5))
     )
-    seen = {'nodeA': {0, 1}, 'nodeB': {4, 5}}
+    seen = {'nodeA': _seen({0, 1}), 'nodeB': _seen({4, 5})}
 
     assert _compare(placement, seen, _logger()) == []
 
@@ -300,7 +330,7 @@ def test_cores_are_compared_against_the_node_they_were_given_on():
     placement = ResourcePlacement(
         nodes=('nodeA', 'nodeB'), cores=((0, 1), (4, 5))
     )
-    seen = {'nodeA': {0, 1}, 'nodeB': {0, 1}}
+    seen = {'nodeA': _seen({0, 1}), 'nodeB': _seen({0, 1})}
 
     problems = _compare(placement, seen, _logger())
 
@@ -321,3 +351,165 @@ def test_the_check_never_fails_the_step_it_is_checking(tmp_path):
 
     assert not os.path.exists(_mismatch_file(step))
     assert any('the check itself failed' in line for line in logger.warnings)
+
+
+# --- where the scheduler reserves by count and chooses the cores itself
+
+SCHEDULER = PlacementSupport.SCHEDULER
+
+
+def test_a_scheduler_machine_is_held_to_the_count_not_the_cores():
+    """
+    Perlmutter reported thirty steps for running on the right number of
+    the wrong cores.  `--exact` promises a count and srun picks which,
+    so particular numbers were never promised there.
+    """
+    placement = ResourcePlacement(nodes=('nid1',), cores=((4, 10, 25),))
+    seen = {'nid1': _seen({3, 25, 39})}
+
+    assert _compare(placement, seen, _logger(), support=SCHEDULER) == []
+
+
+def test_a_scheduler_launch_given_part_of_a_node_may_not_see_more():
+    """
+    The escape the check exists for looks the same on every machine: a
+    step given a few cores and allowed many.  Holding only the count must
+    still see it.
+    """
+    placement = ResourcePlacement(nodes=('nid1',), cores=((4, 10, 25),))
+    seen = {'nid1': _seen(range(128))}
+
+    problems = _compare(
+        placement, seen, _logger(), support=SCHEDULER, cores_per_node=128
+    )
+
+    assert len(problems) == 1
+    assert 'allowed 128 cores but was given 3' in problems[0]
+
+
+def test_a_scheduler_launch_given_a_whole_node_may_see_its_threads():
+    """
+    Perlmutter's nine other lines: a launch given all 128 of a node's
+    cores was allowed 256, which are that node's hardware threads.
+    """
+    placement = ResourcePlacement(nodes=('nid1',), cores=(tuple(range(128)),))
+    seen = {'nid1': _seen(range(256))}
+
+    problems = _compare(
+        placement, seen, _logger(), support=SCHEDULER, cores_per_node=128
+    )
+
+    assert problems == []
+
+
+def test_half_a_node_seeing_the_whole_node_is_still_a_mismatch():
+    """
+    Twice the cores is only threads when the cores were the whole node.
+    A launch given 64 of 128 and allowed 128 has escaped, even though the
+    ratio is the same.
+    """
+    placement = ResourcePlacement(nodes=('nid1',), cores=(tuple(range(64)),))
+    seen = {'nid1': _seen(range(128))}
+
+    problems = _compare(
+        placement, seen, _logger(), support=SCHEDULER, cores_per_node=128
+    )
+
+    assert len(problems) == 1
+
+
+def test_a_binding_machine_is_still_held_to_the_cores():
+    """Where the placement named the cores, the count is not enough."""
+    placement = ResourcePlacement(nodes=('nid1',), cores=((4, 10, 25),))
+    seen = {'nid1': _seen({3, 25, 39})}
+
+    problems = _compare(
+        placement, seen, _logger(), support=PlacementSupport.CPU_BINDING
+    )
+
+    assert len(problems) == 1
+
+
+# --- GPUs
+
+
+def test_a_step_given_no_gpus_is_not_asked_about_devices():
+    placement = ResourcePlacement(nodes=('nid1',), cores=((0, 1),), gpus=0)
+    seen = {'nid1': _seen({0, 1}, {'0', '1', '2', '3'})}
+
+    assert _compare(placement, seen, _logger()) == []
+
+
+def test_no_rank_reporting_a_device_is_not_a_pass():
+    """
+    pm-gpu ran 63 GPU steps and none was asked what it could see.  A
+    step given GPUs whose ranks report none is said to be unchecked.
+    """
+    placement = ResourcePlacement(
+        nodes=('nid1',), cores=((0, 1),), gpus=2, gpu_ids=(0, 1)
+    )
+    seen = {'nid1': _seen({0, 1})}
+    logger = _logger()
+
+    assert _compare(placement, seen, logger) == []
+    assert any('GPUs not checked' in line for line in logger.warnings)
+
+
+def test_a_single_node_launch_is_held_to_the_devices_it_was_named():
+    placement = ResourcePlacement(
+        nodes=('nid1',), cores=((0, 1),), gpus=2, gpu_ids=(0, 1)
+    )
+    seen = {'nid1': _seen({0, 1}, {'0', '1'})}
+
+    assert _compare(placement, seen, _logger()) == []
+
+
+def test_a_launch_seeing_a_device_it_was_not_given_is_reported():
+    placement = ResourcePlacement(
+        nodes=('nid1',), cores=((0, 1),), gpus=2, gpu_ids=(0, 1)
+    )
+    seen = {'nid1': _seen({0, 1}, {'0', '1', '2', '3'})}
+
+    problems = _compare(placement, seen, _logger())
+
+    assert len(problems) == 1
+    assert 'device(s) 2,3' in problems[0]
+
+
+def test_fewer_devices_than_given_is_reported_but_not_a_mismatch():
+    """
+    A launcher may number each rank's devices from zero, so four ranks
+    with a GPU each can all report device 0.  That cannot be told from
+    a rank really given one, so it is logged and not held against.
+    """
+    placement = ResourcePlacement(
+        nodes=('nid1',), cores=(tuple(range(4)),), gpus=4, gpu_ids=(0, 1, 2, 3)
+    )
+    seen = {'nid1': _seen(range(4), {'0'})}
+    logger = _logger()
+
+    assert _compare(placement, seen, logger) == []
+    assert any('see device(s) 0' in line for line in logger.messages)
+
+
+def test_a_spanning_launch_is_held_to_its_share_of_devices_per_node():
+    """
+    A launch spanning nodes names no devices -- indices are node-local and
+    its count is a total -- so each node is held to its share.
+    """
+    placement = ResourcePlacement(
+        nodes=('nid1', 'nid2'), cores=((0, 1), (0, 1)), gpus=4
+    )
+    within = {
+        'nid1': _seen({0, 1}, {'0', '1'}),
+        'nid2': _seen({0, 1}, {'2', '3'}),
+    }
+    beyond = {
+        'nid1': _seen({0, 1}, {'0', '1', '2'}),
+        'nid2': _seen({0, 1}, {'3'}),
+    }
+
+    assert _compare(placement, within, _logger()) == []
+    problems = _compare(placement, beyond, _logger())
+    assert len(problems) == 1
+    assert 'On nid1' in problems[0]
