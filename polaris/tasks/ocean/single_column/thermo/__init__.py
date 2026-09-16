@@ -34,10 +34,11 @@ class Thermo(Task):
             'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.single_column', 'stable_stratification.cfg'
+            'polaris.tasks.ocean.single_column',
+            'stable_temperature_strong.cfg',
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.single_column', 'wind.cfg'
+            'polaris.tasks.ocean.single_column', 'wind_stress.cfg'
         )
         self.config.add_from_package(
             f'polaris.tasks.ocean.single_column.{name}', f'{name}.cfg'

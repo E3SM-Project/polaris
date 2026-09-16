@@ -22,7 +22,7 @@ def add_single_column_tasks(component):
     group_name = 'single_column'
 
     name = 'vmix_stable'
-    forcing = ['wind', 'evap']
+    forcing = ['wind_stress', 'evap_strong']
     forcing_dir = '_'.join(forcing) if forcing else 'no_forcing'
     filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
@@ -34,7 +34,8 @@ def add_single_column_tasks(component):
             'polaris.tasks.ocean.single_column', f'{forcing_name}.cfg'
         )
     config.add_from_package(
-        'polaris.tasks.ocean.single_column', 'stable_stratification.cfg'
+        'polaris.tasks.ocean.single_column',
+        'stable_temperature_strong.cfg',
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
@@ -83,12 +84,16 @@ def add_single_column_tasks(component):
         )
     )
 
-    forcing = ['wind']
+    forcing = ['wind_stress']
     name = 'ekman'
     filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
+    )
+    config.add_from_package(
+        'polaris.tasks.ocean.single_column',
+        'neutral_temperature_salinity.cfg',
     )
     for forcing_name in forcing:
         config.add_from_package(
@@ -110,7 +115,7 @@ def add_single_column_tasks(component):
     )
 
     name = 'ideal_age'
-    forcing = ['evap']
+    forcing = ['evap_strong']
     forcing_dir = '_'.join(forcing) if forcing else 'no_forcing'
     filepath = f'{component.name}/column/{name}/{name}.cfg'
     config = PolarisConfigParser(filepath=filepath)
@@ -122,7 +127,8 @@ def add_single_column_tasks(component):
             'polaris.tasks.ocean.single_column', f'{forcing_name}.cfg'
         )
     config.add_from_package(
-        'polaris.tasks.ocean.single_column', 'stable_stratification.cfg'
+        'polaris.tasks.ocean.single_column',
+        'stable_temperature_strong.cfg',
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
@@ -152,7 +158,8 @@ def add_single_column_tasks(component):
             'polaris.tasks.ocean.single_column', f'{forcing_name}.cfg'
         )
     config.add_from_package(
-        'polaris.tasks.ocean.single_column', 'stable_stratification.cfg'
+        'polaris.tasks.ocean.single_column',
+        'stable_temperature_strong.cfg',
     )
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
@@ -179,18 +186,44 @@ def add_single_column_tasks(component):
     kpp_regimes = {
         # matches Van Roekel et al. (2018) Table 3, WNF (wind without
         # Coriolis)
-        'kpp_wind': (['wind'], ['van_roekel_wnf']),
+        'kpp_wind': (['wind_stress'], ['no_coriolis']),
         # matches Van Roekel et al. (2018) Table 3, FC (free convection)
-        'kpp_convection_cooling': (['cooling'], ['van_roekel_fc']),
+        'kpp_convection_cooling': (
+            ['sensible_heat_cooling'],
+            ['stable_temperature_weak'],
+        ),
         # matches Van Roekel et al. (2018) Table 3, CEW (cooling,
         # evaporation, and wind)
-        'kpp_combined': (['wind', 'cooling'], ['van_roekel_cew']),
-        'kpp_non_local_flux_suppression': (['evap'], []),
-        'kpp_langmuir': (['wind', 'cooling', 'langmuir'], []),
-        'kpp_sea_ice': (['wind', 'sea_ice'], []),
-        'kpp_convection_evaporation': (['fce'], ['fce']),
-        'kpp_cooling_with_mixedlayer': (['van_roekel_cooling'], ['fcml']),
-        'kpp_strong_convection_cooling': ([], ['catke_strong_cooling']),
+        'kpp_combined': (
+            ['wind_stress', 'sensible_heat_cooling', 'evap_weak'],
+            ['stable_temperature_weak'],
+        ),
+        'kpp_non_local_flux_suppression': (
+            ['evap_strong'],
+            ['stable_temperature_strong'],
+        ),
+        'kpp_langmuir': (
+            [
+                'wind_stress',
+                'wind_speed',
+                'latent_heat_cooling',
+                'sensible_heat_cooling',
+            ],
+            ['stable_temperature_strong'],
+        ),
+        'kpp_sea_ice': (
+            ['wind_stress', 'sea_ice'],
+            ['stable_temperature_strong'],
+        ),
+        'kpp_convection_evaporation': (['evap_weak'], ['stable_salinity']),
+        'kpp_cooling_with_mixedlayer': (
+            ['sensible_heat_cooling'],
+            ['mixed_layer_stable_temperature_salinity'],
+        ),
+        'kpp_strong_convection_cooling': (
+            ['sensible_heat_cooling_strong'],
+            ['stable_temperature_weak'],
+        ),
     }
     for name, (forcing, profile_configs) in kpp_regimes.items():
         forcing_dir = '_'.join(forcing)
@@ -199,12 +232,17 @@ def add_single_column_tasks(component):
         config.add_from_package(
             'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
         )
+        config.add_from_package(
+            'polaris.tasks.ocean.single_column',
+            'neutral_temperature_salinity.cfg',
+        )
         for forcing_name in forcing:
             config.add_from_package(
                 'polaris.tasks.ocean.single_column', f'{forcing_name}.cfg'
             )
         config.add_from_package(
-            'polaris.tasks.ocean.single_column', 'stable_stratification.cfg'
+            'polaris.tasks.ocean.single_column',
+            'stable_temperature_strong.cfg',
         )
         for profile_config in profile_configs:
             config.add_from_package(
@@ -216,7 +254,7 @@ def add_single_column_tasks(component):
             # that happen to use the same forcing combo (e.g. ideal_age
             # also uses evap+stable), which would silently reuse the wrong
             # config (missing eos_linear.cfg) via get_or_create_shared_step
-            subdir=f'column/init/kpp/{forcing_dir}/stable',
+            subdir=f'column/init/{forcing_dir}/stable',
             config=config,
             config_filename=f'{name}.cfg',
         )
