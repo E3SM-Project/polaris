@@ -282,7 +282,6 @@ def setup_tasks(
         max_gpus,
         max_of_min_gpus,
         sum_of_min_cores,
-        sum_of_min_gpus,
     ) = _get_required_resources(tasks)
 
     print(f'target cores: {max_cores}')
@@ -304,7 +303,6 @@ def setup_tasks(
             target_gpus=max_gpus,
             min_gpus=max_of_min_gpus,
             sum_min_cores=sum_of_min_cores,
-            sum_min_gpus=sum_of_min_gpus,
             work_dir=work_dir,
             suite=suite_name,
             concurrent=_run_steps_concurrently(suite_config),
@@ -424,7 +422,6 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
             max_gpus,
             max_of_min_gpus,
             sum_of_min_cores,
-            sum_of_min_gpus,
         ) = _get_required_resources({path: task})
         write_job_script(
             config=task.config,
@@ -434,7 +431,6 @@ def setup_task(path, task, machine, work_dir, baseline_dir, cached_steps):
             target_gpus=max_gpus,
             min_gpus=max_of_min_gpus,
             sum_min_cores=sum_of_min_cores,
-            sum_min_gpus=sum_of_min_gpus,
             work_dir=task_dir,
             concurrent=_run_steps_concurrently(task.config),
         )
@@ -983,10 +979,13 @@ def _get_required_resources(tasks):
     Get target and minimum CPU and GPU resource counts across task steps.
 
     The maxima describe the widest single step, which is what bounds a run
-    that takes one step at a time.  The sums of the minima describe every
-    step at once at its smallest, which is what a run taking steps at the
-    same time can put to use, and they are what let an allocation grow as
-    a suite gains tests rather than staying fixed at its widest step.
+    that takes one step at a time.  The sum of the minimum cores describes
+    every step at once at its smallest, which is what a run taking steps at
+    the same time can put to use, and it is what lets an allocation grow as
+    a suite gains tests rather than staying fixed at its widest step.  It is
+    cores only: the same sum in GPUs asks for far too much, since the
+    smallest GPU step is a quarter of a node where the smallest CPU step is
+    a hundredth of one.
 
     A step shared between tasks appears once per task that runs it but is
     run once, so it is counted once here.  That makes no difference to a
@@ -999,7 +998,6 @@ def _get_required_resources(tasks):
     max_gpus = 0
     max_of_min_gpus = 0
     sum_of_min_cores = 0
-    sum_of_min_gpus = 0
     counted = set()
     for task in tasks.values():
         for step_name in task.steps_to_run:
@@ -1026,7 +1024,6 @@ def _get_required_resources(tasks):
             max_gpus = max(max_gpus, gpus)
             max_of_min_gpus = max(max_of_min_gpus, min_gpus)
             sum_of_min_cores += min_cores
-            sum_of_min_gpus += min_gpus
 
     return (
         max_cores,
@@ -1034,7 +1031,6 @@ def _get_required_resources(tasks):
         max_gpus,
         max_of_min_gpus,
         sum_of_min_cores,
-        sum_of_min_gpus,
     )
 
 

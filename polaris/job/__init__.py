@@ -20,7 +20,6 @@ def write_job_script(
     target_gpus=None,
     min_gpus=None,
     sum_min_cores=None,
-    sum_min_gpus=None,
     suite='',
     script_filename=None,
     run_command=None,
@@ -61,13 +60,10 @@ def write_job_script(
         provided
 
     sum_min_cores : int, optional
-        The minimum cores of every step added together, used instead of
-        ``target_cores`` and ``min_cores`` when they ask for less and the
-        job is ``concurrent``.  Ignored otherwise.
-
-    sum_min_gpus : int, optional
-        The minimum GPUs of every step added together, used the same way as
-        ``sum_min_cores`` when the job is sized by GPUs
+        The minimum cores of every step added together, used when the job
+        is ``concurrent`` and it asks for more nodes than the target and
+        minimum figures do.  Ignored otherwise.  Taken in cores on every
+        machine, including one sized by GPUs; see the note in the body.
 
     suite : str, optional
         The name of the suite
@@ -143,13 +139,24 @@ mache.parallel.pbs.PbsOptions, None}
         # the nodes, so growing the nodes with the suite means its wall time
         # grows as the square root of what it contains rather than in
         # proportion to it.
+        #
+        # The sum is taken in cores on every machine, including one whose
+        # nodes are counted by GPUs.  Holding every step at once is cheap in
+        # cores because the smallest step is a hundredth of a node; in GPUs
+        # the smallest step is a quarter of one, and a suite of many small
+        # GPU steps comes to a great many nodes for very little work.
+        # Measured on Perlmutter GPU, where 51 one-GPU steps of omega_pr
+        # made the sum ask for 29 nodes.  In cores the same suite asks for
+        # 3, its small GPU steps take a few turns each, and the widest GPU
+        # step still fits, since that is what the geometric mean is for.
         if use_gpu_nodes:
             assert target_gpus is not None
             assert min_gpus is not None
             gpus = np.sqrt(target_gpus * min_gpus)
-            if concurrent and sum_min_gpus is not None:
-                gpus = max(gpus, sum_min_gpus)
             nodes = int(np.ceil(gpus / gpus_per_node))
+            if concurrent and sum_min_cores is not None and cores_per_node:
+                by_cores = int(np.ceil(sum_min_cores / cores_per_node))
+                nodes = max(nodes, by_cores)
             nodes = max(nodes, 1)
         else:
             if cores_per_node is None:

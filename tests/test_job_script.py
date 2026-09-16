@@ -384,12 +384,12 @@ def test_setup_and_suite_can_be_asked_without_a_config_file():
         )
 
 
-def _sized_job(tmp_path, concurrent, **resources):
+def _sized_job(tmp_path, concurrent, machine='chrysalis', **resources):
     """Write a job script sized from resources rather than a node count."""
-    config = get_config('chrysalis')
+    config = get_config(machine)
     write_job_script(
         config=config,
-        machine='chrysalis',
+        machine=machine,
         work_dir=str(tmp_path),
         concurrent=concurrent,
         **resources,
@@ -462,6 +462,55 @@ def test_one_step_is_sized_the_same_either_way(tmp_path):
     assert _nodes_in(serial) == _nodes_in(concurrent) == 3
 
 
+def test_a_gpu_machine_takes_the_sum_in_cores(tmp_path):
+    """
+    Perlmutter GPU, with omega_pr's own figures: 51 of its 63 GPU steps
+    need one GPU each, so summing the minimum GPUs asked for 29 nodes of
+    a 4-GPU machine.  A one-GPU step is a quarter of a node there where a
+    one-core step is a hundredth of one, which is why the sum is taken in
+    cores on every machine.  In cores the same suite is 3 nodes, and the
+    widest GPU step still fits through the geometric mean.
+    """
+    resources = dict(
+        target_cores=24,
+        min_cores=4,
+        target_gpus=24,
+        min_gpus=4,
+        sum_min_cores=168,
+    )
+    serial = _sized_job(
+        tmp_path, concurrent=False, machine='pm-gpu', **resources
+    )
+    concurrent = _sized_job(
+        tmp_path, concurrent=True, machine='pm-gpu', **resources
+    )
+    # sqrt(24 * 4) = 9.8 GPUs on 4-GPU nodes
+    assert _nodes_in(serial) == 3
+    # 168 cores on 64-core nodes, not 116 GPUs on 4-GPU nodes
+    assert _nodes_in(concurrent) == 3
+
+
+def test_a_gpu_machine_still_grows_with_the_suite(tmp_path):
+    """Taking the sum in cores keeps the elasticity; it changes the unit."""
+    resources = dict(target_cores=24, min_cores=4, target_gpus=24, min_gpus=4)
+    smaller = _sized_job(
+        tmp_path,
+        concurrent=True,
+        machine='pm-gpu',
+        sum_min_cores=320,
+        **resources,
+    )
+    larger = _sized_job(
+        tmp_path,
+        concurrent=True,
+        machine='pm-gpu',
+        sum_min_cores=640,
+        **resources,
+    )
+    assert _nodes_in(smaller) == 5
+    assert _nodes_in(larger) == 10
+
+
 def test_a_concurrent_job_never_asks_for_less_than_the_widest_step(tmp_path):
     """A suite of tiny steps is still sized to run its one big one."""
     text = _sized_job(
@@ -510,7 +559,7 @@ def test_a_shared_step_is_counted_once(tmp_path):
         'one': _task_using(component, 'one', [shared, own]),
         'two': _task_using(component, 'two', [shared]),
     }
-    _, max_of_min_cores, _, _, sum_of_min_cores, _ = _get_required_resources(
+    _, max_of_min_cores, _, _, sum_of_min_cores = _get_required_resources(
         tasks
     )
     # 4 for the shared step and 1 for the other, not 4 + 1 + 4
