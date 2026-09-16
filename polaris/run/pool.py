@@ -116,7 +116,7 @@ class ResourcePool:
         self._nodes = [
             _Node(
                 name=node.name,
-                free_cores=list(range(node.cores)),
+                free_cores=list(node.core_ids),
                 free_gpus=list(range(node.gpus)),
                 free_memory=node.memory,
                 memory=node.memory,

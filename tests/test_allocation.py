@@ -239,3 +239,94 @@ def test_a_component_without_a_parallel_system_says_so():
     component = Component(name='ocean')
     with pytest.raises(ValueError, match='Parallel system has not been set'):
         read_allocation(component, logging.getLogger('test'))
+
+
+def _allowed(monkeypatch, cores):
+    """What the kernel says this process may use, for the tests below."""
+    monkeypatch.setattr(
+        'polaris.run.allocation.os.sched_getaffinity',
+        lambda pid: set(cores),
+        raising=False,
+    )
+
+
+def test_a_node_is_numbered_by_what_the_job_may_use(monkeypatch):
+    """
+    Aurora keeps core 0 for itself, and PALS refuses a launch bound to it.
+    The pool has to number cores from what the job was given, not from
+    zero, or it hands out one that cannot be used.
+    """
+    _allowed(monkeypatch, range(1, 64))
+    system = _FakeSystem(['x1'], stdout='host=x1\n')
+
+    nodes = _run(monkeypatch, system)
+
+    assert nodes[0].core_ids == tuple(range(1, 64))
+    assert nodes[0].cores == 63
+    assert 0 not in nodes[0].core_ids
+
+
+def test_the_memory_probe_lands_on_a_core_the_job_may_use(monkeypatch):
+    """The probe was refused on Aurora for asking for core 0."""
+    _allowed(monkeypatch, range(1, 64))
+    system = _FakeSystem(['x1', 'x2'], stdout='host=x1\nhost=x2\n')
+
+    _run(monkeypatch, system)
+
+    placement = system.placements[-1]
+    assert placement.cores == ((1,), (1,))
+
+
+def test_hardware_threads_are_not_taken_for_cores(monkeypatch):
+    """
+    A Perlmutter CPU node exposes 256 threads and is configured with 128
+    cores.  The threads above the configured count are not cores.
+    """
+    _allowed(monkeypatch, range(256))
+    system = _FakeSystem(['x1'], stdout='host=x1\n')
+    system.cores_per_node = 128
+
+    nodes = _run(monkeypatch, system)
+
+    assert nodes[0].core_ids == tuple(range(128))
+
+
+def test_a_process_bound_to_a_corner_does_not_describe_the_node(
+    monkeypatch, caplog
+):
+    """
+    A scheduler started on one core must not conclude the node has one.
+    """
+    _allowed(monkeypatch, {3})
+    system = _FakeSystem(['x1'], stdout='host=x1\n')
+
+    with caplog.at_level(logging.WARNING):
+        nodes = _run(monkeypatch, system)
+
+    assert nodes[0].core_ids == tuple(range(64))
+    assert 'too few to describe a node' in caplog.text
+
+
+def test_a_fully_qualified_node_is_matched_to_its_own_reading(monkeypatch):
+    """
+    PBS lists Aurora's nodes as x1.hsn.cm.aurora.alcf.anl.gov and the node
+    reports itself as x1.  The reading has to reach the node, or every
+    node reads as silent and falls back while having answered.
+    """
+    _allowed(monkeypatch, range(64))
+    names = ['x1.hsn.cm.aurora.alcf.anl.gov', 'x2.hsn.cm.aurora.alcf.anl.gov']
+    system = _FakeSystem(
+        names,
+        stdout=(
+            'host=x1\nmemavailable=1162240000\n'
+            'host=x2\nmemavailable=1031168000\n'
+        ),
+    )
+
+    nodes = _run(monkeypatch, system)
+
+    assert [node.name for node in nodes] == names
+    assert nodes[0].memory_source == 'available'
+    assert nodes[1].memory_source == 'available'
+    assert nodes[0].memory == 1162240000 // 1024
+    assert nodes[1].memory == 1031168000 // 1024
