@@ -44,9 +44,10 @@ Where the scheduler reserves resources -- Slurm 20.11 and later, with
 ``--exact`` -- it promises a *count* and picks the cores itself, so holding
 the ranks to particular numbers reports every launch: measured on
 Perlmutter, where thirty steps were reported for running on the right
-number of the wrong cores.  There the count is what is checked, with one
-allowance: a launch given a whole node sees that node's hardware threads
-too, which is twice the cores and not a mismatch.
+number of the wrong cores.  There the count is what is checked, in
+physical cores: a launch given a whole node is allowed that node's
+hardware threads too, which are twice the ids and the same cores, and the
+kernel's topology says which ids are which.
 
 GPUs are asked about the same way, through the visible-devices variable
 the machine's vendor uses.  The ranks report what they can see and that is
@@ -63,6 +64,8 @@ import sys
 from typing import Dict, List, NamedTuple, Optional, Set, Tuple
 
 from mache.parallel import PlacementSupport
+
+from polaris.run.topology import physical_cores
 
 # written in a step's work directory when the check found a mismatch, so the
 # scheduler can say so without reading the step's whole log
@@ -240,13 +243,7 @@ def _check_launch(step, placement, logger) -> List[str]:
         )
         return []
 
-    return _compare(
-        placement,
-        seen,
-        logger,
-        support=system.placement_support,
-        cores_per_node=system.cores_per_node,
-    )
+    return _compare(placement, seen, logger, support=system.placement_support)
 
 
 class Report(NamedTuple):
@@ -284,7 +281,6 @@ def _compare(
     seen: Dict[str, Report],
     logger,
     support: PlacementSupport = PlacementSupport.CPU_BINDING,
-    cores_per_node: Optional[int] = None,
 ) -> List[str]:
     """Hold what the ranks reported against what the placement promised."""
     promised = _promised(placement)
@@ -306,9 +302,7 @@ def _compare(
         allowed = promised.get(node)
         if allowed is None:
             continue
-        problem = _compare_cores(
-            node, seen[node].cores, allowed, support, cores_per_node
-        )
+        problem = _compare_cores(node, seen[node].cores, allowed, support)
         if problem:
             problems.append(problem)
 
@@ -319,7 +313,7 @@ def _compare(
         what = (
             'cores'
             if support is PlacementSupport.CPU_BINDING
-            else ('cores, by count')
+            else 'hardware threads, on no more cores than it was given,'
         )
         logger.info(
             f'placement: the launch used {total} {what} on '
@@ -333,7 +327,6 @@ def _compare_cores(
     reported: Set[int],
     allowed: Set[int],
     support: PlacementSupport,
-    cores_per_node: Optional[int],
 ) -> Optional[str]:
     """
     Say how one node's ranks differ from their placement, if they do.
@@ -341,10 +334,15 @@ def _compare_cores(
     Which comparison applies is what the machine promised.  An explicit
     binding names the cores, so the ranks have to be on those.  A scheduler
     that reserves resources promises a count and chooses the cores itself,
-    so only the count can be held -- and a launch given a whole node is
-    allowed that node's hardware threads as well, which is twice the cores.
-    A launch given part of a node and allowed more than that is a mismatch
-    on either kind of machine: that is the escape this exists to see.
+    so the count is what is held -- in physical cores, since a rank
+    allowed both threads of a core has one core, and a launch given a
+    whole node is allowed every thread on it.  A launch given part of a
+    node and allowed more cores than that has escaped, on either kind of
+    machine, and that is what this exists to see.
+
+    The topology read is this node's.  The ranks may be on another, but
+    nodes in an allocation are alike, which is what ``cores_per_node``
+    already assumes.
     """
     if support is PlacementSupport.CPU_BINDING:
         if reported - allowed:
@@ -355,15 +353,14 @@ def _compare_cores(
             )
         return None
 
-    if len(reported) <= len(allowed):
-        return None
-    whole_node = cores_per_node is not None and len(allowed) >= cores_per_node
-    if whole_node and len(reported) <= 2 * len(allowed):
+    cores = physical_cores(reported)
+    if cores <= len(allowed):
         return None
     return (
-        f'On {node} the launch was allowed {len(reported)} cores but was '
-        f'given {len(allowed)}. This machine reserves cores by count and '
-        f'chooses which, so only the count is held.'
+        f'On {node} the launch was allowed {cores} cores '
+        f'({len(reported)} hardware threads) but was given {len(allowed)}. '
+        f'This machine reserves cores by count and chooses which, so only '
+        f'the count is held.'
     )
 
 

@@ -17,6 +17,7 @@ from mache.parallel import PlacementSupport
 
 from polaris import Component
 from polaris.run.allocation import _parse, read_allocation
+from tests.test_topology import fake_topology
 
 # what a Chrysalis compute node reported in job 1283361
 CHRYSALIS_TOTAL_KB = 263327076
@@ -56,8 +57,15 @@ def _component(system):
     return component
 
 
-def _run(monkeypatch, system):
-    """Read the allocation with the probe's output faked."""
+def _run(monkeypatch, system, siblings=()):
+    """
+    Read the allocation with the probe's output faked.
+
+    The topology is faked too, as no siblings unless ``siblings`` gives
+    some, so that the machine running the tests does not decide what a
+    node looks like.
+    """
+    fake_topology(monkeypatch, siblings)
 
     class _Process:
         returncode = system._returncode
@@ -293,26 +301,66 @@ def test_aurora_keeps_every_core_the_job_was_given(monkeypatch):
     _allowed(monkeypatch, cpuset)
     system = _FakeSystem(['x1'], stdout='host=x1\n')
     system.cores_per_node = 102
+    siblings = [(cpu, cpu + 104) for cpu in range(104)]
 
-    nodes = _run(monkeypatch, system)
+    nodes = _run(monkeypatch, system, siblings)
 
     assert nodes[0].core_ids == tuple(range(1, 52)) + tuple(range(53, 104))
     assert nodes[0].cores == 102
     assert {0, 52, 104, 156}.isdisjoint(nodes[0].core_ids)
 
 
-def test_hardware_threads_are_not_taken_for_cores(monkeypatch):
+def test_hardware_threads_are_not_taken_for_cores(monkeypatch, caplog):
     """
-    A Perlmutter CPU node exposes 256 threads and is configured with 128
-    cores.  The threads above the configured count are not cores.
+    A Perlmutter CPU node exposes 256 threads, siblings 128 apart, and is
+    configured with 128 cores.  One thread per core is what a step is
+    placed on, and the count agrees with the configuration.
     """
     _allowed(monkeypatch, range(256))
     system = _FakeSystem(['x1'], stdout='host=x1\n')
     system.cores_per_node = 128
+    siblings = [(cpu, cpu + 128) for cpu in range(128)]
 
-    nodes = _run(monkeypatch, system)
+    with caplog.at_level(logging.WARNING):
+        nodes = _run(monkeypatch, system, siblings)
 
     assert nodes[0].core_ids == tuple(range(128))
+    assert 'configured with' not in caplog.text
+
+
+def test_interleaved_siblings_are_not_two_cores(monkeypatch):
+    """
+    Nothing promises thread 0 of every core is numbered first.  Where
+    siblings sit next to each other, taking the first ids by count would
+    place two ranks on one core.
+    """
+    _allowed(monkeypatch, range(8))
+    system = _FakeSystem(['x1'], stdout='host=x1\n')
+    system.cores_per_node = 4
+    siblings = [(0, 1), (2, 3), (4, 5), (6, 7)]
+
+    nodes = _run(monkeypatch, system, siblings)
+
+    assert nodes[0].core_ids == (0, 2, 4, 6)
+
+
+def test_a_node_that_disagrees_with_its_configuration_is_reported(
+    monkeypatch, caplog
+):
+    """
+    The count of cores a job may use is the machine's word; the configured
+    count is the config file's.  When they differ, someone should know.
+    """
+    _allowed(monkeypatch, range(72))
+    system = _FakeSystem(['x1'], stdout='host=x1\n')
+    system.cores_per_node = 64
+
+    with caplog.at_level(logging.WARNING):
+        nodes = _run(monkeypatch, system)
+
+    assert nodes[0].core_ids == tuple(range(64))
+    assert 'has 72 cores the job may use' in caplog.text
+    assert 'configured with 64' in caplog.text
 
 
 def test_a_process_bound_to_a_corner_does_not_describe_the_node(

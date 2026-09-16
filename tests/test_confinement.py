@@ -33,6 +33,7 @@ from polaris.run.confinement import (
     _ranges,
     check_confinement,
 )
+from tests.test_topology import fake_topology
 
 # stands in for mpirun: drops the `-n N -c M` mache renders and runs the
 # payload.  It is not a launcher; the placement under test is the `taskset`
@@ -370,52 +371,70 @@ def test_a_scheduler_machine_is_held_to_the_count_not_the_cores():
     assert _compare(placement, seen, _logger(), support=SCHEDULER) == []
 
 
-def test_a_scheduler_launch_given_part_of_a_node_may_not_see_more():
+def _perlmutter_cpu(monkeypatch):
+    """256 ids, siblings 128 apart, 128 cores."""
+    fake_topology(monkeypatch, [(cpu, cpu + 128) for cpu in range(128)])
+
+
+def test_a_scheduler_launch_given_part_of_a_node_may_not_see_more(
+    monkeypatch,
+):
     """
     The escape the check exists for looks the same on every machine: a
     step given a few cores and allowed many.  Holding only the count must
     still see it.
     """
+    _perlmutter_cpu(monkeypatch)
     placement = ResourcePlacement(nodes=('nid1',), cores=((4, 10, 25),))
     seen = {'nid1': _seen(range(128))}
 
-    problems = _compare(
-        placement, seen, _logger(), support=SCHEDULER, cores_per_node=128
-    )
+    problems = _compare(placement, seen, _logger(), support=SCHEDULER)
 
     assert len(problems) == 1
-    assert 'allowed 128 cores but was given 3' in problems[0]
+    assert 'allowed 128 cores' in problems[0]
+    assert 'was given 3' in problems[0]
 
 
-def test_a_scheduler_launch_given_a_whole_node_may_see_its_threads():
+def test_a_scheduler_launch_given_a_whole_node_may_see_its_threads(
+    monkeypatch,
+):
     """
     Perlmutter's nine other lines: a launch given all 128 of a node's
-    cores was allowed 256, which are that node's hardware threads.
+    cores was allowed 256 ids, which are those cores and their siblings.
     """
+    _perlmutter_cpu(monkeypatch)
     placement = ResourcePlacement(nodes=('nid1',), cores=(tuple(range(128)),))
     seen = {'nid1': _seen(range(256))}
 
-    problems = _compare(
-        placement, seen, _logger(), support=SCHEDULER, cores_per_node=128
-    )
-
-    assert problems == []
+    assert _compare(placement, seen, _logger(), support=SCHEDULER) == []
 
 
-def test_half_a_node_seeing_the_whole_node_is_still_a_mismatch():
+def test_half_a_node_seeing_the_whole_node_is_still_a_mismatch(monkeypatch):
     """
-    Twice the cores is only threads when the cores were the whole node.
-    A launch given 64 of 128 and allowed 128 has escaped, even though the
-    ratio is the same.
+    Twice the ids is only threads when they are the given cores' own.  A
+    launch given 64 of 128 cores and allowed all 128 has escaped, though
+    the ratio is the same as the whole-node case.
     """
+    _perlmutter_cpu(monkeypatch)
     placement = ResourcePlacement(nodes=('nid1',), cores=(tuple(range(64)),))
     seen = {'nid1': _seen(range(128))}
 
-    problems = _compare(
-        placement, seen, _logger(), support=SCHEDULER, cores_per_node=128
-    )
+    problems = _compare(placement, seen, _logger(), support=SCHEDULER)
 
     assert len(problems) == 1
+    assert 'allowed 128 cores (128 hardware threads)' in problems[0]
+
+
+def test_a_launch_allowed_its_cores_and_their_siblings_is_within(monkeypatch):
+    """
+    A rank allowed both threads of each of its cores has those cores and
+    nothing more, however the ids are numbered.
+    """
+    _perlmutter_cpu(monkeypatch)
+    placement = ResourcePlacement(nodes=('nid1',), cores=(tuple(range(64)),))
+    seen = {'nid1': _seen(set(range(64)) | set(range(128, 192)))}
+
+    assert _compare(placement, seen, _logger(), support=SCHEDULER) == []
 
 
 def test_a_binding_machine_is_still_held_to_the_cores():
