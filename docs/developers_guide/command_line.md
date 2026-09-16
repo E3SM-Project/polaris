@@ -488,6 +488,14 @@ mean already exceeds, so a one-step job is sized exactly as it was before.
 For `omega_pr` the rule asks for 5 nodes where the serial rule asks for 3,
 and for `omega_nightly` 16 where the serial rule asks for 5.
 
+The sum is taken in cores on every machine, including one whose nodes are
+counted by GPUs, where the widest step's geometric mean is still taken in
+GPUs.  Holding every step at once is cheap in cores because the smallest step
+is a hundredth of a node; in GPUs the smallest step is a quarter of one, and
+`omega_pr`'s 51 one-GPU steps made the sum ask Perlmutter GPU for 29 nodes.
+In cores the same suite asks for 3, its small GPU steps take a few turns
+each, and the widest GPU step still fits.
+
 The point of the sum is that the allocation follows a suite that gains tests
 instead of staying fixed at its widest step.  Measured on Chrysalis, a
 concurrent suite's wall time falls as the inverse square root of the nodes it
