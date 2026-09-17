@@ -27,7 +27,9 @@ class KPPViz(OceanIOStep):
     """
 
     def __init__(self, component, indir, comparisons, regime):
-        super().__init__(component=component, name='kpp_viz', indir=indir)
+        # We can name this step `viz` because we do not use the general
+        # single_column Viz step for kpp tasks
+        super().__init__(component=component, name='viz', indir=indir)
         self.comparisons = dict(comparisons)
         self.regime = regime
         self.add_output_file('boundary_layer_depth.png')
