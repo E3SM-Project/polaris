@@ -41,7 +41,7 @@ class KPPRegimes(Task):
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column.kpp_regimes', config_filename
         )
-        self.config.add_from_package('polaris.ocean.eos', 'linear.cfg')
+        self.config.add_from_package('polaris.ocean.eos', 'teos10.cfg')
         self.add_step(init, symlink='init')
 
         validate_vars = [
