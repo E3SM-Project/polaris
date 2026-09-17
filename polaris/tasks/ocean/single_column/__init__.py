@@ -229,7 +229,10 @@ def add_single_column_tasks(component):
             ['wind_stress', 'sea_ice'],
             ['stable_temperature_strong'],
         ),
-        'kpp_convection_evaporation': (['evap_weak'], ['stable_salinity']),
+        'kpp_convection_evaporation': (
+            ['evap_weak'],
+            ['stable_salinity_weak'],
+        ),
         'kpp_cooling_with_mixedlayer': (
             ['sensible_heat_cooling'],
             ['mixed_layer_stable_temperature_salinity'],
