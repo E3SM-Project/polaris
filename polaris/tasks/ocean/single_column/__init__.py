@@ -29,6 +29,10 @@ def add_single_column_tasks(component):
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
     )
+    config.add_from_package(
+        'polaris.tasks.ocean.single_column',
+        'neutral_temperature_salinity.cfg',
+    )
     for forcing_name in forcing:
         config.add_from_package(
             'polaris.tasks.ocean.single_column', f'{forcing_name}.cfg'
@@ -37,6 +41,7 @@ def add_single_column_tasks(component):
         'polaris.tasks.ocean.single_column',
         'stable_temperature_strong.cfg',
     )
+    config.add_from_package('polaris.ocean.eos', 'linear.cfg')
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
         subdir=f'column/init/{forcing_dir}/stable',
@@ -60,6 +65,10 @@ def add_single_column_tasks(component):
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
+    )
+    config.add_from_package(
+        'polaris.tasks.ocean.single_column',
+        'neutral_temperature_salinity.cfg',
     )
     for forcing_name in forcing:
         config.add_from_package(
@@ -122,6 +131,10 @@ def add_single_column_tasks(component):
     config.add_from_package(
         'polaris.tasks.ocean.single_column', f'{group_name}.cfg'
     )
+    config.add_from_package(
+        'polaris.tasks.ocean.single_column',
+        'neutral_temperature_salinity.cfg',
+    )
     for forcing_name in forcing:
         config.add_from_package(
             'polaris.tasks.ocean.single_column', f'{forcing_name}.cfg'
@@ -130,6 +143,7 @@ def add_single_column_tasks(component):
         'polaris.tasks.ocean.single_column',
         'stable_temperature_strong.cfg',
     )
+    config.add_from_package('polaris.ocean.eos', 'linear.cfg')
     init_step = component.get_or_create_shared_step(
         step_cls=Init,
         subdir=f'column/init/{forcing_dir}/stable',
