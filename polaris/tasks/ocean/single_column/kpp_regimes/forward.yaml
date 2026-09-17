@@ -15,8 +15,6 @@ ocean:
     config_cvmix_kpp_matching: {{ match_technique }}
     config_cvmix_kpp_use_theory_wave: {{ use_theory_wave }}
     configure_cvmix_kpp_minimum_OBL_under_sea_ice: {{ min_OBL_under_sea_ice }}
-  eos:
-    config_eos_type: linear
   eos_linear:
     config_eos_linear_alpha: 0.2
     config_eos_linear_beta: 0.01
