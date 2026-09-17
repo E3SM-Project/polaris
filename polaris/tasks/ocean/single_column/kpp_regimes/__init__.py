@@ -37,7 +37,7 @@ class KPPRegimes(Task):
         """
         super().__init__(component=component, name=name, indir=indir)
         config_filename = 'kpp_regimes.cfg'
-        self.set_shared_config(config, link=config_filename)
+        self.set_shared_config(config)
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column.kpp_regimes', config_filename
         )
@@ -88,8 +88,8 @@ class KPPRegimes(Task):
             self.add_step(Forward(**common_kwargs, use_theory_wave=True))
             self.add_step(Forward(**common_kwargs))
             comparisons = {
-                'langmuir': '../forward_no_vadv_no_hadv_langmuir',
-                'no_langmuir': '../forward_no_vadv_no_hadv_no_langmuir',
+                'langmuir': '../forward_no_vadv_no_hadv_simpleshapes_langmuir',
+                'no_langmuir': '../forward_no_vadv_no_hadv_simpleshapes',
             }
         elif name == 'kpp_sea_ice':
             self.add_step(
@@ -103,7 +103,7 @@ class KPPRegimes(Task):
                 )
             )
             comparisons = {
-                'standard': '../forward_no_vadv_no_hadv',
+                'standard': '../forward_no_vadv_no_hadv_simpleshapes',
                 'matchboth': '../forward_no_vadv_no_hadv_matchboth',
             }
         else:
@@ -112,7 +112,7 @@ class KPPRegimes(Task):
                 Forward(**common_kwargs, match_technique='MatchBoth')
             )
             comparisons = {
-                'standard': '../forward_no_vadv_no_hadv',
+                'standard': '../forward_no_vadv_no_hadv_simpleshapes',
                 'matchboth': '../forward_no_vadv_no_hadv_matchboth',
             }
 
