@@ -41,7 +41,7 @@ class SmokeTest(Task):
         task_name = f'smoke_test_horiz_adv_order_{horiz_adv_order}'
         if use_mom_del4:
             task_name += '_del4'
-        if not horiz_fct_enable_omega:
+        if not horiz_fct_enable_omega and horiz_adv_order > 2:
             task_name += '_nofct'
         super().__init__(component=component, name=task_name, indir=indir)
 
