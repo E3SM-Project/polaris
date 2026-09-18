@@ -17,6 +17,7 @@ def compare_variables(
     quiet=True,
     ds1=None,
     ds2=None,
+    diff_summary=None,
 ):
     """
     compare variables in the two files
@@ -76,6 +77,13 @@ def compare_variables(
         already loaded and allows for calculations to be performed or variables
         to be renamed if necessary.
 
+    diff_summary : dict, optional
+        If provided, this dict is populated (in place) with the maximum
+        difference found for each variable, e.g.
+        ``{'temperature': {'l1': ..., 'l2': ..., 'linf': ...}}``.  When a
+        variable has a ``Time`` dimension, the values are the maximum over
+        all time indices.
+
     Returns
     -------
     all_pass : bool
@@ -127,6 +135,7 @@ def compare_variables(
             if linf_norm is not None:
                 print(f'       L_Infinity: {linf_norm:16.14e}')
         variable_pass = True
+        max_norms = {'l1': 0.0, 'l2': 0.0, 'linf': 0.0}
         if 'Time' in da1.dims:
             time_range = range(0, da1.sizes['Time'])
             time_str = ', '.join([f'{j}' for j in time_range])
@@ -134,7 +143,7 @@ def compare_variables(
             for time_index in time_range:
                 slice1 = da1.isel(Time=time_index)
                 slice2 = da2.isel(Time=time_index)
-                result = _compute_norms(
+                result, l1, l2, linf = _compute_norms(
                     slice1,
                     slice2,
                     quiet,
@@ -144,13 +153,20 @@ def compare_variables(
                     time_index=time_index,
                 )
                 variable_pass = variable_pass and result
+                max_norms['l1'] = max(max_norms['l1'], l1)
+                max_norms['l2'] = max(max_norms['l2'], l2)
+                max_norms['linf'] = max(max_norms['linf'], linf)
 
         else:
             print(f'{variable}')
-            result = _compute_norms(
+            result, l1, l2, linf = _compute_norms(
                 da1, da2, quiet, l1_norm, l2_norm, linf_norm
             )
             variable_pass = variable_pass and result
+            max_norms = {'l1': l1, 'l2': l2, 'linf': linf}
+
+        if diff_summary is not None:
+            diff_summary[variable] = max_norms
 
         # ANSI fail text: https://stackoverflow.com/a/287944/7728169
         start_fail = '\033[91m'
@@ -236,7 +252,7 @@ def _compute_norms(
     if not quiet or not result:
         print(diff_str)
 
-    return result
+    return result, l1_norm, l2_norm, linf_norm
 
 
 def _as_numeric(da):

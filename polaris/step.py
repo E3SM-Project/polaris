@@ -1,8 +1,10 @@
 import importlib.resources as imp_res
+import json
 import logging
 import os
 import shutil
 import warnings
+from typing import Dict
 
 from mache import MachineInfo
 from mache.permissions import update_permissions
@@ -213,6 +215,11 @@ class Step:
         keys ``description``, ``relative_error``, ``tolerance`` and
         ``passed``
 
+    baseline_diff_summary : dict
+        The maximum l1, l2 and l_infinity norm differences found for each
+        variable by :py:meth:`validate_baselines()`, keyed by variable name,
+        e.g. ``{'temperature': {'l1': ..., 'l2': ..., 'linf': ...}}``
+
     logger : logging.Logger
         A logger for output from the step
 
@@ -419,6 +426,7 @@ class Step:
         self.validate_vars = dict()
         self.properties_to_check = list()
         self.property_check_results = list()
+        self.baseline_diff_summary = dict()
         self.setup_complete = False
 
         # these will be set before running the step, dummy placeholders for now
@@ -1110,7 +1118,10 @@ class Step:
 
         Writes out either a ``baseline_passed.log`` or ``baseline_failed.log``
         file in the work directory depending on whether all variables passed
-        the comparison.
+        the comparison.  The maximum l1, l2 and l_infinity norm differences
+        found for each variable are stored in ``self.baseline_diff_summary``
+        and written to ``baseline_diff_summary.json`` in the work directory
+        so that they can be summarized by the suite runner.
 
         Returns
         -------
@@ -1127,6 +1138,7 @@ class Step:
             )
         compared = False
         success = True
+        diff_summary: Dict[str, Dict[str, float]] = {}
         if self.baseline_dir is not None:
             failed_vars = []
             for filename, variables in self.validate_vars.items():
@@ -1135,6 +1147,7 @@ class Step:
 
                 this_filename = os.path.join(self.work_dir, filename)
                 baseline_filename = os.path.join(self.baseline_dir, filename)
+                file_diff_summary: Dict[str, Dict[str, float]] = {}
                 result = compare_variables(
                     self.component,
                     variables,
@@ -1142,11 +1155,29 @@ class Step:
                     baseline_filename,
                     logger=logger,
                     config=self.config,
+                    diff_summary=file_diff_summary,
                 )
                 success = success and result
                 compared = True
                 if not result:
                     failed_vars.extend(variables)
+                for var, norms in file_diff_summary.items():
+                    existing = diff_summary.get(var)
+                    if existing is None or norms['linf'] > existing['linf']:
+                        diff_summary[var] = norms
+
+            self.baseline_diff_summary = diff_summary
+            if compared:
+                results_filename = os.path.join(
+                    self.work_dir, 'baseline_diff_summary.json'
+                )
+                tmp_filename = f'{results_filename}.tmp'
+                with open(tmp_filename, 'w') as handle:
+                    json.dump(diff_summary, handle, indent=4, default=str)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                # rename atomically so that readers never see a partial file
+                os.replace(tmp_filename, results_filename)
 
             if compared and success:
                 log_filename = os.path.join(

@@ -1,5 +1,6 @@
 import argparse
 import glob
+import json
 import os
 import pickle
 import sys
@@ -91,6 +92,7 @@ def run_tasks(
         total_tasks = len(suite['tasks'])
         exec_fail_tasks: List[str] = []
         diff_fail_tasks: List[str] = []
+        diff_summaries: Dict[str, Dict] = {}
         for task_name in suite['tasks']:
             stdout_logger.info(f'{task_name}')
 
@@ -110,6 +112,7 @@ def run_tasks(
                 task_time,
                 exec_failed,
                 diff_failed,
+                diff_summary,
             ) = _log_and_run_task(
                 task,
                 stdout_logger,
@@ -128,6 +131,8 @@ def run_tasks(
                 exec_fail_tasks.append(task_name)
             if diff_failed:
                 diff_fail_tasks.append(task_name)
+            if diff_summary:
+                diff_summaries[task_name] = diff_summary
             task_times[task_name] = task_time
 
         suite_time = time.time() - suite_start
@@ -142,6 +147,7 @@ def run_tasks(
                 'total': total_tasks,
                 'failures': exec_fail_tasks,
                 'diffs': diff_fail_tasks,
+                'diff_details': diff_summaries,
             },
         )
 
@@ -391,8 +397,11 @@ def _log_and_run_task(
         task_logger.info(f'Running steps: {task_list}')
         # Default in case execution fails before setting this
         baselines_passed = None
+        diff_summary: Dict = {}
         try:
-            baselines_passed = _run_task(task, available_resources)
+            baselines_passed, diff_summary = _run_task(
+                task, available_resources
+            )
             run_status = success_str
             task_pass = True
         except Exception:
@@ -441,7 +450,14 @@ def _log_and_run_task(
 
     exec_failed = not task_pass
     diff_failed = baselines_passed is False
-    return result_str, success, task_time, exec_failed, diff_failed
+    return (
+        result_str,
+        success,
+        task_time,
+        exec_failed,
+        diff_failed,
+        diff_summary,
+    )
 
 
 def _read_baseline_status_from_logs(step_work_dir: str) -> Optional[bool]:
@@ -461,6 +477,74 @@ def _read_baseline_status_from_logs(step_work_dir: str) -> Optional[bool]:
     if os.path.exists(baseline_fail_filename):
         return False
     return None
+
+
+def _read_baseline_diff_summary_from_logs(step_work_dir: str) -> Dict:
+    """Get the baseline diff summary from an existing JSON file, if any.
+
+    Returns
+    -------
+    dict
+        The maximum l1, l2 and l_infinity norm differences for each
+        variable, keyed by variable name, or an empty dict if no summary
+        is available.
+    """
+    filename = os.path.join(step_work_dir, 'baseline_diff_summary.json')
+    if not os.path.exists(filename):
+        return {}
+    try:
+        with open(filename, 'r') as handle:
+            return json.load(handle)
+    except (OSError, ValueError):
+        return {}
+
+
+def _merge_diff_summary(overall: Dict, new: Dict) -> None:
+    """Merge a step's diff summary into a task-level summary in place,
+    keeping the largest l_infinity difference found for each variable."""
+    for var, norms in new.items():
+        existing = overall.get(var)
+        if existing is None or norms['linf'] > existing['linf']:
+            overall[var] = norms
+
+
+def _nonzero_norms(var_summary: Optional[Dict]) -> Dict:
+    """Filter a diff summary down to variables with an actual difference
+    (l_infinity norm not exactly zero), so the PR summary stays focused on
+    what actually differs from the baseline."""
+    if not var_summary:
+        return {}
+    return {
+        var: norms
+        for var, norms in var_summary.items()
+        if norms['linf'] != 0.0
+    }
+
+
+def _format_diff_summary_lines(
+    var_summary: Dict, name_width: int = 0
+) -> List[str]:
+    """Format a per-variable diff summary as indented markdown bullets,
+    sorted from largest to smallest l_infinity difference.  ``name_width``
+    is the length of the longest variable name to be displayed (typically
+    computed across all cases), so that the l1/l2/linf columns line up
+    consistently from one case to the next.  The variable name and norm
+    values are wrapped together in a single pair of backticks so that
+    markdown renders them in a monospace font, preserving the column
+    alignment produced by ``name_width``."""
+    lines = []
+    for var in sorted(
+        var_summary, key=lambda v: var_summary[v]['linf'], reverse=True
+    ):
+        norms = var_summary[var]
+        name_field = f'{var}:'.ljust(name_width + 1)
+        lines.append(
+            f'      - `{name_field} '
+            f'l1={norms["l1"]:.3e}  '
+            f'l2={norms["l2"]:.3e}  '
+            f'linf={norms["linf"]:.3e}`'
+        )
+    return lines
 
 
 def _read_property_status_from_logs(step_work_dir: str) -> Optional[bool]:
@@ -541,6 +625,7 @@ def _run_task(task, available_resources):
     cwd = os.getcwd()
     baselines_passed = None
     property_passed = None
+    diff_summary: Dict = {}
     for step_name in task.steps_to_run:
         step = task.steps[step_name]
         complete_filename = os.path.join(
@@ -560,6 +645,10 @@ def _run_task(task, available_resources):
                 )
                 baselines_passed = _accumulate_baselines(
                     baselines_passed, baseline_status
+                )
+                _merge_diff_summary(
+                    diff_summary,
+                    _read_baseline_diff_summary_from_logs(step.work_dir),
                 )
             property_status = None
             property_status = _read_property_status_from_logs(step.work_dir)
@@ -653,6 +742,9 @@ def _run_task(task, available_resources):
                 task, f'          baseline comp.:   {baseline_str}'
             )
             baselines_passed = _accumulate_baselines(baselines_passed, status)
+            _merge_diff_summary(
+                diff_summary, getattr(step, 'baseline_diff_summary', {})
+            )
 
         _print_to_stdout(
             task,
@@ -660,7 +752,7 @@ def _run_task(task, available_resources):
             f'{start_time_color}{step_time_str}{end_color}',
         )
 
-    return baselines_passed
+    return baselines_passed, diff_summary
 
 
 def _run_step(
@@ -900,8 +992,28 @@ def _write_output_for_pull_request(
                     lines.append(f'    - `{name}`')
             if diffs:
                 lines.append(f'  - Diffs ({len(diffs)} of {total}):')
+                diff_details: Dict[str, Dict] = dict(
+                    results.get('diff_details', {}) or {}
+                )
+                nonzero_by_task = {
+                    name: _nonzero_norms(diff_details.get(name))
+                    for name in diffs
+                }
+                name_width = max(
+                    (
+                        len(var)
+                        for norms in nonzero_by_task.values()
+                        for var in norms
+                    ),
+                    default=0,
+                )
                 for name in diffs:
                     lines.append(f'    - `{name}`')
+                    lines.extend(
+                        _format_diff_summary_lines(
+                            nonzero_by_task[name], name_width
+                        )
+                    )
 
     out_path = os.path.join(work_dir, f'{suite_name}_output_for_pr.md')
     print(f'Writing output useful for copy/paste into PRs to:\n  {out_path}')
