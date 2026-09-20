@@ -446,10 +446,10 @@ concurrency is bounded by one node's worth of cores.
 
 `polaris setup` and `polaris suite` write a `polaris serial` job script by
 default.  To have one write a `polaris parallel` script instead, pass
-`--concurrent_steps`:
+`--parallel`, or `-P`:
 
 ```none
-polaris suite -c ocean -t omega_pr --concurrent_steps -w <work dir>
+polaris suite -c ocean -t omega_pr -P -w <work dir>
 ```
 
 The flag sets the `[job] concurrent_steps` config option, so the same thing

@@ -167,12 +167,13 @@ def main():
     )
     add_component_model_args(parser)
     parser.add_argument(
-        '--concurrent_steps',
+        '-P',
+        '--parallel',
         dest='concurrent_steps',
         action='store_true',
-        help='If the job script should run the steps of the suite at the '
-        'same time with `polaris parallel` rather than one after another '
-        'with `polaris serial`.',
+        help='Run the steps of the suite at the same time with '
+        '`polaris parallel` rather than one after another with '
+        '`polaris serial`.',
     )
 
     args = parser.parse_args(sys.argv[2:])
