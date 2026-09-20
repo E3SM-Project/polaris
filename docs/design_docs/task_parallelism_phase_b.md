@@ -1038,7 +1038,7 @@ the event stream, not a reason to hold the phase.
 
 ### Testing and Validation: Cross-Machine
 
-Date last modified: 2026/08/23
+Date last modified: 2026/09/20
 
 Contributors:
 
@@ -1051,3 +1051,37 @@ a PBS system, and GPU and non-GPU nodes. Each was measured to support what
 Phase B needs, as recorded in
 [Task Parallelism in Polaris](task_parallelism.md); this validation confirms
 Polaris does it.
+
+It was done in September 2026, with `omega_pr` concurrent on every machine
+and every launch's ranks asked where they landed. On each of Aurora,
+Perlmutter GPU and Frontier the concurrent run matched its own serial
+baseline 99 to 0 with no launch outside its placement. What the machines
+corrected along the way is worth keeping, since it is what a reader of the
+code above would otherwise have to rediscover:
+
+- **Core ids are not `range(cores_per_node)`.** Aurora holds cores 0 and 52
+  back and PALS refuses a launch bound to either; Frontier's low-noise mode
+  holds back the first core of every L3 region. Numbering from zero placed 40
+  of 115 steps on a core the job did not have. A node is now numbered from
+  what the kernel allows the job, one id per physical core, read from the
+  kernel's topology rather than assumed from the enumeration order.
+- **A scheduler that reserves by count promises no particular cores.**
+  Perlmutter's `--exact` picks the cores itself, so the check holds a count
+  of physical cores there and the ids where a launcher binds explicitly.
+- **PALS restarts `--cpu-bind list:` on every node**, as Slurm 20.02 restarts
+  its mask list. Polaris was not affected, because a spanning step takes the
+  same cores on every node, but `mache` now renders one node's list on PBS
+  and refuses what cannot be said that way.
+- **GPU confinement holds, and what the check can read differs by vendor.**
+  Concurrent one-GPU launches on one node got distinct devices on both
+  machines. `ROCR_VISIBLE_DEVICES` holds the node's own indices on Frontier,
+  so the check is exact there; `CUDA_VISIBLE_DEVICES` is renumbered per
+  launch on Perlmutter, so there it can only catch a step seeing more than
+  it was given.
+- **Named devices are two bookkeepers agreeing.** On a single-node placement
+  the pool names the GPUs a step gets, and on a machine that reserves by
+  count `mache` never renders those names: Slurm picks by its own lowest-free
+  rule. The two agreed on every step of `omega_pr` on Frontier, and the check
+  would report the first time they did not. Not naming devices at all where
+  the scheduler chooses would remove the possibility, and is the change to
+  make if that report ever appears.
