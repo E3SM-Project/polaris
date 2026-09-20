@@ -429,7 +429,10 @@ def usable_cores(cores_per_node: int, logger) -> Tuple[int, ...]:
         )
     cores = cores[:cores_per_node]
     if cores != list(configured):
-        held_back = sorted(set(configured) - set(cores))
+        # the ids passed over among those in use, whatever the count: on
+        # Frontier the used ids run to 63 on a node configured with 56,
+        # and 56 itself is one of the held-back ones
+        held_back = sorted(set(range(cores[-1] + 1)) - set(cores))
         logger.info(
             f'A node here keeps back core(s) {held_back}; steps are placed '
             f'on the other {len(cores)}.'

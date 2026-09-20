@@ -310,6 +310,27 @@ def test_aurora_keeps_every_core_the_job_was_given(monkeypatch):
     assert {0, 52, 104, 156}.isdisjoint(nodes[0].core_ids)
 
 
+def test_frontier_names_every_core_it_keeps_back(monkeypatch, caplog):
+    """
+    Frontier's low-noise mode holds back the first core of every L3
+    region -- 0, 8, ..., 56 -- on a node configured with 56 cores, so the
+    used ids run to 63.  The message named seven of the eight on job
+    5515650, because it subtracted from ``range(56)`` and 56 lies above.
+    """
+    held = {0, 8, 16, 24, 32, 40, 48, 56}
+    used = sorted(set(range(64)) - held)
+    _allowed(monkeypatch, set(used) | {cpu + 64 for cpu in used})
+    system = _FakeSystem(['x1'], stdout='host=x1\n')
+    system.cores_per_node = 56
+    siblings = [(cpu, cpu + 64) for cpu in range(64)]
+
+    with caplog.at_level(logging.INFO):
+        nodes = _run(monkeypatch, system, siblings)
+
+    assert nodes[0].core_ids == tuple(used)
+    assert 'keeps back core(s) [0, 8, 16, 24, 32, 40, 48, 56]' in caplog.text
+
+
 def test_hardware_threads_are_not_taken_for_cores(monkeypatch, caplog):
     """
     A Perlmutter CPU node exposes 256 threads, siblings 128 apart, and is
