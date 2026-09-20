@@ -113,6 +113,10 @@ class Forward(OceanModelStep):
                 'normalVelocity',
             ],
         )
+        # the land-ice flux and frazil streams are always written, and the
+        # validate step reads both
+        self.add_output_file(filename='land_ice_fluxes.nc')
+        self.add_output_file(filename='frazil.nc')
 
     def compute_cell_count(self):
         """
