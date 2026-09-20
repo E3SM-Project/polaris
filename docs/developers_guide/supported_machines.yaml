@@ -3,11 +3,11 @@ machines:
   - name: aurora
     models:
       - model: Omega
-        compiler: oneapi-ifx
+        compiler: intel
         mpi: mpich
         mpas_target: null
       - model: Omega
-        compiler: oneapi-ifxgpu
+        compiler: intelgpu
         mpi: mpich
         mpas_target: null
 
