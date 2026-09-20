@@ -55,6 +55,18 @@ held against what the placement gave; more devices than given is a
 mismatch, fewer is only reported, since a launcher may renumber a rank's
 devices from zero and a rank that sees one device numbered zero says
 nothing about how many its neighbours see.
+
+How much that can catch was measured, and differs by vendor.  On Frontier
+``ROCR_VISIBLE_DEVICES`` holds the node's own indices -- eight concurrent
+one-GPU launches on one node read 0 through 7, one each (job 5515624) --
+so a step there names the devices it was given and one seeing a device it
+was not given says so by number.  On Perlmutter ``CUDA_VISIBLE_DEVICES``
+is renumbered per launch: four concurrent one-GPU launches on one node
+each read ``0`` while holding four distinct devices (job 58471743).  So
+there the check can only ever catch a step seeing more than it was given,
+and telling the devices apart would mean reading their UUIDs through the
+vendor's tool, which is a different probe.  On both machines the devices
+concurrent launches were given were disjoint.
 """
 
 import os
@@ -237,9 +249,14 @@ def _check_launch(step, placement, logger) -> List[str]:
 
     seen = _parse(result.stdout)
     if not seen:
+        # one silent probe says little.  On Aurora two steps started in a
+        # burst of nineteen on one node went unanswered and the next run
+        # answered every one, so this is output lost under load until the
+        # same step is silent twice.
         logger.warning(
             'placement: not checked; the probe launch ran but no rank '
-            'reported, so this machine may not pass a payload through'
+            'reported.  One silent probe is usually output lost under '
+            'load; the same step silent again is worth chasing'
         )
         return []
 

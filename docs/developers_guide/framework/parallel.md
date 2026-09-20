@@ -289,6 +289,15 @@ for a total does.
 `gpus_per_task` and `min_gpus_per_task` still work and are translated into a
 total, but they are deprecated and raise a `DeprecationWarning`.
 
+Whether a step got the GPUs it was given is checked the same way its cores
+are, by asking the ranks what the vendor's visible-devices variable holds.
+What that can catch was measured and differs by machine: on Frontier
+`ROCR_VISIBLE_DEVICES` holds the node's own indices and the check is exact;
+on Perlmutter `CUDA_VISIBLE_DEVICES` is renumbered per launch, so every
+one-GPU rank reads `0` and the check there can only catch a step seeing more
+devices than it was given. On both, concurrent launches were measured to
+hold disjoint devices.
+
 For ocean model steps with dynamic sizing, Omega runs on GPU-capable compiler
 configs use:
 
