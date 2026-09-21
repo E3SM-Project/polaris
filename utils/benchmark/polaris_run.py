@@ -14,9 +14,8 @@ from shared import check_call, check_output, print_commands
 #: The job id reported for a submitted job during a dry run
 #:
 #: A dry run submits nothing, so there is no id to give the test side for
-#: its ``--dependency``.  Without a stand-in, the dry run prints an
-#: ``sbatch`` line that is not the one it would really run, which is how
-#: the dependency went unexamined long enough to ship as ``afterok``.
+#: its dependency. Without a stand-in, the dry run would not show the
+#: command it would actually use.
 DRY_RUN_JOB_ID = '<baseline job id>'
 
 
@@ -67,7 +66,7 @@ def setup_and_run(
     submit : bool, optional
         Whether to submit the job script rather than running in place
     dependency : str, optional
-        A Slurm job id that must finish -- with or without failing tasks
+        A scheduler job id that must finish -- with or without failing tasks
         -- before this job starts, used only when ``submit`` is set
     dry_run : bool, optional
         Whether to only report the commands that would be run
@@ -77,10 +76,8 @@ def setup_and_run(
     Returns
     -------
     job_id : str or None
-        The Slurm job id when ``submit`` is set, otherwise ``None``.  A
-        dry run submits nothing and reports ``DRY_RUN_JOB_ID``, so that
-        the ``sbatch`` line it prints for the test side is the one it
-        would really run.
+        The scheduler job id when ``submit`` is set, otherwise ``None``. A
+        dry run submits nothing and reports ``DRY_RUN_JOB_ID``.
     """
     full_setup = build_setup_command(
         setup_command=setup_command,
@@ -111,28 +108,14 @@ def setup_and_run(
 
     if submit:
         job_script = f'job_script.{get_suite_name(setup_command)}.sh'
-        flags = ''
-        if dependency is not None:
-            # afterany, not afterok.  A suite exits non-zero when any
-            # task in it fails.  A baseline should not have failures, and
-            # one that does is worth fixing -- but a single failed task
-            # does not invalidate the rest, whose baseline output is on
-            # disk and comparable.  With afterok one failure cost the
-            # whole comparison, with nothing to do but run it all again.
-            #
-            # --kill-on-invalid-dep so that a dependency that can never be
-            # satisfied, as when the baseline job is cancelled, removes
-            # this job instead of leaving it queued forever.
-            flags = (
-                f'--dependency=afterany:{dependency} '
-                f'--kill-on-invalid-dep=yes '
-            )
-        # no load script: sbatch needs nothing from the polaris
-        # environment, and the job script sources it itself once the job
-        # starts.  Sourcing it here only added a way for submission to
-        # fail -- and did, when the load script's version check tripped
-        # over a worktree that was not part of the benchmark at all.
-        run_commands = f'cd {work_dir} && sbatch {flags}{job_script}'
+        scheduler = _detect_scheduler(state)
+        run_commands = _get_submit_command(
+            state=state,
+            work_dir=work_dir,
+            job_script=job_script,
+            scheduler=scheduler,
+            dependency=dependency,
+        )
     else:
         # source the load script from the worktree it belongs to, the way
         # the setup command above does, and only then move to the work
@@ -163,7 +146,7 @@ def setup_and_run(
     output = check_output(run_commands)
     if logger is not None:
         logger.info(output)
-    return _parse_job_id(output)
+    return _parse_job_id(output, scheduler)
 
 
 def build_setup_command(
@@ -330,11 +313,62 @@ def _check_job_script(work_dir, setup_command):
         )
 
 
-def _parse_job_id(output):
-    """Get the Slurm job id from the output of ``sbatch``."""
-    match = re.search(r'Submitted batch job (\d+)', output)
-    if match is None:
+def _detect_scheduler(state):
+    """Return the scheduler supported by a benchmark side's environment."""
+    command = (
+        f'cd {state.path} && '
+        f'source {state.load_script} && '
+        'if command -v qsub >/dev/null; then '
+        'printf pbs; '
+        'elif command -v sbatch >/dev/null; then '
+        'printf slurm; '
+        'else exit 1; fi'
+    )
+    output = check_output(command)
+    scheduler = output.splitlines()[-1].strip()
+    if scheduler not in ['pbs', 'slurm']:
         raise ValueError(
-            f'Could not determine the job id from sbatch output:\n{output}'
+            f'Could not identify a supported scheduler from:\n{output}'
         )
-    return match.group(1)
+    return scheduler
+
+
+def _get_submit_command(state, work_dir, job_script, scheduler, dependency):
+    """Build the scheduler-specific command that submits one job script."""
+    if scheduler == 'pbs':
+        flags = (
+            '' if dependency is None else f'-W depend=afterany:{dependency} '
+        )
+        submit_command = f'qsub {flags}{job_script}'
+    else:
+        flags = ''
+        if dependency is not None:
+            flags = (
+                f'--dependency=afterany:{dependency} '
+                '--kill-on-invalid-dep=yes '
+            )
+        submit_command = f'sbatch {flags}{job_script}'
+
+    return (
+        f'cd {state.path} && '
+        f'source {state.load_script} && '
+        f'cd {work_dir} && '
+        f'{submit_command}'
+    )
+
+
+def _parse_job_id(output, scheduler):
+    """Get a scheduler job id from a submission command's output."""
+    if scheduler == 'slurm':
+        match = re.search(r'Submitted batch job (\d+)', output)
+        if match is not None:
+            return match.group(1)
+    else:
+        for line in reversed(output.splitlines()):
+            job_id = line.strip()
+            if re.fullmatch(r'\d+(?:\.[\w.-]+)?', job_id):
+                return job_id
+
+    raise ValueError(
+        f'Could not determine the {scheduler} job id from output:\n{output}'
+    )
