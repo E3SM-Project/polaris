@@ -230,7 +230,11 @@
                 <span class="s1">'layerThickness'</span><span class="p">,</span>
                 <span class="s1">'normalVelocity'</span><span class="p">,</span>
             <span class="p">],</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="c1"># the land-ice flux and frazil streams are always written, and the</span>
+        <span class="c1"># validate step reads both</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'land_ice_fluxes.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'frazil.nc'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Forward.compute_cell_count">

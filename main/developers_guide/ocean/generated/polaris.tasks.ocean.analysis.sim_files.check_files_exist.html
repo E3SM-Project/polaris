@@ -146,20 +146,20 @@ months rather than a bare list of paths</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>sim_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference internal" href="polaris.tasks.ocean.analysis.sim_files.SimFile.html#polaris.tasks.ocean.analysis.sim_files.SimFile" title="polaris.tasks.ocean.analysis.sim_files.SimFile"><em>SimFile</em></a>) – The files to check, as returned by <a class="reference internal" href="polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template" title="polaris.tasks.ocean.analysis.sim_files.expand_template"><code class="xref py py-func docutils literal notranslate"><span class="pre">expand_template()</span></code></a></p></li>
-<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A short description of what the files are, used in the error message,
+<li><p><strong>sim_files</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference internal" href="polaris.tasks.ocean.analysis.sim_files.SimFile.html#polaris.tasks.ocean.analysis.sim_files.SimFile" title="polaris.tasks.ocean.analysis.sim_files.SimFile"><em>SimFile</em></a>) – The files to check, as returned by <a class="reference internal" href="polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template" title="polaris.tasks.ocean.analysis.sim_files.expand_template"><code class="xref py py-func docutils literal notranslate"><span class="pre">expand_template()</span></code></a></p></li>
+<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A short description of what the files are, used in the error message,
 e.g. <code class="docutils literal notranslate"><span class="pre">'monthly-mean'</span></code></p></li>
-<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A description of where the file-name template came from, so that the
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – A description of where the file-name template came from, so that the
 error says where to look, e.g. <code class="docutils literal notranslate"><span class="pre">'the</span> <span class="pre">History</span> <span class="pre">stream</span> <span class="pre">in</span>
 <span class="pre">/path/omega.yml'</span></code></p></li>
-<li><p><strong>template</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The template the files were expanded from.  Given it, the error also
+<li><p><strong>template</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The template the files were expanded from.  Given it, the error also
 says which years the simulation did write, which is usually the
 answer the reader wants.</p></li>
-<li><p><strong>simulation_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The directory a relative template is resolved against</p></li>
+<li><p><strong>simulation_path</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The directory a relative template is resolved against</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.14)"><strong>FileNotFoundError</strong></a> – If any of the files is missing</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#FileNotFoundError" title="(in Python v3.14)"><strong>FileNotFoundError</strong></a> – If any of the files is missing</p>
 </dd>
 </dl>
 </dd></dl>

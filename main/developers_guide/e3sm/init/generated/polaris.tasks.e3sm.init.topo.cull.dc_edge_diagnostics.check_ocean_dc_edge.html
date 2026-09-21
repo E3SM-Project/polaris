@@ -153,25 +153,25 @@ and <code class="docutils literal notranslate"><span class="pre">cellsOnEdge</sp
 culled, 0 where they are kept as ocean/sea-ice)</p></li>
 <li><p><strong>ds_sizing</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – The unified sizing field, with <code class="docutils literal notranslate"><span class="pre">ocean_background_cell_width</span></code>
 (km) on <code class="docutils literal notranslate"><span class="pre">lat</span></code>/<code class="docutils literal notranslate"><span class="pre">lon</span></code> coordinates (degrees)</p></li>
-<li><p><strong>min_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum allowed ratio of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> to the <em>local</em> ocean
+<li><p><strong>min_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum allowed ratio of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> to the <em>local</em> ocean
 background cell width.  This guards against land/river resolution
 leaking into the ocean, which shows up as a locally anomalous
 ratio.</p></li>
-<li><p><strong>max_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The maximum allowed ratio of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> to the local ocean
+<li><p><strong>max_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The maximum allowed ratio of <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> to the local ocean
 background cell width</p></li>
-<li><p><strong>min_abs_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum allowed ratio of the <em>shortest</em> <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> anywhere in
+<li><p><strong>min_abs_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The minimum allowed ratio of the <em>shortest</em> <code class="docutils literal notranslate"><span class="pre">dcEdge</span></code> anywhere in
 the domain to the <em>finest</em> ocean background cell width anywhere in
 it.  This is the CFL guard: the time step is set by the shortest
 edge globally, and a mesh is already sized for its finest intended
 resolution, so an edge that is short only relative to a coarse
 local background costs nothing.</p></li>
 <li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a>) – The logger for summary output</p></li>
-<li><p><strong>out_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the diagnostics file to write</p></li>
-<li><p><strong>max_clusters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum number of violation clusters to report</p></li>
+<li><p><strong>out_filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the diagnostics file to write</p></li>
+<li><p><strong>max_clusters</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum number of violation clusters to report</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If any ocean-interior edge violates the ratio bounds, or if the
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If any ocean-interior edge violates the ratio bounds, or if the
     shortest edge violates the absolute bound</p>
 </dd>
 </dl>

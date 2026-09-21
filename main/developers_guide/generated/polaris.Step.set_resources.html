@@ -159,36 +159,36 @@ to.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of cores per task the step would ideally use.  If
+<li><p><strong>cpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of cores per task the step would ideally use.  If
 fewer cores per node are available on the system, the step will
 run on all available cores as long as this is not below
 <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code></p></li>
-<li><p><strong>min_cpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of cores per task the step requires.  If the system
+<li><p><strong>min_cpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of cores per task the step requires.  If the system
 has fewer than this number of cores per node, the step will fail</p></li>
-<li><p><strong>ntasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step would ideally use.  If too few
+<li><p><strong>ntasks</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step would ideally use.  If too few
 cores are available on the system to accommodate the number of
 tasks and the number of cores per task, the step will run on
 fewer tasks as long as as this is not below <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code></p></li>
-<li><p><strong>min_tasks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step requires.  If the system has too
+<li><p><strong>min_tasks</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of tasks the step requires.  If the system has too
 few cores to accommodate the number of tasks and cores per task,
 the step will fail</p></li>
-<li><p><strong>cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of cores the step needs in total</p></li>
-<li><p><strong>min_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of cores the step needs in order to run at all</p></li>
-<li><p><strong>may_span_nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – whether the step’s cores and GPUs may be drawn from more than
+<li><p><strong>cores</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of cores the step needs in total</p></li>
+<li><p><strong>min_cores</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of cores the step needs in order to run at all</p></li>
+<li><p><strong>may_span_nodes</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – whether the step’s cores and GPUs may be drawn from more than
 one node</p></li>
-<li><p><strong>openmp_threads</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of OpenMP threads to use</p></li>
-<li><p><strong>memory</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the amount of memory in MB the step would ideally be given</p></li>
-<li><p><strong>min_memory</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the amount of memory in MB the step needs in order to run at
+<li><p><strong>openmp_threads</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of OpenMP threads to use</p></li>
+<li><p><strong>memory</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the amount of memory in MB the step would ideally be given</p></li>
+<li><p><strong>min_memory</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the amount of memory in MB the step needs in order to run at
 all</p></li>
-<li><p><strong>gpus</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of GPUs the step would ideally use, as a total for
+<li><p><strong>gpus</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of GPUs the step would ideally use, as a total for
 the step rather than a count per task</p></li>
-<li><p><strong>min_gpus</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of GPUs the step requires, again as a total</p></li>
-<li><p><strong>gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – <p>the number of GPUs per task the step would ideally use</p>
+<li><p><strong>min_gpus</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – the number of GPUs the step requires, again as a total</p></li>
+<li><p><strong>gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – <p>the number of GPUs per task the step would ideally use</p>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 1.1.0: </span>Use <code class="docutils literal notranslate"><span class="pre">gpus</span></code> instead</p>
 </div>
 </p></li>
-<li><p><strong>min_gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – <p>the number of GPUs per task the step requires</p>
+<li><p><strong>min_gpus_per_task</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – <p>the number of GPUs per task the step requires</p>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 1.1.0: </span>Use <code class="docutils literal notranslate"><span class="pre">min_gpus</span></code> instead</p>
 </div>

@@ -137,12 +137,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>feature_collection</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A GeoJSON feature collection</p></li>
-<li><p><strong>drainage_area_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Minimum retained drainage area in square meters</p></li>
-<li><p><strong>branch_distance_tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Minimum retained spacing between nearby upstream branches in meters</p></li>
-<li><p><strong>tributary_area_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The minimum tributary-to-main-stem drainage-area ratio for retaining
+<li><p><strong>feature_collection</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – A GeoJSON feature collection</p></li>
+<li><p><strong>drainage_area_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Minimum retained drainage area in square meters</p></li>
+<li><p><strong>branch_distance_tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Minimum retained spacing between nearby upstream branches in meters</p></li>
+<li><p><strong>tributary_area_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The minimum tributary-to-main-stem drainage-area ratio for retaining
 a nearby tributary at a confluence</p></li>
-<li><p><strong>n_cpus</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of parallel worker processes for basin traversal.
+<li><p><strong>n_cpus</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Number of parallel worker processes for basin traversal.
 Defaults to 1 (single-process).</p></li>
 <li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a><em>, </em><em>optional</em>) – A logger to write progress to.  A step should pass its own
 <code class="docutils literal notranslate"><span class="pre">self.logger</span></code> so that its output is not interleaved with that of

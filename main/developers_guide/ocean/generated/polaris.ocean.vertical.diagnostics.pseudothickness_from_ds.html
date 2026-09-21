@@ -149,12 +149,12 @@
 src_var_name, along with ‘SurfacePressure’ if <code class="docutils literal notranslate"><span class="pre">surf_pressure</span></code> is
 not given</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="../../generated/polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – Configuration options for the test case</p></li>
-<li><p><strong>src_var_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the variable in ds to use as the source for the
+<li><p><strong>src_var_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the variable in ds to use as the source for the
 geometric thickness, by default ‘layerThickness’.</p></li>
-<li><p><strong>iter_count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The number of iterations to use when computing pressure and
+<li><p><strong>iter_count</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The number of iterations to use when computing pressure and
 specific volume, by default <code class="docutils literal notranslate"><span class="pre">pseudothickness_iter_count</span></code> for teos-10
 and 1 for linear or constant EOS.</p></li>
-<li><p><strong>surf_pressure</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a><em>, </em><em>optional</em>) – The surface pressure to integrate down from.  Defaults to
+<li><p><strong>surf_pressure</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a><em>, </em><em>optional</em>) – The surface pressure to integrate down from.  Defaults to
 <code class="docutils literal notranslate"><span class="pre">ds.SurfacePressure</span></code>.  Pass 0. for quantities that are defined at
 zero surface pressure, such as <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code>.</p></li>
 </ul>
