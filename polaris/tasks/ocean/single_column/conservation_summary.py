@@ -1,6 +1,9 @@
 import json
 import os
 
+import numpy as np
+import xarray as xr
+
 from polaris import Step
 
 # the conservation budgets summarized for each forward step, in the order
@@ -21,7 +24,9 @@ class ConservationSummary(Step):
         directory relative to the base work directory
     """
 
-    def __init__(self, component, indir, forward_steps):
+    def __init__(
+        self, component, indir, forward_steps, frazil_diagnostics=False
+    ):
         """
         Create the step
 
@@ -42,6 +47,7 @@ class ConservationSummary(Step):
             component=component, name='conservation_summary', indir=indir
         )
         self.forward_steps = dict(forward_steps)
+        self.frazil_diagnostics = frazil_diagnostics
         self.add_output_file('conservation_summary.log')
 
     def run(self):
@@ -78,6 +84,60 @@ class ConservationSummary(Step):
             handle.write('\n'.join(lines) + '\n')
 
         self.logger.info('\n'.join(lines))
+
+        if self.frazil_diagnostics:
+            diagnostics = _frazil_diagnostics(
+                self.base_work_dir, self.forward_steps, self.config
+            )
+            with open('conservation_summary.log', 'a') as handle:
+                handle.write('\nFrazil diagnostic terms\n')
+                handle.write(diagnostics)
+            self.logger.info('\nFrazil diagnostic terms\n%s', diagnostics)
+
+
+def _frazil_diagnostics(base_work_dir, forward_steps, config):
+    """Integrate Omega frazil fluxes and report existing check errors."""
+    model = config.get('ocean', 'model')
+    if model != 'omega':
+        return f'Omega frazil fields unavailable for model {model}\n'
+
+    lines = [
+        'forward step                 mass (kg)       salt (kg)       '
+        'energy (J)      conservation errors',
+    ]
+    for name, path in forward_steps.items():
+        errors = _read_errors(
+            os.path.join(base_work_dir, path, 'property_check_results.json')
+        )
+        last_errors = {}
+        for budget_errors in errors.values():
+            last_errors.update(budget_errors)
+        output_filename = os.path.join(base_work_dir, path, 'output.nc')
+        output = xr.open_dataset(output_filename, decode_times=False)
+        mesh_filename = os.path.join(base_work_dir, path, 'culled_mesh.nc')
+        mesh = xr.open_dataset(mesh_filename, decode_times=False)
+        times = np.asarray(output['time'].values, dtype=float)
+        interval = np.diff(np.concatenate(([0.0], times)))
+        area = np.asarray(mesh['areaCell'].values, dtype=float)
+        values = []
+        for field in (
+            'FrazilOcnDtFrazilMass',
+            'FrazilOcnDtFrazilSalt',
+            'FrazilOcnDtFrazilEnergy',
+        ):
+            flux = np.asarray(output[field].values, dtype=float)
+            values.append(float(np.sum(flux * interval[:, None] * area)))
+        lines.append(
+            f'{name:<28s}{values[0]:>16.6e}{values[1]:>16.6e}'
+            f'{values[2]:>16.6e} '
+            f'mass={last_errors.get("mass", float("nan")):.3e} '
+            f'salt={last_errors.get("salt", float("nan")):.3e} '
+            f'energy={last_errors.get("energy", float("nan")):.3e}'
+        )
+        output.close()
+        mesh.close()
+
+    return '\n'.join(lines) + '\n'
 
 
 def _read_errors(filename):

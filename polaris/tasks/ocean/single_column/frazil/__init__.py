@@ -65,6 +65,15 @@ class Frazil(Task):
         comparisons = dict()
         forward_steps = dict()
         self._frazil_type_steps = dict()
+        run_duration_steps = None
+        if self.case == 'freezing':
+            time_step = self.config.getfloat('single_column', 'time_step')
+            run_duration_steps = int(round(86400.0 / time_step))
+            if run_duration_steps * time_step != 86400.0:
+                raise ValueError(
+                    'The freezing frazil run must contain an integer number '
+                    'of time steps in one day'
+                )
         for frazil_type in ('FixedProperty', 'teos'):
             forward_step = Forward(
                 component=component,
@@ -78,6 +87,7 @@ class Frazil(Task):
                 task_name='frazil',
                 task_package='polaris.tasks.ocean.single_column.frazil',
                 frazil_type=frazil_type,
+                run_duration_steps=run_duration_steps,
             )
             self.add_step(forward_step)
             self._frazil_type_steps[frazil_type] = forward_step
@@ -87,6 +97,7 @@ class Frazil(Task):
             component=component,
             indir=subdir,
             forward_steps=forward_steps,
+            frazil_diagnostics=(case == 'freezing'),
         )
         self.add_step(self.conservation_summary)
         self.viz = Viz(
