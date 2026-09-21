@@ -148,6 +148,8 @@ Omega:
   # This is needed for consistency with MPAS-O
   SurfaceRestoring:
     TracersToRestore: [Salinity]
+  Eos:
+    EosType: linear
   # Default.yml disables these; without them SurfaceBuoyancyFlux stays zero
   # regardless of heat/salt forcing in forcing.nc
   Tendencies:

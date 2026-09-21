@@ -243,7 +243,6 @@ def add_single_column_tasks(component):
         ),
     }
     for name, (forcing, profile_configs) in kpp_regimes.items():
-        forcing_dir = '_'.join(forcing)
         filepath = f'{component.name}/column/{name}/{name}.cfg'
         config = PolarisConfigParser(filepath=filepath)
         config.add_from_package(
@@ -267,11 +266,18 @@ def add_single_column_tasks(component):
             )
         init_step = component.get_or_create_shared_step(
             step_cls=Init,
-            # "kpp/" avoids colliding with other tasks' shared init steps
-            # that happen to use the same forcing combo (e.g. ideal_age
-            # also uses evap+stable), which would silently reuse the wrong
-            # config (missing eos_linear.cfg) via get_or_create_shared_step
-            subdir=f'column/init/{forcing_dir}/stable',
+            # Keyed on the regime name (not just the forcing combination):
+            # several regimes now share the same forcing list (e.g.
+            # kpp_convection_cooling and kpp_cooling_with_mixedlayer both
+            # use ['sensible_heat_cooling']) but differ in profile_configs,
+            # so forcing_dir alone is no longer unique within this loop.
+            # "kpp/" additionally avoids colliding with other tasks' shared
+            # init steps that happen to use the same forcing combo (e.g.
+            # ideal_age also uses evap_strong+stable), which would silently
+            # reuse the wrong config (missing eos_linear.cfg and the
+            # kpp_regimes.cfg vertical grid override) via
+            # get_or_create_shared_step.
+            subdir=f'column/init/kpp/{name}/stable',
             config=config,
             config_filename=f'{name}.cfg',
         )
