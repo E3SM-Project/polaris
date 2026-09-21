@@ -1,6 +1,7 @@
 import numpy as np
 
 from polaris.constants import get_constant
+from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep, get_time_since_start
 
 
@@ -14,14 +15,32 @@ def f11_boundary_layer_depth(time_days, buoyancy_flux, n_squared):
 
 def initial_n_squared(config):
     """
-    Compute the initialized N-squared for the linear EOS profile.
+    Compute the initialized N-squared near the surface from the
+    temperature gradient, using the equation of state specified in the
+    config so this works for ``constant``, ``linear`` or ``teos-10``.
     """
     section = config['single_column']
     g = get_constant('standard_acceleration_of_gravity')
-    rho_sw = get_constant('seawater_density_reference')
-    alpha = config.getfloat('ocean', 'eos_linear_alpha')
+    surface_temperature = section.getfloat('surface_temperature')
+    surface_salinity = section.getfloat('surface_salinity')
     dtdz = section.getfloat('temperature_gradient_interior')
-    return g * alpha * dtdz / rho_sw
+
+    # thermal expansion from a small finite difference in temperature,
+    # rather than an EOS-specific coefficient
+    delta_temperature = 1.0e-3
+    density_kwargs = dict(
+        salinity=surface_salinity,
+        pressure=0.0,
+        tracer_convention='mpas-ocean',
+        lon=0.0,
+        lat=0.0,
+    )
+    rho_ref = compute_density(config, surface_temperature, **density_kwargs)
+    rho_perturbed = compute_density(
+        config, surface_temperature + delta_temperature, **density_kwargs
+    )
+    drho_dtemp = (rho_perturbed - rho_ref) / delta_temperature
+    return -g * drho_dtemp * dtdz / rho_ref
 
 
 class Analysis(OceanIOStep):
@@ -373,6 +392,7 @@ class Analysis(OceanIOStep):
 
     def _initial_n_squared(self):
         """
-        Compute the initialized N-squared for the linear EOS profile.
+        Compute the initialized N-squared using the config's equation of
+        state.
         """
         return initial_n_squared(self.config)
