@@ -5,11 +5,12 @@
 The ``ocean/overflow`` test group induces a density current flowing down a
 continental slope and includes the following test cases:
 
-1. ``smoke_test_horiz_adv_order_2`` — short (12 min) smoke test using horizontal advection order = 2 for rapid CI checks.
+1. ``smoke_test_horiz_adv_order_2`` — short (12 min) smoke test using horizontal advection order = 2 for rapid CI checks. For Omega, flux-corrected transport (FCT) is disabled by default for this order.
 2. ``smoke_test_horiz_adv_order_2_del4`` — same as (1) but with del4 viscosity enabled with the default viscosity value.
-3. ``smoke_test_horiz_adv_order_3`` — short (12 min) smoke test using horizontal advection order = 3 for rapid CI checks.
-4. ``smoke_test_horiz_adv_order_4`` — short (12 min) smoke test using horizontal advection order = 4 for rapid CI checks.
-5. ``rpe`` — long run (40 days) exploring Resting Potential Energy (RPE) evolution for a set of Laplacian viscosities.
+3. ``smoke_test_horiz_adv_order_3`` — short (12 min) smoke test using horizontal advection order = 3 for rapid CI checks. For Omega, FCT is enabled by default for this order.
+4. ``smoke_test_horiz_adv_order_3_nofct`` — same as (3) but with FCT disabled for Omega, for comparison.
+5. ``smoke_test_horiz_adv_order_4`` — short (12 min) smoke test using horizontal advection order = 4 for rapid CI checks. For Omega, FCT is enabled by default for this order.
+6. ``rpe`` — long run (40 days) exploring Resting Potential Energy (RPE) evolution for a set of Laplacian viscosities.
 
 Each of these tasks (plus the `_del4` variants of orders 3 and 4) is
 available in three variants that combine the equation of state (EOS) with
@@ -226,7 +227,10 @@ default_viscosity = 1000.0
 default_del4_viscosity = 5.0e7
 
 # Default horizontal advection order
-default_horiz_adv_order = 2
+default_horiz_adv_order = 3
+
+# Default horizontal FCT option
+default_horiz_fct_enable_omega = true
 ```
 
 The two `linear` trees use the shared linear EOS from
@@ -246,11 +250,15 @@ The number of cores is determined by `goal_cells_per_core` and
 
 There are three smoke test cases corresponding to horizontal advection orders
 2, 3, and 4: `smoke_test_horiz_adv_order_2`, `smoke_test_horiz_adv_order_3`,
-and `smoke_test_horiz_adv_order_4`. Each smoke test is the same as described
-above except the run is stopped before it is allowed to reach equilibrium to
-facilitate rapid testing. The horizontal advection order is controlled by the
-`horiz_adv_order` argument to the `SmokeTest` task and passed through to the
-forward step.
+and `smoke_test_horiz_adv_order_4` (each also available with del4 viscosity
+enabled). For Omega, FCT is enabled by default for advection orders 3 and 4
+and disabled for order 2; the additional `smoke_test_horiz_adv_order_3_nofct`
+task runs order 3 with FCT disabled for comparison. Each smoke test is the
+same as described above except the run is stopped before it is allowed to
+reach equilibrium to facilitate rapid testing. The horizontal advection order
+and FCT setting are controlled by the `horiz_adv_order` and
+`horiz_fct_enable_omega` arguments to the `SmokeTest` task and passed through
+to the forward step.
 
 ### mesh
 
