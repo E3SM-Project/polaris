@@ -35,6 +35,7 @@ class Viz(OceanIOStep):
         comparisons=None,
         variables=None,
         output_file='output.nc',
+        plot_diff=False,
     ):
         """
         Create the step
@@ -56,6 +57,13 @@ class Viz(OceanIOStep):
 
         variables : dict, optional
             A dictionary of variables to plot along with their units
+
+        output_file : str, optional
+            The name of the model output file within each comparison step
+
+        plot_diff : bool, optional
+            Whether to plot difference profiles between the comparison datasets
+            (supported when exactly two comparisons are provided)
         """
         super().__init__(component=component, name=name, indir=indir)
         self.comparisons = (
@@ -73,6 +81,7 @@ class Viz(OceanIOStep):
         if ideal_age:
             # Include age tracer
             self.variables['iAge'] = 'seconds'
+        self.plot_diff = plot_diff
         self.add_input_file(
             filename='mesh.nc', work_dir_target=f'{init.path}/culled_mesh.nc'
         )
@@ -256,28 +265,170 @@ class Viz(OceanIOStep):
                     )
                     plt.close()
                     continue
-                plt.ylim(ymin, ymax)
-                if x_limits:
-                    x_min = min(limits[0] for limits in x_limits)
-                    x_max = max(limits[1] for limits in x_limits)
-                    x_margin = (x_max - x_min) * 0.05
-                    if x_margin == 0.0:
-                        # the field is constant over the visible depths, so
-                        # fall back to a margin that does not collapse the
-                        # axis to a single value
-                        x_margin = 0.05 * max(abs(x_min), 1.0)
-                    plt.xlim(x_min - x_margin, x_max + x_margin)
-                plt.xlabel(f'{field_name} ({field_units})')
-                plt.ylabel('z (m)')
-                # Place a single legend centered below the x-axis
-                fig.legend(
-                    loc='upper center',
-                    bbox_to_anchor=(0.5, -0.08),
-                    ncol=1,
-                    frameon=False,
+                _finalize_plot(
+                    fig,
+                    field_name,
+                    field_units,
+                    ymin,
+                    ymax,
+                    x_limits,
+                    f'{field_name}.png',
                 )
-                plt.savefig(f'{field_name}.png', bbox_inches='tight')
+
+            if self.plot_diff and len(ds_list) == 2:
+                _plot_diff_profiles(
+                    self.variables,
+                    comparisons,
+                    ds_list,
+                    z_mid_final,
+                    z_interface_final,
+                    ymin,
+                    ymax,
+                )
+
+
+def _plot_diff_profiles(
+    variables,
+    comparisons,
+    ds_list,
+    z_mid_final,
+    z_interface_final,
+    ymin,
+    ymax,
+):
+    """Plot difference profiles between two comparison datasets."""
+    comp_names = list(comparisons.keys())
+    name1, name2 = comp_names[0], comp_names[1]
+    ds1, ds2 = ds_list[0], ds_list[1]
+    diff_label = f'{name2} - {name1}'
+
+    for field_name, field_units in variables.items():
+        curves_plotted = 0
+        x_limits: list[tuple[float, float]] = []
+        fig = plt.figure(figsize=(3, 5))
+
+        if field_name == 'velocity':
+            if (
+                'velocityZonal' not in ds1.keys()
+                or 'velocityZonal' not in ds2.keys()
+            ):
                 plt.close()
+                continue
+            u_diff = ds2['velocityZonal'].mean(dim='nCells') - ds1[
+                'velocityZonal'
+            ].mean(dim='nCells')
+            z = _vertical_coord(
+                'velocityZonal',
+                u_diff,
+                z_mid_final,
+                z_interface_final,
+            )
+            plt.plot(
+                u_diff,
+                z,
+                '-',
+                color='b',
+                label=f'u {diff_label}',
+            )
+            _add_visible_limits(x_limits, u_diff, z, ymin, ymax)
+            v_diff = ds2['velocityMeridional'].mean(dim='nCells') - ds1[
+                'velocityMeridional'
+            ].mean(dim='nCells')
+            z = _vertical_coord(
+                'velocityMeridional',
+                v_diff,
+                z_mid_final,
+                z_interface_final,
+            )
+            plt.plot(
+                v_diff,
+                z,
+                '--',
+                color='b',
+                label=f'v {diff_label}',
+            )
+            _add_visible_limits(x_limits, v_diff, z, ymin, ymax)
+            curves_plotted += 1
+        else:
+            if field_name not in ds1.keys() or field_name not in ds2.keys():
+                plt.close()
+                continue
+            var_diff = ds2[field_name].mean(dim='nCells') - ds1[
+                field_name
+            ].mean(dim='nCells')
+            z = _vertical_coord(
+                field_name,
+                var_diff,
+                z_mid_final,
+                z_interface_final,
+            )
+            plt.plot(
+                var_diff,
+                z,
+                '-',
+                color='b',
+                label=diff_label,
+            )
+            _add_visible_limits(x_limits, var_diff, z, ymin, ymax)
+            curves_plotted += 1
+
+        if curves_plotted == 0:
+            plt.close()
+            continue
+
+        _finalize_plot(
+            fig,
+            field_name,
+            field_units,
+            ymin,
+            ymax,
+            x_limits,
+            f'{field_name}_diff.png',
+            is_diff=True,
+        )
+
+
+def _finalize_plot(
+    fig,
+    field_name,
+    field_units,
+    ymin,
+    ymax,
+    x_limits,
+    filename,
+    is_diff=False,
+):
+    """Set axis limits, labels, legend, and save figure."""
+    if is_diff:
+        plt.axvline(0, color='k', linestyle=':', linewidth=0.8)
+    plt.ylim(ymin, ymax)
+    if x_limits:
+        x_min = min(limits[0] for limits in x_limits)
+        x_max = max(limits[1] for limits in x_limits)
+        x_margin = (x_max - x_min) * 0.05
+        if x_margin == 0.0:
+            # the field is constant over the visible depths, so
+            # fall back to a margin that does not collapse the
+            # axis to a single value
+            x_margin = 0.05 * max(abs(x_min), 1.0)
+        plt.xlim(x_min - x_margin, x_max + x_margin)
+    unit_str = f' ({field_units})' if field_units else ''
+    label = (
+        f'{field_name} difference{unit_str}'
+        if is_diff
+        else f'{field_name}{unit_str}'
+    )
+    plt.xlabel(label)
+    plt.ylabel('z (m)')
+    # Place a single legend centered below the x-axis
+    fig.legend(
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.08),
+        ncol=1,
+        frameon=False,
+    )
+    plt.savefig(filename, bbox_inches='tight')
+    plt.close()
 
 
 def _vertical_coord(field_name, var, z_mid, z_interface):
