@@ -92,7 +92,7 @@ mpas-ocean:
 
 Omega:
   Frazil:
-    ConservationCheck: false
+    ConservationCheck: true
   IOStreams:
     History:
       Filename: output.nc
