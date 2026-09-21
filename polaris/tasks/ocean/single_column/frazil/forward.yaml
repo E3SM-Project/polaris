@@ -92,7 +92,7 @@ mpas-ocean:
 
 Omega:
   Frazil:
-    ConservationCheck: true
+    ConservationCheck: false
   IOStreams:
     History:
       Filename: output.nc
@@ -112,12 +112,9 @@ Omega:
       - Forcing
       - PseudoThicknessTend
       - TracerTend
-      # TODO: add the accumulated frazil ice thickness/salinity and the
-      # frazil-specific tendency fields (FrazilHTend, FrazilTTend,
-      # FrazilSTend, AccMIce, AccMSalt) once Omega registers them as
-      # Fields; they are currently plain Kokkos arrays in Frazil.cpp with
-      # no Field::create/FieldGroup calls, so requesting them here would
-      # abort with "Field <name> has not been defined"
+      - FrazilOcnDtFrazilMass
+      - FrazilOcnDtFrazilSalt
+      - FrazilOcnDtFrazilEnergy
     Forcing:
       UsePointerFile: false
       Filename: forcing.nc
