@@ -6,6 +6,9 @@ from polaris.tasks.ocean.single_column.init import Init
 from polaris.tasks.ocean.single_column.kpp_regimes import (
     KPPRegimes as KPPRegimes,
 )
+from polaris.tasks.ocean.single_column.shortwave_pen import (
+    ShortwavePen as ShortwavePen,
+)
 from polaris.tasks.ocean.single_column.thermo import Thermo as Thermo
 from polaris.tasks.ocean.single_column.vmix import VMix as VMix
 
@@ -290,3 +293,9 @@ def add_single_column_tasks(component):
                 name=name,
             )
         )
+    component.add_task(
+        ShortwavePen(
+            component=component,
+            indir='column',
+        )
+    )
