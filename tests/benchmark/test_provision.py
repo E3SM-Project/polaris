@@ -82,8 +82,14 @@ def test_worktree_name_records_the_override(gitrepo, tmp_path):
     assert name == f'main-{sha}-omega-{repos["omega_test"][:7]}'
 
 
-def test_dry_run_separates_the_two_sides(gitrepo, tmp_path):
-    """A dry run reports the same two worktrees without creating them."""
+def test_dry_run_provisions_the_two_sides(gitrepo, tmp_path):
+    """
+    A dry run provisions, so every hash it reports is the real one
+
+    A submodule's commit is not known until it has been checked out, and
+    a dry run whose hashes differed from the run it previews would not be
+    worth much.
+    """
     repos = _make_repos(tmp_path)
     work_base = str(tmp_path / 'work_base')
 
@@ -98,8 +104,36 @@ def test_dry_run_separates_the_two_sides(gitrepo, tmp_path):
     )
 
     assert baseline.path != test.path
-    assert not Path(baseline.path).exists()
-    assert not Path(test.path).exists()
+    assert baseline.submodule_shas['omega'] == repos['omega_baseline']
+    assert test.submodule_shas['omega'] == repos['omega_test']
+    assert _omega_content(test.path) == 'test\n'
+    assert gitrepo.check_single_variable(baseline, test) == ['omega']
+
+
+def test_dry_run_reports_a_load_script_a_run_refuses(gitrepo, tmp_path):
+    """
+    Nothing is deployed into a worktree a dry run has just created
+
+    So a dry run records the missing load script and carries on, where a
+    run of the same config stops.
+    """
+    repos = _make_repos(tmp_path)
+    work_base = str(tmp_path / 'work_base')
+    kwargs = dict(
+        name='baseline',
+        primary_path=repos['polaris'],
+        work_base=work_base,
+        fork='',
+        ref='main',
+        model='omega',
+        load_script_name='load_polaris_test.sh',
+    )
+
+    state = gitrepo.provision(dry_run=True, **kwargs)
+
+    assert not state.load_script_ready
+    with pytest.raises(ValueError, match='load script'):
+        gitrepo.provision(dry_run=False, **kwargs)
 
 
 def test_same_ref_in_two_forks_gets_two_worktrees(gitrepo, tmp_path):
@@ -108,7 +142,8 @@ def test_same_ref_in_two_forks_gets_two_worktrees(gitrepo, tmp_path):
     work_base = str(tmp_path / 'work_base')
 
     sides = []
-    for fork in ['E3SM-Project', 'cbegeman']:
+    for owner, text in [('E3SM-Project', 'theirs\n'), ('cbegeman', 'mine\n')]:
+        fork = _make_fork(tmp_path, owner, repos['omega'], text)
         sides.append(
             _provision(
                 gitrepo,
@@ -116,11 +151,12 @@ def test_same_ref_in_two_forks_gets_two_worktrees(gitrepo, tmp_path):
                 'test',
                 work_base,
                 submodule_specs={'omega': (fork, 'my-omega-feature')},
-                dry_run=True,
             )
         )
 
     assert sides[0].path != sides[1].path
+    assert _omega_content(sides[0].path) == 'theirs\n'
+    assert _omega_content(sides[1].path) == 'mine\n'
 
 
 def _load_gitrepo():
@@ -191,12 +227,25 @@ def _make_repos(tmp_path):
     load_script.write_text('')
 
     return {
+        'omega': str(omega),
         'polaris': str(polaris),
         'polaris_sha': _head(polaris),
         'load_script': str(load_script),
         'omega_baseline': omega_baseline,
         'omega_test': omega_test,
     }
+
+
+def _make_fork(tmp_path, owner, source, text):
+    """Make a fork of the Omega fixture with a branch of its own."""
+    path = tmp_path / 'forks' / owner / 'Omega'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _git(['clone', '-q', str(source), str(path)], tmp_path)
+    _git(['checkout', '-q', '-b', 'my-omega-feature'], path)
+    _commit(path, text)
+    # a fork is given as a URL rather than a path so that the driver takes
+    # it as one; a bare path would be read as a GitHub owner
+    return f'file://{path}'
 
 
 def _init(path):

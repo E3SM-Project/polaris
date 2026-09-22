@@ -11,8 +11,9 @@ Each side is either *provisioned* (a detached ``git worktree`` created
 from a requested fork and ref) or *adopted* (an existing Polaris
 worktree, used read-only and never modified).
 
-Run with ``--dry-run`` first: it resolves every commit hash and prints
-the exact commands that would be run without building anything.
+Run with ``--dry-run`` first: it provisions the worktrees, resolves
+every commit hash and prints the exact commands that would be run,
+without setting up, building or running anything.
 """
 
 import argparse
@@ -301,8 +302,8 @@ def parse_args():
         '--dry-run',
         dest='dry_run',
         action='store_true',
-        help='Resolve commits and print the commands that would be run '
-        'without building or running anything.',
+        help='Provision the worktrees and print the commands that would '
+        'be run, without setting up, building or running anything.',
     )
     parser.add_argument(
         '--allow-dirty',
@@ -935,9 +936,11 @@ def _print_summary(manifest):
         if not side['load_script_ready']:
             print('')
             print(
-                f'Note: the {name} worktree does not exist yet, so its load '
-                f'script\n  {side["load_script"]}\ncannot be checked.  It '
-                f'must exist before the benchmark can run; see the load '
+                f'Note: the {name} worktree has nothing deployed into it '
+                f'yet, so there is no load script\n  '
+                f'{side["load_script"]}\nIt has to exist before the '
+                f'benchmark can run: either run ./deploy.py there, or '
+                f'point load_script at an existing one.  See the load '
                 f'script notes in utils/benchmark/README.md.'
             )
     for name in ['baseline', 'test']:

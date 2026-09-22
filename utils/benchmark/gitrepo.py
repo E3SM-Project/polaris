@@ -98,7 +98,8 @@ class SourceState:
         environment
     load_script_ready : bool
         Whether the load script exists yet.  It can be ``False`` only
-        during a dry run of a worktree that has not been created
+        during a dry run of a worktree that has just been created and
+        has nothing deployed into it
     model : str
         The Polaris ``--model`` value for this benchmark
     component_source : str
@@ -214,7 +215,8 @@ def provision(
         A mapping from submodule key to a ``(fork, ref)`` tuple for
         submodules that should differ from the SHA pinned by Polaris
     dry_run : bool, optional
-        Whether to only resolve commits and report planned commands
+        Whether to stop after provisioning, before polaris is set up,
+        built or run
     logger : logging.Logger, optional
         A logger for command output
     needs_model_source : bool, optional
@@ -251,24 +253,18 @@ def provision(
 
     load_script = load_script_path(worktree, load_script_name)
     # a load script we can already resolve is checked before the worktree
-    # and its submodules are created, so that a missing one fails fast
+    # and its submodules are created, so that a missing one fails fast.  A
+    # dry run reports one instead, since nothing can be deployed into a
+    # worktree that a dry run has yet to create
     predictable = os.path.isabs(load_script_name) or os.path.exists(worktree)
-    if predictable:
+    if predictable and not dry_run:
         _require_load_script(worktree, load_script_name)
 
-    if dry_run:
-        state.pinned_shas = _pinned_submodule_shas(primary_path, sha)
-        state.submodule_shas = dict(state.pinned_shas)
-        for key, (sub_fork, sub_ref) in submodule_specs.items():
-            state.submodule_overrides[key] = {
-                'fork': sub_fork,
-                'ref': sub_ref,
-            }
-            state.submodule_shas[key] = f'<{sub_fork}:{sub_ref}>'
-        state.load_script = load_script
-        state.load_script_ready = predictable
-        return state
-
+    # a dry run provisions the worktrees like any other run and stops
+    # before polaris is set up, built or run.  A submodule's commit is not
+    # known until it has been checked out, and a dry run that reported a
+    # different hash -- or a different run directory -- from the run it is
+    # previewing would not be worth much
     add_worktree(primary_path, sha, worktree, logger=logger)
 
     state.pinned_shas = _pinned_submodule_shas(worktree, 'HEAD')
@@ -297,6 +293,10 @@ def provision(
         }
 
     state.submodule_shas = _submodule_shas(worktree)
+    if dry_run:
+        state.load_script = load_script
+        state.load_script_ready = os.path.exists(load_script)
+        return state
     state.load_script = _require_load_script(worktree, load_script_name)
     return state
 
