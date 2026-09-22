@@ -76,10 +76,15 @@ sides.
    ./utils/benchmark/benchmark.py -f benchmark.cfg
    ```
 
-Always start with `--dry-run`.  It resolves every commit hash, applies
-every guardrail and prints the exact commands.  It creates no worktrees
-and builds and runs nothing, but resolving a fork does add a remote to
-`primary_path` and fetch into it.
+Always start with `--dry-run`.  It provisions the worktrees, resolves
+every commit hash, applies every guardrail and prints the exact commands,
+then stops before polaris is set up, built or run.
+
+Provisioning is not free.  A submodule's commit is not known until it has
+been checked out, so a dry run clones what the run itself would, and adds
+a remote to `primary_path` and fetches into it.  In exchange, the hashes
+and directories it reports are the ones the run will use, and the
+worktrees it leaves behind are the ones the run reuses.
 
 Every fork and ref can also be given on the command line, which is
 convenient for scripted or agent-driven use:
