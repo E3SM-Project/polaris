@@ -107,7 +107,7 @@ but they are quicker to settle up front than one dry run at a time:
 | --- | --- |
 | `work_base` | Base directory for all benchmark output. |
 | `primary_path` | The polaris clone worktrees are made from and forks are fetched into.  Defaults to the config file's directory.  Only ever fetched from. |
-| `load_script` | Name of the load script to source within each worktree, or an absolute path to a single shared one. |
+| `load_script` | Name of the load script to source within each worktree, or an absolute path to a shared one when Polaris is unchanged. When Polaris commits differ, the basename is resolved within each worktree so each side uses its own environment. |
 | `setup_command` | A `polaris setup` or `polaris suite` command.  A `polaris setup` command must name its suite with `--suite_name`. |
 | `run_command` | Usually `polaris serial`; used when `submit = False`. |
 | `submit` | Submit the job script instead of running in place. |
@@ -254,9 +254,11 @@ The driver refuses to run, before anything is built, if:
 
 - The two sides resolve to the **same** worktree or to identical commits
   everywhere, so there would be nothing to compare.
-- They differ in **more than one** of polaris, Omega and E3SM, so a
-  difference could not be attributed to a single change.
-  Override with `--allow-multiple-changes`.
+- They differ in **more than one** of polaris, Omega and E3SM, beyond a
+   Polaris change paired with its model submodule. A Polaris branch and its
+   changed Omega or E3SM submodule are one comparison, because Polaris builds
+   that model from the corresponding submodule. Other multi-repository changes
+   need `--allow-multiple-changes`.
 - They use **different load scripts**, implying a different machine,
   compiler or MPI library.  Override with `--allow-env-mismatch`.
 - They use different `model` values.

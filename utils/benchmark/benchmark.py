@@ -106,6 +106,7 @@ def benchmark(config, config_path, args):
         load_script_name=load_script_name,
         shared_component_path=shared_component_path,
     )
+    _use_branch_load_scripts(baseline, test, load_script_name)
 
     _check_guardrails(
         baseline, test, load_script_name, args, shared_component_path
@@ -316,7 +317,8 @@ def parse_args():
         dest='allow_multiple_changes',
         action='store_true',
         help='Permit the baseline and test to differ in more than one of '
-        'polaris, Omega and E3SM.',
+        'polaris, Omega and E3SM beyond the model submodule paired with '
+        'a Polaris change.',
     )
     parser.add_argument(
         '--allow-env-mismatch',
@@ -425,6 +427,27 @@ def _resolve_sides(
     if shared_component_path is not None:
         test.component_source = baseline.component_branch_path or ''
     return baseline, test
+
+
+def _use_branch_load_scripts(baseline, test, load_script_name):
+    """Select branch-local environments when Polaris itself is compared."""
+    if baseline.polaris_sha == test.polaris_sha:
+        return
+
+    script_name = os.path.basename(load_script_name)
+    missing = []
+    for side in [baseline, test]:
+        load_script = gitrepo.load_script_path(side.path, script_name)
+        if os.path.exists(load_script):
+            side.load_script = load_script
+        else:
+            missing.append(f'{side.name}: {load_script}')
+
+    if missing:
+        raise ValueError(
+            'Polaris commits differ, so each side must use its own deployed '
+            'load script. Missing:\n  ' + '\n  '.join(missing)
+        )
 
 
 def _resolve_side(
@@ -553,7 +576,12 @@ def _check_guardrails(
             'The baseline and test resolve to identical commits in polaris '
             'and all submodules, so there is nothing to compare.'
         )
-    if len(differing) > 1 and not args.allow_multiple_changes:
+    coupled_change = _is_model_coupled_change(differing, baseline.model)
+    if (
+        len(differing) > 1
+        and not coupled_change
+        and not args.allow_multiple_changes
+    ):
         raise ValueError(
             f'The baseline and test differ in more than one repository '
             f'({", ".join(differing)}), so a difference could not be '
@@ -606,6 +634,14 @@ def _check_guardrails(
                 f'{test_script}, so the machine, compiler or MPI library '
                 f'may differ.  Rerun with --allow-env-mismatch to proceed.'
             )
+
+
+def _is_model_coupled_change(differing, model):
+    """Whether Polaris and the model it builds changed as one comparison."""
+    if model == gitrepo.NO_MODEL:
+        return False
+    model_submodule = gitrepo.MODEL_SUBMODULES[model]
+    return set(differing) == {'polaris', model_submodule}
 
 
 def _run_baseline(
