@@ -35,6 +35,7 @@ class Forward(OceanModelStep):
         conservation_intervals=None,
         run_duration_steps=None,
         frazil_type=None,
+        frazil_conservation=False,
     ):
         """
         Create a new test case
@@ -89,6 +90,9 @@ class Forward(OceanModelStep):
             If provided, enables the frazil ice tendency and selects the
             frazil algorithm to use in Omega, either ``'FixedProperty'`` or
             ``'teos'``.  If ``None``, the frazil tendency is left disabled.
+
+        frazil_conservation : bool, optional
+            Whether to include Omega frazil fluxes in the conservation check.
         """
         if not enable_vadv:
             name = f'{name}_no_vadv'
@@ -159,6 +163,7 @@ class Forward(OceanModelStep):
         self.constant_diff = constant_diff
 
         self.frazil_type = frazil_type
+        self.frazil_conservation = frazil_conservation
 
     def setup(self):
         """
