@@ -590,7 +590,7 @@ The `shortwave_pen` task compares Omega's penetrating-shortwave-radiation
 tendency term against the default behavior of absorbing all incident
 shortwave heat flux in the surface layer. It runs an `extinction` step that
 builds a forcing file of red- and blue-band extinction coefficients, then two
-forward runs of a few hours each with an identical constant incident surface
+forward runs of 3 hours each with an identical constant incident surface
 shortwave flux: `forward_constant` (penetrating shortwave disabled, matching
 the default behavior of applying shortwave heating at the surface) and
 `forward_pen` (penetrating shortwave enabled, using the extinction
@@ -636,18 +636,26 @@ produced by the `extinction` step.
 
 ### time step and run duration
 
-The time step is given in {ref}`ocean-single-column`. The run duration is a
-few hours, set by `single_column_shortwave_pen:run_duration_steps` rather than
-the usual multi-day `run_duration`.
+The time step is given in {ref}`ocean-single-column`. The run duration is three
+hours, long enough for the two runs to develop a detectable difference in
+their temperature profiles, and output is written every 600 s, overriding the
+multi-day defaults in {ref}`ocean-single-column`:
+
+```cfg
+[single_column]
+
+# Run duration in days (3 hours)
+run_duration = 0.125
+
+# Output interval in seconds
+output_interval = 600.
+```
 
 ### config options
 
 ```cfg
 # config options for the shortwave_pen single-column task
 [single_column_shortwave_pen]
-
-# Number of time steps to run each forward step for
-run_duration_steps = 18
 
 # Red-band extinction coefficient used to build the extinction-coefficient
 # forcing file for the penetrating-shortwave run [1/m]
