@@ -797,8 +797,22 @@ def _pinned_submodule_shas(repo_path, ref):
 
 
 def _is_dirty(repo_path):
-    """Whether a work tree has uncommitted or untracked changes."""
-    status = check_output('git status --porcelain', cwd=repo_path)
+    """
+    Whether a work tree has uncommitted or untracked changes
+
+    Nested submodules are ignored entirely, for the same reason
+    ``_check_dirty()`` ignores them within the submodule the model is
+    built from: polaris initializes the ones it builds against before it
+    builds, so one sitting at a commit other than the pinned one is a
+    state the next build resets.  Without ``--ignore-submodules=all``, a
+    provisioned worktree could be checked out once and never again: the
+    build leaves ekat, scorpio and cime at the commits one Omega
+    revision pins, and the next revision would then look like local
+    modifications and be refused.
+    """
+    status = check_output(
+        'git status --porcelain --ignore-submodules=all', cwd=repo_path
+    )
     return status != ''
 
 

@@ -90,6 +90,32 @@ def test_nested_submodules_are_left_uninitialized(gitrepo, tmp_path):
     assert not (nested / 'file.txt').exists()
 
 
+def test_a_worktree_is_reused_after_a_build_touched_it(gitrepo, tmp_path):
+    """
+    A nested submodule at another commit is not a local modification
+
+    Polaris' build leaves the nested submodules at the commits one Omega
+    revision pins; the next revision must still be able to check out over
+    them.
+    """
+    repos = _make_repos(tmp_path)
+    work_base = str(tmp_path / 'work_base')
+    specs = {'omega': ('', repos['omega_test'])}
+
+    test = _provision(gitrepo, repos, 'test', work_base, specs)
+    omega = Path(test.path) / 'e3sm_submodules' / 'Omega'
+    # stand in for the build, which initializes what it builds against
+    # and leaves it wherever the revision it built pins it
+    _git(['submodule', 'update', '--init', 'externals/nested'], omega)
+    _commit(omega / 'externals' / 'nested', 'moved on\n')
+    _git(['checkout', '--detach', repos['omega_baseline']], omega)
+
+    reused = _provision(gitrepo, repos, 'test', work_base, specs)
+
+    assert reused.path == test.path
+    assert reused.submodule_shas['omega'] == repos['omega_test']
+
+
 def test_worktree_name_records_the_override(gitrepo, tmp_path):
     """The worktree name says which Omega commit is checked out in it."""
     repos = _make_repos(tmp_path)
