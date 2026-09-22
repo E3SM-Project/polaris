@@ -190,8 +190,8 @@ pseudo-thickness, the geometric `layerThickness` is used instead.
 The {py:class}`polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen`
 task compares Omega's penetrating-shortwave-radiation tendency term against
 the default behavior of absorbing all incident shortwave heat flux in the
-surface layer. It supports Omega only, since MPAS-Ocean does not implement a
-penetrating-shortwave-radiation scheme.
+surface layer. It supports Omega only, since the shortwave penetration 
+capability in Omega is very different from than what is in MPAS-Ocean.
 
 ### extinction
 
@@ -200,7 +200,8 @@ The
 step is the helper step that builds the extinction-coefficient forcing file,
 `shortwave_extinction_coeffs.nc`, read by Omega's penetrating-shortwave
 scheme. It writes uniform `ExtinctionCoeffRedCell` and
-`ExtinctionCoeffBlueCell` fields, computed from the config options
+`ExtinctionCoeffBlueCell` fields for the two-band exponential implemented in 
+omega. The coefficients are computed from the config options
 `single_column_shortwave_pen:extinction_coeff_red` and
 `single_column_shortwave_pen:extinction_coeff_blue`.
 
@@ -242,7 +243,7 @@ gravity well.
 
 The
 {py:class}`polaris.tasks.ocean.single_column.viz.Viz`
-step plots vertical profiles of temperature, salinity, and velocity for both
-runs, as well as vertical difference profiles (`temperature_diff.png`, etc.)
+step plots vertical profiles of temperature for both
+runs, as well as the vertical difference profile (`temperature_diff.png`)
 highlighting the difference between penetrating shortwave radiation and
 surface-absorbed heating.
