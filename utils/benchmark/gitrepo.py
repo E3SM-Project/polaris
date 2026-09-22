@@ -16,7 +16,8 @@ Two modes are supported for each side of a benchmark:
     Note that this is not the same as the tree being untouched.  Polaris
     builds the component from ``--branch``, which for MPAS-Ocean is an
     in-source ``make`` in the branch directory, and both build templates
-    run ``git submodule update --init --recursive`` there.
+    initialize the nested submodules they build against there: all of
+    them for MPAS-Ocean, and four of them for Omega.
 """
 
 import os
@@ -546,6 +547,15 @@ def checkout_submodule(sub_path, sha, logger=None):
     """
     Check out a commit in a submodule of a provisioned worktree
 
+    The submodules nested within it are left alone, both here and by the
+    check for local modifications above.  Polaris initializes the ones it
+    builds against as the first step of the build, and only those: for
+    Omega, ``externals/ekat``, ``externals/scorpio``,
+    ``components/omega/external`` and ``cime``.  Omega's repository also
+    carries the rest of the E3SM tree -- GCAM, FATES, WW3, MARBL and so
+    on -- so a bare ``submodule update --init --recursive`` here takes a
+    556 MB clone to 5.8 GB, of which the build reads a small fraction.
+
     Parameters
     ----------
     sub_path : str
@@ -566,7 +576,6 @@ def checkout_submodule(sub_path, sha, logger=None):
             f'not be checked out.'
         )
     _git(f'checkout --detach {sha}', cwd=sub_path, logger=logger)
-    _git('submodule update --init --recursive', cwd=sub_path, logger=logger)
 
 
 def check_single_variable(baseline, test):

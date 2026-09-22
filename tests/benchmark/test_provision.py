@@ -64,6 +64,32 @@ def test_omega_override_gets_its_own_worktree(gitrepo, tmp_path):
     assert _omega_content(test.path) == 'test\n'
 
 
+def test_nested_submodules_are_left_uninitialized(gitrepo, tmp_path):
+    """
+    Provisioning checks out the submodule but not the ones inside it
+
+    Polaris initializes the nested submodules it builds against as the
+    first step of the build, and only those.  A bare recursive update
+    here would clone the whole E3SM tree that Omega's repository carries.
+    """
+    repos = _make_repos(tmp_path)
+    work_base = str(tmp_path / 'work_base')
+
+    test = _provision(
+        gitrepo,
+        repos,
+        'test',
+        work_base,
+        submodule_specs={'omega': ('', repos['omega_test'])},
+    )
+
+    nested = (
+        Path(test.path) / 'e3sm_submodules' / 'Omega' / 'externals' / 'nested'
+    )
+    assert nested.is_dir()
+    assert not (nested / 'file.txt').exists()
+
+
 def test_worktree_name_records_the_override(gitrepo, tmp_path):
     """The worktree name says which Omega commit is checked out in it."""
     repos = _make_repos(tmp_path)
@@ -202,8 +228,16 @@ def _make_repos(tmp_path):
         The path to the polaris clone, an absolute load script for it to
         find, its commit, and the two Omega commits
     """
+    # Omega carries nested submodules of its own -- in the real one, the
+    # whole E3SM tree -- which provisioning must leave alone
+    nested = tmp_path / 'nested'
+    _init(nested)
+    _commit(nested, 'nested\n')
+
     omega = tmp_path / 'Omega'
     _init(omega)
+    _git(['submodule', 'add', str(nested), 'externals/nested'], omega)
+    _git(['commit', '-m', 'add a nested submodule'], omega)
     omega_baseline = _commit(omega, 'baseline\n')
     omega_test = _commit(omega, 'test\n')
 
