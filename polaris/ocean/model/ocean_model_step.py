@@ -21,6 +21,7 @@ from polaris.model_step import ModelStep
 from polaris.ocean.conservation import (
     TRACERS_TO_CHECK,
     compute_flux_forcing,
+    compute_frazil_fluxes,
     compute_total_energy,
     compute_total_mass,
     compute_total_salt,
@@ -676,6 +677,14 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                         model=config.get('ocean', 'model'),
                         config=config,
                     )
+                    if (
+                        getattr(self, 'frazil_conservation', False)
+                        and config.get('ocean', 'model') == 'omega'
+                        and baseline == 'init'
+                    ):
+                        expected_change += compute_frazil_fluxes(
+                            ds_mesh, ds, time_index_end=time_index_end
+                        )[output_property]
 
                 relative_error = self._compute_rel_err(
                     func,
