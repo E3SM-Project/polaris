@@ -17,7 +17,7 @@ class ShortwavePen(Task):
     A single-column test that compares Omega's penetrating-shortwave-
     radiation scheme against the default behavior of absorbing all
     shortwave heating in the surface layer.  Both runs are driven by the
-    same constant, uniform incident surface shortwave flux for a few hours;
+    same constant, uniform incident surface shortwave flux for 3 hours;
     the column-integrated heating should be identical between the two runs
     while the vertical distribution of the heating, and thus the resulting
     temperature profile and column potential energy, should differ.
@@ -64,9 +64,6 @@ class ShortwavePen(Task):
         self.add_step(extinction_step)
 
         validate_vars = ['temperature', 'salinity']
-        run_duration_steps = self.config.getint(
-            'single_column_shortwave_pen', 'run_duration_steps'
-        )
 
         constant_step = ShortwavePenForward(
             component=component,
@@ -79,7 +76,6 @@ class ShortwavePen(Task):
             min_tasks=1,
             openmp_threads=1,
             validate_vars=validate_vars,
-            run_duration_steps=run_duration_steps,
         )
         self.add_step(constant_step)
 
@@ -94,7 +90,6 @@ class ShortwavePen(Task):
             min_tasks=1,
             openmp_threads=1,
             validate_vars=validate_vars,
-            run_duration_steps=run_duration_steps,
         )
         self.add_step(pen_step)
 

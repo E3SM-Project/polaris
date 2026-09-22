@@ -27,7 +27,6 @@ class ShortwavePenForward(Forward):
         min_tasks=None,
         openmp_threads=1,
         validate_vars=None,
-        run_duration_steps=None,
     ):
         """
         Create the step
@@ -64,10 +63,6 @@ class ShortwavePenForward(Forward):
 
         validate_vars : list, optional
             A list of variable names to compare with a baseline
-
-        run_duration_steps : int, optional
-            The number of time steps to run for, overriding the
-            ``run_duration`` config option
         """
         super().__init__(
             component=component,
@@ -79,7 +74,6 @@ class ShortwavePenForward(Forward):
             openmp_threads=openmp_threads,
             validate_vars=validate_vars,
             task_name='shortwave_pen',
-            run_duration_steps=run_duration_steps,
         )
         self.use_penetrating_sw = use_penetrating_sw
         if use_penetrating_sw:
