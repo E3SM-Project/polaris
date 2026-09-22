@@ -116,6 +116,7 @@ class ShortwavePen(Task):
                     'constant': '../forward_constant',
                     'pen': '../forward_pen',
                 },
+                variables={'temperature': 'degC'},
                 plot_diff=True,
             ),
         )
