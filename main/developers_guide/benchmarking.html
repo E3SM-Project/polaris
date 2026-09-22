@@ -209,10 +209,17 @@ benchmarking one branch two ways means two suite names.</p></li>
 </div>
 </li>
 </ol>
-<p>Always start with <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code>.  It resolves every commit hash, applies
-every guardrail and prints the exact commands.  It creates no worktrees
-and builds and runs nothing, but resolving a fork does add a remote to
-<code class="docutils literal notranslate"><span class="pre">primary_path</span></code> and fetch into it.</p>
+<p>Always start with <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code>.  It provisions the worktrees, resolves
+every commit hash, applies every guardrail and prints the exact commands,
+then stops before polaris is set up, built or run.</p>
+<p>Provisioning is not free.  A submodule’s commit is not known until it
+has been checked out, so a dry run clones what the run itself would –
+the polaris worktree and the one submodule the model is built from,
+though not the submodules nested inside it, which polaris initializes
+when it builds – and adds a remote to <code class="docutils literal notranslate"><span class="pre">primary_path</span></code> and fetches into
+it.  In exchange, the hashes
+and directories it reports are the ones the run will use, and the
+worktrees it leaves behind are the ones the run reuses.</p>
 <p>Every fork and ref can also be given on the command line, which is
 convenient for scripted or agent-driven use:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./utils/benchmark/benchmark.py<span class="w"> </span>-f<span class="w"> </span>benchmark.cfg<span class="w"> </span><span class="se">\</span>
@@ -294,7 +301,8 @@ for each of them.  Getting it wrong is loud rather than silent: a
 <section id="output-layout">
 <h2>Output layout<a class="headerlink" href="#output-layout" title="Link to this heading"></a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">work_base</span><span class="o">&gt;/</span>
-  <span class="n">worktrees</span><span class="o">/&lt;</span><span class="n">ref</span><span class="o">&gt;-&lt;</span><span class="n">sha7</span><span class="o">&gt;/</span>            <span class="n">provisioned</span> <span class="n">polaris</span> <span class="n">worktrees</span>
+  <span class="n">worktrees</span><span class="o">/&lt;</span><span class="n">ref</span><span class="o">&gt;-&lt;</span><span class="n">sha7</span><span class="o">&gt;</span><span class="p">[</span><span class="o">-&lt;</span><span class="n">repo</span><span class="o">&gt;-&lt;</span><span class="n">fork</span><span class="o">&gt;-&lt;</span><span class="n">ref</span><span class="o">&gt;</span><span class="p">]</span><span class="o">/</span>
+                                     <span class="n">provisioned</span> <span class="n">polaris</span> <span class="n">worktrees</span>
   <span class="n">baselines</span><span class="o">/&lt;</span><span class="n">suite</span><span class="o">&gt;</span><span class="n">_</span><span class="o">&lt;</span><span class="n">model</span><span class="o">&gt;</span><span class="n">_opts</span><span class="o">-&lt;</span><span class="n">key</span><span class="o">&gt;</span><span class="n">_polaris</span><span class="o">-&lt;</span><span class="n">sha7</span><span class="o">&gt;</span><span class="p">[</span><span class="n">_</span><span class="o">&lt;</span><span class="n">repo</span><span class="o">&gt;-&lt;</span><span class="n">sha7</span><span class="o">&gt;</span><span class="p">]</span><span class="o">/</span>
                                      <span class="n">reusable</span> <span class="n">baseline</span> <span class="n">work</span> <span class="n">dirs</span>
   <span class="n">runs</span><span class="o">/&lt;</span><span class="n">date</span><span class="o">&gt;-&lt;</span><span class="n">suite</span><span class="o">&gt;-</span><span class="n">polaris</span><span class="o">-&lt;</span><span class="n">base</span> <span class="n">sha7</span><span class="o">&gt;-&lt;</span><span class="n">test</span> <span class="n">sha7</span><span class="o">&gt;</span><span class="p">[</span><span class="o">-&lt;</span><span class="n">repo</span><span class="o">&gt;-&lt;</span><span class="n">sha7</span><span class="o">&gt;-&lt;</span><span class="n">sha7</span><span class="o">&gt;</span><span class="p">]</span><span class="o">/</span>
@@ -306,6 +314,11 @@ for each of them.  Getting it wrong is loud rather than silent: a
     <span class="n">test</span><span class="o">/</span>
 </pre></div>
 </div>
+<p>A worktree is named for the polaris ref and commit, followed by any
+submodule the side overrides.  Benchmarking an Omega or E3SM branch
+holds polaris fixed on both sides, so without the override the two
+sides would share one worktree and the second one checked out would
+take the first one’s submodule with it.</p>
 <p>Polaris’ job scripts default to a one-hour wall-clock time, which many
 tasks and most suites outgrow.  Set <code class="docutils literal notranslate"><span class="pre">wall_time</span></code> in the <code class="docutils literal notranslate"><span class="pre">[benchmark]</span></code>
 section to change it for both sides at once; the driver merges it with
