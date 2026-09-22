@@ -80,9 +80,12 @@ Always start with `--dry-run`.  It provisions the worktrees, resolves
 every commit hash, applies every guardrail and prints the exact commands,
 then stops before polaris is set up, built or run.
 
-Provisioning is not free.  A submodule's commit is not known until it has
-been checked out, so a dry run clones what the run itself would, and adds
-a remote to `primary_path` and fetches into it.  In exchange, the hashes
+Provisioning is not free.  A submodule's commit is not known until it
+has been checked out, so a dry run clones what the run itself would --
+the polaris worktree and the one submodule the model is built from,
+though not the submodules nested inside it, which polaris initializes
+when it builds -- and adds a remote to `primary_path` and fetches into
+it.  In exchange, the hashes
 and directories it reports are the ones the run will use, and the
 worktrees it leaves behind are the ones the run reuses.
 
