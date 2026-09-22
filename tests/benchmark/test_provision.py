@@ -1,0 +1,235 @@
+import importlib.util
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+BENCHMARK_DIR = Path(__file__).resolve().parents[2] / 'utils' / 'benchmark'
+
+#: git config the fixture repositories need, as ``GIT_CONFIG_*`` variables
+#:
+#: ``protocol.file.allow`` is the one that matters: git has refused a
+#: submodule whose URL is a local path since 2.38.1, and the miniature
+#: repositories here are all local paths.  The rest keep the fixture from
+#: depending on the developer's own git config.
+GIT_CONFIG = {
+    'protocol.file.allow': 'always',
+    'user.name': 'Polaris Test',
+    'user.email': 'test@example.com',
+    'commit.gpgsign': 'false',
+}
+
+
+@pytest.fixture
+def gitrepo(monkeypatch):
+    """The benchmark driver's ``gitrepo`` module, with git set up for it."""
+    monkeypatch.setenv('GIT_CONFIG_COUNT', str(len(GIT_CONFIG)))
+    for index, (key, value) in enumerate(GIT_CONFIG.items()):
+        monkeypatch.setenv(f'GIT_CONFIG_KEY_{index}', key)
+        monkeypatch.setenv(f'GIT_CONFIG_VALUE_{index}', value)
+    return _load_gitrepo()
+
+
+def test_omega_override_gets_its_own_worktree(gitrepo, tmp_path):
+    """
+    Benchmarking an Omega branch with polaris pinned on both sides
+
+    The two sides resolve to the same polaris commit and differ only in
+    the Omega submodule, which used to give them one worktree and stop
+    the benchmark before it began.
+    """
+    repos = _make_repos(tmp_path)
+    work_base = str(tmp_path / 'work_base')
+
+    baseline = _provision(gitrepo, repos, 'baseline', work_base)
+    test = _provision(
+        gitrepo,
+        repos,
+        'test',
+        work_base,
+        submodule_specs={'omega': ('', repos['omega_test'])},
+    )
+
+    assert baseline.path != test.path
+    assert baseline.polaris_sha == test.polaris_sha
+    assert gitrepo.check_single_variable(baseline, test) == ['omega']
+
+    # each side has its own Omega checkout: a linked worktree keeps its
+    # submodules in its own gitdir, so checking one out does not move the
+    # other
+    assert baseline.submodule_shas['omega'] == repos['omega_baseline']
+    assert test.submodule_shas['omega'] == repos['omega_test']
+    assert _omega_content(baseline.path) == 'baseline\n'
+    assert _omega_content(test.path) == 'test\n'
+
+
+def test_worktree_name_records_the_override(gitrepo, tmp_path):
+    """The worktree name says which Omega commit is checked out in it."""
+    repos = _make_repos(tmp_path)
+    work_base = str(tmp_path / 'work_base')
+
+    test = _provision(
+        gitrepo,
+        repos,
+        'test',
+        work_base,
+        submodule_specs={'omega': ('', repos['omega_test'])},
+    )
+
+    sha = repos['polaris_sha'][:7]
+    name = Path(test.path).name
+    assert name == f'main-{sha}-omega-{repos["omega_test"][:7]}'
+
+
+def test_dry_run_separates_the_two_sides(gitrepo, tmp_path):
+    """A dry run reports the same two worktrees without creating them."""
+    repos = _make_repos(tmp_path)
+    work_base = str(tmp_path / 'work_base')
+
+    baseline = _provision(gitrepo, repos, 'baseline', work_base, dry_run=True)
+    test = _provision(
+        gitrepo,
+        repos,
+        'test',
+        work_base,
+        submodule_specs={'omega': ('', repos['omega_test'])},
+        dry_run=True,
+    )
+
+    assert baseline.path != test.path
+    assert not Path(baseline.path).exists()
+    assert not Path(test.path).exists()
+
+
+def test_same_ref_in_two_forks_gets_two_worktrees(gitrepo, tmp_path):
+    """Two sides may ask for one branch name in two different forks."""
+    repos = _make_repos(tmp_path)
+    work_base = str(tmp_path / 'work_base')
+
+    sides = []
+    for fork in ['E3SM-Project', 'cbegeman']:
+        sides.append(
+            _provision(
+                gitrepo,
+                repos,
+                'test',
+                work_base,
+                submodule_specs={'omega': (fork, 'my-omega-feature')},
+                dry_run=True,
+            )
+        )
+
+    assert sides[0].path != sides[1].path
+
+
+def _load_gitrepo():
+    """Import ``gitrepo`` from ``utils/benchmark``, which is not a package."""
+    if str(BENCHMARK_DIR) not in sys.path:
+        # gitrepo imports its own helpers as `shared`, so the directory has
+        # to be importable before it is loaded
+        sys.path.insert(0, str(BENCHMARK_DIR))
+    spec = importlib.util.spec_from_file_location(
+        'benchmark_gitrepo', BENCHMARK_DIR / 'gitrepo.py'
+    )
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _provision(
+    gitrepo, repos, name, work_base, submodule_specs=None, dry_run=False
+):
+    """Provision one side of a benchmark from the fixture repositories."""
+    return gitrepo.provision(
+        name=name,
+        primary_path=repos['polaris'],
+        work_base=work_base,
+        fork='',
+        ref='main',
+        model='omega',
+        load_script_name=repos['load_script'],
+        submodule_specs=submodule_specs,
+        dry_run=dry_run,
+    )
+
+
+def _make_repos(tmp_path):
+    """
+    Make a miniature polaris repository with a miniature Omega submodule
+
+    Returns
+    -------
+    repos : dict
+        The path to the polaris clone, an absolute load script for it to
+        find, its commit, and the two Omega commits
+    """
+    omega = tmp_path / 'Omega'
+    _init(omega)
+    omega_baseline = _commit(omega, 'baseline\n')
+    omega_test = _commit(omega, 'test\n')
+
+    polaris = tmp_path / 'polaris'
+    _init(polaris)
+    (polaris / 'polaris').mkdir()
+    (polaris / 'polaris' / 'version.py').write_text("__version__ = '0.0.0'\n")
+    (polaris / 'deploy.py').write_text('')
+    _git(['add', 'polaris/version.py', 'deploy.py'], polaris)
+    _git(
+        ['submodule', 'add', str(omega), 'e3sm_submodules/Omega'],
+        polaris,
+    )
+    _git(['-C', 'e3sm_submodules/Omega', 'checkout', omega_baseline], polaris)
+    _git(['add', 'e3sm_submodules/Omega'], polaris)
+    _git(['commit', '-m', 'add a submodule'], polaris)
+
+    # an absolute load script is how one deployment serves both sides,
+    # which is what a provisioned worktree needs: nothing deploys into it
+    load_script = tmp_path / 'load_polaris_test.sh'
+    load_script.write_text('')
+
+    return {
+        'polaris': str(polaris),
+        'polaris_sha': _head(polaris),
+        'load_script': str(load_script),
+        'omega_baseline': omega_baseline,
+        'omega_test': omega_test,
+    }
+
+
+def _init(path):
+    """Make an empty git repository on a ``main`` branch."""
+    path.mkdir()
+    _git(['init', '-q', '-b', 'main'], path)
+
+
+def _commit(path, text):
+    """Commit ``text`` to ``file.txt`` and return the commit hash."""
+    (path / 'file.txt').write_text(text)
+    _git(['add', 'file.txt'], path)
+    _git(['commit', '-m', text.strip()], path)
+    return _head(path)
+
+
+def _head(path):
+    """Get the full commit hash of ``HEAD``."""
+    return subprocess.run(
+        ['git', 'rev-parse', 'HEAD'],
+        cwd=path,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def _git(args, cwd):
+    """Run a git command in the fixture."""
+    subprocess.run(['git', *args], cwd=cwd, check=True, capture_output=True)
+
+
+def _omega_content(worktree):
+    """Read the one file in a worktree's Omega submodule."""
+    path = Path(worktree) / 'e3sm_submodules' / 'Omega' / 'file.txt'
+    return path.read_text()
