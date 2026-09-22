@@ -65,10 +65,17 @@ benchmarked is just a matter of which refs differ between them.
    ./utils/benchmark/benchmark.py -f benchmark.cfg
    ```
 
-Always start with `--dry-run`.  It resolves every commit hash, applies every
-guardrail and prints the exact commands.  It creates no worktrees and
-builds and runs nothing, but resolving a fork does add a remote to
-`primary_path` and fetch into it.
+Always start with `--dry-run`.  It provisions the worktrees, resolves every
+commit hash, applies every guardrail and prints the exact commands, then
+stops before polaris is set up, built or run.
+
+Provisioning is not free.  A submodule's commit is not known until it has
+been checked out, so a dry run clones what the run itself would -- the
+polaris worktree and the one submodule the model is built from, though not
+the submodules nested inside it, which polaris initializes when it builds --
+and adds a remote to `primary_path` and fetches into it.  In exchange, the hashes and
+directories it reports are the ones the run will use, and the worktrees it
+leaves behind are the ones the run reuses.
 
 ## Before your first run
 
@@ -300,7 +307,8 @@ tracked file changing.
 
 ```
 <work_base>/
-  worktrees/<ref>-<sha7>/            provisioned polaris worktrees
+  worktrees/<ref>-<sha7>[-<repo>-<fork>-<ref>]/
+                                     provisioned polaris worktrees
   baselines/<suite>_<model>_opts-<key>_polaris-<sha7>[_<repo>-<sha7>]/
                                      reusable baseline work dirs
   runs/<date>-<suite>-polaris-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
@@ -311,6 +319,12 @@ tracked file changing.
     build_baseline/  build_test/
     test/
 ```
+
+A worktree is named for the polaris ref and commit, followed by any
+submodule the side overrides.  Benchmarking an Omega or E3SM branch
+holds polaris fixed on both sides, so without the override the two
+sides would share one worktree and the second one checked out would
+take the first one's submodule with it.
 
 A run directory is keyed on the suite, so that two benchmarks of the
 *same* pair of commits on the same day do not share one.  Every repository
@@ -342,7 +356,7 @@ which repositories differ.
 
 | Flag | Description |
 | --- | --- |
-| `--dry-run` | Resolve and print, but do not build or run. |
+| `--dry-run` | Provision, resolve and print, but do not set up, build or run. |
 | `--clean-build` | Start from a clean build directory on both sides. |
 | `--rebuild` | Force a build even if the component is already built. |
 
@@ -431,7 +445,8 @@ baseline *pins*, and keeping the build at that hash is yours to manage.
   path of an existing load script.  In the latter case
   `NO_POLARIS_REINSTALL=true`, which is exported before the load script is
   sourced, lets one deployment serve several worktrees.  A `--dry-run`
-  says so when it cannot yet check a load script.
+  reports a worktree with no load script rather than stopping, since
+  nothing can be deployed into one until it exists.
 - Collecting results and generating a report are deliberately **not** part
   of this driver yet; polaris writes its own validation output under
   `case_outputs/` in the test work directory.

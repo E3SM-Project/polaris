@@ -16,7 +16,8 @@ Two modes are supported for each side of a benchmark:
     Note that this is not the same as the tree being untouched.  Polaris
     builds the component from ``--branch``, which for MPAS-Ocean is an
     in-source ``make`` in the branch directory, and both build templates
-    run ``git submodule update --init --recursive`` there.
+    initialize the nested submodules they build against there: all of
+    them for MPAS-Ocean, and four of them for Omega.
 """
 
 import os
@@ -98,7 +99,8 @@ class SourceState:
         environment
     load_script_ready : bool
         Whether the load script exists yet.  It can be ``False`` only
-        during a dry run of a worktree that has not been created
+        during a dry run of a worktree that has just been created and
+        has nothing deployed into it
     model : str
         The Polaris ``--model`` value for this benchmark
     component_source : str
@@ -214,7 +216,8 @@ def provision(
         A mapping from submodule key to a ``(fork, ref)`` tuple for
         submodules that should differ from the SHA pinned by Polaris
     dry_run : bool, optional
-        Whether to only resolve commits and report planned commands
+        Whether to stop after provisioning, before polaris is set up,
+        built or run
     logger : logging.Logger, optional
         A logger for command output
     needs_model_source : bool, optional
@@ -235,8 +238,9 @@ def provision(
     _check_is_polaris_repo(primary_path)
 
     sha = resolve(primary_path, fork, ref)
-    slug = _slugify(ref)
-    worktree = os.path.join(work_base, 'worktrees', f'{slug}-{sha[:7]}')
+    worktree = os.path.join(
+        work_base, 'worktrees', _worktree_name(ref, sha, submodule_specs)
+    )
 
     state = SourceState(
         name=name,
@@ -250,24 +254,18 @@ def provision(
 
     load_script = load_script_path(worktree, load_script_name)
     # a load script we can already resolve is checked before the worktree
-    # and its submodules are created, so that a missing one fails fast
+    # and its submodules are created, so that a missing one fails fast.  A
+    # dry run reports one instead, since nothing can be deployed into a
+    # worktree that a dry run has yet to create
     predictable = os.path.isabs(load_script_name) or os.path.exists(worktree)
-    if predictable:
+    if predictable and not dry_run:
         _require_load_script(worktree, load_script_name)
 
-    if dry_run:
-        state.pinned_shas = _pinned_submodule_shas(primary_path, sha)
-        state.submodule_shas = dict(state.pinned_shas)
-        for key, (sub_fork, sub_ref) in submodule_specs.items():
-            state.submodule_overrides[key] = {
-                'fork': sub_fork,
-                'ref': sub_ref,
-            }
-            state.submodule_shas[key] = f'<{sub_fork}:{sub_ref}>'
-        state.load_script = load_script
-        state.load_script_ready = predictable
-        return state
-
+    # a dry run provisions the worktrees like any other run and stops
+    # before polaris is set up, built or run.  A submodule's commit is not
+    # known until it has been checked out, and a dry run that reported a
+    # different hash -- or a different run directory -- from the run it is
+    # previewing would not be worth much
     add_worktree(primary_path, sha, worktree, logger=logger)
 
     state.pinned_shas = _pinned_submodule_shas(worktree, 'HEAD')
@@ -296,6 +294,10 @@ def provision(
         }
 
     state.submodule_shas = _submodule_shas(worktree)
+    if dry_run:
+        state.load_script = load_script
+        state.load_script_ready = os.path.exists(load_script)
+        return state
     state.load_script = _require_load_script(worktree, load_script_name)
     return state
 
@@ -545,6 +547,15 @@ def checkout_submodule(sub_path, sha, logger=None):
     """
     Check out a commit in a submodule of a provisioned worktree
 
+    The submodules nested within it are left alone, both here and by the
+    check for local modifications above.  Polaris initializes the ones it
+    builds against as the first step of the build, and only those: for
+    Omega, ``externals/ekat``, ``externals/scorpio``,
+    ``components/omega/external`` and ``cime``.  Omega's repository also
+    carries the rest of the E3SM tree -- GCAM, FATES, WW3, MARBL and so
+    on -- so a bare ``submodule update --init --recursive`` here takes a
+    556 MB clone to 5.8 GB, of which the build reads a small fraction.
+
     Parameters
     ----------
     sub_path : str
@@ -565,7 +576,6 @@ def checkout_submodule(sub_path, sha, logger=None):
             f'not be checked out.'
         )
     _git(f'checkout --detach {sha}', cwd=sub_path, logger=logger)
-    _git('submodule update --init --recursive', cwd=sub_path, logger=logger)
 
 
 def check_single_variable(baseline, test):
@@ -709,6 +719,49 @@ def _slugify(ref):
     return re.sub(r'[^A-Za-z0-9_.-]', '-', ref)
 
 
+def _worktree_name(ref, sha, submodule_specs):
+    """
+    Get the directory name for a provisioned worktree
+
+    The polaris ref and commit alone do not identify a worktree.  Two
+    sides that pin the same polaris commit and differ only in a submodule
+    -- which is what benchmarking an Omega or E3SM branch looks like --
+    would otherwise share one directory, and the second side's submodule
+    checkout would take the first side's with it.  Each override
+    therefore appears in the name as well.
+
+    The requested fork and ref are used rather than the commit they
+    resolve to.  A submodule is not cloned until the worktree it lives in
+    exists, so its commit is not known when the worktree has to be named,
+    and a dry run never clones it at all.  Naming from the request costs
+    nothing: a worktree reused after its branch has moved is checked out
+    again at the commit the ref now names.
+    """
+    parts = [f'{_slugify(ref)}-{sha[:7]}']
+    for key in sorted(submodule_specs):
+        sub_fork, sub_ref = submodule_specs[key]
+        parts.append(_submodule_slug(key, sub_fork, sub_ref))
+    return '-'.join(parts)
+
+
+def _submodule_slug(key, fork, ref):
+    """
+    Get the part of a worktree name that records one submodule override
+
+    The fork is included because two sides may well ask for the same
+    branch name in two different forks.  A full commit hash is
+    abbreviated the way the polaris one is, but any other ref is kept
+    whole, since one branch name is often a prefix of another.
+    """
+    parts = [key]
+    if fork:
+        parts.append(_remote_name(fork))
+    if re.fullmatch(r'[0-9a-f]{40}', ref):
+        ref = ref[:7]
+    parts.append(_slugify(ref))
+    return '-'.join(parts)
+
+
 def _submodule_path(worktree, key):
     """Get the absolute path to a submodule within a worktree."""
     if key not in SUBMODULE_PATHS:
@@ -744,8 +797,22 @@ def _pinned_submodule_shas(repo_path, ref):
 
 
 def _is_dirty(repo_path):
-    """Whether a work tree has uncommitted or untracked changes."""
-    status = check_output('git status --porcelain', cwd=repo_path)
+    """
+    Whether a work tree has uncommitted or untracked changes
+
+    Nested submodules are ignored entirely, for the same reason
+    ``_check_dirty()`` ignores them within the submodule the model is
+    built from: polaris initializes the ones it builds against before it
+    builds, so one sitting at a commit other than the pinned one is a
+    state the next build resets.  Without ``--ignore-submodules=all``, a
+    provisioned worktree could be checked out once and never again: the
+    build leaves ekat, scorpio and cime at the commits one Omega
+    revision pins, and the next revision would then look like local
+    modifications and be refused.
+    """
+    status = check_output(
+        'git status --porcelain --ignore-submodules=all', cwd=repo_path
+    )
     return status != ''
 
 
