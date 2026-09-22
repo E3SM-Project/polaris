@@ -16,8 +16,7 @@ the vertical dynamics of the ocean model only. The test cases are:
 
 ## suppported models
 
-All but the ideal age task support MPAS-Ocean and Omega, whereas the ideal age task supports MPAS-Ocean only. The `shortwave_pen` task supports Omega only, since MPAS-Ocean does not implement a penetrating-shortwave-radiation scheme.
-
+All but the ideal age task support MPAS-Ocean and Omega, whereas the ideal age task supports MPAS-Ocean only. The `shortwave_pen` task supports Omega only, since the MPAS-Ocean shortwave penetration scheme is very different from Omega.
 ## mesh
 
 The mesh is planar and spans the minimum number of cells (16 for MPAS-Ocean).
@@ -601,7 +600,7 @@ the same between the two runs (since both are forced by the same total
 incident shortwave flux), and checks that the increase in column potential
 energy in the penetrating-shortwave run exceeds that of the
 constant-absorption run (depositing heat deeper in the column lowers density
-deeper in the gravity well). The `viz` step generates plots of the vertical
+deeper in the ocean column). The `viz` step generates plots of the vertical
 profiles for both runs and the difference profiles (such as
 `temperature_diff.png`).
 
@@ -647,7 +646,7 @@ the usual multi-day `run_duration`.
 # config options for the shortwave_pen single-column task
 [single_column_shortwave_pen]
 
-# Number of time steps to run each forward step for ("a few hours")
+# Number of time steps to run each forward step for
 run_duration_steps = 18
 
 # Red-band extinction coefficient used to build the extinction-coefficient
