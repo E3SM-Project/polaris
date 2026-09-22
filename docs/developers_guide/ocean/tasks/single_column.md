@@ -221,9 +221,9 @@ surface shortwave flux (`single_column_forcing:short_wave_heat_flux`) so that
 the two runs are forced identically apart from how that flux is distributed
 in the vertical. Both runs disable `config_use_cvmix_convection` and
 `config_use_cvmix_shear` to isolate the radiative heating from
-convective/shear-driven mixing, and use `run_duration_steps` (config option
-`single_column_shortwave_pen:run_duration_steps`) to run for a few hours
-rather than the usual multi-day duration.
+convective/shear-driven mixing, and the task overrides
+`single_column:run_duration` to run for 3 hours rather than the usual
+multi-day duration.
 
 ### analysis
 
