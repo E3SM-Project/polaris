@@ -235,8 +235,9 @@ def provision(
     _check_is_polaris_repo(primary_path)
 
     sha = resolve(primary_path, fork, ref)
-    slug = _slugify(ref)
-    worktree = os.path.join(work_base, 'worktrees', f'{slug}-{sha[:7]}')
+    worktree = os.path.join(
+        work_base, 'worktrees', _worktree_name(ref, sha, submodule_specs)
+    )
 
     state = SourceState(
         name=name,
@@ -707,6 +708,49 @@ def _remote_name(fork):
 def _slugify(ref):
     """Get a filesystem-safe version of a ref name."""
     return re.sub(r'[^A-Za-z0-9_.-]', '-', ref)
+
+
+def _worktree_name(ref, sha, submodule_specs):
+    """
+    Get the directory name for a provisioned worktree
+
+    The polaris ref and commit alone do not identify a worktree.  Two
+    sides that pin the same polaris commit and differ only in a submodule
+    -- which is what benchmarking an Omega or E3SM branch looks like --
+    would otherwise share one directory, and the second side's submodule
+    checkout would take the first side's with it.  Each override
+    therefore appears in the name as well.
+
+    The requested fork and ref are used rather than the commit they
+    resolve to.  A submodule is not cloned until the worktree it lives in
+    exists, so its commit is not known when the worktree has to be named,
+    and a dry run never clones it at all.  Naming from the request costs
+    nothing: a worktree reused after its branch has moved is checked out
+    again at the commit the ref now names.
+    """
+    parts = [f'{_slugify(ref)}-{sha[:7]}']
+    for key in sorted(submodule_specs):
+        sub_fork, sub_ref = submodule_specs[key]
+        parts.append(_submodule_slug(key, sub_fork, sub_ref))
+    return '-'.join(parts)
+
+
+def _submodule_slug(key, fork, ref):
+    """
+    Get the part of a worktree name that records one submodule override
+
+    The fork is included because two sides may well ask for the same
+    branch name in two different forks.  A full commit hash is
+    abbreviated the way the polaris one is, but any other ref is kept
+    whole, since one branch name is often a prefix of another.
+    """
+    parts = [key]
+    if fork:
+        parts.append(_remote_name(fork))
+    if re.fullmatch(r'[0-9a-f]{40}', ref):
+        ref = ref[:7]
+    parts.append(_slugify(ref))
+    return '-'.join(parts)
 
 
 def _submodule_path(worktree, key):
