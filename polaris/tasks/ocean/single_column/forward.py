@@ -42,6 +42,7 @@ class Forward(OceanModelStep):
         min_obl_under_sea_ice=5.0,
         enable_kpp=None,
         frazil_type=None,
+        frazil_conservation=False,
     ):
         """
         Create a new test case
@@ -119,6 +120,9 @@ class Forward(OceanModelStep):
             If provided, enables the frazil ice tendency and selects the
             frazil algorithm to use in Omega, either ``'FixedProperty'`` or
             ``'teos'``.  If ``None``, the frazil tendency is left disabled.
+
+        frazil_conservation : bool, optional
+            Whether to include Omega frazil fluxes in the conservation check.
         """
         if disable_coriolis is None:
             disable_coriolis = not enable_hadv
@@ -201,6 +205,7 @@ class Forward(OceanModelStep):
         self.min_obl_under_sea_ice = min_obl_under_sea_ice
         self.enable_kpp = enable_kpp
         self.frazil_type = frazil_type
+        self.frazil_conservation = frazil_conservation
 
     def setup(self):
         """

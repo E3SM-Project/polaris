@@ -1,10 +1,15 @@
 import json
 import os
 
-import numpy as np
-import xarray as xr
-
 from polaris import Step
+from polaris.ocean.conservation import (
+    compute_flux_forcing,
+    compute_frazil_fluxes,
+    compute_total_energy,
+    compute_total_mass,
+    compute_total_salt,
+    get_elapsed_seconds,
+)
 
 # the conservation budgets summarized for each forward step, in the order
 # they appear in the summary log file
@@ -87,7 +92,10 @@ class ConservationSummary(Step):
 
         if self.frazil_diagnostics:
             diagnostics = _frazil_diagnostics(
-                self.base_work_dir, self.forward_steps, self.config
+                self.component,
+                self.base_work_dir,
+                self.forward_steps,
+                self.config,
             )
             with open('conservation_summary.log', 'a') as handle:
                 handle.write('\nFrazil diagnostic terms\n')
@@ -95,47 +103,65 @@ class ConservationSummary(Step):
             self.logger.info('\nFrazil diagnostic terms\n%s', diagnostics)
 
 
-def _frazil_diagnostics(base_work_dir, forward_steps, config):
-    """Integrate Omega frazil fluxes and report existing check errors."""
+def _frazil_diagnostics(component, base_work_dir, forward_steps, config):
+    """Report domain-integrated forcing, frazil terms, and errors."""
     model = config.get('ocean', 'model')
     if model != 'omega':
         return f'Omega frazil fields unavailable for model {model}\n'
 
     lines = [
-        'forward step                 mass (kg)       salt (kg)       '
-        'energy (J)      conservation errors',
+        'forward step budget       state delta       surface forcing     '
+        'frazil term        unadjusted diff     adjusted diff      error',
     ]
     for name, path in forward_steps.items():
-        errors = _read_errors(
+        results = _read_results(
             os.path.join(base_work_dir, path, 'property_check_results.json')
         )
-        last_errors = {}
-        for budget_errors in errors.values():
-            last_errors.update(budget_errors)
         output_filename = os.path.join(base_work_dir, path, 'output.nc')
-        output = xr.open_dataset(output_filename, decode_times=False)
         mesh_filename = os.path.join(base_work_dir, path, 'culled_mesh.nc')
-        mesh = xr.open_dataset(mesh_filename, decode_times=False)
-        times = np.asarray(output['time'].values, dtype=float)
-        interval = np.diff(np.concatenate(([0.0], times)))
-        area = np.asarray(mesh['areaCell'].values, dtype=float)
-        values = []
-        for field in (
-            'FrazilOcnDtFrazilMass',
-            'FrazilOcnDtFrazilSalt',
-            'FrazilOcnDtFrazilEnergy',
-        ):
-            flux = np.asarray(output[field].values, dtype=float)
-            values.append(float(np.sum(flux * interval[:, None] * area)))
-        lines.append(
-            f'{name:<28s}{values[0]:>16.6e}{values[1]:>16.6e}'
-            f'{values[2]:>16.6e} '
-            f'mass={last_errors.get("mass", float("nan")):.3e} '
-            f'salt={last_errors.get("salt", float("nan")):.3e} '
-            f'energy={last_errors.get("energy", float("nan")):.3e}'
+        init_filename = os.path.join(base_work_dir, path, 'init.nc')
+        output = component.open_model_dataset(
+            output_filename, config=config, decode_times=True
         )
+        mesh = component.open_model_dataset(mesh_filename, config=config)
+        init = component.open_model_dataset(init_filename, config=config)
+        dt = get_elapsed_seconds(output, time_index_end=-1)
+        frazil = compute_frazil_fluxes(mesh, output)
+        forcing = {
+            budget: compute_flux_forcing(
+                mesh, output, budget, dt, model=model, config=config
+            )
+            for budget in BUDGETS
+        }
+        state = {
+            'mass': float(
+                compute_total_mass(mesh, output.isel(Time=-1))
+                - compute_total_mass(mesh, init.isel(Time=0))
+            ),
+            'salt': float(
+                compute_total_salt(mesh, output.isel(Time=-1))
+                - compute_total_salt(mesh, init.isel(Time=0))
+            ),
+            'energy': float(
+                compute_total_energy(mesh, output.isel(Time=-1), model)
+                - compute_total_energy(mesh, init.isel(Time=0), model)
+            ),
+        }
+        for budget in BUDGETS:
+            unadjusted = state[budget] - forcing[budget]
+            adjusted = unadjusted - frazil[budget]
+            result = results.get(budget, {})
+            status = 'PASS' if result.get('passed', False) else 'FAIL'
+            lines.append(
+                f'{name} {budget:<8s} {state[budget]:>16.6e} '
+                f'{forcing[budget]:>16.6e} {frazil[budget]:>16.6e} '
+                f'{unadjusted:>16.6e} {adjusted:>16.6e} '
+                f'{result.get("relative_error", float("nan")):>10.3e} '
+                f'{status}'
+            )
         output.close()
         mesh.close()
+        init.close()
 
     return '\n'.join(lines) + '\n'
 
@@ -173,3 +199,15 @@ def _read_errors(filename):
         errors.setdefault(interval, {})
         errors[interval][result['property']] = result['relative_error']
     return errors
+
+
+def _read_results(filename):
+    """Read the final result for each budget from a property-check file."""
+    if not os.path.exists(filename):
+        return {}
+    try:
+        with open(filename) as handle:
+            results = json.load(handle)
+    except json.JSONDecodeError:
+        return {}
+    return {result['property']: result for result in results}
