@@ -298,7 +298,8 @@ tracked file changing.
 
 ```
 <work_base>/
-  worktrees/<ref>-<sha7>/            provisioned polaris worktrees
+  worktrees/<ref>-<sha7>[-<repo>-<fork>-<ref>]/
+                                     provisioned polaris worktrees
   baselines/<suite>_<model>_opts-<key>_polaris-<sha7>[_<repo>-<sha7>]/
                                      reusable baseline work dirs
   runs/<date>-<suite>-polaris-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
@@ -309,6 +310,12 @@ tracked file changing.
     build_baseline/  build_test/
     test/
 ```
+
+A worktree is named for the polaris ref and commit, followed by any
+submodule the side overrides.  Benchmarking an Omega or E3SM branch
+holds polaris fixed on both sides, so without the override the two
+sides would share one worktree and the second one checked out would
+take the first one's submodule with it.
 
 A run directory is keyed on the suite, so that two benchmarks of the
 *same* pair of commits on the same day do not share one.  Every repository

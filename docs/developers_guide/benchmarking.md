@@ -165,7 +165,8 @@ for each of them.  Getting it wrong is loud rather than silent: a
 
 ```
 <work_base>/
-  worktrees/<ref>-<sha7>/            provisioned polaris worktrees
+  worktrees/<ref>-<sha7>[-<repo>-<fork>-<ref>]/
+                                     provisioned polaris worktrees
   baselines/<suite>_<model>_opts-<key>_polaris-<sha7>[_<repo>-<sha7>]/
                                      reusable baseline work dirs
   runs/<date>-<suite>-polaris-<base sha7>-<test sha7>[-<repo>-<sha7>-<sha7>]/
@@ -176,6 +177,12 @@ for each of them.  Getting it wrong is loud rather than silent: a
     build_baseline/  build_test/
     test/
 ```
+
+A worktree is named for the polaris ref and commit, followed by any
+submodule the side overrides.  Benchmarking an Omega or E3SM branch
+holds polaris fixed on both sides, so without the override the two
+sides would share one worktree and the second one checked out would
+take the first one's submodule with it.
 
 Polaris' job scripts default to a one-hour wall-clock time, which many
 tasks and most suites outgrow.  Set `wall_time` in the `[benchmark]`
