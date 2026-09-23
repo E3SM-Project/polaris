@@ -105,7 +105,9 @@ def plot_global_mpas_field(
         The color of patch edges (if not the same as the face)
 
     descriptor : mosaic.Descriptor, optional
-        Descriptor from a previous call to ``plot_global_mpas_field()``
+        Descriptor from a previous call to ``plot_global_mpas_field()``.  It
+        is only valid for the mesh, ``cell_indices``, ``projection_name`` and
+        ``central_longitude`` it was made with.
 
     projection_name : str, optional
         Name of the projection supported by mosaic
@@ -119,7 +121,8 @@ def plot_global_mpas_field(
 
     enforce_aspect_ratio : logical, optional
         Whether to enforce the aspect ratio of the figure according to lat,
-        lon bounds
+        lon bounds.  The bounds come from the mesh, so ``mesh_filename`` or
+        ``mesh_ds`` is needed even if ``descriptor`` is given
 
     extent : tuple of float, optional
         The ``(lon_min, lon_max, lat_min, lat_max)`` the map covers, in
@@ -149,20 +152,21 @@ def plot_global_mpas_field(
             projection_name, central_longitude=central_longitude
         )
 
-        if descriptor is None:
-            if mesh_filename is None and mesh_ds is None:
+        if mesh_filename is None and mesh_ds is None:
+            if descriptor is None:
                 raise ValueError(
                     'One of mesh_filename, mesh_ds or descriptor must be given'
                 )
-            if mesh_ds is None:
-                mesh_ds = open_dataset(mesh_filename)
-            else:
-                # the caller's dataset may be used again after this
-                mesh_ds = mesh_ds.copy()
-            mesh_ds.attrs['is_periodic'] = 'NO'
+            if enforce_aspect_ratio:
+                raise ValueError(
+                    'enforce_aspect_ratio needs mesh_filename or mesh_ds, '
+                    'even if descriptor is given'
+                )
 
-            if cell_indices is not None:
-                mesh_ds = _cull_mesh_to_cells(mesh_ds, cell_indices)
+        if descriptor is None or enforce_aspect_ratio:
+            mesh_ds = _get_mesh_ds(mesh_filename, mesh_ds, cell_indices)
+
+        if descriptor is None:
             descriptor = mosaic.Descriptor(
                 mesh_ds,
                 projection=projection,
@@ -236,6 +240,8 @@ def plot_global_mpas_field(
         # attached colorbar can collapse the map axes so only part of
         # the globe is drawn.
         fig.savefig(out_filename)
+
+    return descriptor
 
 
 def plot_global_lat_lon_field(
@@ -475,6 +481,22 @@ def _set_circular_boundary(ax):
     theta = np.linspace(0.0, 2.0 * np.pi, 100)
     vertices = np.column_stack([np.sin(theta), np.cos(theta)])
     ax.set_boundary(mpath.Path(0.5 * vertices + 0.5), transform=ax.transAxes)
+
+
+def _get_mesh_ds(mesh_filename, mesh_ds, cell_indices):
+    """
+    Get the mesh to plot on, culled to ``cell_indices`` if they are given
+    """
+    if mesh_ds is None:
+        mesh_ds = open_dataset(mesh_filename)
+    else:
+        # the caller's dataset may be used again after this
+        mesh_ds = mesh_ds.copy()
+    mesh_ds.attrs['is_periodic'] = 'NO'
+
+    if cell_indices is not None:
+        mesh_ds = _cull_mesh_to_cells(mesh_ds, cell_indices)
+    return mesh_ds
 
 
 def _cull_mesh_to_cells(mesh_ds, cell_indices):
