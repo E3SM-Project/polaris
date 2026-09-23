@@ -78,7 +78,7 @@ To get the shared remap steps for a specific mesh:
 from polaris.tasks.e3sm.init.topo.remap import get_remap_topo_steps
 
 steps, config = get_remap_topo_steps(
-    mesh_name='u.oi30.lr10',
+    mesh_name='u-oi30-lr10',
     smoothing=True,
     include_viz=True,
 )

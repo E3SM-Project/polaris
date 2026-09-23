@@ -22,7 +22,7 @@ def test_add_unified_base_mesh_task_includes_dependencies():
     component = Component(name='mesh')
     add_unified_base_mesh_tasks(component=component)
 
-    mesh_name = 'u.oi240.lr240'
+    mesh_name = 'u-oi240-lr240'
     subdir = f'spherical/unified/{mesh_name}/base_mesh/task'
     task = component.tasks[subdir]
 
@@ -43,7 +43,7 @@ def test_add_unified_base_mesh_task_includes_dependencies():
 
 
 def test_base_mesh_step_factory_uses_mesh_subdir_and_viz():
-    mesh_name = 'u.oi30.lr10'
+    mesh_name = 'u-oi30-lr10'
 
     steps, config = get_unified_base_mesh_steps(
         mesh_name=mesh_name,
@@ -63,7 +63,7 @@ def test_base_mesh_step_factory_uses_mesh_subdir_and_viz():
 
 
 def test_base_mesh_step_factory_includes_dependencies():
-    mesh_name = 'u.oi30.lr10'
+    mesh_name = 'u-oi30-lr10'
 
     steps, _ = get_unified_base_mesh_steps(
         mesh_name=mesh_name,
@@ -82,7 +82,7 @@ def test_base_mesh_step_factory_includes_dependencies():
 
 
 def test_base_mesh_step_factory_reuses_shared_config_for_viz():
-    mesh_name = 'u.oi30.lr10'
+    mesh_name = 'u-oi30-lr10'
 
     build_steps, _ = get_unified_base_mesh_steps(
         mesh_name=mesh_name,

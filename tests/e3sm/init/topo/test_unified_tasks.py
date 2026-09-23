@@ -13,9 +13,9 @@ from polaris.tasks.e3sm.init.topo.remap.tasks import add_remap_topo_tasks
 from polaris.tasks.mesh import mesh as mesh_component
 from polaris.tasks.mesh.base.steps import get_base_mesh_steps
 
-COARSE_MESH_NAME = 'u.oi240.lr240'
-FINE_MESH_NAME = 'u.oi30.lr10'
-FINEST_MESH_NAME = 'u.oi6to18.lr6to10'
+COARSE_MESH_NAME = 'u-oi240-lr240'
+FINE_MESH_NAME = 'u-oi30-lr10'
+FINEST_MESH_NAME = 'u-oi6to18-lr6to10'
 
 
 def test_get_remap_topo_steps_includes_upstream_base_mesh_steps():
@@ -267,7 +267,7 @@ def test_cull_config_exposes_both_dc_edge_guards():
 
 def test_every_unified_mesh_uses_the_shared_dc_edge_guards():
     """
-    u.oi6to18.lr6to10 used to override the ratio floor down to 0.64 for a
+    u-oi6to18-lr6to10 used to override the ratio floor down to 0.64 for a
     single edge.  With the CFL guard measured against the finest ocean
     background, and the ratio guard set to catch leaks rather than rare
     packing defects, no mesh needs an override.

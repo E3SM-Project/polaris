@@ -155,7 +155,7 @@ def test_check_ocean_dc_edge_abs_guard_ignores_coarse_region_blemish(
     """
     An edge that is short only relative to a *coarse* local background is
     still longer than the mesh's finest intended resolution, so it cannot
-    constrain the global time step.  This is the u.oi6to18.lr6to10 case:
+    constrain the global time step.  This is the u-oi6to18-lr6to10 case:
     an 8 km edge in a 15.9 km background on a mesh whose finest ocean
     background is 6 km.
     """

@@ -23,10 +23,10 @@ Polaris registers one standalone river task for each named unified mesh:
 
 Supported `mesh_name` values are:
 
-- `u.oi240.lr240`
-- `u.oi30.lr10`
-- `u.oi6to18.lr6to10`
-- `u.oi.so12to30.lr10`
+- `u-oi240-lr240`
+- `u-oi30-lr10`
+- `u-oi6to18-lr6to10`
+- `u-oi-so12to30-lr10`
 
 The task work directory contains symlinks to:
 
@@ -287,7 +287,7 @@ To run the full river-network workflow for one named unified mesh:
 
 ```bash
 polaris setup -t \
-    mesh/spherical/unified/u.oi30.lr10/river/task \
+    mesh/spherical/unified/u-oi30-lr10/river/task \
     -w river_30km
 ```
 
