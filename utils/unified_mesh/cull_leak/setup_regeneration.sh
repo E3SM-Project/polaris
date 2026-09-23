@@ -32,14 +32,14 @@ build_dir=$2
 model=${3:-omega}
 
 tasks=(
-    ocean/spherical/realistic_global/u.oi30.lr10/init/task
-    ocean/spherical/realistic_global/u.oi240.lr240/init/task
-    ocean/spherical/realistic_global/u.oi6to18.lr6to10/init/task
-    ocean/spherical/realistic_global/u.oi.so12to30.lr10/init/task
-    ocean/spherical/realistic_global/u.oi30.lr10/forward/task
-    ocean/spherical/realistic_global/u.oi240.lr240/forward/task
-    ocean/spherical/realistic_global/u.oi6to18.lr6to10/forward/task
-    ocean/spherical/realistic_global/u.oi.so12to30.lr10/forward/task
+    ocean/spherical/realistic_global/u-oi30-lr10/init/task
+    ocean/spherical/realistic_global/u-oi240-lr240/init/task
+    ocean/spherical/realistic_global/u-oi6to18-lr6to10/init/task
+    ocean/spherical/realistic_global/u-oi-so12to30-lr10/init/task
+    ocean/spherical/realistic_global/u-oi30-lr10/forward/task
+    ocean/spherical/realistic_global/u-oi240-lr240/forward/task
+    ocean/spherical/realistic_global/u-oi6to18-lr6to10/forward/task
+    ocean/spherical/realistic_global/u-oi-so12to30-lr10/forward/task
 )
 
 polaris setup \
