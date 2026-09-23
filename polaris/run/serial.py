@@ -523,7 +523,11 @@ def _format_diff_summary_lines(
     consistently from one case to the next.  The variable name and norm
     values are wrapped together in a single pair of backticks so that
     markdown renders them in a monospace font, preserving the column
-    alignment produced by ``name_width``."""
+    alignment produced by ``name_width``.  A task with no norms (e.g. a
+    missing baseline file or variable) gets a placeholder line so it is
+    not mistaken for a diff whose details are missing."""
+    if not var_summary:
+        return ['      - no norms (missing file or variable)']
     lines = []
     for var in sorted(
         var_summary, key=lambda v: var_summary[v]['linf'], reverse=True
