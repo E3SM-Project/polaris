@@ -516,16 +516,14 @@ def _nonzero_norms(var_summary: Optional[Dict]) -> Dict:
 def _format_diff_summary_lines(
     var_summary: Dict, name_width: int = 0
 ) -> List[str]:
-    """Format a per-variable diff summary as indented markdown bullets,
-    sorted from largest to smallest l_infinity difference.  ``name_width``
-    is the length of the longest variable name to be displayed (typically
-    computed across all cases), so that the l1/l2/linf columns line up
-    consistently from one case to the next.  The variable name and norm
-    values are wrapped together in a single pair of backticks so that
-    markdown renders them in a monospace font, preserving the column
-    alignment produced by ``name_width``.  A task with no norms (e.g. a
-    missing baseline file or variable) gets a placeholder line so it is
-    not mistaken for a diff whose details are missing."""
+    """Format a per-variable diff summary as indented lines for the
+    diffs code block, sorted from largest to smallest l_infinity
+    difference.  ``name_width`` is the length of the longest variable name
+    to be displayed (typically computed across all cases), so that the
+    l1/l2/linf columns line up consistently from one case to the next.
+    A task with no norms (e.g. a missing baseline file or variable) gets a
+    placeholder line so it is not mistaken for a diff whose details are
+    missing."""
     if not var_summary:
         return ['      - no norms (missing file or variable)']
     lines = []
@@ -535,10 +533,10 @@ def _format_diff_summary_lines(
         norms = var_summary[var]
         name_field = f'{var}:'.ljust(name_width + 1)
         lines.append(
-            f'      - `{name_field} '
+            f'      - {name_field} '
             f'l1={norms["l1"]:.3e}  '
             f'l2={norms["l2"]:.3e}  '
-            f'linf={norms["linf"]:.3e}`'
+            f'linf={norms["linf"]:.3e}'
         )
     return lines
 
@@ -1003,13 +1001,17 @@ def _write_output_for_pull_request(
                     ),
                     default=0,
                 )
+                # a code block keeps the norm columns aligned and is
+                # easier to read than nested bullets
+                lines.append('```')
                 for name in diffs:
-                    lines.append(f'    - `{name}`')
+                    lines.append(f'    - {name}')
                     lines.extend(
                         _format_diff_summary_lines(
                             nonzero_by_task[name], name_width
                         )
                     )
+                lines.append('```')
 
     out_path = os.path.join(work_dir, f'{suite_name}_output_for_pr.md')
     print(f'Writing output useful for copy/paste into PRs to:\n  {out_path}')
