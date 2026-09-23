@@ -193,6 +193,8 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">variables_to_plot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables_to_plot</span>
 
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
         <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
             <span class="s1">'init.nc'</span><span class="p">,</span>
             <span class="n">config</span><span class="p">,</span>
@@ -213,7 +215,7 @@
 
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'windStressZonal'</span><span class="p">,</span> <span class="s1">'windStressMeridional'</span><span class="p">]:</span>
             <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                <span class="n">mesh_ds</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
                 <span class="n">da</span><span class="o">=</span><span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
                 <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
@@ -230,7 +232,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> not found in init.nc'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-                    <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                    <span class="n">mesh_ds</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
                     <span class="n">da</span><span class="o">=</span><span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
                     <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_init.png'</span><span class="p">,</span>
                     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
@@ -243,7 +245,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> not found in output.nc'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-                    <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                    <span class="n">mesh_ds</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
                     <span class="n">da</span><span class="o">=</span><span class="n">ds_final</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
                     <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">t_days</span><span class="si">}</span><span class="s1">days.png'</span><span class="p">,</span>
                     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>

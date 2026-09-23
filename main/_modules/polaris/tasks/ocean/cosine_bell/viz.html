@@ -188,11 +188,13 @@
         <span class="n">mesh_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span>
         <span class="n">run_duration</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'convergence_forward'</span><span class="p">,</span> <span class="s1">'run_duration'</span><span class="p">)</span>
 
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
         <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'initial_state.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="n">da</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="s1">'tracer1'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+            <span class="n">mesh_ds</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
             <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
             <span class="n">out_filename</span><span class="o">=</span><span class="s1">'init.png'</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
@@ -206,7 +208,7 @@
         <span class="n">da</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s1">'tracer1'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-            <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+            <span class="n">mesh_ds</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
             <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
             <span class="n">out_filename</span><span class="o">=</span><span class="s1">'final.png'</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>

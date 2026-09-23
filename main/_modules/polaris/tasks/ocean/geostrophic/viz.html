@@ -197,6 +197,8 @@
             <span class="n">v</span><span class="o">=</span><span class="s1">'geostrophic_viz_vel'</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="n">ds_mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'mesh.nc'</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
         <span class="c1"># the init step writes velocityZonal and velocityMeridional</span>
         <span class="c1"># analytically for both models, so there is nothing to reconstruct</span>
         <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span>
@@ -210,7 +212,7 @@
 
         <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">colormap_section</span> <span class="ow">in</span> <span class="n">colormap_sections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                <span class="n">mesh_ds</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
                 <span class="n">da</span><span class="o">=</span><span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
                 <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'init_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
@@ -231,7 +233,7 @@
 
         <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">colormap_section</span> <span class="ow">in</span> <span class="n">colormap_sections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                <span class="n">mesh_ds</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
                 <span class="n">da</span><span class="o">=</span><span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
                 <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'final_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
@@ -250,7 +252,7 @@
         <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">colormap_section</span> <span class="ow">in</span> <span class="n">colormap_sections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
             <span class="n">plot_global_mpas_field</span><span class="p">(</span>
-                <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                <span class="n">mesh_ds</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
                 <span class="n">da</span><span class="o">=</span><span class="n">diff</span><span class="p">,</span>
                 <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'diff_</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>

@@ -260,6 +260,11 @@ of map projection for spherical meshes,
             <span class="n">central_longitude</span><span class="o">=</span><span class="mf">180.</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The mesh must use MPAS dimension and variable names.  If it might not, as with
+an ocean mesh written for Omega, open it yourself and pass the dataset as
+<code class="docutils literal notranslate"><span class="pre">mesh_ds</span></code> instead of <code class="docutils literal notranslate"><span class="pre">mesh_filename</span></code>.  In the ocean component,
+<code class="docutils literal notranslate"><span class="pre">self.open_model_dataset('mesh.nc',</span> <span class="pre">config)</span></code> maps Omega’s names to MPAS-Ocean
+names.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">plot_land</span></code> parameter to <a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a> is
 used  to enable or disable continents overlain on top of the data.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">central_longitude</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">0.0</span></code> and can be set to another value
