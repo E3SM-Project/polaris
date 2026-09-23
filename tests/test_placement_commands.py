@@ -266,8 +266,11 @@ def _placement(nodes, gpus=0, system=None):
         variable = system.get_config('gpu_visible_devices_var')
         if variable is not None and variable.strip() != '':
             gpu_ids = tuple(range(gpus))
+    # the same eight node-local cores on each node the placement names,
+    # which is enough wherever the two tasks land
+    per_node = tuple(tuple(range(8)) for _ in range(max(len(nodes), 1)))
     return ResourcePlacement(
-        nodes=nodes, cores=tuple(range(8)), gpus=gpus, gpu_ids=gpu_ids
+        nodes=nodes, cores=per_node, gpus=gpus, gpu_ids=gpu_ids
     )
 
 

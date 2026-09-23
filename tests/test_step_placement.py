@@ -46,7 +46,13 @@ def _make_component():
 
 
 def _placement(nodes=('node0001',), cores=8, gpus=0):
-    return ResourcePlacement(nodes=nodes, cores=tuple(range(cores)), gpus=gpus)
+    """A placement giving each of ``nodes`` the same ``cores`` cores.
+
+    The same core numbers on every node is the ordinary case, since they are
+    node-local.
+    """
+    per_node = tuple(tuple(range(cores)) for _ in range(max(len(nodes), 1)))
+    return ResourcePlacement(nodes=nodes, cores=per_node, gpus=gpus)
 
 
 def test_a_step_is_not_confined_by_default():
@@ -118,6 +124,42 @@ def test_resources_with_a_placement_are_only_what_it_gives():
     assert resources['gpus'] == 4
     assert resources['gpus_per_node'] == 2
     assert resources['mpi_allowed'] is True
+
+
+def test_a_placement_may_offer_the_same_cores_on_every_node():
+    """
+    Core numbers are node-local, so two nodes both offering core 0 is the
+    ordinary case rather than a mistake.  An earlier mache took one flat set
+    of unique cores for the whole launch and could not express it at all.
+    """
+    component = _make_component()
+    resources = component.get_available_resources(
+        ResourcePlacement(
+            nodes=('node0001', 'node0002'),
+            cores=((0, 1, 2, 3), (0, 1, 2, 3)),
+            gpus=0,
+        )
+    )
+    assert resources['cores'] == 8
+    assert resources['nodes'] == 2
+    assert resources['cores_per_node'] == 4
+
+
+def test_a_placement_is_bounded_by_its_smallest_node():
+    """
+    A task cannot span nodes and may land on any of them, so what one task
+    may be given is what the smallest node in the placement offers.
+    """
+    component = _make_component()
+    resources = component.get_available_resources(
+        ResourcePlacement(
+            nodes=('node0001', 'node0002'),
+            cores=((0, 1, 2, 3), (0, 1)),
+            gpus=0,
+        )
+    )
+    assert resources['cores'] == 6
+    assert resources['cores_per_node'] == 2
 
 
 def test_a_confined_step_is_sized_by_its_placement():

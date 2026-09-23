@@ -440,7 +440,11 @@ def _gpus_per_task(gpus, ntasks):
 def _placement_resources(placement, parallel_system):
     """Describe what a placement gives a step, in the usual resource terms."""
     nodes = max(len(placement.nodes), 1)
-    cores_per_node = len(placement.cores)
+    cores = placement.total_cores
+    # what bounds a single task is the smallest of the placement's nodes,
+    # since a task cannot span nodes and may land on any of them.  Nodes
+    # normally offer the same cores, in which case this is that number.
+    cores_per_node = min(len(node_cores) for node_cores in placement.cores)
 
     # a placement carries no memory, because no launcher acts on one.  What
     # a placement does imply is a share of the nodes it names, in the same
@@ -449,12 +453,10 @@ def _placement_resources(placement, parallel_system):
     memory = None
     machine_cores_per_node = parallel_system.cores_per_node
     if memory_per_node is not None and machine_cores_per_node:
-        memory = (
-            cores_per_node * nodes * memory_per_node // machine_cores_per_node
-        )
+        memory = cores * memory_per_node // machine_cores_per_node
 
     return dict(
-        cores=cores_per_node * nodes,
+        cores=cores,
         nodes=nodes,
         cores_per_node=cores_per_node,
         gpus=placement.gpus,
