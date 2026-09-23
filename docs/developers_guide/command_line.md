@@ -168,6 +168,8 @@ dependencies.
 
 You can uses `--cached` to specify steps of a test case to download from
 pre-generated files if they are available (see {ref}`dev-polaris-cache`.)
+This overrides a task that would otherwise run those steps free (see
+{ref}`dev-step-default-cached`).
 
 You can use `--free_running` to force specific steps of a task to run free
 (not cached), overriding any `default_cached = True` setting on those steps

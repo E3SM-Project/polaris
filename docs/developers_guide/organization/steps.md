@@ -1108,12 +1108,13 @@ each caller having to opt in via the suite file or the `--cached` CLI flag.
 
 The caching resolution order during setup is (highest to lowest priority):
 
-1. **Free-running override** — if any selected task adds a step's `subdir`
-   to `self.free_running_steps`, *or* if `--free_running` was passed on the
-   command line for that step, that step is always run, even if
-   `default_cached` is `True` or `--cached` was passed on the command line.
-2. **CLI `--cached`** — steps explicitly requested via `polaris setup
-   --cached` or the `c`-suffix notation in suites.
+1. **Explicit requests** — steps requested via `polaris setup --cached`,
+   the `c` suffix on a task number, or a suite's `cached` lines use cached
+   outputs, and steps requested via `polaris setup --free_running` are run.
+   A step may not be requested both ways.
+2. **Free-running override** — if any selected task adds a step's `subdir`
+   to `self.free_running_steps`, that step is run even if `default_cached`
+   is `True`.
 3. **Factory default** — steps whose `default_cached` attribute is `True`.
 
 **Setting `default_cached` in a step class:**
@@ -1132,7 +1133,8 @@ a concrete example.
 
 A task that *owns* a step (e.g. a standalone task whose sole purpose is to
 regenerate an expensive shared product) should add the step's `subdir` to
-`self.free_running_steps` so that the outputs are always regenerated:
+`self.free_running_steps` so that the outputs are regenerated unless a
+developer explicitly asks for cached outputs:
 
 ```python
 self.free_running_steps.add(step.subdir)
