@@ -67,11 +67,13 @@ class Viz(OceanIOStep):
         mesh_name = self.mesh_name
         run_duration = config.getfloat('convergence_forward', 'run_duration')
 
+        ds_mesh = self.open_model_dataset('mesh.nc', config)
+
         ds_init = self.open_model_dataset('initial_state.nc', config)
         da = ds_init['tracer1'].isel(Time=0, nVertLevels=0)
 
         plot_global_mpas_field(
-            mesh_filename='mesh.nc',
+            mesh_ds=ds_mesh,
             da=da,
             out_filename='init.png',
             config=config,
@@ -85,7 +87,7 @@ class Viz(OceanIOStep):
         da = ds_out['tracer1'].isel(Time=-1, nVertLevels=0)
 
         plot_global_mpas_field(
-            mesh_filename='mesh.nc',
+            mesh_ds=ds_mesh,
             da=da,
             out_filename='final.png',
             config=config,
