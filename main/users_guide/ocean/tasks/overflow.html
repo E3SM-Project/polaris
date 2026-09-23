@@ -165,10 +165,11 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/overflow</span></code> test group induces a density current flowing down a
 continental slope and includes the following test cases:</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2</span></code> — short (12 min) smoke test using horizontal advection order = 2 for rapid CI checks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2</span></code> — short (12 min) smoke test using horizontal advection order = 2 for rapid CI checks. For Omega, flux-corrected transport (FCT) is disabled by default for this order.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2_del4</span></code> — same as (1) but with del4 viscosity enabled with the default viscosity value.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3</span></code> — short (12 min) smoke test using horizontal advection order = 3 for rapid CI checks.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4</span></code> — short (12 min) smoke test using horizontal advection order = 4 for rapid CI checks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3</span></code> — short (12 min) smoke test using horizontal advection order = 3 for rapid CI checks. For Omega, FCT is enabled by default for this order.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3_nofct</span></code> — same as (3) but with FCT disabled for Omega, for comparison.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4</span></code> — short (12 min) smoke test using horizontal advection order = 4 for rapid CI checks. For Omega, FCT is enabled by default for this order.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rpe</span></code> — long run (40 days) exploring Resting Potential Energy (RPE) evolution for a set of Laplacian viscosities.</p></li>
 </ol>
 <p>Each of these tasks (plus the <code class="docutils literal notranslate"><span class="pre">_del4</span></code> variants of orders 3 and 4) is
@@ -370,7 +371,10 @@ enabled in both models once Omega supports it.</p>
 <span class="na">default_del4_viscosity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.0e7</span>
 
 <span class="c1"># Default horizontal advection order</span>
-<span class="na">default_horiz_adv_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
+<span class="na">default_horiz_adv_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+
+<span class="c1"># Default horizontal FCT option</span>
+<span class="na">default_horiz_fct_enable_omega</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
 </pre></div>
 </div>
 <p>The two <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees use the shared linear EOS from
@@ -390,11 +394,15 @@ Jackett-McDougall for MPAS-Ocean).</p>
 <h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>There are three smoke test cases corresponding to horizontal advection orders
 2, 3, and 4: <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_2</span></code>, <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4</span></code>. Each smoke test is the same as described
-above except the run is stopped before it is allowed to reach equilibrium to
-facilitate rapid testing. The horizontal advection order is controlled by the
-<code class="docutils literal notranslate"><span class="pre">horiz_adv_order</span></code> argument to the <code class="docutils literal notranslate"><span class="pre">SmokeTest</span></code> task and passed through to the
-forward step.</p>
+and <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_4</span></code> (each also available with del4 viscosity
+enabled). For Omega, FCT is enabled by default for advection orders 3 and 4
+and disabled for order 2; the additional <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3_nofct</span></code>
+task runs order 3 with FCT disabled for comparison. Each smoke test is the
+same as described above except the run is stopped before it is allowed to
+reach equilibrium to facilitate rapid testing. The horizontal advection order
+and FCT setting are controlled by the <code class="docutils literal notranslate"><span class="pre">horiz_adv_order</span></code> and
+<code class="docutils literal notranslate"><span class="pre">horiz_fct_enable_omega</span></code> arguments to the <code class="docutils literal notranslate"><span class="pre">SmokeTest</span></code> task and passed through
+to the forward step.</p>
 </section>
 <section id="id2">
 <h3>mesh<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>

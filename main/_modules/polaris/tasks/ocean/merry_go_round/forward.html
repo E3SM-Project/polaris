@@ -173,6 +173,11 @@
 <span class="sd">        refinement : str, optional</span>
 <span class="sd">            Refinement type. One of 'space', 'time' or 'both' indicating both</span>
 <span class="sd">            space and time</span>
+
+<span class="sd">        limiter : bool, optional</span>
+<span class="sd">            Whether to use the limited configuration: 3rd order horizontal</span>
+<span class="sd">            advection with flux limiting in both directions.  The default is</span>
+<span class="sd">            the unlimited one: 2nd order horizontal advection, no limiting</span>
 <span class="sd">        """</span>
 
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">,</span> <span class="s1">'tracer1'</span><span class="p">,</span> <span class="s1">'tracer2'</span><span class="p">,</span> <span class="s1">'tracer3'</span><span class="p">]</span>
@@ -214,11 +219,27 @@
             <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'config_vert_tracer_adv_flux_order'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">},</span>
             <span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiter</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
-                <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'VerticalTracerFluxLimiterEnable'</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-                <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span><span class="p">,</span>
-            <span class="p">)</span></div>
+        <span class="c1"># Omega cannot limit horizontal fluxes at 2nd order, so the limited</span>
+        <span class="c1"># configuration is 3rd order horizontally and the unlimited one is</span>
+        <span class="c1"># 2nd order</span>
+        <span class="n">horiz_order</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiter</span> <span class="k">else</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'config_horiz_tracer_adv_order'</span><span class="p">:</span> <span class="n">horiz_order</span><span class="p">},</span>
+            <span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">'VerticalTracerFluxLimiterEnable'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiter</span><span class="p">,</span>
+                <span class="s1">'HorzTracerFluxLimiterEnable'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiter</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># a single MPAS-Ocean option covers both directions</span>
+        <span class="n">limiter</span> <span class="o">=</span> <span class="s1">'monotonic'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiter</span> <span class="k">else</span> <span class="s1">'none'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'config_flux_limiter'</span><span class="p">:</span> <span class="n">limiter</span><span class="p">},</span>
+            <span class="n">config_model</span><span class="o">=</span><span class="s1">'mpas-ocean'</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Forward.compute_cell_count">

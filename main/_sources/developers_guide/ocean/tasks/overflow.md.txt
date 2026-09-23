@@ -2,11 +2,11 @@
 
 # overflow
 
-The overflow task group is comprised of six `smoke_test` tasks for quick
+The overflow task group is comprised of seven `smoke_test` tasks for quick
 testing (one for each horizontal advection order, 2, 3, and 4, each with
-and without del4 viscosity enabled) and one `rpe` test which shows how the
-resting potential energy changes across forward runs with different del2
-viscosities.
+and without del4 viscosity enabled, plus an additional order-3 task with
+FCT disabled) and one `rpe` test which shows how the resting potential
+energy changes across forward runs with different del2 viscosities.
 
 The tasks are created in three trees by
 {py:func}`polaris.tasks.ocean.overflow.add_overflow_tasks()`, which loops
@@ -115,7 +115,11 @@ by default) the `viz` step. In each task tree, six instances are created,
 one for each horizontal advection order (2, 3, and 4) with and without
 del4 viscosity enabled, producing tasks named
 `smoke_test_horiz_adv_order_{2,3,4}` and
-`smoke_test_horiz_adv_order_{2,3,4}_del4`.
+`smoke_test_horiz_adv_order_{2,3,4}_del4`. For Omega, FCT
+(`horiz_fct_enable_omega`) is enabled by default for advection orders 3 and
+4 and disabled for order 2; a seventh instance,
+`smoke_test_horiz_adv_order_3_nofct`, reruns order 3 with FCT disabled for
+comparison.
 
 ## rpe
 

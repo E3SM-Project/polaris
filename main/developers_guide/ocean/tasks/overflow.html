@@ -151,11 +151,11 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="overflow">
 <span id="dev-ocean-overflow"></span><h1>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h1>
-<p>The overflow task group is comprised of six <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code> tasks for quick
+<p>The overflow task group is comprised of seven <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code> tasks for quick
 testing (one for each horizontal advection order, 2, 3, and 4, each with
-and without del4 viscosity enabled) and one <code class="docutils literal notranslate"><span class="pre">rpe</span></code> test which shows how the
-resting potential energy changes across forward runs with different del2
-viscosities.</p>
+and without del4 viscosity enabled, plus an additional order-3 task with
+FCT disabled) and one <code class="docutils literal notranslate"><span class="pre">rpe</span></code> test which shows how the resting potential
+energy changes across forward runs with different del2 viscosities.</p>
 <p>The tasks are created in three trees by
 <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.add_overflow_tasks.html#polaris.tasks.ocean.overflow.add_overflow_tasks" title="polaris.tasks.ocean.overflow.add_overflow_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.add_overflow_tasks()</span></code></a>, which loops
 over combinations of the equation of state (EOS) and the vertical
@@ -277,7 +277,11 @@ by default) the <code class="docutils literal notranslate"><span class="pre">viz
 one for each horizontal advection order (2, 3, and 4) with and without
 del4 viscosity enabled, producing tasks named
 <code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_{2,3,4}</span></code> and
-<code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_{2,3,4}_del4</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_{2,3,4}_del4</span></code>. For Omega, FCT
+(<code class="docutils literal notranslate"><span class="pre">horiz_fct_enable_omega</span></code>) is enabled by default for advection orders 3 and
+4 and disabled for order 2; a seventh instance,
+<code class="docutils literal notranslate"><span class="pre">smoke_test_horiz_adv_order_3_nofct</span></code>, reruns order 3 with FCT disabled for
+comparison.</p>
 </section>
 <section id="rpe">
 <h2>rpe<a class="headerlink" href="#rpe" title="Link to this heading"></a></h2>
