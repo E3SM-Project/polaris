@@ -49,14 +49,14 @@ def test_sizing_field_mesh_outputs_and_active_control():
         ds_coastline=ds_coastline,
         ds_river=ds_river,
         resolution=0.25,
-        mesh_name='u.oi240.lr240',
+        mesh_name='u-oi240-lr240',
         ocean_background=_constant_ocean_background(
             ds_coastline=ds_coastline, value=240.0
         ),
         land_background_km=240.0,
         river_channel_km=240.0,
     )
-    assert ds_uniform.attrs['mesh_name'] == 'u.oi240.lr240'
+    assert ds_uniform.attrs['mesh_name'] == 'u-oi240-lr240'
     assert 'profile_name' not in ds_uniform.attrs
     np.testing.assert_allclose(ds_uniform.cellWidth.values, 240.0)
     np.testing.assert_allclose(
@@ -68,7 +68,7 @@ def test_sizing_field_mesh_outputs_and_active_control():
         ds_coastline=ds_coastline,
         ds_river=ds_river,
         resolution=0.125,
-        mesh_name='u.oi30.lr10',
+        mesh_name='u-oi30-lr10',
         ocean_background=_constant_ocean_background(
             ds_coastline=ds_coastline, value=30.0
         ),
@@ -87,7 +87,7 @@ def test_sizing_field_mesh_outputs_and_active_control():
         ds_coastline=ds_coastline,
         ds_river=ds_river,
         resolution=0.03125,
-        mesh_name='u.oi6to18.lr6to10',
+        mesh_name='u-oi6to18-lr6to10',
         ocean_background=build_ocean_background_from_mode(
             lat=ds_coastline.lat.values,
             lon=ds_coastline.lon.values,
@@ -478,7 +478,7 @@ def test_add_sizing_field_tasks_registers_named_meshes():
     component = Component(name='mesh')
     add_sizing_field_tasks(component=component)
 
-    assert 'u.oi.so12to30.lr10' in UNIFIED_MESH_NAMES
+    assert 'u-oi-so12to30-lr10' in UNIFIED_MESH_NAMES
     assert len(component.tasks) == len(UNIFIED_MESH_NAMES)
 
     for mesh_name in UNIFIED_MESH_NAMES:
@@ -489,7 +489,7 @@ def test_add_sizing_field_tasks_registers_named_meshes():
 
 
 def test_sizing_field_step_factory_uses_mesh_subdir():
-    mesh_name = 'u.oi30.lr10'
+    mesh_name = 'u-oi30-lr10'
     steps, config = get_unified_mesh_sizing_field_steps(
         mesh_name=mesh_name,
         include_viz=True,
@@ -508,7 +508,7 @@ def test_sizing_field_step_factory_uses_mesh_subdir():
 
 
 def test_sizing_field_step_factory_uses_mesh_family():
-    mesh_name = 'u.oi.so12to30.lr10'
+    mesh_name = 'u-oi-so12to30-lr10'
 
     steps, config = get_unified_mesh_sizing_field_steps(
         mesh_name=mesh_name,
@@ -521,7 +521,7 @@ def test_sizing_field_step_factory_uses_mesh_family():
 
 
 def test_sizing_field_step_factory_reuses_shared_config_for_viz():
-    mesh_name = 'u.oi30.lr10'
+    mesh_name = 'u-oi30-lr10'
 
     build_steps, _ = get_unified_mesh_sizing_field_steps(
         mesh_name=mesh_name,
@@ -549,7 +549,7 @@ def test_so_mesh_family_links_shared_region_and_builds_field(
         output_filenames={'calving_front': 'coastline.nc'},
     )
     river_step = SimpleNamespace(
-        subdir='spherical/unified/u.oi.so12to30.lr10/river/lat_lon/prepare',
+        subdir='spherical/unified/u-oi-so12to30-lr10/river/lat_lon/prepare',
         path='river',
         masks_filename='river_network.nc',
     )
@@ -559,16 +559,16 @@ def test_so_mesh_family_links_shared_region_and_builds_field(
         combined_filename='topography_finest.nc',
     )
     config = get_sizing_field_config(
-        mesh_name='u.oi.so12to30.lr10',
+        mesh_name='u-oi-so12to30-lr10',
         filepath='mesh/spherical/unified/'
-        'u.oi.so12to30.lr10/sizing_field/sizing_field.cfg',
+        'u-oi-so12to30-lr10/sizing_field/sizing_field.cfg',
     )
     step = BuildSizingFieldStep(
         component=component,
         coastline_step=coastline_step,
         river_step=river_step,
         fine_topo_step=fine_topo_step,
-        subdir='spherical/unified/u.oi.so12to30.lr10/sizing_field/build',
+        subdir='spherical/unified/u-oi-so12to30-lr10/sizing_field/build',
     )
     step.set_shared_config(config, link='sizing_field.cfg')
     step.setup()
@@ -632,9 +632,9 @@ def test_steep_meshes_widen_the_transition():
     """
     With a quadratic blend the mesh-size gradient one cell width inland is
     2 |H - L| L / T^2, so a mesh with a larger relative resolution jump
-    needs a wider transition to reach the same gradient.  u.oi30.lr10 and
-    u.oi.so12to30.lr10 ask for (30 - 10) / 30 = 0.67 against
-    u.oi6to18.lr6to10's 0.44, and failed the dcEdge CFL guard at T = 2 L.
+    needs a wider transition to reach the same gradient.  u-oi30-lr10 and
+    u-oi-so12to30-lr10 ask for (30 - 10) / 30 = 0.67 against
+    u-oi6to18-lr6to10's 0.44, and failed the dcEdge CFL guard at T = 2 L.
     """
     gradients = {}
     for mesh_name in UNIFIED_MESH_NAMES:
@@ -654,11 +654,11 @@ def test_steep_meshes_widen_the_transition():
             / transition
         )
 
-    passing = gradients['u.oi6to18.lr6to10']
+    passing = gradients['u-oi6to18-lr6to10']
     for mesh_name, gradient in gradients.items():
         assert gradient <= passing + 1e-12, (
             f'{mesh_name}: coastal mesh-size gradient {gradient:.3f} exceeds '
-            f"u.oi6to18.lr6to10's {passing:.3f}, which is the steepest "
+            f"u-oi6to18-lr6to10's {passing:.3f}, which is the steepest "
             f'value known to pass the dcEdge CFL guard'
         )
 

@@ -7,7 +7,7 @@ from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.cull.tasks import add_cull_topo_tasks
 from polaris.tasks.mesh import mesh as mesh_component
 
-UNIFIED_MESH_NAME = 'u.oi30.lr10'
+UNIFIED_MESH_NAME = 'u-oi30-lr10'
 SIMPLE_MESH_NAME = 'qu240km'
 
 # The output files each step of the cull task compares against a baseline.

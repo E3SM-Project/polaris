@@ -84,7 +84,7 @@ def test_shipped_edge_length_ratio_clears_the_river_constraint_floor():
     """
     Unified meshes pin mesh vertices on river-network line constraints,
     which drives land cell polygons down to 2.2e-4 to 5.1e-4 on
-    u.oi6to18.lr6to10 and u.oi30.lr10.  The guard has to sit well below
+    u-oi6to18-lr6to10 and u-oi30-lr10.  The guard has to sit well below
     that floor, since it drifts lower as meshes get finer, while staying
     far above genuine degeneracy.
     """

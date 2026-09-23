@@ -671,7 +671,7 @@ def test_convert_hydrorivers_shapefile_to_geojson(tmp_path):
 
 
 def test_mesh_river_step_factories_use_mesh_subdirs():
-    mesh_name = 'u.oi30.lr10'
+    mesh_name = 'u-oi30-lr10'
     unified_steps, _ = get_unified_mesh_river_steps(
         mesh_name=mesh_name,
         include_viz=False,
@@ -692,7 +692,7 @@ def test_mesh_river_step_factories_use_mesh_subdirs():
 
 
 def test_mesh_river_step_factories_reuse_shared_configs():
-    mesh_name = 'u.oi30.lr10'
+    mesh_name = 'u-oi30-lr10'
 
     unified_steps_first, unified_config_first = get_unified_mesh_river_steps(
         mesh_name=mesh_name,
