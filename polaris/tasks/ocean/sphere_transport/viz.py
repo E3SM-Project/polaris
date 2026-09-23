@@ -86,6 +86,8 @@ class Viz(OceanIOStep):
 
         variables_to_plot = self.variables_to_plot
 
+        ds_mesh = self.open_model_dataset('mesh.nc', config)
+
         # the init step writes velocityZonal and velocityMeridional
         # analytically for both models, so there is nothing to reconstruct
         ds_init = self.open_model_dataset(
@@ -129,7 +131,7 @@ class Viz(OceanIOStep):
             colormap_section = f'sphere_transport_viz_{section_name}'
             if var in variables_in_init:
                 plot_global_mpas_field(
-                    mesh_filename='mesh.nc',
+                    mesh_ds=ds_mesh,
                     da=ds_init[var],
                     out_filename=f'{var}_init.png',
                     config=config,
@@ -140,7 +142,7 @@ class Viz(OceanIOStep):
                 )
             if var in variables_in_output:
                 plot_global_mpas_field(
-                    mesh_filename='mesh.nc',
+                    mesh_ds=ds_mesh,
                     da=ds_mid[var],
                     out_filename=f'{var}_mid.png',
                     config=config,
@@ -151,7 +153,7 @@ class Viz(OceanIOStep):
                     central_longitude=180.0,
                 )
                 plot_global_mpas_field(
-                    mesh_filename='mesh.nc',
+                    mesh_ds=ds_mesh,
                     da=ds_final[var],
                     out_filename=f'{var}_final.png',
                     config=config,
@@ -163,7 +165,7 @@ class Viz(OceanIOStep):
                 )
             if var in variables_in_output and var in variables_in_init:
                 plot_global_mpas_field(
-                    mesh_filename='mesh.nc',
+                    mesh_ds=ds_mesh,
                     da=ds_final[var] - ds_init[var],
                     out_filename=f'{var}_diff.png',
                     config=config,

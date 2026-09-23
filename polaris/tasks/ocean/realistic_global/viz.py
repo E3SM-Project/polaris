@@ -72,6 +72,8 @@ class Viz(OceanIOStep):
         config = self.config
         variables_to_plot = self.variables_to_plot
 
+        ds_mesh = self.open_model_dataset('mesh.nc', config)
+
         ds_init = self.open_model_dataset(
             'init.nc',
             config,
@@ -92,7 +94,7 @@ class Viz(OceanIOStep):
 
         for var in ['windStressZonal', 'windStressMeridional']:
             plot_global_mpas_field(
-                mesh_filename='mesh.nc',
+                mesh_ds=ds_mesh,
                 da=ds_init[var],
                 out_filename=f'{var}.png',
                 config=config,
@@ -109,7 +111,7 @@ class Viz(OceanIOStep):
                 self.logger.info(f'{var} not found in init.nc')
             else:
                 plot_global_mpas_field(
-                    mesh_filename='mesh.nc',
+                    mesh_ds=ds_mesh,
                     da=ds_init[var],
                     out_filename=f'{var}_init.png',
                     config=config,
@@ -122,7 +124,7 @@ class Viz(OceanIOStep):
                 self.logger.info(f'{var} not found in output.nc')
             else:
                 plot_global_mpas_field(
-                    mesh_filename='mesh.nc',
+                    mesh_ds=ds_mesh,
                     da=ds_final[var],
                     out_filename=f'{var}_{t_days}days.png',
                     config=config,

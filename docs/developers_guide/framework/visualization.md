@@ -147,6 +147,12 @@ class Viz(Step):
             central_longitude=180.)
 ```
 
+The mesh must use MPAS dimension and variable names.  If it might not, as with
+an ocean mesh written for Omega, open it yourself and pass the dataset as
+`mesh_ds` instead of `mesh_filename`.  In the ocean component,
+`self.open_model_dataset('mesh.nc', config)` maps Omega's names to MPAS-Ocean
+names.
+
 The `plot_land` parameter to {py:func}`polaris.viz.plot_global_mpas_field()` is
 used  to enable or disable continents overlain on top of the data.
 

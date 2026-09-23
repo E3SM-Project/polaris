@@ -123,6 +123,8 @@ class VizHorizField(OceanIOStep):
             f'Using {len(cell_indices[0])} cells of '
             f'{ds_mesh.sizes["nCells"]} cells in the mesh'
         )
+        # the plots are made on the full mesh, culled to cell_indices
+        ds_full_mesh = ds_mesh
         ds_mesh = ds_mesh.isel(nCells=cell_indices[0])
         if 'nVertLevels' in ds_mesh.dims:
             z_target = section.getfloat('z_target')
@@ -262,7 +264,7 @@ class VizHorizField(OceanIOStep):
             # Only apply regional bounds for cell-centered fields
             if 'nEdges' in mpas_field.dims or 'nVertices' in mpas_field.dims:
                 descriptor = plot_global_mpas_field(
-                    mesh_filename=self.mesh_file,
+                    mesh_ds=ds_full_mesh,
                     da=mpas_field,
                     out_filename=f'{var_name}_horiz{time_stamp}{filename_suffix}.png',
                     config=self.config,
@@ -276,7 +278,7 @@ class VizHorizField(OceanIOStep):
                 )
             elif 'nCells' in mpas_field.dims and 'nVertices' in ds_mesh.dims:
                 descriptor = plot_global_mpas_field(
-                    mesh_filename=self.mesh_file,
+                    mesh_ds=ds_full_mesh,
                     da=mpas_field,
                     out_filename=f'{var_name}_horiz{time_stamp}{filename_suffix}.png',
                     config=self.config,

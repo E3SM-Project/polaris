@@ -76,6 +76,8 @@ class Viz(OceanIOStep):
             v='geostrophic_viz_vel',
         )
 
+        ds_mesh = self.open_model_dataset('mesh.nc', config)
+
         # the init step writes velocityZonal and velocityMeridional
         # analytically for both models, so there is nothing to reconstruct
         ds_init = self.open_model_dataset(
@@ -89,7 +91,7 @@ class Viz(OceanIOStep):
 
         for var, colormap_section in colormap_sections.items():
             plot_global_mpas_field(
-                mesh_filename='mesh.nc',
+                mesh_ds=ds_mesh,
                 da=ds_init[var],
                 out_filename=f'init_{var}.png',
                 config=config,
@@ -110,7 +112,7 @@ class Viz(OceanIOStep):
 
         for var, colormap_section in colormap_sections.items():
             plot_global_mpas_field(
-                mesh_filename='mesh.nc',
+                mesh_ds=ds_mesh,
                 da=ds_out[var],
                 out_filename=f'final_{var}.png',
                 config=config,
@@ -129,7 +131,7 @@ class Viz(OceanIOStep):
         for var, colormap_section in colormap_sections.items():
             diff = ds_out[var] - ds_init[var]
             plot_global_mpas_field(
-                mesh_filename='mesh.nc',
+                mesh_ds=ds_mesh,
                 da=diff,
                 out_filename=f'diff_{var}.png',
                 config=config,
