@@ -1117,6 +1117,10 @@ The caching resolution order during setup is (highest to lowest priority):
    is `True`.
 3. **Factory default** — steps whose `default_cached` attribute is `True`.
 
+A step can only use cached outputs if it registers output files, since
+those are what get fetched from the cache.  Setup fails if a step with no
+outputs is marked as cached.
+
 **Setting `default_cached` in a step class:**
 
 Steps that are shared across many tasks and are expensive to run should set
