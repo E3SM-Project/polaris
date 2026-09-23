@@ -77,7 +77,8 @@ def setup_tasks(
     cached : list of list of str, optional
         For each task in ``tasks``, which steps (if any) should read their
         outputs from the cache, or a list with "_all" as the first entry if
-        all steps in the task should use cached outputs
+        all steps in the task should use cached outputs.  These override
+        the task's ``free_running_steps``.
 
     free_running : list of list of str, optional
         For the single task in ``tasks``, which steps (if any) should be
@@ -203,38 +204,10 @@ def setup_tasks(
         copy_executable=copy_executable,
     )
 
-    # Apply CLI --free_running before caching resolution so that Phase 4
-    # (free-running wins) in _expand_and_mark_cached_steps picks them up.
+    # Apply CLI --free_running before caching resolution so that
+    # _expand_and_mark_cached_steps picks them up.
     if free_running is not None:
-        # Exactly one task is guaranteed by earlier validation.
-        path = next(iter(tasks.keys()))
-        task = tasks[path]
-        fr_steps = free_running[0]
-        fr_step_list = (
-            list(task.steps.keys()) if fr_steps[0] == '_all' else fr_steps
-        )
-        for step_name in fr_step_list:
-            if step_name not in task.steps:
-                raise ValueError(
-                    f'Step {step_name!r} is not in the task. '
-                    f'Available steps: {list(task.steps.keys())}'
-                )
-            task.free_running_steps.add(task.steps[step_name].subdir)
-
-        # Raise an error if any step is listed in both --cached and
-        # --free_running (after expanding _all in cached_steps).
-        cached_list = (
-            list(task.steps.keys())
-            if cached_steps.get(path, []) == ['_all']
-            else cached_steps.get(path, [])
-        )
-        conflicts = sorted(set(cached_list) & set(fr_step_list))
-        if conflicts:
-            raise ValueError(
-                f'Steps {conflicts} are listed in both --cached and '
-                '--free_running. Each step must be unambiguously cached, '
-                'free-running, or left at its default.'
-            )
+        _apply_free_running(tasks, free_running, cached_steps)
 
     # do this after _setup_configs() in case tasks mark additional steps
     # as cached in their configure() methods
@@ -483,8 +456,8 @@ def main():
         nargs='+',
         help='A list of steps in a single task supplied with '
         '--tasks or --task_number that should use cached '
-        "outputs, or '_all' if all steps should "
-        'use cached outputs.',
+        'outputs, even if the task makes them free-running, '
+        "or '_all' if all steps should use cached outputs.",
         metavar='STEP',
     )
     parser.add_argument(
@@ -604,6 +577,43 @@ def main():
     )
 
 
+def _apply_free_running(tasks, free_running, cached_steps):
+    """
+    Add steps requested with ``--free_running`` to the task's
+    ``free_running_steps``, raising an error for any step that was also
+    requested with ``--cached``
+    """
+    # Exactly one task is guaranteed by earlier validation.
+    path = next(iter(tasks.keys()))
+    task = tasks[path]
+    fr_steps = free_running[0]
+    fr_step_list = (
+        list(task.steps.keys()) if fr_steps[0] == '_all' else fr_steps
+    )
+    for step_name in fr_step_list:
+        if step_name not in task.steps:
+            raise ValueError(
+                f'Step {step_name!r} is not in the task. '
+                f'Available steps: {list(task.steps.keys())}'
+            )
+        task.free_running_steps.add(task.steps[step_name].subdir)
+
+    # Raise an error if any step is listed in both --cached and
+    # --free_running (after expanding _all in cached_steps).
+    cached_list = (
+        list(task.steps.keys())
+        if cached_steps.get(path, []) == ['_all']
+        else cached_steps.get(path, [])
+    )
+    conflicts = sorted(set(cached_list) & set(fr_step_list))
+    if conflicts:
+        raise ValueError(
+            f'Steps {conflicts} are listed in both --cached and '
+            '--free_running. Each step must be unambiguously cached, '
+            'free-running, or left at its default.'
+        )
+
+
 def _expand_and_mark_cached_steps(tasks, cached_steps):
     """
     Mark any cached steps that will get their outputs from the cache database,
@@ -611,10 +621,14 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
 
     Resolution order (highest to lowest priority):
 
-    1. Free-running: if any selected task added a step subdir to
-       ``free_running_steps``, that step always runs (never reads from cache).
-    2. CLI ``--cached``: steps explicitly requested via command line.
+    1. Explicit requests: steps named with ``--cached`` or in a suite's
+       ``cached`` lines are cached, and steps named with ``--free_running``
+       run.  A step may not be requested both ways.
+    2. Task preference: if any selected task added a step subdir to
+       ``free_running_steps``, that step runs (never reads from cache).
     3. Factory default: steps whose ``default_cached`` flag is True.
+
+    On return, ``cached_steps`` lists the steps of each task that are cached.
     """
     # Expand _all shorthand
     for path, task in tasks.items():
@@ -622,34 +636,35 @@ def _expand_and_mark_cached_steps(tasks, cached_steps):
         if len(cached_names) > 0 and cached_names[0] == '_all':
             cached_steps[path] = list(task.steps.keys())
 
-    # Phase 1: collect free-running preferences from all selected tasks
-    # (includes additions made by configure(), which runs before this)
+    # Phase 1: apply explicitly requested caching
+    explicit_cached_subdirs: set[str] = set()
+    for path, task in tasks.items():
+        for step_name in cached_steps[path]:
+            step = task.steps[step_name]
+            step.cached = True
+            explicit_cached_subdirs.add(step.subdir)
+
+    # Phase 2: collect free-running preferences from all selected tasks
+    # (includes additions made by configure() and --free_running, which are
+    # applied before this)
     free_running_subdirs: set[str] = set()
     for task in tasks.values():
         free_running_subdirs.update(getattr(task, 'free_running_steps', set()))
+    free_running_subdirs -= explicit_cached_subdirs
 
-    # Phase 2: apply CLI-specified caching
-    for path, task in tasks.items():
-        for step_name in cached_steps[path]:
-            task.steps[step_name].cached = True
-
-    # Phase 3: Apply default_cached for steps not yet designated as cached
-    for task in tasks.values():
-        for step in task.steps.values():
-            if not step.cached and getattr(step, 'default_cached', False):
-                step.cached = True
-
-    # Phase 4: free-running wins — override any cached=True
+    # Phase 3: apply default_cached to steps no task wants free-running
     for task in tasks.values():
         for step in task.steps.values():
             if step.subdir in free_running_subdirs:
                 step.cached = False
+            elif getattr(step, 'default_cached', False):
+                step.cached = True
 
-    # Propagate cached status to cached_steps for display/tracking
+    # Report the steps that actually ended up cached
     for path, task in tasks.items():
-        for step_name, step in task.steps.items():
-            if step.cached and step_name not in cached_steps[path]:
-                cached_steps[path].append(step_name)
+        cached_steps[path] = [
+            step_name for step_name, step in task.steps.items() if step.cached
+        ]
 
 
 def _setup_configs(

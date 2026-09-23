@@ -71,8 +71,9 @@ class Task:
     free_running_steps : set of str
         The subdirs of steps that this task wants to run free (not cached),
         resolved at setup time.  Free-running wins over ``default_cached``
-        and CLI ``--cached``.  Add step subdirs here during ``__init__``
-        rather than setting ``step.cached = False`` directly.
+        but not over an explicit ``--cached`` or a suite's ``cached`` lines.
+        Add step subdirs here during ``__init__`` rather than setting
+        ``step.cached = False`` directly.
     """
 
     def __init__(self, component, name, subdir=None, indir=None):

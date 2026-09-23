@@ -45,7 +45,6 @@ class VizCombinedStep(Step):
             cores=128,
             min_cores=1,
         )
-        self.default_cached = True
         self.combine_step = combine_step
 
     def setup(self):

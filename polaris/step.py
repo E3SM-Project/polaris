@@ -1205,6 +1205,11 @@ class Step:
             # forget about the inputs -- we won't used them, but we will add
             # the cached outputs as inputs
             self.input_data = list()
+            if len(self.outputs) == 0:
+                raise ValueError(
+                    f'Step {self.path} is marked as cached but has no '
+                    'output files to get from the cache database'
+                )
             for output in self.outputs:
                 filename = os.path.join(self.path, output)
                 if filename not in self.component.cached_files:
