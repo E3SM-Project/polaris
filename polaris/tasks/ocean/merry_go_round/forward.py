@@ -93,11 +93,10 @@ class Forward(ConvergenceForward):
             options={'config_vert_tracer_adv_flux_order': self.order},
             config_model='ocean',
         )
-        if self.limiter:
-            self.add_model_config_options(
-                options={'VerticalTracerFluxLimiterEnable': True},
-                config_model='Omega',
-            )
+        self.add_model_config_options(
+            options={'VerticalTracerFluxLimiterEnable': self.limiter},
+            config_model='Omega',
+        )
 
     def compute_cell_count(self):
         """

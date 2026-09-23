@@ -77,8 +77,6 @@ mpas-ocean:
       - vertVelocityTop
 
 Omega:
-  Advection:
-    VerticalTracerFluxLimiterEnable: false
   Tendencies:
     TracerHorzAdvTendencyEnable: true
     TracerVertAdvTendencyEnable: true
