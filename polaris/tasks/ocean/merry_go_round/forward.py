@@ -97,6 +97,15 @@ class Forward(ConvergenceForward):
             options={'VerticalTracerFluxLimiterEnable': self.limiter},
             config_model='Omega',
         )
+        # MPAS-Ocean's limiter covers horizontal advection as well, which
+        # Omega's does not, and the yaml sets the horizontal order for
+        # MPAS-Ocean only, so this makes the limiter symmetric but not the
+        # horizontal scheme
+        limiter = 'monotonic' if self.limiter else 'none'
+        self.add_model_config_options(
+            options={'config_flux_limiter': limiter},
+            config_model='mpas-ocean',
+        )
 
     def compute_cell_count(self):
         """
