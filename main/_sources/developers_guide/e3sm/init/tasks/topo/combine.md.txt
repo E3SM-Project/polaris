@@ -201,7 +201,7 @@ and
 {py:class}`polaris.tasks.e3sm.init.topo.combine.task.LatLonCombineTask`
 tasks exist specifically to regenerate these products, so they add all of
 their steps to `self.free_running_steps`, overriding the `default_cached`
-default and ensuring the steps always run.
+default so the steps run unless `--cached` is passed to `polaris setup`.
 
 See {ref}`dev-step-default-cached` for a full description of the
 `default_cached` / `free_running_steps` mechanism.

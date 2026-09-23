@@ -262,7 +262,9 @@ leave it with the default name <code class="docutils literal notranslate"><span 
 cases that depend on the output of other tasks must run after their
 dependencies.</p>
 <p>You can uses <code class="docutils literal notranslate"><span class="pre">--cached</span></code> to specify steps of a test case to download from
-pre-generated files if they are available (see <a class="reference internal" href="#dev-polaris-cache"><span class="std std-ref">polaris cache</span></a>.)</p>
+pre-generated files if they are available (see <a class="reference internal" href="#dev-polaris-cache"><span class="std std-ref">polaris cache</span></a>.)
+This overrides a task that would otherwise run those steps free (see
+<a class="reference internal" href="organization/steps.html#dev-step-default-cached"><span class="std std-ref">Automatic cache use with default_cached and free_running_steps</span></a>).</p>
 <p>You can use <code class="docutils literal notranslate"><span class="pre">--free_running</span></code> to force specific steps of a task to run free
 (not cached), overriding any <code class="docutils literal notranslate"><span class="pre">default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code> setting on those steps
 (see <a class="reference internal" href="organization/steps.html#dev-step-default-cached"><span class="std std-ref">Automatic cache use with default_cached and free_running_steps</span></a>). Like <code class="docutils literal notranslate"><span class="pre">--cached</span></code>, <code class="docutils literal notranslate"><span class="pre">--free_running</span></code>

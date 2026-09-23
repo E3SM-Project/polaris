@@ -1080,13 +1080,18 @@ cached by default by setting <code class="docutils literal notranslate"><span cl
 each caller having to opt in via the suite file or the <code class="docutils literal notranslate"><span class="pre">--cached</span></code> CLI flag.</p>
 <p>The caching resolution order during setup is (highest to lowest priority):</p>
 <ol class="arabic simple">
+<li><p><strong>Explicit requests</strong> — steps requested via <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span> <span class="pre">--cached</span></code>,
+the <code class="docutils literal notranslate"><span class="pre">c</span></code> suffix on a task number, or a suite’s <code class="docutils literal notranslate"><span class="pre">cached</span></code> lines use cached
+outputs, and steps requested via <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span> <span class="pre">--free_running</span></code> are run.
+A step may not be requested both ways.</p></li>
 <li><p><strong>Free-running override</strong> — if any selected task adds a step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code>
-to <code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code>, <em>or</em> if <code class="docutils literal notranslate"><span class="pre">--free_running</span></code> was passed on the
-command line for that step, that step is always run, even if
-<code class="docutils literal notranslate"><span class="pre">default_cached</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">--cached</span></code> was passed on the command line.</p></li>
-<li><p><strong>CLI <code class="docutils literal notranslate"><span class="pre">--cached</span></code></strong> — steps explicitly requested via <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span> <span class="pre">--cached</span></code> or the <code class="docutils literal notranslate"><span class="pre">c</span></code>-suffix notation in suites.</p></li>
+to <code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code>, that step is run even if <code class="docutils literal notranslate"><span class="pre">default_cached</span></code>
+is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 <li><p><strong>Factory default</strong> — steps whose <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> attribute is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 </ol>
+<p>A step can only use cached outputs if it registers output files, since
+those are what get fetched from the cache.  Setup fails if a step with no
+outputs is marked as cached.</p>
 <p><strong>Setting <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> in a step class:</strong></p>
 <p>Steps that are shared across many tasks and are expensive to run should set
 this flag in their <code class="docutils literal notranslate"><span class="pre">__init__</span></code>:</p>
@@ -1098,7 +1103,8 @@ a concrete example.</p>
 <p><strong>Opting out with <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code> or <code class="docutils literal notranslate"><span class="pre">--free_running</span></code>:</strong></p>
 <p>A task that <em>owns</em> a step (e.g. a standalone task whose sole purpose is to
 regenerate an expensive shared product) should add the step’s <code class="docutils literal notranslate"><span class="pre">subdir</span></code> to
-<code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code> so that the outputs are always regenerated:</p>
+<code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code> so that the outputs are regenerated unless a
+developer explicitly asks for cached outputs:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">free_running_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
 </pre></div>
 </div>

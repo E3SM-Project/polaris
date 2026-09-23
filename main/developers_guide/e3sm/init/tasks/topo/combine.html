@@ -312,7 +312,7 @@ and
 <a class="reference internal" href="../../generated/polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask.html#polaris.tasks.e3sm.init.topo.combine.LatLonCombineTask" title="polaris.tasks.e3sm.init.topo.combine.task.LatLonCombineTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init.topo.combine.task.LatLonCombineTask</span></code></a>
 tasks exist specifically to regenerate these products, so they add all of
 their steps to <code class="docutils literal notranslate"><span class="pre">self.free_running_steps</span></code>, overriding the <code class="docutils literal notranslate"><span class="pre">default_cached</span></code>
-default and ensuring the steps always run.</p>
+default so the steps run unless <code class="docutils literal notranslate"><span class="pre">--cached</span></code> is passed to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>.</p>
 <p>See <a class="reference internal" href="../../../../organization/steps.html#dev-step-default-cached"><span class="std std-ref">Automatic cache use with default_cached and free_running_steps</span></a> for a full description of the
 <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> / <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code> mechanism.</p>
 </div>

@@ -128,12 +128,12 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared combined-topography steps for a cubed-sphere target grid.</span>
 
-<span class="sd">    The :class:`CombineStep` (and :class:`VizCombinedStep` when requested) set</span>
-<span class="sd">    ``default_cached = True`` in their constructors because they are expensive</span>
-<span class="sd">    to produce.  Downstream tasks benefit from cached outputs automatically.</span>
-<span class="sd">    Tasks that require free-running execution (e.g. standalone combine tasks)</span>
-<span class="sd">    should add each returned step's ``subdir`` to ``self.free_running_steps``</span>
-<span class="sd">    in their ``__init__``, as :class:`CubedSphereCombineTask` does.</span>
+<span class="sd">    The :class:`CombineStep` sets ``default_cached = True`` in its</span>
+<span class="sd">    constructor because it is expensive to produce.  Downstream tasks</span>
+<span class="sd">    benefit from cached outputs automatically.  Tasks that require</span>
+<span class="sd">    free-running execution (e.g. standalone combine tasks) should add each</span>
+<span class="sd">    returned step's ``subdir`` to ``self.free_running_steps`` in their</span>
+<span class="sd">    ``__init__``, as :class:`CubedSphereCombineTask` does.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -170,12 +170,12 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared combined-topography steps for a latitude-longitude target grid.</span>
 
-<span class="sd">    The :class:`CombineStep` (and :class:`VizCombinedStep` when requested) set</span>
-<span class="sd">    ``default_cached = True`` in their constructors because they are expensive</span>
-<span class="sd">    to produce.  Downstream tasks benefit from cached outputs automatically.</span>
-<span class="sd">    Tasks that require free-running execution (e.g. standalone combine tasks)</span>
-<span class="sd">    should add each returned step's ``subdir`` to ``self.free_running_steps``</span>
-<span class="sd">    in their ``__init__``, as :class:`LatLonCombineTask` does.</span>
+<span class="sd">    The :class:`CombineStep` sets ``default_cached = True`` in its</span>
+<span class="sd">    constructor because it is expensive to produce.  Downstream tasks</span>
+<span class="sd">    benefit from cached outputs automatically.  Tasks that require</span>
+<span class="sd">    free-running execution (e.g. standalone combine tasks) should add each</span>
+<span class="sd">    returned step's ``subdir`` to ``self.free_running_steps`` in their</span>
+<span class="sd">    ``__init__``, as :class:`LatLonCombineTask` does.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

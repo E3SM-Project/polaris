@@ -185,8 +185,9 @@
 <span class="sd">    free_running_steps : set of str</span>
 <span class="sd">        The subdirs of steps that this task wants to run free (not cached),</span>
 <span class="sd">        resolved at setup time.  Free-running wins over ``default_cached``</span>
-<span class="sd">        and CLI ``--cached``.  Add step subdirs here during ``__init__``</span>
-<span class="sd">        rather than setting ``step.cached = False`` directly.</span>
+<span class="sd">        but not over an explicit ``--cached`` or a suite's ``cached`` lines.</span>
+<span class="sd">        Add step subdirs here during ``__init__`` rather than setting</span>
+<span class="sd">        ``step.cached = False`` directly.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Task.__init__">

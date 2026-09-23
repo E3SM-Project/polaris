@@ -191,7 +191,8 @@
 <span class="sd">    cached : list of list of str, optional</span>
 <span class="sd">        For each task in ``tasks``, which steps (if any) should read their</span>
 <span class="sd">        outputs from the cache, or a list with "_all" as the first entry if</span>
-<span class="sd">        all steps in the task should use cached outputs</span>
+<span class="sd">        all steps in the task should use cached outputs.  These override</span>
+<span class="sd">        the task's ``free_running_steps``.</span>
 
 <span class="sd">    free_running : list of list of str, optional</span>
 <span class="sd">        For the single task in ``tasks``, which steps (if any) should be</span>
@@ -317,38 +318,10 @@
         <span class="n">copy_executable</span><span class="o">=</span><span class="n">copy_executable</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Apply CLI --free_running before caching resolution so that Phase 4</span>
-    <span class="c1"># (free-running wins) in _expand_and_mark_cached_steps picks them up.</span>
+    <span class="c1"># Apply CLI --free_running before caching resolution so that</span>
+    <span class="c1"># _expand_and_mark_cached_steps picks them up.</span>
     <span class="k">if</span> <span class="n">free_running</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># Exactly one task is guaranteed by earlier validation.</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
-        <span class="n">fr_steps</span> <span class="o">=</span> <span class="n">free_running</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">fr_step_list</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">fr_steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'_all'</span> <span class="k">else</span> <span class="n">fr_steps</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">fr_step_list</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">step_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="n">step_name</span><span class="si">!r}</span><span class="s1"> is not in the task. '</span>
-                    <span class="sa">f</span><span class="s1">'Available steps: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s1">'</span>
-                <span class="p">)</span>
-            <span class="n">task</span><span class="o">.</span><span class="n">free_running_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
-
-        <span class="c1"># Raise an error if any step is listed in both --cached and</span>
-        <span class="c1"># --free_running (after expanding _all in cached_steps).</span>
-        <span class="n">cached_list</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="k">if</span> <span class="n">cached_steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">[])</span> <span class="o">==</span> <span class="p">[</span><span class="s1">'_all'</span><span class="p">]</span>
-            <span class="k">else</span> <span class="n">cached_steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="p">)</span>
-        <span class="n">conflicts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cached_list</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">fr_step_list</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'Steps </span><span class="si">{</span><span class="n">conflicts</span><span class="si">}</span><span class="s1"> are listed in both --cached and '</span>
-                <span class="s1">'--free_running. Each step must be unambiguously cached, '</span>
-                <span class="s1">'free-running, or left at its default.'</span>
-            <span class="p">)</span>
+        <span class="n">_apply_free_running</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">free_running</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
 
     <span class="c1"># do this after _setup_configs() in case tasks mark additional steps</span>
     <span class="c1"># as cached in their configure() methods</span>
@@ -601,8 +574,8 @@
         <span class="n">nargs</span><span class="o">=</span><span class="s1">'+'</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">'A list of steps in a single task supplied with '</span>
         <span class="s1">'--tasks or --task_number that should use cached '</span>
-        <span class="s2">"outputs, or '_all' if all steps should "</span>
-        <span class="s1">'use cached outputs.'</span><span class="p">,</span>
+        <span class="s1">'outputs, even if the task makes them free-running, '</span>
+        <span class="s2">"or '_all' if all steps should use cached outputs."</span><span class="p">,</span>
         <span class="n">metavar</span><span class="o">=</span><span class="s1">'STEP'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -722,6 +695,43 @@
     <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_free_running</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">free_running</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add steps requested with ``--free_running`` to the task's</span>
+<span class="sd">    ``free_running_steps``, raising an error for any step that was also</span>
+<span class="sd">    requested with ``--cached``</span>
+<span class="sd">    """</span>
+    <span class="c1"># Exactly one task is guaranteed by earlier validation.</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+    <span class="n">fr_steps</span> <span class="o">=</span> <span class="n">free_running</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">fr_step_list</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">fr_steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'_all'</span> <span class="k">else</span> <span class="n">fr_steps</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">fr_step_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="n">step_name</span><span class="si">!r}</span><span class="s1"> is not in the task. '</span>
+                <span class="sa">f</span><span class="s1">'Available steps: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">free_running_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
+
+    <span class="c1"># Raise an error if any step is listed in both --cached and</span>
+    <span class="c1"># --free_running (after expanding _all in cached_steps).</span>
+    <span class="n">cached_list</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">cached_steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">[])</span> <span class="o">==</span> <span class="p">[</span><span class="s1">'_all'</span><span class="p">]</span>
+        <span class="k">else</span> <span class="n">cached_steps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="p">)</span>
+    <span class="n">conflicts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cached_list</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">fr_step_list</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Steps </span><span class="si">{</span><span class="n">conflicts</span><span class="si">}</span><span class="s1"> are listed in both --cached and '</span>
+            <span class="s1">'--free_running. Each step must be unambiguously cached, '</span>
+            <span class="s1">'free-running, or left at its default.'</span>
+        <span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_expand_and_mark_cached_steps</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Mark any cached steps that will get their outputs from the cache database,</span>
@@ -729,10 +739,14 @@
 
 <span class="sd">    Resolution order (highest to lowest priority):</span>
 
-<span class="sd">    1. Free-running: if any selected task added a step subdir to</span>
-<span class="sd">       ``free_running_steps``, that step always runs (never reads from cache).</span>
-<span class="sd">    2. CLI ``--cached``: steps explicitly requested via command line.</span>
+<span class="sd">    1. Explicit requests: steps named with ``--cached`` or in a suite's</span>
+<span class="sd">       ``cached`` lines are cached, and steps named with ``--free_running``</span>
+<span class="sd">       run.  A step may not be requested both ways.</span>
+<span class="sd">    2. Task preference: if any selected task added a step subdir to</span>
+<span class="sd">       ``free_running_steps``, that step runs (never reads from cache).</span>
 <span class="sd">    3. Factory default: steps whose ``default_cached`` flag is True.</span>
+
+<span class="sd">    On return, ``cached_steps`` lists the steps of each task that are cached.</span>
 <span class="sd">    """</span>
     <span class="c1"># Expand _all shorthand</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -740,34 +754,35 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cached_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">cached_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'_all'</span><span class="p">:</span>
             <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
-    <span class="c1"># Phase 1: collect free-running preferences from all selected tasks</span>
-    <span class="c1"># (includes additions made by configure(), which runs before this)</span>
+    <span class="c1"># Phase 1: apply explicitly requested caching</span>
+    <span class="n">explicit_cached_subdirs</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]:</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">explicit_cached_subdirs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">)</span>
+
+    <span class="c1"># Phase 2: collect free-running preferences from all selected tasks</span>
+    <span class="c1"># (includes additions made by configure() and --free_running, which are</span>
+    <span class="c1"># applied before this)</span>
     <span class="n">free_running_subdirs</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="n">free_running_subdirs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s1">'free_running_steps'</span><span class="p">,</span> <span class="nb">set</span><span class="p">()))</span>
+    <span class="n">free_running_subdirs</span> <span class="o">-=</span> <span class="n">explicit_cached_subdirs</span>
 
-    <span class="c1"># Phase 2: apply CLI-specified caching</span>
-    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">step_name</span> <span class="ow">in</span> <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]:</span>
-            <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_name</span><span class="p">]</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="kc">True</span>
-
-    <span class="c1"># Phase 3: Apply default_cached for steps not yet designated as cached</span>
-    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s1">'default_cached'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-                <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="kc">True</span>
-
-    <span class="c1"># Phase 4: free-running wins — override any cached=True</span>
+    <span class="c1"># Phase 3: apply default_cached to steps no task wants free-running</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span> <span class="ow">in</span> <span class="n">free_running_subdirs</span><span class="p">:</span>
                 <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="s1">'default_cached'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="c1"># Propagate cached status to cached_steps for display/tracking</span>
+    <span class="c1"># Report the steps that actually ended up cached</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span> <span class="ow">and</span> <span class="n">step_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]:</span>
-                <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_name</span><span class="p">)</span>
+        <span class="n">cached_steps</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">step_name</span> <span class="k">for</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span>
+        <span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_setup_configs</span><span class="p">(</span>
