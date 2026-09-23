@@ -210,10 +210,10 @@ its <em>local</em> background, which is what detects a leak.</p>
 <p>The thresholds come from <code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code>, and a unified mesh can override them in
 its own <code class="docutils literal notranslate"><span class="pre">polaris/mesh/spherical/unified/&lt;mesh_name&gt;.cfg</span></code>, which is read after
 <code class="docutils literal notranslate"><span class="pre">cull.cfg</span></code> when the cull config is assembled.  No mesh currently needs to:
-<code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> once overrode the ratio floor for a single edge, and that
+<code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> once overrode the ratio floor for a single edge, and that
 override went away when the CFL guard was separated out.</p>
 <p>A failure here does not by itself mean resolution has leaked.  On
-<code class="docutils literal notranslate"><span class="pre">u.oi6to18.lr6to10</span></code> it does not: the sizing field prescribes the full ocean
+<code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr6to10</span></code> it does not: the sizing field prescribes the full ocean
 background at every edge in the low tail, and the short edges are the seams
 of pentagon-heptagon dislocation pairs in JIGSAW’s hexagonal packing.  That
 distribution is the same on every unified mesh, so the minimum falls as the
@@ -325,7 +325,7 @@ of mesh names is the union of <code class="docutils literal notranslate"><span c
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.e3sm.init.topo.cull</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_cull_topo_steps</span>
 
 <span class="n">steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_cull_topo_steps</span><span class="p">(</span>
-    <span class="n">mesh_name</span><span class="o">=</span><span class="s1">'u.oi30.lr10'</span><span class="p">,</span>
+    <span class="n">mesh_name</span><span class="o">=</span><span class="s1">'u-oi30-lr10'</span><span class="p">,</span>
     <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>

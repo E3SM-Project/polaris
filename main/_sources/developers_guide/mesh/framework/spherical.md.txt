@@ -124,7 +124,7 @@ It is not currently used by any mesh, and it should not be selected without
 reading the {ref}`design doc <design-docs>` `unified_mesh_dc_edge_noise`
 first. On real unified meshes it thinned the bulk about fourfold while
 introducing rare severe defects: the minimum `dcEdge` ratio on
-`u.oi6to18.lr6to10` fell from 0.643 to 0.515, and `u.oi30.lr10` failed the
+`u-oi6to18-lr6to10` fell from 0.643 to 0.515, and `u-oi30-lr10` failed the
 cell-polygon quality check outright. Because the cull diagnostic reports a
 *minimum* over millions of edges, a kernel that improves the bulk and
 worsens the tail is a net loss.
