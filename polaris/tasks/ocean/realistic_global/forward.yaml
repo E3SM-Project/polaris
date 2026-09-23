@@ -7,8 +7,6 @@ ocean:
     config_time_integrator: {{ time_integrator }}
   forcing:
     config_use_bulk_wind_stress: true
-  advection:
-    config_horiz_tracer_adv_order: 2
   hmix_del2:
     config_use_mom_del2: true
   hmix_del4:

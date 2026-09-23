@@ -45,9 +45,6 @@ mpas-ocean:
     config_check_ssh_consistency: false
   forcing:
     config_use_bulk_thickness_flux: false
-  advection:
-    config_flux_limiter: none
-    config_horiz_tracer_adv_order: 2
   tracer_forcing_activeTracers:
     config_use_activeTracers_surface_bulk_forcing: false
   tracer_forcing_debugTracers:
@@ -77,8 +74,6 @@ mpas-ocean:
       - vertVelocityTop
 
 Omega:
-  Advection:
-    VerticalTracerFluxLimiterEnable: false
   Tendencies:
     TracerHorzAdvTendencyEnable: true
     TracerVertAdvTendencyEnable: true

@@ -55,11 +55,17 @@ def _add_overflow_variant_tasks(component, eos_type, coord_type):
     init_step.set_shared_config(config, link=config_filename)
 
     for horiz_adv_order in [2, 3, 4]:
+        if horiz_adv_order > 2:
+            horiz_fct_enable_omega = True
+        else:
+            horiz_fct_enable_omega = False
+
         smoke_test = SmokeTest(
             component=component,
             indir=taskdir,
             init=init_step,
             horiz_adv_order=horiz_adv_order,
+            horiz_fct_enable_omega=horiz_fct_enable_omega,
         )
         smoke_test.set_shared_config(config, link=config_filename)
         component.add_task(smoke_test)
@@ -70,9 +76,20 @@ def _add_overflow_variant_tasks(component, eos_type, coord_type):
             init=init_step,
             horiz_adv_order=horiz_adv_order,
             use_mom_del4=True,
+            horiz_fct_enable_omega=horiz_fct_enable_omega,
         )
         smoke_test.set_shared_config(config, link=config_filename)
         component.add_task(smoke_test)
+
+    smoke_test = SmokeTest(
+        component=component,
+        indir=taskdir,
+        init=init_step,
+        horiz_adv_order=3,
+        horiz_fct_enable_omega=False,
+    )
+    smoke_test.set_shared_config(config, link=config_filename)
+    component.add_task(smoke_test)
 
     component.add_task(
         Rpe(

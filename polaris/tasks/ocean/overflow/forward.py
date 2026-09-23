@@ -32,6 +32,7 @@ class Forward(OceanModelStep):
         min_tasks=None,
         openmp_threads=1,
         horiz_adv_order=None,
+        horiz_fct_enable_omega=None,
         nu=None,
         nu4=None,
         use_mom_del4=False,
@@ -96,6 +97,7 @@ class Forward(OceanModelStep):
         )
         self.config_section = config_section
         self.horiz_adv_order = horiz_adv_order
+        self.horiz_fct_enable_omega = horiz_fct_enable_omega
         self.nu = nu
         self.nu4 = nu4
         self.use_mom_del4 = use_mom_del4
@@ -137,6 +139,10 @@ class Forward(OceanModelStep):
             self.horiz_adv_order = config.getint(
                 'overflow', 'default_horiz_adv_order'
             )
+        if self.horiz_fct_enable_omega is None:
+            self.horiz_fct_enable_omega = config.get(
+                'overflow', 'default_horiz_fct_enable_omega'
+            )
         section = config[self.config_section]
         run_duration = section.getfloat('run_duration')
         run_duration_units = section.get('run_duration_units')
@@ -176,6 +182,7 @@ class Forward(OceanModelStep):
             output_freq=f'{output_freq}',
             output_freq_units=output_units,
             horiz_adv_order=self.horiz_adv_order,
+            horiz_fct_enable_omega=self.horiz_fct_enable_omega,
         )
         self.add_yaml_file(
             'polaris.tasks.ocean.overflow',

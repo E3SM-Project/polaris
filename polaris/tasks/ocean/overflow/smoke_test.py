@@ -13,7 +13,13 @@ class SmokeTest(Task):
     """
 
     def __init__(
-        self, component, indir, init, horiz_adv_order, use_mom_del4=False
+        self,
+        component,
+        indir,
+        init,
+        horiz_adv_order,
+        horiz_fct_enable_omega=True,
+        use_mom_del4=False,
     ):
         """
         Create the test case
@@ -35,6 +41,8 @@ class SmokeTest(Task):
         task_name = f'smoke_test_horiz_adv_order_{horiz_adv_order}'
         if use_mom_del4:
             task_name += '_del4'
+        if not horiz_fct_enable_omega and horiz_adv_order > 2:
+            task_name += '_nofct'
         super().__init__(component=component, name=task_name, indir=indir)
 
         self.add_step(init, symlink='init')
@@ -46,6 +54,7 @@ class SmokeTest(Task):
             name='forward',
             indir=self.subdir,
             horiz_adv_order=horiz_adv_order,
+            horiz_fct_enable_omega=horiz_fct_enable_omega,
             use_mom_del4=use_mom_del4,
         )
         self.add_step(forward_step)

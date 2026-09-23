@@ -68,6 +68,8 @@ mpas-ocean:
 Omega:
   Tendencies:
     SSHTendencyEnable: false
+  Advection:
+    HorzTracerFluxLimiterEnable: {{ horiz_fct_enable_omega }}
   Tracers:
     Base: [Temperature, Salinity]
   IOStreams:
