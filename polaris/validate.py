@@ -185,6 +185,26 @@ def compare_variables(
     return all_pass
 
 
+def merge_diff_summary(overall, new):
+    """
+    Merge one diff summary into another in place, keeping the largest
+    l_infinity difference found for each variable
+
+    Parameters
+    ----------
+    overall : dict
+        The summary to merge into, as populated by the ``diff_summary``
+        argument of :py:func:`polaris.validate.compare_variables()`
+
+    new : dict
+        The summary to merge from, in the same form
+    """
+    for var, norms in new.items():
+        existing = overall.get(var)
+        if existing is None or norms['linf'] > existing['linf']:
+            overall[var] = norms
+
+
 def _all_found(ds1, filename1, ds2, filename2, variable, logger):
     """Is the variable found in both datasets?"""
     all_found = True

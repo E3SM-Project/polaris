@@ -11,7 +11,7 @@ from mache.permissions import update_permissions
 
 from polaris.config import PolarisConfigParser
 from polaris.io import download, symlink
-from polaris.validate import compare_variables
+from polaris.validate import compare_variables, merge_diff_summary
 
 
 class Step:
@@ -1161,10 +1161,7 @@ class Step:
                 compared = True
                 if not result:
                     failed_vars.extend(variables)
-                for var, norms in file_diff_summary.items():
-                    existing = diff_summary.get(var)
-                    if existing is None or norms['linf'] > existing['linf']:
-                        diff_summary[var] = norms
+                merge_diff_summary(diff_summary, file_diff_summary)
 
             self.baseline_diff_summary = diff_summary
             if compared:

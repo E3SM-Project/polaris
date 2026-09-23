@@ -21,6 +21,7 @@ from polaris.run import (
     setup_config,
     unpickle_suite,
 )
+from polaris.validate import merge_diff_summary
 
 # ANSI fail text: https://stackoverflow.com/a/287944/7728169
 start_fail = '\033[91m'
@@ -499,15 +500,6 @@ def _read_baseline_diff_summary_from_logs(step_work_dir: str) -> Dict:
         return {}
 
 
-def _merge_diff_summary(overall: Dict, new: Dict) -> None:
-    """Merge a step's diff summary into a task-level summary in place,
-    keeping the largest l_infinity difference found for each variable."""
-    for var, norms in new.items():
-        existing = overall.get(var)
-        if existing is None or norms['linf'] > existing['linf']:
-            overall[var] = norms
-
-
 def _nonzero_norms(var_summary: Optional[Dict]) -> Dict:
     """Filter a diff summary down to variables with an actual difference
     (l_infinity norm not exactly zero), so the PR summary stays focused on
@@ -646,7 +638,7 @@ def _run_task(task, available_resources):
                 baselines_passed = _accumulate_baselines(
                     baselines_passed, baseline_status
                 )
-                _merge_diff_summary(
+                merge_diff_summary(
                     diff_summary,
                     _read_baseline_diff_summary_from_logs(step.work_dir),
                 )
@@ -742,7 +734,7 @@ def _run_task(task, available_resources):
                 task, f'          baseline comp.:   {baseline_str}'
             )
             baselines_passed = _accumulate_baselines(baselines_passed, status)
-            _merge_diff_summary(
+            merge_diff_summary(
                 diff_summary, getattr(step, 'baseline_diff_summary', {})
             )
 
