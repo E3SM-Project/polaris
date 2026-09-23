@@ -251,7 +251,6 @@ class ConvergenceAnalysis(OceanIOStep):
         convergence_failed = False
         poly = np.polyfit(np.log10(refinement_array), np.log10(error_array), 1)
         convergence = poly[0]
-        conv_round = convergence
 
         fit = refinement_array ** poly[0] * 10 ** poly[1]
 
@@ -302,7 +301,6 @@ class ConvergenceAnalysis(OceanIOStep):
                             1,
                         )
                         base_convergence = poly[0]
-                        conv_round = base_convergence
 
                         fit = refinement_array ** poly[0] * 10 ** poly[1]
                         ax.loglog(
@@ -330,12 +328,14 @@ class ConvergenceAnalysis(OceanIOStep):
                 pad_inches=0.1,
             )
 
-            logger.info(f'Order of convergence for {title}: {conv_round:1.3f}')
+            logger.info(
+                f'Order of convergence for {title}: {convergence:1.3f}'
+            )
 
-            if conv_round < conv_thresh:
+            if convergence < conv_thresh:
                 logger.error(
                     f'Error: order of convergence for {title}\n'
-                    f'  {conv_round:1.3f} < min tolerance '
+                    f'  {convergence:1.3f} < min tolerance '
                     f'{conv_thresh}'
                 )
                 convergence_failed = True
