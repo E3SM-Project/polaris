@@ -85,11 +85,11 @@ its *local* background, which is what detects a leak.
 The thresholds come from `cull.cfg`, and a unified mesh can override them in
 its own `polaris/mesh/spherical/unified/<mesh_name>.cfg`, which is read after
 `cull.cfg` when the cull config is assembled.  No mesh currently needs to:
-`u.oi6to18.lr6to10` once overrode the ratio floor for a single edge, and that
+`u-oi6to18-lr6to10` once overrode the ratio floor for a single edge, and that
 override went away when the CFL guard was separated out.
 
 A failure here does not by itself mean resolution has leaked.  On
-`u.oi6to18.lr6to10` it does not: the sizing field prescribes the full ocean
+`u-oi6to18-lr6to10` it does not: the sizing field prescribes the full ocean
 background at every edge in the low tail, and the short edges are the seams
 of pentagon-heptagon dislocation pairs in JIGSAW's hexagonal packing.  That
 distribution is the same on every unified mesh, so the minimum falls as the
@@ -207,7 +207,7 @@ To get the shared cull steps for a specific mesh:
 from polaris.tasks.e3sm.init.topo.cull import get_cull_topo_steps
 
 steps, config = get_cull_topo_steps(
-    mesh_name='u.oi30.lr10',
+    mesh_name='u-oi30-lr10',
     include_viz=False,
 )
 ```

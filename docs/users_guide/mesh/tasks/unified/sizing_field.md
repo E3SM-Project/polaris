@@ -20,10 +20,10 @@ Polaris registers one sizing-field task for each named unified mesh:
 
 Supported `mesh_name` values are:
 
-- `u.oi240.lr240`
-- `u.oi30.lr10`
-- `u.oi6to18.lr6to10`
-- `u.oi.so12to30.lr10`
+- `u-oi240-lr240`
+- `u-oi30-lr10`
+- `u-oi6to18-lr6to10`
+- `u-oi-so12to30-lr10`
 
 The task work directory contains symlinks to all upstream coastline and river
 shared steps, plus:
@@ -135,7 +135,7 @@ Visualization options are in `[sizing_field_viz]`:
 
 ```bash
 polaris setup -t \
-    mesh/spherical/unified/u.oi30.lr10/sizing_field/task \
+    mesh/spherical/unified/u-oi30-lr10/sizing_field/task \
     -w sizing_field_30km
 ```
 

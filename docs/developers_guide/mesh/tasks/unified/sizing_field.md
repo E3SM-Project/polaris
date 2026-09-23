@@ -98,7 +98,7 @@ All sizing-field steps use mesh-specific configs built through
 - the generic `unified_mesh.cfg` defaults;
 - the shared `river_network.cfg` file;
 - the family-specific config (e.g. `default.cfg` or `so_region.cfg`); and
-- the mesh-specific config file (e.g. `u.oi30.lr10.cfg`).
+- the mesh-specific config file (e.g. `u-oi30-lr10.cfg`).
 
 `BuildSizingFieldStep` consumes the `[sizing_field]` section:
 

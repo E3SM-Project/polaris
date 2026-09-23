@@ -20,10 +20,10 @@ Polaris registers one base-mesh task for each named unified mesh:
 
 Supported `mesh_name` values are:
 
-- `u.oi240.lr240`
-- `u.oi30.lr10`
-- `u.oi6to18.lr6to10`
-- `u.oi.so12to30.lr10`
+- `u-oi240-lr240`
+- `u-oi30-lr10`
+- `u-oi6to18-lr6to10`
+- `u-oi-so12to30-lr10`
 
 The task work directory contains symlinks to all upstream coastline, river,
 and sizing-field shared steps, plus:
@@ -76,7 +76,7 @@ option is:
   Vertices closer than this distance are merged into a single cluster at their
   centroid, preventing JIGSAW from creating thin-sliver triangles that would
   produce degenerate MPAS cell polygons.  The default is 2 km; mesh-specific
-  configs may override it (e.g. 3 km for `u.oi6to18.lr6to10`).
+  configs may override it (e.g. 3 km for `u-oi6to18-lr6to10`).
 
 Refinement options are controlled through the `[sizing_field]` section (see
 {ref}`users-mesh-unified-sizing-field`).
@@ -85,7 +85,7 @@ Refinement options are controlled through the `[sizing_field]` section (see
 
 ```bash
 polaris setup -t \
-    mesh/spherical/unified/u.oi30.lr10/base_mesh/task \
+    mesh/spherical/unified/u-oi30-lr10/base_mesh/task \
     -w base_mesh_30km
 ```
 

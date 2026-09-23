@@ -69,10 +69,10 @@ e3sm/init/QU30km/topo/remap
 Runs cull-topography tasks for all supported unified meshes.
 
 ```none
-e3sm/init/u.oi.so12to30.lr10/topo/cull
-e3sm/init/u.oi240.lr240/topo/cull
-e3sm/init/u.oi30.lr10/topo/cull
-e3sm/init/u.oi6to18.lr6to10/topo/cull
+e3sm/init/u-oi-so12to30-lr10/topo/cull
+e3sm/init/u-oi240-lr240/topo/cull
+e3sm/init/u-oi30-lr10/topo/cull
+e3sm/init/u-oi6to18-lr6to10/topo/cull
 ```
 
 (e3sm-init-suite-remap-topo-unified)=
@@ -82,8 +82,8 @@ e3sm/init/u.oi6to18.lr6to10/topo/cull
 Runs remap-topography tasks for all supported unified meshes.
 
 ```none
-e3sm/init/u.oi.so12to30.lr10/topo/remap
-e3sm/init/u.oi240.lr240/topo/remap
-e3sm/init/u.oi30.lr10/topo/remap
-e3sm/init/u.oi6to18.lr6to10/topo/remap
+e3sm/init/u-oi-so12to30-lr10/topo/remap
+e3sm/init/u-oi240-lr240/topo/remap
+e3sm/init/u-oi30-lr10/topo/remap
+e3sm/init/u-oi6to18-lr6to10/topo/remap
 ```
