@@ -55,6 +55,11 @@ class Forward(ConvergenceForward):
         refinement : str, optional
             Refinement type. One of 'space', 'time' or 'both' indicating both
             space and time
+
+        limiter : bool, optional
+            Whether to use the limited configuration: 3rd order horizontal
+            advection with flux limiting in both directions.  The default is
+            the unlimited one: 2nd order horizontal advection, no limiting
         """
 
         validate_vars = ['normalVelocity', 'tracer1', 'tracer2', 'tracer3']
@@ -93,14 +98,22 @@ class Forward(ConvergenceForward):
             options={'config_vert_tracer_adv_flux_order': self.order},
             config_model='ocean',
         )
+        # Omega cannot limit horizontal fluxes at 2nd order, so the limited
+        # configuration is 3rd order horizontally and the unlimited one is
+        # 2nd order
+        horiz_order = 3 if self.limiter else 2
         self.add_model_config_options(
-            options={'VerticalTracerFluxLimiterEnable': self.limiter},
+            options={'config_horiz_tracer_adv_order': horiz_order},
+            config_model='ocean',
+        )
+        self.add_model_config_options(
+            options={
+                'VerticalTracerFluxLimiterEnable': self.limiter,
+                'HorzTracerFluxLimiterEnable': self.limiter,
+            },
             config_model='Omega',
         )
-        # MPAS-Ocean's limiter covers horizontal advection as well, which
-        # Omega's does not, and the yaml sets the horizontal order for
-        # MPAS-Ocean only, so this makes the limiter symmetric but not the
-        # horizontal scheme
+        # a single MPAS-Ocean option covers both directions
         limiter = 'monotonic' if self.limiter else 'none'
         self.add_model_config_options(
             options={'config_flux_limiter': limiter},
