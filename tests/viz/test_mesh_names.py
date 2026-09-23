@@ -7,6 +7,7 @@ map Omega names back to MPAS-Ocean names, which raised ``NoSectionError`` in
 every other component.  Now the caller hands it a mesh with MPAS names.
 """
 
+import mosaic
 import numpy as np
 import pytest
 import xarray as xr
@@ -72,6 +73,66 @@ def test_the_callers_mesh_dataset_is_left_alone(tmp_path):
 
     assert 'is_periodic' not in mesh_ds.attrs
     assert mesh_ds.sizes['nCells'] == 16
+
+
+def test_the_descriptor_is_returned_for_reuse(tmp_path):
+    mesh_ds = _quad_mesh_dataset(4, 4)
+    da = _cell_field(mesh_ds)
+    config = _colormap_config()
+
+    descriptor = plot_global_mpas_field(
+        mesh_ds=mesh_ds,
+        da=da,
+        out_filename=str(tmp_path / 'first.png'),
+        config=config,
+        colormap_section='test_viz',
+        plot_land=False,
+    )
+    assert isinstance(descriptor, mosaic.Descriptor)
+
+    out_filename = tmp_path / 'second.png'
+    reused = plot_global_mpas_field(
+        da=da,
+        out_filename=str(out_filename),
+        config=config,
+        colormap_section='test_viz',
+        plot_land=False,
+        descriptor=descriptor,
+    )
+
+    assert reused is descriptor
+    assert out_filename.exists()
+
+
+def test_a_culled_descriptor_is_reused_for_culled_fields(tmp_path):
+    mesh_ds = _quad_mesh_dataset(4, 4)
+    cell_indices = np.array([5, 6, 9, 10])
+    da = _cell_field(mesh_ds).isel(nCells=cell_indices)
+    config = _colormap_config()
+
+    descriptor = plot_global_mpas_field(
+        mesh_ds=mesh_ds,
+        da=da,
+        out_filename=str(tmp_path / 'first.png'),
+        config=config,
+        colormap_section='test_viz',
+        plot_land=False,
+        cell_indices=cell_indices,
+    )
+    assert descriptor.sizes['nCells'] == len(cell_indices)
+
+    out_filename = tmp_path / 'second.png'
+    plot_global_mpas_field(
+        da=da,
+        out_filename=str(out_filename),
+        config=config,
+        colormap_section='test_viz',
+        plot_land=False,
+        descriptor=descriptor,
+        cell_indices=cell_indices,
+    )
+
+    assert out_filename.exists()
 
 
 def test_a_mesh_is_required(tmp_path):

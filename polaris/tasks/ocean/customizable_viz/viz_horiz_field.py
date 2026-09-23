@@ -68,8 +68,11 @@ class VizHorizField(OceanIOStep):
         projection_name = section.get('projection')
         central_longitude = section.getfloat('central_longitude')
 
-        # Descriptor is none for the first variable and assigned thereafter
-        descriptor = None
+        # Descriptors are none for the first variable and assigned thereafter.
+        # Edge and vertex fields are plotted on the full mesh and cell fields
+        # on the mesh culled to the region, so each needs its own descriptor.
+        full_descriptor = None
+        cell_descriptor = None
 
         ds_mesh = self.open_model_dataset(
             self.mesh_file, self.config, decode_timedelta=False
@@ -263,13 +266,13 @@ class VizHorizField(OceanIOStep):
                 ds_transect = None
             # Only apply regional bounds for cell-centered fields
             if 'nEdges' in mpas_field.dims or 'nVertices' in mpas_field.dims:
-                descriptor = plot_global_mpas_field(
+                full_descriptor = plot_global_mpas_field(
                     mesh_ds=ds_full_mesh,
                     da=mpas_field,
                     out_filename=f'{var_name}_horiz{time_stamp}{filename_suffix}.png',
                     config=self.config,
                     colormap_section='customizable_viz_horiz_field',
-                    descriptor=descriptor,
+                    descriptor=full_descriptor,
                     colorbar_label=f'{var_name} [{units}]',
                     plot_land=True,
                     projection_name=projection_name,
@@ -277,13 +280,13 @@ class VizHorizField(OceanIOStep):
                     central_longitude=central_longitude,
                 )
             elif 'nCells' in mpas_field.dims and 'nVertices' in ds_mesh.dims:
-                descriptor = plot_global_mpas_field(
+                cell_descriptor = plot_global_mpas_field(
                     mesh_ds=ds_full_mesh,
                     da=mpas_field,
                     out_filename=f'{var_name}_horiz{time_stamp}{filename_suffix}.png',
                     config=self.config,
                     colormap_section='customizable_viz_horiz_field',
-                    descriptor=descriptor,
+                    descriptor=cell_descriptor,
                     colorbar_label=f'{var_name} [{units}]',
                     plot_land=True,
                     projection_name=projection_name,

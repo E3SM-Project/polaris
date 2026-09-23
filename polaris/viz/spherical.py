@@ -105,7 +105,9 @@ def plot_global_mpas_field(
         The color of patch edges (if not the same as the face)
 
     descriptor : mosaic.Descriptor, optional
-        Descriptor from a previous call to ``plot_global_mpas_field()``
+        Descriptor from a previous call to ``plot_global_mpas_field()``.  It
+        is only valid for the mesh, ``cell_indices``, ``projection_name`` and
+        ``central_longitude`` it was made with.
 
     projection_name : str, optional
         Name of the projection supported by mosaic
@@ -236,6 +238,8 @@ def plot_global_mpas_field(
         # attached colorbar can collapse the map axes so only part of
         # the globe is drawn.
         fig.savefig(out_filename)
+
+    return descriptor
 
 
 def plot_global_lat_lon_field(
