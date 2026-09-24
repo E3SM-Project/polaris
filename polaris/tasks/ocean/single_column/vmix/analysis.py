@@ -62,23 +62,18 @@ class Analysis(OceanIOStep):
                 )
             ds_diags_1day = ds_diags.isel(Time=t_index)
             N_sq = ds_diags_1day['BruntVaisalaFreqTop'].mean(dim='nCells')
-            if 'zTop' in ds_diags_1day.keys():
-                z_top_final = vertical_coord_from_location(
-                    ds_diags_1day, 'cell-top'
-                ).mean(dim='nCells')
-            else:
-                if ds_vert is None:
-                    ds_vert = self.open_model_dataset(
-                        self.get_vert_coord_filename(),
-                        decode_times=False,
-                        config=self.config,
-                    )
-                z_top_final = vertical_coord_from_location(
-                    ds_diags_1day,
-                    'cell-top',
-                    allow_reconstruct=True,
-                    ds_vert=ds_vert,
-                ).mean(dim='nCells')
+            if ds_vert is None and 'zTop' not in ds_diags_1day.keys():
+                ds_vert = self.open_model_dataset(
+                    self.get_vert_coord_filename(),
+                    decode_times=False,
+                    config=self.config,
+                )
+            z_top_final = vertical_coord_from_location(
+                ds_diags_1day,
+                'cell-top',
+                allow_reconstruct=True,
+                ds_vert=ds_vert,
+            ).mean(dim='nCells')
             index_bld = int(np.nanargmax(N_sq.values))
             bld = z_top_final.isel(nVertLevels=index_bld)
             self.logger.info(
