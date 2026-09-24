@@ -329,10 +329,12 @@ regenerated.
 
 The step is model-agnostic.  It reads through
 {py:meth}`~polaris.ocean.model.OceanIOStep.open_model_dataset` — which maps
-Omega variable names to their MPAS-Ocean equivalents and reconstructs the
-geometric `layerThickness` from Omega's `PseudoThickness` — and
+Omega variable names to their MPAS-Ocean equivalents — and
 {py:meth}`~polaris.ocean.model.OceanIOStep.open_vert_coord_dataset`, so the
-maps and transects use MPAS-Ocean names for both models.  It produces:
+maps and transects use MPAS-Ocean names for both models.  Omega's initial state
+has no `SpecVol`, which `open_model_dataset` needs to turn `PseudoThickness`
+into a geometric `layerThickness`, so the step derives the specific volume from
+the equation of state itself.  It produces:
 
 * `initial_state_summary.png`: histograms of the initial condition (a
   de-Haney'd port of Compass' `plot_initial_state`).  The prognostic
