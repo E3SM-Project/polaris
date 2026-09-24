@@ -54,6 +54,16 @@ mpas-ocean:
     - restingThickness
   state_variables:
     - layerThickness
+# Fields defined at the top of each layer that a model nonetheless writes on
+# ``nVertLevels``, leaving the bottom of the column off, rather than on
+# ``nVertLevelsP1``.  MPAS-Ocean writes ``BruntVaisalaFreqTop`` this way.
+# Dimensions cannot tell such a field from a layer average, so it is named
+# here.  A field is only ever read from this list when it arrives on
+# ``nVertLevels``. This is not an exhaustive list. Variables are added as they
+# are used in Polaris.
+  variables_at_layer_tops:
+    - BruntVaisalaFreqTop
+
 
 Omega:
   horiz_mesh_variables:

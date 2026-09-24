@@ -82,7 +82,7 @@ def columns():
                 ('nCells', 'nVertLevels'),
                 np.where(_WATER, Z_MID, np.nan),
             ),
-            zInterface=(
+            GeomZInterface=(
                 ('nCells', 'nVertLevelsP1'),
                 np.where(_WATER_INTERFACE, Z_INTERFACE, np.nan),
             ),
@@ -293,7 +293,7 @@ def test_a_data_set_with_no_vertical_geometry_is_reported():
     """A simulation that did not write it cannot be analysed at an
     elevation at all, so this says so rather than reconstructing
     something."""
-    with pytest.raises(ValueError, match='no zMid, zInterface'):
+    with pytest.raises(ValueError, match='no zMid, GeomZInterface'):
         get_z_mid_and_interface(xr.Dataset())
 
 
@@ -304,7 +304,7 @@ def _interpolate(ds, elevation, field=None):
         da,
         parse_vertical_reduction(f'{elevation}'),
         z_mid=ds.zMid,
-        z_interface=ds.zInterface,
+        z_interface=ds.GeomZInterface,
         min_level_cell=ds.minLevelCell,
         max_level_cell=ds.maxLevelCell,
     )
@@ -571,7 +571,7 @@ def test_the_whole_column_is_the_same_with_the_geometry_and_without(columns):
 def _range_weights(ds, z_top, z_bot):
     """The weights of an elevation range, as an array"""
     return elevation_range_weights(
-        ds.zInterface,
+        ds.GeomZInterface,
         ds.layer_mass,
         ds.minLevelCell,
         ds.maxLevelCell,
