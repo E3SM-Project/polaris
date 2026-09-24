@@ -114,6 +114,15 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.setup.html">polaris.config.PolarisConfigParser.setup</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#coriolis">coriolis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.coriolis.add_coriolis_to_dataset.html">polaris.coriolis.add_coriolis_to_dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.coriolis.add_beta_plane_coriolis.html">polaris.coriolis.add_beta_plane_coriolis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.coriolis.add_constant_coriolis.html">polaris.coriolis.add_constant_coriolis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.coriolis.add_rotated_sphere_coriolis.html">polaris.coriolis.add_rotated_sphere_coriolis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.coriolis.add_spherical_coriolis.html">polaris.coriolis.add_spherical_coriolis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.coriolis.add_zero_coriolis.html">polaris.coriolis.add_zero_coriolis</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#io">io</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.io.download.html">polaris.io.download</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.io.symlink.html">polaris.io.symlink</a></li>
@@ -644,6 +653,31 @@ documentation.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.setup.html#polaris.config.PolarisConfigParser.setup" title="polaris.config.PolarisConfigParser.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolarisConfigParser.setup</span></code></a>()</p></td>
 <td><p>A method that can be overridden to add config options during polaris setup</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="coriolis">
+<h3>coriolis<a class="headerlink" href="#coriolis" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.coriolis.add_coriolis_to_dataset.html#polaris.coriolis.add_coriolis_to_dataset" title="polaris.coriolis.add_coriolis_to_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_coriolis_to_dataset</span></code></a>(config, ds_mesh)</p></td>
+<td><p>Add Coriolis fields to a mesh dataset based on the <code class="docutils literal notranslate"><span class="pre">type</span></code> option in the <code class="docutils literal notranslate"><span class="pre">[coriolis]</span></code> config section.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.coriolis.add_beta_plane_coriolis.html#polaris.coriolis.add_beta_plane_coriolis" title="polaris.coriolis.add_beta_plane_coriolis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_beta_plane_coriolis</span></code></a>(ds_mesh, f0, beta)</p></td>
+<td><p>Add beta-plane Coriolis fields to a horizontal mesh dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.coriolis.add_constant_coriolis.html#polaris.coriolis.add_constant_coriolis" title="polaris.coriolis.add_constant_coriolis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_constant_coriolis</span></code></a>(ds_mesh, ...)</p></td>
+<td><p>Add constant Coriolis fields to a horizontal mesh dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.coriolis.add_rotated_sphere_coriolis.html#polaris.coriolis.add_rotated_sphere_coriolis" title="polaris.coriolis.add_rotated_sphere_coriolis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_rotated_sphere_coriolis</span></code></a>(ds_mesh, alpha)</p></td>
+<td><p>Add Coriolis fields for a sphere rotated by angle <code class="docutils literal notranslate"><span class="pre">alpha</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.coriolis.add_spherical_coriolis.html#polaris.coriolis.add_spherical_coriolis" title="polaris.coriolis.add_spherical_coriolis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_spherical_coriolis</span></code></a>(ds_mesh[, omega])</p></td>
+<td><p>Add Coriolis fields for the Earth's rotation axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.coriolis.add_zero_coriolis.html#polaris.coriolis.add_zero_coriolis" title="polaris.coriolis.add_zero_coriolis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_zero_coriolis</span></code></a>(ds_mesh)</p></td>
+<td><p>Add zero-valued Coriolis fields to a horizontal mesh dataset.</p></td>
 </tr>
 </tbody>
 </table>

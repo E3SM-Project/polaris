@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.coriolis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.coriolis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.coriolis</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+
+
+<div class="viewcode-block" id="add_coriolis_to_dataset">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.coriolis.add_coriolis_to_dataset.html#polaris.coriolis.add_coriolis_to_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_coriolis_to_dataset</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add Coriolis fields to a mesh dataset based on the ``type`` option</span>
+<span class="sd">    in the ``[coriolis]`` config section.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration object containing the ``[coriolis]`` section.</span>
+
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The horizontal mesh dataset to update.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The updated dataset with ``fCell``, ``fEdge``, and ``fVertex``</span>
+<span class="sd">        fields.</span>
+<span class="sd">    """</span>
+    <span class="n">coriolis_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'coriolis'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">coriolis_type</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'The "type" config option in the "coriolis" section must be set '</span>
+            <span class="s1">'to one of: zero, constant, beta_plane, spherical or '</span>
+            <span class="s1">'rotated_sphere.'</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">coriolis_type</span> <span class="o">==</span> <span class="s1">'zero'</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">add_zero_coriolis</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">coriolis_type</span> <span class="o">==</span> <span class="s1">'constant'</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">_get_required_float</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'constant_f'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">add_constant_coriolis</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">coriolis_type</span> <span class="o">==</span> <span class="s1">'beta_plane'</span><span class="p">:</span>
+        <span class="n">f0</span> <span class="o">=</span> <span class="n">_get_required_float</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'beta_plane_f0'</span><span class="p">)</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">_get_required_float</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'beta_plane_beta'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">add_beta_plane_coriolis</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">f0</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">coriolis_type</span> <span class="o">==</span> <span class="s1">'spherical'</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">add_spherical_coriolis</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">coriolis_type</span> <span class="o">==</span> <span class="s1">'rotated_sphere'</span><span class="p">:</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">_get_required_float</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">'rotated_sphere_alpha'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">add_rotated_sphere_coriolis</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unsupported Coriolis type: </span><span class="si">{</span><span class="n">coriolis_type</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_beta_plane_coriolis">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.coriolis.add_beta_plane_coriolis.html#polaris.coriolis.add_beta_plane_coriolis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_beta_plane_coriolis</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">f0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add beta-plane Coriolis fields to a horizontal mesh dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The horizontal mesh dataset to update in place</span>
+
+<span class="sd">    f0 : float</span>
+<span class="sd">        The Coriolis parameter at ``y=0``</span>
+
+<span class="sd">    beta : float</span>
+<span class="sd">        The meridional gradient of the Coriolis parameter</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The updated dataset</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_set_coriolis_fields</span><span class="p">(</span>
+        <span class="n">ds_mesh</span><span class="p">,</span>
+        <span class="n">f0</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="p">,</span>
+        <span class="n">f0</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yEdge</span><span class="p">,</span>
+        <span class="n">f0</span> <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yVertex</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_constant_coriolis">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.coriolis.add_constant_coriolis.html#polaris.coriolis.add_constant_coriolis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_constant_coriolis</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">coriolis_parameter</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add constant Coriolis fields to a horizontal mesh dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The horizontal mesh dataset to update in place</span>
+
+<span class="sd">    coriolis_parameter : float</span>
+<span class="sd">        The constant Coriolis parameter value</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The updated dataset</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_set_coriolis_fields</span><span class="p">(</span>
+        <span class="n">ds_mesh</span><span class="p">,</span>
+        <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="p">),</span>
+        <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">),</span>
+        <span class="n">coriolis_parameter</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_rotated_sphere_coriolis">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.coriolis.add_rotated_sphere_coriolis.html#polaris.coriolis.add_rotated_sphere_coriolis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_rotated_sphere_coriolis</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">omega</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add Coriolis fields for a sphere rotated by angle ``alpha``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The horizontal mesh dataset to update in place</span>
+
+<span class="sd">    alpha : float</span>
+<span class="sd">        The rotation angle in radians</span>
+
+<span class="sd">    omega : float, optional</span>
+<span class="sd">        The angular rotation rate. If not provided, the Earth's angular</span>
+<span class="sd">        velocity is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The updated dataset</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">omega</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'angular_velocity'</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_set_coriolis_fields</span><span class="p">(</span>
+        <span class="n">ds_mesh</span><span class="p">,</span>
+        <span class="n">_rotated_sphere_coriolis</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonCell</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latCell</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">omega</span>
+        <span class="p">),</span>
+        <span class="n">_rotated_sphere_coriolis</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonEdge</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latEdge</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">omega</span>
+        <span class="p">),</span>
+        <span class="n">_rotated_sphere_coriolis</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="o">.</span><span class="n">lonVertex</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">latVertex</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">omega</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_spherical_coriolis">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.coriolis.add_spherical_coriolis.html#polaris.coriolis.add_spherical_coriolis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_spherical_coriolis</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">omega</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add Coriolis fields for the Earth's rotation axis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The horizontal mesh dataset to update in place</span>
+
+<span class="sd">    omega : float, optional</span>
+<span class="sd">        The angular rotation rate. If not provided, the Earth's angular</span>
+<span class="sd">        velocity is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The updated dataset</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">add_rotated_sphere_coriolis</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">omega</span><span class="o">=</span><span class="n">omega</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_zero_coriolis">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.coriolis.add_zero_coriolis.html#polaris.coriolis.add_zero_coriolis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_zero_coriolis</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add zero-valued Coriolis fields to a horizontal mesh dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        The horizontal mesh dataset to update in place</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The updated dataset</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_set_coriolis_fields</span><span class="p">(</span>
+        <span class="n">ds_mesh</span><span class="p">,</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="p">),</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xEdge</span><span class="p">),</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_required_float</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">PolarisConfigParser</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Get a ``[coriolis]`` float option, raising if it has not been set"""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'coriolis'</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s1">''</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The "</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">" config option in the "coriolis" section must be '</span>
+            <span class="sa">f</span><span class="s1">'set for this Coriolis type.'</span>
+        <span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'coriolis'</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rotated_sphere_coriolis</span><span class="p">(</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">omega</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="mf">2.0</span>
+        <span class="o">*</span> <span class="n">omega</span>
+        <span class="o">*</span> <span class="p">(</span>
+            <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_coriolis_fields</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">f_cell</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">f_edge</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">f_vertex</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+    <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'fCell'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_add_coriolis_attrs</span><span class="p">(</span><span class="n">f_cell</span><span class="p">,</span> <span class="s1">'cell centers'</span><span class="p">)</span>
+    <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'fEdge'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_add_coriolis_attrs</span><span class="p">(</span><span class="n">f_edge</span><span class="p">,</span> <span class="s1">'edges'</span><span class="p">)</span>
+    <span class="n">ds_mesh</span><span class="p">[</span><span class="s1">'fVertex'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_add_coriolis_attrs</span><span class="p">(</span><span class="n">f_vertex</span><span class="p">,</span> <span class="s1">'vertices'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds_mesh</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_coriolis_attrs</span><span class="p">(</span>
+    <span class="n">data_array</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="n">data_array</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">'long_name'</span><span class="p">:</span> <span class="sa">f</span><span class="s1">'Coriolis parameter at </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="s1">'standard_name'</span><span class="p">:</span> <span class="s1">'coriolis_parameter'</span><span class="p">,</span>
+            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'radians s^-1'</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_array</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

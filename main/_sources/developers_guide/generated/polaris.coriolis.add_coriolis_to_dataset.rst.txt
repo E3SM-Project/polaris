@@ -1,0 +1,6 @@
+﻿polaris.coriolis.add\_coriolis\_to\_dataset
+===========================================
+
+.. currentmodule:: polaris.coriolis
+
+.. autofunction:: add_coriolis_to_dataset
