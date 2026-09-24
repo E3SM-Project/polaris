@@ -118,9 +118,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_specvol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_iter_count_for_eos</span><span class="p">,</span>
     <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">,</span>
+    <span class="n">pressure_from_pseudothickness</span><span class="p">,</span>
     <span class="n">pseudothickness_from_pressure</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -265,6 +267,133 @@
         <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">spec_vol</span></div>
+
+
+
+<div class="viewcode-block" id="spec_vol_from_ds">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.spec_vol_from_ds.html#polaris.ocean.vertical.diagnostics.spec_vol_from_ds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spec_vol_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute specific volume from the temperature, salinity and pressure of</span>
+<span class="sd">    an ocean state, for Omega output that does not include ``SpecVol``.</span>
+
+<span class="sd">    The pressure comes from ``PseudoThickness`` when it is present, which</span>
+<span class="sd">    needs no iteration.  Otherwise, it is found iteratively from the</span>
+<span class="sd">    geometric ``layerThickness``.</span>
+
+<span class="sd">    The tracers must be in the convention of the equation of state, so open</span>
+<span class="sd">    the dataset without a ``tracer_convention`` if it came from Omega.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        An ocean dataset with MPAS-Ocean names, containing ``temperature``,</span>
+<span class="sd">        ``salinity``, ``SurfacePressure`` and either ``PseudoThickness`` or</span>
+<span class="sd">        ``layerThickness``</span>
+
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        Configuration options with parameters defining the equation of state</span>
+
+<span class="sd">    logger : logging.Logger, optional</span>
+<span class="sd">        A logger for logging EOS iteration information</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spec_vol : xarray.DataArray</span>
+<span class="sd">        The specific volume at layer midpoints</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the variables needed to compute the specific volume are missing</span>
+<span class="sd">    """</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">name</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'temperature'</span><span class="p">,</span> <span class="s1">'salinity'</span><span class="p">,</span> <span class="s1">'SurfacePressure'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'SpecVol cannot be computed without </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">'PseudoThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">p_mid</span> <span class="o">=</span> <span class="n">pressure_from_pseudothickness</span><span class="p">(</span>
+            <span class="n">surf_pressure</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="p">,</span>
+            <span class="n">pseudothickness</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">compute_specvol</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">temperature</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+            <span class="n">salinity</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span>
+            <span class="n">pressure</span><span class="o">=</span><span class="n">p_mid</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec_vol</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">'layerThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="p">,</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="p">,</span>
+            <span class="n">iter_count</span><span class="o">=</span><span class="n">get_iter_count_for_eos</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'SpecVol cannot be computed without PseudoThickness or '</span>
+            <span class="s1">'layerThickness'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="vert_velocity_top_from_ds">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds.html#polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">vert_velocity_top_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the geometric vertical velocity at layer interfaces,</span>
+<span class="sd">    ``vertVelocityTop``, from Omega's ``VerticalPseudoVelocity``.  The</span>
+<span class="sd">    specific volume is interpolated from layer midpoints to interfaces</span>
+<span class="sd">    linearly in geometric height, and held constant above the top and below</span>
+<span class="sd">    the bottom valid layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        An ocean dataset with MPAS-Ocean names, containing</span>
+<span class="sd">        ``VerticalPseudoVelocity`` and ``SpecVol``, along with the geometric</span>
+<span class="sd">        layer thickness or the fields needed to compute it (see</span>
+<span class="sd">        :py:func:`geom_thickness_from_ds`)</span>
+
+<span class="sd">    ds_vert : xarray.Dataset, optional</span>
+<span class="sd">        The vertical coordinate dataset, whose ``minLevelCell`` and</span>
+<span class="sd">        ``maxLevelCell`` (one-based) mark the valid layers.  All layers are</span>
+<span class="sd">        valid if it is not given.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    vert_velocity_top : xarray.DataArray</span>
+<span class="sd">        The geometric vertical velocity at layer interfaces, with the</span>
+<span class="sd">        dimensions of ``VerticalPseudoVelocity``</span>
+<span class="sd">    """</span>
+    <span class="n">pseudo_velocity</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">VerticalPseudoVelocity</span>
+    <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span>
+    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ds_vert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+        <span class="n">z_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">])</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+            <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span>
+        <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span>
+
+    <span class="n">spec_vol_interface</span> <span class="o">=</span> <span class="n">_mid_to_interface</span><span class="p">(</span><span class="n">spec_vol</span><span class="p">,</span> <span class="n">layer_thickness</span><span class="p">)</span>
+    <span class="n">vert_velocity_top</span> <span class="o">=</span> <span class="n">pseudo_velocity</span> <span class="o">*</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">spec_vol_interface</span>
+    <span class="k">return</span> <span class="n">vert_velocity_top</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">pseudo_velocity</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span></div>
 
 
 
@@ -675,6 +804,44 @@
         <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
         <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
     <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mid_to_interface</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">layer_thickness</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Interpolate a field from layer midpoints to layer interfaces, linearly</span>
+<span class="sd">    in geometric height.  The field is held constant above the top and</span>
+<span class="sd">    below the bottom valid layer, where valid layers are those in which</span>
+<span class="sd">    ``field`` is not NaN.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    field : xarray.DataArray</span>
+<span class="sd">        The field at layer midpoints, NaN in invalid layers</span>
+
+<span class="sd">    layer_thickness : xarray.DataArray</span>
+<span class="sd">        The geometric thickness of each layer</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    field_interface : xarray.DataArray</span>
+<span class="sd">        The field at layer interfaces, NaN where neither adjacent layer is</span>
+<span class="sd">        valid</span>
+<span class="sd">    """</span>
+    <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevels'</span><span class="p">:</span> <span class="s1">'nVertLevelsP1'</span><span class="p">})</span>
+    <span class="n">thickness</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevels'</span><span class="p">:</span> <span class="s1">'nVertLevelsP1'</span><span class="p">})</span>
+
+    <span class="c1"># the layer above interface k is layer k - 1, and the one below is k</span>
+    <span class="n">field_above</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">field_below</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">thickness_above</span> <span class="o">=</span> <span class="n">thickness</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">thickness_below</span> <span class="o">=</span> <span class="n">thickness</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># each layer's weight is the distance to the other layer's midpoint</span>
+    <span class="n">interpolated</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">field_above</span> <span class="o">*</span> <span class="n">thickness_below</span> <span class="o">+</span> <span class="n">field_below</span> <span class="o">*</span> <span class="n">thickness_above</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">thickness_above</span> <span class="o">+</span> <span class="n">thickness_below</span><span class="p">)</span>
+    <span class="n">both_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">field_above</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="n">field_below</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">both_valid</span><span class="p">,</span> <span class="n">interpolated</span><span class="p">,</span> <span class="n">field_above</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">field_below</span><span class="p">))</span>
 </pre></div>
 
            </div>

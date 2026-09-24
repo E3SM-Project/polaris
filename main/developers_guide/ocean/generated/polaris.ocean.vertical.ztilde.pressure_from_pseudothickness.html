@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.vertical.diagnostics.get_z_mid_and_interface</title>
+  <title>polaris.ocean.vertical.ztilde.pressure_from_pseudothickness</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.vertical.diagnostics.depth_from_thickness" href="polaris.ocean.vertical.diagnostics.depth_from_thickness.html" />
-    <link rel="prev" title="polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds" href="polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds.html" />
+    <link rel="next" title="polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height" href="polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height.html" />
+    <link rel="prev" title="polaris.ocean.vertical.ztilde.pressure_from_geom_thickness" href="polaris.ocean.vertical.ztilde.pressure_from_geom_thickness.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -126,9 +126,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.vertical.diagnostics.get_z_mid_and_interface</li>
+      <li class="breadcrumb-item active">polaris.ocean.vertical.ztilde.pressure_from_pseudothickness</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.get_z_mid_and_interface.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.pressure_from_pseudothickness.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -136,37 +136,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-vertical-diagnostics-get-z-mid-and-interface">
-<h1>polaris.ocean.vertical.diagnostics.get_z_mid_and_interface<a class="headerlink" href="#polaris-ocean-vertical-diagnostics-get-z-mid-and-interface" title="Link to this heading"></a></h1>
+  <section id="polaris-ocean-vertical-ztilde-pressure-from-pseudothickness">
+<h1>polaris.ocean.vertical.ztilde.pressure_from_pseudothickness<a class="headerlink" href="#polaris-ocean-vertical-ztilde-pressure-from-pseudothickness" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.diagnostics.</span></span><span class="sig-name descname"><span class="pre">get_z_mid_and_interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reconstruct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_vert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/diagnostics.html#get_z_mid_and_interface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.diagnostics.get_z_mid_and_interface" title="Link to this definition"></a></dt>
-<dd><p>Get the elevation of layer midpoints and of layer interfaces</p>
-<p>What the model wrote is preferred.  Reconstructing them from
-<code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> is available but off by default, because it is not
-always valid: the monthly mean of geometric thickness cannot be derived
-from the monthly means of pseudo-thickness and specific volume, so
-analysis of monthly means has to read what the model wrote or refuse.</p>
+<dt class="sig sig-object py" id="polaris.ocean.vertical.ztilde.pressure_from_pseudothickness">
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.ztilde.</span></span><span class="sig-name descname"><span class="pre">pressure_from_pseudothickness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surf_pressure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pseudothickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/ztilde.html#pressure_from_pseudothickness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.ztilde.pressure_from_pseudothickness" title="Link to this definition"></a></dt>
+<dd><p>Compute gauge pressure at layer interfaces and midpoints given surface
+gauge pressure and pseudo-thicknesses.  Unlike
+<a class="reference internal" href="polaris.ocean.vertical.ztilde.pressure_from_geom_thickness.html#polaris.ocean.vertical.ztilde.pressure_from_geom_thickness" title="polaris.ocean.vertical.ztilde.pressure_from_geom_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">pressure_from_geom_thickness()</span></code></a>, this needs no specific volume
+and no iteration, since a pseudo-thickness is a pressure increment:</p>
+<blockquote>
+<div><p>dp = RhoSw * g * h_tilde</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – A data set holding the vertical geometry, with MPAS-Ocean names</p></li>
-<li><p><strong>allow_reconstruct</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to reconstruct the geometry from <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> when the
-data set does not carry it</p></li>
-<li><p><strong>ds_vert</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a><em>, </em><em>optional</em>) – The vertical coordinate dataset containing <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and
-optionally <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code> and <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, used when
-reconstructing the geometry</p></li>
+<li><p><strong>surf_pressure</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a>) – The surface gauge pressure at the top of the water column (zero for
+a free surface open to the atmosphere).</p></li>
+<li><p><strong>pseudothickness</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a>) – The pseudo-thickness of each layer, set to zero for invalid layers.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>z_mid</strong> (<em>xarray.DataArray</em>) – The elevation of layer midpoints, in m, positive up</p></li>
-<li><p><strong>z_interface</strong> (<em>xarray.DataArray</em>) – The elevation of layer interfaces, in m, positive up</p></li>
+<li><p><strong>p_interface</strong> (<em>xarray.DataArray</em>) – The gauge pressure at layer interfaces.</p></li>
+<li><p><strong>p_mid</strong> (<em>xarray.DataArray</em>) – The gauge pressure at layer midpoints.</p></li>
 </ul>
 </p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the data set lacks the geometry and it may not be reconstructed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -177,8 +172,8 @@ reconstructing the geometry</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds.html" class="btn btn-neutral float-left" title="polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.vertical.diagnostics.depth_from_thickness.html" class="btn btn-neutral float-right" title="polaris.ocean.vertical.diagnostics.depth_from_thickness" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.vertical.ztilde.pressure_from_geom_thickness.html" class="btn btn-neutral float-left" title="polaris.ocean.vertical.ztilde.pressure_from_geom_thickness" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height.html" class="btn btn-neutral float-right" title="polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

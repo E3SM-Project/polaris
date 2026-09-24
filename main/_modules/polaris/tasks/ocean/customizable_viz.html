@@ -146,10 +146,10 @@
         <span class="n">name</span> <span class="o">=</span> <span class="s1">'customizable_viz'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">basedir</span><span class="p">)</span>
 
-        <span class="c1"># Omega output without SpecVol needs an EOS to be opened.  Omega's</span>
-        <span class="c1"># default is TEOS-10, but the linear and constant coefficients are</span>
-        <span class="c1"># added too so that a user only has to change eos_type for a run with</span>
-        <span class="c1"># one of those</span>
+        <span class="c1"># Omega output without SpecVol needs an EOS for transects and for</span>
+        <span class="c1"># plots of SpecVol or layerThickness.  Omega's default is TEOS-10,</span>
+        <span class="c1"># but the linear and constant coefficients are added too so that a</span>
+        <span class="c1"># user only has to change eos_type for a run with one of those</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'linear.cfg'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'teos10.cfg'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>

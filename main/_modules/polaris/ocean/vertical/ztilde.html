@@ -144,6 +144,7 @@
     <span class="s1">'pressure_from_z_tilde'</span><span class="p">,</span>
     <span class="s1">'pressure_and_spec_vol_from_state_at_geom_height'</span><span class="p">,</span>
     <span class="s1">'pressure_from_geom_thickness'</span><span class="p">,</span>
+    <span class="s1">'pressure_from_pseudothickness'</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="n">Gravity</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'standard_acceleration_of_gravity'</span><span class="p">)</span>
@@ -296,6 +297,62 @@
     <span class="n">p_mid</span> <span class="o">=</span> <span class="n">p_interface_top</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dp</span>
 
     <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geom_layer_thickness</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">interface_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">dims</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">!=</span> <span class="s1">'nVertLevels'</span><span class="p">]</span>
+    <span class="n">interface_dims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'nVertLevelsP1'</span><span class="p">)</span>
+
+    <span class="n">p_interface</span> <span class="o">=</span> <span class="n">p_interface</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">interface_dims</span><span class="p">)</span>
+    <span class="n">p_mid</span> <span class="o">=</span> <span class="n">p_mid</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p_interface</span><span class="p">,</span> <span class="n">p_mid</span></div>
+
+
+
+<div class="viewcode-block" id="pressure_from_pseudothickness">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.ztilde.pressure_from_pseudothickness.html#polaris.ocean.vertical.ztilde.pressure_from_pseudothickness">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pressure_from_pseudothickness</span><span class="p">(</span>
+    <span class="n">surf_pressure</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">pseudothickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute gauge pressure at layer interfaces and midpoints given surface</span>
+<span class="sd">    gauge pressure and pseudo-thicknesses.  Unlike</span>
+<span class="sd">    :py:func:`pressure_from_geom_thickness`, this needs no specific volume</span>
+<span class="sd">    and no iteration, since a pseudo-thickness is a pressure increment:</span>
+
+<span class="sd">        dp = RhoSw * g * h_tilde</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    surf_pressure : float or xarray.DataArray</span>
+<span class="sd">        The surface gauge pressure at the top of the water column (zero for</span>
+<span class="sd">        a free surface open to the atmosphere).</span>
+
+<span class="sd">    pseudothickness : xarray.DataArray</span>
+<span class="sd">        The pseudo-thickness of each layer, set to zero for invalid layers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    p_interface : xarray.DataArray</span>
+<span class="sd">        The gauge pressure at layer interfaces.</span>
+
+<span class="sd">    p_mid : xarray.DataArray</span>
+<span class="sd">        The gauge pressure at layer midpoints.</span>
+<span class="sd">    """</span>
+
+    <span class="n">dp</span> <span class="o">=</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span> <span class="o">*</span> <span class="n">pseudothickness</span>
+
+    <span class="n">p_interface</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+        <span class="n">nVertLevels</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'constant'</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="mf">0.0</span>
+    <span class="p">)</span>
+    <span class="n">p_interface</span> <span class="o">=</span> <span class="n">surf_pressure</span> <span class="o">+</span> <span class="n">p_interface</span>
+    <span class="n">p_interface</span> <span class="o">=</span> <span class="n">p_interface</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevels'</span><span class="p">:</span> <span class="s1">'nVertLevelsP1'</span><span class="p">})</span>
+
+    <span class="n">p_interface_top</span> <span class="o">=</span> <span class="n">p_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">p_mid</span> <span class="o">=</span> <span class="n">p_interface_top</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dp</span>
+
+    <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pseudothickness</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
     <span class="n">interface_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">dims</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">!=</span> <span class="s1">'nVertLevels'</span><span class="p">]</span>
     <span class="n">interface_dims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'nVertLevelsP1'</span><span class="p">)</span>
 

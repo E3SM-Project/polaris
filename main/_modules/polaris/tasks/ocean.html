@@ -138,11 +138,6 @@
     <span class="n">pseudothickness_from_ds</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">REF_COORD_VARS</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">geom_height_from_pseudo_height</span><span class="p">,</span>
-    <span class="n">get_iter_count_for_eos</span><span class="p">,</span>
-    <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">,</span>
-<span class="p">)</span>
 
 <span class="n">RhoSw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'seawater_density_reference'</span><span class="p">)</span>
 
@@ -828,7 +823,6 @@
         <span class="n">filename</span><span class="p">,</span>
         <span class="n">config</span><span class="p">,</span>
         <span class="n">mesh_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">vert_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">reconstruct_variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">tracer_convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -839,6 +833,15 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Open the given dataset, mapping variable and dimension names from Omega</span>
 <span class="sd">        to MPAS-Ocean names if appropriate</span>
+
+<span class="sd">        For Omega, ``layerThickness`` is added from ``GeomLayerThickness``,</span>
+<span class="sd">        or from ``PseudoThickness`` and ``SpecVol`` when both are present.</span>
+<span class="sd">        Nothing that needs an equation of state is derived.  Callers that</span>
+<span class="sd">        need ``SpecVol`` or ``vertVelocityTop`` from Omega output that lacks</span>
+<span class="sd">        them should call</span>
+<span class="sd">        :py:func:`polaris.ocean.vertical.diagnostics.spec_vol_from_ds()` or</span>
+<span class="sd">        :py:func:`polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds()`</span>
+<span class="sd">        on the result.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -905,72 +908,7 @@
             <span class="ow">and</span> <span class="s1">'SpecVol'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="p">):</span>
             <span class="n">ds</span><span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span>
-            <span class="ow">and</span> <span class="s1">'SpecVol'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">'Temperature'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">'Salinity'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">'SurfacePressure'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="p">):</span>
-            <span class="n">ds_mpas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-            <span class="n">iter_count</span> <span class="o">=</span> <span class="n">get_iter_count_for_eos</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">(</span>
-                <span class="n">config</span><span class="p">,</span>
-                <span class="n">ds_mpas</span><span class="o">.</span><span class="n">layerThickness</span><span class="p">,</span>
-                <span class="n">ds_mpas</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
-                <span class="n">ds_mpas</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span>
-                <span class="n">ds_mpas</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="p">,</span>
-                <span class="n">iter_count</span><span class="o">=</span><span class="n">iter_count</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">'SpecVol'</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span>
-            <span class="ow">and</span> <span class="s1">'vertVelocityTop'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">'PseudoThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">'SpecVol'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="ow">and</span> <span class="s1">'VerticalPseudoVelocity'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="c1"># the vertical coordinate file, not the mesh, is what this</span>
-            <span class="c1"># derivation reads</span>
-            <span class="ow">and</span> <span class="n">vert_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">):</span>
-            <span class="n">ds_vert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="n">vert_filename</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-            <span class="n">geom_z_inter</span><span class="p">,</span> <span class="n">geom_z_mid</span> <span class="o">=</span> <span class="n">geom_height_from_pseudo_height</span><span class="p">(</span>
-                <span class="n">geom_z_bot</span><span class="o">=</span><span class="n">ds_vert</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
-                <span class="n">h_tilde</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                    <span class="p">{</span><span class="s1">'NVertLayers'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'NCells'</span><span class="p">:</span> <span class="s1">'nCells'</span><span class="p">}</span>
-                <span class="p">),</span>
-                <span class="n">spec_vol</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                    <span class="p">{</span><span class="s1">'NVertLayers'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="s1">'NCells'</span><span class="p">:</span> <span class="s1">'nCells'</span><span class="p">}</span>
-                <span class="p">),</span>
-                <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_vert</span><span class="o">.</span><span class="n">minLevelCell</span><span class="p">,</span>
-                <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_vert</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">n_time</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span>
-            <span class="n">n_vert_levels_p1</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevelsP1'</span><span class="p">]</span>
-            <span class="n">n_cells</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]</span>
-            <span class="n">spec_vol_inter_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_time</span><span class="p">,</span> <span class="n">n_vert_levels_p1</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">i_time</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]):</span>
-                <span class="k">for</span> <span class="n">i_cell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cells</span><span class="p">):</span>
-                    <span class="n">x_vals</span> <span class="o">=</span> <span class="n">geom_z_inter</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">i_time</span><span class="p">)</span>
-                    <span class="n">xp_vals</span> <span class="o">=</span> <span class="n">geom_z_mid</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">i_time</span><span class="p">)</span>
-                    <span class="n">fp_vals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">NCells</span><span class="o">=</span><span class="n">i_cell</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">i_time</span><span class="p">)</span>
-                    <span class="n">interp_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
-                        <span class="n">x_vals</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                        <span class="n">xp_vals</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                        <span class="n">fp_vals</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">spec_vol_inter_vals</span><span class="p">[</span><span class="n">i_time</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i_cell</span><span class="p">]</span> <span class="o">=</span> <span class="n">interp_vals</span>
-            <span class="n">spec_vol_inter</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-                <span class="n">spec_vol_inter_vals</span><span class="p">,</span>
-                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'time'</span><span class="p">,</span> <span class="s1">'NVertLayersP1'</span><span class="p">,</span> <span class="s1">'NCells'</span><span class="p">],</span>
-            <span class="p">)</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">'vertVelocityTop'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">ds</span><span class="o">.</span><span class="n">VerticalPseudoVelocity</span> <span class="o">*</span> <span class="n">spec_vol_inter</span> <span class="o">*</span> <span class="n">RhoSw</span>
-            <span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-        <span class="c1"># the conversion is the last thing that happens to the tracers: the</span>
-        <span class="c1"># derivations above feed the model's own tracers into TEOS-10 and</span>
-        <span class="c1"># would be wrong if they were converted first</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_tracers_from_model</span><span class="p">(</span>
             <span class="n">ds</span><span class="p">,</span>
             <span class="n">config</span><span class="p">,</span>
