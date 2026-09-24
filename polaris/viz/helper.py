@@ -72,8 +72,11 @@ def determine_time_variable(ds):
     elif 'xtime' in ds.keys():
         time_variable = 'xtime'
     elif 'Time' in ds.keys():
-        prefix = 'timeMonthly_avg_'
+        # Omega's time, renamed, is also 'Time', so only MPAS-Ocean monthly
+        # means get the prefix
         time_variable = 'Time'
+        if any(str(var).startswith('timeMonthly_avg_') for var in ds.keys()):
+            prefix = 'timeMonthly_avg_'
     return prefix, time_variable
 
 
