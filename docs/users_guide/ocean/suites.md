@@ -122,6 +122,24 @@ ocean/analysis/global_stats
 ocean/analysis/moc
 ```
 
+(ocean-suite-omega-analysis-test)=
+
+## omega_analysis_test suite
+
+The `omega_analysis_test` suite runs a one-year Omega simulation on the
+`QU.240km` mesh that writes what the `omega_analysis` suite reads: monthly
+means of the fields the analysis plots, the monthly overturning
+streamfunction and daily global statistics.  See
+{ref}`ocean-realistic-global-analysis-test` for what it writes and how to
+analyze it.  It is not part of `omega_pr`: the year takes about 40 minutes
+on a Chrysalis node.
+
+The suite contains one task:
+
+```none
+ocean/spherical/realistic_global/QU.240km/analysis_test/task
+```
+
 (ocean-suite-framework-pr)=
 
 ## framework_pr suite

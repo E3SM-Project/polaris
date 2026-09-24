@@ -11,13 +11,16 @@ groups:
   0.25-degree latitude-longitude grid.
 - `analysis_members`, short forward runs on realistic global meshes that
   exercise the global-statistics analysis member in both MPAS-Ocean and Omega.
+- `analysis_test`, a one-year Omega run that writes what the analysis tasks
+  in `polaris.tasks.ocean.analysis` read.
 
 Tasks are added to the ocean component by
 {py:func}`polaris.tasks.ocean.realistic_global.add_realistic_global_tasks`,
-which registers the `woa23` task and one `analysis_members` task per mesh in
-its `mesh_dict`.  Adding a new mesh requires only a new entry in that
-dictionary giving the MPAS-Ocean and Omega initial-condition IDs and the cell
-count, plus a matching entry in the `mesh_info` dictionary in
+which registers the `woa23` task, one `analysis_members` task per mesh in
+its `mesh_dict`, and the `analysis_test` task.  Adding a new mesh to
+`analysis_members` requires only a new entry in that dictionary giving the
+MPAS-Ocean and Omega initial-condition IDs and the cell count, plus a
+matching entry in the `mesh_info` dictionary in
 {py:class}`polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers`
 giving the time step and run duration.
 
@@ -53,12 +56,19 @@ the target model is known:
 by the task, so the time step, run duration and output interval can be varied
 per mesh.
 
-The helper `_make_restart_dir()` creates the `restart/` directory that
-Omega's `RestartWrite` stream writes into.  Omega does not create this
-directory itself, so without it the restart write fails at the end of the run.
-It is called from both `setup()` and `runtime_setup()` so the directory exists
-whether or not setup and run happen in the same invocation.  MPAS-Ocean needs
-no equivalent because the MPAS framework creates stream directories itself.
+The files the run writes are given as `output_filenames`, each of which is
+declared as an output; the default is the single `output.nc`.  A subclass
+whose streams write one file per month, such as the `analysis_test` forward
+step, passes the whole list.
+
+The helper `_make_stream_dirs()` creates the directories Omega's streams
+write into, listed in `stream_dirs`: `restart/` for the `RestartWrite`
+stream, plus whatever a subclass appends.  Omega does not create these
+directories itself, so without them the restart write fails at the end of the
+run.  It is called from both `setup()` and `runtime_setup()` so the
+directories exist whether or not setup and run happen in the same invocation.
+MPAS-Ocean needs no equivalent because the MPAS framework creates stream
+directories itself.
 
 `compute_cell_count()` returns the cell count passed in by the task rather
 than reading the mesh, since the mesh is not available at setup time.
@@ -106,6 +116,60 @@ This step normalizes two differences between the models:
   `Rms` field, while MPAS-Ocean writes a true root-mean-square, so the
   standard deviation is recovered as
   $\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}$.
+
+(dev-ocean-realistic-global-analysis-test)=
+
+## analysis_test
+
+The `analysis_test` subpackage is laid out the way the `forward`, `init` and
+`dynamic_adjustment` subpackages on the `unified-mesh-dev` branch are:
+`tasks.py` registers the tasks, `task.py` holds the task class, and the task
+sits at `spherical/realistic_global/<mesh>/analysis_test/task` with its steps
+beside it and a `realistic_global_analysis_test.cfg` shared at that level.
+{py:func}`polaris.tasks.ocean.realistic_global.analysis_test.add_realistic_global_analysis_test_tasks`
+registers one task, on the `QU.240km` mesh; adding a mesh means a new entry
+in the `MESH_INFO` dictionary in
+`polaris.tasks.ocean.realistic_global.analysis_test.forward` giving the
+initial-condition IDs, the cell count and the time step, and a call to add
+the task.
+
+The
+{py:class}`polaris.tasks.ocean.realistic_global.analysis_test.RealisticGlobalAnalysisTest`
+task holds the `forward` step and nothing else yet.  The ocean analysis
+design intends the analysis steps themselves to be added to the task, keyed
+on the forward step's output, so that the `omega_analysis_test` suite runs the
+simulation and its analysis together; until then the analysis is run
+separately by pointing the `omega_analysis` suite at the forward step's
+`omega.yml`.
+
+### forward
+
+The class
+{py:class}`polaris.tasks.ocean.realistic_global.analysis_test.forward.Forward`
+is a subclass of the shared {ref}`dev-ocean-realistic-global-framework`
+`Forward`, which supplies the cached initial condition and the shared
+`forward.yaml`.  Only Omega is supported; `setup()` raises for any other
+model.
+
+`setup()` adds this subpackage's `forward.yaml` after the shared one, so
+that it overrides it.  The fragment replaces the `History` stream with
+monthly snapshots in `output/`, turns on the `MonthlyAverages` and `MOC`
+analysis groups, adds kinetic energy and sea surface height to
+`GlobalStats`, and makes restarts monthly.  A stream's options merge across
+yaml files, so the fragment has to set the `History` stream's `FileFreq`
+explicitly: the shared value of 9999 years would put every snapshot into one
+file.
+
+Every monthly file is declared as an output, so that a run whose analysis
+groups did not write is reported as a missing output rather than found later
+by the analysis.  Omega names a time-mean file for the instant it was
+finalized (E3SM-Project/Omega#554), so a run that starts on `0001-01-01`
+writes the files covering year 1 as `0001-02` through `0002-01`;
+`_monthly_filenames()` builds the names that way, and the snapshots, taken at
+those instants, are named the same way.
+
+The step appends `output` to the shared step's `stream_dirs`, so that the
+directory the `History` stream writes into exists before the run.
 
 (dev-ocean-realistic-global-woa23)=
 

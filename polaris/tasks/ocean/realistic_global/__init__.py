@@ -1,6 +1,9 @@
 from polaris.tasks.ocean.realistic_global.analysis_members import (
     AnalysisMembers as AnalysisMembers,
 )
+from polaris.tasks.ocean.realistic_global.analysis_test import (
+    add_realistic_global_analysis_test_tasks,
+)
 from polaris.tasks.ocean.realistic_global.hydrography.woa23 import (
     Woa23 as Woa23,
 )
@@ -8,7 +11,8 @@ from polaris.tasks.ocean.realistic_global.hydrography.woa23 import (
 
 def add_realistic_global_tasks(component):
     """
-    Add tasks for realistic global ocean preprocessing and initialization.
+    Add tasks for realistic global ocean preprocessing, initialization and
+    forward runs.
 
     Parameters
     ----------
@@ -33,3 +37,4 @@ def add_realistic_global_tasks(component):
                 ncells=mesh_info['ncells'],
             )
         )
+    add_realistic_global_analysis_test_tasks(component=component)
