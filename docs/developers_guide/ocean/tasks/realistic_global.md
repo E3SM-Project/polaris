@@ -305,9 +305,10 @@ those rows, so the summary a user reads and the checks that passed or failed are
 one calculation rather than two.
 
 `diagnostics.METRICS` is the column list.  Each metric names the global-statistics
-variable it reads (in MPAS-Ocean naming, which `open_model_dataset` maps Omega's
-names onto), how to reduce that variable's time series over the stage, and the
-`output.nc` field to fall back to when the model does not report the statistic.
+variable it reads (in MPAS-Ocean naming, which `diagnostics.open_stage_stats`
+renames Omega's statistics to), how to reduce that variable's time series over
+the stage, and the `output.nc` field to fall back to when the model does not
+report the statistic.
 A metric with no fallback is left blank instead: `output_var` is set only where
 computing the metric from the 3-D field gives the same quantity, which is true of
 a maximum and not of a volume-weighted mean.  The `mean_*_change_per_day`
