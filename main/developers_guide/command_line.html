@@ -198,11 +198,16 @@ build MPAS-Ocean or Omega automatically during <code class="docutils literal not
 </div>
 <p>The command-line options are:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ polaris setup --help
-usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE] [-m MACH] -w
-                     PATH [-b PATH] [-p PATH] [--suite_name SUITE]
-                     [--cached STEP [STEP ...]] [--free_running STEP [STEP ...]] [--copy_executable] [--clean_tasks]
-                     [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
-                     [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
+usage: polaris setup [-h] [-t PATH [PATH ...]] [-n NUM [NUM ...]] [-f FILE]
+                     [-m MACH] -w PATH [-b PATH] [-p PATH]
+                     [--suite_name SUITE] [--cached STEP [STEP ...]]
+                     [--free_running STEP [STEP ...]] [--copy_executable]
+                     [--clean_tasks] [--model MODEL] [--build]
+                     [--branch BRANCH] [--clean_build] [--quiet_build]
+                     [--cmake_flags CMAKE_FLAGS] [--debug]
+                     [--ocean_model OCEAN_MODEL] [--ocean_path PATH]
+                     [--ocean_branch PATH] [--seaice_model SEAICE_MODEL]
+                     [--seaice_path PATH] [--seaice_branch PATH]
 
 </pre></div>
 </div>
@@ -229,9 +234,23 @@ The default for the <code class="docutils literal notranslate"><span class="pre"
 <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/MALI-Dev/components/mpas-albany-landice</span></code>.
 For the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component, the default value of <code class="docutils literal notranslate"><span class="pre">component_path</span></code> comes from the
 ocean configuration file; by default, both MPAS-Ocean and Omega use the
-<code class="docutils literal notranslate"><span class="pre">build</span></code> subdirectory of the base work directory supplied with <code class="docutils literal notranslate"><span class="pre">-w</span></code>.  If you
-use MPAS-Ocean or Omega in a different location, supply that directory
+<code class="docutils literal notranslate"><span class="pre">ocean_build</span></code> subdirectory of the base work directory supplied with <code class="docutils literal notranslate"><span class="pre">-w</span></code>.  If
+you use MPAS-Ocean or Omega in a different location, supply that directory
 explicitly with <code class="docutils literal notranslate"><span class="pre">-p</span></code> or via a config file.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-p</span></code>, <code class="docutils literal notranslate"><span class="pre">--model</span></code> and <code class="docutils literal notranslate"><span class="pre">--branch</span></code> apply to the component that owns the tasks you
+are setting up.  A task may also include shared steps from another component,
+and that component may have a model of its own to find or build.  Each
+component with a model has its own flags for this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>e3sm/init/&lt;mesh&gt;/component_inputs/tasks/all<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span><span class="w"> </span>--ocean_path<span class="w"> </span><span class="nv">$OCEAN_BUILD</span>
+</pre></div>
+</div>
+<p>The available flags are <code class="docutils literal notranslate"><span class="pre">--&lt;component&gt;_model</span></code>, <code class="docutils literal notranslate"><span class="pre">--&lt;component&gt;_path</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--&lt;component&gt;_branch</span></code> (<code class="docutils literal notranslate"><span class="pre">--ocean_model</span></code>, <code class="docutils literal notranslate"><span class="pre">--seaice_path</span></code> and so on); a <code class="docutils literal notranslate"><span class="pre">/</span></code> in
+a component name becomes <code class="docutils literal notranslate"><span class="pre">_</span></code>.  If the component that owns the tasks has no
+model of its own, as <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> does not, <code class="docutils literal notranslate"><span class="pre">-p</span></code>, <code class="docutils literal notranslate"><span class="pre">--model</span></code> and <code class="docutils literal notranslate"><span class="pre">--branch</span></code> have
+nothing to apply to and polaris raises an error naming the flags to use
+instead.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">-p</span></code> is provided for the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component, Polaris first checks whether
 the component executable and required files are already present in that
 directory.  If found, they are used as-is and no build is performed.  If the
@@ -312,9 +331,10 @@ Ocean adds <code class="docutils literal notranslate"><span class="pre">debug=TR
 </ul>
 <p>Defaults and paths:</p>
 <ul class="simple">
-<li><p>Build output directory (<code class="docutils literal notranslate"><span class="pre">-p</span></code>/<code class="docutils literal notranslate"><span class="pre">--component_path</span></code>) defaults to the <code class="docutils literal notranslate"><span class="pre">build</span></code>
-subdirectory of the base work directory you pass with <code class="docutils literal notranslate"><span class="pre">-w</span></code> for both
-MPAS-Ocean and Omega.</p></li>
+<li><p>Build output directory (<code class="docutils literal notranslate"><span class="pre">-p</span></code>/<code class="docutils literal notranslate"><span class="pre">--component_path</span></code>) defaults to the
+<code class="docutils literal notranslate"><span class="pre">ocean_build</span></code> subdirectory of the base work directory you pass with <code class="docutils literal notranslate"><span class="pre">-w</span></code> for
+both MPAS-Ocean and Omega.  It is named after the component so that two
+components in the same work directory do not build over one another.</p></li>
 <li><p>Generated build scripts are saved to:</p>
 <ul>
 <li><p>Omega: <code class="docutils literal notranslate"><span class="pre">./build_omega/build_omega_&lt;machine&gt;_&lt;compiler&gt;.sh</span></code></p></li>
@@ -356,8 +376,12 @@ options are:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ polaris suite --help
 usage: polaris suite [-h] -c COMPONENT -t SUITE [-f FILE] [-m MACH] [-b PATH]
                      -w PATH [-p PATH] [--copy_executable] [--clean_tasks]
-                     [--model MODEL] [--build] [--branch BRANCH] [--clean_build]
-                     [--quiet_build] [--cmake_flags CMAKE_FLAGS] [--debug]
+                     [--model MODEL] [--build] [--branch BRANCH]
+                     [--clean_build] [--quiet_build]
+                     [--cmake_flags CMAKE_FLAGS] [--debug]
+                     [--ocean_model OCEAN_MODEL] [--ocean_path PATH]
+                     [--ocean_branch PATH] [--seaice_model SEAICE_MODEL]
+                     [--seaice_path PATH] [--seaice_branch PATH]
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">-h</span></code> or <code class="docutils literal notranslate"><span class="pre">--help</span></code> options will display the help message describing the

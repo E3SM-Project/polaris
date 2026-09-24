@@ -471,7 +471,7 @@ one-off setup commands.</p>
 <section id="recommended-default-automated-build-from-polaris-setup-polaris-suite">
 <h4>Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code><a class="headerlink" href="#recommended-default-automated-build-from-polaris-setup-polaris-suite" title="Link to this heading"></a></h4>
 <p>For MPAS-Ocean, Polaris builds automatically during setup and places the
-build in <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/build</span></code> by default.  If a complete build already exists
+build in <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/ocean_build</span></code> by default.  If a complete build already exists
 there, it is reused:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
 polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/planar/baroclinic_channel/10km/default<span class="w"> </span><span class="se">\</span>
@@ -509,7 +509,7 @@ machines.</p>
 <section id="id1">
 <h4>Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code><a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
 <p>For Omega, Polaris builds automatically during setup and places the build
-in <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/build</span></code> by default.  If a complete build already exists there,
+in <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/ocean_build</span></code> by default.  If a complete build already exists there,
 it is reused:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
 polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/planar/barotropic_gyre/munk/free-slip<span class="w"> </span><span class="se">\</span>

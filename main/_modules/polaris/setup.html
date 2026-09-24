@@ -119,10 +119,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span><span class="p">,</span> <span class="n">provenance</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.mpas_ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_mpas_ocean</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_omega</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.component_graph</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_components_in_use</span><span class="p">,</span>
+    <span class="n">get_steps_by_component</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants.pcd</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_pcd_version_matches_branch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">symlink</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.job</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_job_script</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.machines</span><span class="w"> </span><span class="kn">import</span> <span class="n">discover_machine</span>
@@ -141,6 +142,7 @@
     <span class="n">baseline_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">component_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">suite_name</span><span class="o">=</span><span class="s1">'custom'</span><span class="p">,</span>
+    <span class="n">suite_component</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">cached</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">free_running</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">copy_executable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -152,6 +154,7 @@
     <span class="n">quiet_build</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">cmake_flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">debug</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">component_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Set up one or more tasks</span>
@@ -187,6 +190,12 @@
 <span class="sd">    suite_name : str, optional</span>
 <span class="sd">        The name of the suite if tasks are being set up through a suite or</span>
 <span class="sd">        ``'custom'`` if not</span>
+
+<span class="sd">    suite_component : str, optional</span>
+<span class="sd">        The name of the component the suite belongs to, which is where its</span>
+<span class="sd">        config file comes from.  A suite may contain tasks from other</span>
+<span class="sd">        components, so this is not necessarily the component of any of the</span>
+<span class="sd">        tasks.  Defaults to the component of the first task.</span>
 
 <span class="sd">    cached : list of list of str, optional</span>
 <span class="sd">        For each task in ``tasks``, which steps (if any) should read their</span>
@@ -232,6 +241,12 @@
 <span class="sd">    debug : bool, optional</span>
 <span class="sd">        Whether to build the model in debug mode</span>
 
+<span class="sd">    component_args : dict of dict, optional</span>
+<span class="sd">        The model, component path and branch for components other than the one</span>
+<span class="sd">        that owns the tasks, with the component names as keys.  These come from</span>
+<span class="sd">        the ``--&lt;component&gt;_model``, ``--&lt;component&gt;_path`` and</span>
+<span class="sd">        ``--&lt;component&gt;_branch`` flags.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    tasks : dict of polaris.Task</span>
@@ -260,19 +275,18 @@
     <span class="n">_add_tasks_by_number</span><span class="p">(</span><span class="n">numbers</span><span class="p">,</span> <span class="n">all_tasks</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
     <span class="n">_add_tasks_by_name</span><span class="p">(</span><span class="n">task_list</span><span class="p">,</span> <span class="n">all_tasks</span><span class="p">,</span> <span class="n">cached</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">)</span>
 
-    <span class="c1"># get the component of the first task.  We'll ensure that all tasks are</span>
-    <span class="c1"># for this component</span>
+    <span class="c1"># the unqualified command-line options apply to the component of the</span>
+    <span class="c1"># first task</span>
     <span class="n">first_path</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="p">))</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[</span><span class="n">first_path</span><span class="p">]</span><span class="o">.</span><span class="n">component</span>
+
+    <span class="k">if</span> <span class="n">suite_component</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">suite_component</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span>
 
     <span class="n">basic_config</span> <span class="o">=</span> <span class="n">_get_basic_config</span><span class="p">(</span>
         <span class="n">config_file</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
         <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
-        <span class="n">component_path</span><span class="o">=</span><span class="n">component_path</span><span class="p">,</span>
-        <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
         <span class="n">build</span><span class="o">=</span><span class="n">build</span><span class="p">,</span>
-        <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
         <span class="n">cmake_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
         <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
         <span class="n">clean_build</span><span class="o">=</span><span class="n">clean_build</span><span class="p">,</span>
@@ -280,29 +294,46 @@
         <span class="n">work_dir</span><span class="o">=</span><span class="n">work_dir</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">_add_suite_config</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">)</span>
+    <span class="n">components_in_use</span> <span class="o">=</span> <span class="n">get_components_in_use</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
 
-    <span class="n">component</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">component_args</span> <span class="o">=</span> <span class="n">_get_component_args</span><span class="p">(</span>
+        <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+        <span class="n">components_in_use</span><span class="o">=</span><span class="n">components_in_use</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">component_path</span><span class="o">=</span><span class="n">component_path</span><span class="p">,</span>
+        <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
+        <span class="n">component_args</span><span class="o">=</span><span class="n">component_args</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">(),</span>
+    <span class="p">)</span>
+
+    <span class="n">component_configs</span> <span class="o">=</span> <span class="n">_get_component_configs</span><span class="p">(</span>
+        <span class="n">basic_config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
+        <span class="n">components_in_use</span><span class="o">=</span><span class="n">components_in_use</span><span class="p">,</span>
+        <span class="n">component_args</span><span class="o">=</span><span class="n">component_args</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">component_config</span> <span class="o">=</span> <span class="n">component_configs</span><span class="p">[</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="n">steps_by_component</span> <span class="o">=</span> <span class="n">get_steps_by_component</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">component_in_use</span> <span class="ow">in</span> <span class="n">components_in_use</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">component_in_use</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">component_in_use</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+            <span class="n">component_configs</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">steps_by_component</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="p">)</span>
+
     <span class="n">set_parallel_systems</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">basic_config</span><span class="p">)</span>
 
     <span class="n">provenance</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
         <span class="n">work_dir</span><span class="p">,</span>
         <span class="n">tasks</span><span class="p">,</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">component_config</span><span class="p">,</span>
         <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
         <span class="n">baseline_dir</span><span class="o">=</span><span class="n">baseline_dir</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">'build'</span><span class="p">]</span>
-    <span class="n">build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'build'</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">build</span><span class="p">:</span>
-        <span class="n">_build_model</span><span class="p">(</span>
-            <span class="n">basic_config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
-            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="n">_check_pcd_version</span><span class="p">(</span><span class="n">basic_config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
+    <span class="n">_build_models</span><span class="p">(</span>
+        <span class="n">components_in_use</span><span class="o">=</span><span class="n">components_in_use</span><span class="p">,</span>
+        <span class="n">component_configs</span><span class="o">=</span><span class="n">component_configs</span><span class="p">,</span>
+        <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">clean_tasks</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
@@ -311,8 +342,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
 
     <span class="n">_setup_configs</span><span class="p">(</span>
-        <span class="n">basic_config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
-        <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+        <span class="n">component_configs</span><span class="o">=</span><span class="n">component_configs</span><span class="p">,</span>
         <span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span><span class="p">,</span>
         <span class="n">work_dir</span><span class="o">=</span><span class="n">work_dir</span><span class="p">,</span>
         <span class="n">copy_executable</span><span class="o">=</span><span class="n">copy_executable</span><span class="p">,</span>
@@ -360,8 +390,11 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'minimum gpus: </span><span class="si">{</span><span class="n">max_of_min_gpus</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">suite_config</span> <span class="o">=</span> <span class="n">_get_suite_config</span><span class="p">(</span>
+            <span class="n">basic_config</span><span class="p">,</span> <span class="n">suite_component</span><span class="p">,</span> <span class="n">suite_name</span>
+        <span class="p">)</span>
         <span class="n">job_options</span> <span class="o">=</span> <span class="n">write_job_script</span><span class="p">(</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">suite_config</span><span class="p">,</span>
             <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
             <span class="n">target_cores</span><span class="o">=</span><span class="n">max_cores</span><span class="p">,</span>
             <span class="n">min_cores</span><span class="o">=</span><span class="n">max_of_min_cores</span><span class="p">,</span>
@@ -378,7 +411,7 @@
             <span class="n">provenance</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
                 <span class="n">work_dir</span><span class="p">,</span>
                 <span class="n">tasks</span><span class="p">,</span>
-                <span class="n">config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">component_config</span><span class="p">,</span>
                 <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
                 <span class="n">baseline_dir</span><span class="o">=</span><span class="n">baseline_dir</span><span class="p">,</span>
                 <span class="n">job_options</span><span class="o">=</span><span class="n">job_options</span><span class="p">,</span>
@@ -644,6 +677,7 @@
         <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">'If the model should be built in debug mode.'</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">add_component_model_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
     <span class="n">cached</span> <span class="o">=</span> <span class="kc">None</span>
@@ -692,6 +726,7 @@
         <span class="n">quiet_build</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">quiet_build</span><span class="p">,</span>
         <span class="n">cmake_flags</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">cmake_flags</span><span class="p">,</span>
         <span class="n">debug</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+        <span class="n">component_args</span><span class="o">=</span><span class="n">get_component_model_args</span><span class="p">(</span><span class="n">args</span><span class="p">),</span>
     <span class="p">)</span>
 
 
@@ -786,47 +821,52 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_setup_configs</span><span class="p">(</span>
-    <span class="n">basic_config</span><span class="p">,</span>
-    <span class="n">component</span><span class="p">,</span>
+    <span class="n">component_configs</span><span class="p">,</span>
     <span class="n">tasks</span><span class="p">,</span>
     <span class="n">work_dir</span><span class="p">,</span>
     <span class="n">copy_executable</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Set up config parsers for this component"""</span>
+<span class="w">    </span><span class="sd">"""Set up config parsers for each component in use"""</span>
 
-    <span class="n">common_config</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">common_configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">component_config</span> <span class="ow">in</span> <span class="n">component_configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">common_config</span> <span class="o">=</span> <span class="n">component_config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
-        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'setup'</span><span class="p">,</span> <span class="s1">'copy_executable'</span><span class="p">,</span> <span class="s1">'True'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">copy_executable</span><span class="p">:</span>
+            <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'setup'</span><span class="p">,</span> <span class="s1">'copy_executable'</span><span class="p">,</span> <span class="s1">'True'</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s1">'POLARIS_BRANCH'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">polaris_branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_BRANCH'</span><span class="p">]</span>
-        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'polaris_branch'</span><span class="p">,</span> <span class="n">polaris_branch</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'polaris_branch'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+        <span class="k">if</span> <span class="s1">'POLARIS_BRANCH'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="n">polaris_branch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_BRANCH'</span><span class="p">]</span>
+            <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'polaris_branch'</span><span class="p">,</span> <span class="n">polaris_branch</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">common_config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'polaris_branch'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
 
-    <span class="n">initial_configs</span> <span class="o">=</span> <span class="n">_add_task_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">common_config</span><span class="p">)</span>
+        <span class="n">common_configs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">common_config</span>
+
+    <span class="n">initial_configs</span> <span class="o">=</span> <span class="n">_add_task_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">common_configs</span><span class="p">)</span>
 
     <span class="c1"># okay, we're finally ready to configure all the tasks and add configs</span>
     <span class="c1"># to the "owned" steps</span>
     <span class="n">configs</span> <span class="o">=</span> <span class="n">_configure_tasks_and_add_step_configs</span><span class="p">(</span>
-        <span class="n">tasks</span><span class="p">,</span> <span class="n">initial_configs</span><span class="p">,</span> <span class="n">common_config</span>
+        <span class="n">tasks</span><span class="p">,</span> <span class="n">initial_configs</span><span class="p">,</span> <span class="n">common_configs</span>
     <span class="p">)</span>
 
-    <span class="n">_write_configs</span><span class="p">(</span><span class="n">common_config</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+    <span class="n">_write_configs</span><span class="p">(</span><span class="n">common_configs</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
 
     <span class="n">_symlink_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_add_task_configs</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">common_config</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_task_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">common_configs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Add config parsers for tasks and steps that don't already have shared ones</span>
 <span class="sd">    """</span>
 
     <span class="c1"># get a list of shared steps and add config files for tasks to the</span>
-    <span class="c1"># component</span>
+    <span class="c1"># component that owns them</span>
     <span class="n">configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">owners</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span>
         <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">task</span><span class="o">.</span><span class="n">config_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
             <span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -834,18 +874,20 @@
             <span class="p">)</span>
         <span class="n">component</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="n">configs</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">owners</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span>
 
-    <span class="c1"># now go through all the configs and prepend the common config options,</span>
-    <span class="c1"># then run the setup() method for each in case there is some customization</span>
-    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">prepend</span><span class="p">(</span><span class="n">common_config</span><span class="p">)</span>
+    <span class="c1"># now go through all the configs and prepend the config options of the</span>
+    <span class="c1"># component that owns each one, then run the setup() method for each in</span>
+    <span class="c1"># case there is some customization</span>
+    <span class="k">for</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">prepend</span><span class="p">(</span><span class="n">common_configs</span><span class="p">[</span><span class="n">owners</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
         <span class="n">config</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">configs</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_configure_tasks_and_add_step_configs</span><span class="p">(</span>
-    <span class="n">tasks</span><span class="p">,</span> <span class="n">initial_configs</span><span class="p">,</span> <span class="n">common_config</span>
+    <span class="n">tasks</span><span class="p">,</span> <span class="n">initial_configs</span><span class="p">,</span> <span class="n">common_configs</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Call the configure() method for each task and add configs to "owned" steps</span>
@@ -866,8 +908,10 @@
     <span class="c1"># new steps were added</span>
     <span class="n">configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">new_configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">owners</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="n">configs</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">owners</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">has_shared_config</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -875,26 +919,62 @@
                     <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">config_filename</span>
                     <span class="p">)</span>
+                <span class="n">_check_config_owner</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">owners</span><span class="p">)</span>
                 <span class="n">configs</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span>
                 <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">initial_configs</span><span class="p">:</span>
                     <span class="n">new_configs</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span>
                     <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="n">_check_step_component</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">task</span><span class="p">)</span>
                 <span class="n">step</span><span class="o">.</span><span class="n">_set_config</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">config_filename</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">new_configs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">prepend</span><span class="p">(</span><span class="n">common_config</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">new_configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">prepend</span><span class="p">(</span><span class="n">common_configs</span><span class="p">[</span><span class="n">owners</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
         <span class="n">config</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">configs</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_write_configs</span><span class="p">(</span><span class="n">common_config</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_config_owner</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">owners</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Make sure a shared config is used by steps from only one component, and</span>
+<span class="sd">    keep track of which component owns it</span>
+<span class="sd">    """</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span>
+    <span class="n">owner</span> <span class="o">=</span> <span class="n">owners</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">owner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">owners</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">component</span>
+    <span class="k">elif</span> <span class="n">owner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The shared config file </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1"> is used by steps from more '</span>
+            <span class="sa">f</span><span class="s1">'than one component: </span><span class="si">{</span><span class="n">owner</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.  A '</span>
+            <span class="sa">f</span><span class="s1">'shared config file belongs to a single component, which '</span>
+            <span class="sa">f</span><span class="s1">'provides its config options.'</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_step_component</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Make sure a step that will get its config options from the task belongs to</span>
+<span class="sd">    the same component as the task</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">component</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Step </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> in </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> belongs to component '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> but the task belongs to component '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.  A step from another component must be '</span>
+            <span class="sa">f</span><span class="s1">'a shared step with a shared config file, so that it gets the '</span>
+            <span class="sa">f</span><span class="s1">'config options of its own component.'</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_configs</span><span class="p">(</span><span class="n">common_configs</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Write out all the config files"""</span>
 
-    <span class="c1"># add the common config at the component level</span>
-    <span class="n">common_config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s1">.cfg'</span>
-    <span class="n">configs</span><span class="p">[</span><span class="n">common_config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">common_config</span>
+    <span class="c1"># add the common config for each component at the component level</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">common_config</span> <span class="ow">in</span> <span class="n">common_configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">common_config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
+        <span class="n">configs</span><span class="p">[</span><span class="n">common_config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">common_config</span>
 
     <span class="c1"># finally, write out the config files</span>
     <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -1038,11 +1118,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_basic_config</span><span class="p">(</span>
     <span class="n">config_file</span><span class="p">,</span>
     <span class="n">machine</span><span class="p">,</span>
-    <span class="n">component_path</span><span class="p">,</span>
-    <span class="n">component</span><span class="p">,</span>
-    <span class="n">model</span><span class="p">,</span>
     <span class="n">build</span><span class="p">,</span>
-    <span class="n">branch</span><span class="p">,</span>
     <span class="n">cmake_flags</span><span class="p">,</span>
     <span class="n">debug</span><span class="p">,</span>
     <span class="n">clean_build</span><span class="p">,</span>
@@ -1050,17 +1126,13 @@
     <span class="n">work_dir</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Get a base config parser for the machine and component but not a specific</span>
-<span class="sd">    task</span>
+<span class="sd">    Get a base config parser for the machine and the command line but not for</span>
+<span class="sd">    any component, task or step</span>
 <span class="sd">    """</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_user_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
-
-    <span class="c1"># set the model from the command line if provided</span>
-    <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># start with default polaris config options</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris'</span><span class="p">,</span> <span class="s1">'default.cfg'</span><span class="p">)</span>
@@ -1082,22 +1154,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'polaris_branch'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
 
-    <span class="c1"># add the config options for the component</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">'polaris.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span><span class="w"> </span><span class="s2">"."</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
-        <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># set the component_path path from the command line if provided</span>
-    <span class="k">if</span> <span class="n">component_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">component_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">build</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'branch'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">branch</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">compiler</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_COMPILER'</span><span class="p">]</span>
     <span class="n">mpi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_MPI'</span><span class="p">]</span>
     <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'machine'</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1129,6 +1187,293 @@
     <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'base_work_dir'</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">config</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_component_model_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add ``--&lt;component&gt;_model``, ``--&lt;component&gt;_path`` and</span>
+<span class="sd">    ``--&lt;component&gt;_branch`` flags for each component that has a model.</span>
+
+<span class="sd">    The unqualified ``--model``, ``-p``/``--component_path`` and ``--branch``</span>
+<span class="sd">    flags apply to the component that owns the tasks being set up.  These flags</span>
+<span class="sd">    are how the model, path or branch of any other component is set.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parser : argparse.ArgumentParser</span>
+<span class="sd">        The parser to add the flags to</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">get_components</span><span class="p">(</span><span class="n">add_tasks</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">component</span><span class="o">.</span><span class="n">has_model</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_model'</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_model'</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">'The model to run for the </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> component.'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_path'</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_path'</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">'The path where the </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> component executable and '</span>
+            <span class="sa">f</span><span class="s1">'default namelists have been (or will be) built.'</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s1">'PATH'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_branch'</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_branch'</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">'The branch of the </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> component model to build.'</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s1">'PATH'</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_component_model_args</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the model, component path and branch for each component they were</span>
+<span class="sd">    provided for on the command line</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : argparse.Namespace</span>
+<span class="sd">        The parsed command-line arguments</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    component_args : dict of dict</span>
+<span class="sd">        The options for each component they were provided for, with the</span>
+<span class="sd">        component names as keys</span>
+<span class="sd">    """</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">'model'</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">'component_path'</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">'branch'</span><span class="p">)</span>
+
+    <span class="n">component_args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">get_components</span><span class="p">(</span><span class="n">add_tasks</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">component</span><span class="o">.</span><span class="n">has_model</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">flag</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">component_args</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">dict</span><span class="p">())[</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">value</span>
+                <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">component_args</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_component_configs</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">components_in_use</span><span class="p">,</span> <span class="n">component_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the config options for each component in use: the component that owns</span>
+<span class="sd">    the tasks being set up, the components that own steps in those tasks and</span>
+<span class="sd">    the components of any dependencies of those steps.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    basic_config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options for the machine and the command line</span>
+
+<span class="sd">    components_in_use : list of polaris.Component</span>
+<span class="sd">        The components in use for the tasks being set up</span>
+
+<span class="sd">    component_args : dict of dict</span>
+<span class="sd">        The model, component path and branch from the command line for each</span>
+<span class="sd">        component they were provided for</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    component_configs : dict of polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options for each component in use, with the component names</span>
+<span class="sd">        as keys</span>
+<span class="sd">    """</span>
+    <span class="n">component_configs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components_in_use</span><span class="p">:</span>
+        <span class="n">component_configs</span><span class="p">[</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_component_config</span><span class="p">(</span>
+            <span class="n">basic_config</span><span class="o">=</span><span class="n">basic_config</span><span class="p">,</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">component_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">dict</span><span class="p">()),</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">component_configs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_component_config</span><span class="p">(</span>
+    <span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">component_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the config options for a component: the basic config options plus the</span>
+<span class="sd">    component's own config file.</span>
+
+<span class="sd">    This is the config that the component's ``configure()`` method modifies</span>
+<span class="sd">    and that gets prepended to the config of each task and shared step the</span>
+<span class="sd">    component owns.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    basic_config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options for the machine and the command line</span>
+
+<span class="sd">    component : polaris.Component</span>
+<span class="sd">        The component to get config options for</span>
+
+<span class="sd">    model : str, optional</span>
+<span class="sd">        The model to run, if provided on the command line</span>
+
+<span class="sd">    component_path : str, optional</span>
+<span class="sd">        The path to the component's build, if provided on the command line</span>
+
+<span class="sd">    branch : str, optional</span>
+<span class="sd">        The branch to build the component's model from, if provided on the</span>
+<span class="sd">        command line</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options for the component</span>
+<span class="sd">    """</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">()</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">prepend</span><span class="p">(</span><span class="n">basic_config</span><span class="p">)</span>
+
+    <span class="c1"># set the model from the command line if provided</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># add the config options for the component</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'polaris.</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span><span class="w"> </span><span class="s2">"."</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
+        <span class="n">exception</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># set the component_path from the command line if provided</span>
+    <span class="k">if</span> <span class="n">component_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="s1">'paths'</span><span class="p">,</span>
+            <span class="s1">'component_path'</span><span class="p">,</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">component_path</span><span class="p">),</span>
+            <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'branch'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">branch</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">config</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_component_args</span><span class="p">(</span>
+    <span class="n">component</span><span class="p">,</span> <span class="n">components_in_use</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">component_path</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">component_args</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Work out which component each of the model, component path and branch</span>
+<span class="sd">    options from the command line applies to.</span>
+
+<span class="sd">    The unqualified options apply to the component that owns the tasks being</span>
+<span class="sd">    set up.  The ``--&lt;component&gt;_*`` options apply to the component they name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    component_args : dict of dict</span>
+<span class="sd">        The model, component path and branch for each component they were</span>
+<span class="sd">        provided for, with the component names as keys</span>
+<span class="sd">    """</span>
+    <span class="n">resolved</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="n">unqualified</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">component_path</span><span class="o">=</span><span class="n">component_path</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span>
+    <span class="p">)</span>
+    <span class="n">unqualified</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">option</span><span class="p">:</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">unqualified</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unqualified</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">component</span><span class="o">.</span><span class="n">has_model</span><span class="p">():</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="n">_get_model_flags</span><span class="p">(</span><span class="n">components_in_use</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The </span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> component has no model, so --model, '</span>
+                <span class="sa">f</span><span class="s1">'-p/--component_path and --branch do not apply to the tasks '</span>
+                <span class="sa">f</span><span class="s1">'being set up.  Use the flags for the component whose model '</span>
+                <span class="sa">f</span><span class="s1">'you mean: </span><span class="si">{</span><span class="n">flags</span><span class="si">}</span><span class="s1">.'</span>
+            <span class="p">)</span>
+        <span class="n">resolved</span><span class="p">[</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">unqualified</span>
+
+    <span class="n">names_in_use</span> <span class="o">=</span> <span class="p">[</span><span class="n">other</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">components_in_use</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">component_args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names_in_use</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_* was provided but the </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> component is not '</span>
+                <span class="sa">f</span><span class="s1">'used by the tasks being set up.'</span>
+            <span class="p">)</span>
+        <span class="n">resolved</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">dict</span><span class="p">())</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">resolved</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_model_executables</span><span class="p">(</span><span class="n">components_in_use</span><span class="p">,</span> <span class="n">component_configs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Make sure no two components in use expect their model executable in the</span>
+<span class="sd">    same place, which would mean one of them building over the other</span>
+<span class="sd">    """</span>
+    <span class="n">executables</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components_in_use</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">component</span><span class="o">.</span><span class="n">has_model</span><span class="p">():</span>
+            <span class="k">continue</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">component_configs</span><span class="p">[</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'executables'</span><span class="p">,</span> <span class="s1">'component'</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">executable</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'executables'</span><span class="p">,</span> <span class="s1">'component'</span><span class="p">)</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="n">executables</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">executable</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">other_prefix</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'The </span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> components both expect '</span>
+                <span class="sa">f</span><span class="s1">'their model executable at </span><span class="si">{</span><span class="n">executable</span><span class="si">}</span><span class="s1">.  Use '</span>
+                <span class="sa">f</span><span class="s1">'--</span><span class="si">{</span><span class="n">other_prefix</span><span class="si">}</span><span class="s1">_path and --</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_path to give them '</span>
+                <span class="sa">f</span><span class="s1">'different build directories.'</span>
+            <span class="p">)</span>
+        <span class="n">executables</span><span class="p">[</span><span class="n">executable</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_models</span><span class="p">(</span><span class="n">components_in_use</span><span class="p">,</span> <span class="n">component_configs</span><span class="p">,</span> <span class="n">machine</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build the model of each component that has one and whose config options</span>
+<span class="sd">    ask for a build, and check that each model is compatible with polaris</span>
+<span class="sd">    """</span>
+    <span class="n">_check_model_executables</span><span class="p">(</span><span class="n">components_in_use</span><span class="p">,</span> <span class="n">component_configs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components_in_use</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">component</span><span class="o">.</span><span class="n">has_model</span><span class="p">():</span>
+            <span class="k">continue</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">component_configs</span><span class="p">[</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">):</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">build_model</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">)</span>
+
+        <span class="n">component</span><span class="o">.</span><span class="n">check_model_version</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_model_flags</span><span class="p">(</span><span class="n">components_in_use</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get a printable list of the per-component command-line flags for the</span>
+<span class="sd">    components in use that have a model</span>
+<span class="sd">    """</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components_in_use</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">component</span><span class="o">.</span><span class="n">has_model</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+        <span class="n">flags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s1">'--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_model'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_path'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'--</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_branch'</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">'none of the components in use has a model'</span>
+
+    <span class="k">return</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_tasks_by_number</span><span class="p">(</span><span class="n">numbers</span><span class="p">,</span> <span class="n">all_tasks</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">cached_steps</span><span class="p">):</span>
@@ -1219,74 +1564,34 @@
                     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_build_model</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">machine</span><span class="p">):</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">'build'</span><span class="p">]</span>
-    <span class="n">branch</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'branch'</span><span class="p">)</span>
-    <span class="n">clean_build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'clean'</span><span class="p">)</span>
-    <span class="n">quiet_build</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'quiet'</span><span class="p">)</span>
-    <span class="n">debug</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'debug'</span><span class="p">)</span>
-    <span class="n">cmake_flags</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'cmake_flags'</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_suite_config</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get a copy of ``basic_config`` with the suite's config options added.</span>
 
-    <span class="n">build_dir</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">)</span>
+<span class="sd">    The suite's config options are used only for the suite's job script.  They</span>
+<span class="sd">    must not be added to ``basic_config`` itself, because that would propagate</span>
+<span class="sd">    them to the config options of every task and step in the suite.</span>
 
-    <span class="k">if</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'parallel'</span><span class="p">,</span> <span class="s1">'account'</span><span class="p">):</span>
-        <span class="n">account</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'parallel'</span><span class="p">,</span> <span class="s1">'account'</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">account</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    basic_config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options for the machine and the command line</span>
 
-    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
-        <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">'build_omega.log'</span><span class="p">)</span>
-        <span class="n">build_omega</span><span class="p">(</span>
-            <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
-            <span class="n">build_dir</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span>
-            <span class="n">clean</span><span class="o">=</span><span class="n">clean_build</span><span class="p">,</span>
-            <span class="n">quiet</span><span class="o">=</span><span class="n">quiet_build</span><span class="p">,</span>
-            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
-            <span class="n">cmake_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
-            <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span>
-            <span class="n">log_filename</span><span class="o">=</span><span class="n">log_filename</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">basic_config</span><span class="p">[</span><span class="s1">'build'</span><span class="p">]</span>
-        <span class="n">compiler</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'compiler'</span><span class="p">)</span>
-        <span class="n">mpilib</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mpi'</span><span class="p">)</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">mpilib</span><span class="si">}</span><span class="s1">_target'</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">section</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'The build target </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> is not defined in the [build] '</span>
-                <span class="sa">f</span><span class="s1">'section of the config file for machine </span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">.'</span>
-            <span class="p">)</span>
-        <span class="n">make_target</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="sd">    component_name : str</span>
+<span class="sd">        The name of the component that the suite belongs to</span>
 
-        <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">'build_mpas_ocean.log'</span><span class="p">)</span>
-        <span class="n">build_mpas_ocean</span><span class="p">(</span>
-            <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span>
-            <span class="n">build_dir</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span>
-            <span class="n">clean</span><span class="o">=</span><span class="n">clean_build</span><span class="p">,</span>
-            <span class="n">quiet</span><span class="o">=</span><span class="n">quiet_build</span><span class="p">,</span>
-            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
-            <span class="n">make_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
-            <span class="n">make_target</span><span class="o">=</span><span class="n">make_target</span><span class="p">,</span>
-            <span class="n">log_filename</span><span class="o">=</span><span class="n">log_filename</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'Automated build is not implemented for model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">'</span>
-        <span class="p">)</span>
+<span class="sd">    suite_name : str</span>
+<span class="sd">        The name of the suite, or ``'custom'`` if tasks are not being set</span>
+<span class="sd">        up as part of a suite</span>
 
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_check_pcd_version</span><span class="p">(</span><span class="n">basic_config</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Check that Polaris and branch PCD versions match when applicable."""</span>
-    <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s1">'ocean'</span><span class="p">:</span>
-        <span class="k">return</span>
-
-    <span class="n">model</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'mpas-ocean'</span><span class="p">,</span> <span class="s1">'omega'</span><span class="p">]:</span>
-        <span class="k">return</span>
-
-    <span class="n">branch</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'branch'</span><span class="p">)</span>
-    <span class="n">check_pcd_version_matches_branch</span><span class="p">(</span><span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    suite_config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options to use for the suite's job script</span>
+<span class="sd">    """</span>
+    <span class="n">suite_config</span> <span class="o">=</span> <span class="n">basic_config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">_add_suite_config</span><span class="p">(</span><span class="n">suite_config</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">suite_config</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_suite_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">):</span>

@@ -120,7 +120,18 @@
   <section class="tex2jax_ignore mathjax_ignore" id="sea-ice-component">
 <span id="dev-seaice"></span><h1>Sea ice component<a class="headerlink" href="#sea-ice-component" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">seaice</span></code> component currently consists of single column tests.  The
-component has the following config options as follows:</p>
+component-wide config options say which model it runs:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># This config file has default config options for the seaice component</span>
+
+<span class="c1"># Options related the sea-ice component</span>
+<span class="k">[seaice]</span>
+
+<span class="c1"># Which model is used.  MPAS-Seaice is currently the only option.</span>
+<span class="na">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpas-seaice</span>
+</pre></div>
+</div>
+<p>The config options for MPAS-Seaice itself are in <code class="docutils literal notranslate"><span class="pre">mpas_seaice.cfg</span></code>, added
+during setup by <code class="docutils literal notranslate"><span class="pre">SeaIce.configure()</span></code>:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># This config file has default config options for MPAS-Seaice</span>
 
 <span class="c1"># The paths section points polaris to external paths</span>

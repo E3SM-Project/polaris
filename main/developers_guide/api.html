@@ -113,6 +113,11 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.attrs.set_attrs.html">polaris.attrs.set_attrs</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#component-graph">component_graph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.component_graph.get_components_in_use.html">polaris.component_graph.get_components_in_use</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.component_graph.get_steps_by_component.html">polaris.component_graph.get_steps_by_component</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#config">config</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.html">polaris.config.PolarisConfigParser</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.config.PolarisConfigParser.setup.html">polaris.config.PolarisConfigParser.setup</a></li>
@@ -494,6 +499,18 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.get_or_create_shared_config.html#polaris.Component.get_or_create_shared_config" title="polaris.Component.get_or_create_shared_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.get_or_create_shared_config</span></code></a>(filepath)</p></td>
 <td><p>Get a shared config from the component if it exists, otherwise build and add it.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.configure.html#polaris.Component.configure" title="polaris.Component.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.configure</span></code></a>(config, steps)</p></td>
+<td><p>Configure the component</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.has_model.html#polaris.Component.has_model" title="polaris.Component.has_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.has_model</span></code></a>()</p></td>
+<td><p>Whether this component has a model executable, and therefore whether options like the path to that executable apply to it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.build_model.html#polaris.Component.build_model" title="polaris.Component.build_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.build_model</span></code></a>(config, machine)</p></td>
+<td><p>Build the model for this component.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.Component.check_model_version.html#polaris.Component.check_model_version" title="polaris.Component.check_model_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.check_model_version</span></code></a>(config)</p></td>
+<td><p>Check that the model this component will run is compatible with this version of polaris.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.Component.get_or_create_shared_step.html#polaris.Component.get_or_create_shared_step" title="polaris.Component.get_or_create_shared_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component.get_or_create_shared_step</span></code></a>(...[, ...])</p></td>
 <td><p>Get a shared step from the component if it exists, otherwise create and add it.</p></td>
 </tr>
@@ -718,6 +735,19 @@ documentation.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.attrs.set_attrs.html#polaris.attrs.set_attrs" title="polaris.attrs.set_attrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_attrs</span></code></a>(da[, long_name, units])</p></td>
 <td><p>Replace the attributes of <code class="docutils literal notranslate"><span class="pre">da</span></code> in place with the given metadata.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="component-graph">
+<h3>component_graph<a class="headerlink" href="#component-graph" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.component_graph.get_components_in_use.html#polaris.component_graph.get_components_in_use" title="polaris.component_graph.get_components_in_use"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_components_in_use</span></code></a>(tasks)</p></td>
+<td><p>Get the components referenced by the given tasks: the component of each task, of each step in those tasks and, recursively, of each step dependency.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.component_graph.get_steps_by_component.html#polaris.component_graph.get_steps_by_component" title="polaris.component_graph.get_steps_by_component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_steps_by_component</span></code></a>(tasks)</p></td>
+<td><p>Get the steps in the given tasks and in their dependencies, grouped by the component that owns each step.</p></td>
 </tr>
 </tbody>
 </table>

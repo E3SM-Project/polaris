@@ -70,6 +70,7 @@
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Config files</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#shared-config-files">Shared config files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#where-a-task-s-or-step-s-config-options-come-from">Where a task’s or step’s config options come from</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#comments-in-config-files">Comments in config files</a></li>
 </ul>
 </li>
@@ -302,6 +303,44 @@ added as follows:</p>
                      <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">))</span>
 </pre></div>
 </div>
+</section>
+<section id="where-a-task-s-or-step-s-config-options-come-from">
+<span id="dev-component-config"></span><h2>Where a task’s or step’s config options come from<a class="headerlink" href="#where-a-task-s-or-step-s-config-options-come-from" title="Link to this heading"></a></h2>
+<p>Every config parser belongs to exactly one component, and gets that
+component’s config options and nothing else from any other component.</p>
+<p>During setup, polaris builds a config parser for each component <strong>in use</strong> –
+the component that owns the tasks being set up, the components that own steps
+in those tasks and the components of any dependencies of those steps
+(<a class="reference internal" href="../generated/polaris.component_graph.get_components_in_use.html#polaris.component_graph.get_components_in_use" title="polaris.component_graph.get_components_in_use"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.component_graph.get_components_in_use()</span></code></a>).  A component’s
+config parser is made up of:</p>
+<ol class="arabic simple">
+<li><p>the config options for the machine and the command line
+(<code class="docutils literal notranslate"><span class="pre">polaris/default.cfg</span></code>, the machine config files, a config file passed with
+<code class="docutils literal notranslate"><span class="pre">-f</span></code> and options like <code class="docutils literal notranslate"><span class="pre">-p</span></code>)</p></li>
+<li><p>the component’s own config file, <code class="docutils literal notranslate"><span class="pre">polaris/&lt;component&gt;/&lt;component&gt;.cfg</span></code></p></li>
+<li><p>whatever the component’s
+<a class="reference internal" href="../generated/polaris.Component.configure.html#polaris.Component.configure" title="polaris.Component.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.configure()</span></code></a> method adds, such as the ocean’s
+<code class="docutils literal notranslate"><span class="pre">mpas_ocean.cfg</span></code> or <code class="docutils literal notranslate"><span class="pre">omega.cfg</span></code></p></li>
+</ol>
+<p>That config parser is then prepended to the config parser of each task and
+shared step the component owns, so a task’s or step’s own config files always
+take precedence over the component’s.</p>
+<p>This means that a shared step gets the config options of <strong>its own</strong>
+component, not those of the component that owns the task that includes it.  A
+shared ocean step gets the ocean’s config options whether it was set up as
+part of an ocean task or as part of an <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> task, so a step behaves the
+same however it was reached.  Two rules follow, and setup raises if either is
+broken:</p>
+<ul class="simple">
+<li><p>a step from a component other than its task’s must be a shared step with a
+shared config file, since a step without one would get its config options
+from the task, and so from the wrong component</p></li>
+<li><p>a shared config file must be used by steps from only one component, since it
+is that component’s config options it will be given</p></li>
+</ul>
+<p>The suite’s config file (<code class="docutils literal notranslate"><span class="pre">polaris/suites/&lt;component&gt;/&lt;suite&gt;.cfg</span></code>) is not part
+of any of this.  It applies only to the suite’s job script, so that a task or
+step behaves the same whether or not it was set up as part of a suite.</p>
 </section>
 <section id="comments-in-config-files">
 <h2>Comments in config files<a class="headerlink" href="#comments-in-config-files" title="Link to this heading"></a></h2>
