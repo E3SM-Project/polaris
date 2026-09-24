@@ -73,3 +73,20 @@ variables built from one array can still describe themselves differently.
 Leave `units` out for quantities that have no meaningful unit — a one-based
 level index, a boolean mask — rather than inventing one.  Anything else, such
 as a `note` or a `standard_name`, can be passed as an extra keyword argument.
+
+(dev-attrs-cf)=
+
+## CF conventions
+
+A step that writes a netCDF file with xarray or `write_netcdf()` should pass
+the dataset through {py:func}`polaris.cf.add_cf_conventions()` first.  It
+adds `CF-1.8` to the `Conventions` attribute, keeping any other convention
+listed, such as the `MPAS` entry from the MPAS-Tools mesh converter.  For an
+MPAS mesh, {py:func}`polaris.mesh.attrs.add_mesh_var_attrs()` also fills in
+`units` and `long_name` for the mesh variables MPAS-Tools writes without
+them.  Both leave what a variable already has alone.  The ocean component's
+write methods do both for you (see {ref}`dev-ocean-framework-cf-metadata`).
+
+A units string must be one udunits parses: the plain CF form (`m s-1`, `N
+m-2`, `radians`), with `1` for a dimensionless quantity, never `unitless`,
+`dimensionless` or `PSU`.
