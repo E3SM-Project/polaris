@@ -123,7 +123,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_specvol</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_1d_grid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_1d_grid</span><span class="p">,</span> <span class="n">generate_1d_grid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.pstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_pstar_vertical_coord</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Gravity</span><span class="p">,</span>
@@ -541,6 +541,26 @@
 
         <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'pseudo-layer thickness'</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+
+        <span class="c1"># Add the 1D reference vertical coordinate (refBottomDepth, refZMid,</span>
+        <span class="c1"># refTopDepth, refInterfaces).  The p-star reference grid is the same</span>
+        <span class="c1"># 1D grid used to build the coordinate, so this is iteration</span>
+        <span class="c1"># independent and belongs in the one-time output assembly.</span>
+        <span class="c1"># MPAS-Ocean requires refBottomDepth as an input; Omega does not use</span>
+        <span class="c1"># these fields.</span>
+        <span class="n">add_1d_grid</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refTopDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'reference depth of layer top'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refTopDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'reference depth of layer midpoint'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'reference depth of layer bottom'</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refBottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refInterfaces</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">'reference depth of layer interfaces'</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">refInterfaces</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
         <span class="k">return</span> <span class="n">ds</span></div>
 </div>

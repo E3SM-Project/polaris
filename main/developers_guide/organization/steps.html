@@ -178,6 +178,46 @@ created and set up once, even if multiple tasks reference it.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>The shared config those steps use needs the same treatment, which is what
+<a class="reference internal" href="../generated/polaris.Component.get_or_create_shared_config.html#polaris.Component.get_or_create_shared_config" title="polaris.Component.get_or_create_shared_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_or_create_shared_config()</span></code></a> is for:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="s2">"init.cfg"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">():</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s2">"my.package"</span><span class="p">,</span> <span class="s2">"init.cfg"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_config</span><span class="p">(</span>
+    <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="n">create</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">get_*_steps()</span></code> helper is called once per consumer, so building its config
+unconditionally is a bug even though it looks harmless.  The second caller gets
+a <em>different</em> config object at the same path, while the shared steps — created
+on the first call — go on using the first one.  Options set on what the second
+caller was handed then reach nothing, and passing it to
+<a class="reference internal" href="../generated/polaris.Task.set_shared_config.html#polaris.Task.set_shared_config" title="polaris.Task.set_shared_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Task.set_shared_config()</span></code></a> raises, because a different config
+is already registered at that path.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">create</span></code> callback runs only when the config does not already exist, so it
+must not be relied on for anything a later caller needs.  Because it returns
+the config rather than filling one in, an existing config builder — such as
+<a class="reference internal" href="../generated/polaris.mesh.spherical.unified.get_unified_mesh_config.html#polaris.mesh.spherical.unified.get_unified_mesh_config" title="polaris.mesh.spherical.unified.get_unified_mesh_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.spherical.unified.get_unified_mesh_config()</span></code></a> — can be
+passed straight through.  It must return a config whose <code class="docutils literal notranslate"><span class="pre">filepath</span></code> matches, or
+the config would be registered under a path it does not know about; that is
+checked.</p>
+<p>Being called once per consumer is the thing to keep in mind generally.  Prefer
+wiring a dependency inside the step’s own constructor, as <code class="docutils literal notranslate"><span class="pre">RemapWoa23Step</span></code> and
+<code class="docutils literal notranslate"><span class="pre">RemapJra55Step</span></code> do, since <code class="docutils literal notranslate"><span class="pre">get_or_create_shared_step()</span></code> passes constructor
+arguments only when it really creates the step, so the wiring happens exactly
+once.  Where that is not possible — a chain whose links are only known to the
+helper, say — <a class="reference internal" href="../generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency" title="polaris.Step.add_dependency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_dependency()</span></code></a> may simply be called
+again: adding the same step under the same name is a no-op.  Adding a
+<em>different</em> step under a name already in use is still an error, which is what
+its <code class="docutils literal notranslate"><span class="pre">name</span></code> argument exists to resolve.</p>
 <p>See the <a class="reference internal" href="../../design_docs/shared_steps.html"><span class="std std-doc">design document on shared steps</span></a>
 for more details about the motivation and implementation.</p>
 <p>A step is defined by a class that descends from <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.

@@ -467,7 +467,16 @@ outside of the <code class="docutils literal notranslate"><span class="pre">cosi
 that needs a quasi-uniform (<code class="docutils literal notranslate"><span class="pre">qu</span></code>) or subdivided icosahedral (<code class="docutils literal notranslate"><span class="pre">icos</span></code>) mesh of
 the given resolution.  A path within the task for a symlink is provided using
 the <code class="docutils literal notranslate"><span class="pre">symlink</span></code> argument to make it easier for users and developers to find the
-shared step.  Here’s what the work directory structure will look like for the
+shared step.</p>
+<p>A symlink that would land in the directory already holding the step is dropped
+rather than created, since it would sit beside what it points to and only add a
+second name for it — <code class="docutils literal notranslate"><span class="pre">cull_mask</span></code> next to <code class="docutils literal notranslate"><span class="pre">mask</span></code>.  This matters because a
+<code class="docutils literal notranslate"><span class="pre">get_*_steps()</span></code> helper suggests one symlink name per step, chosen for consumers
+whose tasks live elsewhere in the tree; a task that lives in the steps’ own
+directory can pass those names straight through without having to filter them.
+A symlink to a step nested <em>deeper</em> under the task is kept: surfacing it under a
+descriptive name is what symlinks are for.</p>
+<p>Here’s what the work directory structure will look like for the
 <code class="docutils literal notranslate"><span class="pre">ocean/spherical/icos/cosine_bell</span></code> task:</p>
 <ul class="simple">
 <li><p>ocean</p>

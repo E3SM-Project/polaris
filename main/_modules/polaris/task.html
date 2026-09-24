@@ -276,7 +276,16 @@
 <span class="sd">        symlink : str, optional</span>
 <span class="sd">            A location for a symlink to the step, relative to the test case's</span>
 <span class="sd">            work directory. This is typically used for a shared step that lives</span>
-<span class="sd">            outside of the test case</span>
+<span class="sd">            outside of the test case.</span>
+
+<span class="sd">            A symlink that would land in the directory that already holds the</span>
+<span class="sd">            step is dropped, since it would sit beside what it points to and</span>
+<span class="sd">            only add a second name for it.  A ``get_*_steps()`` helper suggests</span>
+<span class="sd">            one symlink name per step for consumers whose tasks live elsewhere</span>
+<span class="sd">            in the tree, and a task that lives in the steps' own directory can</span>
+<span class="sd">            pass those through without having to filter them.  A symlink to a</span>
+<span class="sd">            step nested deeper under the task is kept: surfacing it under a</span>
+<span class="sd">            descriptive name is what symlinks are for.</span>
 
 <span class="sd">        run_by_default : bool, optional</span>
 <span class="sd">            Whether to add this step to the list of steps to run when the</span>
@@ -310,11 +319,23 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
         <span class="n">step</span><span class="o">.</span><span class="n">tasks</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
-        <span class="k">if</span> <span class="n">symlink</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">symlink</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symlink_is_beside_step</span><span class="p">(</span><span class="n">symlink</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span><span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">symlink</span>
         <span class="k">if</span> <span class="n">run_by_default</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_symlink_is_beside_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symlink</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Whether a symlink would land in the directory that already holds the</span>
+<span class="sd">        step, making it a second name for something already in view.</span>
+
+<span class="sd">        Compared on the full path within the base work directory, since a step</span>
+<span class="sd">        may belong to another component and two components can have the same</span>
+<span class="sd">        subdirectory layout.</span>
+<span class="sd">        """</span>
+        <span class="n">link_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">symlink</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">link_path</span><span class="p">)</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Task.remove_step">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.Task.remove_step.html#polaris.Task.remove_step">[docs]</a>

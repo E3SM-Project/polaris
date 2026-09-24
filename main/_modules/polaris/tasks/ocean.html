@@ -134,6 +134,7 @@
     <span class="n">geom_thickness_from_ds</span><span class="p">,</span>
     <span class="n">pseudothickness_from_ds</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">REF_COORD_VARS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">geom_height_from_pseudo_height</span><span class="p">,</span>
     <span class="n">get_iter_count_for_eos</span><span class="p">,</span>
@@ -642,6 +643,14 @@
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_horiz_mesh_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_vert_coord_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+            <span class="c1"># Omega uses RefPseudoThickness, not the 1D reference depth</span>
+            <span class="c1"># coordinate, so drop those fields (added by the p-star init for</span>
+            <span class="c1"># MPAS-Ocean) from the Omega initial state.</span>
+            <span class="n">drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">REF_COORD_VARS</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">drop</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">drop</span><span class="p">)</span>
+
             <span class="c1"># Omega requires a surface pressure in its initial state but</span>
             <span class="c1"># MPAS-Ocean does not, so only add it for Omega.  This is the one</span>
             <span class="c1"># place the vertical_grid:surface_pressure config option is read</span>

@@ -451,6 +451,57 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span></div>
 
 
+<div class="viewcode-block" id="Component.get_or_create_shared_config">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.Component.get_or_create_shared_config.html#polaris.Component.get_or_create_shared_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_or_create_shared_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get a shared config from the component if it exists, otherwise build</span>
+<span class="sd">        and add it.</span>
+
+<span class="sd">        The companion to :py:meth:`get_or_create_shared_step`, and needed for</span>
+<span class="sd">        the same reason.  A ``get_*_steps()`` helper is called once per</span>
+<span class="sd">        consumer, so building its config unconditionally hands the second</span>
+<span class="sd">        caller a config that the shared steps -- created on the first call --</span>
+<span class="sd">        are not using.  Options set on it reach nothing, and passing it to</span>
+<span class="sd">        :py:meth:`polaris.Task.set_shared_config` raises, because a different</span>
+<span class="sd">        config is already registered at that path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath : str</span>
+<span class="sd">            The path of the config file relative to the base work directory,</span>
+<span class="sd">            which is what identifies a shared config</span>
+
+<span class="sd">        create : callable, optional</span>
+<span class="sd">            Called with no arguments to build the config, and only when it does</span>
+<span class="sd">            not already exist -- so it must not be relied on for anything a</span>
+<span class="sd">            later caller needs.  It must return a</span>
+<span class="sd">            :py:class:`polaris.config.PolarisConfigParser` whose ``filepath``</span>
+<span class="sd">            is ``filepath``.  A config builder that returns a new parser, as</span>
+<span class="sd">            several in Polaris do, can be passed directly.  The default builds</span>
+<span class="sd">            an empty parser.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        config : polaris.config.PolarisConfigParser</span>
+<span class="sd">            The shared config parser</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">create</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">create</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">filepath</span> <span class="o">!=</span> <span class="n">filepath</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'The config built for </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1"> has filepath '</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s1">; it would be registered under a path '</span>
+                    <span class="sa">f</span><span class="s1">'it does not know about.'</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Configure the component</span>
@@ -560,8 +611,9 @@
             <span class="n">pkg_file</span> <span class="o">=</span> <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
             <span class="k">with</span> <span class="n">pkg_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cached_files</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-            <span class="c1"># no cached files for this core</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="c1"># the component has no package of its own or no cached files in</span>
+            <span class="c1"># it, so there is nothing to read</span>
             <span class="k">pass</span></div>
 
 

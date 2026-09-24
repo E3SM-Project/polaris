@@ -124,6 +124,12 @@
     <span class="n">create_tanh_dz_grid</span> <span class="k">as</span> <span class="n">create_tanh_dz_grid</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="c1"># The 1D reference vertical coordinate variables added by ``add_1d_grid``.</span>
+<span class="c1"># Kept here as the single source of truth so that consumers that need to</span>
+<span class="c1"># route or exclude these variables (e.g. dropping them from Omega output)</span>
+<span class="c1"># stay in sync with what ``add_1d_grid`` actually writes.</span>
+<span class="n">REF_COORD_VARS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'refTopDepth'</span><span class="p">,</span> <span class="s1">'refZMid'</span><span class="p">,</span> <span class="s1">'refBottomDepth'</span><span class="p">,</span> <span class="s1">'refInterfaces'</span><span class="p">]</span>
+
 
 <div class="viewcode-block" id="generate_1d_grid">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.grid_1d.generate_1d_grid.html#polaris.ocean.vertical.grid_1d.generate_1d_grid">[docs]</a>

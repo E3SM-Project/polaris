@@ -1216,6 +1216,17 @@
 <span class="sd">        step : polaris.Step</span>
 <span class="sd">            The step that is a dependency</span>
 
+<span class="sd">        Adding the same dependency again under the same name does nothing, so</span>
+<span class="sd">        that a ``get_*_steps()`` helper which wires a dependency outside a step</span>
+<span class="sd">        constructor is safe to call once per consumer, as shared steps are.</span>
+<span class="sd">        Adding a *different* step under a name already in use is still an</span>
+<span class="sd">        error, which is what the ``name`` argument exists to resolve.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step : polaris.Step</span>
+<span class="sd">            The step that is a dependency</span>
+
 <span class="sd">        name : str, optional</span>
 <span class="sd">            The name of the step used to access it in the ``dependencies``</span>
 <span class="sd">            dictionary.  By default, it is ``step.name`` but another name may</span>
@@ -1224,8 +1235,13 @@
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">is</span> <span class="n">step</span><span class="p">:</span>
+                <span class="c1"># already wired; returning rather than falling through matters</span>
+                <span class="c1"># because neither add_output_file() nor add_input_file()</span>
+                <span class="c1"># de-duplicates</span>
+                <span class="k">return</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">'Adding a dependency that is already in dependencies.'</span>
+                <span class="sa">f</span><span class="s1">'A different dependency has already been added as </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s1">.'</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span>
         <span class="n">step</span><span class="o">.</span><span class="n">is_dependency</span> <span class="o">=</span> <span class="kc">True</span>

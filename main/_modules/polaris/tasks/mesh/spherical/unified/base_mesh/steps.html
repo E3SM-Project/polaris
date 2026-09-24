@@ -139,20 +139,25 @@
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
 <span class="sd">        The shared config options for the named unified base mesh.</span>
 <span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">():</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">get_unified_mesh_config</span><span class="p">(</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span>
+        <span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">'polaris.tasks.mesh.spherical.unified.base_mesh'</span><span class="p">,</span> <span class="s1">'base_mesh.cfg'</span>
+        <span class="p">)</span>
+
+        <span class="n">min_cell_width</span><span class="p">,</span> <span class="n">max_cell_width</span> <span class="o">=</span> <span class="n">_get_mesh_cell_width_bounds</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'prefix'</span><span class="p">,</span> <span class="s1">'UN'</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'min_cell_width'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">min_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'max_cell_width'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">max_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span>
+
     <span class="n">component</span> <span class="o">=</span> <span class="n">_get_mesh_component</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">component</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
-
-    <span class="n">config</span> <span class="o">=</span> <span class="n">get_unified_mesh_config</span><span class="p">(</span><span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">'polaris.tasks.mesh.spherical.unified.base_mesh'</span><span class="p">,</span> <span class="s1">'base_mesh.cfg'</span>
+    <span class="k">return</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_config</span><span class="p">(</span>
+        <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="n">create</span>
     <span class="p">)</span>
-
-    <span class="n">min_cell_width</span><span class="p">,</span> <span class="n">max_cell_width</span> <span class="o">=</span> <span class="n">_get_mesh_cell_width_bounds</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'prefix'</span><span class="p">,</span> <span class="s1">'UN'</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'min_cell_width'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">min_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'spherical_mesh'</span><span class="p">,</span> <span class="s1">'max_cell_width'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">max_cell_width</span><span class="si">:</span><span class="s1">g</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">config</span>
 
 
 <div class="viewcode-block" id="get_unified_base_mesh_steps">
