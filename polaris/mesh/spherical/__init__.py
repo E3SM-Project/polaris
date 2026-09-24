@@ -84,8 +84,20 @@ class SphericalBaseStep(Step):
         da = xr.DataArray(
             cell_width,
             dims=['lat', 'lon'],
-            coords={'lat': lat, 'lon': lon},
+            coords={
+                'lat': (
+                    'lat',
+                    lat,
+                    {'long_name': 'latitude', 'units': 'degrees_north'},
+                ),
+                'lon': (
+                    'lon',
+                    lon,
+                    {'long_name': 'longitude', 'units': 'degrees_east'},
+                ),
+            },
             name='cellWidth',
+            attrs={'long_name': 'Target cell width', 'units': 'km'},
         )
         cell_width_filename = self.work_path(
             section.get('cell_width_filename')
