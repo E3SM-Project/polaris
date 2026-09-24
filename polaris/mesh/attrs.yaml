@@ -2,6 +2,8 @@
 # dataset before it is written when a variable does not already have them.
 # Index and connectivity variables have no units.  Units are in the CF plain
 # form that udunits parses (m2, radians s-1, 1 for dimensionless).
+# A standard_name is given only where its meaning does not depend on the
+# model or its configuration; see #810 for the physical fields.
 
 # global indices
 indexToCellID:
@@ -84,6 +86,7 @@ lonVertex:
 areaCell:
   long_name: area of each cell in the primal mesh
   units: m2
+  standard_name: cell_area
 areaTriangle:
   long_name: area of each triangle in the dual mesh
   units: m2

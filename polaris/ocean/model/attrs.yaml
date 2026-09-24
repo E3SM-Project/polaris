@@ -5,6 +5,8 @@
 # the Omega-only fields Polaris adds itself.  Units are in the CF plain form
 # that udunits parses (m s-1, N m-2, 1 for dimensionless); integer masks and
 # indices have no units.
+# A standard_name is given only where its meaning does not depend on the
+# model or its configuration; see #810 for the physical fields.
 
 # vertical coordinate
 minLevelCell:
@@ -158,6 +160,7 @@ landIceFloatingMask:
 landIceFraction:
   long_name: fraction of each cell covered by land ice
   units: '1'
+  standard_name: land_ice_area_fraction
 landIceFloatingFraction:
   long_name: fraction of each cell covered by floating land ice
   units: '1'
