@@ -23,6 +23,16 @@ from polaris.ocean.vertical.zstar import (
     update_z_star_layer_thickness as update_z_star_layer_thickness,
 )
 
+# fields that init_vertical_coord() computes from others
+_VERT_COORD_VARS = [
+    'minLevelCell',
+    'maxLevelCell',
+    'cellMask',
+    'layerThickness',
+    'restingThickness',
+    'vertCoordMovementWeights',
+]
+
 
 def init_vertical_coord(config, ds):
     """
@@ -129,6 +139,11 @@ def init_vertical_coord(config, ds):
     ds['minLevelCell'] = ds.minLevelCell + 1
     ds['maxLevelCell'] = ds.maxLevelCell + 1
 
+    # these are computed from ssh, bottomDepth and the reference grid, and
+    # xarray carries attributes through that, so start them without any
+    for var in _VERT_COORD_VARS:
+        ds[var] = ds[var].drop_attrs()
+
 
 def update_layer_thickness(config, ds):
     """
@@ -175,7 +190,9 @@ def update_layer_thickness(config, ds):
 
     # add (back) Time dimension
     ds['ssh'] = ds.ssh.expand_dims(dim='Time', axis=0)
-    ds['layerThickness'] = ds.layerThickness.expand_dims(dim='Time', axis=0)
+    ds['layerThickness'] = ds.layerThickness.expand_dims(
+        dim='Time', axis=0
+    ).drop_attrs()
 
 
 def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):

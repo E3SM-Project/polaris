@@ -90,8 +90,8 @@ class Init(OceanIOStep):
         self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ds = ds_mesh.copy()
-        x_cell = ds.xCell
-        y_cell = ds.yCell
+        x_cell = ds.xCell.drop_attrs()
+        y_cell = ds.yCell.drop_attrs()
 
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
 
@@ -160,7 +160,7 @@ class Init(OceanIOStep):
 
         temperature = temperature.expand_dims(dim='Time', axis=0)
 
-        normal_velocity = xr.zeros_like(ds_mesh.xEdge)
+        normal_velocity = xr.zeros_like(ds_mesh.xEdge).drop_attrs()
         normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)
