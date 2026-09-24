@@ -70,6 +70,8 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Mesh Framework</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Spherical Meshes</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#jigsaw-mesh-optimization">JIGSAW mesh optimization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reconstruction-weights">Reconstruction weights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cell-polygon-quality-checks">Cell-polygon quality checks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#supported-base-mesh-steps">Supported Base Mesh Steps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#approximately-uniform-spherical-meshes">Approximately Uniform Spherical Meshes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#rossby-radius-scaled-rrs-meshes">Rossby-radius Scaled (RRS) Meshes</a></li>
@@ -78,6 +80,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="planar.html">Planar Meshes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="info.html">Mesh Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="connectivity.html">Mesh Connectivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vector.html">Mesh Geometry Vectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reconstruct.html">Vector Reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">Baseline Validation Variables</a></li>
 </ul>
 </li>
 </ul>
@@ -206,12 +212,17 @@ methods.</p>
 <span class="na">jigsaw_hfun_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">spac.msh</span>
 <span class="na">triangles_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh_triangles.nc</span>
 <span class="na">mpas_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">base_mesh.nc</span>
+<span class="na">reconstruction_weights_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">reconstruction_weights.nc</span>
 
 <span class="c1"># JIGSAW mesh-optimization settings</span>
 <span class="na">jigsaw_optm_kern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">odt+dqdx</span>
 <span class="na">jigsaw_optm_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">16</span>
 <span class="na">jigsaw_optm_qtol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-4</span>
 <span class="na">jigsaw_optm_qlim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.9375</span>
+
+<span class="c1"># whether to compute vector-reconstruction weights and stencils at cell</span>
+<span class="c1"># centers for the base mesh</span>
+<span class="na">generate_reconstruction_weights</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
 
 <span class="c1"># options related to mesh name and resolution</span>
 <span class="c1"># the prefix (e.g. Icos, QU, SO, RRS)</span>
@@ -221,6 +232,10 @@ methods.</p>
 <span class="c1"># the maximum (coarsest) resolution in the mesh, can be the same as</span>
 <span class="c1"># min_cell_width</span>
 <span class="na">max_cell_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;&lt;&lt;missing&gt;&gt;&gt;</span>
+
+<span class="c1"># Antarctic land-ice ownership convention shared by spherical mesh workflows</span>
+<span class="c1"># and downstream topography-based culling</span>
+<span class="na">antarctic_boundary_convention</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">calving_front</span>
 
 
 <span class="c1"># options related to writing out and plotting cell widths</span>
@@ -240,6 +255,23 @@ methods.</p>
 
 <span class="c1"># whether to extract the vtk output in lat/lon space, rather than on the sphere</span>
 <span class="na">vtk_lat_lon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+
+<span class="c1"># config options related to spherical mesh quality checks</span>
+<span class="k">[spherical_mesh_quality]</span>
+
+<span class="c1"># whether to check MPAS cell polygons for geometry that can trip remapping</span>
+<span class="na">check_cell_geometry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="c1"># minimum edge length as a fraction of the median edge length in the cell</span>
+<span class="na">minimum_edge_length_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-5</span>
+
+<span class="c1"># minimum sine of each cell corner angle.  Small values indicate nearly</span>
+<span class="c1"># collinear or spiked consecutive vertices.</span>
+<span class="na">minimum_corner_sine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-3</span>
+
+<span class="c1"># maximum number of failing cells to include in the error message</span>
+<span class="na">max_bad_cells_to_report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 </pre></div>
 </div>
 <section id="jigsaw-mesh-optimization">
@@ -266,13 +298,46 @@ cell-polygon quality check outright. Because the cull diagnostic reports a
 <em>minimum</em> over millions of edges, a kernel that improves the bulk and
 worsens the tail is a net loss.</p>
 </section>
+<section id="reconstruction-weights">
+<h2>Reconstruction weights<a class="headerlink" href="#reconstruction-weights" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../../generated/polaris.mesh.spherical.SphericalBaseStep.html#polaris.mesh.spherical.SphericalBaseStep" title="polaris.mesh.spherical.SphericalBaseStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.spherical.SphericalBaseStep</span></code></a> can add cell-centered
+vector-reconstruction weights and stencils to the base mesh, written to
+<code class="docutils literal notranslate"><span class="pre">reconstruction_weights_filename</span></code>.  See <a class="reference internal" href="reconstruct.html#dev-mesh-reconstruct"><span class="std std-ref">Vector Reconstruction</span></a> for what
+those fields are and how to use them.</p>
+<p><code class="docutils literal notranslate"><span class="pre">generate_reconstruction_weights</span></code> controls whether they are computed.  They
+are needed by Omega but not by MPAS-Ocean, and a mesh that gets culled
+afterward – a unified mesh, for instance – should turn them off, since
+culling renumbers cells and the weights have to be recomputed on the culled
+mesh anyway.</p>
+</section>
+<section id="cell-polygon-quality-checks">
+<h2>Cell-polygon quality checks<a class="headerlink" href="#cell-polygon-quality-checks" title="Link to this heading"></a></h2>
+<p>After the MPAS mesh is written, <code class="docutils literal notranslate"><span class="pre">SphericalBaseStep</span></code> checks its cell polygons
+for geometry that would trip remapping later on, using
+<a class="reference internal" href="../../generated/polaris.mesh.spherical.quality.check_cell_polygon_quality.html#polaris.mesh.spherical.quality.check_cell_polygon_quality" title="polaris.mesh.spherical.quality.check_cell_polygon_quality"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.spherical.quality.check_cell_polygon_quality()</span></code></a>.  The
+<code class="docutils literal notranslate"><span class="pre">[spherical_mesh_quality]</span></code> options above tune the check: <code class="docutils literal notranslate"><span class="pre">check_cell_geometry</span></code>
+turns it off, <code class="docutils literal notranslate"><span class="pre">minimum_edge_length_ratio</span></code> and <code class="docutils literal notranslate"><span class="pre">minimum_corner_sine</span></code> set the
+thresholds for degenerate edges and spiked corners, and
+<code class="docutils literal notranslate"><span class="pre">max_bad_cells_to_report</span></code> limits how many failing cells the error message
+names.</p>
+<p>The default thresholds have several orders of magnitude of margin against
+genuine degeneracy while still passing meshes built with river-network line
+constraints, which pin vertices well below the target cell size wherever
+those lines run.  See the comments in <code class="docutils literal notranslate"><span class="pre">polaris/mesh/spherical/spherical.cfg</span></code>
+for the measurements the defaults are based on.</p>
+</section>
 <section id="supported-base-mesh-steps">
 <h2>Supported Base Mesh Steps<a class="headerlink" href="#supported-base-mesh-steps" title="Link to this heading"></a></h2>
-<p>May Polaris tasks and steps are generated only for a set of predetermined,
-supported base meshes and resolutions.  The list of base mesh steps is
-generated by <a class="reference internal" href="../../generated/polaris.mesh.base.get_base_mesh_steps.html#polaris.mesh.base.get_base_mesh_steps" title="polaris.mesh.base.get_base_mesh_steps"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.base.get_base_mesh_steps()</span></code></a>.</p>
-<p>Currently, the following meshes and resolutions are include in the list
-returned by <code class="docutils literal notranslate"><span class="pre">get_base_mesh_steps()</span></code>:</p>
+<p>Many polaris tasks and steps are generated only for a set of predetermined,
+supported base meshes and resolutions.  Those meshes are defined by
+<a class="reference internal" href="../../generated/polaris.mesh.base.BASE_MESH_DEFINITIONS.html#polaris.mesh.base.BASE_MESH_DEFINITIONS" title="polaris.mesh.base.BASE_MESH_DEFINITIONS"><code class="xref py py-data docutils literal notranslate"><span class="pre">polaris.mesh.base.BASE_MESH_DEFINITIONS</span></code></a>, which maps each mesh name
+to a <a class="reference internal" href="../../generated/polaris.mesh.base.BaseMeshDefinition.html#polaris.mesh.base.BaseMeshDefinition" title="polaris.mesh.base.BaseMeshDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.base.BaseMeshDefinition</span></code></a> giving its prefix and
+resolutions.  <a class="reference internal" href="../../generated/polaris.mesh.base.get_base_mesh_steps.html#polaris.mesh.base.get_base_mesh_steps" title="polaris.mesh.base.get_base_mesh_steps"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.base.get_base_mesh_steps()</span></code></a> turns those
+definitions into steps,
+<a class="reference internal" href="../../generated/polaris.mesh.base.get_base_mesh_definition.html#polaris.mesh.base.get_base_mesh_definition" title="polaris.mesh.base.get_base_mesh_definition"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.base.get_base_mesh_definition()</span></code></a> looks up a single one
+by name, and <a class="reference internal" href="../../generated/polaris.mesh.base.get_base_mesh_step_names.html#polaris.mesh.base.get_base_mesh_step_names" title="polaris.mesh.base.get_base_mesh_step_names"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.base.get_base_mesh_step_names()</span></code></a> lists the
+names.</p>
+<p>Currently, the following meshes and resolutions are defined:</p>
 <p>Uniform:</p>
 <ul class="simple">
 <li><p>Icos480km</p></li>
@@ -295,15 +360,15 @@ returned by <code class="docutils literal notranslate"><span class="pre">get_bas
 <li><p>SO12to30km</p></li>
 <li><p>RRS6to18km</p></li>
 </ul>
-<p>If you wish to add a new resolution (in km), simply edit the list of either
-uniform or variable resolutions to add the new value(s):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="n">uniform_res</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+<p>If you wish to add a new resolution (in km), edit the list of either uniform
+or variable resolutions in <code class="docutils literal notranslate"><span class="pre">_get_base_mesh_definitions()</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris/mesh/base/__init__.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="n">uniform_res</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">'icos'</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
         <span class="s1">'qu'</span><span class="p">:</span> <span class="p">[</span><span class="mf">480.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="mf">210.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">],</span>
     <span class="p">}</span>
 
-    <span class="c1"># Add more variable resolution base meshes here</span>
-    <span class="n">variable_res</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">variable_res</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">'so'</span><span class="p">:</span> <span class="p">[(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">)],</span>
         <span class="s1">'rrs'</span><span class="p">:</span> <span class="p">[(</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">)],</span>
     <span class="p">}</span>
@@ -328,9 +393,9 @@ resolution.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Then, you can add prefix and its associated resolutions to
-<code class="docutils literal notranslate"><span class="pre">get_base_mesh_steps()</span></code> as above.</p>
-<p>By adding new mesh prefixes and/or resolutions to <code class="docutils literal notranslate"><span class="pre">get_base_mesh_steps()</span></code>,
+<p>Then, you can add the prefix and its associated resolutions to
+<code class="docutils literal notranslate"><span class="pre">_get_base_mesh_definitions()</span></code> as above.</p>
+<p>By adding new mesh prefixes and/or resolutions to that function,
 a version of each task that builds on base meshes (such as those for remapping
 topography and culling out land or ocean) will be added to the list of tasks
 when you run <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code>.</p>

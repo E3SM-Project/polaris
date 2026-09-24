@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.UnifiedBaseMeshStep.setup
+========================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. automethod:: UnifiedBaseMeshStep.setup

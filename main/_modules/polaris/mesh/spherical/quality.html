@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.mesh.spherical.quality</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../spherical.html">polaris.mesh.spherical</a></li>
+      <li class="breadcrumb-item active">polaris.mesh.spherical.quality</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.mesh.spherical.quality</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<div class="viewcode-block" id="check_cell_polygon_quality">
+<a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.spherical.quality.check_cell_polygon_quality.html#polaris.mesh.spherical.quality.check_cell_polygon_quality">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_cell_polygon_quality</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">,</span>
+    <span class="n">minimum_edge_length_ratio</span><span class="p">,</span>
+    <span class="n">minimum_corner_sine</span><span class="p">,</span>
+    <span class="n">max_bad_cells_to_report</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check MPAS cell polygons for nearly duplicate or collinear vertices.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        MPAS mesh dataset</span>
+
+<span class="sd">    minimum_edge_length_ratio : float</span>
+<span class="sd">        Minimum edge length as a fraction of the median edge length in each</span>
+<span class="sd">        cell</span>
+
+<span class="sd">    minimum_corner_sine : float</span>
+<span class="sd">        Minimum sine of each corner angle in each cell</span>
+
+<span class="sd">    max_bad_cells_to_report : int</span>
+<span class="sd">        Maximum number of failing cells to include in the error message</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    diagnostics : dict</span>
+<span class="sd">        The global minimum edge-length ratio and corner sine</span>
+<span class="sd">    """</span>
+    <span class="n">required_variables</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">'nEdgesOnCell'</span><span class="p">,</span>
+        <span class="s1">'verticesOnCell'</span><span class="p">,</span>
+        <span class="s1">'xVertex'</span><span class="p">,</span>
+        <span class="s1">'yVertex'</span><span class="p">,</span>
+        <span class="s1">'zVertex'</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">required_variables</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_mesh</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'MPAS mesh is missing variable "</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s1">".'</span><span class="p">)</span>
+
+    <span class="n">n_edges_on_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">nEdgesOnCell</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">vertices_on_cell</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">verticesOnCell</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">max_edges</span> <span class="o">=</span> <span class="n">vertices_on_cell</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">invalid_n_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
+        <span class="n">n_edges_on_cell</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_edges_on_cell</span> <span class="o">&gt;</span> <span class="n">max_edges</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">invalid_n_edges</span><span class="p">):</span>
+        <span class="n">bad_cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">invalid_n_edges</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">_raise_cell_polygon_quality_error</span><span class="p">(</span>
+            <span class="n">reason</span><span class="o">=</span><span class="s1">'cells contain invalid nEdgesOnCell values'</span><span class="p">,</span>
+            <span class="n">bad_cell_indices</span><span class="o">=</span><span class="n">bad_cell_indices</span><span class="p">,</span>
+            <span class="n">min_edge_length_ratio_by_cell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">min_corner_sine_by_cell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">minimum_edge_length_ratio</span><span class="o">=</span><span class="n">minimum_edge_length_ratio</span><span class="p">,</span>
+            <span class="n">minimum_corner_sine</span><span class="o">=</span><span class="n">minimum_corner_sine</span><span class="p">,</span>
+            <span class="n">max_bad_cells_to_report</span><span class="o">=</span><span class="n">max_bad_cells_to_report</span><span class="p">,</span>
+            <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">max_edges</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">positions</span> <span class="o">&lt;</span> <span class="n">n_edges_on_cell</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="n">n_vertices</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">invalid_vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">valid</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">vertices_on_cell</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">vertices_on_cell</span> <span class="o">&gt;=</span> <span class="n">n_vertices</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">invalid_vertices</span><span class="p">):</span>
+        <span class="n">bad_cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">invalid_vertices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">_raise_cell_polygon_quality_error</span><span class="p">(</span>
+            <span class="n">reason</span><span class="o">=</span><span class="s1">'cells contain invalid vertex indices'</span><span class="p">,</span>
+            <span class="n">bad_cell_indices</span><span class="o">=</span><span class="n">bad_cell_indices</span><span class="p">,</span>
+            <span class="n">min_edge_length_ratio_by_cell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">min_corner_sine_by_cell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">minimum_edge_length_ratio</span><span class="o">=</span><span class="n">minimum_edge_length_ratio</span><span class="p">,</span>
+            <span class="n">minimum_corner_sine</span><span class="o">=</span><span class="n">minimum_corner_sine</span><span class="p">,</span>
+            <span class="n">max_bad_cells_to_report</span><span class="o">=</span><span class="n">max_bad_cells_to_report</span><span class="p">,</span>
+            <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">vertices_on_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">vertices_on_cell</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">prev_positions</span> <span class="o">=</span> <span class="p">(</span><span class="n">positions</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_edges_on_cell</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">next_positions</span> <span class="o">=</span> <span class="p">(</span><span class="n">positions</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_edges_on_cell</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">prev_vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take_along_axis</span><span class="p">(</span>
+        <span class="n">vertices_on_cell</span><span class="p">,</span> <span class="n">prev_positions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">next_vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take_along_axis</span><span class="p">(</span>
+        <span class="n">vertices_on_cell</span><span class="p">,</span> <span class="n">next_positions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="n">vertex_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xVertex</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yVertex</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">ds_mesh</span><span class="o">.</span><span class="n">zVertex</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">vertex_coords</span><span class="p">[</span><span class="n">vertices_on_cell</span><span class="p">]</span>
+    <span class="n">prev_coords</span> <span class="o">=</span> <span class="n">vertex_coords</span><span class="p">[</span><span class="n">prev_vertices</span><span class="p">]</span>
+    <span class="n">next_coords</span> <span class="o">=</span> <span class="n">vertex_coords</span><span class="p">[</span><span class="n">next_vertices</span><span class="p">]</span>
+
+    <span class="n">edge_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">next_coords</span> <span class="o">-</span> <span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">edge_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">edge_lengths</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">cell_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">edge_lengths</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">edge_length_ratios</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+        <span class="n">edge_lengths</span><span class="p">,</span>
+        <span class="n">cell_scale</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">edge_lengths</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+        <span class="n">where</span><span class="o">=</span><span class="n">cell_scale</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">prev_vectors</span> <span class="o">=</span> <span class="n">prev_coords</span> <span class="o">-</span> <span class="n">coords</span>
+    <span class="n">next_vectors</span> <span class="o">=</span> <span class="n">next_coords</span> <span class="o">-</span> <span class="n">coords</span>
+    <span class="n">corner_cross</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">prev_vectors</span><span class="p">,</span> <span class="n">next_vectors</span><span class="p">)</span>
+    <span class="n">corner_cross_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">corner_cross</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">corner_denominator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">prev_vectors</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+        <span class="n">next_vectors</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">)</span>
+    <span class="n">corner_sines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+        <span class="n">corner_cross_norm</span><span class="p">,</span>
+        <span class="n">corner_denominator</span><span class="p">,</span>
+        <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">corner_cross_norm</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+        <span class="n">where</span><span class="o">=</span><span class="n">corner_denominator</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">corner_sines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">corner_sines</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="n">min_edge_length_ratio_by_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">edge_length_ratios</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">min_corner_sine_by_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">corner_sines</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">bad_edge_cells</span> <span class="o">=</span> <span class="n">min_edge_length_ratio_by_cell</span> <span class="o">&lt;</span> <span class="n">minimum_edge_length_ratio</span>
+    <span class="n">bad_corner_cells</span> <span class="o">=</span> <span class="n">min_corner_sine_by_cell</span> <span class="o">&lt;</span> <span class="n">minimum_corner_sine</span>
+    <span class="n">bad_scale_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cell_scale</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span>
+        <span class="n">cell_scale</span> <span class="o">&lt;=</span> <span class="mf">0.0</span>
+    <span class="p">)</span>
+    <span class="n">bad_cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span>
+        <span class="n">bad_edge_cells</span> <span class="o">|</span> <span class="n">bad_corner_cells</span> <span class="o">|</span> <span class="n">bad_scale_cells</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">bad_cell_indices</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">_raise_cell_polygon_quality_error</span><span class="p">(</span>
+            <span class="n">reason</span><span class="o">=</span><span class="s1">'cells contain degenerate or nearly degenerate polygons'</span><span class="p">,</span>
+            <span class="n">bad_cell_indices</span><span class="o">=</span><span class="n">bad_cell_indices</span><span class="p">,</span>
+            <span class="n">min_edge_length_ratio_by_cell</span><span class="o">=</span><span class="n">min_edge_length_ratio_by_cell</span><span class="p">,</span>
+            <span class="n">min_corner_sine_by_cell</span><span class="o">=</span><span class="n">min_corner_sine_by_cell</span><span class="p">,</span>
+            <span class="n">minimum_edge_length_ratio</span><span class="o">=</span><span class="n">minimum_edge_length_ratio</span><span class="p">,</span>
+            <span class="n">minimum_corner_sine</span><span class="o">=</span><span class="n">minimum_corner_sine</span><span class="p">,</span>
+            <span class="n">max_bad_cells_to_report</span><span class="o">=</span><span class="n">max_bad_cells_to_report</span><span class="p">,</span>
+            <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'minimum_edge_length_ratio'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">min_edge_length_ratio_by_cell</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s1">'minimum_corner_sine'</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">min_corner_sine_by_cell</span><span class="p">)),</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_raise_cell_polygon_quality_error</span><span class="p">(</span>
+    <span class="n">reason</span><span class="p">,</span>
+    <span class="n">bad_cell_indices</span><span class="p">,</span>
+    <span class="n">min_edge_length_ratio_by_cell</span><span class="p">,</span>
+    <span class="n">min_corner_sine_by_cell</span><span class="p">,</span>
+    <span class="n">minimum_edge_length_ratio</span><span class="p">,</span>
+    <span class="n">minimum_corner_sine</span><span class="p">,</span>
+    <span class="n">max_bad_cells_to_report</span><span class="p">,</span>
+    <span class="n">ds_mesh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Raise a consistent error for failed cell-polygon quality checks.</span>
+<span class="sd">    """</span>
+    <span class="c1"># Pre-compute cell lat/lon in degrees from Cartesian coordinates if</span>
+    <span class="c1"># available; this makes it easy to locate bad cells on a map.</span>
+    <span class="n">cell_latlon</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">ds_mesh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">have_xyz</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds_mesh</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'xCell'</span><span class="p">,</span> <span class="s1">'yCell'</span><span class="p">,</span> <span class="s1">'zCell'</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">have_xyz</span><span class="p">:</span>
+            <span class="n">xc</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">xCell</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">yc</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">yCell</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">zc</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">zCell</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">cell_lat_deg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">zc</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xc</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yc</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+            <span class="n">cell_lon_deg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">yc</span><span class="p">,</span> <span class="n">xc</span><span class="p">))</span>
+            <span class="n">cell_latlon</span> <span class="o">=</span> <span class="p">(</span><span class="n">cell_lat_deg</span><span class="p">,</span> <span class="n">cell_lon_deg</span><span class="p">)</span>
+
+    <span class="n">report_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_bad_cells_to_report</span><span class="p">,</span> <span class="n">bad_cell_indices</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">'Spherical mesh cell-polygon quality check failed: '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s1">. Found </span><span class="si">{</span><span class="n">bad_cell_indices</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s1"> bad cells.'</span><span class="p">,</span>
+        <span class="s1">'Thresholds: '</span>
+        <span class="sa">f</span><span class="s1">'minimum_edge_length_ratio=</span><span class="si">{</span><span class="n">minimum_edge_length_ratio</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">, '</span>
+        <span class="sa">f</span><span class="s1">'minimum_corner_sine=</span><span class="si">{</span><span class="n">minimum_corner_sine</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">.'</span><span class="p">,</span>
+        <span class="s1">'First bad cells use 1-based MPAS cell indices:'</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">cell_index</span> <span class="ow">in</span> <span class="n">bad_cell_indices</span><span class="p">[:</span><span class="n">report_count</span><span class="p">]:</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'nCell=</span><span class="si">{</span><span class="n">cell_index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">cell_latlon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="n">cell_latlon</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">cell_index</span><span class="p">]</span>
+            <span class="n">lon</span> <span class="o">=</span> <span class="n">cell_latlon</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">cell_index</span><span class="p">]</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'lat=</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">deg, lon=</span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">deg'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_edge_length_ratio_by_cell</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s1">'min_edge_length_ratio='</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">min_edge_length_ratio_by_cell</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_corner_sine_by_cell</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'min_corner_sine=</span><span class="si">{</span><span class="n">min_corner_sine_by_cell</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]</span><span class="si">:</span><span class="s1">.3e</span><span class="si">}</span><span class="s1">'</span>
+            <span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'  '</span> <span class="o">+</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">))</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

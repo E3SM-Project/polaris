@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mesh Connectivity</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Mesh Geometry Vectors" href="vector.html" />
+    <link rel="prev" title="Mesh Information" href="info.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Mesh component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tasks/index.html">Tasks</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Mesh Framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spherical.html">Spherical Meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="planar.html">Planar Meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">Mesh Information</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Mesh Connectivity</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#active-edges">Active edges</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#connectivity-to-seeds">Connectivity to seeds</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vector.html">Mesh Geometry Vectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reconstruct.html">Vector Reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">Baseline Validation Variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Mesh component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Mesh Framework</a></li>
+      <li class="breadcrumb-item active">Mesh Connectivity</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/mesh/framework/connectivity.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="mesh-connectivity">
+<span id="dev-mesh-connectivity"></span><h1>Mesh Connectivity<a class="headerlink" href="#mesh-connectivity" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">polaris.mesh.connectivity</span></code> answers questions about which cells of a mesh a
+model can actually move a quantity between, given a mask saying which cells
+belong to the domain.  Its main use is finding land-locked cells and other
+disconnected pockets before a mesh is culled; see the
+<a class="reference internal" href="../../../design_docs/land_locked_cells.html"><span class="std std-doc">design document on land-locked cells</span></a>
+for the reasoning behind the criteria below.</p>
+<p>The key point is that sharing an edge is not the same as being connected.
+Whether two neighboring cells are connected depends on the grid staggering of
+the model that will use the mesh, so these functions take the mask and return
+the connectivity, rather than assuming one answer.</p>
+<section id="active-edges">
+<h2>Active edges<a class="headerlink" href="#active-edges" title="Link to this heading"></a></h2>
+<p>An edge of a cell is <em>active</em> when the cell across it is also in the domain.
+<a class="reference internal" href="../../generated/polaris.mesh.connectivity.active_edge_masks.html#polaris.mesh.connectivity.active_edge_masks" title="polaris.mesh.connectivity.active_edge_masks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.connectivity.active_edge_masks()</span></code></a> returns three
+<code class="docutils literal notranslate"><span class="pre">(nCells,</span> <span class="pre">maxEdges)</span></code> boolean arrays: whether each local edge is active, and
+whether the next and previous edges around the same cell are.  The next and
+previous masks are what make vertex questions answerable, since two edges that
+are adjacent in a cell’s edge ordering meet at a vertex.</p>
+<p>Two convenience functions sit on top of it:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../generated/polaris.mesh.connectivity.count_active_edges.html#polaris.mesh.connectivity.count_active_edges" title="polaris.mesh.connectivity.count_active_edges"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.connectivity.count_active_edges()</span></code></a> counts the active
+edges of each cell.  An ocean cell on a C-grid needs at least two – one way
+in and one way out – and they need not be adjacent.</p></li>
+<li><p><a class="reference internal" href="../../generated/polaris.mesh.connectivity.has_active_vertex.html#polaris.mesh.connectivity.has_active_vertex" title="polaris.mesh.connectivity.has_active_vertex"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.connectivity.has_active_vertex()</span></code></a> finds cells with at
+least one vertex all of whose surrounding cells are in the domain.  A sea-ice
+cell on a B-grid needs one of these, or there is no velocity point by which
+ice can leave it.</p></li>
+</ul>
+<p>Both evaluate every cell, including cells outside the domain, so mask the
+result if that matters.</p>
+</section>
+<section id="connectivity-to-seeds">
+<h2>Connectivity to seeds<a class="headerlink" href="#connectivity-to-seeds" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../../generated/polaris.mesh.connectivity.connected_to_seeds.html#polaris.mesh.connectivity.connected_to_seeds" title="polaris.mesh.connectivity.connected_to_seeds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.connectivity.connected_to_seeds()</span></code></a> flood-fills the
+domain from a set of seed cells and returns the cells it reaches.  Cells in
+the domain that it does not reach are the disconnected pockets – inland seas,
+land-locked cells, and lakes that a global ocean should not include.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">link_mask</span></code> argument chooses the grid staggering.  The default connects
+every active edge, which is the ocean’s C-grid connectivity.  For sea ice on a
+B-grid, pass <a class="reference internal" href="../../generated/polaris.mesh.connectivity.transport_link_mask.html#polaris.mesh.connectivity.transport_link_mask" title="polaris.mesh.connectivity.transport_link_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.connectivity.transport_link_mask()</span></code></a>
+instead: the velocity that moves ice across an edge is built from the
+velocities at that edge’s two vertices, so an edge whose vertices are both
+inactive carries no flux and does not connect the cells it separates, even
+though they share an edge.</p>
+<p>Seeds usually come from a handful of known-open locations.
+<a class="reference internal" href="../../generated/polaris.mesh.connectivity.seed_mask_from_points.html#polaris.mesh.connectivity.seed_mask_from_points" title="polaris.mesh.connectivity.seed_mask_from_points"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.connectivity.seed_mask_from_points()</span></code></a> turns longitudes
+and latitudes in degrees into a mask on the nearest cell to each point:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.connectivity</span><span class="w"> </span><span class="kn">import</span> <span class="n">connected_to_seeds</span><span class="p">,</span> <span class="n">seed_mask_from_points</span>
+
+<span class="n">seed_mask</span> <span class="o">=</span> <span class="n">seed_mask_from_points</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">lon_seed</span><span class="p">,</span> <span class="n">lat_seed</span><span class="p">)</span>
+<span class="n">connected</span> <span class="o">=</span> <span class="n">connected_to_seeds</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">cell_mask</span><span class="p">,</span> <span class="n">seed_mask</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Seeds that land outside the domain are ignored rather than raising, so a seed
+point that a particular mesh resolution turns to land does not break the
+workflow.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="info.html" class="btn btn-neutral float-left" title="Mesh Information" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vector.html" class="btn btn-neutral float-right" title="Mesh Geometry Vectors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

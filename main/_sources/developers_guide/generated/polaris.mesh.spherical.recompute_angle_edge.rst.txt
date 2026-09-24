@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.recompute\_angle\_edge
+=============================================
+
+.. currentmodule:: polaris.mesh.spherical
+
+.. autofunction:: recompute_angle_edge

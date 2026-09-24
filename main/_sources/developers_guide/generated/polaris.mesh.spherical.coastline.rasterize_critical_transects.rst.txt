@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.coastline.rasterize\_critical\_transects
+===============================================================
+
+.. currentmodule:: polaris.mesh.spherical.coastline
+
+.. autofunction:: rasterize_critical_transects

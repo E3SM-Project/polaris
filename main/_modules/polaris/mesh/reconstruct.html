@@ -1,0 +1,1080 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.mesh.reconstruct</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.mesh.reconstruct</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.mesh.reconstruct</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.info</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_planar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.vector</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compute_edge_normal_vec</span><span class="p">,</span>
+    <span class="n">get_coordinate_matrix</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># TODO: when python 3.11 is dropped add type alias</span>
+<span class="n">ReconstructionType</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'cell'</span><span class="p">,</span> <span class="s1">'vertex'</span><span class="p">]</span>
+
+<span class="n">_RECONSTRUCTION_FIELD_NAMES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">ReconstructionType</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'cell'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'stencil'</span><span class="p">:</span> <span class="s1">'reconstructStencilCell'</span><span class="p">,</span>
+        <span class="s1">'n_edges'</span><span class="p">:</span> <span class="s1">'nEdgesReconstructOnCell'</span><span class="p">,</span>
+        <span class="s1">'weights'</span><span class="p">:</span> <span class="s1">'reconstructWeightsCell'</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s1">'vertex'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'stencil'</span><span class="p">:</span> <span class="s1">'reconstructStencilVertex'</span><span class="p">,</span>
+        <span class="s1">'n_edges'</span><span class="p">:</span> <span class="s1">'nEdgesReconstructOnVertex'</span><span class="p">,</span>
+        <span class="s1">'weights'</span><span class="p">:</span> <span class="s1">'reconstructWeightsVertex'</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># Variables read by build_reconstruction_weights() for each location.  Both</span>
+<span class="c1"># locations need the cell coordinates and cellsOnEdge, because the edge-normal</span>
+<span class="c1"># vectors point from cell to cell.  Every connectivity array's dimension</span>
+<span class="c1"># (nCells, nEdges, nVertices) must also be reachable from these variables so</span>
+<span class="c1"># that fix_out_of_bounds_indices() can find its size.</span>
+<span class="n">_RECONSTRUCTION_INPUT_VARS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">ReconstructionType</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'cell'</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s1">'xCell'</span><span class="p">,</span>
+        <span class="s1">'yCell'</span><span class="p">,</span>
+        <span class="s1">'zCell'</span><span class="p">,</span>
+        <span class="s1">'xEdge'</span><span class="p">,</span>
+        <span class="s1">'yEdge'</span><span class="p">,</span>
+        <span class="s1">'zEdge'</span><span class="p">,</span>
+        <span class="s1">'verticesOnCell'</span><span class="p">,</span>
+        <span class="s1">'edgesOnVertex'</span><span class="p">,</span>
+        <span class="s1">'cellsOnEdge'</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s1">'vertex'</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s1">'xVertex'</span><span class="p">,</span>
+        <span class="s1">'yVertex'</span><span class="p">,</span>
+        <span class="s1">'zVertex'</span><span class="p">,</span>
+        <span class="s1">'xCell'</span><span class="p">,</span>
+        <span class="s1">'yCell'</span><span class="p">,</span>
+        <span class="s1">'zCell'</span><span class="p">,</span>
+        <span class="s1">'xEdge'</span><span class="p">,</span>
+        <span class="s1">'yEdge'</span><span class="p">,</span>
+        <span class="s1">'zEdge'</span><span class="p">,</span>
+        <span class="s1">'edgesOnVertex'</span><span class="p">,</span>
+        <span class="s1">'verticesOnEdge'</span><span class="p">,</span>
+        <span class="s1">'cellsOnEdge'</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_reconstruction_validate_vars">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.reconstruct.get_reconstruction_validate_vars.html#polaris.mesh.reconstruct.get_reconstruction_validate_vars">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_reconstruction_validate_vars</span><span class="p">(</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">ReconstructionType</span> <span class="o">=</span> <span class="s1">'cell'</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the variables in a reconstruction-weights file that should be</span>
+<span class="sd">    compared against a baseline</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    location : {'cell', 'vertex'}, optional</span>
+<span class="sd">        The location the reconstruction weights were computed at</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    validate_vars : list of str</span>
+<span class="sd">        The names of the reconstruction variables at ``location``</span>
+<span class="sd">    """</span>
+    <span class="n">field_names</span> <span class="o">=</span> <span class="n">_RECONSTRUCTION_FIELD_NAMES</span><span class="p">[</span><span class="n">location</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">field_names</span><span class="p">[</span><span class="s1">'n_edges'</span><span class="p">],</span>
+        <span class="n">field_names</span><span class="p">[</span><span class="s1">'stencil'</span><span class="p">],</span>
+        <span class="n">field_names</span><span class="p">[</span><span class="s1">'weights'</span><span class="p">],</span>
+    <span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">select_reconstruction_vars</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">ReconstructionType</span> <span class="o">=</span> <span class="s1">'cell'</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Trim an MPAS mesh dataset down to just the variables needed to compute</span>
+<span class="sd">    vector-reconstruction weights and stencils at the given location.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset</span>
+
+<span class="sd">    location: str ["cell", "vertex"]</span>
+<span class="sd">        Point location where the reconstruction occurs</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        A minimal dataset containing only the variables (and global attrs)</span>
+<span class="sd">        needed for reconstruction at the given location</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">location</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_RECONSTRUCTION_INPUT_VARS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Invalid location: </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2">. Must be 'cell' or 'vertex'."</span>
+        <span class="p">)</span>
+
+    <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_RECONSTRUCTION_INPUT_VARS</span><span class="p">[</span><span class="n">location</span><span class="p">]</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span>
+    <span class="p">]</span>
+    <span class="n">subset</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_names</span><span class="p">]</span>
+
+    <span class="c1"># maxEdges2 is otherwise only attached to the legacy coeffs_reconstruct</span>
+    <span class="c1"># fields (not selected above), so it must be reinstated by hand</span>
+    <span class="k">if</span> <span class="n">location</span> <span class="o">==</span> <span class="s1">'cell'</span> <span class="ow">and</span> <span class="s1">'maxEdges2'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subset</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+            <span class="n">maxEdges2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'maxEdges2'</span><span class="p">])</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">subset</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fix_out_of_bounds_indices</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Replace indices larger than the dimension size in connectivity arrays with</span>
+<span class="sd">    zeros.</span>
+
+<span class="sd">    Some meshes (e.g. QU240km) don't do masking of ragged indices with zeros,</span>
+<span class="sd">    instead they use `nInidices+1` as the invalid value.</span>
+
+<span class="sd">    NOTE: Assumes connectivity array are 1-indexed</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset containing connectivity arrays</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset with out-of-bounds indices in connectivity arrays</span>
+<span class="sd">        set to 0 (invalid)</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_connectivity_array</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># uncapitalize the name</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">is_int</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'i'</span><span class="p">,</span> <span class="s1">'u'</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">'On'</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">'c'</span><span class="p">,</span> <span class="s1">'e'</span><span class="p">,</span> <span class="s1">'v'</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_is_connectivity_array</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]):</span>
+            <span class="c1"># supports both MPASO and Omega naming conventions</span>
+            <span class="n">var_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">'N'</span> <span class="k">if</span> <span class="n">var_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span> <span class="k">else</span> <span class="s1">'n'</span>
+            <span class="c1"># get the dimension name for the connectivity array</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">var_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'On'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+            <span class="c1"># get the maximum valid size for the array to be indexed too</span>
+            <span class="n">max_size</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+            <span class="c1"># get mask of where index is out bounds</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">==</span> <span class="n">max_size</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="c1"># where index is out of bounds, set to invalid (i.e. 0)</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">ds</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stencil_dim</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Infer the name of the edge-stencil dimension"""</span>
+
+    <span class="k">if</span> <span class="s1">'NINE'</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="s1">'maxEdges2'</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Ambiguous stencil dimension: </span><span class="si">{</span><span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="si">}</span><span class="s1">. '</span>
+            <span class="s2">"Cannot have both 'NINE' and 'maxEdges2' in the same array."</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">'NINE'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="s1">'maxEdges2'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Could not find stencil dimension in </span><span class="si">{</span><span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="si">}</span><span class="s1">. '</span>
+            <span class="s2">"Expected either 'NINE' or 'maxEdges2'."</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">'NINE'</span> <span class="k">if</span> <span class="s1">'NINE'</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="k">else</span> <span class="s1">'maxEdges2'</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unique</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Helper function to get the unique values and pad the rest with zeros."""</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">unique_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+    <span class="n">unique_values</span> <span class="o">=</span> <span class="n">unique_values</span><span class="p">[</span><span class="n">unique_values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_values</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="n">size</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">unique_values</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'Too many unique values: </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> &gt; </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_values</span>
+
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">construct_edgesOnVerticesOnCell</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build a stencil of the unique edges on the vertices of each cell.</span>
+
+<span class="sd">    This stencil is used for cell-centered reconstruction of edge-normal vector</span>
+<span class="sd">    field, as described by Peixoto and Barros (2014); see Figure 5(a).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset containing the edgesOnVertex and verticesOnCell</span>
+<span class="sd">        connectivity arrays</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    edgesOnVerticesOnCell: xr.DataArray (nCells, maxEdges2)</span>
+<span class="sd">        Stencil of the unique edges on the vertices of each cell</span>
+<span class="sd">    """</span>
+
+    <span class="n">maxEdges2</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'maxEdges2'</span><span class="p">]</span>
+
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">edgesOnVertex</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">verticesOnCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">verticesOnCell</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+        <span class="n">_unique</span><span class="p">,</span>
+        <span class="n">conn</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">'size'</span><span class="p">:</span> <span class="n">maxEdges2</span><span class="p">},</span>
+        <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'maxEdges'</span><span class="p">,</span> <span class="s1">'vertexDegree'</span><span class="p">]],</span>
+        <span class="n">output_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'maxEdges2'</span><span class="p">]],</span>
+        <span class="n">vectorize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="n">conn</span><span class="o">.</span><span class="n">dtype</span><span class="p">],</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">construct_edgesOnVerticesOnVertex</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build a stencil of the unique edges on the vertices of each vertex.</span>
+
+<span class="sd">    This stencil is used for vertex-centered reconstruction of edge-normal</span>
+<span class="sd">    vector field, as described by Peixoto and Barros (2014); see Figure</span>
+<span class="sd">    5(b).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset containing the edgesOnVertex and verticesOnEdge</span>
+<span class="sd">        connectivity arrays</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    edgesOnVerticesOnVertex: xr.DataArray (nVertices, NINE)</span>
+<span class="sd">        Stencil of the unique edges on the vertices of each vertex</span>
+<span class="sd">    """</span>
+
+    <span class="n">vertex_degree</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'vertexDegree'</span><span class="p">]</span>
+    <span class="n">max_neighbors</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">vertex_degree</span>
+    <span class="n">nine</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">vertex_degree</span>
+
+    <span class="c1"># one-ring of neighboring vertices (including the vertex itself),</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">verticesOnEdge</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">edgesOnVertex</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">edgesOnVertex</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">neighbor_vertices</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+        <span class="n">_unique</span><span class="p">,</span>
+        <span class="n">conn</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">'size'</span><span class="p">:</span> <span class="n">max_neighbors</span><span class="p">},</span>
+        <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'vertexDegree'</span><span class="p">,</span> <span class="s1">'TWO'</span><span class="p">]],</span>
+        <span class="n">output_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'maxVertexNeighbors'</span><span class="p">]],</span>
+        <span class="n">vectorize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="n">conn</span><span class="o">.</span><span class="n">dtype</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># union of edgesOnVertex over that one-ring of vertices, which is the</span>
+    <span class="c1"># two-ring edge stencil for the target vertex</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">edgesOnVertex</span><span class="p">[</span><span class="n">neighbor_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">neighbor_vertices</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+        <span class="n">_unique</span><span class="p">,</span>
+        <span class="n">conn</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">'size'</span><span class="p">:</span> <span class="n">nine</span><span class="p">},</span>
+        <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'maxVertexNeighbors'</span><span class="p">,</span> <span class="s1">'vertexDegree'</span><span class="p">]],</span>
+        <span class="n">output_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'NINE'</span><span class="p">]],</span>
+        <span class="n">vectorize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="n">conn</span><span class="o">.</span><span class="n">dtype</span><span class="p">],</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">construct_rotation_matrix</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">ReconstructionType</span> <span class="o">=</span> <span class="s1">'cell'</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Construct a rotation matrix from Cartesian coordinates to local orthogonal</span>
+<span class="sd">    projection to a tangent plane at the reconstruction point.</span>
+
+<span class="sd">    The projection is done in two steps: first a rotation about the x-axis and</span>
+<span class="sd">    then a rotation about the y-axis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh containing the reconstruction-point coordinates</span>
+<span class="sd">        (e.g. xCell/yCell/zCell or xVertex/yVertex/zVertex) and the</span>
+<span class="sd">        sphere radius (sphere_radius) for the mesh.</span>
+<span class="sd">    location: str ["cell", "vertex"]</span>
+<span class="sd">        Point location where the reconstruction occurs</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    rotation_matrix: xr.DataArray (nCells or nVertices, 3, 3)</span>
+<span class="sd">        Rotation matrix for each reconstruction point to go from</span>
+<span class="sd">        Cartesian coordinates to local orthogonal projection, where the</span>
+<span class="sd">        reconstruction point is (0, 0, sphere_radius) in the local</span>
+<span class="sd">        coordinate system.</span>
+<span class="sd">    """</span>
+
+    <span class="c1"># e.g. "cell" -&gt; "xCell", "vertex" -&gt; "xVertex"</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+
+    <span class="c1"># infer the reconstruction-point dimension ("nCells" or "nVertices")</span>
+    <span class="c1"># directly from the coordinate arrays, rather than hard-coding it</span>
+    <span class="n">point_coord</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'x</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span>
+    <span class="n">point_dim</span> <span class="o">=</span> <span class="n">point_coord</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_points</span> <span class="o">=</span> <span class="n">point_coord</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">point_dim</span><span class="p">]</span>
+
+    <span class="c1"># A planar mesh already lies in the x-y plane, so the tangent plane at</span>
+    <span class="c1"># every reconstruction point is the mesh plane itself and there is no</span>
+    <span class="c1"># rotation to do.  This is checked before the normalization below,</span>
+    <span class="c1"># which planar meshes would divide by a sphere_radius of zero.</span>
+    <span class="k">if</span> <span class="n">is_planar</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="n">n_points</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="n">point_dim</span><span class="p">,</span> <span class="s1">'d1'</span><span class="p">,</span> <span class="s1">'d2'</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">x_hat</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'x</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds</span><span class="o">.</span><span class="n">sphere_radius</span>
+    <span class="n">y_hat</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'y</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds</span><span class="o">.</span><span class="n">sphere_radius</span>
+    <span class="n">z_hat</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s1">'z</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">'</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds</span><span class="o">.</span><span class="n">sphere_radius</span>
+
+    <span class="n">c_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_hat</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">z_hat</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">s_y</span> <span class="o">=</span> <span class="n">x_hat</span>
+
+    <span class="n">c_x</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c_y</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_hat</span> <span class="o">/</span> <span class="n">c_y</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">s_x</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c_y</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">y_hat</span> <span class="o">/</span> <span class="n">c_y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="n">U_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_points</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">U_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_points</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="n">U_x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">U_x</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_x</span>
+    <span class="n">U_x</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">s_x</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1.0</span>
+    <span class="n">U_x</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">s_x</span>
+    <span class="n">U_x</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_x</span>
+
+    <span class="n">U_y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_y</span>
+    <span class="n">U_y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">s_y</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1.0</span>
+    <span class="n">U_y</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">U_y</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">s_y</span>
+    <span class="n">U_y</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_y</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">U_y</span><span class="p">,</span> <span class="n">U_x</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="n">point_dim</span><span class="p">,</span> <span class="s1">'d1'</span><span class="p">,</span> <span class="s1">'d2'</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">project_edge_normal_to_tangent_plane</span><span class="p">(</span>
+    <span class="n">normal_vector</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">rotation_matrix</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">stencil</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">""" "</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    normal_vector : xr.DataArray (nEdges, 3)</span>
+<span class="sd">        Normal vector in Cartesian coordinates for each edge in the mesh</span>
+<span class="sd">    rotation_matrix: np.ndarray (nCells or nVertices, 3, 3)</span>
+<span class="sd">        Rotation matrix from Cartesian to local orthogonal projection to a</span>
+<span class="sd">        tangent plane at the reconstruction point</span>
+<span class="sd">    stencil: xr.DataArray (nCells or nVertices, maxEdges2 or NINE)</span>
+<span class="sd">        Indices of the unique edges on the vertices of each reconstruction</span>
+<span class="sd">        point. Produces a larger footprint stencil than just edges on cell</span>
+<span class="sd">        (or edges on vertex)</span>
+<span class="sd">    """</span>
+
+    <span class="n">stencil_dim</span> <span class="o">=</span> <span class="n">_stencil_dim</span><span class="p">(</span><span class="n">stencil</span><span class="p">)</span>
+
+    <span class="c1"># get the edge normal vector for the edges in the stencil</span>
+    <span class="n">edge_normal_vector</span> <span class="o">=</span> <span class="n">normal_vector</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nEdges</span><span class="o">=</span><span class="n">stencil</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">U</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">'lg,eg-&gt;el'</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span>
+        <span class="n">rotation_matrix</span><span class="p">,</span>
+        <span class="n">edge_normal_vector</span><span class="p">,</span>
+        <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'d1'</span><span class="p">,</span> <span class="s1">'d2'</span><span class="p">],</span> <span class="p">[</span><span class="n">stencil_dim</span><span class="p">,</span> <span class="s1">'R3'</span><span class="p">]],</span>
+        <span class="n">output_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="n">stencil_dim</span><span class="p">,</span> <span class="s1">'R3'</span><span class="p">]],</span>
+        <span class="n">vectorize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="n">edge_normal_vector</span><span class="o">.</span><span class="n">dtype</span><span class="p">],</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_lstsq_weights</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">local_edge_coords</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">stencil</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the least squares weights as described by Renka (1984) pg. 422.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset</span>
+<span class="sd">    local_edge_coords: xr.DataArray (nCells or nVertices, maxEdges2/NINE, R3)</span>
+<span class="sd">        Edge coordinate vectors projected onto the local tangent plane at the</span>
+<span class="sd">        reconstruction point and relative to it</span>
+<span class="sd">    stencil: xr.DataArray (nCells or nVertices, maxEdges2 or NINE)</span>
+<span class="sd">        A two level stencil of edges neighboring the reconstruction point</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    weights: xr.DataArray (nCells or nVertices, maxEdges2 or NINE)</span>
+<span class="sd">        Least squares weights for each edge in the stencil</span>
+<span class="sd">    """</span>
+    <span class="n">stencil_dim</span> <span class="o">=</span> <span class="n">_stencil_dim</span><span class="p">(</span><span class="n">stencil</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">stencil</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="n">planar</span> <span class="o">=</span> <span class="n">is_planar</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">planar</span><span class="p">:</span>
+        <span class="c1"># planar: the coordinates are already relative to the</span>
+        <span class="c1"># reconstruction point, so D is the in-plane distance from it</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">local_edge_coords</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">R3</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'R3'</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># normalize the rotated z coord onto the unit sphere to match</span>
+        <span class="c1"># Renka (1984): z_hat = 1 at the reconstruction point and</span>
+        <span class="c1"># decreases with increasing angular distance from it.</span>
+        <span class="n">z_hat</span> <span class="o">=</span> <span class="n">local_edge_coords</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">R3</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">ds</span><span class="o">.</span><span class="n">sphere_radius</span>
+
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">((</span><span class="n">z_hat</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'A stencil edge has been rotated into the lower '</span>
+                <span class="s1">'hemisphere of the local tangent plane. This is not '</span>
+                <span class="s1">'expected for realistic MPAS mesh resolution; check for '</span>
+                <span class="s1">'degenerate or high distorted cells'</span>
+            <span class="p">)</span>
+
+        <span class="n">D</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">z_hat</span>
+
+    <span class="n">D</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="c1"># Unlike Renka (1984) we use a static stencil, so R_k is set to the</span>
+    <span class="c1"># maximum distance of the stencil edges from the reconstruction</span>
+    <span class="c1"># point, plus a small epsilon to avoid divide by zero errors</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">stencil_dim</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1.0e-3</span><span class="p">)</span>
+
+    <span class="n">w</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">D</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">R</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rotate_local_to_cartesian</span><span class="p">(</span>
+    <span class="n">rotation_matrix</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Rotate the reconstruction weights from the local tangent-plane frame</span>
+<span class="sd">    back to Cartesian coordinates, by applying the inverse (i.e. transpose)</span>
+<span class="sd">    of the rotation matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rotation_matrix: xr.DataArray (nCells or nVertices, d1, d2)</span>
+<span class="sd">        Rotation matrix from Cartesian to local orthogonal projection to a</span>
+<span class="sd">        tangent plane at the reconstruction point, as produced by</span>
+<span class="sd">        ``construct_rotation_matrix``</span>
+<span class="sd">    weights: xr.DataArray (nCells or nVertices, R3, maxEdges2 or NINE)</span>
+<span class="sd">        Reconstruction weights in the local tangent-plane frame</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    weights: xr.DataArray (nCells or nVertices, R3, maxEdges2 or NINE)</span>
+<span class="sd">        Reconstruction weights rotated into Cartesian coordinates</span>
+<span class="sd">    """</span>
+    <span class="n">stencil_dim</span> <span class="o">=</span> <span class="n">_stencil_dim</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">U</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">'...lg,...le-&gt;...ge'</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span>
+        <span class="n">rotation_matrix</span><span class="p">,</span>
+        <span class="n">weights</span><span class="p">,</span>
+        <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'d1'</span><span class="p">,</span> <span class="s1">'d2'</span><span class="p">],</span> <span class="p">[</span><span class="s1">'R3'</span><span class="p">,</span> <span class="n">stencil_dim</span><span class="p">]],</span>
+        <span class="n">output_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'R3'</span><span class="p">,</span> <span class="n">stencil_dim</span><span class="p">]],</span>
+        <span class="n">vectorize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="n">weights</span><span class="o">.</span><span class="n">dtype</span><span class="p">],</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_pseudo_inverse</span><span class="p">(</span><span class="n">M</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Solve the batched pseudo-inverse of a matrix M using numpy.linalg.pinv</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    M : xr.DataArray (nCells or nVertices, maxEdges2 or NINE, SIX)</span>
+<span class="sd">        Matrix to be inverted</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    M_inv : xr.DataArray (nCells or nVertices, SIX, maxEdges2 or NINE)</span>
+<span class="sd">        Pseudo-inverse of M</span>
+<span class="sd">    """</span>
+    <span class="n">stencil_dim</span> <span class="o">=</span> <span class="n">_stencil_dim</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">,</span>
+        <span class="n">M</span><span class="p">,</span>
+        <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="n">stencil_dim</span><span class="p">,</span> <span class="s1">'SIX'</span><span class="p">]],</span>
+        <span class="n">output_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s1">'SIX'</span><span class="p">,</span> <span class="n">stencil_dim</span><span class="p">]],</span>
+        <span class="n">vectorize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="n">M</span><span class="o">.</span><span class="n">dtype</span><span class="p">],</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_reconstruction_weights</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">ReconstructionType</span> <span class="o">=</span> <span class="s1">'cell'</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build the reconstruction weights for each reconstruction point in the</span>
+<span class="sd">    mesh.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset</span>
+<span class="sd">    location: str ["cell", "vertex"]</span>
+<span class="sd">        Point location where the reconstruction occurs</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    stencil: xr.DataArray (nCells or nVertices, maxEdges2 or NINE)</span>
+<span class="sd">        Edge stencil for each reconstruction point</span>
+
+<span class="sd">    weights: xr.DataArray (nCells or nVertices, R3, maxEdges2 or NINE)</span>
+<span class="sd">        Reconstruction weights for each reconstruction point</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">location</span> <span class="o">==</span> <span class="s1">'cell'</span><span class="p">:</span>
+        <span class="n">stencil</span> <span class="o">=</span> <span class="n">construct_edgesOnVerticesOnCell</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">location</span> <span class="o">==</span> <span class="s1">'vertex'</span><span class="p">:</span>
+        <span class="n">stencil</span> <span class="o">=</span> <span class="n">construct_edgesOnVerticesOnVertex</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Invalid location: </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2">. Must be 'cell' or 'vertex'."</span>
+        <span class="p">)</span>
+
+    <span class="n">rotation_matrix</span> <span class="o">=</span> <span class="n">construct_rotation_matrix</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
+
+    <span class="c1"># compute the normal vector for each edge in Cartesian coordinates</span>
+    <span class="n">cartesian_normal_vector</span> <span class="o">=</span> <span class="n">compute_edge_normal_vec</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">cartesian_edge_coords</span> <span class="o">=</span> <span class="n">get_coordinate_matrix</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s1">'edge'</span><span class="p">)</span>
+
+    <span class="c1"># project the normal vector onto the tangent plane at the cell center</span>
+    <span class="n">local_normal_vector</span> <span class="o">=</span> <span class="n">project_edge_normal_to_tangent_plane</span><span class="p">(</span>
+        <span class="n">cartesian_normal_vector</span><span class="p">,</span> <span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">stencil</span>
+    <span class="p">)</span>
+    <span class="c1"># project the edge coordinate vectors onto the local tangent plane</span>
+    <span class="n">local_edge_coords</span> <span class="o">=</span> <span class="n">project_edge_normal_to_tangent_plane</span><span class="p">(</span>
+        <span class="n">cartesian_edge_coords</span><span class="p">,</span> <span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">stencil</span>
+    <span class="p">)</span>
+
+    <span class="c1"># On a sphere, the rotation above carries the reconstruction point to</span>
+    <span class="c1"># (0, 0, sphere_radius), so the local edge coordinates are already</span>
+    <span class="c1"># relative to it and the constant term of the least-squares fit below</span>
+    <span class="c1"># is the value at the point.  A planar mesh rotates by the identity,</span>
+    <span class="c1"># which leaves the coordinates absolute, so translate them here.</span>
+    <span class="c1"># Otherwise the fit is anchored at the mesh origin and the constant</span>
+    <span class="c1"># term is the field extrapolated there rather than the value at the</span>
+    <span class="c1"># reconstruction point.</span>
+    <span class="k">if</span> <span class="n">is_planar</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+        <span class="n">local_edge_coords</span> <span class="o">=</span> <span class="n">local_edge_coords</span> <span class="o">-</span> <span class="n">get_coordinate_matrix</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">location</span>
+        <span class="p">)</span>
+        <span class="n">local_edge_coords</span> <span class="o">=</span> <span class="n">_wrap_planar_separations</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">local_edge_coords</span><span class="p">)</span>
+
+    <span class="c1"># weight the LSTSQ matrix following Renka (1984) pg. 422</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">compute_lstsq_weights</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">local_edge_coords</span><span class="p">,</span> <span class="n">stencil</span><span class="p">)</span>
+
+    <span class="c1"># Build Eqn. 20 from Peixoto and Barros (2014)</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">local_normal_vector</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">R3</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'R3'</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'R3'</span><span class="p">:</span> <span class="s1">'SIX'</span><span class="p">})</span>
+
+    <span class="n">matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s1">'SIX'</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}]</span> <span class="o">*=</span> <span class="n">local_edge_coords</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">R3</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s1">'SIX'</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]}]</span> <span class="o">*=</span> <span class="n">local_edge_coords</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">R3</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># replace the out of bounds values with zeros</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stencil</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="c1"># apply the weights to the matrix</span>
+    <span class="n">matrix</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    <span class="c1"># solve pseudo-inverse of the matrix to get the reconstruction weights</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">solve_pseudo_inverse</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+
+    <span class="c1"># Because we only support reconstruction at the reconstruction points</span>
+    <span class="c1"># (i.e. cell or vertex centers) we only need to keep the first two rows</span>
+    <span class="c1"># of the weights matrix. But that will produce a vector reconstructed on</span>
+    <span class="c1"># the tangent plane. So, we keep an extra column of the weights matrix,</span>
+    <span class="c1"># and assume the z component to be zero, in order to be able to apply the</span>
+    <span class="c1"># inverse of 3x3 rotation matrix resulting in a Cartesian vector</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">SIX</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'SIX'</span><span class="p">:</span> <span class="s1">'R3'</span><span class="p">})</span>
+    <span class="n">weights</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s1">'R3'</span><span class="p">:</span> <span class="mi">2</span><span class="p">}]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">rotate_local_to_cartesian</span><span class="p">(</span><span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">stencil</span><span class="p">,</span> <span class="n">weights</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_wrap_planar_separations</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">separations</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Wrap separations on a periodic planar mesh into the nearest periodic</span>
+<span class="sd">    image of the reconstruction point.</span>
+
+<span class="sd">    A stencil edge on the far side of a periodic boundary is a whole</span>
+<span class="sd">    period away in the mesh's absolute coordinates.  Left that way it</span>
+<span class="sd">    lands far outside the reconstruction point's neighborhood, which</span>
+<span class="sd">    gives it both the wrong position in the least-squares fit and, since</span>
+<span class="sd">    the Renka weight goes as one over the distance, almost no say in it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset, whose ``x_period`` and ``y_period`` attributes</span>
+<span class="sd">        give the periods (zero where the mesh is not periodic)</span>
+
+<span class="sd">    separations: xr.DataArray (..., R3)</span>
+<span class="sd">        Coordinates relative to the reconstruction point</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        The same separations, each wrapped into its nearest image</span>
+<span class="sd">    """</span>
+    <span class="n">components</span> <span class="o">=</span> <span class="p">[</span><span class="n">separations</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">R3</span><span class="o">=</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">'x_period'</span><span class="p">,</span> <span class="s1">'y_period'</span><span class="p">]):</span>
+        <span class="n">period</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">period</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="n">components</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">components</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span> <span class="o">-</span> <span class="n">period</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">component</span> <span class="o">/</span> <span class="n">period</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">components</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s1">'R3'</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">separations</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="tangential_reconstruction">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.reconstruct.tangential_reconstruction.html#polaris.mesh.reconstruct.tangential_reconstruction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tangential_reconstruction</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">edge_normal_field</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">stencil</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">ReconstructionType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Reconstruct a tangential vector field from an edge-normal vector field.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset</span>
+
+<span class="sd">    edge_normal_field: xr.DataArray (nEdges, ...)</span>
+<span class="sd">        Scalar field defined normal to each edge (e.g. ``normalVelocity``).</span>
+<span class="sd">        May include additional dimensions besides ``nEdges`` (e.g.</span>
+<span class="sd">        ``nVertLevels``, ``Time``); these are carried through unchanged.</span>
+
+<span class="sd">    stencil: xr.DataArray (nCells or nVertices, maxEdges2 or NINE), optional</span>
+<span class="sd">        Precomputed edge stencil for each reconstruction point. If not</span>
+<span class="sd">        provided (along with ``weights``), it is built from ``ds`` using</span>
+<span class="sd">        ``location``.</span>
+
+<span class="sd">    weights: xr.DataArray (nCells or nVertices, R3, maxEdges2/NINE), optional</span>
+<span class="sd">        Precomputed reconstruction weights for each reconstruction point.</span>
+<span class="sd">        If not provided (along with ``stencil``), it is built from ``ds``</span>
+<span class="sd">        using ``location``.</span>
+
+<span class="sd">    location: str ["cell", "vertex"], optional</span>
+<span class="sd">        Point location where the reconstruction occurs. Required if</span>
+<span class="sd">        ``stencil`` and ``weights`` are not both provided.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    u_x: xr.DataArray (nCells or nVertices, ...)</span>
+<span class="sd">        Reconstructed x-component of the tangential vector field</span>
+<span class="sd">    u_y: xr.DataArray (nCells or nVertices, ...)</span>
+<span class="sd">        Reconstructed y-component of the tangential vector field</span>
+<span class="sd">    u_z: xr.DataArray (nCells or nVertices, ...)</span>
+<span class="sd">        Reconstructed z-component of the tangential vector field</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">stencil</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'If stencil and weights are not provided, location must be '</span>
+                <span class="s1">'provided to build the reconstruction weights.'</span>
+            <span class="p">)</span>
+        <span class="n">stencil</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">build_reconstruction_weights</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
+
+    <span class="n">stencil_dim</span> <span class="o">=</span> <span class="n">_stencil_dim</span><span class="p">(</span><span class="n">stencil</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">stencil</span> <span class="o">!=</span> <span class="mi">0</span>
+
+    <span class="c1"># gather the field values onto the stencil edges; padded entries</span>
+    <span class="c1"># (stencil == 0) are redirected to edge 0 to avoid wrapping around to</span>
+    <span class="c1"># the last edge via a "-1" index, then masked out immediately below</span>
+    <span class="n">field_on_stencil</span> <span class="o">=</span> <span class="n">edge_normal_field</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+        <span class="n">nEdges</span><span class="o">=</span><span class="n">stencil</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">field_on_stencil</span> <span class="o">=</span> <span class="n">field_on_stencil</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="c1"># weights and field_on_stencil share the stencil and reconstruction</span>
+    <span class="c1"># point dimensions by name, so `xr.dot` contracts over the stencil dim</span>
+    <span class="c1"># and broadcasts over R3 and any extra dims (e.g. nVertLevels, Time)</span>
+    <span class="c1"># regardless of whether the reconstruction point is a cell or vertex</span>
+    <span class="n">reconstructed</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">field_on_stencil</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">stencil_dim</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">reconstructed</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">R3</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">reconstructed</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">R3</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">reconstructed</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">R3</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="cartesian_to_local_geographic">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.reconstruct.cartesian_to_local_geographic.html#polaris.mesh.reconstruct.cartesian_to_local_geographic">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cartesian_to_local_geographic</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">u_x</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">u_y</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">u_z</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Convert a vector field from Cartesian coordinates to local geographic</span>
+<span class="sd">    coordinates (zonal, meridional, radial) at the reconstruction point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        mesh dataset containing geographic coordinates of reconstruction</span>
+<span class="sd">        points</span>
+<span class="sd">    u_x: xr.DataArray (nCells or nVertices)</span>
+<span class="sd">        x-component of the vector field in Cartesian coordinates</span>
+<span class="sd">    u_y: xr.DataArray (nCells or nVertices)</span>
+<span class="sd">        y-component of the vector field in Cartesian coordinates</span>
+<span class="sd">    u_z: xr.DataArray (nCells or nVertices)</span>
+<span class="sd">        z-component of the vector field in Cartesian coordinates</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    u_zonal: xr.DataArray (nCells or nVertices)</span>
+<span class="sd">        Zonal component of the vec field in local geographic coordinates</span>
+<span class="sd">    u_merid: xr.DataArray (nCells or nVertices)</span>
+<span class="sd">        Meridional component of the vec field in local geographic coordinates</span>
+<span class="sd">    u_radial: xr.DataArray (nCells or nVertices)</span>
+<span class="sd">        Radial component of the vec field in local geographic coordinates</span>
+<span class="sd">    """</span>
+    <span class="c1"># infer whether these are cell- or vertex-centered values from the</span>
+    <span class="c1"># dimensions of u_x, rather than requiring a separate location arg</span>
+    <span class="k">if</span> <span class="s1">'nCells'</span> <span class="ow">in</span> <span class="n">u_x</span><span class="o">.</span><span class="n">dims</span> <span class="ow">or</span> <span class="s1">'NCells'</span> <span class="ow">in</span> <span class="n">u_x</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">lonCell</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">latCell</span>
+    <span class="k">elif</span> <span class="s1">'nVertices'</span> <span class="ow">in</span> <span class="n">u_x</span><span class="o">.</span><span class="n">dims</span> <span class="ow">or</span> <span class="s1">'NVertices'</span> <span class="ow">in</span> <span class="n">u_x</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">lonVertex</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">latVertex</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'Could not infer the reconstruction point location from '</span>
+            <span class="sa">f</span><span class="s2">"the dimensions of u_x: </span><span class="si">{</span><span class="n">u_x</span><span class="o">.</span><span class="n">dims</span><span class="si">}</span><span class="s2">. Expected 'nCells' or "</span>
+            <span class="s2">"'nVertices'."</span>
+        <span class="p">)</span>
+
+    <span class="n">clon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="n">slon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="n">clat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+    <span class="n">slat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+
+    <span class="n">u_zonal</span> <span class="o">=</span> <span class="o">-</span><span class="n">u_x</span> <span class="o">*</span> <span class="n">slon</span> <span class="o">+</span> <span class="n">u_y</span> <span class="o">*</span> <span class="n">clon</span>
+    <span class="c1"># horizontal is the component of the vector in the equatorial plane,</span>
+    <span class="c1"># i.e. before it is split into meridional and radial parts</span>
+    <span class="n">horizontal</span> <span class="o">=</span> <span class="n">u_x</span> <span class="o">*</span> <span class="n">clon</span> <span class="o">+</span> <span class="n">u_y</span> <span class="o">*</span> <span class="n">slon</span>
+    <span class="n">u_merid</span> <span class="o">=</span> <span class="o">-</span><span class="n">horizontal</span> <span class="o">*</span> <span class="n">slat</span> <span class="o">+</span> <span class="n">u_z</span> <span class="o">*</span> <span class="n">clat</span>
+    <span class="n">u_radial</span> <span class="o">=</span> <span class="n">horizontal</span> <span class="o">*</span> <span class="n">clat</span> <span class="o">+</span> <span class="n">u_z</span> <span class="o">*</span> <span class="n">slat</span>
+
+    <span class="k">return</span> <span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_merid</span><span class="p">,</span> <span class="n">u_radial</span></div>
+
+
+
+<div class="viewcode-block" id="compute_reconstruction_weights">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.reconstruct.compute_reconstruction_weights.html#polaris.mesh.reconstruct.compute_reconstruction_weights">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_reconstruction_weights</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">ReconstructionType</span> <span class="o">=</span> <span class="s1">'cell'</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute the weights and stencil indices needed for reconstruction</span>
+<span class="sd">    a edge normal vector field at cell or vertex centers</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        MPAS mesh dataset</span>
+<span class="sd">    location: str ["cell", "vertex"]</span>
+<span class="sd">        Point location where the reconstruction occurs</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        A minimal dataset containing the reconstruction stencil, edge-count,</span>
+<span class="sd">        and coefficient fields for the requested reconstruction point location.</span>
+<span class="sd">    """</span>
+
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="n">_RECONSTRUCTION_FIELD_NAMES</span><span class="p">[</span><span class="n">location</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">names</span><span class="p">[</span><span class="s1">'weights'</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Warning: overwriting existing '</span><span class="si">{</span><span class="n">names</span><span class="p">[</span><span class="s1">'weights'</span><span class="p">]</span><span class="si">}</span><span class="s2">' field "</span>
+            <span class="s1">'in the mesh dataset.'</span>
+        <span class="p">)</span>
+
+    <span class="c1"># trim ds down to the variables needed for reconstruction, then load</span>
+    <span class="c1"># eagerly since the subset is small</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">select_reconstruction_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+    <span class="c1"># For stencil creation to work all indices in the connectivity arrays must</span>
+    <span class="c1"># [0, dim_size], where 0 is the invalid index sentinel</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">fix_out_of_bounds_indices</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="n">stencil</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">build_reconstruction_weights</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
+
+    <span class="n">stencil_dim</span> <span class="o">=</span> <span class="n">_stencil_dim</span><span class="p">(</span><span class="n">stencil</span><span class="p">)</span>
+    <span class="n">n_edges</span> <span class="o">=</span> <span class="p">(</span><span class="n">stencil</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">stencil_dim</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">stencil</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">stencil</span> <span class="o">=</span> <span class="n">_add_reconstruct_attrs</span><span class="p">(</span>
+        <span class="n">stencil</span><span class="p">,</span> <span class="s1">'edge stencil used to reconstruct a vector'</span>
+    <span class="p">)</span>
+    <span class="n">n_edges</span> <span class="o">=</span> <span class="n">_add_reconstruct_attrs</span><span class="p">(</span>
+        <span class="n">n_edges</span><span class="p">,</span> <span class="s1">'number of edges in the reconstruction stencil'</span>
+    <span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">_add_reconstruct_attrs</span><span class="p">(</span>
+        <span class="n">weights</span><span class="p">,</span>
+        <span class="s1">'weights used to reconstruct a Cartesian vector from '</span>
+        <span class="s1">'edge-normal values on the reconstruction stencil'</span><span class="p">,</span>
+        <span class="n">units</span><span class="o">=</span><span class="s1">'unitless'</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Computed reconstruction weights in </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">names</span><span class="p">[</span><span class="s1">'stencil'</span><span class="p">]:</span> <span class="n">stencil</span><span class="p">,</span>
+            <span class="n">names</span><span class="p">[</span><span class="s1">'n_edges'</span><span class="p">]:</span> <span class="n">n_edges</span><span class="p">,</span>
+            <span class="n">names</span><span class="p">[</span><span class="s1">'weights'</span><span class="p">]:</span> <span class="n">weights</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_reconstruction_weights_to_dataset">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset.html#polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_reconstruction_weights_to_dataset</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">ReconstructionType</span> <span class="o">=</span> <span class="s1">'cell'</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add vector-reconstruction stencil and weight fields to a mesh dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh: xr.Dataset</span>
+<span class="sd">        The mesh dataset to update</span>
+
+<span class="sd">    location: str ["cell", "vertex"]</span>
+<span class="sd">        Point location where the reconstruction occurs</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        The updated dataset with reconstruction stencil, edge-count, and</span>
+<span class="sd">        coefficient fields whose names depend on ``location`` (see</span>
+<span class="sd">        ``_RECONSTRUCTION_FIELD_NAMES``)</span>
+<span class="sd">    """</span>
+
+    <span class="n">weights_ds</span> <span class="o">=</span> <span class="n">compute_reconstruction_weights</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">weights_ds</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_reconstruct_attrs</span><span class="p">(</span>
+    <span class="n">data_array</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">long_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'long_name'</span><span class="p">:</span> <span class="n">long_name</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="n">units</span>
+    <span class="n">data_array</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_array</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

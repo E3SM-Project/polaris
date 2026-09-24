@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.river.geojson.read\_geojson
+==========================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified.river.geojson
+
+.. autofunction:: read_geojson

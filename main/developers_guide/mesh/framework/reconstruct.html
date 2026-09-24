@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vector Reconstruction</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Baseline Validation Variables" href="validate.html" />
+    <link rel="prev" title="Mesh Geometry Vectors" href="vector.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Mesh component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tasks/index.html">Tasks</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Mesh Framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spherical.html">Spherical Meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="planar.html">Planar Meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">Mesh Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="connectivity.html">Mesh Connectivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vector.html">Mesh Geometry Vectors</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Vector Reconstruction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#weights-are-a-property-of-the-mesh">Weights are a property of the mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-stencil-is-two-rings-of-edges">The stencil is two rings of edges</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#applying-the-weights">Applying the weights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#planar-meshes">Planar meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validating-against-a-baseline">Validating against a baseline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#internals">Internals</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">Baseline Validation Variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Mesh component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Mesh Framework</a></li>
+      <li class="breadcrumb-item active">Vector Reconstruction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/mesh/framework/reconstruct.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="vector-reconstruction">
+<span id="dev-mesh-reconstruct"></span><h1>Vector Reconstruction<a class="headerlink" href="#vector-reconstruction" title="Link to this heading"></a></h1>
+<p>MPAS models carry horizontal vector fields as a single scalar component
+normal to each edge (<code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>, for example).  Analysis, plotting and
+coupling all need the full vector at cell centers or vertices instead.
+<code class="docutils literal notranslate"><span class="pre">polaris.mesh.reconstruct</span></code> builds the least-squares weights that turn
+edge-normal values into a Cartesian vector at those points, and applies them.</p>
+<p>The method is the linear least-squares reconstruction of
+<a class="reference external" href="https://doi.org/10.1016/j.jcp.2014.04.043">Peixoto and Barros (2014)</a> on a
+two-ring edge stencil (their Figure 5).  See
+the <a class="reference internal" href="../../../design_docs/vector_reconstruction.html"><span class="std std-doc">design document on vector reconstruction</span></a>
+for the derivation and for why this method was chosen over Perot’s; this page
+covers only what a caller of the framework needs to know.</p>
+<section id="weights-are-a-property-of-the-mesh">
+<h2>Weights are a property of the mesh<a class="headerlink" href="#weights-are-a-property-of-the-mesh" title="Link to this heading"></a></h2>
+<p>The weights depend on mesh geometry alone, not on the field being
+reconstructed, so they are computed once per mesh and stored as mesh fields.
+<a class="reference internal" href="../../generated/polaris.mesh.reconstruct.compute_reconstruction_weights.html#polaris.mesh.reconstruct.compute_reconstruction_weights" title="polaris.mesh.reconstruct.compute_reconstruction_weights"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.reconstruct.compute_reconstruction_weights()</span></code></a> returns a
+small dataset with just those fields, and
+<a class="reference internal" href="../../generated/polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset.html#polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset" title="polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.reconstruct.add_reconstruction_weights_to_dataset()</span></code></a>
+merges them into a mesh dataset:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_reconstruction_weights_to_dataset</span>
+
+<span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">add_reconstruction_weights_to_dataset</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">'cell'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Both take a <code class="docutils literal notranslate"><span class="pre">location</span></code> of either <code class="docutils literal notranslate"><span class="pre">'cell'</span></code> or <code class="docutils literal notranslate"><span class="pre">'vertex'</span></code> and write three
+fields, named after that location:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>location</p></th>
+<th class="head"><p>stencil</p></th>
+<th class="head"><p>edge count</p></th>
+<th class="head"><p>weights</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'cell'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reconstructStencilCell</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nEdgesReconstructOnCell</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reconstructWeightsCell</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'vertex'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reconstructStencilVertex</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nEdgesReconstructOnVertex</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reconstructWeightsVertex</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The stencil holds 1-based edge indices, padded with zeros, and the edge count
+says how many of them are valid.  The weights have an extra <code class="docutils literal notranslate"><span class="pre">R3</span></code> dimension
+because the reconstructed vector is Cartesian.</p>
+<p><code class="docutils literal notranslate"><span class="pre">compute_reconstruction_weights()</span></code> selects only the coordinate and
+connectivity variables it needs before loading anything, so it is safe to hand
+it a production mesh with large state and tracer fields attached; those are
+never read.  It works with both MPAS-Ocean and Omega naming conventions and
+writes output in whichever convention the input used.  The standalone driver
+<a class="reference internal" href="../../ocean/utils/add_reconstruction_weights.html#dev-ocean-add-reconstruction-weights"><span class="std std-ref">add_reconstruction_weights</span></a> wraps it for adding weights to an
+existing mesh file from the command line.</p>
+</section>
+<section id="the-stencil-is-two-rings-of-edges">
+<h2>The stencil is two rings of edges<a class="headerlink" href="#the-stencil-is-two-rings-of-edges" title="Link to this heading"></a></h2>
+<p>For a cell, the stencil is the union of <code class="docutils literal notranslate"><span class="pre">edgesOnVertex</span></code> over the
+<code class="docutils literal notranslate"><span class="pre">verticesOnCell</span></code> of that cell, with duplicates removed — 12 unique edges on a
+hexagon and 10 on a pentagon, so it fits the existing <code class="docutils literal notranslate"><span class="pre">maxEdges2</span></code> dimension.
+For a vertex, it is the union of <code class="docutils literal notranslate"><span class="pre">edgesOnVertex</span></code> over the one-ring of
+neighboring vertices, which is 9 edges on a triangular dual mesh and uses a
+<code class="docutils literal notranslate"><span class="pre">NINE</span></code> dimension.</p>
+<p>This is a wider stencil than the one-ring <code class="docutils literal notranslate"><span class="pre">edgesOnCell</span></code> that the legacy
+<code class="docutils literal notranslate"><span class="pre">coeffs_reconstruct</span></code> field assumes, which is why the stencil is stored
+explicitly rather than left implicit in the mesh connectivity.</p>
+<p>Some meshes (QU240km among them) mark invalid connectivity entries with
+<code class="docutils literal notranslate"><span class="pre">nIndices</span> <span class="pre">+</span> <span class="pre">1</span></code> rather than zero.  <code class="docutils literal notranslate"><span class="pre">compute_reconstruction_weights()</span></code> normalizes
+those to zero before building the stencil, so callers do not need to.</p>
+</section>
+<section id="applying-the-weights">
+<h2>Applying the weights<a class="headerlink" href="#applying-the-weights" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../../generated/polaris.mesh.reconstruct.tangential_reconstruction.html#polaris.mesh.reconstruct.tangential_reconstruction" title="polaris.mesh.reconstruct.tangential_reconstruction"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.reconstruct.tangential_reconstruction()</span></code></a> contracts the
+weights against an edge-normal field and returns the three Cartesian
+components.  Pass the precomputed <code class="docutils literal notranslate"><span class="pre">stencil</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code> when the mesh already
+carries them; otherwise pass <code class="docutils literal notranslate"><span class="pre">location</span></code> and they are built on the fly, which is
+much slower and worth avoiding when reconstructing many time slices:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="n">tangential_reconstruction</span>
+
+<span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span> <span class="o">=</span> <span class="n">tangential_reconstruction</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">,</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">normalVelocity</span><span class="p">,</span>
+    <span class="n">stencil</span><span class="o">=</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">reconstructStencilCell</span><span class="p">,</span>
+    <span class="n">weights</span><span class="o">=</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">reconstructWeightsCell</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The edge-normal field may carry any extra dimensions besides <code class="docutils literal notranslate"><span class="pre">nEdges</span></code> —
+<code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code>, <code class="docutils literal notranslate"><span class="pre">Time</span></code> or both.  They are broadcast through unchanged, so a
+whole time series of a 3D field is reconstructed in one call.</p>
+<p>On a sphere the Cartesian result is usually not what you want to plot.
+<a class="reference internal" href="../../generated/polaris.mesh.reconstruct.cartesian_to_local_geographic.html#polaris.mesh.reconstruct.cartesian_to_local_geographic" title="polaris.mesh.reconstruct.cartesian_to_local_geographic"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.reconstruct.cartesian_to_local_geographic()</span></code></a> rotates it
+into zonal, meridional and radial components at the reconstruction point:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="n">cartesian_to_local_geographic</span>
+
+<span class="n">u_zonal</span><span class="p">,</span> <span class="n">u_merid</span><span class="p">,</span> <span class="n">u_radial</span> <span class="o">=</span> <span class="n">cartesian_to_local_geographic</span><span class="p">(</span>
+    <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">,</span> <span class="n">u_z</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>It infers whether the values are cell- or vertex-centered from the dimensions
+of <code class="docutils literal notranslate"><span class="pre">u_x</span></code>, so there is no <code class="docutils literal notranslate"><span class="pre">location</span></code> argument.  Because the reconstruction is
+tangential, <code class="docutils literal notranslate"><span class="pre">u_radial</span></code> is zero up to truncation error.</p>
+<p>On a planar mesh, do not apply this rotation.  The tangent plane is the mesh
+plane itself, so <code class="docutils literal notranslate"><span class="pre">u_x</span></code> and <code class="docutils literal notranslate"><span class="pre">u_y</span></code> are already the in-plane components and <code class="docutils literal notranslate"><span class="pre">u_z</span></code>
+is zero.</p>
+</section>
+<section id="planar-meshes">
+<h2>Planar meshes<a class="headerlink" href="#planar-meshes" title="Link to this heading"></a></h2>
+<p>The same functions work on planar meshes, but two things differ internally,
+and both matter if you are reading the code:</p>
+<ul class="simple">
+<li><p>the rotation to the local tangent plane is the identity, since every
+reconstruction point already lies in the mesh plane; and</p></li>
+<li><p>because the identity rotation leaves the edge coordinates absolute rather
+than relative to the reconstruction point, they are translated explicitly.
+Without that, the least-squares fit would be anchored at the mesh origin and
+the constant term would be the field extrapolated there instead of the value
+at the reconstruction point.</p></li>
+</ul>
+<p>Whether a mesh is planar is decided with <a class="reference internal" href="info.html#dev-mesh-info"><span class="std std-ref">Mesh Information</span></a>, from the
+<code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> attribute, so a dataset missing that attribute raises a
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code> rather than being reconstructed as the wrong kind of mesh.</p>
+</section>
+<section id="validating-against-a-baseline">
+<h2>Validating against a baseline<a class="headerlink" href="#validating-against-a-baseline" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../../generated/polaris.mesh.reconstruct.get_reconstruction_validate_vars.html#polaris.mesh.reconstruct.get_reconstruction_validate_vars" title="polaris.mesh.reconstruct.get_reconstruction_validate_vars"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.reconstruct.get_reconstruction_validate_vars()</span></code></a> returns
+the names of the three fields for a location, in the form
+<a class="reference internal" href="../../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a> expects:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s1">'reconstruction_weights.nc'</span><span class="p">,</span>
+    <span class="n">validate_vars</span><span class="o">=</span><span class="n">get_reconstruction_validate_vars</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="s1">'cell'</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="validate.html#dev-mesh-validate"><span class="std std-ref">Baseline Validation Variables</span></a> for the equivalent lists for mesh and cell-width
+files.</p>
+</section>
+<section id="internals">
+<h2>Internals<a class="headerlink" href="#internals" title="Link to this heading"></a></h2>
+<p>The remaining functions in the module — stencil construction, the rotation
+matrix, the tangent-plane projection, the Renka (1984) least-squares weights
+and the pseudo-inverse solve — are steps of the single pipeline that
+<code class="docutils literal notranslate"><span class="pre">compute_reconstruction_weights()</span></code> drives.  They are not part of the API this
+page describes, and their signatures may change; read
+<code class="docutils literal notranslate"><span class="pre">polaris/mesh/reconstruct.py</span></code> if you need them.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="vector.html" class="btn btn-neutral float-left" title="Mesh Geometry Vectors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="validate.html" class="btn btn-neutral float-right" title="Baseline Validation Variables" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

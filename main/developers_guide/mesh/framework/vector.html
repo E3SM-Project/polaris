@@ -1,0 +1,236 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mesh Geometry Vectors</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Vector Reconstruction" href="reconstruct.html" />
+    <link rel="prev" title="Mesh Connectivity" href="connectivity.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Mesh component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tasks/index.html">Tasks</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Mesh Framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spherical.html">Spherical Meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="planar.html">Planar Meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">Mesh Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="connectivity.html">Mesh Connectivity</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Mesh Geometry Vectors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#coordinates-as-a-single-array">Coordinates as a single array</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edge-normal-vectors">Edge normal vectors</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="reconstruct.html">Vector Reconstruction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">Baseline Validation Variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Mesh component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Mesh Framework</a></li>
+      <li class="breadcrumb-item active">Mesh Geometry Vectors</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/mesh/framework/vector.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="mesh-geometry-vectors">
+<span id="dev-mesh-vector"></span><h1>Mesh Geometry Vectors<a class="headerlink" href="#mesh-geometry-vectors" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">polaris.mesh.vector</span></code> holds the small geometric utilities that other mesh
+code builds on: the Cartesian coordinates of mesh elements as a single array,
+and the unit normal vector of each edge.  Both work the same way on spherical
+and planar meshes, so callers do not have to branch on mesh type.</p>
+<section id="coordinates-as-a-single-array">
+<h2>Coordinates as a single array<a class="headerlink" href="#coordinates-as-a-single-array" title="Link to this heading"></a></h2>
+<p>MPAS meshes store coordinates as three separate variables per location
+(<code class="docutils literal notranslate"><span class="pre">xCell</span></code>, <code class="docutils literal notranslate"><span class="pre">yCell</span></code>, <code class="docutils literal notranslate"><span class="pre">zCell</span></code> and so on).  Anything that does linear algebra
+wants them stacked instead.
+<a class="reference internal" href="../../generated/polaris.mesh.vector.get_coordinate_matrix.html#polaris.mesh.vector.get_coordinate_matrix" title="polaris.mesh.vector.get_coordinate_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.vector.get_coordinate_matrix()</span></code></a> does that for cells,
+edges or vertices:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_coordinate_matrix</span>
+
+<span class="c1"># (nCells, R3)</span>
+<span class="n">vec_cell</span> <span class="o">=</span> <span class="n">get_coordinate_matrix</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'cell'</span><span class="p">)</span>
+<span class="c1"># (nEdges, R3)</span>
+<span class="n">vec_edge</span> <span class="o">=</span> <span class="n">get_coordinate_matrix</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="s1">'edge'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">location</span></code> argument is <code class="docutils literal notranslate"><span class="pre">'cell'</span></code>, <code class="docutils literal notranslate"><span class="pre">'edge'</span></code> or <code class="docutils literal notranslate"><span class="pre">'vertex'</span></code>, and the new
+dimension is named <code class="docutils literal notranslate"><span class="pre">R3</span></code> to match the MPAS convention for three-component
+vectors.</p>
+</section>
+<section id="edge-normal-vectors">
+<h2>Edge normal vectors<a class="headerlink" href="#edge-normal-vectors" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../../generated/polaris.mesh.vector.compute_edge_normal_vec.html#polaris.mesh.vector.compute_edge_normal_vec" title="polaris.mesh.vector.compute_edge_normal_vec"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.vector.compute_edge_normal_vec()</span></code></a> returns the unit
+vector normal to each edge, as an <code class="docutils literal notranslate"><span class="pre">(nEdges,</span> <span class="pre">R3)</span></code> array:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_edge_normal_vec</span>
+
+<span class="n">normal</span> <span class="o">=</span> <span class="n">compute_edge_normal_vec</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The normal points from the first cell on the edge toward the second, which
+matches the sign convention MPAS uses for <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>.  On a boundary
+edge, where only one of <code class="docutils literal notranslate"><span class="pre">cellsOnEdge</span></code> is a real cell, the normal is taken
+between the edge location and that cell instead, so it still points out of the
+domain.</p>
+<p>Periodic planar meshes are handled from the mesh attributes.  If
+<code class="docutils literal notranslate"><span class="pre">is_periodic</span></code> is <code class="docutils literal notranslate"><span class="pre">'YES'</span></code>, the cell positions are unwrapped using <code class="docutils literal notranslate"><span class="pre">x_period</span></code>
+and <code class="docutils literal notranslate"><span class="pre">y_period</span></code> before the difference is taken, so an edge on the periodic
+boundary gets a short normal across the seam rather than a long one spanning
+the domain.  A non-periodic mesh uses a period of zero, which makes the
+unwrapping a no-op, and a spherical mesh has no <code class="docutils literal notranslate"><span class="pre">is_periodic</span></code> attribute and
+takes the same path.</p>
+<p>The main consumer is <a class="reference internal" href="reconstruct.html#dev-mesh-reconstruct"><span class="std std-ref">Vector Reconstruction</span></a>, which projects these normals
+into the local tangent plane at each reconstruction point.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="connectivity.html" class="btn btn-neutral float-left" title="Mesh Connectivity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reconstruct.html" class="btn btn-neutral float-right" title="Vector Reconstruction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

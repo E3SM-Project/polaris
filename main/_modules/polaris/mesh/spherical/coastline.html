@@ -130,7 +130,7 @@
 
 
 <div class="viewcode-block" id="build_coastline_datasets">
-<a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets">[docs]</a>
+<a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_datasets.html#polaris.mesh.spherical.coastline.build_coastline_datasets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_coastline_datasets</span><span class="p">(</span>
     <span class="n">ds_topo</span><span class="p">,</span>
     <span class="n">resolution</span><span class="p">,</span>
@@ -233,7 +233,7 @@
 
 
 <div class="viewcode-block" id="build_coastline_dataset">
-<a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset.html#polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset">[docs]</a>
+<a class="viewcode-back" href="../../../../developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.coastline.build_coastline_dataset.html#polaris.mesh.spherical.coastline.build_coastline_dataset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_coastline_dataset</span><span class="p">(</span>
     <span class="n">ds_topo</span><span class="p">,</span>
     <span class="n">resolution</span><span class="p">,</span>
@@ -260,6 +260,8 @@
 
 
 
+<div class="viewcode-block" id="signed_distance_from_ocean_mask">
+<a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.spherical.coastline.signed_distance_from_ocean_mask.html#polaris.mesh.spherical.coastline.signed_distance_from_ocean_mask">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">signed_distance_from_ocean_mask</span><span class="p">(</span>
     <span class="n">ocean_mask</span><span class="p">,</span>
     <span class="n">lon</span><span class="p">,</span>
@@ -302,9 +304,12 @@
         <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
         <span class="n">chunk_size</span><span class="o">=</span><span class="n">distance_chunk_size</span><span class="p">,</span>
         <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
 
 
+
+<div class="viewcode-block" id="rasterize_critical_transects">
+<a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.spherical.coastline.rasterize_critical_transects.html#polaris.mesh.spherical.coastline.rasterize_critical_transects">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rasterize_critical_transects</span><span class="p">(</span><span class="n">critical_transects</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Rasterize critical land blockages and passages onto a lat-lon grid.</span>
@@ -332,7 +337,8 @@
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_rasterize_critical_transects</span><span class="p">(</span>
         <span class="n">critical_transects</span><span class="o">=</span><span class="n">critical_transects</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_single_coastline_dataset</span><span class="p">(</span>

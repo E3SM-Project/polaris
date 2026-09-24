@@ -1,0 +1,6 @@
+﻿polaris.mesh.vector.compute\_edge\_normal\_vec
+==============================================
+
+.. currentmodule:: polaris.mesh.vector
+
+.. autofunction:: compute_edge_normal_vec

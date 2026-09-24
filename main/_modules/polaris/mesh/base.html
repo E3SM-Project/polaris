@@ -119,6 +119,8 @@
 <span class="p">)</span>
 
 
+<div class="viewcode-block" id="BaseMeshDefinition">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.base.BaseMeshDefinition.html#polaris.mesh.base.BaseMeshDefinition">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseMeshDefinition</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Immutable metadata for one supported simple base mesh.</span>
@@ -126,9 +128,12 @@
 
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">min_res</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">max_res</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">max_res</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
+
+<div class="viewcode-block" id="get_base_mesh_step_names">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.base.get_base_mesh_step_names.html#polaris.mesh.base.get_base_mesh_step_names">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_base_mesh_step_names</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the supported simple base-mesh names in registration order.</span>
@@ -138,9 +143,12 @@
 <span class="sd">    mesh_names : tuple of str</span>
 <span class="sd">        The supported simple base-mesh names.</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">BASE_MESH_DEFINITIONS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">BASE_MESH_DEFINITIONS</span><span class="p">)</span></div>
 
 
+
+<div class="viewcode-block" id="get_base_mesh_definition">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.base.get_base_mesh_definition.html#polaris.mesh.base.get_base_mesh_definition">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_base_mesh_definition</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get metadata for one supported simple base mesh.</span>
@@ -161,7 +169,8 @@
             <span class="sa">f</span><span class="s1">'Unknown simple base mesh </span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">. Valid mesh names are: '</span>
             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">valid_mesh_names</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">BASE_MESH_DEFINITIONS</span><span class="p">[</span><span class="n">mesh_name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">BASE_MESH_DEFINITIONS</span><span class="p">[</span><span class="n">mesh_name</span><span class="p">]</span></div>
+
 
 
 <div class="viewcode-block" id="get_base_mesh_steps">
@@ -219,11 +228,14 @@
 
 
 
+<div class="viewcode-block" id="parse_mesh_filepath">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.base.parse_mesh_filepath.html#polaris.mesh.base.parse_mesh_filepath">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_mesh_filepath</span><span class="p">(</span><span class="n">mesh_path</span><span class="p">):</span>
     <span class="n">component</span> <span class="o">=</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">database</span> <span class="o">=</span> <span class="s1">'/'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">component</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">mesh_name</span>
+    <span class="k">return</span> <span class="n">component</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">mesh_name</span></div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_base_mesh_name</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">min_res</span><span class="p">,</span> <span class="n">max_res</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

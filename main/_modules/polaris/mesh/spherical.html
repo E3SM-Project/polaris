@@ -854,14 +854,19 @@
 
 
 
+<div class="viewcode-block" id="recompute_angle_edge">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.recompute_angle_edge.html#polaris.mesh.recompute_angle_edge">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">recompute_angle_edge</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
     <span class="n">nml_en</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nEdges'</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
     <span class="n">nml_en</span> <span class="o">=</span> <span class="n">calc_edge_normal_vector</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
     <span class="n">angle_edge</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">.</span><span class="n">angleEdge</span><span class="p">)</span>
     <span class="n">angle_edge</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">nml_en</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">nml_en</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">angle_edge</span>
+    <span class="k">return</span> <span class="n">angle_edge</span></div>
 
 
+
+<div class="viewcode-block" id="calc_edge_normal_vector">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.calc_edge_normal_vector.html#polaris.mesh.calc_edge_normal_vector">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calc_edge_normal_vector</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
     <span class="n">edge_cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
         <span class="n">lon_lat_to_cartesian</span><span class="p">(</span>
@@ -889,9 +894,12 @@
     <span class="n">normal_eastnorth</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">edge_east</span> <span class="o">*</span> <span class="n">normal_cartesian</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">normal_eastnorth</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">edge_north</span> <span class="o">*</span> <span class="n">normal_cartesian</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">normal_eastnorth</span> <span class="o">=</span> <span class="n">normal_eastnorth</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">normal_eastnorth</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">normal_eastnorth</span>
+    <span class="k">return</span> <span class="n">normal_eastnorth</span></div>
 
 
+
+<div class="viewcode-block" id="calc_vector_east_north">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.mesh.spherical.calc_vector_east_north.html#polaris.mesh.calc_vector_east_north">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calc_vector_east_north</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute the local east and north vectors at a given point on the sphere</span>
@@ -924,7 +932,8 @@
     <span class="n">north</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">xyz</span><span class="p">),</span> <span class="n">east</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">east</span> <span class="o">=</span> <span class="n">east</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">north</span> <span class="o">=</span> <span class="n">north</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">north</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span>
+    <span class="k">return</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span></div>
+
 </pre></div>
 
            </div>

@@ -1,0 +1,558 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.mesh.spherical.unified.base_mesh</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../spherical.html">polaris.mesh.spherical</a></li>
+      <li class="breadcrumb-item active">polaris.mesh.spherical.unified.base_mesh</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.mesh.spherical.unified.base_mesh</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">jigsawpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jigsawpy.savejig</span><span class="w"> </span><span class="kn">import</span> <span class="n">savejig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuasiUniformSphericalMeshStep</span>
+
+
+<div class="viewcode-block" id="get_unified_background_cell_width">
+<a class="viewcode-back" href="../../../../../developers_guide/generated/polaris.mesh.spherical.unified.get_unified_background_cell_width.html#polaris.mesh.spherical.unified.get_unified_background_cell_width">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_unified_background_cell_width</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get a representative background ocean cell width from unified config.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config for one unified mesh</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cell_width : float</span>
+<span class="sd">        A representative ocean cell width in km for this mesh</span>
+<span class="sd">    """</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'sizing_field'</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ocean_background_max_km'</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_unified_finest_cell_width">
+<a class="viewcode-back" href="../../../../../developers_guide/generated/polaris.mesh.spherical.unified.get_unified_finest_cell_width.html#polaris.mesh.spherical.unified.get_unified_finest_cell_width">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_unified_finest_cell_width</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the finest configured cell width from unified mesh settings.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config for one unified mesh</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cell_width : float</span>
+<span class="sd">        The smallest configured cell width in km for this mesh</span>
+<span class="sd">    """</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'sizing_field'</span><span class="p">]</span>
+    <span class="n">widths</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ocean_background_min_km'</span><span class="p">),</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ocean_background_max_km'</span><span class="p">),</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'land_background_km'</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'enable_river_channel_refinement'</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">widths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'river_channel_km'</span><span class="p">))</span>
+
+    <span class="n">widths</span> <span class="o">=</span> <span class="p">[</span><span class="n">width</span> <span class="k">for</span> <span class="n">width</span> <span class="ow">in</span> <span class="n">widths</span> <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">widths</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="UnifiedBaseMeshStep">
+<a class="viewcode-back" href="../../../../../developers_guide/generated/polaris.mesh.spherical.unified.UnifiedBaseMeshStep.html#polaris.mesh.spherical.unified.UnifiedBaseMeshStep">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UnifiedBaseMeshStep</span><span class="p">(</span><span class="n">QuasiUniformSphericalMeshStep</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A unified spherical mesh step with direct retained-river geometry input.</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="UnifiedBaseMeshStep.__init__">
+<a class="viewcode-back" href="../../../../../developers_guide/generated/polaris.mesh.spherical.unified.UnifiedBaseMeshStep.html#polaris.mesh.spherical.unified.UnifiedBaseMeshStep.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">sizing_field_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">river_clip_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">'base_mesh'</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">mesh_name</span><span class="o">=</span><span class="s1">'mesh'</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">cell_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_step</span> <span class="o">=</span> <span class="n">sizing_field_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span> <span class="o">=</span> <span class="s1">'sizing_field.nc'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">river_clip_step</span> <span class="o">=</span> <span class="n">river_clip_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">river_network_filename</span> <span class="o">=</span> <span class="s1">'clipped_river_network.geojson'</span></div>
+
+
+<div class="viewcode-block" id="UnifiedBaseMeshStep.setup">
+<a class="viewcode-back" href="../../../../../developers_guide/generated/polaris.mesh.spherical.unified.UnifiedBaseMeshStep.setup.html#polaris.mesh.spherical.unified.UnifiedBaseMeshStep.setup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Link retained-river products in addition to the sizing field.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_step</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">river_clip_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">river_network_filename</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">river_clip_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">river_clip_step</span><span class="o">.</span><span class="n">clipped_filename</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Keep the finest configured cell width for downstream choices such as</span>
+        <span class="c1"># source-topography resolution.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_width</span> <span class="o">=</span> <span class="n">get_unified_finest_cell_width</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="UnifiedBaseMeshStep.build_cell_width_lat_lon">
+<a class="viewcode-back" href="../../../../../developers_guide/generated/polaris.mesh.spherical.unified.UnifiedBaseMeshStep.build_cell_width_lat_lon.html#polaris.mesh.spherical.unified.UnifiedBaseMeshStep.build_cell_width_lat_lon">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_cell_width_lat_lon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Read the cell width, lon, and lat directly from sizing_field.nc.</span>
+<span class="sd">        """</span>
+        <span class="n">sizing_field_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizing_field_filename</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">sizing_field_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_sizing</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">'cellWidth'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_sizing</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">'Expected variable "cellWidth" in sizing_field.nc.'</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="s1">'lat'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_sizing</span><span class="o">.</span><span class="n">coords</span> <span class="ow">or</span> <span class="s1">'lon'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_sizing</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">'Expected lat/lon coordinates in sizing_field.nc.'</span>
+                <span class="p">)</span>
+            <span class="n">cell_width</span> <span class="o">=</span> <span class="n">ds_sizing</span><span class="o">.</span><span class="n">cellWidth</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_sizing</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="n">ds_sizing</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">return</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span></div>
+
+
+<div class="viewcode-block" id="UnifiedBaseMeshStep.make_jigsaw_mesh">
+<a class="viewcode-back" href="../../../../../developers_guide/generated/polaris.mesh.spherical.unified.UnifiedBaseMeshStep.make_jigsaw_mesh.html#polaris.mesh.spherical.unified.UnifiedBaseMeshStep.make_jigsaw_mesh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_jigsaw_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">cell_width</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Build the JIGSAW mesh with river polylines added to the geometry.</span>
+
+<span class="sd">        The sizing field remains the authoritative HFUN input. The only new</span>
+<span class="sd">        behavior is to add retained river geometry as explicit JIGSAW line</span>
+<span class="sd">        constraints before the standard JIGSAW-to-MPAS path runs.</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'mean_radius'</span><span class="p">)</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span>
+
+        <span class="n">hmat</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
+        <span class="n">hmat</span><span class="o">.</span><span class="n">mshID</span> <span class="o">=</span> <span class="s1">'ELLIPSOID-GRID'</span>
+        <span class="n">hmat</span><span class="o">.</span><span class="n">xgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+        <span class="n">hmat</span><span class="o">.</span><span class="n">ygrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+        <span class="n">hmat</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">cell_width</span>
+        <span class="n">jigsawpy</span><span class="o">.</span><span class="n">savemsh</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">hfun_file</span><span class="p">,</span> <span class="n">hmat</span><span class="p">)</span>
+
+        <span class="n">snap_tolerance_km</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
+            <span class="s1">'river_network'</span><span class="p">,</span>
+            <span class="s1">'base_mesh_simplify_tolerance_km'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">_build_unified_jigsaw_geometry</span><span class="p">(</span>
+            <span class="n">earth_radius</span><span class="o">=</span><span class="n">earth_radius</span><span class="p">,</span>
+            <span class="n">river_network_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">river_network_filename</span><span class="p">),</span>
+            <span class="n">snap_tolerance_km</span><span class="o">=</span><span class="n">snap_tolerance_km</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">jigsawpy</span><span class="o">.</span><span class="n">savemsh</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">geom_file</span><span class="p">,</span> <span class="n">geom</span><span class="p">)</span>
+
+        <span class="n">savejig</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+        <span class="n">check_call</span><span class="p">([</span><span class="s1">'jigsaw'</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span><span class="p">],</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_unified_jigsaw_geometry</span><span class="p">(</span>
+    <span class="n">earth_radius</span><span class="p">,</span>
+    <span class="n">river_network_filename</span><span class="p">,</span>
+    <span class="n">snap_tolerance_km</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build ellipsoid geometry with retained river polylines as constraints.</span>
+<span class="sd">    """</span>
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
+    <span class="n">geom</span><span class="o">.</span><span class="n">mshID</span> <span class="o">=</span> <span class="s1">'ELLIPSOID-MESH'</span>
+    <span class="n">geom</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="n">earth_radius</span> <span class="o">*</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">earth_radius_km</span> <span class="o">=</span> <span class="n">earth_radius</span> <span class="o">*</span> <span class="mf">1e-3</span>
+    <span class="n">vert2</span><span class="p">,</span> <span class="n">edge2</span> <span class="o">=</span> <span class="n">_read_geojson_line_mesh</span><span class="p">(</span>
+        <span class="n">river_network_filename</span><span class="p">,</span>
+        <span class="n">snap_tolerance_km</span><span class="o">=</span><span class="n">snap_tolerance_km</span><span class="p">,</span>
+        <span class="n">earth_radius_km</span><span class="o">=</span><span class="n">earth_radius_km</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">vert2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">geom</span><span class="o">.</span><span class="n">vert2</span> <span class="o">=</span> <span class="n">vert2</span>
+    <span class="k">if</span> <span class="n">edge2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">geom</span><span class="o">.</span><span class="n">edge2</span> <span class="o">=</span> <span class="n">edge2</span>
+
+    <span class="k">return</span> <span class="n">geom</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_union_find</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the root of x with path compression.</span>
+<span class="sd">    """</span>
+    <span class="k">while</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">!=</span> <span class="n">x</span><span class="p">:</span>
+        <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_close_centroids</span><span class="p">(</span><span class="n">unique_rad</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="n">tol_rad</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Merge cluster centroids that are still within tol_rad of each other.</span>
+
+<span class="sd">    After the first-pass union-find, some cluster centroids may still be</span>
+<span class="sd">    closer than tol_rad (e.g. when a multi-vertex cluster centroid is</span>
+<span class="sd">    pulled toward a neighbouring cluster). A second union-find on the</span>
+<span class="sd">    centroid positions catches those cases.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    unique_rad : numpy.ndarray, shape (n_clusters, 2)</span>
+<span class="sd">        Centroid positions in radians from the first snapping pass.</span>
+<span class="sd">    inverse : numpy.ndarray, shape (n_raw_vertices,)</span>
+<span class="sd">        Maps each original raw vertex index to its first-pass cluster index.</span>
+<span class="sd">    tol_rad : float</span>
+<span class="sd">        Snap tolerance in radians.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    unique_rad : numpy.ndarray, shape (n_final_clusters, 2)</span>
+<span class="sd">        Updated centroid positions after the second-pass merge.</span>
+<span class="sd">    inverse : numpy.ndarray, shape (n_raw_vertices,)</span>
+<span class="sd">        Updated mapping from original raw vertices to final cluster indices.</span>
+<span class="sd">    """</span>
+    <span class="n">cent_tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">unique_rad</span><span class="p">)</span>
+    <span class="n">cent_pairs</span> <span class="o">=</span> <span class="n">cent_tree</span><span class="o">.</span><span class="n">query_pairs</span><span class="p">(</span><span class="n">tol_rad</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cent_pairs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">unique_rad</span><span class="p">,</span> <span class="n">inverse</span>
+
+    <span class="n">n_cent</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_rad</span><span class="p">)</span>
+    <span class="n">cent_parent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_cent</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ci</span><span class="p">,</span> <span class="n">cj</span> <span class="ow">in</span> <span class="n">cent_pairs</span><span class="p">:</span>
+        <span class="n">rci</span> <span class="o">=</span> <span class="n">_union_find</span><span class="p">(</span><span class="n">cent_parent</span><span class="p">,</span> <span class="n">ci</span><span class="p">)</span>
+        <span class="n">rcj</span> <span class="o">=</span> <span class="n">_union_find</span><span class="p">(</span><span class="n">cent_parent</span><span class="p">,</span> <span class="n">cj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rci</span> <span class="o">!=</span> <span class="n">rcj</span><span class="p">:</span>
+            <span class="n">cent_parent</span><span class="p">[</span><span class="n">rcj</span><span class="p">]</span> <span class="o">=</span> <span class="n">rci</span>
+
+    <span class="n">cent_roots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_union_find</span><span class="p">(</span><span class="n">cent_parent</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cent</span><span class="p">)])</span>
+    <span class="n">final_roots</span><span class="p">,</span> <span class="n">final_inverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cent_roots</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">final_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">final_roots</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">final_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">final_roots</span><span class="p">))</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">final_rad</span><span class="p">,</span> <span class="n">final_inverse</span><span class="p">,</span> <span class="n">unique_rad</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">final_counts</span><span class="p">,</span> <span class="n">final_inverse</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">final_rad</span> <span class="o">/=</span> <span class="n">final_counts</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">final_rad</span><span class="p">,</span> <span class="n">final_inverse</span><span class="p">[</span><span class="n">inverse</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_geojson_line_mesh</span><span class="p">(</span>
+    <span class="n">filename</span><span class="p">,</span>
+    <span class="n">snap_tolerance_km</span><span class="p">,</span>
+    <span class="n">earth_radius_km</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Read line features from a GeoJSON file into JIGSAW line geometry arrays.</span>
+
+<span class="sd">    Vertices from different features that are closer than snap_tolerance_km</span>
+<span class="sd">    are merged into a single vertex at their centroid.  This prevents JIGSAW</span>
+<span class="sd">    from receiving nearly-coincident constraint points, which would otherwise</span>
+<span class="sd">    produce degenerate triangulations and bad Voronoi polygons in the MPAS</span>
+<span class="sd">    dual mesh.</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">feature_collection</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">feature_collection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'features'</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'geometry'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_iter_line_coordinates</span><span class="p">(</span><span class="n">geometry</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
+
+    <span class="n">raw_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">coords</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">])</span>
+
+    <span class="c1"># Merge vertices that are closer than snap_tolerance_km.  The tolerance</span>
+    <span class="c1"># is expressed as a chord length in radians; for small angles this equals</span>
+    <span class="c1"># the arc length, so snap_tolerance_km / earth_radius_km is accurate</span>
+    <span class="c1"># enough for sub-degree separations.</span>
+    <span class="n">tol_rad</span> <span class="o">=</span> <span class="n">snap_tolerance_km</span> <span class="o">/</span> <span class="n">earth_radius_km</span>
+    <span class="n">raw_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">raw_coords</span><span class="p">)</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">raw_rad</span><span class="p">)</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">query_pairs</span><span class="p">(</span><span class="n">tol_rad</span><span class="p">)</span>
+
+    <span class="c1"># Union-Find: assign every vertex to a canonical root.</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_rad</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+        <span class="n">ri</span><span class="p">,</span> <span class="n">rj</span> <span class="o">=</span> <span class="n">_union_find</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">_union_find</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ri</span> <span class="o">!=</span> <span class="n">rj</span><span class="p">:</span>
+            <span class="n">parent</span><span class="p">[</span><span class="n">rj</span><span class="p">]</span> <span class="o">=</span> <span class="n">ri</span>
+
+    <span class="n">roots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_union_find</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_rad</span><span class="p">))])</span>
+
+    <span class="c1"># Build unique cluster list and map each raw vertex to its cluster index.</span>
+    <span class="n">unique_roots</span><span class="p">,</span> <span class="n">inverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">roots</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Compute centroid for each cluster in radians.</span>
+    <span class="n">unique_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_roots</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_roots</span><span class="p">))</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">unique_rad</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="n">raw_rad</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">unique_rad</span> <span class="o">/=</span> <span class="n">counts</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">unique_rad</span><span class="p">,</span> <span class="n">inverse</span> <span class="o">=</span> <span class="n">_merge_close_centroids</span><span class="p">(</span><span class="n">unique_rad</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="n">tol_rad</span><span class="p">)</span>
+
+    <span class="n">edge_starts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">edge_ends</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">edge_tags</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">raw_point_start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">line_index</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">local</span> <span class="o">=</span> <span class="n">inverse</span><span class="p">[</span><span class="n">raw_point_start</span> <span class="p">:</span> <span class="n">raw_point_start</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="n">local</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">local</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">edge_starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">local</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">keep</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+        <span class="n">edge_ends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">local</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">keep</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+        <span class="n">edge_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">keep</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="n">line_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+        <span class="n">raw_point_start</span> <span class="o">+=</span> <span class="n">n</span>
+
+    <span class="n">all_edge_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">edge_starts</span><span class="p">)</span>
+    <span class="n">all_edge_ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">edge_ends</span><span class="p">)</span>
+    <span class="n">all_edge_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">edge_tags</span><span class="p">)</span>
+
+    <span class="c1"># Remove duplicate edges (same cluster pair regardless of direction).</span>
+    <span class="n">edge_pairs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">all_edge_starts</span><span class="p">,</span> <span class="n">all_edge_ends</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">all_edge_starts</span><span class="p">,</span> <span class="n">all_edge_ends</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">unique_edge_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">edge_pairs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">all_edge_starts</span> <span class="o">=</span> <span class="n">all_edge_starts</span><span class="p">[</span><span class="n">unique_edge_indices</span><span class="p">]</span>
+    <span class="n">all_edge_ends</span> <span class="o">=</span> <span class="n">all_edge_ends</span><span class="p">[</span><span class="n">unique_edge_indices</span><span class="p">]</span>
+    <span class="n">all_edge_tags</span> <span class="o">=</span> <span class="n">all_edge_tags</span><span class="p">[</span><span class="n">unique_edge_indices</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">all_edge_starts</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="n">vert2</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_rad</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">temp</span><span class="o">.</span><span class="n">VERT2_t</span><span class="p">)</span>
+    <span class="n">edge2</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">all_edge_starts</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">temp</span><span class="o">.</span><span class="n">EDGE2_t</span><span class="p">)</span>
+
+    <span class="n">vert2</span><span class="p">[</span><span class="s1">'coord'</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_rad</span>
+    <span class="n">edge2</span><span class="p">[</span><span class="s1">'index'</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_edge_starts</span>
+    <span class="n">edge2</span><span class="p">[</span><span class="s1">'index'</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_edge_ends</span>
+    <span class="n">edge2</span><span class="p">[</span><span class="s1">'IDtag'</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_edge_tags</span>
+
+    <span class="k">return</span> <span class="n">vert2</span><span class="p">,</span> <span class="n">edge2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_iter_line_coordinates</span><span class="p">(</span><span class="n">geometry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Yield line coordinates from GeoJSON line-like geometries.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">geometry_type</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'type'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">'LineString'</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">geometry</span><span class="p">[</span><span class="s1">'coordinates'</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">coords</span>
+    <span class="k">elif</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">'MultiLineString'</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">coordinates</span> <span class="ow">in</span> <span class="n">geometry</span><span class="p">[</span><span class="s1">'coordinates'</span><span class="p">]:</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">coords</span>
+    <span class="k">elif</span> <span class="n">geometry_type</span> <span class="o">==</span> <span class="s1">'GeometryCollection'</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">sub_geometry</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'geometries'</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">yield from</span> <span class="n">_iter_line_coordinates</span><span class="p">(</span><span class="n">sub_geometry</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>
