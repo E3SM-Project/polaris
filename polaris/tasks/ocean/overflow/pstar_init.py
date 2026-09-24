@@ -1,5 +1,6 @@
 import xarray as xr
 
+from polaris.attrs import set_attrs
 from polaris.ocean.init_state import (
     add_density_from_specvol,
     add_quiescent_normal_velocity,
@@ -61,8 +62,7 @@ class PStarInit(PStarInitStep, OceanIOStep):
         # Form a continental shelf-like bathymetry
         bottom_depth = compute_bottom_depth(config, ds_mesh.xCell)
         geom_z_bot = -bottom_depth
-        geom_z_bot.attrs['long_name'] = 'seafloor geometric height'
-        geom_z_bot.attrs['units'] = 'm'
+        set_attrs(geom_z_bot, long_name='seafloor geometric height', units='m')
 
         # Iterate the p-star coordinate to convergence with zero surface
         # pressure
@@ -92,12 +92,10 @@ class PStarInit(PStarInitStep, OceanIOStep):
         ct = (temp_cell * xr.ones_like(ds.ZTildeMid)).transpose(
             'Time', 'nCells', 'nVertLevels'
         )
-        ct.attrs['long_name'] = 'conservative temperature'
-        ct.attrs['units'] = 'degC'
+        set_attrs(ct, long_name='conservative temperature', units='degC')
 
         salinity = config.getfloat('overflow', 'salinity')
         sa = salinity * xr.ones_like(ct)
-        sa.attrs['long_name'] = 'absolute salinity'
-        sa.attrs['units'] = 'g kg-1'
+        set_attrs(sa, long_name='absolute salinity', units='g kg-1')
 
         return ct, sa
