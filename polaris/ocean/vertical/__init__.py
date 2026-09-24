@@ -1,7 +1,9 @@
 import numpy as np
 import xarray as xr
 
-from polaris.ocean.vertical.diagnostics import _z_from_thickness
+from polaris.ocean.vertical.diagnostics import (
+    compute_zint_zmid_from_layer_thickness,
+)
 from polaris.ocean.vertical.sigma import (
     init_sigma_vertical_coord as init_sigma_vertical_coord,
 )
@@ -174,47 +176,6 @@ def update_layer_thickness(config, ds):
     # add (back) Time dimension
     ds['ssh'] = ds.ssh.expand_dims(dim='Time', axis=0)
     ds['layerThickness'] = ds.layerThickness.expand_dims(dim='Time', axis=0)
-
-
-def compute_zint_zmid_from_layer_thickness(
-    layer_thickness: xr.DataArray,
-    bottom_depth: xr.DataArray,
-    min_level_cell: xr.DataArray,
-    max_level_cell: xr.DataArray,
-) -> tuple[xr.DataArray, xr.DataArray]:
-    """
-    Compute height z at layer interfaces and midpoints given layer thicknesses
-    and bottom depth.
-
-    Parameters
-    ----------
-    layer_thickness : xarray.DataArray
-        The layer thickness of each layer.
-
-    bottom_depth : xarray.DataArray
-        The positive-down depth of the seafloor.
-
-    min_level_cell : xarray.DataArray
-        The zero-based minimum vertical index from each column.
-
-    max_level_cell : xarray.DataArray
-        The zero-based maximum vertical index from each column.
-
-    Returns
-    -------
-    z_interface : xarray.DataArray
-        The elevation of layer interfaces.
-
-    z_mid : xarray.DataArray
-        The elevation of layer midpoints.
-    """
-    z_mid, z_interface = _z_from_thickness(
-        layer_thickness=layer_thickness,
-        bottom_depth=bottom_depth,
-        min_level_cell=min_level_cell,
-        max_level_cell=max_level_cell,
-    )
-    return z_interface, z_mid
 
 
 def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
