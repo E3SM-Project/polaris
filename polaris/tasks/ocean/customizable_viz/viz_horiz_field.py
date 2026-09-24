@@ -176,7 +176,10 @@ class VizHorizField(OceanIOStep):
                     start_time = start_time.decode()
                 else:
                     start_time = str(start_time)
-                time_stamp = f'_{start_time.split("_")[0]}'
+                # MPAS-Ocean's xtime separates the date and time with '_', and
+                # a decoded Omega time with ' '
+                date = start_time.replace(' ', '_').split('_')[0]
+                time_stamp = f'_{date}'
 
         if 'nCells' in ds.dims:
             ds = ds.isel(nCells=cell_indices[0])
