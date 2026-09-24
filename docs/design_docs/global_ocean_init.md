@@ -504,7 +504,7 @@ construction.
 
 ### Implementation: The capability is decomposed into inspectable Polaris steps
 
-Date last modified: 2026/08/11
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -561,6 +561,12 @@ task passes and consumers that reuse the init outputs as dependencies do not.
 Those consumers exist: the forward and dynamic-adjustment workflows and
 `e3sm/init`'s component inputs all call `get_realistic_init_steps` and get the
 same step instances rather than a second copy of a chain that costs hours.
+
+The `viz` step makes Omega's geometric `layerThickness` itself. Omega's initial
+state carries `PseudoThickness` and no `SpecVol`, and `open_model_dataset` no
+longer derives equation-of-state fields (#817), so it only turns a
+pseudo-thickness into a geometric one for a file that has both. The step
+computes the specific volume with `spec_vol_from_ds()` instead.
 
 Within this decomposition, `initial_state` is what ports the pieces of legacy
 init-mode functionality that are neither part of `pstar_init` nor already
@@ -744,7 +750,7 @@ task.
 
 ### Testing and Validation: Open-ocean global initial conditions can be created from a culled mesh
 
-Date last modified: 2026/08/11
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
