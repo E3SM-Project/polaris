@@ -23,6 +23,16 @@ These instructions apply to the whole repository unless a deeper
 - Only fall back to other Python environments if `pixi-env/` does not
   exist or is clearly incomplete.
 
+## Rerunning Polaris steps
+
+- A step that finishes writes `polaris_step_complete.log` in its work
+  directory, and `polaris serial` skips any step that has one, printing
+  only `already completed`. Rerunning `polaris setup` into the same work
+  directory does not remove it.
+- To rerun a step, for example to test a code change against the same
+  inputs, delete its `polaris_step_complete.log` first. Otherwise the
+  run "succeeds" without running any of the new code.
+
 ## Python style
 
 - Keep Python lines at 79 characters or fewer whenever possible.
