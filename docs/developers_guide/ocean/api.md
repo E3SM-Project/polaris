@@ -852,6 +852,8 @@
    vertical.diagnostics.pseudothickness_from_ds
    vertical.diagnostics.get_z_mid_and_interface
    vertical.diagnostics.depth_from_thickness
+   vertical.diagnostics.vertical_coord_from_location
+   vertical.diagnostics.location_for_field
    vertical.diagnostics.compute_zint_zmid_from_layer_thickness
    vertical.grid_1d.generate_1d_grid
    vertical.grid_1d.write_1d_grid

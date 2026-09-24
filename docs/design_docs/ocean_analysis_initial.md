@@ -1369,6 +1369,7 @@ which already maps the vertical geometry this design depends on:
 
 ```yaml
   zMid: GeomZMid
+  zInterface: GeomZInterface
 ```
 
 **The mapping reconciles two spellings; it is not a naming authority.**  An

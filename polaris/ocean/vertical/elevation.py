@@ -63,7 +63,7 @@ class VerticalReduction(NamedTuple):
 
 # The reductions a step can offer without reading any vertical geometry, since
 # they pick a layer by index.  Interpolating to an elevation reads ``zMid``
-# and ``zInterface``, which the map step does not pass yet.  An elevation
+# and ``GeomZInterface``, which the map step does not pass yet.  An elevation
 # range is not a slice and is not here at all; see ``elevation_range_weights``.
 IMPLEMENTED_KINDS = ('top', 'bottom', 'index')
 
