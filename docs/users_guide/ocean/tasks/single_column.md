@@ -11,11 +11,12 @@ the vertical dynamics of the ocean model only. The test cases are:
 - Testing the Ekman solution under wind forcing
 - Testing the Ideal Age tracer under surface forcing
 - Testing the Coriolis term by quantifying the inertial frequency
+- Comparing Omega's penetrating-shortwave-radiation scheme against
+  surface-absorbed shortwave heating
 
 ## suppported models
 
-All but the ideal age task support MPAS-Ocean and Omega, whereas the ideal age task supports MPAS-Ocean only.
-
+All but the ideal age task support MPAS-Ocean and Omega, whereas the ideal age task supports MPAS-Ocean only. The `shortwave_pen` task supports Omega only, since the MPAS-Ocean shortwave penetration scheme is very different from Omega.
 ## mesh
 
 The mesh is planar and spans the minimum number of cells (16 for MPAS-Ocean).
@@ -574,6 +575,102 @@ conservation_error_tolerance = 1e-10
 ```
 
 All config options shown in {ref}`ocean-single-column` are also used.
+
+### cores
+
+See {ref}`ocean-single-column`.
+
+(ocean-single-column-shortwave-pen)=
+
+## shortwave_pen
+
+### description
+
+The `shortwave_pen` task compares Omega's penetrating-shortwave-radiation
+tendency term against the default behavior of absorbing all incident
+shortwave heat flux in the surface layer. It runs an `extinction` step that
+builds a forcing file of red- and blue-band extinction coefficients, then two
+forward runs of 3 hours each with an identical constant incident surface
+shortwave flux: `forward_constant` (penetrating shortwave disabled, matching
+the default behavior of applying shortwave heating at the surface) and
+`forward_pen` (penetrating shortwave enabled, using the extinction
+coefficients from the `extinction` step). The `analysis` step compares the
+resulting temperature profiles, checks that the column-integrated heating is
+the same between the two runs (since both are forced by the same total
+incident shortwave flux), and checks that the increase in column potential
+energy in the penetrating-shortwave run exceeds that of the
+constant-absorption run (depositing heat deeper in the column lowers density
+deeper in the ocean column). The `viz` step generates plots of the vertical
+profiles for both runs and the difference profiles (such as
+`temperature_diff.png`).
+
+### mesh
+
+See {ref}`ocean-single-column`.
+
+### vertical grid
+
+See {ref}`ocean-single-column`.
+
+### initial conditions
+
+The temperature profile follows `stable.cfg` and salinity is constant with
+depth. See {ref}`ocean-single-column`.
+
+### forcing
+
+A constant incident surface shortwave heat flux is applied in both forward
+runs, overriding the default in {ref}`ocean-single-column`:
+
+```cfg
+# config options for forcing single column testcases
+[single_column_forcing]
+
+# Constant incident surface shortwave heat flux applied to both forward
+# runs [W/m^2]. Positive values indicate a net input of heat to the ocean.
+short_wave_heat_flux = 200.0
+```
+
+`forward_pen` additionally reads the extinction-coefficient forcing file
+produced by the `extinction` step.
+
+### time step and run duration
+
+The time step is given in {ref}`ocean-single-column`. The run duration is three
+hours, long enough for the two runs to develop a detectable difference in
+their temperature profiles, and output is written every 600 s, overriding the
+multi-day defaults in {ref}`ocean-single-column`:
+
+```cfg
+[single_column]
+
+# Run duration in days (3 hours)
+run_duration = 0.125
+
+# Output interval in seconds
+output_interval = 600.
+```
+
+### config options
+
+```cfg
+# config options for the shortwave_pen single-column task
+[single_column_shortwave_pen]
+
+# Red-band extinction coefficient used to build the extinction-coefficient
+# forcing file for the penetrating-shortwave run [1/m]
+extinction_coeff_red = 0.35
+
+# Blue-band extinction coefficient used to build the extinction-coefficient
+# forcing file for the penetrating-shortwave run [1/m]
+extinction_coeff_blue = 0.03
+
+# Relative tolerance used when comparing the column-integrated heating
+# between the constant-absorption and penetrating-shortwave runs
+heating_error_tolerance = 1.0e-10
+```
+
+All other config options shown in {ref}`ocean-single-column` are also used.
 
 ### cores
 

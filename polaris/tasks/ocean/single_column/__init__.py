@@ -3,6 +3,9 @@ from polaris.tasks.ocean.single_column.ekman import Ekman as Ekman
 from polaris.tasks.ocean.single_column.ideal_age import IdealAge as IdealAge
 from polaris.tasks.ocean.single_column.inertial import Inertial as Inertial
 from polaris.tasks.ocean.single_column.init import Init
+from polaris.tasks.ocean.single_column.shortwave_pen import (
+    ShortwavePen as ShortwavePen,
+)
 from polaris.tasks.ocean.single_column.thermo import Thermo as Thermo
 from polaris.tasks.ocean.single_column.vmix import VMix as VMix
 
@@ -168,6 +171,13 @@ def add_single_column_tasks(component):
 
     component.add_task(
         Thermo(
+            component=component,
+            indir='column',
+        )
+    )
+
+    component.add_task(
+        ShortwavePen(
             component=component,
             indir='column',
         )
