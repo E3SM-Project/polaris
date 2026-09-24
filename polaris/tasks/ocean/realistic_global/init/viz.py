@@ -9,6 +9,10 @@ from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 from mpas_tools.viz.mpas_to_xdmf.mpas_to_xdmf import MpasToXdmf
 
 from polaris.ocean.model import OceanIOStep
+from polaris.ocean.vertical.diagnostics import (
+    geom_thickness_from_ds,
+    spec_vol_from_ds,
+)
 from polaris.viz import get_viz_defaults, plot_global_mpas_field
 
 from .remap_jra55 import JRA55_ON_MESH_FILENAME
@@ -21,9 +25,10 @@ class VizInitStep(OceanIOStep):
 
     The step is model-agnostic: it reads through
     :py:meth:`~polaris.ocean.model.OceanIOStep.open_model_dataset` (which maps
-    Omega variable names to their MPAS-Ocean equivalents and reconstructs the
-    geometric ``layerThickness`` from ``PseudoThickness``) and
+    Omega variable names to their MPAS-Ocean equivalents) and
     :py:meth:`~polaris.ocean.model.OceanIOStep.open_vert_coord_dataset`.
+    Omega's initial state has no geometric ``layerThickness``, so the step
+    derives one from ``PseudoThickness`` and the equation of state.
 
     It produces:
 
@@ -144,6 +149,7 @@ class VizInitStep(OceanIOStep):
             ds_init = ds_init.isel(Time=0)
         if 'Time' in ds_vert_coord.sizes:
             ds_vert_coord = ds_vert_coord.isel(Time=0)
+        ds_init = _add_layer_thickness(ds_init, config, logger=self.logger)
 
         _plot_summary(model, ds_mesh, ds_init, ds_vert_coord)
         _plot_vertical_coord(ds_init, ds_vert_coord)
@@ -171,7 +177,7 @@ class VizInitStep(OceanIOStep):
 
         # At initialization layerThickness equals restingThickness (both the
         # geometric layer thickness); it is present and geometric for both
-        # models (reconstructed from PseudoThickness for Omega), whereas
+        # models (derived from PseudoThickness for Omega), whereas
         # restingThickness has no Omega equivalent in the vert_coord file.
         layer_thickness = ds_init.layerThickness
 
@@ -407,6 +413,41 @@ class VizInitStep(OceanIOStep):
             }
             converter = MpasToXdmf(ds=ds_data, ds_mesh=ds_mesh)
             converter.convert_to_xdmf(out_dir=out_dir, extra_dims=extra_dims)
+
+
+def _add_layer_thickness(ds, config, logger=None):
+    """
+    Add the geometric ``layerThickness`` to an initial state that has only a
+    pseudo-thickness.
+
+    MPAS-Ocean's initial state carries ``layerThickness`` itself.  Omega's
+    carries ``PseudoThickness``, and ``open_model_dataset`` only turns that
+    into a geometric thickness when the file also has ``SpecVol``, which an
+    initial state does not, so the specific volume comes from the equation
+    of state here.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The initial state, with MPAS-Ocean variable names
+
+    config : polaris.config.PolarisConfigParser
+        Config options with the equation of state
+
+    logger : logging.Logger, optional
+        A logger for the equation-of-state iterations
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        The initial state, with ``layerThickness``
+    """
+    if 'layerThickness' in ds or 'PseudoThickness' not in ds:
+        return ds
+    if 'SpecVol' not in ds:
+        ds['SpecVol'] = spec_vol_from_ds(ds, config, logger=logger)
+    ds['layerThickness'] = geom_thickness_from_ds(ds, config)
+    return ds
 
 
 def _plot_summary(model, ds_mesh, ds_init, ds_vert_coord):
