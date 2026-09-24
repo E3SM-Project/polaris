@@ -665,6 +665,7 @@ seaice/api
    :toctree: generated/
 
    compare_variables
+   merge_diff_summary
 ```
 
 ### viz
