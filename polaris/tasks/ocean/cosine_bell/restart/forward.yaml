@@ -24,11 +24,11 @@ Omega:
     RestartRead:
       UsePointerFile: false
       UseStartEnd: {{ not_restart }}
-      Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
+      Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s.nc
       StartTime: {{ restart_time }}
     RestartWrite:
       UsePointerFile: false
-      Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
+      Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s.nc
       Freq: 1
       FreqUnits: seconds
     History:

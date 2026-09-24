@@ -1,6 +1,7 @@
 import importlib.resources as imp_res
 import json
 import os
+import re
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
@@ -27,6 +28,7 @@ from polaris.ocean.conservation import (
 )
 from polaris.ocean.model.ocean_model_files_mixin import OceanModelFilesMixin
 from polaris.ocean.model.time import get_time_since_start
+from polaris.yaml import PolarisYaml
 
 if TYPE_CHECKING:
     # Keep Ocean as a type-only import. Importing it at runtime pulls
@@ -211,6 +213,8 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             self.streams_section = 'IOStreams'
             self._read_config_map()
             self.partition_graph = False
+            # every file Omega writes is checked for CF compliance
+            self.add_cf_check()
         elif model == 'mpas-ocean':
             self.config_models = ['ocean', 'mpas-ocean']
             self.make_yaml = False
@@ -497,6 +501,33 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
             'config_eos_type': eos_type,
         }
         return replacements
+
+    def check_cf(self):
+        """
+        Check every file Omega wrote for CF compliance: the first file of
+        each write stream in the step's ``omega.yml``, since the files of a
+        stream share their metadata.  MPAS-Ocean output is not checked.
+
+        Returns
+        -------
+        checked : bool
+            Whether any files were checked
+
+        success : bool
+            Whether every checked file was free of errors
+        """
+        if self.config.get('ocean', 'model') == 'omega':
+            yaml = PolarisYaml.read(
+                os.path.join(self.work_dir, self.yaml),
+                streams_section=self.streams_section,
+            )
+            for stream in yaml.streams.values():
+                if stream.get('Mode') != 'write':
+                    continue
+                # Omega's time template in a filename becomes a glob
+                pattern = re.sub(r'\$[YMDhms]', '*', stream['Filename'])
+                self.add_cf_check(pattern)
+        return super().check_cf()
 
     def check_properties(self):
         """

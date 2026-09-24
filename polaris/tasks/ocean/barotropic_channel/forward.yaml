@@ -122,7 +122,7 @@ Omega:
     RestartWrite:
       UsePointerFile: true
       PointerFilename: ocn.pointer
-      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+      Filename: ocn.restart.$Y-$M-$D_$h.$m.$s.nc
       Mode: write
       IfExists: replace
       Precision: double
