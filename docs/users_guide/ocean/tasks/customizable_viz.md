@@ -125,6 +125,10 @@ y_end = -65.0
 layer_interface_color = None
 ```
 
+The task also sets `eos_type = teos-10` in the `[ocean]` section. It is used
+to compute specific volume for Omega files that do not contain `SpecVol`, so
+change it if the Omega simulation used a different equation of state.
+
 Note that the config options listed in each step section will be used for all
 variables listed. For example, if a colormap cfg option is provided, all plots
 will use the same colormap. If the colormap is not provided, the colormaps

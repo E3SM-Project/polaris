@@ -25,6 +25,9 @@ class CustomizableViz(Task):
         name = 'customizable_viz'
         super().__init__(component=component, name=name, subdir=basedir)
 
+        # Omega output without SpecVol needs an EOS to be opened; Omega's
+        # default is TEOS-10
+        self.config.add_from_package('polaris.ocean.eos', 'teos10.cfg')
         config_filename = 'customizable_viz.cfg'
         self.config.add_from_package(
             'polaris.tasks.ocean.customizable_viz', config_filename
