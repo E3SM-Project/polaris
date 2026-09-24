@@ -298,7 +298,7 @@ itself. For the same reason the CFL bound does not get the window at all.
 
 ### Implementation: A staged dynamic-adjustment workflow can be created from a global initial condition
 
-Date last modified: 2026/08/11
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -450,7 +450,7 @@ the rest of the job.
 
 ### Implementation: Adjustment schedules are reusable but easy to tune
 
-Date last modified: 2026/08/11
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -474,7 +474,7 @@ option at another file before setup.
 
 ### Implementation: The workflow includes basic validation that the adjustment remained well behaved
 
-Date last modified: 2026/08/11
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -499,15 +499,18 @@ The settling heuristic this section listed as item 3 was removed, for the
 reasons given in the corresponding Algorithm Design section above.
 
 The diagnostics are defined by a `METRICS` list, each naming the
-global-statistics variable it reads in MPAS-Ocean naming (which
-`open_model_dataset` maps Omega's names onto), how to reduce that variable's
-time series over the stage, and the `output.nc` field to fall back to when the
-model does not report it. Metrics with no honest fallback are left blank: a
-maximum means the same thing computed either way, a volume-weighted mean does
-not. Two derived columns, the mean temperature and salinity change per day, are
-a conservation check rather than a settling one — these runs are forced by wind
-alone with no surface fluxes, so both should be zero to within machine noise,
-and `u-oi30-lr10` reaches -4e-17 °C/day.
+global-statistics variable it reads in MPAS-Ocean naming, how to reduce that
+variable's time series over the stage, and the `output.nc` field to fall back to
+when the model does not report it. Omega's statistics are renamed to those names
+by `open_stage_stats`, using the names `polaris.ocean.global_stats_names` builds
+for each model, since `mpaso_to_omega.yaml` no longer maps statistics pair by
+pair; Omega's pseudo-thickness stands in for layer thickness, as it did in that
+map. Metrics with no honest fallback are left blank: a maximum means the same
+thing computed either way, a volume-weighted mean does not. Two derived columns,
+the mean temperature and salinity change per day, are a conservation check
+rather than a settling one — these runs are forced by wind alone with no surface
+fluxes, so both should be zero to within machine noise, and `u-oi30-lr10`
+reaches -4e-17 °C/day.
 
 Omega's `GlobalStats` covers temperature, salinity, layer thickness and normal
 velocity but has no kinetic energy, CFL number or volume-weighted sums, so those
@@ -542,7 +545,7 @@ person reading a table and a figure, rather than by a threshold pretending to.
 
 ### Testing and Validation: A staged dynamic-adjustment workflow can be created from a global initial condition
 
-Date last modified: 2026/08/11
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
