@@ -122,9 +122,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cartopy.geodesic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geodesic</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">colormaps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.backends.backend_agg</span><span class="w"> </span><span class="kn">import</span> <span class="n">FigureCanvasAgg</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_dataset</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.axes_grid1.inset_locator</span><span class="w"> </span><span class="kn">import</span> <span class="n">inset_axes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyremap.descriptor.utility</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp_extrap_corner</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz.helper</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -144,6 +144,12 @@
     <span class="s1">'edgesOnVertex'</span><span class="p">,</span>
 <span class="p">]</span>
 
+<span class="c1"># the sizing of a figure to its map settles in a few tries, and the layout</span>
+<span class="c1"># at each size in a few passes; these are only guards against either never</span>
+<span class="c1"># doing so</span>
+<span class="n">_MAX_FIT_ITERATIONS</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">_MAX_LAYOUT_PASSES</span> <span class="o">=</span> <span class="mi">10</span>
+
 
 <div class="viewcode-block" id="plot_global_mpas_field">
 <a class="viewcode-back" href="../../../developers_guide/generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field">[docs]</a>
@@ -158,7 +164,8 @@
     <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">colorbar_label</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span>
     <span class="n">central_longitude</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span>
+    <span class="n">fig_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">fig_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">patch_edge_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">descriptor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">projection_name</span><span class="o">=</span><span class="s1">'PlateCarree'</span><span class="p">,</span>
@@ -209,8 +216,16 @@
 <span class="sd">    central_longitude : float, optional</span>
 <span class="sd">        The longitude of the center of the plot</span>
 
-<span class="sd">    figsize : tuple, optional</span>
-<span class="sd">        The size of the figure in inches</span>
+<span class="sd">    fig_width : float, optional</span>
+<span class="sd">        The width of the figure in inches.  The height is whatever leaves no</span>
+<span class="sd">        empty canvas above and below the map, which depends on the</span>
+<span class="sd">        projection, the extent and the title.  Defaults to 8 if neither</span>
+<span class="sd">        ``fig_width`` nor ``fig_height`` is given.</span>
+
+<span class="sd">    fig_height : float, optional</span>
+<span class="sd">        The height of the figure in inches, as an alternative to</span>
+<span class="sd">        ``fig_width``.  The width is then whatever leaves no empty canvas to</span>
+<span class="sd">        either side of the map and its colorbar.</span>
 
 <span class="sd">    dpi : int, optional</span>
 <span class="sd">        Dots per inch for the output plot</span>
@@ -259,6 +274,7 @@
 <span class="sd">        For reuse with future plots. Patches are cached, so the Descriptor only</span>
 <span class="sd">        needs to be created once per mesh file.</span>
 <span class="sd">    """</span>
+    <span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span> <span class="o">=</span> <span class="n">_check_figure_size</span><span class="p">(</span><span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">):</span>
         <span class="n">transform</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">()</span>
@@ -288,16 +304,15 @@
                 <span class="n">use_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># the figure is sized to the map once everything that takes up room</span>
+        <span class="c1"># around the map has been drawn</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">extent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">circular_boundary</span><span class="p">:</span>
             <span class="n">_set_circular_boundary</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">add_fitted_suptitle</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
         <span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ticks</span> <span class="o">=</span> <span class="n">setup_colormap</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">colormap_section</span><span class="p">)</span>
 
@@ -332,22 +347,13 @@
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">enforce_aspect_ratio</span><span class="p">:</span>
-            <span class="n">min_latitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">max_latitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">min_longitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">max_longitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="n">geod</span> <span class="o">=</span> <span class="n">Geodesic</span><span class="p">()</span>
-            <span class="n">x_distance</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">min_longitude</span><span class="p">,</span> <span class="n">min_latitude</span><span class="p">],</span> <span class="p">[</span><span class="n">max_longitude</span><span class="p">,</span> <span class="n">min_latitude</span><span class="p">]</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">y_distance</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">min_longitude</span><span class="p">,</span> <span class="n">min_latitude</span><span class="p">],</span> <span class="p">[</span><span class="n">min_longitude</span><span class="p">,</span> <span class="n">max_latitude</span><span class="p">]</span>
-            <span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="n">y_distance</span> <span class="o">/</span> <span class="n">x_distance</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="n">_geodesic_aspect_ratio</span><span class="p">(</span><span class="n">mesh_ds</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">ticks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">tick</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ticks</span><span class="p">])</span>
+
+        <span class="n">_fit_figure_to_map</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">cbar</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">)</span>
 
         <span class="c1"># Let constrained_layout manage the margins; combining it with</span>
         <span class="c1"># bbox_inches='tight' on a fixed-aspect GeoAxes with an</span>
@@ -371,7 +377,8 @@
     <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">colorbar_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span>
+    <span class="n">fig_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">fig_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Plots a data set as a longitude-latitude map</span>
@@ -419,10 +426,18 @@
 <span class="sd">    colorbar_label : str, optional</span>
 <span class="sd">        Label on the colorbar</span>
 
-<span class="sd">    figsize : tuple, optional</span>
-<span class="sd">        The size of the figure in inches.  A size that matches the aspect</span>
-<span class="sd">        ratio of the map leaves the least empty canvas around it</span>
+<span class="sd">    fig_width : float, optional</span>
+<span class="sd">        The width of the figure in inches.  The height is whatever leaves no</span>
+<span class="sd">        empty canvas above and below the map, which depends on the extent</span>
+<span class="sd">        of the data and the title.  Defaults to 8 if neither ``fig_width``</span>
+<span class="sd">        nor ``fig_height`` is given.</span>
+
+<span class="sd">    fig_height : float, optional</span>
+<span class="sd">        The height of the figure in inches, as an alternative to</span>
+<span class="sd">        ``fig_width``.  The width is then whatever leaves no empty canvas to</span>
+<span class="sd">        either side of the map and its colorbar.</span>
 <span class="sd">    """</span>
+    <span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span> <span class="o">=</span> <span class="n">_check_figure_size</span><span class="p">(</span><span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">mplstyle_context</span><span class="p">():</span>
         <span class="n">nlat</span><span class="p">,</span> <span class="n">nlon</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">.</span><span class="n">shape</span>
@@ -446,9 +461,9 @@
                 <span class="sa">f</span><span class="s1">'be either </span><span class="si">{</span><span class="n">nlat</span><span class="si">}</span><span class="s1"> or </span><span class="si">{</span><span class="n">nlat</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">add_fitted_suptitle</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+        <span class="c1"># the figure is sized to the map once everything that takes up room</span>
+        <span class="c1"># around the map has been drawn</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">subplots</span> <span class="o">=</span> <span class="p">[</span><span class="mi">111</span><span class="p">]</span>
         <span class="n">ref_projection</span> <span class="o">=</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
@@ -489,23 +504,16 @@
         <span class="k">if</span> <span class="n">plot_land</span><span class="p">:</span>
             <span class="n">_add_land_lakes_coastline</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 
-        <span class="n">cax</span> <span class="o">=</span> <span class="n">inset_axes</span><span class="p">(</span>
-            <span class="n">ax</span><span class="p">,</span>
-            <span class="n">width</span><span class="o">=</span><span class="s1">'3%'</span><span class="p">,</span>
-            <span class="n">height</span><span class="o">=</span><span class="s1">'60%'</span><span class="p">,</span>
-            <span class="n">loc</span><span class="o">=</span><span class="s1">'center right'</span><span class="p">,</span>
-            <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-            <span class="n">bbox_transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
-            <span class="n">borderpad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+            <span class="n">plotHandle</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.6</span>
         <span class="p">)</span>
-
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">plotHandle</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">'both'</span><span class="p">)</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">colorbar_label</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ticks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">tick</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ticks</span><span class="p">])</span>
 
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">pad_inches</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span></div>
+        <span class="n">_fit_figure_to_map</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">cbar</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_filename</span><span class="p">)</span></div>
 
 
 
@@ -581,6 +589,227 @@
         <span class="n">colormap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="n">over_color</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">ticks</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_figure_size</span><span class="p">(</span><span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that only one dimension of a figure is given, and fill in the</span>
+<span class="sd">    default width if neither is</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig_width : float or None</span>
+<span class="sd">        The width of the figure in inches</span>
+
+<span class="sd">    fig_height : float or None</span>
+<span class="sd">        The height of the figure in inches</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig_width : float or None</span>
+<span class="sd">        The width of the figure in inches, 8 if neither dimension was given</span>
+
+<span class="sd">    fig_height : float or None</span>
+<span class="sd">        The height of the figure in inches</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">fig_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fig_height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'Give either fig_width or fig_height, not both: the other is '</span>
+            <span class="s1">'set by the aspect ratio of the map'</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">fig_width</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fig_height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig_width</span> <span class="o">=</span> <span class="mf">8.0</span>
+    <span class="k">return</span> <span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_figure_to_map</span><span class="p">(</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">cbar</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.01</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Size a figure so that its map fills it</span>
+
+<span class="sd">    A map has a fixed aspect ratio, and the layout engine centers it in</span>
+<span class="sd">    whatever room is left once the title, the gridline labels and the</span>
+<span class="sd">    colorbar have taken theirs, so a figure of the wrong shape has empty</span>
+<span class="sd">    canvas above and below the map or to either side of it.  One dimension</span>
+<span class="sd">    is fixed by the caller and the other is chosen here to leave no such</span>
+<span class="sd">    room.</span>
+
+<span class="sd">    A first guess comes from the map's aspect ratio, widened by the fraction</span>
+<span class="sd">    of the figure the colorbar takes.  What that guess cannot know is how</span>
+<span class="sd">    much room the layout engine gives the labels and title, since that</span>
+<span class="sd">    depends on the font and on the projection, so the figure is then laid</span>
+<span class="sd">    out, the room the map did not fill is trimmed, and the process repeated</span>
+<span class="sd">    until the size settles.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        The figure, with constrained layout</span>
+
+<span class="sd">    ax : cartopy.mpl.geoaxes.GeoAxes</span>
+<span class="sd">        The map axes, with everything already plotted on them</span>
+
+<span class="sd">    cbar : matplotlib.colorbar.Colorbar</span>
+<span class="sd">        The map's colorbar</span>
+
+<span class="sd">    title : str or None</span>
+<span class="sd">        The figure title, refitted to the figure each time its width changes</span>
+
+<span class="sd">    fig_width : float or None</span>
+<span class="sd">        The width of the figure in inches, if that is what is fixed</span>
+
+<span class="sd">    fig_height : float or None</span>
+<span class="sd">        The height of the figure in inches, if that is what is fixed</span>
+
+<span class="sd">    tolerance : float, optional</span>
+<span class="sd">        The room the map may leave empty in the free dimension, in inches</span>
+<span class="sd">    """</span>
+    <span class="c1"># measuring the layout needs a canvas that can produce a renderer; a</span>
+    <span class="c1"># bare figure carries one that cannot, and savefig would attach an Agg</span>
+    <span class="c1"># canvas anyway, so attaching it here changes nothing that is drawn</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="s1">'get_renderer'</span><span class="p">):</span>
+        <span class="n">FigureCanvasAgg</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+    <span class="c1"># the map's height over its width, in inches; a map's aspect is 'equal'</span>
+    <span class="c1"># unless set to a number, and matplotlib stores 'equal' as 1</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+    <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="n">map_aspect</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_aspect</span><span class="p">())</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span>
+
+    <span class="c1"># the colorbar is given this fraction of the map's width plus a pad, so</span>
+    <span class="c1"># the map gets the rest</span>
+    <span class="n">cbar_info</span> <span class="o">=</span> <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">_colorbar_info</span>
+    <span class="n">map_fraction</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">cbar_info</span><span class="p">[</span><span class="s1">'fraction'</span><span class="p">]</span> <span class="o">+</span> <span class="n">cbar_info</span><span class="p">[</span><span class="s1">'pad'</span><span class="p">])</span>
+
+    <span class="n">fixed_width</span> <span class="o">=</span> <span class="n">fig_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">fixed_width</span><span class="p">:</span>
+        <span class="n">free</span> <span class="o">=</span> <span class="n">map_fraction</span> <span class="o">*</span> <span class="n">fig_width</span> <span class="o">*</span> <span class="n">map_aspect</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">free</span> <span class="o">=</span> <span class="n">fig_height</span> <span class="o">/</span> <span class="n">map_aspect</span> <span class="o">/</span> <span class="n">map_fraction</span>
+
+    <span class="c1"># the layout engine reserves room for the gridline labels only where they</span>
+    <span class="c1"># overhang the map's layout cell, and a map centered in a cell it does</span>
+    <span class="c1"># not fill has its labels inside the cell; anchoring the map to the</span>
+    <span class="c1"># corner the labels are on keeps them overhanging</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_anchor</span><span class="p">(</span><span class="s1">'SW'</span><span class="p">)</span>
+
+    <span class="c1"># a size at which the map falls short of its cell and one at which the</span>
+    <span class="c1"># cell falls short of the map bracket the size wanted</span>
+    <span class="n">too_big</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">too_small</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_MAX_FIT_ITERATIONS</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fixed_width</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">fig_width</span><span class="p">,</span> <span class="n">free</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">free</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">add_fitted_suptitle</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+        <span class="n">cell_width</span><span class="p">,</span> <span class="n">cell_height</span> <span class="o">=</span> <span class="n">_settle_layout</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">)</span>
+        <span class="c1"># how much of the room the layout engine left the map it does not</span>
+        <span class="c1"># fill</span>
+        <span class="k">if</span> <span class="n">fixed_width</span><span class="p">:</span>
+            <span class="n">slack</span> <span class="o">=</span> <span class="n">cell_height</span> <span class="o">-</span> <span class="n">cell_width</span> <span class="o">*</span> <span class="n">map_aspect</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">slack</span> <span class="o">=</span> <span class="n">cell_width</span> <span class="o">-</span> <span class="n">cell_height</span> <span class="o">/</span> <span class="n">map_aspect</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">slack</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tolerance</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">slack</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">too_big</span> <span class="o">=</span> <span class="p">(</span><span class="n">free</span><span class="p">,</span> <span class="n">slack</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">too_small</span> <span class="o">=</span> <span class="p">(</span><span class="n">free</span><span class="p">,</span> <span class="n">slack</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">too_big</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">too_small</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># the room around the map depends only weakly on its size, so</span>
+            <span class="c1"># trimming the slack is nearly right</span>
+            <span class="n">free</span> <span class="o">-=</span> <span class="n">slack</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># the room the layout engine reserves for a label changes</span>
+            <span class="c1"># abruptly as the map goes from filling its cell to not, so</span>
+            <span class="c1"># trimming the slack can overshoot; between the bracketing sizes</span>
+            <span class="c1"># the size is taken where the line through them has no slack</span>
+            <span class="p">(</span><span class="n">small</span><span class="p">,</span> <span class="n">small_slack</span><span class="p">),</span> <span class="p">(</span><span class="n">big</span><span class="p">,</span> <span class="n">big_slack</span><span class="p">)</span> <span class="o">=</span> <span class="n">too_small</span><span class="p">,</span> <span class="n">too_big</span>
+            <span class="n">free</span> <span class="o">=</span> <span class="n">small</span> <span class="o">-</span> <span class="n">small_slack</span> <span class="o">*</span> <span class="p">(</span><span class="n">big</span> <span class="o">-</span> <span class="n">small</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="n">big_slack</span> <span class="o">-</span> <span class="n">small_slack</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_settle_layout</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Lay the figure out until the room left for the map stops changing</span>
+
+<span class="sd">    The layout is computed from bounding boxes, without drawing the field,</span>
+<span class="sd">    which is what takes the time.  Each pass measures the colorbar and the</span>
+<span class="sd">    gridline labels where the previous pass put them, and where a label</span>
+<span class="sd">    sits on a curved map boundary, where it lands depends on how big the</span>
+<span class="sd">    map is, so a single pass does not settle the layout and the pass that</span>
+<span class="sd">    ``savefig`` makes would differ from the one measured here.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        The figure, with constrained layout</span>
+
+<span class="sd">    ax : cartopy.mpl.geoaxes.GeoAxes</span>
+<span class="sd">        The map axes</span>
+
+<span class="sd">    tolerance : float</span>
+<span class="sd">        The change in the map's cell, in inches, below which the layout has</span>
+<span class="sd">        settled</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cell_width : float</span>
+<span class="sd">        The width of the room left for the map, in inches</span>
+
+<span class="sd">    cell_height : float</span>
+<span class="sd">        The height of the room left for the map, in inches</span>
+<span class="sd">    """</span>
+    <span class="n">layout_engine</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span>
+    <span class="n">previous</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_MAX_LAYOUT_PASSES</span><span class="p">):</span>
+        <span class="n">layout_engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="n">original</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cell_width</span><span class="p">,</span> <span class="n">cell_height</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">previous</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">change</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="nb">abs</span><span class="p">(</span><span class="n">cell_width</span> <span class="o">-</span> <span class="n">previous</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">cell_height</span> <span class="o">-</span> <span class="n">previous</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">change</span> <span class="o">&lt;</span> <span class="n">tolerance</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">previous</span> <span class="o">=</span> <span class="p">(</span><span class="n">cell_width</span><span class="p">,</span> <span class="n">cell_height</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cell_width</span><span class="p">,</span> <span class="n">cell_height</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_geodesic_aspect_ratio</span><span class="p">(</span><span class="n">mesh_ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The height over the width of a map of a mesh, taking the distance across</span>
+<span class="sd">    its latitude and longitude bounds in each direction as the measure</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_ds : xarray.Dataset</span>
+<span class="sd">        The MPAS mesh, culled to the cells being plotted</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    aspect_ratio : float</span>
+<span class="sd">        The height over the width</span>
+<span class="sd">    """</span>
+    <span class="n">min_latitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">max_latitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">latCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">min_longitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">max_longitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">mesh_ds</span><span class="o">.</span><span class="n">lonCell</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">geod</span> <span class="o">=</span> <span class="n">Geodesic</span><span class="p">()</span>
+    <span class="n">x_distance</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">min_longitude</span><span class="p">,</span> <span class="n">min_latitude</span><span class="p">],</span> <span class="p">[</span><span class="n">max_longitude</span><span class="p">,</span> <span class="n">min_latitude</span><span class="p">]</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">y_distance</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">min_longitude</span><span class="p">,</span> <span class="n">min_latitude</span><span class="p">],</span> <span class="p">[</span><span class="n">min_longitude</span><span class="p">,</span> <span class="n">max_latitude</span><span class="p">]</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">y_distance</span> <span class="o">/</span> <span class="n">x_distance</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_set_circular_boundary</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>

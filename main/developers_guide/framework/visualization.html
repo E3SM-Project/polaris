@@ -271,6 +271,12 @@ used  to enable or disable continents overlain on top of the data.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">central_longitude</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">0.0</span></code> and can be set to another value
 (typically 180 degrees) for visualizing quantities that would otherwise be
 divided across the antimeridian.</p>
+<p>The figure is sized to the map.  Give either <code class="docutils literal notranslate"><span class="pre">fig_width</span></code> (the default is 8
+inches) or <code class="docutils literal notranslate"><span class="pre">fig_height</span></code>, and the other dimension is whatever leaves no empty
+canvas around the map once the title, the gridline labels and the colorbar
+have taken their room.  A global map in the <code class="docutils literal notranslate"><span class="pre">Robinson</span></code> projection therefore
+gets a taller figure than one in <code class="docutils literal notranslate"><span class="pre">PlateCarree</span></code>, and a polar map with a
+circular boundary a nearly square one.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">&lt;task&gt;_viz</span></code> section of the config file must contain config options for
 specifying the colormap:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for visualization for the cosine bell convergence test case</span>
@@ -330,7 +336,8 @@ is used  to enable or disable continents overlain on top of the data:</p>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">&lt;task&gt;_viz</span></code> of the config file is the same as what’s used by
-<a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a>.</p>
+<a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a>, and the figure is sized to
+the map by <code class="docutils literal notranslate"><span class="pre">fig_width</span></code> or <code class="docutils literal notranslate"><span class="pre">fig_height</span></code> in the same way.</p>
 </section>
 </section>
 </section>
