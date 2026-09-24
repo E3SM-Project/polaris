@@ -125,9 +125,29 @@ y_end = -65.0
 layer_interface_color = None
 ```
 
-The task also sets `eos_type = teos-10` in the `[ocean]` section. It is used
-to compute specific volume for Omega files that do not contain `SpecVol`, so
-change it if the Omega simulation used a different equation of state.
+For Omega files that do not contain `SpecVol`, the task computes specific
+volume from the equation of state in the `[ocean]` section, which is TEOS-10
+by default. If the Omega simulation used a linear or constant equation of
+state, set `eos_type` to match in your config file, along with any
+coefficients that differ from the defaults:
+
+```cfg
+[ocean]
+# teos-10 (the default), linear or constant
+eos_type = linear
+
+# linear coefficients
+eos_linear_alpha = 0.2
+eos_linear_beta = 0.8
+eos_linear_rhoref = 973.0
+eos_linear_Tref = 0.
+eos_linear_Sref = 0.
+
+# constant density, defaults to the PCD seawater reference density
+#eos_constant_rhoref = 1026.
+```
+
+The equation of state is not used for MPAS-Ocean files.
 
 Note that the config options listed in each step section will be used for all
 variables listed. For example, if a colormap cfg option is provided, all plots
