@@ -169,7 +169,7 @@ class Viz(OceanIOStep):
                             ds_comp,
                             location_for_field(var),
                             allow_reconstruct=True,
-                            ds_vert=ds_init,
+                            ds_vert=ds_vert,
                         ).mean(dim='nCells')
                         plt.plot(
                             var,
@@ -237,7 +237,7 @@ class Viz(OceanIOStep):
                                 ds_init,
                                 location_for_field(var_init, field_name),
                                 allow_reconstruct=True,
-                                ds_vert=ds_init,
+                                ds_vert=ds_vert,
                             ).mean(dim='nCells')
                             plt.plot(var_init, z_init, '--k', label='initial')
                             _add_visible_limits(
