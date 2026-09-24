@@ -7,6 +7,10 @@ from mpas_tools.io import write_netcdf
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.ocean.model import OceanIOStep as OceanIOStep
+from polaris.ocean.vertical.diagnostics import (
+    geom_thickness_from_ds,
+    spec_vol_from_ds,
+)
 from polaris.viz import (
     determine_time_variable,
     get_viz_defaults,
@@ -56,6 +60,7 @@ class VizTransect(OceanIOStep):
         if 'Time' in ds.dims:
             t_index = 0
             ds = ds.isel(Time=t_index)
+        ds = _add_layer_thickness(ds, self.config, self.logger)
         prefix, time_variable = determine_time_variable(ds)
         if time_variable is not None:
             start_time = ds[time_variable].values
@@ -181,3 +186,16 @@ class VizTransect(OceanIOStep):
                 colorbar_label=units,
                 color_start_and_end=True,
             )
+
+
+def _add_layer_thickness(ds, config, logger):
+    """
+    Add ``layerThickness`` to Omega output that lacks it, computing
+    ``SpecVol`` from the EOS first if the output lacks that too
+    """
+    if 'layerThickness' in ds or 'PseudoThickness' not in ds:
+        return ds
+    if 'SpecVol' not in ds:
+        ds['SpecVol'] = spec_vol_from_ds(ds, config, logger=logger)
+    ds['layerThickness'] = geom_thickness_from_ds(ds, config)
+    return ds

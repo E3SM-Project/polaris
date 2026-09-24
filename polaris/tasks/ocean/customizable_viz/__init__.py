@@ -26,10 +26,10 @@ class CustomizableViz(Task):
         name = 'customizable_viz'
         super().__init__(component=component, name=name, subdir=basedir)
 
-        # Omega output without SpecVol needs an EOS to be opened.  Omega's
-        # default is TEOS-10, but the linear and constant coefficients are
-        # added too so that a user only has to change eos_type for a run with
-        # one of those
+        # Omega output without SpecVol needs an EOS for transects and for
+        # plots of SpecVol or layerThickness.  Omega's default is TEOS-10,
+        # but the linear and constant coefficients are added too so that a
+        # user only has to change eos_type for a run with one of those
         self.config.add_from_package('polaris.ocean.eos', 'linear.cfg')
         self.config.add_from_package('polaris.ocean.eos', 'teos10.cfg')
         self.config.set(

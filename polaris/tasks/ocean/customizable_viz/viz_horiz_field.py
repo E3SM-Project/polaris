@@ -5,6 +5,10 @@ import numpy as np
 import xarray as xr
 
 from polaris.ocean.model import OceanIOStep
+from polaris.ocean.vertical.diagnostics import (
+    geom_thickness_from_ds,
+    spec_vol_from_ds,
+)
 from polaris.viz import (
     determine_time_variable,
     get_viz_defaults,
@@ -154,6 +158,18 @@ class VizHorizField(OceanIOStep):
             t_index = 0
             # TODO support different time selection from config file
             ds = ds.isel(Time=t_index)
+
+        if (
+            {'SpecVol', 'layerThickness'} & set(self.variables)
+            and 'layerThickness' not in ds
+            and 'PseudoThickness' in ds
+        ):
+            # Omega output without SpecVol needs it from the EOS
+            if 'SpecVol' not in ds:
+                ds['SpecVol'] = spec_vol_from_ds(
+                    ds, self.config, logger=self.logger
+                )
+            ds['layerThickness'] = geom_thickness_from_ds(ds, self.config)
 
         prefix, time_variable = determine_time_variable(ds)
         # Default to empty stamp; only set if we have a usable scalar time
