@@ -356,6 +356,11 @@ class Init(PStarInitStep, OceanIOStep):
             'Montgomery potential at layer interfaces (bounds)'
         )
         ds.MontgomeryInter.attrs['units'] = 'm2 s-2'
+        # expand_dims() adds nbnds as an index coordinate with no attributes
+        ds.nbnds.attrs = {
+            'long_name': 'index of the upper (0) and lower (1) interface',
+            'units': '1',
+        }
 
         ds['HPGA'] = hpga_mid
         ds.HPGA.attrs = {
