@@ -64,15 +64,15 @@ Four things the implementation changed are recorded in the sections below:
    component inputs. MPAS-Ocean reads them at run time and says nothing when
    they are missing, which makes them a component input by the definition this
    document already uses.
-2. The culled meshes are staged beside the base mesh in
-   `share/meshes/mpas/unified/`, not under a component's own inputdata
-   directory, and the sea-ice mesh is not staged at all.
+2. The culled meshes are staged beside the base mesh in a per-mesh
+   subdirectory of `share/meshes/mpas/unified/`, not under a component's own
+   inputdata directory, and the sea-ice mesh is not staged at all.
 3. The assembly step rebuilds its tree from empty each run, and offers a script
    for copying into an inputdata directory rather than doing it.
 4. Graph partitioning grew a per-mesh bound and the ability to resume, both
    forced by the finest unified mesh.
 
-Date last modified: 2026/08/13
+Date last modified: 2026/09/24
 
 ### Implementation sequencing
 
@@ -232,7 +232,7 @@ configuration.
 
 ### Requirement: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
-Date last modified: 2026/08/05
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -474,7 +474,7 @@ must be derived from an MPAS restart file.
 
 ### Algorithm Design: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
-Date last modified: 2026/08/13
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -502,16 +502,16 @@ The staged layout follows the E3SM inputdata tree. Writing `<short>` for the
 configured mesh short name, `<date>` for the creation date and `<features>` for
 the `geometric_features` aggregation date:
 
-1. `inputdata/share/meshes/mpas/unified/<short>.base.<date>.nc` — the base mesh
-   with its base-to-culled index maps. Compass staged the base mesh under
-   `share/meshes/mpas/ocean`, but for a unified mesh the base mesh is shared by
-   the ocean, sea-ice, land and river components, so a component-neutral
-   directory is the honest location.
-2. `inputdata/share/meshes/mpas/unified/<short>.<region>.scrip.<date>.nc` — the
-   SCRIP descriptions of the culled meshes, for the same reason.
-3. `inputdata/share/meshes/mpas/unified/<short>.ocean.<date>.nc` and
-   `<short>.land.<date>.nc` — the culled meshes themselves, beside the base
-   mesh for the same reason again.
+1. `inputdata/share/meshes/mpas/unified/<short>/<short>.base.<date>.nc` — the
+   base mesh with its base-to-culled index maps. Compass staged the base mesh
+   under `share/meshes/mpas/ocean`, but for a unified mesh the base mesh is
+   shared by the ocean, sea-ice, land and river components, so a
+   component-neutral directory is the honest location.
+2. `inputdata/share/meshes/mpas/unified/<short>/<short>.<region>.scrip.<date>.nc`
+   — the SCRIP descriptions of the culled meshes, for the same reason.
+3. `inputdata/share/meshes/mpas/unified/<short>/<short>.ocean.<date>.nc` and
+   `<short>.land.<date>.nc` — the culled meshes themselves, beside the base mesh
+   for the same reason again.
 4. `inputdata/ocn/mpas-o/<short>/mpaso.<short>.<date>.nc` — the ocean initial
    condition, with graph partitions under `partitions/`.
 5. `inputdata/ocn/mpas-o/<short>/<short>.mocBasinsAndTransects<features>.<date>.nc`
@@ -521,7 +521,7 @@ the `geometric_features` aggregation date:
 7. `inputdata/ice/mpas-seaice/<short>/mpassi.<short>.<date>.nc` — the sea-ice
    initial condition, with graph partitions under `partitions/`.
 
-Three of these differ from what this document first described, and each
+Four of these differ from what this document first described, and each
 difference is a decision worth keeping.
 
 **Meshes go where E3SM keeps meshes.** The first implementation staged the
@@ -542,12 +542,19 @@ its output; only the staging is dropped. No mesh is staged for
 `calving_front` convention every current unified mesh uses it is identical to
 the ocean mesh.
 
+**Each mesh has a shared directory of its own.** One mesh contributes six files
+to `share/meshes/mpas/unified/` — a base mesh, three SCRIP descriptions and two
+culled meshes — so with more than a couple of meshes staged there, a flat
+directory hid which files belonged together. Each mesh's files go in a
+subdirectory named for its short name, so they can be found, copied and removed
+as a unit. The short name stays in every filename too, so a file moved out of
+the tree still identifies itself.
+
 **The two ocean SCRIP files are staged twice.** Once in the shared mesh
 directory under their full region names, and once beside the ocean products,
-because developers look in both places and the shared directory holds every
-unified mesh. In an ocean directory the `ocean` in a region name says nothing,
-so it is dropped; `no_cavities` stays, being the whole distinction. Land has no
-copy there. Both names link to the same file.
+because developers look in both places. In an ocean directory the `ocean` in a
+region name says nothing, so it is dropped; `no_cavities` stays, being the whole
+distinction. Land has no copy there. Both names link to the same file.
 
 The MOC mask filename carries two dates because two things change
 independently: `<features>` is the version of the `geometric_features`
@@ -844,7 +851,7 @@ of retrofitting model selection into steps that assumed MPAS.
 
 ### Implementation: The workflow produces E3SM-compatible staged outputs while retaining inspectable intermediate files
 
-Date last modified: 2026/08/13
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -896,9 +903,12 @@ fresh setup: rebuilding the work directory's config stamps today's date. Pin
 the option in a user config when a stamp needs to survive a re-setup.
 
 Unified meshes register their short name as `[unified_mesh] e3sm_short_name` in
-the per-mesh config, with `mesh_short_name` left as an override. The mesh with
-no plans to reach E3SM master is registered under a deliberately invalid
-placeholder ID, so a file staged for it is self-evidently a test artifact.
+the per-mesh config, with `mesh_short_name` left as an override. Short names use
+dashes, as the Polaris mesh names do (`u02-oi30-lr10`): CIME separates the parts
+of a test name with dots, so a dotted name cannot be an E3SM grid alias. The
+mesh with no plans to reach E3SM master is registered under a deliberately
+invalid placeholder ID, so a file staged for it is self-evidently a test
+artifact.
 
 The core-count bounds are also per-mesh where they need to be. `gpmetis` fails
 above roughly 750,000 parts, and the largest partition asked for is
@@ -1023,7 +1033,7 @@ arrive with the tasks they exercise.
 
 ### Testing and Validation: The staged base mesh carries maps to the culled component meshes
 
-Date last modified: 2026/08/13
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Claude
 
