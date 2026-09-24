@@ -7,6 +7,7 @@ A minimal ConfigParser and xarray.Dataset are constructed in each test.
 
 from configparser import ConfigParser
 
+import gsw
 import numpy as np
 import pytest
 import xarray as xr
@@ -17,6 +18,8 @@ from polaris.ocean.vertical.diagnostics import (
     get_z_mid_and_interface,
     location_for_field,
     pseudothickness_from_ds,
+    spec_vol_from_ds,
+    vert_velocity_top_from_ds,
     vertical_coord_from_location,
 )
 
@@ -272,3 +275,111 @@ def test_reconstruct_missing_bottom_depth():
     ds_vert = xr.Dataset()
     with pytest.raises(ValueError, match='bottomDepth is not present'):
         get_z_mid_and_interface(ds, allow_reconstruct=True, ds_vert=ds_vert)
+
+
+def _make_omega_state_ds(with_pseudothickness=True):
+    """An Omega state with MPAS-Ocean names and no SpecVol"""
+    cell_dims = ('Time', 'nCells', 'nVertLevels')
+    data_vars: dict = dict(
+        temperature=(cell_dims, [[[10.0, 5.0, 2.0]]]),
+        salinity=(cell_dims, [[[34.0, 34.5, 35.0]]]),
+        SurfacePressure=(('Time', 'nCells'), [[1.0e4]]),
+    )
+    if with_pseudothickness:
+        data_vars['PseudoThickness'] = (cell_dims, [[[10.0, 100.0, 1000.0]]])
+    return xr.Dataset(data_vars=data_vars)
+
+
+def test_spec_vol_from_pseudothickness():
+    """The pressure a pseudo-thickness implies is used directly, with no
+    geometric thickness or iteration."""
+    rho_sw = get_constant('seawater_density_reference')
+    gravity = get_constant('standard_acceleration_of_gravity')
+    ds = _make_omega_state_ds()
+
+    spec_vol = spec_vol_from_ds(ds, _make_config())
+
+    h_tilde = np.array([10.0, 100.0, 1000.0])
+    p_top = 1.0e4 + rho_sw * gravity * (np.cumsum(h_tilde) - h_tilde)
+    p_mid = p_top + 0.5 * rho_sw * gravity * h_tilde
+    expected = gsw.specvol(
+        ds.salinity.values[0, 0], ds.temperature.values[0, 0], p_mid / 1.0e4
+    )
+    assert spec_vol.dims == ds.temperature.dims
+    np.testing.assert_allclose(spec_vol.values[0, 0], expected, rtol=1e-12)
+
+
+def test_spec_vol_from_geom_thickness_matches_pseudothickness():
+    """Without a pseudo-thickness, the iteration from the geometric
+    thickness finds the same specific volume."""
+    rho_sw = get_constant('seawater_density_reference')
+    config = _make_config()
+    ds = _make_omega_state_ds()
+    spec_vol = spec_vol_from_ds(ds, config)
+
+    ds_geom = _make_omega_state_ds(with_pseudothickness=False)
+    ds_geom['layerThickness'] = rho_sw * spec_vol * ds.PseudoThickness
+    spec_vol_geom = spec_vol_from_ds(ds_geom, config)
+
+    np.testing.assert_allclose(spec_vol_geom.values, spec_vol.values, 1e-12)
+
+
+@pytest.mark.parametrize(
+    'drop, match',
+    [
+        ('SurfacePressure', 'without SurfacePressure'),
+        ('PseudoThickness', 'without PseudoThickness or layerThickness'),
+    ],
+)
+def test_spec_vol_from_ds_missing_inputs(drop, match):
+    ds = _make_omega_state_ds().drop_vars(drop)
+    with pytest.raises(ValueError, match=match):
+        spec_vol_from_ds(ds, _make_config())
+
+
+def _make_vert_velocity_ds():
+    """Omega output with a uniform pseudo-velocity and a specific volume
+    that differs between layers of unequal thickness"""
+    rho_sw = get_constant('seawater_density_reference')
+    spec_vol = np.array([1.0, 2.0, 4.0]) / rho_sw
+    return xr.Dataset(
+        data_vars=dict(
+            VerticalPseudoVelocity=(
+                ('Time', 'nCells', 'nVertLevelsP1'),
+                np.ones((1, 1, 4)),
+            ),
+            SpecVol=(('Time', 'nCells', 'nVertLevels'), [[spec_vol]]),
+            # geometric thicknesses of 10, 10 and 30 m
+            PseudoThickness=(
+                ('Time', 'nCells', 'nVertLevels'),
+                [[[10.0, 5.0, 7.5]]],
+            ),
+        )
+    )
+
+
+def test_vert_velocity_top_from_ds():
+    """SpecVol is interpolated to interfaces in geometric height, and held
+    constant above the top and below the bottom layer."""
+    ds = _make_vert_velocity_ds()
+    vert_velocity_top = vert_velocity_top_from_ds(ds)
+    assert vert_velocity_top.dims == ds.VerticalPseudoVelocity.dims
+    np.testing.assert_allclose(
+        vert_velocity_top.values, [[[1.0, 1.5, 2.5, 4.0]]]
+    )
+
+
+def test_vert_velocity_top_from_ds_invalid_layers():
+    """Interfaces next to an invalid layer take the valid layer's value,
+    and those between two invalid layers are NaN."""
+    ds = _make_vert_velocity_ds()
+    ds_vert = xr.Dataset(
+        data_vars=dict(
+            minLevelCell=('nCells', [1]),
+            maxLevelCell=('nCells', [2]),
+        )
+    )
+    vert_velocity_top = vert_velocity_top_from_ds(ds, ds_vert=ds_vert)
+    np.testing.assert_allclose(
+        vert_velocity_top.values, [[[1.0, 1.5, 2.0, np.nan]]]
+    )
