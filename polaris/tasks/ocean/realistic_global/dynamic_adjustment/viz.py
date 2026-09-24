@@ -25,6 +25,7 @@ from polaris import Step
 from polaris.mpas.time import duration_to_seconds
 from polaris.ocean.model.time import get_time_since_start
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
+    open_stage_stats,
     stage_stats_path,
 )
 
@@ -207,7 +208,7 @@ class VizDynamicAdjustmentStep(Step):
                     f'Stage {stage.name!r} wrote no statistics; skipping it.'
                 )
                 continue
-            ds = self.component.open_model_dataset(path, self.config)
+            ds = open_stage_stats(self.component, path, self.config)
             with ds:
                 offset = _days_between(origin, stage.start_time)
                 try:

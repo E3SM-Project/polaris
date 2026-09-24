@@ -10,6 +10,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import 
     collect_stage_diagnostics,
     extreme_and_day,
     log_summary,
+    open_stage_stats,
     stage_stats_path,
     write_summary,
 )
@@ -38,8 +39,11 @@ class Validate(Step):
 
     Diagnostics come from each stage's global-statistics file where the
     configured model reports them and from ``output.nc`` otherwise.  Both files
-    are read through ``open_model_dataset``, so Omega's variable names are
-    mapped to the MPAS-Ocean ones the metrics are written in.  The baseline
+    are read with Omega's variable names mapped to the MPAS-Ocean ones the
+    metrics are written in: ``output.nc`` through ``open_model_dataset`` and
+    the statistics through
+    :py:func:`~polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics.open_stage_stats`.
+    The baseline
     comparison of the final stage is handled separately by that forward step's
     ``validate_vars``.
 
@@ -214,7 +218,7 @@ class StageCheck(Step):
                 f'not checked.'
             )
 
-        ds = self.component.open_model_dataset(path, config)
+        ds = open_stage_stats(self.component, path, config)
         with ds:
             temperature, when = extreme_and_day(
                 ds, 'temperatureMax', 'max', exclude_days
