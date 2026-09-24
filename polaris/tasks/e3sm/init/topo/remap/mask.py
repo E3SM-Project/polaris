@@ -215,6 +215,13 @@ class MaskTopoStep(Step):
                 units='1',
             )
 
+        # ncremap gives lat, lon, x and y bounds variables that are not in
+        # the file this step reads, so the bounds attributes name nothing
+        for variable in ds.variables.values():
+            bounds = variable.attrs.get('bounds')
+            if bounds is not None and bounds not in ds.variables:
+                del variable.attrs['bounds']
+
         ds.to_netcdf(out_filename)
 
         logger.info(f'Wrote masked topography dataset {out_filename}')
