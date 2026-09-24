@@ -21,7 +21,9 @@ import xarray as xr
 
 from polaris.attrs import set_attrs
 from polaris.constants import get_constant
-from polaris.ocean.vertical import compute_zint_zmid_from_layer_thickness
+from polaris.ocean.vertical.diagnostics import (
+    compute_zint_zmid_from_layer_thickness,
+)
 from polaris.ocean.vertical.grid_1d import generate_1d_grid
 
 __all__ = ['init_pstar_vertical_coord']

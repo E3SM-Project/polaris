@@ -737,8 +737,8 @@ as config options from `vertical_grid`. The function
 {py:func}`polaris.ocean.vertical.update_layer_thickness()` can be used to update
 `layerThickness` when either or both of `bottomDepth` and `ssh` have been
 changed.  After thicknesses are updated, tasks can call
-{py:func}`polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness()` to
-recover `zInterface` and `zMid` from the resulting layer thickness.
+{py:func}`polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness()`
+to recover `zInterface` and `zMid` from the resulting layer thickness.
 
 For workflows that need pseudo-height/pressure conversion, the
 `polaris.ocean.vertical.ztilde` module provides utilities:

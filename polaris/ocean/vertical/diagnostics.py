@@ -355,6 +355,47 @@ def location_for_field(var, field_name=None):
     return 'cell-center'
 
 
+def compute_zint_zmid_from_layer_thickness(
+    layer_thickness: xr.DataArray,
+    bottom_depth: xr.DataArray,
+    min_level_cell: xr.DataArray,
+    max_level_cell: xr.DataArray,
+) -> tuple[xr.DataArray, xr.DataArray]:
+    """
+    Compute height z at layer interfaces and midpoints given layer thicknesses
+    and bottom depth.
+
+    Parameters
+    ----------
+    layer_thickness : xarray.DataArray
+        The layer thickness of each layer.
+
+    bottom_depth : xarray.DataArray
+        The positive-down depth of the seafloor.
+
+    min_level_cell : xarray.DataArray
+        The zero-based minimum vertical index from each column.
+
+    max_level_cell : xarray.DataArray
+        The zero-based maximum vertical index from each column.
+
+    Returns
+    -------
+    z_interface : xarray.DataArray
+        The elevation of layer interfaces.
+
+    z_mid : xarray.DataArray
+        The elevation of layer midpoints.
+    """
+    z_mid, z_interface = _z_from_thickness(
+        layer_thickness=layer_thickness,
+        bottom_depth=bottom_depth,
+        min_level_cell=min_level_cell,
+        max_level_cell=max_level_cell,
+    )
+    return z_interface, z_mid
+
+
 def _z_from_thickness(
     layer_thickness, bottom_depth, min_level_cell, max_level_cell
 ):
@@ -363,7 +404,7 @@ def _z_from_thickness(
     anchored at ``bottom_depth`` and summed upward from the seafloor.
 
     This is the shared core used both by
-    :py:func:`polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness`,
+    :py:func:`compute_zint_zmid_from_layer_thickness`,
     which builds the vertical coordinate at init time, and by
     :py:func:`_reconstruct_z_mid_and_interface`, which reconstructs it for
     analysis when a simulation did not write it.
