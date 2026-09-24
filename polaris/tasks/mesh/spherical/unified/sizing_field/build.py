@@ -211,6 +211,13 @@ class BuildSizingFieldStep(Step):
             ds_sizing.effective_ocean_mask.attrs['long_name'] = (
                 'Union of the shared coastline and emulated ocean masks'
             )
+            ds_sizing.mesh_scale_ocean_fraction.attrs = {
+                'long_name': 'Ocean fraction averaged to the mesh scale',
+                'units': '1',
+            }
+            ds_sizing.passages_widened.attrs['long_name'] = (
+                'Mask of critical passages widened to the mesh scale'
+            )
         ds_sizing.attrs['cull_emulation'] = str(enable_cull_emulation)
 
         ds_sizing.attrs['source_coastline_step'] = self.coastline_step.subdir
@@ -479,15 +486,21 @@ def sizing_field_dataset(
         candidate=river_channel_candidate,
         background=land_background,
     )
-    ds_sizing.cellWidth.attrs['units'] = 'km'
+    long_names = {
+        'cellWidth': 'Final cell width',
+        'background_cell_width': 'Background cell width',
+        'ocean_background_cell_width': 'Ocean background cell width',
+        'land_river_cell_width': 'Cell width over land with river refinement',
+        'pre_coastline_cell_width': 'Cell width before coastline refinement',
+        'coastline_cell_width': 'Cell width with coastline refinement',
+        'coastal_transition_delta': (
+            'Change in cell width from coastline refinement'
+        ),
+        'river_channel_cell_width': 'Cell width with river channel refinement',
+    }
+    for var_name, long_name in long_names.items():
+        ds_sizing[var_name].attrs = {'long_name': long_name, 'units': 'km'}
     ds_sizing.signed_distance.attrs['units'] = 'm'
-    ds_sizing.background_cell_width.attrs['units'] = 'km'
-    ds_sizing.ocean_background_cell_width.attrs['units'] = 'km'
-    ds_sizing.land_river_cell_width.attrs['units'] = 'km'
-    ds_sizing.pre_coastline_cell_width.attrs['units'] = 'km'
-    ds_sizing.coastline_cell_width.attrs['units'] = 'km'
-    ds_sizing.coastal_transition_delta.attrs['units'] = 'km'
-    ds_sizing.river_channel_cell_width.attrs['units'] = 'km'
     ds_sizing.active_control.attrs['long_name'] = (
         'Index of the active sizing control'
     )
