@@ -41,6 +41,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from polaris.mpas.time import duration_to_seconds
+from polaris.ocean.global_stats_names import global_stats_var_names
 from polaris.ocean.model.time import get_time_since_start
 from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
 
@@ -57,7 +58,8 @@ class Metric:
 
     stats_var : str
         The variable to read from the global-statistics file, in MPAS-Ocean
-        naming.  Omega's names are mapped to these by ``open_model_dataset``.
+        naming.  Omega's names are mapped to these by
+        :py:func:`open_stage_stats`.
 
     reduction : str
         How to reduce the statistic's time series over the stage: ``'max'`` and
@@ -178,6 +180,22 @@ MEAN_CHANGE_UNITS = {
     'mean_salinity_change_per_day': 'PSU/day',
 }
 
+# What Omega calls each field whose statistics Omega reports, keyed by the
+# MPAS-Ocean name the metrics are written in.  Omega's statistics are of its
+# pseudo-thickness where MPAS-Ocean's are of layer thickness, and the
+# minimum-thickness metric reads one for the other.
+_OMEGA_STATS_FIELDS = {
+    'temperature': 'Temperature',
+    'salinity': 'Salinity',
+    'layerThickness': 'PseudoThickness',
+    'normalVelocity': 'NormalVelocity',
+}
+
+# The statistics renamed for Omega.  MPAS-Ocean's root-mean-square and
+# Omega's standard deviation are different quantities, and nothing here reads
+# either, so they are left alone.
+_OMEGA_STATS = ['min', 'max', 'mean']
+
 
 def column_names() -> List[str]:
     """
@@ -223,7 +241,8 @@ def collect_stage_diagnostics(
     ----------
     component : polaris.tasks.ocean.Ocean
         The ocean component, used to open datasets with Omega's variable names
-        mapped to the MPAS-Ocean ones these metrics are written in.
+        mapped to the MPAS-Ocean ones these metrics are written in (see
+        :py:func:`open_stage_stats`).
 
     config : polaris.config.PolarisConfigParser
         The step's config.
@@ -258,7 +277,7 @@ def collect_stage_diagnostics(
 
     ds_stats = None
     if stats_filename is not None and os.path.exists(stats_filename):
-        ds_stats = component.open_model_dataset(stats_filename, config)
+        ds_stats = open_stage_stats(component, stats_filename, config)
 
     first_index = None
     first_after_window = None
@@ -522,6 +541,54 @@ def log_summary(
             text = '' if value is None else f'{value:.6g}'
             cells.append('  ' + text.rjust(widths[name]))
         logger.info(f'  {stage_name.ljust(stage_width)}{"".join(cells)}')
+
+
+def open_stage_stats(component: Any, filename: str, config: Any) -> Any:
+    """
+    Open a stage's global statistics with MPAS-Ocean's variable names.
+
+    The metrics, checks and plots here are written in MPAS-Ocean's names
+    (``temperatureMax``).  ``open_model_dataset`` maps field names but not
+    the names of global statistics, which each model builds from the field
+    and the statistic, so Omega's (``Temperature_SpatialMax``) are renamed
+    here, with the names from :py:mod:`polaris.ocean.global_stats_names`.
+
+    Parameters
+    ----------
+    component : polaris.tasks.ocean.Ocean
+        The ocean component, which opens the file.
+
+    filename : str
+        The stage's global-statistics file.
+
+    config : polaris.config.PolarisConfigParser
+        The step's config, which says which model wrote the file.
+
+    Returns
+    -------
+    xarray.Dataset
+        The statistics, with the minimum, maximum and mean of each field
+        under their MPAS-Ocean names.
+    """
+    ds = component.open_model_dataset(filename, config)
+    if config.get('ocean', 'model') != 'omega':
+        return ds
+    fields = list(_OMEGA_STATS_FIELDS)
+    omega_names = global_stats_var_names(
+        fields=fields,
+        stats=_OMEGA_STATS,
+        model='omega',
+        field_map=_OMEGA_STATS_FIELDS,
+    )
+    mpaso_names = global_stats_var_names(
+        fields=fields, stats=_OMEGA_STATS, model='mpas-ocean'
+    )
+    rename = {
+        omega_names[key]: mpaso_names[key]
+        for key in omega_names
+        if omega_names[key] in ds
+    }
+    return ds.rename(rename)
 
 
 def stage_stats_path(stage: ForwardStage, model: str) -> str:
