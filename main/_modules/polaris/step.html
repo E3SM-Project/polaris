@@ -111,17 +111,19 @@
              
   <h1>Source code for polaris.step</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache</span><span class="w"> </span><span class="kn">import</span> <span class="n">MachineInfo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mache.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_permissions</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">download</span><span class="p">,</span> <span class="n">symlink</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_variables</span><span class="p">,</span> <span class="n">merge_diff_summary</span>
 
 
 <div class="viewcode-block" id="Step">
@@ -326,6 +328,11 @@
 <span class="sd">        :py:meth:`check_properties()`, each a dictionary with at least the</span>
 <span class="sd">        keys ``description``, ``relative_error``, ``tolerance`` and</span>
 <span class="sd">        ``passed``</span>
+
+<span class="sd">    baseline_diff_summary : dict</span>
+<span class="sd">        The maximum l1, l2 and l_infinity norm differences found for each</span>
+<span class="sd">        variable by :py:meth:`validate_baselines()`, keyed by variable name,</span>
+<span class="sd">        e.g. ``{'temperature': {'l1': ..., 'l2': ..., 'linf': ...}}``</span>
 
 <span class="sd">    logger : logging.Logger</span>
 <span class="sd">        A logger for output from the step</span>
@@ -535,6 +542,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">validate_vars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">properties_to_check</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">property_check_results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseline_diff_summary</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setup_complete</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># these will be set before running the step, dummy placeholders for now</span>
@@ -1278,7 +1286,10 @@
 
 <span class="sd">        Writes out either a ``baseline_passed.log`` or ``baseline_failed.log``</span>
 <span class="sd">        file in the work directory depending on whether all variables passed</span>
-<span class="sd">        the comparison.</span>
+<span class="sd">        the comparison.  The maximum l1, l2 and l_infinity norm differences</span>
+<span class="sd">        found for each variable are stored in ``self.baseline_diff_summary``</span>
+<span class="sd">        and written to ``baseline_diff_summary.json`` in the work directory</span>
+<span class="sd">        so that they can be summarized by the suite runner.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1295,6 +1306,7 @@
             <span class="p">)</span>
         <span class="n">compared</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">diff_summary</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">failed_vars</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">variables</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1303,6 +1315,7 @@
 
                 <span class="n">this_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
                 <span class="n">baseline_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="n">file_diff_summary</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">compare_variables</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
                     <span class="n">variables</span><span class="p">,</span>
@@ -1310,11 +1323,26 @@
                     <span class="n">baseline_filename</span><span class="p">,</span>
                     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
                     <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">diff_summary</span><span class="o">=</span><span class="n">file_diff_summary</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">success</span> <span class="o">=</span> <span class="n">success</span> <span class="ow">and</span> <span class="n">result</span>
                 <span class="n">compared</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
                     <span class="n">failed_vars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+                <span class="n">merge_diff_summary</span><span class="p">(</span><span class="n">diff_summary</span><span class="p">,</span> <span class="n">file_diff_summary</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">baseline_diff_summary</span> <span class="o">=</span> <span class="n">diff_summary</span>
+            <span class="k">if</span> <span class="n">compared</span><span class="p">:</span>
+                <span class="n">results_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'baseline_diff_summary.json'</span>
+                <span class="p">)</span>
+                <span class="n">tmp_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">results_filename</span><span class="si">}</span><span class="s1">.tmp'</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tmp_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">diff_summary</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+                    <span class="n">handle</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+                <span class="c1"># rename atomically so that readers never see a partial file</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tmp_filename</span><span class="p">,</span> <span class="n">results_filename</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">compared</span> <span class="ow">and</span> <span class="n">success</span><span class="p">:</span>
                 <span class="n">log_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>

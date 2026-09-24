@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.viz.add_fitted_suptitle" href="polaris.viz.add_fitted_suptitle.html" />
+    <link rel="next" title="polaris.validate.merge_diff_summary" href="polaris.validate.merge_diff_summary.html" />
     <link rel="prev" title="polaris.streams.update_tree" href="polaris.streams.update_tree.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -105,6 +105,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#streams">streams</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#validate">validate</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.validate.compare_variables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.validate.merge_diff_summary.html">polaris.validate.merge_diff_summary</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#viz">viz</a></li>
@@ -153,7 +154,7 @@
 <h1>polaris.validate.compare_variables<a class="headerlink" href="#polaris-validate-compare-variables" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.validate.compare_variables">
-<span class="sig-prename descclassname"><span class="pre">polaris.validate.</span></span><span class="sig-name descname"><span class="pre">compare_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l2_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linf_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/validate.html#compare_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.validate.compare_variables" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.validate.</span></span><span class="sig-name descname"><span class="pre">compare_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l2_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linf_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/validate.html#compare_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.validate.compare_variables" title="Link to this definition"></a></dt>
 <dd><p>compare variables in the two files</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -189,6 +190,11 @@ to be renamed if necessary.</p></li>
 <li><p><strong>ds2</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a><em>, </em><em>optional</em>) – A dataset loaded from filename2.  This may save time if the dataset is
 already loaded and allows for calculations to be performed or variables
 to be renamed if necessary.</p></li>
+<li><p><strong>diff_summary</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – If provided, this dict is populated (in place) with the maximum
+difference found for each variable, e.g.
+<code class="docutils literal notranslate"><span class="pre">{'temperature':</span> <span class="pre">{'l1':</span> <span class="pre">...,</span> <span class="pre">'l2':</span> <span class="pre">...,</span> <span class="pre">'linf':</span> <span class="pre">...}}</span></code>.  When a
+variable has a <code class="docutils literal notranslate"><span class="pre">Time</span></code> dimension, the values are the maximum over
+all time indices.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -204,7 +210,7 @@ to be renamed if necessary.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.streams.update_tree.html" class="btn btn-neutral float-left" title="polaris.streams.update_tree" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.viz.add_fitted_suptitle.html" class="btn btn-neutral float-right" title="polaris.viz.add_fitted_suptitle" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.validate.merge_diff_summary.html" class="btn btn-neutral float-right" title="polaris.validate.merge_diff_summary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

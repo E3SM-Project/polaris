@@ -131,6 +131,7 @@
     <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">ds1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">ds2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">diff_summary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    compare variables in the two files</span>
@@ -190,6 +191,13 @@
 <span class="sd">        already loaded and allows for calculations to be performed or variables</span>
 <span class="sd">        to be renamed if necessary.</span>
 
+<span class="sd">    diff_summary : dict, optional</span>
+<span class="sd">        If provided, this dict is populated (in place) with the maximum</span>
+<span class="sd">        difference found for each variable, e.g.</span>
+<span class="sd">        ``{'temperature': {'l1': ..., 'l2': ..., 'linf': ...}}``.  When a</span>
+<span class="sd">        variable has a ``Time`` dimension, the values are the maximum over</span>
+<span class="sd">        all time indices.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    all_pass : bool</span>
@@ -241,6 +249,7 @@
             <span class="k">if</span> <span class="n">linf_norm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'       L_Infinity: </span><span class="si">{</span><span class="n">linf_norm</span><span class="si">:</span><span class="s1">16.14e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="n">variable_pass</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">max_norms</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'l1'</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">'l2'</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">'linf'</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
         <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">da1</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
             <span class="n">time_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">da1</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">])</span>
             <span class="n">time_str</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">time_range</span><span class="p">])</span>
@@ -248,7 +257,7 @@
             <span class="k">for</span> <span class="n">time_index</span> <span class="ow">in</span> <span class="n">time_range</span><span class="p">:</span>
                 <span class="n">slice1</span> <span class="o">=</span> <span class="n">da1</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">)</span>
                 <span class="n">slice2</span> <span class="o">=</span> <span class="n">da2</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">time_index</span><span class="p">)</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">_compute_norms</span><span class="p">(</span>
+                <span class="n">result</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">linf</span> <span class="o">=</span> <span class="n">_compute_norms</span><span class="p">(</span>
                     <span class="n">slice1</span><span class="p">,</span>
                     <span class="n">slice2</span><span class="p">,</span>
                     <span class="n">quiet</span><span class="p">,</span>
@@ -258,13 +267,20 @@
                     <span class="n">time_index</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">variable_pass</span> <span class="o">=</span> <span class="n">variable_pass</span> <span class="ow">and</span> <span class="n">result</span>
+                <span class="n">max_norms</span><span class="p">[</span><span class="s1">'l1'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_norms</span><span class="p">[</span><span class="s1">'l1'</span><span class="p">],</span> <span class="n">l1</span><span class="p">)</span>
+                <span class="n">max_norms</span><span class="p">[</span><span class="s1">'l2'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_norms</span><span class="p">[</span><span class="s1">'l2'</span><span class="p">],</span> <span class="n">l2</span><span class="p">)</span>
+                <span class="n">max_norms</span><span class="p">[</span><span class="s1">'linf'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_norms</span><span class="p">[</span><span class="s1">'linf'</span><span class="p">],</span> <span class="n">linf</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">_compute_norms</span><span class="p">(</span>
+            <span class="n">result</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">linf</span> <span class="o">=</span> <span class="n">_compute_norms</span><span class="p">(</span>
                 <span class="n">da1</span><span class="p">,</span> <span class="n">da2</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">l1_norm</span><span class="p">,</span> <span class="n">l2_norm</span><span class="p">,</span> <span class="n">linf_norm</span>
             <span class="p">)</span>
             <span class="n">variable_pass</span> <span class="o">=</span> <span class="n">variable_pass</span> <span class="ow">and</span> <span class="n">result</span>
+            <span class="n">max_norms</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'l1'</span><span class="p">:</span> <span class="n">l1</span><span class="p">,</span> <span class="s1">'l2'</span><span class="p">:</span> <span class="n">l2</span><span class="p">,</span> <span class="s1">'linf'</span><span class="p">:</span> <span class="n">linf</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">diff_summary</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">diff_summary</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_norms</span>
 
         <span class="c1"># ANSI fail text: https://stackoverflow.com/a/287944/7728169</span>
         <span class="n">start_fail</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\033</span><span class="s1">[91m'</span>
@@ -281,6 +297,29 @@
         <span class="n">all_pass</span> <span class="o">=</span> <span class="n">all_pass</span> <span class="ow">and</span> <span class="n">variable_pass</span>
 
     <span class="k">return</span> <span class="n">all_pass</span></div>
+
+
+
+<div class="viewcode-block" id="merge_diff_summary">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.validate.merge_diff_summary.html#polaris.validate.merge_diff_summary">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_diff_summary</span><span class="p">(</span><span class="n">overall</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Merge one diff summary into another in place, keeping the largest</span>
+<span class="sd">    l_infinity difference found for each variable</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    overall : dict</span>
+<span class="sd">        The summary to merge into, as populated by the ``diff_summary``</span>
+<span class="sd">        argument of :py:func:`polaris.validate.compare_variables()`</span>
+
+<span class="sd">    new : dict</span>
+<span class="sd">        The summary to merge from, in the same form</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">norms</span> <span class="ow">in</span> <span class="n">new</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">overall</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">existing</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">norms</span><span class="p">[</span><span class="s1">'linf'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">existing</span><span class="p">[</span><span class="s1">'linf'</span><span class="p">]:</span>
+            <span class="n">overall</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">norms</span></div>
 
 
 
@@ -351,7 +390,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">diff_str</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">l1_norm</span><span class="p">,</span> <span class="n">l2_norm</span><span class="p">,</span> <span class="n">linf_norm</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_as_numeric</span><span class="p">(</span><span class="n">da</span><span class="p">):</span>
