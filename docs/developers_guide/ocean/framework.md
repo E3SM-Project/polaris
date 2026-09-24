@@ -65,6 +65,38 @@ For standalone conversion of an existing MPAS-Ocean initial-condition file to
 Omega format outside a Polaris task, see
 {ref}`dev-ocean-convert-mpaso-ic-to-omega`.
 
+(dev-ocean-framework-cf-metadata)=
+
+#### CF metadata
+
+Every file these write methods produce passes the CF checker, and the methods
+take care of the metadata themselves, so an init step does not normally need
+to.  They add `CF-1.8` to the `Conventions` attribute (keeping the `MPAS`
+entry the MPAS-Tools converter writes) and fill in `units` and `long_name`
+for any mesh variable (from
+[polaris/mesh/attrs.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/mesh/attrs.yaml))
+or vertical-coordinate, state or forcing variable (from
+[polaris/ocean/model/attrs.yaml](https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/attrs.yaml))
+that does not already have them.  The tables use MPAS-Ocean names, since the
+metadata is added before variables are renamed for Omega.  `temperature` and
+`salinity` are labeled with the attributes of the model's tracer convention.
+As a safety net, a variable whose attributes are identical to another
+variable's is taken to have inherited them (see {ref}`dev-attrs-inheritance`)
+and gets its own from the table instead.
+
+A variable built from a mesh variable should start without its attributes, so
+the table can label it:
+
+```python
+ds['ssh'] = xr.zeros_like(ds.xCell).drop_attrs()
+```
+
+A variable a task adds that is not in either table (a task-specific mask or
+forcing field) gets a `long_name` and, unless it is dimensionless or holds
+fields with different units, `units` where the task creates it, with
+{py:func}`polaris.attrs.set_attrs()`.  Add a variable that several tasks
+write to `attrs.yaml` instead.
+
 #### Canonical staged files
 
 The three files that flow through the ocean pipeline — horizontal mesh,
