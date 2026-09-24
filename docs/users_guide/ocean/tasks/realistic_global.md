@@ -479,14 +479,16 @@ the `globalStats` analysis member, in `global_stats.nc`, and Omega through its
 `stats_interval` — Omega treats the configured file name as a prefix and
 appends the period and the kind of output, with no `.nc` extension.
 
-The two files hold the same quantities under different variable names;
-`polaris/ocean/model/mpaso_to_omega.yaml` maps between them.  One caveat there:
-MPAS-Ocean's `rms*` is a root mean square while Omega's `SpatialStdDev` is a
-standard deviation, so that pair is a name correspondence rather than an
-equivalence.
+The two files hold much the same quantities under different variable names,
+which Polaris builds from the field and the statistic rather than mapping one
+by one.  One difference is not just a name: MPAS-Ocean's `rms*` is a root mean
+square while Omega's `SpatialStdDev` is a standard deviation, so the
+`global_stats` step converts the former before plotting it.  Which fields it
+plots is set by `[realistic_global_forward_stats] fields`; left empty, as it is
+by default, the step plots every field the run wrote statistics for.
 
 Omega samples the statistics instantaneously rather than averaging them over
-the period, because that is what the mapped variable names mean: Omega names a
+the period, because those are the names the readers build: Omega names a
 time-averaged quantity `<name>_TimeMean<period>` and an instantaneous one
 plainly `<name>`.  Averaging would also constrain `restart_interval`, since
 Omega aborts unless the restart interval is a whole multiple of an averaging
@@ -770,6 +772,17 @@ output_density = True
 
 # Simulation start time (config_start_time)
 start_time = 0001-01-01_00:00:00
+
+
+# options for the plots of the global statistics a forward run wrote
+[realistic_global_forward_stats]
+
+# The fields to plot global statistics for, using MPAS-Ocean (Polaris
+# standard) names.  Leave this empty, as it is by default, to plot every
+# field the run wrote statistics for, which is what the models' own default
+# lists give.  A field the run did not write is skipped with a message, not
+# an error.
+fields =
 ```
 
 ### mesh

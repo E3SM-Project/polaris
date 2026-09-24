@@ -162,9 +162,14 @@ when a model writes a different subset of fields.
 
 The class
 {py:class}`polaris.tasks.ocean.realistic_global.forward.stats_analysis.StatsAnalysis`
-plots, for each state variable, the minimum, maximum and mean over time along
-with a shaded standard-deviation envelope, and a companion panel showing the
-same quantities as anomalies relative to their initial values.
+plots, for each field, the minimum, maximum and mean over time along with a
+shaded standard-deviation envelope, and a companion panel showing the same
+quantities as anomalies relative to their initial values.  The fields are the
+ones named by `[realistic_global_forward_stats] fields`, or, when that is left
+empty, every field the run wrote statistics for.  The variable names are built
+from the field and the statistic by `polaris.ocean.global_stats_names` rather
+than mapped one by one, so a field that one model writes and the other does not
+needs no special handling.
 
 This step normalizes two differences between the models:
 
@@ -178,9 +183,9 @@ This step normalizes two differences between the models:
   `setup()`, once the model is known.  Anything else that reads a stage's
   statistics asks the same question the same way, so the two cannot drift
   apart.
-- **Standard deviation.** Omega writes the standard deviation directly in its
-  `Rms` field, while MPAS-Ocean writes a true root-mean-square, so the
-  standard deviation is recovered as
+- **Standard deviation.** Omega writes a standard deviation
+  (`<Field>_SpatialStdDev`), while MPAS-Ocean writes a true root-mean-square
+  (`<field>Rms`), so for MPAS-Ocean the standard deviation is recovered as
   $\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}$.
 
 (dev-ocean-realistic-global-woa23)=
