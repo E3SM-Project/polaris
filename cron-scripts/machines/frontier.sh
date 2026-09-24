@@ -3,6 +3,12 @@
 # launch_all.sh.  Cron starts with almost no environment, so this provides
 # what deploy.py and the tasks need before any Polaris environment exists.
 
+# cron has no module function until the profile sets up Lmod.  The profile
+# returns non-zero part way through, which launch_all.sh's set -e would
+# otherwise turn into a silent exit.
+# shellcheck disable=SC1091
+source /etc/profile || true
+
 module load cray-python git-lfs
 
 # compute nodes reach CDash and GitHub only through the proxy; jobs inherit
