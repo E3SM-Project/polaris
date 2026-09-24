@@ -113,7 +113,9 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">_z_from_thickness</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compute_zint_zmid_from_layer_thickness</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.sigma</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">init_sigma_vertical_coord</span> <span class="k">as</span> <span class="n">init_sigma_vertical_coord</span><span class="p">,</span>
 <span class="p">)</span>
@@ -291,50 +293,6 @@
     <span class="c1"># add (back) Time dimension</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'Time'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="compute_zint_zmid_from_layer_thickness">
-<a class="viewcode-back" href="../../../developers_guide/ocean/generated/polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness.html#polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_zint_zmid_from_layer_thickness</span><span class="p">(</span>
-    <span class="n">layer_thickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">bottom_depth</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">min_level_cell</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">max_level_cell</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Compute height z at layer interfaces and midpoints given layer thicknesses</span>
-<span class="sd">    and bottom depth.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    layer_thickness : xarray.DataArray</span>
-<span class="sd">        The layer thickness of each layer.</span>
-
-<span class="sd">    bottom_depth : xarray.DataArray</span>
-<span class="sd">        The positive-down depth of the seafloor.</span>
-
-<span class="sd">    min_level_cell : xarray.DataArray</span>
-<span class="sd">        The zero-based minimum vertical index from each column.</span>
-
-<span class="sd">    max_level_cell : xarray.DataArray</span>
-<span class="sd">        The zero-based maximum vertical index from each column.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    z_interface : xarray.DataArray</span>
-<span class="sd">        The elevation of layer interfaces.</span>
-
-<span class="sd">    z_mid : xarray.DataArray</span>
-<span class="sd">        The elevation of layer midpoints.</span>
-<span class="sd">    """</span>
-    <span class="n">z_mid</span><span class="p">,</span> <span class="n">z_interface</span> <span class="o">=</span> <span class="n">_z_from_thickness</span><span class="p">(</span>
-        <span class="n">layer_thickness</span><span class="o">=</span><span class="n">layer_thickness</span><span class="p">,</span>
-        <span class="n">bottom_depth</span><span class="o">=</span><span class="n">bottom_depth</span><span class="p">,</span>
-        <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
-        <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">z_interface</span><span class="p">,</span> <span class="n">z_mid</span></div>
 
 
 

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness</title>
+  <title>polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.vertical.diagnostics.geom_thickness_from_ds" href="polaris.ocean.vertical.diagnostics.geom_thickness_from_ds.html" />
-    <link rel="prev" title="polaris.ocean.vertical.init_vertical_coord" href="polaris.ocean.vertical.init_vertical_coord.html" />
+    <link rel="next" title="polaris.ocean.vertical.grid_1d.generate_1d_grid" href="polaris.ocean.vertical.grid_1d.generate_1d_grid.html" />
+    <link rel="prev" title="polaris.ocean.vertical.diagnostics.location_for_field" href="polaris.ocean.vertical.diagnostics.location_for_field.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -126,9 +126,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness</li>
+      <li class="breadcrumb-item active">polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -136,11 +136,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-vertical-compute-zint-zmid-from-layer-thickness">
-<h1>polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness<a class="headerlink" href="#polaris-ocean-vertical-compute-zint-zmid-from-layer-thickness" title="Link to this heading"></a></h1>
+  <section id="polaris-ocean-vertical-diagnostics-compute-zint-zmid-from-layer-thickness">
+<h1>polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness<a class="headerlink" href="#polaris-ocean-vertical-diagnostics-compute-zint-zmid-from-layer-thickness" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.</span></span><span class="sig-name descname"><span class="pre">compute_zint_zmid_from_layer_thickness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_level_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_level_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical.html#compute_zint_zmid_from_layer_thickness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness">
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.diagnostics.</span></span><span class="sig-name descname"><span class="pre">compute_zint_zmid_from_layer_thickness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_level_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_level_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><span class="pre">DataArray</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/diagnostics.html#compute_zint_zmid_from_layer_thickness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness" title="Link to this definition"></a></dt>
 <dd><p>Compute height z at layer interfaces and midpoints given layer thicknesses
 and bottom depth.</p>
 <dl class="field-list simple">
@@ -168,8 +168,8 @@ and bottom depth.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.vertical.init_vertical_coord.html" class="btn btn-neutral float-left" title="polaris.ocean.vertical.init_vertical_coord" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.vertical.diagnostics.geom_thickness_from_ds.html" class="btn btn-neutral float-right" title="polaris.ocean.vertical.diagnostics.geom_thickness_from_ds" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.vertical.diagnostics.location_for_field.html" class="btn btn-neutral float-left" title="polaris.ocean.vertical.diagnostics.location_for_field" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.vertical.grid_1d.generate_1d_grid.html" class="btn btn-neutral float-right" title="polaris.ocean.vertical.grid_1d.generate_1d_grid" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

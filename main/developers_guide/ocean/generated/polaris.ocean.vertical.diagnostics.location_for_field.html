@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.ocean.vertical.diagnostics.depth_from_thickness</title>
+  <title>polaris.ocean.vertical.diagnostics.location_for_field</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.ocean.vertical.diagnostics.vertical_coord_from_location" href="polaris.ocean.vertical.diagnostics.vertical_coord_from_location.html" />
-    <link rel="prev" title="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface" href="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface.html" />
+    <link rel="next" title="polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness" href="polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness.html" />
+    <link rel="prev" title="polaris.ocean.vertical.diagnostics.vertical_coord_from_location" href="polaris.ocean.vertical.diagnostics.vertical_coord_from_location.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -126,9 +126,9 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../api.html">API reference</a></li>
           <li class="breadcrumb-item"><a href="../api.html">ocean</a></li>
-      <li class="breadcrumb-item active">polaris.ocean.vertical.diagnostics.depth_from_thickness</li>
+      <li class="breadcrumb-item active">polaris.ocean.vertical.diagnostics.location_for_field</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.depth_from_thickness.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.location_for_field.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -136,28 +136,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-ocean-vertical-diagnostics-depth-from-thickness">
-<h1>polaris.ocean.vertical.diagnostics.depth_from_thickness<a class="headerlink" href="#polaris-ocean-vertical-diagnostics-depth-from-thickness" title="Link to this heading"></a></h1>
+  <section id="polaris-ocean-vertical-diagnostics-location-for-field">
+<h1>polaris.ocean.vertical.diagnostics.location_for_field<a class="headerlink" href="#polaris-ocean-vertical-diagnostics-location-for-field" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.ocean.vertical.diagnostics.depth_from_thickness">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.diagnostics.</span></span><span class="sig-name descname"><span class="pre">depth_from_thickness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_vert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/diagnostics.html#depth_from_thickness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.diagnostics.depth_from_thickness" title="Link to this definition"></a></dt>
-<dd><p>Get the elevation of the midpoint of each layer</p>
-<p>A thin face on <a class="reference internal" href="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface.html#polaris.ocean.vertical.diagnostics.get_z_mid_and_interface" title="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_z_mid_and_interface()</span></code></a> for callers that want
-only the midpoints.  What the model wrote is preferred; the geometry is
-reconstructed from <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> when it is absent.</p>
+<dt class="sig sig-object py" id="polaris.ocean.vertical.diagnostics.location_for_field">
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.diagnostics.</span></span><span class="sig-name descname"><span class="pre">location_for_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/diagnostics.html#location_for_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.diagnostics.location_for_field" title="Link to this definition"></a></dt>
+<dd><p>The variable location of <code class="docutils literal notranslate"><span class="pre">var</span></code> to look up its vertical coordinate</p>
+<p>A field on <code class="docutils literal notranslate"><span class="pre">nVertLevelsP1</span></code> is defined at layer interfaces — the top
+of each layer, plus one more for the bottom of the column.  A field
+listed under <code class="docutils literal notranslate"><span class="pre">variables_at_layer_tops</span></code> in <code class="docutils literal notranslate"><span class="pre">variables.yaml</span></code> is
+defined at the top of each layer but written on <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code>.
+Everything else is a layer quantity, defined at layer midpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – An ocean dataset carrying the geometry or <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, and
-optionally <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code></p></li>
-<li><p><strong>ds_vert</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a><em>, </em><em>optional</em>) – The vertical coordinate dataset containing <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and
-optionally <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code> and <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, used when
-reconstructing the geometry</p></li>
+<li><p><strong>var</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a>) – The field to plot or analyze</p></li>
+<li><p><strong>field_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The name of <code class="docutils literal notranslate"><span class="pre">var</span></code> in its dataset, used to check whether it is a
+layer-top field</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>z_mid</strong> (<em>xarray.DataArray</em>) – The location in meters from the sea surface of the midpoint of each
-layer, positive upward</p>
+<dd class="field-even"><p><strong>location</strong> (<em>{‘cell-center’, ‘cell-interfaces’, ‘cell-top’}</em>) – The variable location suitable for
+<a class="reference internal" href="polaris.ocean.vertical.diagnostics.vertical_coord_from_location.html#polaris.ocean.vertical.diagnostics.vertical_coord_from_location" title="polaris.ocean.vertical.diagnostics.vertical_coord_from_location"><code class="xref py py-func docutils literal notranslate"><span class="pre">vertical_coord_from_location()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -168,8 +168,8 @@ layer, positive upward</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface.html" class="btn btn-neutral float-left" title="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.ocean.vertical.diagnostics.vertical_coord_from_location.html" class="btn btn-neutral float-right" title="polaris.ocean.vertical.diagnostics.vertical_coord_from_location" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.ocean.vertical.diagnostics.vertical_coord_from_location.html" class="btn btn-neutral float-left" title="polaris.ocean.vertical.diagnostics.vertical_coord_from_location" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness.html" class="btn btn-neutral float-right" title="polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

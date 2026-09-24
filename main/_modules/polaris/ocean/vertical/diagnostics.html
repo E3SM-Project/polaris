@@ -368,6 +368,8 @@
 <span class="p">}</span>
 
 
+<div class="viewcode-block" id="vertical_coord_from_location">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.vertical_coord_from_location.html#polaris.ocean.vertical.diagnostics.vertical_coord_from_location">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">vertical_coord_from_location</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
@@ -445,9 +447,12 @@
         <span class="n">coord</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
             <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">coord</span>
+    <span class="k">return</span> <span class="n">coord</span></div>
 
 
+
+<div class="viewcode-block" id="location_for_field">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.location_for_field.html#polaris.ocean.vertical.diagnostics.location_for_field">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">location_for_field</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The variable location of ``var`` to look up its vertical coordinate</span>
@@ -477,7 +482,52 @@
         <span class="k">return</span> <span class="s1">'cell-interfaces'</span>
     <span class="k">if</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">_variables_at_layer_tops</span><span class="p">():</span>
         <span class="k">return</span> <span class="s1">'cell-top'</span>
-    <span class="k">return</span> <span class="s1">'cell-center'</span>
+    <span class="k">return</span> <span class="s1">'cell-center'</span></div>
+
+
+
+<div class="viewcode-block" id="compute_zint_zmid_from_layer_thickness">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness.html#polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_zint_zmid_from_layer_thickness</span><span class="p">(</span>
+    <span class="n">layer_thickness</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">bottom_depth</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">min_level_cell</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">max_level_cell</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute height z at layer interfaces and midpoints given layer thicknesses</span>
+<span class="sd">    and bottom depth.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    layer_thickness : xarray.DataArray</span>
+<span class="sd">        The layer thickness of each layer.</span>
+
+<span class="sd">    bottom_depth : xarray.DataArray</span>
+<span class="sd">        The positive-down depth of the seafloor.</span>
+
+<span class="sd">    min_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based minimum vertical index from each column.</span>
+
+<span class="sd">    max_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based maximum vertical index from each column.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z_interface : xarray.DataArray</span>
+<span class="sd">        The elevation of layer interfaces.</span>
+
+<span class="sd">    z_mid : xarray.DataArray</span>
+<span class="sd">        The elevation of layer midpoints.</span>
+<span class="sd">    """</span>
+    <span class="n">z_mid</span><span class="p">,</span> <span class="n">z_interface</span> <span class="o">=</span> <span class="n">_z_from_thickness</span><span class="p">(</span>
+        <span class="n">layer_thickness</span><span class="o">=</span><span class="n">layer_thickness</span><span class="p">,</span>
+        <span class="n">bottom_depth</span><span class="o">=</span><span class="n">bottom_depth</span><span class="p">,</span>
+        <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+        <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">z_interface</span><span class="p">,</span> <span class="n">z_mid</span></div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_z_from_thickness</span><span class="p">(</span>
@@ -488,7 +538,7 @@
 <span class="sd">    anchored at ``bottom_depth`` and summed upward from the seafloor.</span>
 
 <span class="sd">    This is the shared core used both by</span>
-<span class="sd">    :py:func:`polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness`,</span>
+<span class="sd">    :py:func:`compute_zint_zmid_from_layer_thickness`,</span>
 <span class="sd">    which builds the vertical coordinate at init time, and by</span>
 <span class="sd">    :py:func:`_reconstruct_z_mid_and_interface`, which reconstructs it for</span>
 <span class="sd">    analysis when a simulation did not write it.</span>
