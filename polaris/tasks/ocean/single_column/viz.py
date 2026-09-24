@@ -72,18 +72,15 @@ class Viz(OceanIOStep):
         self.add_input_file(
             filename='init.nc', work_dir_target=f'{init.path}/init.nc'
         )
-        self.init = init
+        # Omega needs the vertical coordinate to reconstruct elevations; the
+        # entry is dropped for MPAS-Ocean
+        self.add_vert_coord_input_file(
+            work_dir_target=f'{init.path}/vert_coord.nc'
+        )
         for comparison_name, comparison_path in self.comparisons.items():
             self.add_input_file(
                 filename=f'{comparison_name}.nc',
                 target=f'{comparison_path}/{output_file}',
-            )
-
-    def setup(self):
-        if self.config.get('ocean', 'model') == 'omega':
-            self.add_input_file(
-                filename='vert_coord.nc',
-                work_dir_target=f'{self.init.path}/vert_coord.nc',
             )
 
     def run(self):
@@ -127,7 +124,9 @@ class Viz(OceanIOStep):
             ds_init = ds_init.isel(Time=0)
 
             if self.config.get('ocean', 'model') == 'omega':
-                ds_vert = self.open_model_dataset('vert_coord.nc')
+                ds_vert = self.open_model_dataset(
+                    self.get_vert_coord_filename()
+                )
             else:
                 ds_vert = ds_init
 
