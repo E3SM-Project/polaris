@@ -38,11 +38,17 @@ reconstruction.
 puts the weights in Omega's mesh file: a spherical mesh gets them from the
 step that built it, and a planar mesh, built in the same step that writes it,
 has them computed there and then. In addition,
-`open_model_dataset()` derives `PseudoThickness` from the ocean state when it
+`write_model_dataset()` derives `PseudoThickness` from the ocean state when it
 is not present in the dataset. This provides a way of using the same initial
 conditions for MPAS-Ocean and Omega when the geometric thickness is the state
 variable for MPAS-Ocean and the pseudo-thickness is the state variable for
-Omega. It can also convert `temperature` and `salinity` to a requested
+Omega. Going the other way, `open_model_dataset()` adds `layerThickness` to
+Omega output from `PseudoThickness` and `SpecVol`. It derives nothing that
+needs an equation of state, so a step that needs `SpecVol` or
+`vertVelocityTop` from Omega output that lacks them computes them itself with
+{py:func}`polaris.ocean.vertical.diagnostics.spec_vol_from_ds()` or
+{py:func}`polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds()`.
+`open_model_dataset()` can also convert `temperature` and `salinity` to a requested
 convention, so that analysis and visualization do not have to care which model
 ran (see {ref}`dev-ocean-framework-tracer-conventions-on-read`). Similarly,
 {py:meth}`polaris.ocean.model.OceanIOStep.write_initial_state_dataset()`
@@ -750,6 +756,9 @@ For workflows that need pseudo-height/pressure conversion, the
   {py:func}`polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height()`
   compute hydrostatic gauge pressure (and specific volume) from geometric
   layer thickness and state variables.
+- {py:func}`polaris.ocean.vertical.ztilde.pressure_from_pseudothickness()`
+  computes gauge pressure from pseudo-thickness, with no specific volume or
+  iteration.
 - {py:func}`polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height()`
   reconstructs geometric layer-interface and midpoint heights from
   pseudo-thickness and specific volume.
@@ -860,6 +869,8 @@ The `polaris.ocean.vertical.diagnostics` module provides utilities:
 
 - {py:func}`polaris.ocean.vertical.diagnostics.geom_thickness_from_ds()`
 - {py:func}`polaris.ocean.vertical.diagnostics.pseudothickness_from_ds()`
+- {py:func}`polaris.ocean.vertical.diagnostics.spec_vol_from_ds()`
+- {py:func}`polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds()`
 - {py:func}`polaris.ocean.vertical.diagnostics.depth_from_thickness()`
 
 #### Tracer conventions
@@ -925,10 +936,10 @@ named by the ``mesh_filename`` argument.  A conversion with neither
 a mesh file with no ``on_a_sphere`` attribute, since assuming such a mesh
 were planar would silently convert a global ocean at (0, 0).
 
-The conversion is the last thing that happens to the tracers, after the
-Omega-only derivations of ``layerThickness``, ``SpecVol`` and
-``vertVelocityTop``, which read the model's own tracers and would be
-wrong if they were converted first.
+{py:func}`polaris.ocean.vertical.diagnostics.spec_vol_from_ds()` needs
+the tracers in the convention of the equation of state, so a step that
+calls it on Omega output should open the dataset without a
+``tracer_convention``.
 
 (dev-ocean-rpe)=
 
