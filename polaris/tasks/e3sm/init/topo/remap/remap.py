@@ -440,8 +440,13 @@ def _clean_remapped_attrs(ds_out):
     ``grid_mapping`` comes the other way, in from the projected Antarctic
     source data, and names a ``mapping`` variable that does not survive
     remapping to the MPAS mesh either.
+
+    xarray moves ``coordinates`` from a variable's attributes into its
+    encoding when it reads a file, and writes it back from there, so it has
+    to be dropped from both.
     """
     dangling = ['cell_measures', 'coordinates', 'grid_mapping']
     for var in ds_out.data_vars:
         for attr in dangling:
             ds_out[var].attrs.pop(attr, None)
+            ds_out[var].encoding.pop(attr, None)
