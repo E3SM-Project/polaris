@@ -22,6 +22,9 @@ CF_TABLES = {
 <standard_name_table>
   <version_number>94</version_number>
   <last_modified>2026-06-09T17:23:36Z</last_modified>
+  <entry id="cell_area">
+    <canonical_units>m2</canonical_units>
+  </entry>
   <entry id="coriolis_parameter">
     <canonical_units>s-1</canonical_units>
   </entry>
