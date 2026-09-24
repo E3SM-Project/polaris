@@ -31,6 +31,7 @@ __all__ = [
     'pressure_from_z_tilde',
     'pressure_and_spec_vol_from_state_at_geom_height',
     'pressure_from_geom_thickness',
+    'pressure_from_pseudothickness',
 ]
 
 Gravity = get_constant('standard_acceleration_of_gravity')
@@ -175,6 +176,59 @@ def pressure_from_geom_thickness(
     p_mid = p_interface_top + 0.5 * dp
 
     dims = list(geom_layer_thickness.dims)
+    interface_dims = [dim for dim in dims if dim != 'nVertLevels']
+    interface_dims.append('nVertLevelsP1')
+
+    p_interface = p_interface.transpose(*interface_dims)
+    p_mid = p_mid.transpose(*dims)
+
+    return p_interface, p_mid
+
+
+def pressure_from_pseudothickness(
+    surf_pressure: xr.DataArray | float,
+    pseudothickness: xr.DataArray,
+) -> tuple[xr.DataArray, xr.DataArray]:
+    """
+    Compute gauge pressure at layer interfaces and midpoints given surface
+    gauge pressure and pseudo-thicknesses.  Unlike
+    :py:func:`pressure_from_geom_thickness`, this needs no specific volume
+    and no iteration, since a pseudo-thickness is a pressure increment:
+
+        dp = RhoSw * g * h_tilde
+
+    Parameters
+    ----------
+    surf_pressure : float or xarray.DataArray
+        The surface gauge pressure at the top of the water column (zero for
+        a free surface open to the atmosphere).
+
+    pseudothickness : xarray.DataArray
+        The pseudo-thickness of each layer, set to zero for invalid layers.
+
+    Returns
+    -------
+    p_interface : xarray.DataArray
+        The gauge pressure at layer interfaces.
+
+    p_mid : xarray.DataArray
+        The gauge pressure at layer midpoints.
+    """
+
+    dp = RhoSw * Gravity * pseudothickness
+
+    p_interface = dp.cumsum(dim='nVertLevels').pad(
+        nVertLevels=(1, 0), mode='constant', constant_values=0.0
+    )
+    p_interface = surf_pressure + p_interface
+    p_interface = p_interface.rename({'nVertLevels': 'nVertLevelsP1'})
+
+    p_interface_top = p_interface.isel(nVertLevelsP1=slice(0, -1)).rename(
+        {'nVertLevelsP1': 'nVertLevels'}
+    )
+    p_mid = p_interface_top + 0.5 * dp
+
+    dims = list(pseudothickness.dims)
     interface_dims = [dim for dim in dims if dim != 'nVertLevels']
     interface_dims.append('nVertLevelsP1')
 

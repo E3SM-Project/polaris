@@ -5,9 +5,11 @@ import xarray as xr
 from ruamel.yaml import YAML
 
 from polaris.constants import get_constant
+from polaris.ocean.eos import compute_specvol
 from polaris.ocean.vertical.ztilde import (
     get_iter_count_for_eos,
     pressure_and_spec_vol_from_state_at_geom_height,
+    pressure_from_pseudothickness,
     pseudothickness_from_pressure,
 )
 
@@ -147,6 +149,127 @@ def pseudothickness_from_ds(
         spec_vol = spec_vol.squeeze(dim='Time')
 
     return pseudothickness, spec_vol
+
+
+def spec_vol_from_ds(ds, config, logger=None):
+    """
+    Compute specific volume from the temperature, salinity and pressure of
+    an ocean state, for Omega output that does not include ``SpecVol``.
+
+    The pressure comes from ``PseudoThickness`` when it is present, which
+    needs no iteration.  Otherwise, it is found iteratively from the
+    geometric ``layerThickness``.
+
+    The tracers must be in the convention of the equation of state, so open
+    the dataset without a ``tracer_convention`` if it came from Omega.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An ocean dataset with MPAS-Ocean names, containing ``temperature``,
+        ``salinity``, ``SurfacePressure`` and either ``PseudoThickness`` or
+        ``layerThickness``
+
+    config : polaris.config.PolarisConfigParser
+        Configuration options with parameters defining the equation of state
+
+    logger : logging.Logger, optional
+        A logger for logging EOS iteration information
+
+    Returns
+    -------
+    spec_vol : xarray.DataArray
+        The specific volume at layer midpoints
+
+    Raises
+    ------
+    ValueError
+        If the variables needed to compute the specific volume are missing
+    """
+    missing = [
+        name
+        for name in ('temperature', 'salinity', 'SurfacePressure')
+        if name not in ds.keys()
+    ]
+    if missing:
+        raise ValueError(
+            f'SpecVol cannot be computed without {", ".join(missing)}'
+        )
+
+    if 'PseudoThickness' in ds.keys():
+        _, p_mid = pressure_from_pseudothickness(
+            surf_pressure=ds.SurfacePressure,
+            pseudothickness=ds.PseudoThickness,
+        )
+        spec_vol = compute_specvol(
+            config=config,
+            temperature=ds.temperature,
+            salinity=ds.salinity,
+            pressure=p_mid,
+        )
+        assert isinstance(spec_vol, xr.DataArray)
+    elif 'layerThickness' in ds.keys():
+        _, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
+            config,
+            ds.layerThickness,
+            ds.temperature,
+            ds.salinity,
+            ds.SurfacePressure,
+            iter_count=get_iter_count_for_eos(config),
+            logger=logger,
+        )
+    else:
+        raise ValueError(
+            'SpecVol cannot be computed without PseudoThickness or '
+            'layerThickness'
+        )
+    return spec_vol.transpose(*ds.temperature.dims)
+
+
+def vert_velocity_top_from_ds(ds, ds_vert=None):
+    """
+    Compute the geometric vertical velocity at layer interfaces,
+    ``vertVelocityTop``, from Omega's ``VerticalPseudoVelocity``.  The
+    specific volume is interpolated from layer midpoints to interfaces
+    linearly in geometric height, and held constant above the top and below
+    the bottom valid layer.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An ocean dataset with MPAS-Ocean names, containing
+        ``VerticalPseudoVelocity`` and ``SpecVol``, along with the geometric
+        layer thickness or the fields needed to compute it (see
+        :py:func:`geom_thickness_from_ds`)
+
+    ds_vert : xarray.Dataset, optional
+        The vertical coordinate dataset, whose ``minLevelCell`` and
+        ``maxLevelCell`` (one-based) mark the valid layers.  All layers are
+        valid if it is not given.
+
+    Returns
+    -------
+    vert_velocity_top : xarray.DataArray
+        The geometric vertical velocity at layer interfaces, with the
+        dimensions of ``VerticalPseudoVelocity``
+    """
+    pseudo_velocity = ds.VerticalPseudoVelocity
+    spec_vol = ds.SpecVol
+    layer_thickness = geom_thickness_from_ds(ds, config=None)
+
+    if ds_vert is not None:
+        n_vert_levels = spec_vol.sizes['nVertLevels']
+        z_index = xr.DataArray(np.arange(n_vert_levels), dims=['nVertLevels'])
+        valid = np.logical_and(
+            z_index >= ds_vert.minLevelCell - 1,
+            z_index <= ds_vert.maxLevelCell - 1,
+        )
+        spec_vol = spec_vol.where(valid)
+        layer_thickness = layer_thickness.where(valid)
+
+    spec_vol_interface = _mid_to_interface(spec_vol, layer_thickness)
+    vert_velocity_top = pseudo_velocity * RhoSw * spec_vol_interface
+    return vert_velocity_top.transpose(*pseudo_velocity.dims)
 
 
 def get_z_mid_and_interface(ds, allow_reconstruct=False, ds_vert=None):
@@ -541,3 +664,41 @@ def _reconstruct_z_mid_and_interface(ds, ds_vert):
         min_level_cell=min_level_cell,
         max_level_cell=max_level_cell,
     )
+
+
+def _mid_to_interface(field, layer_thickness):
+    """
+    Interpolate a field from layer midpoints to layer interfaces, linearly
+    in geometric height.  The field is held constant above the top and
+    below the bottom valid layer, where valid layers are those in which
+    ``field`` is not NaN.
+
+    Parameters
+    ----------
+    field : xarray.DataArray
+        The field at layer midpoints, NaN in invalid layers
+
+    layer_thickness : xarray.DataArray
+        The geometric thickness of each layer
+
+    Returns
+    -------
+    field_interface : xarray.DataArray
+        The field at layer interfaces, NaN where neither adjacent layer is
+        valid
+    """
+    field = field.rename({'nVertLevels': 'nVertLevelsP1'})
+    thickness = layer_thickness.rename({'nVertLevels': 'nVertLevelsP1'})
+
+    # the layer above interface k is layer k - 1, and the one below is k
+    field_above = field.pad(nVertLevelsP1=(1, 0))
+    field_below = field.pad(nVertLevelsP1=(0, 1))
+    thickness_above = thickness.pad(nVertLevelsP1=(1, 0))
+    thickness_below = thickness.pad(nVertLevelsP1=(0, 1))
+
+    # each layer's weight is the distance to the other layer's midpoint
+    interpolated = (
+        field_above * thickness_below + field_below * thickness_above
+    ) / (thickness_above + thickness_below)
+    both_valid = np.logical_and(field_above.notnull(), field_below.notnull())
+    return xr.where(both_valid, interpolated, field_above.fillna(field_below))

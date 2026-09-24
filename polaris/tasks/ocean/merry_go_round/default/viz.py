@@ -6,6 +6,7 @@ from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.mpas import time_since_start
 from polaris.ocean.model import OceanIOStep
+from polaris.ocean.vertical.diagnostics import vert_velocity_top_from_ds
 from polaris.viz import mplstyle_context
 
 
@@ -102,10 +103,14 @@ class Viz(OceanIOStep):
                 'output.nc',
                 config,
                 mesh_filename='mesh.nc',
-                vert_filename='vert_coord.nc',
                 decode_times=False,
                 reconstruct_variables=['normalVelocity'],
             )
+            if 'vertVelocityTop' not in ds:
+                # Omega writes a vertical pseudo-velocity instead
+                ds['vertVelocityTop'] = vert_velocity_top_from_ds(
+                    ds, ds_vert=ds_vert_coord
+                )
             x_min = ds_mesh.xVertex.min().values
             x_max = ds_mesh.xVertex.max().values
             y_mid = ds_mesh.yCell.median().values

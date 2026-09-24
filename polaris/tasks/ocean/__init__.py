@@ -26,11 +26,6 @@ from polaris.ocean.vertical.diagnostics import (
     pseudothickness_from_ds,
 )
 from polaris.ocean.vertical.grid_1d import REF_COORD_VARS
-from polaris.ocean.vertical.ztilde import (
-    geom_height_from_pseudo_height,
-    get_iter_count_for_eos,
-    pressure_and_spec_vol_from_state_at_geom_height,
-)
 
 RhoSw = get_constant('seawater_density_reference')
 
@@ -694,7 +689,6 @@ class Ocean(Component):
         filename,
         config,
         mesh_filename=None,
-        vert_filename=None,
         reconstruct_variables=None,
         tracer_convention=None,
         lon=None,
@@ -705,6 +699,15 @@ class Ocean(Component):
         """
         Open the given dataset, mapping variable and dimension names from Omega
         to MPAS-Ocean names if appropriate
+
+        For Omega, ``layerThickness`` is added from ``GeomLayerThickness``,
+        or from ``PseudoThickness`` and ``SpecVol`` when both are present.
+        Nothing that needs an equation of state is derived.  Callers that
+        need ``SpecVol`` or ``vertVelocityTop`` from Omega output that lacks
+        them should call
+        :py:func:`polaris.ocean.vertical.diagnostics.spec_vol_from_ds()` or
+        :py:func:`polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds()`
+        on the result.
 
         Parameters
         ----------
@@ -771,72 +774,7 @@ class Ocean(Component):
             and 'SpecVol' in ds.keys()
         ):
             ds['layerThickness'] = geom_thickness_from_ds(ds, config=config)
-        if (
-            self.model == 'omega'
-            and 'SpecVol' not in ds.keys()
-            and 'Temperature' in ds.keys()
-            and 'Salinity' in ds.keys()
-            and 'SurfacePressure' in ds.keys()
-        ):
-            ds_mpas = self.map_from_native_model_vars(ds)
-            iter_count = get_iter_count_for_eos(config)
-            _, _, spec_vol = pressure_and_spec_vol_from_state_at_geom_height(
-                config,
-                ds_mpas.layerThickness,
-                ds_mpas.temperature,
-                ds_mpas.salinity,
-                ds_mpas.SurfacePressure,
-                iter_count=iter_count,
-            )
-            ds['SpecVol'] = spec_vol
-        if (
-            self.model == 'omega'
-            and 'vertVelocityTop' not in ds.keys()
-            and 'PseudoThickness' in ds.keys()
-            and 'SpecVol' in ds.keys()
-            and 'VerticalPseudoVelocity' in ds.keys()
-            # the vertical coordinate file, not the mesh, is what this
-            # derivation reads
-            and vert_filename is not None
-        ):
-            ds_vert = self.open_model_dataset(vert_filename, config)
-            geom_z_inter, geom_z_mid = geom_height_from_pseudo_height(
-                geom_z_bot=ds_vert.bottomDepth,
-                h_tilde=ds.PseudoThickness.rename(
-                    {'NVertLayers': 'nVertLevels', 'NCells': 'nCells'}
-                ),
-                spec_vol=ds.SpecVol.rename(
-                    {'NVertLayers': 'nVertLevels', 'NCells': 'nCells'}
-                ),
-                min_level_cell=ds_vert.minLevelCell,
-                max_level_cell=ds_vert.maxLevelCell,
-            )
-            n_time = geom_z_inter.sizes['time']
-            n_vert_levels_p1 = geom_z_inter.sizes['nVertLevelsP1']
-            n_cells = geom_z_inter.sizes['nCells']
-            spec_vol_inter_vals = np.zeros((n_time, n_vert_levels_p1, n_cells))
-            for i_time in range(ds.sizes['time']):
-                for i_cell in range(n_cells):
-                    x_vals = geom_z_inter.isel(nCells=i_cell, time=i_time)
-                    xp_vals = geom_z_mid.isel(nCells=i_cell, time=i_time)
-                    fp_vals = ds.SpecVol.isel(NCells=i_cell, time=i_time)
-                    interp_vals = np.interp(
-                        x_vals.values,
-                        xp_vals.values,
-                        fp_vals.values,
-                    )
-                    spec_vol_inter_vals[i_time, :, i_cell] = interp_vals
-            spec_vol_inter = xr.DataArray(
-                spec_vol_inter_vals,
-                dims=['time', 'NVertLayersP1', 'NCells'],
-            )
-            ds['vertVelocityTop'] = (
-                ds.VerticalPseudoVelocity * spec_vol_inter * RhoSw
-            )
         ds = self.map_from_native_model_vars(ds)
-        # the conversion is the last thing that happens to the tracers: the
-        # derivations above feed the model's own tracers into TEOS-10 and
-        # would be wrong if they were converted first
         ds = self._convert_tracers_from_model(
             ds,
             config,

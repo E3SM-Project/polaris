@@ -6,6 +6,7 @@ import pytest
 import xarray as xr
 from numpy.testing import assert_allclose
 
+from polaris.constants import get_constant
 from polaris.tasks.ocean import Ocean
 
 # tracers and pressure used by the conversion tests below
@@ -453,3 +454,48 @@ def test_open_model_dataset_raises_on_missing_reconstruct_variable(tmp_path):
             mesh_filename=mesh_filename,
             reconstruct_variables=['normalVelocity'],
         )
+
+
+def _write_omega_state_file(path, with_spec_vol):
+    """Write an Omega state file with no GeomLayerThickness"""
+    dims = ('time', 'NCells', 'NVertLayers')
+    data_vars: dict = dict(
+        Temperature=(dims, np.full((1, 2, 2), 5.0)),
+        Salinity=(dims, np.full((1, 2, 2), 35.0)),
+        PseudoThickness=(dims, np.full((1, 2, 2), 10.0)),
+        SurfacePressure=(('time', 'NCells'), np.zeros((1, 2))),
+    )
+    if with_spec_vol:
+        data_vars['SpecVol'] = (dims, np.full((1, 2, 2), 9.7e-4))
+    xr.Dataset(data_vars=data_vars).to_netcdf(path)
+    return str(path)
+
+
+def test_open_needs_no_eos_config(tmp_path):
+    """An Omega state without SpecVol opens without an equation of state,
+    and nothing that needs one is derived."""
+    component = _make_component('omega')
+    config = ConfigParser()
+    config.add_section('ocean')
+    config.set('ocean', 'model', 'omega')
+    filename = _write_omega_state_file(tmp_path / 'init.nc', False)
+
+    ds = component.open_model_dataset(filename, config)
+
+    assert 'temperature' in ds
+    assert 'SpecVol' not in ds
+    assert 'layerThickness' not in ds
+
+
+def test_open_adds_layer_thickness_from_spec_vol(tmp_path):
+    """The geometric thickness comes from PseudoThickness and SpecVol,
+    which needs no config."""
+    component = _make_component('omega')
+    config = ConfigParser()
+    filename = _write_omega_state_file(tmp_path / 'output.nc', True)
+
+    ds = component.open_model_dataset(filename, config)
+
+    rho_sw = get_constant('seawater_density_reference')
+    assert ds.layerThickness.dims == ('Time', 'nCells', 'nVertLevels')
+    assert_allclose(ds.layerThickness.values, rho_sw * 9.7e-4 * 10.0)

@@ -850,6 +850,8 @@
    vertical.init_vertical_coord
    vertical.diagnostics.geom_thickness_from_ds
    vertical.diagnostics.pseudothickness_from_ds
+   vertical.diagnostics.spec_vol_from_ds
+   vertical.diagnostics.vert_velocity_top_from_ds
    vertical.diagnostics.get_z_mid_and_interface
    vertical.diagnostics.depth_from_thickness
    vertical.diagnostics.vertical_coord_from_location
@@ -873,6 +875,7 @@
    vertical.ztilde.z_tilde_from_pressure
    vertical.ztilde.pressure_from_z_tilde
    vertical.ztilde.pressure_from_geom_thickness
+   vertical.ztilde.pressure_from_pseudothickness
    vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height
    vertical.ztilde.geom_height_from_pseudo_height
    vertical.pstar.init_pstar_vertical_coord
