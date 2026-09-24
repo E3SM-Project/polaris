@@ -24,6 +24,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
     column_names,
     extreme_and_day,
+    open_stage_stats,
     stage_stats_path,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule import (
@@ -1191,6 +1192,61 @@ def test_check_salinity_max():
         check_salinity_max(50.0, 1.0, 45.0, 'damped_adjustment_1', LOGGER)
     # Omega reports salinity, but a model that did not would skip
     check_salinity_max(None, None, 45.0, 'damped_adjustment_1', LOGGER)
+
+
+class _StatsComponent:
+    """Stands in for the ocean component, handing back a fixed dataset."""
+
+    def __init__(self, ds):
+        self.ds = ds
+
+    def open_model_dataset(self, filename, config):
+        return self.ds
+
+
+def _model_config(model):
+    config = PolarisConfigParser()
+    config.add_section('ocean')
+    config.set('ocean', 'model', model)
+    return config
+
+
+def test_open_stage_stats_gives_omegas_statistics_mpas_ocean_names():
+    """
+    The metrics are written in MPAS-Ocean's names, and Omega builds its own
+    from the field and the statistic, so Omega's are renamed on the way in.
+    Pseudo-thickness stands in for layer thickness, and the standard
+    deviation is left alone rather than passed off as a root-mean-square.
+    """
+    series = ('Time', [1.0, 2.0])
+    ds = xr.Dataset(
+        {
+            'Temperature_SpatialMax': series,
+            'Salinity_SpatialMean': series,
+            'PseudoThickness_SpatialMin': series,
+            'NormalVelocity_SpatialMax': series,
+            'Temperature_SpatialStdDev': series,
+        }
+    )
+    ds_stats = open_stage_stats(
+        _StatsComponent(ds), 'global_stats', _model_config('omega')
+    )
+    assert sorted(map(str, ds_stats.data_vars)) == [
+        'Temperature_SpatialStdDev',
+        'layerThicknessMin',
+        'normalVelocityMax',
+        'salinityAvg',
+        'temperatureMax',
+    ]
+
+
+def test_open_stage_stats_leaves_mpas_oceans_statistics_alone():
+    """MPAS-Ocean's names are the ones the metrics are written in."""
+    ds = xr.Dataset({'temperatureMax': ('Time', [1.0, 2.0])})
+    ds_stats = open_stage_stats(
+        _StatsComponent(ds), 'global_stats.nc', _model_config('mpas-ocean')
+    )
+    assert list(ds_stats.data_vars) == ['temperatureMax']
 
 
 def test_extremes_exclude_the_initial_sample():
