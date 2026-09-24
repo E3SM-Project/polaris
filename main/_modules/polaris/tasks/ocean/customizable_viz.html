@@ -112,6 +112,7 @@
              
   <h1>Source code for polaris.tasks.ocean.customizable_viz</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.customizable_viz.viz_horiz_field</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">VizHorizField</span> <span class="k">as</span> <span class="n">VizHorizField</span><span class="p">,</span>
 <span class="p">)</span>
@@ -145,6 +146,17 @@
         <span class="n">name</span> <span class="o">=</span> <span class="s1">'customizable_viz'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">basedir</span><span class="p">)</span>
 
+        <span class="c1"># Omega output without SpecVol needs an EOS to be opened.  Omega's</span>
+        <span class="c1"># default is TEOS-10, but the linear and constant coefficients are</span>
+        <span class="c1"># added too so that a user only has to change eos_type for a run with</span>
+        <span class="c1"># one of those</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'linear.cfg'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'teos10.cfg'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="s1">'ocean'</span><span class="p">,</span>
+            <span class="s1">'eos_constant_rhoref'</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">get_constant</span><span class="p">(</span><span class="s2">"seawater_density_reference"</span><span class="p">)</span><span class="si">:</span><span class="s1">02g</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'customizable_viz.cfg'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
             <span class="s1">'polaris.tasks.ocean.customizable_viz'</span><span class="p">,</span> <span class="n">config_filename</span>

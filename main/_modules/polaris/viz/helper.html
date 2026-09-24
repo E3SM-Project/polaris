@@ -192,8 +192,11 @@
     <span class="k">elif</span> <span class="s1">'xtime'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="n">time_variable</span> <span class="o">=</span> <span class="s1">'xtime'</span>
     <span class="k">elif</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">'timeMonthly_avg_'</span>
+        <span class="c1"># Omega's time, renamed, is also 'Time', so only MPAS-Ocean monthly</span>
+        <span class="c1"># means get the prefix</span>
         <span class="n">time_variable</span> <span class="o">=</span> <span class="s1">'Time'</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'timeMonthly_avg_'</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">'timeMonthly_avg_'</span>
     <span class="k">return</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">time_variable</span></div>
 
 
