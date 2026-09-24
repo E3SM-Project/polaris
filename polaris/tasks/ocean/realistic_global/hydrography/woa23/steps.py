@@ -57,12 +57,18 @@ def get_woa23_steps(component, combine_topo_step):
     """
     subdir = 'spherical/realistic_global/hydrography/woa23'
     config_filename = 'woa23.cfg'
-    config = PolarisConfigParser(
-        filepath=os.path.join(component.name, subdir, config_filename)
-    )
-    config.add_from_package(
-        'polaris.tasks.ocean.realistic_global.hydrography.woa23',
-        config_filename,
+
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package(
+            'polaris.tasks.ocean.realistic_global.hydrography.woa23',
+            config_filename,
+        )
+        return config
+
+    filepath = os.path.join(component.name, subdir, config_filename)
+    config = component.get_or_create_shared_config(
+        filepath=filepath, create=create
     )
 
     combine_subdir = os.path.join(subdir, 'combine')

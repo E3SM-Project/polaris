@@ -130,15 +130,24 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
 
     config_filename = 'combine_topo.cfg'
     filepath = os.path.join(component.name, subdir, config_filename)
-    config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package(
-        'polaris.tasks.e3sm.init.topo.combine', 'combine.cfg'
+
+    def create():
+        config = PolarisConfigParser(filepath=filepath)
+        config.add_from_package(
+            'polaris.tasks.e3sm.init.topo.combine', 'combine.cfg'
+        )
+        config.set('combine_topo', 'target_grid', target_grid)
+        if target_grid == 'cubed_sphere':
+            config.set(
+                'combine_topo', 'resolution_cubedsphere', f'{resolution}'
+            )
+        else:
+            config.set('combine_topo', 'resolution_latlon', f'{resolution}')
+        return config
+
+    config = component.get_or_create_shared_config(
+        filepath=filepath, create=create
     )
-    config.set('combine_topo', 'target_grid', target_grid)
-    if target_grid == 'cubed_sphere':
-        config.set('combine_topo', 'resolution_cubedsphere', f'{resolution}')
-    else:
-        config.set('combine_topo', 'resolution_latlon', f'{resolution}')
 
     steps: dict[str, Step] = {}
     combine_step = component.get_or_create_shared_step(

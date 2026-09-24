@@ -116,10 +116,12 @@ def get_unified_mesh_sizing_field_steps(
 
 def _get_lat_lon_sizing_field_config(mesh_name, filepath):
     component = _get_mesh_component()
-    if filepath in component.configs:
-        return component.configs[filepath]
-
-    return get_sizing_field_config(mesh_name=mesh_name, filepath=filepath)
+    return component.get_or_create_shared_config(
+        filepath=filepath,
+        create=lambda: get_sizing_field_config(
+            mesh_name=mesh_name, filepath=filepath
+        ),
+    )
 
 
 def _get_mesh_component():
