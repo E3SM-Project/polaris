@@ -75,7 +75,7 @@ class Init(OceanIOStep):
         self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)
 
         ds = ds_mesh.copy()
-        x_cell = ds_mesh.xCell
+        x_cell = ds_mesh.xCell.drop_attrs()
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         ds['bottomDepth'] = bottom_depth * xr.ones_like(x_cell)
         ds['ssh'] = xr.zeros_like(x_cell)
@@ -143,9 +143,8 @@ class Init(OceanIOStep):
         salinity = salinity.transpose('nCells', 'nVertLevels')
         salinity = salinity.expand_dims(dim='Time', axis=0)
 
-        normal_velocity = u * np.cos(ds_mesh.angleEdge) + v * np.sin(
-            ds_mesh.angleEdge
-        )
+        angle_edge = ds_mesh.angleEdge.drop_attrs()
+        normal_velocity = u * np.cos(angle_edge) + v * np.sin(angle_edge)
         normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)

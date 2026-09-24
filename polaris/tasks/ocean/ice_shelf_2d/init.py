@@ -100,8 +100,8 @@ class Init(OceanIOStep):
         d2 = section.getfloat('y2_water_column_thickness')
         d3 = bottom_depth
 
-        y_cell = ds.yCell
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
+        y_cell = ds.yCell.drop_attrs()
+        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell).drop_attrs()
 
         # Column thickness is a piecewise linear function
         column_thickness = xr.where(
@@ -144,7 +144,7 @@ class Init(OceanIOStep):
             ref_density=ref_density,
         )
 
-        normal_velocity = xr.zeros_like(ds_mesh.xEdge)
+        normal_velocity = xr.zeros_like(ds_mesh.xEdge).drop_attrs()
         normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)

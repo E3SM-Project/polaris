@@ -65,11 +65,11 @@ class ExactSolution:
         self.omega = np.sqrt(self.g * bottom_depth * (self.kx**2 + self.ky**2))
 
         if ds is not None:
-            self.angleEdge = ds.angleEdge
-            self.xCell = ds.xCell
-            self.yCell = ds.yCell
-            self.xEdge = ds.xEdge
-            self.yEdge = ds.yEdge
+            self.angleEdge = ds.angleEdge.drop_attrs()
+            self.xCell = ds.xCell.drop_attrs()
+            self.yCell = ds.yCell.drop_attrs()
+            self.xEdge = ds.xEdge.drop_attrs()
+            self.yEdge = ds.yEdge.drop_attrs()
 
     def ssh(self, t):
         """

@@ -78,7 +78,7 @@ class Init(OceanIOStep):
 
         ds = ds_mesh.copy()
 
-        y_cell = ds.yCell
+        y_cell = ds.yCell.drop_attrs()
         ds['maxLevelCell'] = vert_levels * xr.ones_like(y_cell)
         ds['bottomDepth'] = bottom_depth * xr.ones_like(y_cell)
         ds['ssh'] = xr.zeros_like(y_cell)
@@ -120,7 +120,7 @@ class Init(OceanIOStep):
         temperature = temperature.transpose('nCells', 'nVertLevels')
         temperature = temperature.expand_dims(dim='Time', axis=0)
 
-        normal_velocity = xr.zeros_like(ds.xEdge)
+        normal_velocity = xr.zeros_like(ds.xEdge).drop_attrs()
         normal_velocity, _ = xr.broadcast(normal_velocity, ref_bottom_depth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         normal_velocity = normal_velocity.expand_dims(dim='Time', axis=0)

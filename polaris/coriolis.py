@@ -233,11 +233,11 @@ def _set_coriolis_fields(
 def _add_coriolis_attrs(
     data_array: xr.DataArray, location: str
 ) -> xr.DataArray:
-    data_array.attrs.update(
-        {
-            'long_name': f'Coriolis parameter at {location}',
-            'standard_name': 'coriolis_parameter',
-            'units': 'radians s-1',
-        }
-    )
+    # replace rather than update: the fields are computed from mesh
+    # coordinates, whose attributes xarray carries along
+    data_array.attrs = {
+        'long_name': f'Coriolis parameter at {location}',
+        'standard_name': 'coriolis_parameter',
+        'units': 'radians s-1',
+    }
     return data_array
