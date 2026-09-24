@@ -111,8 +111,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.ocean.vertical.diagnostics</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -122,6 +125,20 @@
 <span class="p">)</span>
 
 <span class="n">RhoSw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'seawater_density_reference'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_variables_at_layer_tops</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The MPAS-Ocean variables that ``variables.yaml`` lists as defined at</span>
+<span class="sd">    the top of each layer but written on ``nVertLevels``</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">imp_res</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">'polaris.ocean.model'</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">'variables.yaml'</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">nested_dict</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">'rt'</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nested_dict</span><span class="p">[</span><span class="s1">'mpas-ocean'</span><span class="p">][</span><span class="s1">'variables_at_layer_tops'</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="geom_thickness_from_ds">
@@ -253,7 +270,7 @@
 
 <div class="viewcode-block" id="get_z_mid_and_interface">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.get_z_mid_and_interface.html#polaris.ocean.vertical.diagnostics.get_z_mid_and_interface">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_z_mid_and_interface</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_z_mid_and_interface</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the elevation of layer midpoints and of layer interfaces</span>
 
@@ -272,6 +289,11 @@
 <span class="sd">        Whether to reconstruct the geometry from ``layerThickness`` when the</span>
 <span class="sd">        data set does not carry it</span>
 
+<span class="sd">    ds_vert : xarray.Dataset, optional</span>
+<span class="sd">        The vertical coordinate dataset containing ``bottomDepth`` and</span>
+<span class="sd">        optionally ``minLevelCell`` and ``maxLevelCell``, used when</span>
+<span class="sd">        reconstructing the geometry</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    z_mid : xarray.DataArray</span>
@@ -285,9 +307,9 @@
 <span class="sd">    ValueError</span>
 <span class="sd">        If the data set lacks the geometry and it may not be reconstructed</span>
 <span class="sd">    """</span>
-    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'zMid'</span><span class="p">,</span> <span class="s1">'zInterface'</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'zMid'</span><span class="p">,</span> <span class="s1">'GeomZInterface'</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">missing</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">zMid</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">zInterface</span>
+        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">zMid</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_reconstruct</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">'The data set has no </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s1">, which is the '</span>
@@ -296,13 +318,18 @@
             <span class="sa">f</span><span class="s1">'fields, so a simulation has to write it for its output to be '</span>
             <span class="sa">f</span><span class="s1">'analysed at an elevation.'</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_z_from_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">ds_vert</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'Cannot reconstruct vertical geometry without the vertical '</span>
+            <span class="s1">'coordinate dataset.'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_reconstruct_z_mid_and_interface</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="depth_from_thickness">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.depth_from_thickness.html#polaris.ocean.vertical.diagnostics.depth_from_thickness">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">depth_from_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">depth_from_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get the elevation of the midpoint of each layer</span>
 
@@ -316,31 +343,241 @@
 <span class="sd">        An ocean dataset carrying the geometry or ``layerThickness``, and</span>
 <span class="sd">        optionally ``ssh`` and ``bottomDepth``</span>
 
+<span class="sd">    ds_vert : xarray.Dataset, optional</span>
+<span class="sd">        The vertical coordinate dataset containing ``bottomDepth`` and</span>
+<span class="sd">        optionally ``minLevelCell`` and ``maxLevelCell``, used when</span>
+<span class="sd">        reconstructing the geometry</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    z_mid : xarray.DataArray</span>
 <span class="sd">        The location in meters from the sea surface of the midpoint of each</span>
 <span class="sd">        layer, positive upward</span>
 <span class="sd">    """</span>
-    <span class="n">z_mid</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_z_mid_and_interface</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">z_mid</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_z_mid_and_interface</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">,</span> <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_vert</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">z_mid</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_z_from_thickness</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Compute the depth of the midpoint of each layer from `layerThickness`.</span>
+<span class="n">_VERT_COORD_VAR_NAMES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'cell-center'</span><span class="p">:</span> <span class="s1">'zMid'</span><span class="p">,</span>
+    <span class="s1">'cell-interfaces'</span><span class="p">:</span> <span class="s1">'GeomZInterface'</span><span class="p">,</span>
+    <span class="s1">'cell-top'</span><span class="p">:</span> <span class="s1">'zTop'</span><span class="p">,</span>
+<span class="p">}</span>
 
-<span class="sd">    It is assumed that the `layerThickness` of invalid levels is 0. If</span>
-<span class="sd">    `ssh` is present in the dataset, depths will be offset by `ssh`. If</span>
-<span class="sd">    `bottomDepth` is present in the dataset, the location of the bottom</span>
-<span class="sd">    of the bottommost vertical level will be compared with `bottomDepth`.</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">vertical_coord_from_location</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the vertical coordinate field appropriate for a variable at a given</span>
+<span class="sd">    location in ``ds``</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        An ocean dataset containing `layerThickness` and optionally `ssh`</span>
-<span class="sd">        and `bottomDepth`</span>
+<span class="sd">        A dataset with no ``Time`` dimension or a ``Time`` dimension of</span>
+<span class="sd">        length one</span>
+
+<span class="sd">    location : {'cell-center', 'cell-interfaces', 'cell-top'}</span>
+<span class="sd">        Where the variable is defined: layer midpoints, layer interfaces,</span>
+<span class="sd">        or the top of each layer</span>
+
+<span class="sd">    allow_reconstruct : bool, optional</span>
+<span class="sd">        Whether to reconstruct the coordinate from ``layerThickness`` via</span>
+<span class="sd">        :py:func:`_reconstruct_z_mid_and_interface` when the data set does</span>
+<span class="sd">        not carry the field directly</span>
+
+<span class="sd">    ds_vert : xarray.Dataset, optional</span>
+<span class="sd">        The vertical coordinate dataset containing ``bottomDepth`` and</span>
+<span class="sd">        optionally ``minLevelCell`` and ``maxLevelCell``, used when</span>
+<span class="sd">        reconstructing the geometry</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coord : xarray.DataArray</span>
+<span class="sd">        The elevation of ``ds[var_name]``, in m, positive up, on</span>
+<span class="sd">        ``nCells`` and the vertical dimension appropriate to ``location``.</span>
+<span class="sd">        A ``Time`` dimension of length one is retained if present.</span>
+<span class="sd">        ``var_name`` is ``zMid``, ``GeomZInterface`` or ``zTop`` for</span>
+<span class="sd">        ``location`` ``'cell-center'``, ``'cell-interfaces'`` or</span>
+<span class="sd">        ``'cell-top'``, respectively</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``location`` is not one of the supported values, the</span>
+<span class="sd">        corresponding field is not present in the dataset and it may not</span>
+<span class="sd">        be reconstructed, or ``ds`` has a ``Time`` dimension of length</span>
+<span class="sd">        other than one</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">location</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_VERT_COORD_VAR_NAMES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Unsupported variable location </span><span class="si">{</span><span class="n">location</span><span class="si">!r}</span><span class="s1">, expected one of '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_VERT_COORD_VAR_NAMES</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+    <span class="n">var_name</span> <span class="o">=</span> <span class="n">_VERT_COORD_VAR_NAMES</span><span class="p">[</span><span class="n">location</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">coord</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">'vertical_coord_from_location() requires ds to have no '</span>
+                <span class="s1">'Time dimension or a Time dimension of length one'</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">coord</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_reconstruct</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s1">) is not present in the dataset'</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">ds_vert</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">'Cannot reconstruct vertical geometry without the vertical '</span>
+            <span class="s1">'coordinate dataset.'</span>
+        <span class="p">)</span>
+    <span class="n">z_mid</span><span class="p">,</span> <span class="n">z_interface</span> <span class="o">=</span> <span class="n">_reconstruct_z_mid_and_interface</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">location</span> <span class="o">==</span> <span class="s1">'cell-center'</span><span class="p">:</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="n">z_mid</span>
+    <span class="k">elif</span> <span class="n">location</span> <span class="o">==</span> <span class="s1">'cell-interfaces'</span><span class="p">:</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="n">z_interface</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">coord</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">location_for_field</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">field_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The variable location of ``var`` to look up its vertical coordinate</span>
+
+<span class="sd">    A field on ``nVertLevelsP1`` is defined at layer interfaces --- the top</span>
+<span class="sd">    of each layer, plus one more for the bottom of the column.  A field</span>
+<span class="sd">    listed under ``variables_at_layer_tops`` in ``variables.yaml`` is</span>
+<span class="sd">    defined at the top of each layer but written on ``nVertLevels``.</span>
+<span class="sd">    Everything else is a layer quantity, defined at layer midpoints.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    var : xarray.DataArray</span>
+<span class="sd">        The field to plot or analyze</span>
+
+<span class="sd">    field_name : str, optional</span>
+<span class="sd">        The name of ``var`` in its dataset, used to check whether it is a</span>
+<span class="sd">        layer-top field</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    location : {'cell-center', 'cell-interfaces', 'cell-top'}</span>
+<span class="sd">        The variable location suitable for</span>
+<span class="sd">        :py:func:`vertical_coord_from_location`</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'nVertLevelsP1'</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">'cell-interfaces'</span>
+    <span class="k">if</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">_variables_at_layer_tops</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s1">'cell-top'</span>
+    <span class="k">return</span> <span class="s1">'cell-center'</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_z_from_thickness</span><span class="p">(</span>
+    <span class="n">layer_thickness</span><span class="p">,</span> <span class="n">bottom_depth</span><span class="p">,</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">max_level_cell</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute z at layer interfaces and midpoints from layer thickness,</span>
+<span class="sd">    anchored at ``bottom_depth`` and summed upward from the seafloor.</span>
+
+<span class="sd">    This is the shared core used both by</span>
+<span class="sd">    :py:func:`polaris.ocean.vertical.compute_zint_zmid_from_layer_thickness`,</span>
+<span class="sd">    which builds the vertical coordinate at init time, and by</span>
+<span class="sd">    :py:func:`_reconstruct_z_mid_and_interface`, which reconstructs it for</span>
+<span class="sd">    analysis when a simulation did not write it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    layer_thickness : xarray.DataArray</span>
+<span class="sd">        The layer thickness of each layer</span>
+
+<span class="sd">    bottom_depth : xarray.DataArray</span>
+<span class="sd">        The positive-down depth of the seafloor</span>
+
+<span class="sd">    min_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based minimum vertical index of each column</span>
+
+<span class="sd">    max_level_cell : xarray.DataArray</span>
+<span class="sd">        The zero-based maximum vertical index of each column</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z_mid : xarray.DataArray</span>
+<span class="sd">        The elevation of layer midpoints, in m, positive up</span>
+
+<span class="sd">    z_interface : xarray.DataArray</span>
+<span class="sd">        The elevation of layer interfaces, in m, positive up</span>
+<span class="sd">    """</span>
+    <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+
+    <span class="n">z_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">])</span>
+    <span class="n">mask_mid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span> <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span>
+    <span class="p">)</span>
+
+    <span class="n">dz</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_mid</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">dz_rev</span> <span class="o">=</span> <span class="n">dz</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">sum_from_level</span> <span class="o">=</span> <span class="n">dz_rev</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+        <span class="n">nVertLevels</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">z_bot</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">layer_thickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="o">-</span> <span class="n">bottom_depth</span>
+    <span class="p">)</span>
+    <span class="n">z_interface_top</span> <span class="o">=</span> <span class="n">z_bot</span> <span class="o">+</span> <span class="n">sum_from_level</span>
+    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">z_interface_top</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'constant'</span><span class="p">)</span>
+    <span class="n">z_interface</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">n_vert_levels</span><span class="p">)]</span> <span class="o">=</span> <span class="n">z_bot</span>
+    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevels'</span><span class="p">:</span> <span class="s1">'nVertLevelsP1'</span><span class="p">})</span>
+
+    <span class="n">z_index_p1</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nVertLevelsP1'</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">mask_interface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+        <span class="n">z_index_p1</span> <span class="o">&gt;=</span> <span class="n">min_level_cell</span><span class="p">,</span>
+        <span class="n">z_index_p1</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_interface</span><span class="p">)</span>
+
+    <span class="n">z_interface_upper</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">z_interface_lower</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">z_mid</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">z_interface_upper</span> <span class="o">+</span> <span class="n">z_interface_lower</span><span class="p">))</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_mid</span><span class="p">)</span>
+
+    <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">layer_thickness</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">interface_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">dims</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">!=</span> <span class="s1">'nVertLevels'</span><span class="p">]</span>
+    <span class="n">interface_dims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'nVertLevelsP1'</span><span class="p">)</span>
+    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">interface_dims</span><span class="p">)</span>
+    <span class="n">z_mid</span> <span class="o">=</span> <span class="n">z_mid</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">z_mid</span><span class="p">,</span> <span class="n">z_interface</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reconstruct_z_mid_and_interface</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Reconstruct z_mid and z_interface for a dataset that did not write them,</span>
+<span class="sd">    anchored at ``bottomDepth`` via :py:func:`_z_from_thickness`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        An ocean dataset containing the geometric layer thickness (or the</span>
+<span class="sd">        fields needed to compute it, see :py:func:`geom_thickness_from_ds`)</span>
+
+<span class="sd">    ds_vert : xarray.Dataset, optional</span>
+<span class="sd">        The vertical coordinate dataset containing ``bottomDepth``, and</span>
+<span class="sd">        optionally ``minLevelCell``, ``maxLevelCell`` and a ``Time`` dimension</span>
+<span class="sd">        of length one</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -348,75 +585,46 @@
 <span class="sd">        The location in meters from the sea surface of the midpoint of</span>
 <span class="sd">        each layer (level), positive upward</span>
 
+<span class="sd">    z_interface : xarray.DataArray</span>
+<span class="sd">        The elevation of layer interfaces, in m, positive up</span>
+
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If `layerThickness` is not present in the dataset, or if required</span>
-<span class="sd">        dimensions are missing</span>
+<span class="sd">        If ``bottomDepth`` or the geometric layer thickness cannot be</span>
+<span class="sd">        obtained from the dataset, or if required dimensions are missing</span>
 <span class="sd">    """</span>
-    <span class="c1"># TODO when Omega supports these variables, just fetch them</span>
-    <span class="c1"># if 'zMid' in ds.keys():</span>
-    <span class="c1">#    z_mid = ds['zMid']</span>
-    <span class="c1"># elif 'layerThickness' in ds.keys():</span>
-
-    <span class="k">if</span> <span class="s1">'layerThickness'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'bottomDepth'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s1">'Could not reconstruct zMid, zinterface: '</span>
-            <span class="s1">'Could not find layerThickness in dataset'</span>
+            <span class="s1">'Could not reconstruct zMid, GeomZInterface: bottomDepth is '</span>
+            <span class="s1">'not present in the dataset'</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">'Time dimension present in dataset; using first time index'</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="s1">'nCells'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span> <span class="ow">and</span> <span class="s1">'nVertLevels'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'nCells, and nVertLevels must be dimensions of ds'</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s1">'ssh'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="n">ssh</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-    <span class="c1"># TODO remove this because it could lead to errors</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">]))</span>
-    <span class="k">if</span> <span class="s1">'nVertLevelsP1'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-        <span class="n">nz</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevelsP1'</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">nz</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
 
-    <span class="c1"># mask out thickness where vertical index exceeds maxLevelCell</span>
-    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layerThickness</span>
-    <span class="k">if</span> <span class="s1">'maxLevelCell'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span>
+    <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">bottomDepth</span>
+    <span class="k">if</span> <span class="s1">'minLevelCell'</span> <span class="ow">in</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">nz</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ssh</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">))</span>
-    <span class="n">z_idx</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
-            <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">),</span>
+        <span class="n">min_level_cell</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bottom_depth</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'maxLevelCell'</span> <span class="ow">in</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">max_level_cell</span> <span class="o">=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_level_cell</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span>
+            <span class="n">bottom_depth</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_z_from_thickness</span><span class="p">(</span>
+        <span class="n">layer_thickness</span><span class="o">=</span><span class="n">layer_thickness</span><span class="p">,</span>
+        <span class="n">bottom_depth</span><span class="o">=</span><span class="n">bottom_depth</span><span class="p">,</span>
+        <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
+        <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">z_idx</span> <span class="o">&lt;=</span> <span class="n">max_level_cell</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-    <span class="n">z_int_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nCells'</span><span class="p">],</span> <span class="n">nz</span><span class="p">))</span>
-    <span class="n">z_int_array</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ssh</span>
-    <span class="n">z_int_array</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-        <span class="o">-</span><span class="n">layer_thickness</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nVertLevels'</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-        <span class="n">ssh</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
-    <span class="p">)</span>
-    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">z_int_array</span><span class="p">,</span>
-        <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevelsP1'</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">z_mid</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">z_int_array</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">layer_thickness</span><span class="p">,</span>
-        <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s1">'nCells'</span><span class="p">,</span> <span class="s1">'nVertLevels'</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="s1">'bottomDepth'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="n">z_bed_infer</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">z_bed_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span>
-        <span class="n">cell_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_bed_infer</span> <span class="o">-</span> <span class="n">z_bed_data</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cell_diff</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">1.0e-3</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s1">'The maximum discrepancy between bottom_depth and the lower'</span>
-                <span class="sa">f</span><span class="s1">'boundary of z_interface is </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cell_diff</span><span class="p">))</span><span class="si">}</span><span class="s1">'</span>
-            <span class="p">)</span>
-    <span class="k">return</span> <span class="n">z_mid</span><span class="p">,</span> <span class="n">z_interface</span>
 </pre></div>
 
            </div>

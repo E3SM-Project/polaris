@@ -140,15 +140,20 @@
 <h1>polaris.ocean.vertical.diagnostics.depth_from_thickness<a class="headerlink" href="#polaris-ocean-vertical-diagnostics-depth-from-thickness" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.ocean.vertical.diagnostics.depth_from_thickness">
-<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.diagnostics.</span></span><span class="sig-name descname"><span class="pre">depth_from_thickness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/diagnostics.html#depth_from_thickness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.diagnostics.depth_from_thickness" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.ocean.vertical.diagnostics.</span></span><span class="sig-name descname"><span class="pre">depth_from_thickness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_vert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/ocean/vertical/diagnostics.html#depth_from_thickness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.ocean.vertical.diagnostics.depth_from_thickness" title="Link to this definition"></a></dt>
 <dd><p>Get the elevation of the midpoint of each layer</p>
 <p>A thin face on <a class="reference internal" href="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface.html#polaris.ocean.vertical.diagnostics.get_z_mid_and_interface" title="polaris.ocean.vertical.diagnostics.get_z_mid_and_interface"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_z_mid_and_interface()</span></code></a> for callers that want
 only the midpoints.  What the model wrote is preferred; the geometry is
 reconstructed from <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> when it is absent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – An ocean dataset carrying the geometry or <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, and
-optionally <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code></p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a>) – An ocean dataset carrying the geometry or <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, and
+optionally <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code></p></li>
+<li><p><strong>ds_vert</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a><em>, </em><em>optional</em>) – The vertical coordinate dataset containing <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and
+optionally <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code> and <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, used when
+reconstructing the geometry</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>z_mid</strong> (<em>xarray.DataArray</em>) – The location in meters from the sea surface of the midpoint of each

@@ -118,20 +118,13 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span><span class="p">,</span> <span class="n">get_time_since_start</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">location_for_field</span><span class="p">,</span>
+    <span class="n">vertical_coord_from_location</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mplstyle_context</span>
 
 <span class="c1"># TODO import rho_0 from constants</span>
-
-<span class="c1"># Fields defined at the top of each layer that a model nonetheless writes on</span>
-<span class="c1"># ``nVertLevels``, leaving the bottom of the column off, rather than on</span>
-<span class="c1"># ``nVertLevelsP1``.  MPAS-Ocean writes ``BruntVaisalaFreqTop`` this way</span>
-<span class="c1"># while giving ``RiTopOfCell`` and ``vertViscTopOfCell`` the interface</span>
-<span class="c1"># dimension; Omega writes ``BruntVaisalaFreqTop`` on ``nVertLevelsP1``.</span>
-<span class="c1"># Dimensions cannot tell such a field from a layer average, so it is named</span>
-<span class="c1"># here.  A field is only ever read from this list when it arrives on</span>
-<span class="c1"># ``nVertLevels``, so listing one that a model writes at interfaces is</span>
-<span class="c1"># harmless.</span>
-<span class="n">TOP_OF_LAYER_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'BruntVaisalaFreqTop'</span><span class="p">,)</span>
 
 
 <div class="viewcode-block" id="Viz">
@@ -197,12 +190,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc'</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span> <span class="o">=</span> <span class="n">init</span>
         <span class="k">for</span> <span class="n">comparison_name</span><span class="p">,</span> <span class="n">comparison_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comparisons</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
                 <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1">.nc'</span><span class="p">,</span>
                 <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
             <span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">'vert_coord.nc'</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/vert_coord.nc'</span><span class="p">,</span>
+            <span class="p">)</span>
 
 <div class="viewcode-block" id="Viz.run">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.single_column.viz.Viz.run.html#polaris.tasks.ocean.single_column.viz.Viz.run">[docs]</a>
@@ -245,15 +246,11 @@
                 <span class="n">ds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds_comp</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="n">t_index</span><span class="p">))</span>
             <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
             <span class="n">ds_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">z_mid_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="s1">'zMid'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-            <span class="n">z_interface_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="s1">'zInterface'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
 
-            <span class="n">z_mid_final</span> <span class="o">=</span> <span class="n">z_mid_init</span>
-            <span class="n">z_interface_final</span> <span class="o">=</span> <span class="n">z_interface_init</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s1">'Using the initial vertical coordinate; may not represent '</span>
-                <span class="s1">'the plotted state'</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+                <span class="n">ds_vert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'vert_coord.nc'</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ds_vert</span> <span class="o">=</span> <span class="n">ds_init</span>
 
             <span class="c1"># The depth range of the plots, also used to select the data</span>
             <span class="c1"># that sets the x-axis range</span>
@@ -273,12 +270,6 @@
                     <span class="n">colors</span><span class="p">,</span>
                     <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="p">):</span>
-                    <span class="c1"># TODO use this line when Omega zMid is correct</span>
-                    <span class="c1"># z_mid_final = ds_comp['zMid'].mean(dim='nCells')</span>
-                    <span class="c1"># TODO compare with z_mid computed from layerThickness</span>
-                    <span class="c1"># z_mid_final = depth_from_thickness(ds_comp).mean(</span>
-                    <span class="c1">#    dim='nCells'</span>
-                    <span class="c1"># )</span>
                     <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'velocity'</span><span class="p">:</span>
                         <span class="k">if</span> <span class="p">(</span>
                             <span class="s1">'velocityZonal'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -295,12 +286,12 @@
                             <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">comparison_name</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="n">t_days</span><span class="si">}</span><span class="s1"> days'</span>
                         <span class="p">)</span>
                         <span class="n">var</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityZonal'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                        <span class="n">z</span> <span class="o">=</span> <span class="n">_vertical_coord</span><span class="p">(</span>
-                            <span class="s1">'velocityZonal'</span><span class="p">,</span>
-                            <span class="n">var</span><span class="p">,</span>
-                            <span class="n">z_mid_final</span><span class="p">,</span>
-                            <span class="n">z_interface_final</span><span class="p">,</span>
-                        <span class="p">)</span>
+                        <span class="n">z</span> <span class="o">=</span> <span class="n">vertical_coord_from_location</span><span class="p">(</span>
+                            <span class="n">ds_comp</span><span class="p">,</span>
+                            <span class="n">location_for_field</span><span class="p">(</span><span class="n">var</span><span class="p">),</span>
+                            <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_init</span><span class="p">,</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
                         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                             <span class="n">var</span><span class="p">,</span>
                             <span class="n">z</span><span class="p">,</span>
@@ -310,12 +301,12 @@
                         <span class="p">)</span>
                         <span class="n">_add_visible_limits</span><span class="p">(</span><span class="n">x_limits</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
                         <span class="n">var</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="s1">'velocityMeridional'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                        <span class="n">z</span> <span class="o">=</span> <span class="n">_vertical_coord</span><span class="p">(</span>
-                            <span class="s1">'velocityMeridional'</span><span class="p">,</span>
-                            <span class="n">var</span><span class="p">,</span>
-                            <span class="n">z_mid_final</span><span class="p">,</span>
-                            <span class="n">z_interface_final</span><span class="p">,</span>
-                        <span class="p">)</span>
+                        <span class="n">z</span> <span class="o">=</span> <span class="n">vertical_coord_from_location</span><span class="p">(</span>
+                            <span class="n">ds_comp</span><span class="p">,</span>
+                            <span class="n">location_for_field</span><span class="p">(</span><span class="n">var</span><span class="p">),</span>
+                            <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_vert</span><span class="p">,</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
                         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                             <span class="n">var</span><span class="p">,</span>
                             <span class="n">z</span><span class="p">,</span>
@@ -333,9 +324,12 @@
                             <span class="p">)</span>
                             <span class="k">continue</span>
                         <span class="n">var</span> <span class="o">=</span> <span class="n">ds_comp</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                        <span class="n">z</span> <span class="o">=</span> <span class="n">_vertical_coord</span><span class="p">(</span>
-                            <span class="n">field_name</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">z_mid_final</span><span class="p">,</span> <span class="n">z_interface_final</span>
-                        <span class="p">)</span>
+                        <span class="n">z</span> <span class="o">=</span> <span class="n">vertical_coord_from_location</span><span class="p">(</span>
+                            <span class="n">ds_comp</span><span class="p">,</span>
+                            <span class="n">location_for_field</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">field_name</span><span class="p">),</span>
+                            <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_vert</span><span class="p">,</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
                         <span class="c1"># TODO delete this line when MPAS-O bug is fixed</span>
                         <span class="k">if</span> <span class="n">field_name</span> <span class="o">==</span> <span class="s1">'RiTopOfCell'</span><span class="p">:</span>
                             <span class="n">var</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
@@ -360,12 +354,12 @@
                             <span class="ow">and</span> <span class="s1">'initial'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_labels</span>
                         <span class="p">):</span>
                             <span class="n">var_init</span> <span class="o">=</span> <span class="n">ds_init</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
-                            <span class="n">z_init</span> <span class="o">=</span> <span class="n">_vertical_coord</span><span class="p">(</span>
-                                <span class="n">field_name</span><span class="p">,</span>
-                                <span class="n">var_init</span><span class="p">,</span>
-                                <span class="n">z_mid_init</span><span class="p">,</span>
-                                <span class="n">z_interface_init</span><span class="p">,</span>
-                            <span class="p">)</span>
+                            <span class="n">z_init</span> <span class="o">=</span> <span class="n">vertical_coord_from_location</span><span class="p">(</span>
+                                <span class="n">ds_init</span><span class="p">,</span>
+                                <span class="n">location_for_field</span><span class="p">(</span><span class="n">var_init</span><span class="p">,</span> <span class="n">field_name</span><span class="p">),</span>
+                                <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_init</span><span class="p">,</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'nCells'</span><span class="p">)</span>
                             <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">var_init</span><span class="p">,</span> <span class="n">z_init</span><span class="p">,</span> <span class="s1">'--k'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'initial'</span><span class="p">)</span>
                             <span class="n">_add_visible_limits</span><span class="p">(</span>
                                 <span class="n">x_limits</span><span class="p">,</span> <span class="n">var_init</span><span class="p">,</span> <span class="n">z_init</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span>
@@ -401,36 +395,6 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 </div>
 
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_vertical_coord</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">z_mid</span><span class="p">,</span> <span class="n">z_interface</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    The vertical coordinate to plot ``var`` against</span>
-
-<span class="sd">    A field on ``nVertLevelsP1`` is defined at layer interfaces --- the top</span>
-<span class="sd">    of each layer, plus one more for the bottom of the column --- so it is</span>
-<span class="sd">    plotted at interface elevations.  A field in</span>
-<span class="sd">    :py:data:`TOP_OF_LAYER_FIELDS` is defined at the top of each layer but</span>
-<span class="sd">    written on ``nVertLevels``, so it is plotted at the top interface of</span>
-<span class="sd">    each layer.  Everything else is a layer quantity and is plotted at</span>
-<span class="sd">    layer midpoints.</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="s1">'nVertLevelsP1'</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">z_interface</span>
-    <span class="k">if</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">TOP_OF_LAYER_FIELDS</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_layer_tops</span><span class="p">(</span><span class="n">z_interface</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">z_mid</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_layer_tops</span><span class="p">(</span><span class="n">z_interface</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    The elevation of the top interface of each layer, on ``nVertLevels``</span>
-
-<span class="sd">    ``isel()`` changes the length of the dimension but not its name, so the</span>
-<span class="sd">    result is renamed to the dimension the field it pairs with is on.</span>
-<span class="sd">    """</span>
-    <span class="n">z_top</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">z_top</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">})</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_visible_limits</span><span class="p">(</span><span class="n">x_limits</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">):</span>
