@@ -551,7 +551,7 @@ about it needs the forward step to change.
 
 ### Implementation: Forward steps produce inspectable outputs and support basic validation
 
-Date last modified: 2026/08/11
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -585,8 +585,11 @@ visible rather than only at its end. Two model differences are handled once, in
 asks the same question the same way: Omega treats the configured name as a
 prefix and appends its analysis period and the kind of output with no `.nc`
 extension, and Omega's statistics are taken as instantaneous snapshots rather
-than temporal reductions, both because that is what the mapped variable names
-mean and because an averaging period would constrain the restart interval.
+than temporal reductions, both because a snapshot's name carries no averaging
+period and because an averaging period would constrain the restart interval.
+Each model's statistics names are built from the field and the statistic by
+`polaris.ocean.global_stats_names` rather than mapped pair by pair in
+`mpaso_to_omega.yaml`, which no longer lists them.
 
 Surface forcing is no longer out of scope, and it is not optional either. Every
 realistic global forward run is forced by the time-invariant JRA55-do wind
@@ -601,11 +604,15 @@ Two diagnostic steps, neither run by default, read these outputs: `global_stats`
 (`StatsAnalysis`) plots the statistics as time series with a
 standard-deviation envelope and an anomaly panel, and `viz` plots global maps of
 each state variable at the start and end of the run along with the wind stress
-that forced it.
+that forced it. `global_stats` plots the fields named by
+`[realistic_global_forward_stats] fields`, or every field the run wrote
+statistics for when that is left empty; the option came with the step from the
+`analysis_members` task this framework replaced, where it was
+`[analysis_members] fields`.
 
 ### Implementation: Physics and mixing options vary with the mesh
 
-Date last modified: 2026/08/11
+Date last modified: 2026/09/24
 
 Contributors: Xylar Asay-Davis, Claude
 
