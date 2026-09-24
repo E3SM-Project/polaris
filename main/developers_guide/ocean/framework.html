@@ -849,8 +849,10 @@ p-star coordinate for one outer iteration.  It expects <code class="docutils lit
 <code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> (both in Pa with dimension <code class="docutils literal notranslate"><span class="pre">nCells</span></code>) to already be
 present in the mesh dataset, and adds <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>,
 <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>,
-<code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, and <code class="docutils literal notranslate"><span class="pre">vertCoordMovementWeights</span></code>.
-<code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> is updated in place to the post-partial-cell-snap value.
+<code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, and <code class="docutils literal notranslate"><span class="pre">vertCoordMovementWeights</span></code>, each
+with its own <code class="docutils literal notranslate"><span class="pre">long_name</span></code> and, where meaningful, <code class="docutils literal notranslate"><span class="pre">units</span></code> (see
+<a class="reference internal" href="../framework/attrs.html#dev-attrs"><span class="std std-ref">Variable attributes</span></a>).  <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> is updated in place to the
+post-partial-cell-snap value, keeping the attributes the caller gave it.
 The reference 1-D grid (in pseudo-height) is controlled by the same
 <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> config options used by the z-star and z-level coordinates.
 Unlike those coordinates, the p-star coordinate cannot be constructed via

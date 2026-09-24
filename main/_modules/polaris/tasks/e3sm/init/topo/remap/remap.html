@@ -547,12 +547,33 @@
                 <span class="n">var_out</span> <span class="o">=</span> <span class="n">var</span>
                 <span class="n">ds_out</span><span class="p">[</span><span class="n">var_out</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_in</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
 
-            <span class="n">ds_out</span><span class="p">[</span><span class="n">var_out</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">ds_in</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">var_out</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ds_in</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+
+        <span class="n">_clean_remapped_attrs</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
 
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="s1">'topography_remapped.nc'</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'  Done.'</span><span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clean_remapped_attrs</span><span class="p">(</span><span class="n">ds_out</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Drop the CF attributes that no longer describe the remapped topography.</span>
+
+<span class="sd">    ``ncremap`` adds ``cell_measures = 'area: area'`` and</span>
+<span class="sd">    ``coordinates = 'lat lon'`` to everything it writes, and this step drops</span>
+<span class="sd">    ``area``, ``lat`` and ``lon``.  Both attributes are therefore left naming</span>
+<span class="sd">    variables that are not in the file.</span>
+
+<span class="sd">    ``grid_mapping`` comes the other way, in from the projected Antarctic</span>
+<span class="sd">    source data, and names a ``mapping`` variable that does not survive</span>
+<span class="sd">    remapping to the MPAS mesh either.</span>
+<span class="sd">    """</span>
+    <span class="n">dangling</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'cell_measures'</span><span class="p">,</span> <span class="s1">'coordinates'</span><span class="p">,</span> <span class="s1">'grid_mapping'</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">dangling</span><span class="p">:</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 
            </div>

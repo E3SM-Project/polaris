@@ -560,15 +560,19 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build a converted tracer from ``data``, keeping the dimension order of</span>
-<span class="sd">    ``original`` where possible and updating its ``long_name`` and ``units``.</span>
+<span class="sd">    ``original`` where possible and giving it the ``attrs`` of the convention</span>
+<span class="sd">    it was converted to.</span>
+
+<span class="sd">    ``original``'s attributes are dropped rather than merged: they describe</span>
+<span class="sd">    the tracer before conversion, so anything beyond ``long_name`` and</span>
+<span class="sd">    ``units`` -- a ``standard_name`` of ``sea_water_conservative_temperature``,</span>
+<span class="sd">    say -- would be wrong on the way out.</span>
 <span class="sd">    """</span>
-    <span class="n">new_attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
-    <span class="n">new_attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
     <span class="n">data_array</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
         <span class="n">dims</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
         <span class="n">coords</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
-        <span class="n">attrs</span><span class="o">=</span><span class="n">new_attrs</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">attrs</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">data_array</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">dims</span><span class="p">):</span>
         <span class="n">data_array</span> <span class="o">=</span> <span class="n">data_array</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">original</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>

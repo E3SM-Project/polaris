@@ -173,10 +173,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">steps</span><span class="p">[</span><span class="n">component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">step</span><span class="p">]</span>
 
-    <span class="n">out_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span><span class="w"> </span><span class="s2">"_"</span><span class="p">)</span><span class="si">}</span><span class="s1">_cached_files.json'</span>
-
     <span class="c1"># now, iterate over cores and steps</span>
     <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+        <span class="c1"># named for the component being written, not for whichever one the</span>
+        <span class="c1"># loop above happened to leave bound</span>
+        <span class="n">out_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span><span class="w"> </span><span class="s2">"_"</span><span class="p">)</span><span class="si">}</span><span class="s1">_cached_files.json'</span>
         <span class="n">database_root</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'database_root'</span><span class="p">)</span>
         <span class="n">cache_root</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">database_root</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">/polaris_cache'</span>
 
@@ -223,7 +224,9 @@
                     <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">dest_filename</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
-            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cached_files</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cached_files</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+            <span class="c1"># json.dump writes no trailing newline</span>
+            <span class="n">data_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span></div>
 
 
 

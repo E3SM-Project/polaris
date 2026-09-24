@@ -114,6 +114,8 @@
 <span class="sd">Helpers for adding layer-thickness fields to an initial-state dataset.</span>
 <span class="sd">"""</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_attrs</span>
+
 
 <div class="viewcode-block" id="layer_thickness_from_geom_interfaces">
 <a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.init_state.layer_thickness_from_geom_interfaces.html#polaris.ocean.init_state.layer_thickness_from_geom_interfaces">[docs]</a>
@@ -146,12 +148,14 @@
 
     <span class="n">cell_mask</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s1">'cellMask'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
     <span class="n">layer_thick</span> <span class="o">=</span> <span class="n">layer_thick</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cell_mask</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">layer_thick</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'layer thickness'</span>
-    <span class="n">layer_thick</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+    <span class="n">set_attrs</span><span class="p">(</span><span class="n">layer_thick</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'layer thickness'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span><span class="p">)</span>
 
+    <span class="c1"># ``ds[name] = da`` copies the attributes, so the two fields can share an</span>
+    <span class="c1"># array and still describe themselves differently.</span>
     <span class="n">ds</span><span class="p">[</span><span class="s1">'restingThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_thick</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'resting layer thickness'</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+    <span class="n">set_attrs</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">restingThickness</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'resting layer thickness'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span>
+    <span class="p">)</span>
 
     <span class="n">ds</span><span class="p">[</span><span class="s1">'layerThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_thick</span>
     <span class="k">return</span> <span class="n">ds</span></div>

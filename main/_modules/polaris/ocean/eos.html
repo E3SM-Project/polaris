@@ -113,6 +113,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_attrs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_constant_ct_freezing</span><span class="p">,</span> <span class="n">compute_constant_density</span>
@@ -202,8 +203,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unsupported equation of state type: </span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
-        <span class="n">density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'kg m-3'</span>
-        <span class="n">density</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'density'</span>
+        <span class="n">set_attrs</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'in-situ density'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'kg m-3'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">density</span></div>
 
 
@@ -339,8 +339,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unsupported equation of state type: </span><span class="si">{</span><span class="n">eos_type</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specvol</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
-        <span class="n">specvol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m3 kg-1'</span>
-        <span class="n">specvol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'specific volume'</span>
+        <span class="n">set_attrs</span><span class="p">(</span><span class="n">specvol</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'specific volume'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'m3 kg-1'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">specvol</span></div>
 
 

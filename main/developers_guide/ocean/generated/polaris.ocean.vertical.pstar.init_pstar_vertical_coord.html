@@ -151,7 +151,8 @@ then scaled from <code class="docutils literal notranslate"><span class="pre">Re
 <code class="docutils literal notranslate"><span class="pre">(BottomPressure</span> <span class="pre">-</span> <span class="pre">SurfacePressure)</span> <span class="pre">/</span> <span class="pre">BottomPressure</span></code>, the p-star
 analogue of z-star’s <code class="docutils literal notranslate"><span class="pre">layerThickness</span> <span class="pre">=</span> <span class="pre">restingThickness</span> <span class="pre">*</span>
 <span class="pre">(ssh</span> <span class="pre">+</span> <span class="pre">bottomDepth)</span> <span class="pre">/</span> <span class="pre">bottomDepth</span></code>.</p>
-<p>The following new variables are added to <code class="docutils literal notranslate"><span class="pre">ds</span></code>:</p>
+<p>The following new variables are added to <code class="docutils literal notranslate"><span class="pre">ds</span></code>, each with its own
+<code class="docutils literal notranslate"><span class="pre">long_name</span></code> and (where meaningful) <code class="docutils literal notranslate"><span class="pre">units</span></code>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code> — index of the topmost valid layer (1-based; always
 1, since non-zero top levels are not supported)</p></li>
@@ -163,7 +164,9 @@ analogue of z-star’s <code class="docutils literal notranslate"><span class="p
 <li><p><code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code> — pseudo-height at layer midpoints</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">vertCoordMovementWeights</span></code> — weights for coordinate movement (all 1)</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> in <code class="docutils literal notranslate"><span class="pre">ds</span></code> is updated to the post-snap value.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> in <code class="docutils literal notranslate"><span class="pre">ds</span></code> is updated to the post-snap value.  Its
+attributes are those the caller gave it: this function does not presume to
+label a variable it did not create.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

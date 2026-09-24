@@ -122,6 +122,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_attrs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_specvol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_1d_grid</span><span class="p">,</span> <span class="n">generate_1d_grid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.pstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_pstar_vertical_coord</span>
@@ -208,23 +209,14 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">'BottomPressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">bottom_pressure</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seafloor pressure'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Pa'</span>
+        <span class="n">set_attrs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">BottomPressure</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'seafloor pressure'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'Pa'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">surface_pressure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">surface_pressure</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bottom_pressure</span><span class="p">)</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">'SurfacePressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">surface_pressure</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'sea surface pressure'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Pa'</span>
+        <span class="n">set_attrs</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">SurfacePressure</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'sea surface pressure'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'Pa'</span>
+        <span class="p">)</span>
         <span class="n">init_pstar_vertical_coord</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s1">'vertCoordMovementWeights'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s1">'vertCoordMovementWeights'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">],</span>
-                <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'vertical coordinate movement weights'</span><span class="p">,</span>
-                    <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
-                <span class="p">},</span>
-            <span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span>
 
 <div class="viewcode-block" id="PStarInitStep.run_pstar_init">
@@ -474,20 +466,24 @@
 
         <span class="c1"># Assemble the output dataset from the converged state</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">'temperature'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ct</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'conservative temperature'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'degC'</span>
+        <span class="n">set_attrs</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="s1">'conservative temperature'</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s1">'degC'</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">ds</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sa</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'absolute salinity'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'g kg-1'</span>
+        <span class="n">set_attrs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">salinity</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'absolute salinity'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'g kg-1'</span><span class="p">)</span>
 
         <span class="n">ds</span><span class="p">[</span><span class="s1">'SpecVol'</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'specific volume'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m3 kg-1'</span>
+        <span class="n">set_attrs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'specific volume'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'m3 kg-1'</span><span class="p">)</span>
 
         <span class="n">ds</span><span class="p">[</span><span class="s1">'pressure'</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_mid</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'pressure at layer midpoints'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Pa'</span>
+        <span class="n">set_attrs</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">pressure</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="s1">'pressure at layer midpoints'</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s1">'Pa'</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="c1"># Anchor the geometric column at the prescribed free surface: ``ssh``</span>
         <span class="c1"># is prescribed (``sea_surface_height``) and ``bottomDepth`` is the</span>
@@ -507,14 +503,18 @@
         <span class="n">geom_z_inter</span> <span class="o">=</span> <span class="n">geom_z_inter</span> <span class="o">+</span> <span class="n">shift</span>
 
         <span class="n">ds</span><span class="p">[</span><span class="s1">'GeomZMid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_mid</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'geometric height at layer midpoints'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+        <span class="n">set_attrs</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">GeomZMid</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="s1">'geometric height at layer midpoints'</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">ds</span><span class="p">[</span><span class="s1">'GeomZInterface'</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom_z_inter</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s1">'geometric height at layer interfaces'</span>
+        <span class="n">set_attrs</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="s1">'geometric height at layer interfaces'</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">GeomZInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
 
         <span class="c1"># Geometric depth of the seafloor below z=0, i.e. the negation of the</span>
         <span class="c1"># (shifted) bottom interface height.  With the surface-anchored column</span>
@@ -524,23 +524,15 @@
         <span class="c1"># BottomGeomDepth and anchors its column there, so that (together with</span>
         <span class="c1"># BottomPressure) it recovers the same prescribed ``ssh``.</span>
         <span class="n">ds</span><span class="p">[</span><span class="s1">'bottomDepth'</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">geom_z_max</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seafloor geometric depth'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+        <span class="n">set_attrs</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'seafloor geometric depth'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span>
+        <span class="p">)</span>
 
         <span class="n">ds</span><span class="p">[</span><span class="s1">'ssh'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sea_surface_height</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'sea surface geometric height'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+        <span class="n">set_attrs</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ssh</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'sea surface geometric height'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span><span class="p">)</span>
 
-        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'pseudo-height at layer midpoints'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeMid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
-
-        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s1">'pseudo-height at layer interfaces'</span>
-        <span class="p">)</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">ZTildeInterface</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
-
-        <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'pseudo-layer thickness'</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">PseudoThickness</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+        <span class="c1"># PseudoThickness, ZTildeMid and ZTildeInterface are labelled by</span>
+        <span class="c1"># init_pstar_vertical_coord(), which is what creates them.</span>
 
         <span class="c1"># Add the 1D reference vertical coordinate (refBottomDepth, refZMid,</span>
         <span class="c1"># refTopDepth, refInterfaces).  The p-star reference grid is the same</span>

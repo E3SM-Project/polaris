@@ -1,0 +1,252 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Variable attributes</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="MPAS" href="mpas.html" />
+    <link rel="prev" title="IO" href="io.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coriolis.html">Coriolis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Variable attributes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#xarray-propagates-attributes">xarray propagates attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#use-set-attrs">Use <code class="docutils literal notranslate"><span class="pre">set_attrs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build.html">Build utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel.html">Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="provenance.html">Provenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="remapping.html">Remapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">Variable attributes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/framework/attrs.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="variable-attributes">
+<span id="dev-attrs"></span><h1>Variable attributes<a class="headerlink" href="#variable-attributes" title="Link to this heading"></a></h1>
+<p>Fields Polaris writes to a NetCDF file should say what they are: a
+<code class="docutils literal notranslate"><span class="pre">long_name</span></code>, and <code class="docutils literal notranslate"><span class="pre">units</span></code> where the quantity has a meaningful unit.  Getting
+that right takes a little care, because a variable computed from another one
+does not start out with a blank slate.</p>
+<section id="xarray-propagates-attributes">
+<span id="dev-attrs-inheritance"></span><h2>xarray propagates attributes<a class="headerlink" href="#xarray-propagates-attributes" title="Link to this heading"></a></h2>
+<p>xarray keeps <code class="docutils literal notranslate"><span class="pre">attrs</span></code> through binary arithmetic, comparisons, <code class="docutils literal notranslate"><span class="pre">where()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">zeros_like()</span></code> and NumPy ufuncs such as <code class="docutils literal notranslate"><span class="pre">np.maximum</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bottom_pressure</span><span class="o">.</span><span class="n">attrs</span>
+<span class="go">{'long_name': 'seafloor pressure', 'units': 'Pa'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">bottom_pressure</span> <span class="o">/</span> <span class="p">(</span><span class="n">rho0</span> <span class="o">*</span> <span class="n">gravity</span><span class="p">))</span><span class="o">.</span><span class="n">attrs</span>
+<span class="go">{'long_name': 'seafloor pressure', 'units': 'Pa'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xr</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bottom_pressure</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span>
+<span class="go">{'long_name': 'seafloor pressure', 'units': 'Pa'}</span>
+</pre></div>
+</div>
+<p>A depth in meters and a one-based level index both come out of that claiming
+to be a pressure in Pascals.  Older versions of xarray dropped attributes in
+arithmetic, so code written against that behaviour changed meaning silently on
+upgrade.</p>
+<p>Setting individual keys is not enough to undo it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># leaves any other attribute the parent had, such as a stale</span>
+<span class="c1"># ``cell_measures`` or a non-standard ``unit``</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'long_name'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'seafloor geometric depth'</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">bottomDepth</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'units'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'m'</span>
+</pre></div>
+</div>
+<p>Nor is <code class="docutils literal notranslate"><span class="pre">xr.set_options(keep_attrs=False)</span></code>: it suppresses propagation through
+arithmetic and comparisons, but <code class="docutils literal notranslate"><span class="pre">zeros_like()</span></code> and <code class="docutils literal notranslate"><span class="pre">where()</span></code> keep attributes
+regardless.</p>
+</section>
+<section id="use-set-attrs">
+<span id="dev-attrs-set-attrs"></span><h2>Use <code class="docutils literal notranslate"><span class="pre">set_attrs()</span></code><a class="headerlink" href="#use-set-attrs" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../generated/polaris.attrs.set_attrs.html#polaris.attrs.set_attrs" title="polaris.attrs.set_attrs"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.attrs.set_attrs()</span></code></a> replaces a variable’s attributes
+wholesale, so a field carries exactly what it is given and nothing it
+inherited:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_attrs</span>
+
+<span class="c1"># in place, on a variable already in a dataset</span>
+<span class="n">ds</span><span class="p">[</span><span class="s1">'maxLevelCell'</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_level_cell</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">set_attrs</span><span class="p">(</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">maxLevelCell</span><span class="p">,</span>
+    <span class="n">long_name</span><span class="o">=</span><span class="s1">'Index to the last active ocean cell in each column.'</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># inline, on an expression</span>
+<span class="n">ds</span><span class="p">[</span><span class="s1">'bottomDepth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">set_attrs</span><span class="p">(</span>
+    <span class="o">-</span><span class="n">geom_z_bot</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s1">'seafloor geometric depth'</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Both patterns work: <code class="docutils literal notranslate"><span class="pre">set_attrs()</span></code> modifies the array in place and returns it.
+<code class="docutils literal notranslate"><span class="pre">ds[name]</span></code> shares the underlying <code class="docutils literal notranslate"><span class="pre">Variable</span></code>, so labelling <code class="docutils literal notranslate"><span class="pre">ds.maxLevelCell</span></code>
+reaches the dataset; and <code class="docutils literal notranslate"><span class="pre">ds[name]</span> <span class="pre">=</span> <span class="pre">da</span></code> copies the attributes, so two dataset
+variables built from one array can still describe themselves differently.</p>
+<p>Leave <code class="docutils literal notranslate"><span class="pre">units</span></code> out for quantities that have no meaningful unit — a one-based
+level index, a boolean mask — rather than inventing one.  Anything else, such
+as a <code class="docutils literal notranslate"><span class="pre">note</span></code> or a <code class="docutils literal notranslate"><span class="pre">standard_name</span></code>, can be passed as an extra keyword argument.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="io.html" class="btn btn-neutral float-left" title="IO" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mpas.html" class="btn btn-neutral float-right" title="MPAS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

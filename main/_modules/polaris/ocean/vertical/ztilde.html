@@ -133,6 +133,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_attrs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_specvol</span>
@@ -178,12 +179,11 @@
         <span class="p">(</span><span class="n">p_bot</span> <span class="o">-</span> <span class="n">p_top</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">),</span>
         <span class="n">dims</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">h</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'pseudo-thickness'</span><span class="p">,</span>
-            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
-            <span class="s1">'note'</span><span class="p">:</span> <span class="s1">'h_tilde = -dp / (RhoSw * g)'</span><span class="p">,</span>
-        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">set_attrs</span><span class="p">(</span>
+        <span class="n">h</span><span class="p">,</span>
+        <span class="n">long_name</span><span class="o">=</span><span class="s1">'pseudo-thickness'</span><span class="p">,</span>
+        <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span><span class="p">,</span>
+        <span class="n">note</span><span class="o">=</span><span class="s1">'h_tilde = -dp / (RhoSw * g)'</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -207,12 +207,11 @@
 <span class="sd">    """</span>
 
     <span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'pseudo-height'</span><span class="p">,</span>
-            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m'</span><span class="p">,</span>
-            <span class="s1">'note'</span><span class="p">:</span> <span class="s1">'z_tilde = -p / (RhoSw * g)'</span><span class="p">,</span>
-        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">set_attrs</span><span class="p">(</span>
+        <span class="n">z</span><span class="p">,</span>
+        <span class="n">long_name</span><span class="o">=</span><span class="s1">'pseudo-height'</span><span class="p">,</span>
+        <span class="n">units</span><span class="o">=</span><span class="s1">'m'</span><span class="p">,</span>
+        <span class="n">note</span><span class="o">=</span><span class="s1">'z_tilde = -p / (RhoSw * g)'</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -241,12 +240,11 @@
 <span class="sd">    """</span>
 
     <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">z_tilde</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">Gravity</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s1">'long_name'</span><span class="p">:</span> <span class="s1">'sea gauge pressure'</span><span class="p">,</span>
-            <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'Pa'</span><span class="p">,</span>
-            <span class="s1">'note'</span><span class="p">:</span> <span class="s1">'p = -RhoSw * g * z_tilde'</span><span class="p">,</span>
-        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">set_attrs</span><span class="p">(</span>
+        <span class="n">p</span><span class="p">,</span>
+        <span class="n">long_name</span><span class="o">=</span><span class="s1">'sea gauge pressure'</span><span class="p">,</span>
+        <span class="n">units</span><span class="o">=</span><span class="s1">'Pa'</span><span class="p">,</span>
+        <span class="n">note</span><span class="o">=</span><span class="s1">'p = -RhoSw * g * z_tilde'</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
