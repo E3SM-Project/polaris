@@ -124,6 +124,51 @@ windStressMeridional:
 atmosphericPressure:
   long_name: atmospheric pressure at the sea surface
   units: Pa
+evaporationFlux:
+  long_name: evaporation flux, positive into the ocean
+  units: kg m-2 s-1
+rainFlux:
+  long_name: rain flux, positive into the ocean
+  units: kg m-2 s-1
+snowFlux:
+  long_name: snow flux, positive into the ocean
+  units: kg m-2 s-1
+seaIceFreshWaterFlux:
+  long_name: fresh water flux from sea ice, positive into the ocean
+  units: kg m-2 s-1
+seaIceSalinityFlux:
+  long_name: salt flux from sea ice, positive into the ocean
+  units: kg m-2 s-1
+iceRunoffFlux:
+  long_name: ice runoff flux, positive into the ocean
+  units: kg m-2 s-1
+riverRunoffFlux:
+  long_name: river runoff flux, positive into the ocean
+  units: kg m-2 s-1
+icebergFlux:
+  long_name: fresh water flux from icebergs, positive into the ocean
+  units: kg m-2 s-1
+subglacialRunoffFlux:
+  long_name: subglacial runoff flux, positive into the ocean
+  units: kg m-2 s-1
+latentHeatFlux:
+  long_name: latent heat flux, positive into the ocean
+  units: W m-2
+sensibleHeatFlux:
+  long_name: sensible heat flux, positive into the ocean
+  units: W m-2
+longWaveHeatFluxUp:
+  long_name: upward longwave heat flux, positive into the ocean
+  units: W m-2
+longWaveHeatFluxDown:
+  long_name: downward longwave heat flux, positive into the ocean
+  units: W m-2
+shortWaveHeatFlux:
+  long_name: shortwave heat flux, positive into the ocean
+  units: W m-2
+seaIceHeatFlux:
+  long_name: heat flux from sea ice, positive into the ocean
+  units: W m-2
 tidalInputMask:
   long_name: mask of cells where tidal forcing is applied
   units: '1'
