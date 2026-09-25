@@ -32,13 +32,21 @@ class CombineStep(Step):
             ntasks=1,
             min_tasks=1,
         )
-        self.add_output_file(filename='woa_combined.nc')
+
+    @property
+    def output_filename(self):
+        """
+        The name of the combined WOA23 file for the configured month.
+        """
+        month_name = get_month_abbreviation(get_woa23_month(self.config))
+        return f'woa_combined_{month_name}.nc'
 
     def setup(self):
         """
-        Set up input files for the step.
+        Set up input and output files for the step.
         """
         super().setup()
+        self.add_output_file(filename=self.output_filename)
 
         base_url = (
             'https://www.ncei.noaa.gov/thredds-ocean/fileServer/woa23/DATA'
@@ -107,8 +115,8 @@ class CombineStep(Step):
                     ds_out[var_name].attrs = ds_ann[var_name].attrs
 
         ds_out = self._to_canonical_teos10(ds_out)
-        write_netcdf(ds_out, 'woa_combined.nc')
-        logger.info('Wrote woa_combined.nc')
+        write_netcdf(ds_out, self.output_filename)
+        logger.info(f'Wrote {self.output_filename}')
 
     @staticmethod
     def _to_canonical_teos10(ds):
