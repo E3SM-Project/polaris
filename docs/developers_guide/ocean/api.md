@@ -852,6 +852,7 @@
    vertical.diagnostics.pseudothickness_from_ds
    vertical.diagnostics.spec_vol_from_ds
    vertical.diagnostics.vert_velocity_top_from_ds
+   vertical.diagnostics.vert_pseudo_velocity_from_ds
    vertical.diagnostics.get_z_mid_and_interface
    vertical.diagnostics.depth_from_thickness
    vertical.diagnostics.vertical_coord_from_location
