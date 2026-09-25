@@ -1,0 +1,51 @@
+# Input streams for a separately staged surface forcing file.  Added only when
+# the InitialCondition stages one, because MPAS-Ocean aborts when an input
+# stream names a file that is not there.  An initial condition that carries the
+# wind stress in the initial-state file instead needs no stream of its own, but
+# is still wind-forced by forcing.yaml.
+#
+# The file is written by the init workflow's ForcingStep and holds only the
+# zonal and meridional wind stress at cell centres; both models project onto
+# edges themselves, so no vector rotation happens anywhere in Polaris.
+# {{ forcing_filename }} is the [ocean_staged_files] forcing_filename option.
+
+mpas-ocean:
+    streams:
+        # a stream of our own rather than the Registry's forcing_data, which
+        # also declares sea-ice and atmospheric pressure and the tracer
+        # restoring fields; reading that stream would require every one of
+        # those variables to be present in the file.  This matches what
+        # barotropic_gyre does.
+        forcing:
+            type: input
+            filename_template: {{ forcing_filename }}
+            input_interval: initial_only
+            contents:
+            - windStressZonal
+            - windStressMeridional
+
+Omega:
+    IOStreams:
+        # Omega's own Default.yml gives this stream FreqUnits: Never, which
+        # does not mean "read it on demand" -- IOStream::create returns early
+        # for 'never' and the stream is never registered at all, with only a
+        # warning.  Forcing::readStreamIntoArrays then fails to read it and
+        # falls back to *zero forcing*, logging at info level and running on.
+        # A run configured that way looks fine and is unforced, which is
+        # exactly the silent failure this task is built to avoid.
+        #
+        # OnStartup registers the stream and reads it before the first step,
+        # which is when Forcing wants it: Forcing::init() calls
+        # readStreamIntoArrays() once and never re-reads.
+        Forcing:
+            UsePointerFile: false
+            Filename: {{ forcing_filename }}
+            Mode: read
+            Precision: double
+            Freq: 1
+            FreqUnits: OnStartup
+            UseStartEnd: false
+            # the field group Omega puts SfcStressZonal and SfcStressMeridional
+            # in (SfcStressForcingVars::registerFields)
+            Contents:
+            - Forcing

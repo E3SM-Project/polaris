@@ -73,8 +73,8 @@ Omega format outside a Polaris task, see
 
 #### Canonical staged files
 
-The three files that flow through the ocean pipeline — horizontal mesh,
-vertical coordinate, and initial state — have canonical local filenames
+The files that flow through the ocean pipeline — horizontal mesh, vertical
+coordinate, initial state, and surface forcing — have canonical local filenames
 defined in the `[ocean_staged_files]` config section (in
 `polaris/ocean/ocean.cfg`):
 
@@ -83,6 +83,7 @@ defined in the `[ocean_staged_files]` config section (in
 horiz_mesh_filename = mesh.nc
 vert_coord_filename = vert_coord.nc
 init_filename = init.nc
+forcing_filename = forcing.nc
 ```
 
 These filenames are shared by all pipeline stages: init steps write them as
@@ -94,16 +95,27 @@ Both {py:class}`polaris.ocean.model.OceanIOStep` and
 {py:class}`polaris.ocean.model.OceanModelFilesMixin`:
 
 - **Getters** — `get_horiz_mesh_filename()`, `get_vert_coord_filename()`,
-  `get_init_filename()` — read the current values from config.
+  `get_init_filename()`, `get_forcing_filename()` — read the current values
+  from config.
 - **Input-file registration** — `add_horiz_mesh_input_file(**kwargs)`,
   `add_vert_coord_input_file(filename=None, **kwargs)`,
-  `add_init_input_file(**kwargs)` — all safe to call from `__init__()`.
+  `add_init_input_file(**kwargs)`, `add_forcing_input_file(**kwargs)` — all
+  safe to call from `__init__()`.
   The model check is deferred to `process_inputs_and_outputs()`, so no
   `if model == 'omega':` guards are needed in `__init__()`.
   `add_vert_coord_input_file()` is a no-op for MPAS-Ocean when the default
   placeholder is used.  When an explicit `filename=` is given (for
   per-resolution files such as `'vert_coord_r04.nc'`), it must be called
   from `setup()` or later because `self.config` is required.
+
+Unlike the other three, the forcing file is optional: only steps that actually
+have one register it, and unforced runs simply never call
+`add_forcing_input_file()`.  Note also that the forcing file is not the same
+shape for both models — `write_forcing_dataset()` gives it a `Time` dimension
+for MPAS-Ocean and none for Omega, because MPAS-Ocean's Registry declares
+`dimensions="nCells Time"` while Omega's `SfcStressForcingVars` registers 1-D
+fields on `NCells`.  A step that reads the file back has to expect that
+asymmetry.
 
 A typical viz or analysis step that reads vert-coord variables:
 
@@ -1010,8 +1022,8 @@ global statistics output and name it after the two, so
 `polaris.ocean.global_stats_names` builds the names rather than listing them.
 It is a leaf module for the same reason `sim_files` is, and it lives under
 `polaris.ocean` rather than under the analysis package because the
-`realistic_global` `analysis_members` task reads the same kind of output from
-a forward step in its own task.
+`global_stats` step of the `realistic_global` forward tasks reads the same
+kind of output from a forward step in its own task.
 
 Three things about it are worth knowing:
 

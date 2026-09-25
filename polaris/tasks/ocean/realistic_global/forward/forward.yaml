@@ -1,0 +1,223 @@
+# Model config for a realistic global ocean forward run.  Input streams (mesh,
+# vertical coordinate, initial state) are added by the shared model_inputs.yaml;
+# this template only sets time management, the time step, and the output and
+# restart streams.  Values in double braces are filled in from a ForwardStage.
+
+# Neutral options that are auto-translated to Omega via mpaso_to_omega.yaml.
+ocean:
+    time_management:
+        config_run_duration: {{ run_duration }}
+        config_stop_time: none
+    time_integration:
+        config_dt: {{ dt }}
+        config_time_integrator: {{ time_integrator }}
+    # Horizontal mixing must be turned on explicitly, since the MPAS-Ocean
+    # Registry defaults leave it off, which lets grid-scale noise grow until
+    # the run NaNs.  It is resolution-dependent, so it comes from the
+    # [realistic_global_forward] config options rather than from this
+    # template; see ForwardStage.horiz_mixing_options.
+    advection:
+        # MPAS-Ocean defaults to 3 and Omega to 2, so the order has to be
+        # stated to keep the two models from silently disagreeing
+        config_horiz_tracer_adv_order: 3
+    bottom_drag:
+        # the MPAS-Ocean defaults, stated explicitly because Omega's own
+        # defaults differ and these values are what reach it
+        config_bottom_drag_mode: implicit
+        config_implicit_bottom_drag_type: constant
+        config_implicit_constant_bottom_drag_coeff: 1.0e-3
+    cvmix:
+        config_use_cvmix_convection: true
+        # shear mixing is off by default in MPAS-Ocean and on by default in
+        # Omega, so set it, and its parameters, explicitly for both.  The
+        # values are both models' current defaults; stating them is what keeps
+        # them from diverging again.
+        config_use_cvmix_shear: true
+        config_cvmix_shear_KPP_nu_zero: 0.005
+        config_cvmix_shear_KPP_Ri_zero: 0.7
+        config_cvmix_shear_KPP_exp: 3.0
+        config_cvmix_num_ri_smooth_loops: 2
+
+mpas-ocean:
+    time_management:
+        config_do_restart: {{ do_restart }}
+        config_start_time: '{{ start_time }}'
+    time_integration:
+        config_btr_dt: {{ btr_dt }}
+    eos:
+        config_eos_type: jm
+    cvmix:
+        # Omega implements only the LMD94 shear form, which CVMix calls KPP, so
+        # there is no counterpart option to translate; MPAS-Ocean defaults to
+        # 'PP'.  This is the shear scheme, not the boundary layer, which is
+        # config_use_cvmix_kpp and comes from config.
+        config_cvmix_shear_mixing_scheme: KPP
+    # The boundary layer, the submesoscale parameterization and the pressure
+    # gradient are config options rather than fixed values here, because the
+    # two purposes this step serves want different answers: an E3SM-like run on
+    # a unified mesh wants all of them, and a run whose point is to compare
+    # MPAS-Ocean with Omega wants only what Omega also has.  See
+    # ForwardStage.mpaso_physics_options.
+    Redi_isopycnal_mixing:
+        # the Registry default of 6 skips the Redi diagnostic terms in the top
+        # 6 layers; Compass computes them everywhere, and matching it keeps the
+        # two frameworks comparable.  Only has an effect where use_Redi is on.
+        config_Redi_min_layers_diag_terms: 0
+    # Global statistics are the cheapest way to see a run going wrong before
+    # it NaNs, which matters most for the long spin-ups this task feeds into.
+    # Omega's equivalent is the GlobalStats analysis group below.
+    AM_globalStats:
+        config_AM_globalStats_enable: true
+        # 'output_interval' means the associated stream's interval, which is
+        # stats_interval rather than the 3-D output_interval
+        config_AM_globalStats_compute_interval: output_interval
+        # compute and write at t = 0 too, so the time series has a starting
+        # point to take anomalies against
+        config_AM_globalStats_compute_on_startup: true
+        config_AM_globalStats_write_on_startup: true
+        config_AM_globalStats_text_file: false
+    # Mixed-layer depth is the standard first look at whether the surface
+    # boundary layer is behaving, and it is what Compass writes from these
+    # runs.  Only the temperature-threshold MLD is computed, which is the
+    # Registry default; Omega has no equivalent analysis member.
+    AM_mixedLayerDepths:
+        config_AM_mixedLayerDepths_enable: true
+        config_AM_mixedLayerDepths_compute_interval: output_interval
+        config_AM_mixedLayerDepths_compute_on_startup: true
+        config_AM_mixedLayerDepths_write_on_startup: true
+    streams:
+        restart:
+            output_interval: {{ restart_interval }}
+        output:
+            type: output
+            filename_template: output.nc
+            output_interval: {{ output_interval }}
+            clobber_mode: truncate
+            contents:
+            - tracers
+            - xtime
+            - normalVelocity
+            - layerThickness
+            - kineticEnergyCell
+            - relativeVorticityCell
+            # counterparts to what the Omega History stream below writes, so
+            # that the two models can be compared on the same fields.  ssh is
+            # mapped to Omega's SshCell in mpaso_to_omega.yaml, so
+            # open_model_dataset gives both models the same name; density has
+            # no Omega counterpart in the map, since Omega carries the
+            # specific volume instead.
+            #
+            # density is behind a switch because it is 3-D and is most of what
+            # this stream costs; ssh is 2-D and always written.
+            - ssh
+            {%- if output_density %}
+            - density
+            {%- endif %}
+        # a stream of its own, so the scalar time series stays out of the 3-D
+        # output and has an obvious counterpart on the Omega side.
+        # filename_template overrides the registry default of yearly files
+        # named analysis_members/globalStats.$Y-$M-$D_$h.$m.$s.nc; with no time
+        # fields in the template the run writes a single global_stats.nc.
+        globalStatsOutput:
+            type: output
+            filename_template: global_stats.nc
+            output_interval: {{ stats_interval }}
+            clobber_mode: truncate
+            packages: globalStatsAMPKG
+            contents:
+            - xtime
+            - daysSinceStartOfSim
+            - CFLNumberGlobal
+            # the global ocean volume, which is what turns the volume-weighted
+            # sums below into interpretable means
+            - volumeCellGlobal
+            - minGlobalStats
+            - maxGlobalStats
+            - avgGlobalStats
+            - rmsGlobalStats
+            # volume-weighted sums, for domain-integrated quantities such as
+            # kineticEnergyCellSum.  Omega's GlobalStats has no equivalent, so
+            # these are one of the places the two models' statistics differ.
+            - sumGlobalStats
+        # as for globalStatsOutput, filename_template overrides the registry
+        # default of daily files under analysis_members/ so that the run writes
+        # a single mixed_layer_depths.nc
+        mixedLayerDepthsOutput:
+            type: output
+            filename_template: mixed_layer_depths.nc
+            output_interval: {{ output_interval }}
+            clobber_mode: truncate
+            packages: mixedLayerDepthsAMPKG
+            contents:
+            - xtime
+            - tThreshMLD
+
+Omega:
+    # the counterpart of MPAS-Ocean's AM_globalStats above, on the same
+    # cadence: stats_period is stats_interval written the way Omega spells a
+    # period.
+    #
+    # Instantaneous snapshots rather than temporal reductions, which is what
+    # the variable names in mpaso_to_omega.yaml assume.  Omega names a
+    # reduction chain "<stem>_TimeMean<period>" and a snapshot chain plain
+    # "<stem>" (AnalysisGroup::buildTemporalChains), and the mapping is to the
+    # plain names.  Reductions would also make Omega abort unless the
+    # RestartWrite interval were a whole multiple of the period; snapshots
+    # carry no such constraint.  ReductionPeriod is emptied so that only the
+    # snapshots are written.
+    #
+    # Filename is a prefix, not a file name: Omega writes
+    # <Filename>_<period>Instants (no .nc), so with a one-day period this
+    # gives global_stats_1DayInstants.
+    Analysis:
+        GlobalStats:
+            Enable: true
+            ReductionPeriod: []
+            SnapshotPeriod: ["{{ stats_period }}"]
+            Filename: global_stats
+    IOStreams:
+        RestartWrite:
+            UsePointerFile: true
+            PointerFilename: ocn.pointer
+            Filename: ocn.restart.$Y-$M-$D_$h.$m.$s
+            Mode: write
+            IfExists: replace
+            Precision: double
+            Freq: {{ restart_freq }}
+            FreqUnits: seconds
+            UseStartEnd: false
+            Contents:
+            - Restart
+        History:
+            UsePointerFile: false
+            Filename: output.nc
+            FileFreq: 9999
+            FileFreqUnits: Years
+            Mode: write
+            IfExists: append
+            Precision: double
+            Freq: {{ output_freq }}
+            FreqUnits: seconds
+            UseStartEnd: false
+            # State brings NormalVelocity, PseudoThickness and
+            # SurfacePressure; Tracers brings Temperature and Salinity.  The
+            # three groups after them are what makes a run diagnosable rather
+            # than merely inspectable, and are worth their file size here:
+            #   AuxiliaryState  the vorticity, divergence and del2 terms that
+            #                   show *where* a run is going wrong, plus
+            #                   KineticEnergyCell
+            #   SshCell         the free surface, the first thing to look at
+            #                   for a barotropic problem
+            #   Eos             SpecVol, SpecVolDisplaced and
+            #                   BruntVaisalaFreqSq, needed to tell a
+            #                   stratification problem from a dynamics one
+            # KineticEnergyCell is named as well, redundantly, because it is
+            # the field most often wanted and should not quietly disappear if
+            # AuxiliaryState is ever regrouped.
+            Contents:
+            - State
+            - Tracers
+            - AuxiliaryState
+            - SshCell
+            - Eos
+            - KineticEnergyCell
