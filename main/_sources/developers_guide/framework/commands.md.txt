@@ -116,6 +116,18 @@ and finally indicates if the overall task execution was `SUCCESS` or `ERROR`.
 Execution times are provided for individual steps, tasks and the suite as a
 whole.
 
+`run_tasks()` also writes a machine-readable results file,
+`<suite_name>_results.json` (or `task_results.json` for a single task), next
+to the pickle file. Each task's outcome is held in a
+{py:class}`polaris.run.results.TaskResult` and the file is written by
+{py:func}`polaris.run.results.write_suite_results()`. The file is written
+before the first task runs and again after each task, so it is there even if
+the job is killed. Downstream tools should read this file rather than parsing
+the log files. Its format is described in {ref}`suites-results` and in the
+[design document](../../design_docs/suite_results_file.md). If you remove a
+field or change its meaning, increment `SCHEMA_VERSION` in
+`polaris.run.results`.
+
 {py:func}`polaris.run.serial.run_single_step()` runs only the selected step
 from a given task, skipping any others, displaying the output in the terminal
 window rather than a log file.

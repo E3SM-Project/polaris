@@ -49,7 +49,10 @@
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start for Users</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tasks.html">Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="config_files.html">Config Files</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Suites</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Suites</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#results">Results</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="e3sm/init/index.html">E3SM Initial Condition Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
@@ -158,6 +161,32 @@ run with cached meshes and initial conditions.</p>
 </div>
 <p>Including the <code class="docutils literal notranslate"><span class="pre">-v</span></code> verbose argument to <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span> <span class="pre">--suites</span></code> will
 print the tasks belonging to each given suite.</p>
+<section id="results">
+<span id="suites-results"></span><h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
+<p>When you run a suite with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>, a line for each task is written to
+the terminal and output from each task goes to a log file in <code class="docutils literal notranslate"><span class="pre">case_outputs</span></code>.
+Polaris also writes <code class="docutils literal notranslate"><span class="pre">&lt;suite_name&gt;_results.json</span></code> in the base work directory,
+for scripts and dashboards to read. Running a single task from its work
+directory writes <code class="docutils literal notranslate"><span class="pre">task_results.json</span></code> there instead.</p>
+<p>The file lists every task in the order they run, with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">status</span></code>: <code class="docutils literal notranslate"><span class="pre">pass</span></code>, <code class="docutils literal notranslate"><span class="pre">fail</span></code>, or <code class="docutils literal notranslate"><span class="pre">pending</span></code> if the task has not finished</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">execution</span></code>: whether the steps ran without error (<code class="docutils literal notranslate"><span class="pre">pass</span></code> or <code class="docutils literal notranslate"><span class="pre">fail</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">baseline</span></code>: <code class="docutils literal notranslate"><span class="pre">pass</span></code> or <code class="docutils literal notranslate"><span class="pre">fail</span></code>, or <code class="docutils literal notranslate"><span class="pre">null</span></code> if there was no baseline comparison</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">elapsed_seconds</span></code>: the task’s wall-clock time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code>: the steps the task ran</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code>: the task’s log file, relative to the base work directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">baseline_diffs</span></code>: the largest l1, l2 and l_infinity norms of the difference
+from the baseline for each variable that was compared</p></li>
+</ul>
+<p>It also has a <code class="docutils literal notranslate"><span class="pre">summary</span></code> with the number of tasks that passed, failed or are
+pending, the total <code class="docutils literal notranslate"><span class="pre">elapsed_seconds</span></code>, and <code class="docutils literal notranslate"><span class="pre">provenance</span></code> such as the Polaris
+version, machine, compiler and build directory.</p>
+<p>The file is rewritten after each task. <code class="docutils literal notranslate"><span class="pre">complete</span></code> is <code class="docutils literal notranslate"><span class="pre">false</span></code> until the suite
+has finished, so if a job runs out of time, tasks that did not finish are
+still listed as <code class="docutils literal notranslate"><span class="pre">pending</span></code>. <code class="docutils literal notranslate"><span class="pre">schema_version</span></code> changes if a field is removed or
+its meaning changes.</p>
+</section>
 </section>
 
 
