@@ -118,8 +118,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mpas_tools.io</span>
@@ -135,9 +134,7 @@
     <span class="n">setup_config</span><span class="p">,</span>
     <span class="n">unpickle_suite</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.results</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskResult</span><span class="p">,</span> <span class="n">write_suite_results</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_diff_summary</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
 
 <span class="c1"># ANSI fail text: https://stackoverflow.com/a/287944/7728169</span>
 <span class="n">start_fail</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\033</span><span class="s1">[91m'</span>
@@ -203,44 +200,37 @@
             <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
+        <span class="n">failures</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
         <span class="n">suite_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">work_dir</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'work_dir'</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
-        <span class="n">write_results</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
-            <span class="n">write_suite_results</span><span class="p">,</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">_results.json'</span><span class="p">),</span>
-            <span class="n">suite_name</span><span class="p">,</span>
-            <span class="n">_read_results_provenance</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">),</span>
-            <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(),</span>
-        <span class="p">)</span>
-
-        <span class="n">task_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskResult</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">task_name</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">is_task</span><span class="p">:</span>
-                <span class="n">log</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">task_prefix</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
-                <span class="n">log</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'case_outputs/</span><span class="si">{</span><span class="n">task_prefix</span><span class="si">}</span><span class="s1">.log'</span>
-            <span class="n">task_results</span><span class="p">[</span><span class="n">task_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">TaskResult</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">)</span>
-
-        <span class="n">write_results</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">task_results</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">complete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
+        <span class="n">task_times</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">result_strs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">total_tasks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">])</span>
+        <span class="n">exec_fail_tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">diff_fail_tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">diff_summaries</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">task_name</span> <span class="ow">in</span> <span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">]:</span>
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
             <span class="n">task</span> <span class="o">=</span> <span class="n">suite</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">][</span><span class="n">task_name</span><span class="p">]</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">task_results</span><span class="p">[</span><span class="n">task_name</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">is_task</span><span class="p">:</span>
                 <span class="n">log_filename</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">task_logger</span> <span class="o">=</span> <span class="n">stdout_logger</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">log_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">log</span><span class="si">}</span><span class="s1">'</span>
+                <span class="n">task_prefix</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
+                <span class="n">log_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1">/case_outputs/</span><span class="si">{</span><span class="n">task_prefix</span><span class="si">}</span><span class="s1">.log'</span>
                 <span class="n">task_logger</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="n">_log_and_run_task</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">result_str</span><span class="p">,</span>
+                <span class="n">success</span><span class="p">,</span>
+                <span class="n">task_time</span><span class="p">,</span>
+                <span class="n">exec_failed</span><span class="p">,</span>
+                <span class="n">diff_failed</span><span class="p">,</span>
+                <span class="n">diff_summary</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">_log_and_run_task</span><span class="p">(</span>
                 <span class="n">task</span><span class="p">,</span>
-                <span class="n">result</span><span class="p">,</span>
                 <span class="n">stdout_logger</span><span class="p">,</span>
                 <span class="n">task_logger</span><span class="p">,</span>
                 <span class="n">quiet</span><span class="p">,</span>
@@ -250,11 +240,16 @@
                 <span class="n">steps_to_skip</span><span class="p">,</span>
                 <span class="n">available_resources</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">write_results</span><span class="p">(</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">suite_start</span><span class="p">,</span>
-                <span class="n">task_results</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
-                <span class="n">complete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="n">result_strs</span><span class="p">[</span><span class="n">task_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result_str</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+                <span class="n">failures</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">exec_failed</span><span class="p">:</span>
+                <span class="n">exec_fail_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">diff_failed</span><span class="p">:</span>
+                <span class="n">diff_fail_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">diff_summary</span><span class="p">:</span>
+                <span class="n">diff_summaries</span><span class="p">[</span><span class="n">task_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff_summary</span>
+            <span class="n">task_times</span><span class="p">[</span><span class="n">task_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">task_time</span>
 
         <span class="n">suite_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">suite_start</span>
 
@@ -265,28 +260,16 @@
             <span class="n">suite_name</span><span class="p">,</span>
             <span class="n">suite</span><span class="p">,</span>
             <span class="n">results</span><span class="o">=</span><span class="p">{</span>
-                <span class="s1">'total'</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">task_results</span><span class="p">),</span>
-                <span class="s1">'failures'</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="n">name</span>
-                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">task_results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">execution_passed</span> <span class="ow">is</span> <span class="kc">False</span>
-                <span class="p">],</span>
-                <span class="s1">'diffs'</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="n">name</span>
-                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">task_results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">baseline_passed</span> <span class="ow">is</span> <span class="kc">False</span>
-                <span class="p">],</span>
-                <span class="s1">'diff_details'</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="n">name</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">baseline_diffs</span>
-                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">task_results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">baseline_diffs</span>
-                <span class="p">},</span>
+                <span class="s1">'total'</span><span class="p">:</span> <span class="n">total_tasks</span><span class="p">,</span>
+                <span class="s1">'failures'</span><span class="p">:</span> <span class="n">exec_fail_tasks</span><span class="p">,</span>
+                <span class="s1">'diffs'</span><span class="p">:</span> <span class="n">diff_fail_tasks</span><span class="p">,</span>
+                <span class="s1">'diff_details'</span><span class="p">:</span> <span class="n">diff_summaries</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
-        <span class="n">write_results</span><span class="p">(</span><span class="n">suite_time</span><span class="p">,</span> <span class="n">task_results</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">complete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="n">_log_task_runtimes</span><span class="p">(</span><span class="n">stdout_logger</span><span class="p">,</span> <span class="n">task_results</span><span class="p">,</span> <span class="n">suite_time</span><span class="p">)</span></div>
+        <span class="n">_log_task_runtimes</span><span class="p">(</span>
+            <span class="n">stdout_logger</span><span class="p">,</span> <span class="n">task_times</span><span class="p">,</span> <span class="n">result_strs</span><span class="p">,</span> <span class="n">suite_time</span><span class="p">,</span> <span class="n">failures</span>
+        <span class="p">)</span></div>
 
 
 
@@ -447,18 +430,18 @@
     <span class="k">return</span> <span class="n">steps_to_run</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_log_task_runtimes</span><span class="p">(</span><span class="n">stdout_logger</span><span class="p">,</span> <span class="n">task_results</span><span class="p">,</span> <span class="n">suite_time</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_task_runtimes</span><span class="p">(</span>
+    <span class="n">stdout_logger</span><span class="p">,</span> <span class="n">task_times</span><span class="p">,</span> <span class="n">result_strs</span><span class="p">,</span> <span class="n">suite_time</span><span class="p">,</span> <span class="n">failures</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Log the runtimes for the task(s)</span>
 <span class="sd">    """</span>
     <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Task Runtimes:'</span><span class="p">)</span>
-    <span class="n">failures</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">task_name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">task_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">task_time_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">elapsed_seconds</span><span class="p">)))</span>
-        <span class="n">result_str</span> <span class="o">=</span> <span class="n">pass_str</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span> <span class="k">else</span> <span class="n">fail_str</span>
-        <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task_time_str</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">result_str</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">task_name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
-            <span class="n">failures</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">task_name</span><span class="p">,</span> <span class="n">task_time</span> <span class="ow">in</span> <span class="n">task_times</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">task_time_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">task_time</span><span class="p">)))</span>
+        <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">task_time_str</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">result_strs</span><span class="p">[</span><span class="n">task_name</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">task_name</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
     <span class="n">suite_time_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">suite_time</span><span class="p">)))</span>
     <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Total runtime: </span><span class="si">{</span><span class="n">suite_time_str</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
@@ -486,7 +469,6 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_log_and_run_task</span><span class="p">(</span>
     <span class="n">task</span><span class="p">,</span>
-    <span class="n">result</span><span class="p">,</span>
     <span class="n">stdout_logger</span><span class="p">,</span>
     <span class="n">task_logger</span><span class="p">,</span>
     <span class="n">quiet</span><span class="p">,</span>
@@ -496,9 +478,6 @@
     <span class="n">steps_to_skip</span><span class="p">,</span>
     <span class="n">available_resources</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Run a task, logging its progress, and fill in its result</span>
-<span class="sd">    """</span>
     <span class="n">task_name</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">LoggingContext</span><span class="p">(</span>
         <span class="n">task_name</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">task_logger</span><span class="p">,</span> <span class="n">log_filename</span><span class="o">=</span><span class="n">log_filename</span>
@@ -529,7 +508,6 @@
         <span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span> <span class="o">=</span> <span class="n">_update_steps_to_run</span><span class="p">(</span>
             <span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">steps_to_run</span><span class="p">,</span> <span class="n">steps_to_skip</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span>
         <span class="p">)</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">steps_to_run</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">steps_to_run</span><span class="p">)</span>
 
         <span class="n">task_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
@@ -557,8 +535,18 @@
         <span class="n">task_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'POLARIS TASK: </span><span class="si">{</span><span class="s2">"PASS"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">task_pass</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">"FAIL"</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">task_pass</span><span class="p">:</span>
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">baselines_passed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">baseline_str</span> <span class="o">=</span> <span class="n">pass_str</span> <span class="k">if</span> <span class="n">baselines_passed</span> <span class="k">else</span> <span class="n">fail_str</span>
+            <span class="k">if</span> <span class="n">baselines_passed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result_str</span> <span class="o">=</span> <span class="n">pass_str</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">baselines_passed</span><span class="p">:</span>
+                    <span class="n">baseline_str</span> <span class="o">=</span> <span class="n">pass_str</span>
+                    <span class="n">result_str</span> <span class="o">=</span> <span class="n">pass_str</span>
+                    <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">baseline_str</span> <span class="o">=</span> <span class="n">fail_str</span>
+                    <span class="n">result_str</span> <span class="o">=</span> <span class="n">fail_str</span>
+                    <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'  baseline comp.:   </span><span class="si">{</span><span class="n">baseline_str</span><span class="si">}</span><span class="s1">'</span>
                 <span class="n">stdout_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
                 <span class="n">task_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -570,6 +558,8 @@
             <span class="n">stdout_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">is_task</span><span class="p">:</span>
                 <span class="n">stdout_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  see: case_outputs/</span><span class="si">{</span><span class="n">task_name</span><span class="si">}</span><span class="s1">.log'</span><span class="p">)</span>
+            <span class="n">result_str</span> <span class="o">=</span> <span class="n">fail_str</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">task_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">task_start</span>
 
@@ -578,10 +568,16 @@
             <span class="sa">f</span><span class="s1">'  task runtime:     </span><span class="si">{</span><span class="n">start_time_color</span><span class="si">}{</span><span class="n">task_time_str</span><span class="si">}{</span><span class="n">end_color</span><span class="si">}</span><span class="s1">'</span>
         <span class="p">)</span>
 
-    <span class="n">result</span><span class="o">.</span><span class="n">execution_passed</span> <span class="o">=</span> <span class="n">task_pass</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">baseline_passed</span> <span class="o">=</span> <span class="n">baselines_passed</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">elapsed_seconds</span> <span class="o">=</span> <span class="n">task_time</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">baseline_diffs</span> <span class="o">=</span> <span class="n">diff_summary</span>
+    <span class="n">exec_failed</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">task_pass</span>
+    <span class="n">diff_failed</span> <span class="o">=</span> <span class="n">baselines_passed</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">result_str</span><span class="p">,</span>
+        <span class="n">success</span><span class="p">,</span>
+        <span class="n">task_time</span><span class="p">,</span>
+        <span class="n">exec_failed</span><span class="p">,</span>
+        <span class="n">diff_failed</span><span class="p">,</span>
+        <span class="n">diff_summary</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_read_baseline_status_from_logs</span><span class="p">(</span><span class="n">step_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
@@ -1141,35 +1137,6 @@
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
         <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">'Done.'</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_read_results_provenance</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Read the metadata for the results file from the provenance file in the</span>
-<span class="sd">    base work directory, with ``None`` for anything it does not record</span>
-<span class="sd">    """</span>
-    <span class="c1"># keys in provenance are written exactly like these labels</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">'polaris git version'</span><span class="p">:</span> <span class="s1">'polaris_git_version'</span><span class="p">,</span>
-        <span class="s1">'component git version'</span><span class="p">:</span> <span class="s1">'component_git_version'</span><span class="p">,</span>
-        <span class="s1">'machine'</span><span class="p">:</span> <span class="s1">'machine'</span><span class="p">,</span>
-        <span class="s1">'partition'</span><span class="p">:</span> <span class="s1">'partition'</span><span class="p">,</span>
-        <span class="s1">'compiler'</span><span class="p">:</span> <span class="s1">'compiler'</span><span class="p">,</span>
-        <span class="s1">'build directory'</span><span class="p">:</span> <span class="s1">'build_directory'</span><span class="p">,</span>
-        <span class="s1">'build type'</span><span class="p">:</span> <span class="s1">'build_type'</span><span class="p">,</span>
-        <span class="s1">'work directory'</span><span class="p">:</span> <span class="s1">'work_directory'</span><span class="p">,</span>
-        <span class="s1">'baseline work directory'</span><span class="p">:</span> <span class="s1">'baseline_work_directory'</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="n">provenance</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'polaris_version'</span><span class="p">:</span> <span class="n">__version__</span><span class="p">}</span>
-    <span class="n">provenance</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">value</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">values</span><span class="p">()})</span>
-    <span class="n">_parse_provenance_into</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="s1">'provenance'</span><span class="p">),</span> <span class="n">labels</span><span class="p">,</span> <span class="n">provenance</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">provenance</span><span class="p">[</span><span class="s1">'build_type'</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">provenance</span><span class="p">[</span><span class="s1">'build_type'</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_omega_build_type</span><span class="p">(</span>
-            <span class="n">provenance</span><span class="p">[</span><span class="s1">'build_directory'</span><span class="p">]</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">provenance</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_provenance_into</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">target_values</span><span class="p">):</span>

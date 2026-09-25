@@ -239,17 +239,6 @@ the execution of each step, indicates whether baseline comparisons <code class="
 and finally indicates if the overall task execution was <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code> or <code class="docutils literal notranslate"><span class="pre">ERROR</span></code>.
 Execution times are provided for individual steps, tasks and the suite as a
 whole.</p>
-<p><code class="docutils literal notranslate"><span class="pre">run_tasks()</span></code> also writes a machine-readable results file,
-<code class="docutils literal notranslate"><span class="pre">&lt;suite_name&gt;_results.json</span></code> (or <code class="docutils literal notranslate"><span class="pre">task_results.json</span></code> for a single task), next
-to the pickle file. Each task’s outcome is held in a
-<a class="reference internal" href="../generated/polaris.run.results.TaskResult.html#polaris.run.results.TaskResult" title="polaris.run.results.TaskResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.run.results.TaskResult</span></code></a> and the file is written by
-<a class="reference internal" href="../generated/polaris.run.results.write_suite_results.html#polaris.run.results.write_suite_results" title="polaris.run.results.write_suite_results"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.results.write_suite_results()</span></code></a>. The file is written
-before the first task runs and again after each task, so it is there even if
-the job is killed. Downstream tools should read this file rather than parsing
-the log files. Its format is described in <a class="reference internal" href="../../users_guide/suites.html#suites-results"><span class="std std-ref">Results</span></a> and in the
-<a class="reference internal" href="../../design_docs/suite_results_file.html"><span class="std std-doc">design document</span></a>. If you remove a
-field or change its meaning, increment <code class="docutils literal notranslate"><span class="pre">SCHEMA_VERSION</span></code> in
-<code class="docutils literal notranslate"><span class="pre">polaris.run.results</span></code>.</p>
 <p><a class="reference internal" href="../generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_single_step()</span></code></a> runs only the selected step
 from a given task, skipping any others, displaying the output in the terminal
 window rather than a log file.</p>

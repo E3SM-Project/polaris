@@ -1,6 +1,0 @@
-﻿polaris.run.results.write\_suite\_results
-=========================================
-
-.. currentmodule:: polaris.run.results
-
-.. autofunction:: write_suite_results
