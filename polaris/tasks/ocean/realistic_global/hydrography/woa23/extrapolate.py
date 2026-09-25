@@ -115,7 +115,8 @@ class ExtrapolateStep(Step):
 
     def _write_product(self, in_filename):
         """
-        Write the extrapolated product with the month it represents.
+        Write the extrapolated product in single precision with the month it
+        represents.
 
         Parameters
         ----------
@@ -124,6 +125,8 @@ class ExtrapolateStep(Step):
         """
         with xr.open_dataset(in_filename, decode_times=False) as ds:
             ds_out = ds.load()
+        for field_name in ['ct_an', 'sa_an']:
+            ds_out[field_name] = ds_out[field_name].astype(np.float32)
         ds_out.attrs['month'] = get_woa23_month(self.config)
         write_netcdf(ds_out, self.output_filename)
 
@@ -170,8 +173,7 @@ class ExtrapolateStep(Step):
         use_ocean_mask : bool
             Whether to restrict filling to the remapped ocean mask.
         """
-        with xr.open_dataset(in_filename, decode_times=False) as ds:
-            ds_out = ds.load()
+        ds_out = _load_in_double_precision(in_filename)
 
         ocean_mask = None
         if use_ocean_mask:
@@ -214,8 +216,7 @@ class ExtrapolateStep(Step):
         use_ocean_mask : bool
             Whether to restrict filling to the remapped ocean mask.
         """
-        with xr.open_dataset(in_filename, decode_times=False) as ds:
-            ds_out = ds.load()
+        ds_out = _load_in_double_precision(in_filename)
 
         ocean_mask = None
         if use_ocean_mask:
@@ -333,6 +334,28 @@ class ExtrapolateStep(Step):
         coordinates = np.arange(-1, 2)
         x, y = np.meshgrid(coordinates, coordinates)
         return np.exp(-0.5 * (x**2 + y**2))
+
+
+def _load_in_double_precision(filename):
+    """
+    Load a WOA23 dataset with temperature and salinity in double precision so
+    extrapolation does not accumulate single-precision round-off.
+
+    Parameters
+    ----------
+    filename : str
+        The file to read.
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        The loaded dataset.
+    """
+    with xr.open_dataset(filename, decode_times=False) as ds:
+        ds = ds.load()
+    for field_name in ['ct_an', 'sa_an']:
+        ds[field_name] = ds[field_name].astype(np.float64)
+    return ds
 
 
 def _extrap_with_halo(field, kernel, valid, lon_with_halo, lon_no_halo):

@@ -119,6 +119,10 @@ class CombineStep(Step):
                     ds_out[var_name].attrs = ds_ann[var_name].attrs
 
         ds_out = self._to_canonical_teos10(ds_out)
+        # WOA23 itself is single precision, so there is nothing to gain from
+        # writing doubles
+        for var_name in ['ct_an', 'sa_an']:
+            ds_out[var_name] = ds_out[var_name].astype(np.float32)
         ds_out.attrs['month'] = month
         # the WOA23 files' grid_mapping names a crs variable not copied here
         ds_out = add_cf_conventions(drop_dangling_references(ds_out))
