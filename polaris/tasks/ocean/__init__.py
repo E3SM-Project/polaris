@@ -10,7 +10,6 @@ from ruamel.yaml import YAML
 from polaris import Component
 from polaris.build.mpas_ocean import build_mpas_ocean
 from polaris.build.omega import build_omega
-from polaris.constants import get_constant
 from polaris.constants.pcd import check_pcd_version_matches_branch
 from polaris.mesh.info import is_planar, is_spherical
 from polaris.mesh.reconstruct import (
@@ -24,10 +23,9 @@ from polaris.ocean.surface_pressure import surface_pressure_from_config
 from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
     pseudothickness_from_ds,
+    vert_pseudo_velocity_from_ds,
 )
 from polaris.ocean.vertical.grid_1d import REF_COORD_VARS
-
-RhoSw = get_constant('seawater_density_reference')
 
 
 class Ocean(Component):
@@ -291,43 +289,7 @@ class Ocean(Component):
             variables are present in the dataset after mapping.
         """
         if self.model == 'omega':
-            # fields to be converted from geometric to pseudo thickness.
-            # RefPseudoThickness is deliberately absent: it belongs to the
-            # vertical coordinate, and write_vert_coord_dataset() derives it
-            # from restingThickness at zero surface pressure, which is the
-            # only correct way to do it.
-            mpas_to_omega_vars = {
-                'layerThickness': 'PseudoThickness',
-                'vertAleTransportTop': 'TotalVerticalPseudoVelocity',
-                'vertVelocityTop': 'VerticalPseudoVelocity',
-            }
-            for mpas_var, omega_var in mpas_to_omega_vars.items():
-                if mpas_var in ds.keys() and omega_var not in ds.keys():
-                    if mpas_var == 'layerThickness':
-                        pseudothickness, spec_vol = pseudothickness_from_ds(
-                            ds, config=config, src_var_name=mpas_var
-                        )
-                        if (
-                            pseudothickness is not None
-                            and spec_vol is not None
-                        ):
-                            ds[omega_var] = pseudothickness
-                            if 'SpecVol' not in ds.keys():
-                                ds['SpecVol'] = spec_vol
-                    elif mpas_var in [
-                        'vertVelocityTop',
-                        'vertAleTransportTop',
-                    ]:
-                        if (
-                            'SpecVol' not in ds.keys()
-                            and 'layerThickness' in ds.keys()
-                        ):
-                            _, spec_vol = pseudothickness_from_ds(
-                                ds,
-                                config=config,
-                                src_var_name='layerThickness',
-                            )
-                            ds[omega_var] = ds[mpas_var] / (spec_vol * RhoSw)
+            ds = _convert_geometric_to_pseudo_vars(ds, config)
 
         ds = self.map_to_native_model_vars(ds)
 
@@ -1058,6 +1020,58 @@ class Ocean(Component):
                 all_found = False
                 break
         return all_found
+
+
+def _convert_geometric_to_pseudo_vars(ds, config):
+    """
+    Add Omega's pseudo-thickness and vertical pseudo-velocities to a
+    dataset with MPAS-Ocean names, from the geometric fields that are
+    present, along with the ``SpecVol`` they need
+
+    RefPseudoThickness is deliberately not handled here: it belongs to the
+    vertical coordinate, and write_vert_coord_dataset() derives it from
+    restingThickness at zero surface pressure, which is the only correct
+    way to do it.
+    """
+    pseudo_velocity_vars = {
+        'vertVelocityTop': 'VerticalPseudoVelocity',
+        'vertAleTransportTop': 'TotalVerticalPseudoVelocity',
+    }
+    velocity_vars = [
+        mpas_var
+        for mpas_var, omega_var in pseudo_velocity_vars.items()
+        if mpas_var in ds.keys() and omega_var not in ds.keys()
+    ]
+
+    needs_spec_vol = len(velocity_vars) > 0 and 'SpecVol' not in ds.keys()
+    if 'layerThickness' in ds.keys() and (
+        'PseudoThickness' not in ds.keys() or needs_spec_vol
+    ):
+        pseudothickness, spec_vol = pseudothickness_from_ds(
+            ds, config=config, src_var_name='layerThickness'
+        )
+        if pseudothickness is not None and spec_vol is not None:
+            if 'PseudoThickness' not in ds.keys():
+                ds['PseudoThickness'] = pseudothickness
+            if 'SpecVol' not in ds.keys():
+                ds['SpecVol'] = spec_vol
+
+    if len(velocity_vars) > 0 and 'SpecVol' not in ds.keys():
+        raise ValueError(
+            f'Converting {", ".join(velocity_vars)} to a vertical '
+            f'pseudo-velocity for Omega requires SpecVol, or '
+            f'layerThickness, temperature and salinity to compute it.'
+        )
+
+    ds_vert = None
+    if 'minLevelCell' in ds.keys() and 'maxLevelCell' in ds.keys():
+        ds_vert = ds
+    for mpas_var in velocity_vars:
+        omega_var = pseudo_velocity_vars[mpas_var]
+        ds[omega_var] = vert_pseudo_velocity_from_ds(
+            ds, src_var_name=mpas_var, ds_vert=ds_vert
+        )
+    return ds
 
 
 def _lon_lat_for_tracer_conversion(
