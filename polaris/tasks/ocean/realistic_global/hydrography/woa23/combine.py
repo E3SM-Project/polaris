@@ -119,6 +119,7 @@ class CombineStep(Step):
                     ds_out[var_name].attrs = ds_ann[var_name].attrs
 
         ds_out = self._to_canonical_teos10(ds_out)
+        ds_out.attrs['month'] = month
         # the WOA23 files' grid_mapping names a crs variable not copied here
         ds_out = add_cf_conventions(drop_dangling_references(ds_out))
         write_netcdf(ds_out, self.output_filename)
