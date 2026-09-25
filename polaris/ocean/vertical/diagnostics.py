@@ -516,7 +516,9 @@ def compute_zint_zmid_from_layer_thickness(
         min_level_cell=min_level_cell,
         max_level_cell=max_level_cell,
     )
-    return z_interface, z_mid
+    # both are computed from layer_thickness and bottom_depth, so drop the
+    # attributes xarray carries over from them
+    return z_interface.drop_attrs(), z_mid.drop_attrs()
 
 
 def _z_from_thickness(

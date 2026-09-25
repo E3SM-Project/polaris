@@ -81,12 +81,12 @@ class Init(OceanIOStep):
         bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
         y_min = ds.yCell.min().values
         y_max = ds.yCell.max().values
-        y_cell = ds.yCell
+        y_cell = ds.yCell.drop_attrs()
         frac = xr.where((y_cell <= y_min) | (y_cell >= y_max), 2.0 / 3.0, 1.0)
         ds['bottomDepth'] = bottom_depth * frac
-        ds['ssh'] = xr.zeros_like(ds.xCell)
+        ds['ssh'] = xr.zeros_like(ds.xCell).drop_attrs()
         init_vertical_coord(config, ds)
-        cell_field = xr.ones_like(ds.xCell)
+        cell_field = xr.ones_like(ds.xCell).drop_attrs()
         cell_field, _ = xr.broadcast(cell_field, ds.refBottomDepth)
         ds['temperature'] = cell_field.expand_dims(dim='Time', axis=0)
         ds['salinity'] = 35.0 * cell_field.expand_dims(dim='Time', axis=0)
@@ -94,16 +94,15 @@ class Init(OceanIOStep):
         # write_vert_coord_dataset converts restingThickness to
         # RefPseudoThickness via pseudothickness_from_ds, which requires T/S
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)
-        normal_velocity = u * np.cos(ds_mesh.angleEdge) + v * np.sin(
-            ds_mesh.angleEdge
-        )
+        angle_edge = ds_mesh.angleEdge.drop_attrs()
+        normal_velocity = u * np.cos(angle_edge) + v * np.sin(angle_edge)
         normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
         normal_velocity = normal_velocity.transpose('nEdges', 'nVertLevels')
         ds['normalVelocity'] = normal_velocity.expand_dims(dim='Time', axis=0)
 
         # set the wind stress forcing
-        wind_stress_zonal = u_wind * xr.ones_like(ds.xCell)
-        wind_stress_meridional = v_wind * xr.ones_like(ds.xCell)
+        wind_stress_zonal = u_wind * xr.ones_like(ds.xCell).drop_attrs()
+        wind_stress_meridional = v_wind * xr.ones_like(ds.xCell).drop_attrs()
 
         ds_forcing = xr.Dataset()
         ds_forcing['windStressZonal'] = wind_stress_zonal.expand_dims(

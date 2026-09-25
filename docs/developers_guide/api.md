@@ -272,6 +272,20 @@ seaice/api
    set_attrs
 ```
 
+### cf
+
+```{eval-rst}
+.. currentmodule:: polaris.cf
+
+.. autosummary::
+   :toctree: generated/
+
+   add_cf_conventions
+   add_var_attrs
+   drop_inherited_attrs
+   read_var_attrs
+```
+
 ### component_graph
 
 ```{eval-rst}
@@ -380,6 +394,8 @@ seaice/api
 
    info.is_planar
    info.is_spherical
+
+   attrs.add_mesh_var_attrs
 
    planar.compute_planar_hex_nx_ny
 

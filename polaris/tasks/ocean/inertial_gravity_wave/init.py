@@ -1,6 +1,5 @@
 import numpy as np
 import xarray as xr
-from mpas_tools.io import write_netcdf
 from mpas_tools.mesh.conversion import convert, cull
 from mpas_tools.planar_hex import make_planar_hex_mesh
 
@@ -75,7 +74,7 @@ class Init(OceanIOStep):
         ds_mesh = make_planar_hex_mesh(
             nx=nx, ny=ny, dc=dc, nonperiodic_x=False, nonperiodic_y=False
         )
-        write_netcdf(ds_mesh, 'base_mesh.nc')
+        self.write_model_dataset(ds_mesh, 'base_mesh.nc', config)
 
         ds_mesh = cull(ds_mesh, logger=logger)
         ds_mesh = convert(
@@ -88,8 +87,10 @@ class Init(OceanIOStep):
 
         ds = ds_mesh.copy()
 
-        ds['ssh'] = xr.zeros_like(ds_mesh.xCell)
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds_mesh.xCell)
+        ds['ssh'] = xr.zeros_like(ds_mesh.xCell).drop_attrs()
+        ds['bottomDepth'] = (
+            bottom_depth * xr.ones_like(ds_mesh.xCell).drop_attrs()
+        )
 
         init_vertical_coord(config, ds)
         self.write_vert_coord_dataset(ds, 'vert_coord.nc', config)

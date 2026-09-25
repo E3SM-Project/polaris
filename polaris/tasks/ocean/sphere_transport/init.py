@@ -90,10 +90,10 @@ class Init(OceanIOStep):
         bottom_depth = section.getfloat('bottom_depth')
 
         ds_mesh = open_dataset('mesh.nc')
-        latCell = ds_mesh.latCell
-        latEdge = ds_mesh.latEdge
-        lonCell = ds_mesh.lonCell
-        lonEdge = ds_mesh.lonEdge
+        latCell = ds_mesh.latCell.drop_attrs()
+        latEdge = ds_mesh.latEdge.drop_attrs()
+        lonCell = ds_mesh.lonCell.drop_attrs()
+        lonEdge = ds_mesh.lonEdge.drop_attrs()
 
         ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
         self.write_horiz_mesh_dataset(ds_mesh, 'culled_mesh.nc', config)

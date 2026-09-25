@@ -93,8 +93,8 @@ class Init(OceanIOStep):
 
         ds = ds_mesh.copy()
 
-        ds['ssh'] = xr.zeros_like(ds.xCell)
-        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell)
+        ds['ssh'] = xr.zeros_like(ds.xCell).drop_attrs()
+        ds['bottomDepth'] = bottom_depth * xr.ones_like(ds.xCell).drop_attrs()
 
         config.set('vertical_grid', 'vert_levels', str(nz))
         init_vertical_coord(config, ds)
@@ -108,8 +108,8 @@ class Init(OceanIOStep):
 
         # Fix the x-offset for initial condition functions
         x_min_edge = ds.xEdge.min()
-        x_cell_adjusted = ds.xCell - x_min_edge
-        x_edge_adjusted = ds.xEdge - x_min_edge
+        x_cell_adjusted = ds.xCell.drop_attrs() - x_min_edge
+        x_edge_adjusted = ds.xEdge.drop_attrs() - x_min_edge
         x_min = x_cell_adjusted.min()
         x_max = x_cell_adjusted.max()
         lx_model = x_max - x_min
@@ -146,7 +146,7 @@ class Init(OceanIOStep):
         u = psi1 * dpsi2
         # w = dpsi1 * psi2
 
-        normal_velocity = u * np.cos(ds.angleEdge)
+        normal_velocity = u * np.cos(ds.angleEdge.drop_attrs())
         # We set the normal velocity to zero at the horizontal boundaries
         normal_velocity = xr.where(
             (x_edge_2D <= x_min) | (x_edge_2D >= x_max), 0, normal_velocity
