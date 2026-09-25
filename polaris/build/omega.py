@@ -220,6 +220,36 @@ def detect_omega_build_type(build_dir: Optional[str]) -> Optional[str]:
     return None
 
 
+def get_omega_source_dir(build_dir: Optional[str]) -> Optional[str]:
+    """
+    Get the source directory that a standalone Omega build was configured
+    from.
+
+    Parameters
+    ----------
+    build_dir : str, optional
+        The root of the standalone Omega build directory.
+
+    Returns
+    -------
+    Optional[str]
+        The CMake source directory of the build (``components/omega`` within
+        an Omega or E3SM branch), or ``None`` if it cannot be determined.
+    """
+    if not build_dir:
+        return None
+
+    build_dir = os.path.abspath(build_dir)
+    if not _is_omega_build_dir(build_dir):
+        return None
+
+    cache_path = os.path.join(build_dir, 'CMakeCache.txt')
+    if not os.path.exists(cache_path):
+        return None
+
+    return _read_cmake_cache_value(cache_path, 'CMAKE_HOME_DIRECTORY')
+
+
 def _is_omega_build_dir(build_dir: str) -> bool:
     omega_markers = [
         'omega_build.sh',

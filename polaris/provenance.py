@@ -3,7 +3,10 @@ import shutil
 import subprocess
 import sys
 
-from polaris.build.omega import detect_omega_build_type
+from polaris.build.omega import (
+    detect_omega_build_type,
+    get_omega_source_dir,
+)
 from polaris.version import __version__
 
 
@@ -181,26 +184,54 @@ def _get_polaris_git_version():
 
 
 def _get_component_git_version(config):
-    if config.has_option('build', 'branch'):
-        branch = config.get('build', 'branch')
-    else:
-        branch = None
+    """
+    The git version of the source the component was built from, if it can
+    be determined
+    """
+    source_dir = _get_component_source_dir(config)
+    if source_dir is None:
+        return None
+    return _git_output(
+        ['describe', '--tags', '--dirty', '--always'], source_dir
+    )
 
-    if branch is None or not os.path.exists(branch):
+
+def _get_component_source_dir(config):
+    """
+    The source directory of the component, taken from the build if it records
+    one, or else the branch to build from if that is the root of a git
+    checkout
+    """
+    source_dir = get_omega_source_dir(_get_build_dir(config))
+    if source_dir is not None:
+        # the build knows its source, so the branch is irrelevant
+        if not os.path.isdir(source_dir):
+            return None
+        return source_dir
+
+    if not config.has_option('build', 'branch'):
+        return None
+    branch = config.get('build', 'branch')
+    if not os.path.isdir(branch):
         return None
 
-    cwd = os.getcwd()
-    os.chdir(branch)
+    # an uninitialized submodule is an empty directory, and git would walk up
+    # to the Polaris checkout it is in
+    toplevel = _git_output(['rev-parse', '--show-toplevel'], branch)
+    if toplevel is None or not os.path.samefile(toplevel, branch):
+        return None
+    return branch
 
+
+def _git_output(args, cwd):
+    """The output of a git command run in cwd, or None if it fails"""
     try:
-        args = ['git', 'describe', '--tags', '--dirty', '--always']
-        component_git_version = subprocess.check_output(args).decode('utf-8')
-        component_git_version = component_git_version.strip('\n')
-    except subprocess.CalledProcessError:
-        component_git_version = None
-    os.chdir(cwd)
-
-    return component_git_version
+        output = subprocess.check_output(
+            ['git'] + args, cwd=cwd, stderr=subprocess.DEVNULL
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return output.decode('utf-8').strip('\n')
 
 
 def _get_pixi_executable():
