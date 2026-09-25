@@ -1,5 +1,7 @@
 cd {{ build_dir }}
-./omega_ctest.sh 2>&1 | tee ctests.log
+{
+{{ ctest_command }}
+} 2>&1 | tee ctests.log
 log_path="$(pwd)/ctests.log"
 
 echo ""
