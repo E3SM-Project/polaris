@@ -96,6 +96,19 @@ variables:
   seaIceHeatFlux: SeaIceHeatFlux
   shortWaveHeatFlux: ShortWaveHeatFlux
   seaIceSalinityFlux: SeaIceSaltFlux
+  windSpeed10m: WindSpeed10m
+  iceFraction: IceFraction
+
+  # KPP diagnostics
+  boundaryLayerDepth: OSBLDepth
+  vertNonLocalFlux: VertNonLocalFlux
+  bulkRichardsonNumber: BulkRichardsonNumber
+  unresolvedShear: UnresolvedShear
+  surfaceFrictionVelocity: SurfaceFrictionVelocity
+  surfaceBuoyancyForcing: SurfaceBuoyancyFlux
+  potentialDensity: PotentialDensity
+  vertDiffTopOfCell: VertDiff
+  vertViscTopOfCell: VertVisc
 
   # vertical coordinate diagnostics
   zMid: GeomZMid
@@ -296,3 +309,19 @@ config:
     config_cvmix_shear_KPP_Ri_zero: RiCrit
     config_cvmix_shear_KPP_exp: Exponent
     config_cvmix_num_ri_smooth_loops: RiSmoothLoops
+
+- section:
+    cvmix: [VertMix, KPP]
+  options:
+    config_use_cvmix_kpp: Enable  # MPAS-Ocean also requires config_use_cvmix to be true
+    config_cvmix_use_BLD_smoothing: UseOSBLSmoothing
+
+    config_cvmix_kpp_use_theory_wave: UseLangmuirTurbulence
+    # Also corresponds to MPAS-Ocean's config_cvmix_kpp_langmuir_mixing_opt = ‘LWF16’
+    # and config_cvmix_kpp_langmuir_entrainment_opt = ‘LF17’
+
+    config_cvmix_kpp_criticalBulkRichardsonNumber: CriticalBulkRichardsonNumber
+    config_cvmix_kpp_surface_layer_extent: SurfaceLayerExtent
+    config_cvmix_kpp_matching: MatchTechnique
+    config_cvmix_kpp_use_enhanced_diff: UseEnhancedDiffusion
+    configure_cvmix_kpp_minimum_OBL_under_sea_ice: MinimumOSBLUnderSeaIce
