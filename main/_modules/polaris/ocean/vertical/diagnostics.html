@@ -378,22 +378,49 @@
 <span class="sd">        dimensions of ``VerticalPseudoVelocity``</span>
 <span class="sd">    """</span>
     <span class="n">pseudo_velocity</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">VerticalPseudoVelocity</span>
-    <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span>
-    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">ds_vert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
-        <span class="n">z_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">])</span>
-        <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
-            <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span>
-        <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span>
-
-    <span class="n">spec_vol_interface</span> <span class="o">=</span> <span class="n">_mid_to_interface</span><span class="p">(</span><span class="n">spec_vol</span><span class="p">,</span> <span class="n">layer_thickness</span><span class="p">)</span>
+    <span class="n">spec_vol_interface</span> <span class="o">=</span> <span class="n">_spec_vol_at_interfaces</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="p">)</span>
     <span class="n">vert_velocity_top</span> <span class="o">=</span> <span class="n">pseudo_velocity</span> <span class="o">*</span> <span class="n">RhoSw</span> <span class="o">*</span> <span class="n">spec_vol_interface</span>
     <span class="k">return</span> <span class="n">vert_velocity_top</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">pseudo_velocity</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="vert_pseudo_velocity_from_ds">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds.html#polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">vert_pseudo_velocity_from_ds</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span> <span class="n">src_var_name</span><span class="o">=</span><span class="s1">'vertVelocityTop'</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Compute a vertical pseudo-velocity at layer interfaces from a geometric</span>
+<span class="sd">    vertical velocity such as ``vertVelocityTop``, the inverse of</span>
+<span class="sd">    :py:func:`vert_velocity_top_from_ds`.  The specific volume is</span>
+<span class="sd">    interpolated to interfaces in the same way.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        An ocean dataset with MPAS-Ocean names, containing ``src_var_name``</span>
+<span class="sd">        and ``SpecVol``, along with the geometric layer thickness or the</span>
+<span class="sd">        fields needed to compute it (see :py:func:`geom_thickness_from_ds`)</span>
+
+<span class="sd">    src_var_name : str, optional</span>
+<span class="sd">        The geometric vertical velocity at layer interfaces to convert,</span>
+<span class="sd">        typically ``vertVelocityTop`` or ``vertAleTransportTop``</span>
+
+<span class="sd">    ds_vert : xarray.Dataset, optional</span>
+<span class="sd">        The vertical coordinate dataset, whose ``minLevelCell`` and</span>
+<span class="sd">        ``maxLevelCell`` (one-based) mark the valid layers.  All layers are</span>
+<span class="sd">        valid if it is not given.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pseudo_velocity : xarray.DataArray</span>
+<span class="sd">        The vertical pseudo-velocity at layer interfaces, with the</span>
+<span class="sd">        dimensions of ``src_var_name``</span>
+<span class="sd">    """</span>
+    <span class="n">velocity</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">src_var_name</span><span class="p">]</span>
+    <span class="n">spec_vol_interface</span> <span class="o">=</span> <span class="n">_spec_vol_at_interfaces</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="p">)</span>
+    <span class="n">pseudo_velocity</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">/</span> <span class="p">(</span><span class="n">RhoSw</span> <span class="o">*</span> <span class="n">spec_vol_interface</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pseudo_velocity</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">velocity</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span></div>
 
 
 
@@ -804,6 +831,42 @@
         <span class="n">min_level_cell</span><span class="o">=</span><span class="n">min_level_cell</span><span class="p">,</span>
         <span class="n">max_level_cell</span><span class="o">=</span><span class="n">max_level_cell</span><span class="p">,</span>
     <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_spec_vol_at_interfaces</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Interpolate ``SpecVol`` to layer interfaces, linearly in geometric</span>
+<span class="sd">    height, using only the valid layers if ``ds_vert`` is given</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        An ocean dataset with MPAS-Ocean names, containing ``SpecVol`` and</span>
+<span class="sd">        the geometric layer thickness or the fields needed to compute it</span>
+
+<span class="sd">    ds_vert : xarray.Dataset or None</span>
+<span class="sd">        The vertical coordinate dataset, whose ``minLevelCell`` and</span>
+<span class="sd">        ``maxLevelCell`` (one-based) mark the valid layers</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spec_vol_interface : xarray.DataArray</span>
+<span class="sd">        The specific volume at layer interfaces</span>
+<span class="sd">    """</span>
+    <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SpecVol</span>
+    <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">geom_thickness_from_ds</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ds_vert</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_vert_levels</span> <span class="o">=</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+        <span class="n">z_index</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_vert_levels</span><span class="p">),</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">])</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+            <span class="n">z_index</span> <span class="o">&gt;=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">z_index</span> <span class="o">&lt;=</span> <span class="n">ds_vert</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">spec_vol</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span>
+        <span class="n">layer_thickness</span> <span class="o">=</span> <span class="n">layer_thickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_mid_to_interface</span><span class="p">(</span><span class="n">spec_vol</span><span class="p">,</span> <span class="n">layer_thickness</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_mid_to_interface</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">layer_thickness</span><span class="p">):</span>

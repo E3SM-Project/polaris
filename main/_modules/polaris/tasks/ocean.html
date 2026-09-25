@@ -122,7 +122,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Component</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.mpas_ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_mpas_ocean</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_omega</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants.pcd</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_pcd_version_matches_branch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.info</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_planar</span><span class="p">,</span> <span class="n">is_spherical</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -136,10 +135,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">geom_thickness_from_ds</span><span class="p">,</span>
     <span class="n">pseudothickness_from_ds</span><span class="p">,</span>
+    <span class="n">vert_pseudo_velocity_from_ds</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.grid_1d</span><span class="w"> </span><span class="kn">import</span> <span class="n">REF_COORD_VARS</span>
-
-<span class="n">RhoSw</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'seawater_density_reference'</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Ocean">
@@ -416,43 +414,7 @@
 <span class="sd">            variables are present in the dataset after mapping.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
-            <span class="c1"># fields to be converted from geometric to pseudo thickness.</span>
-            <span class="c1"># RefPseudoThickness is deliberately absent: it belongs to the</span>
-            <span class="c1"># vertical coordinate, and write_vert_coord_dataset() derives it</span>
-            <span class="c1"># from restingThickness at zero surface pressure, which is the</span>
-            <span class="c1"># only correct way to do it.</span>
-            <span class="n">mpas_to_omega_vars</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">'layerThickness'</span><span class="p">:</span> <span class="s1">'PseudoThickness'</span><span class="p">,</span>
-                <span class="s1">'vertAleTransportTop'</span><span class="p">:</span> <span class="s1">'TotalVerticalPseudoVelocity'</span><span class="p">,</span>
-                <span class="s1">'vertVelocityTop'</span><span class="p">:</span> <span class="s1">'VerticalPseudoVelocity'</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="k">for</span> <span class="n">mpas_var</span><span class="p">,</span> <span class="n">omega_var</span> <span class="ow">in</span> <span class="n">mpas_to_omega_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">mpas_var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">omega_var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">mpas_var</span> <span class="o">==</span> <span class="s1">'layerThickness'</span><span class="p">:</span>
-                        <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
-                            <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">src_var_name</span><span class="o">=</span><span class="n">mpas_var</span>
-                        <span class="p">)</span>
-                        <span class="k">if</span> <span class="p">(</span>
-                            <span class="n">pseudothickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                            <span class="ow">and</span> <span class="n">spec_vol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                        <span class="p">):</span>
-                            <span class="n">ds</span><span class="p">[</span><span class="n">omega_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudothickness</span>
-                            <span class="k">if</span> <span class="s1">'SpecVol'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                                <span class="n">ds</span><span class="p">[</span><span class="s1">'SpecVol'</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
-                    <span class="k">elif</span> <span class="n">mpas_var</span> <span class="ow">in</span> <span class="p">[</span>
-                        <span class="s1">'vertVelocityTop'</span><span class="p">,</span>
-                        <span class="s1">'vertAleTransportTop'</span><span class="p">,</span>
-                    <span class="p">]:</span>
-                        <span class="k">if</span> <span class="p">(</span>
-                            <span class="s1">'SpecVol'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                            <span class="ow">and</span> <span class="s1">'layerThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                        <span class="p">):</span>
-                            <span class="n">_</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
-                                <span class="n">ds</span><span class="p">,</span>
-                                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                                <span class="n">src_var_name</span><span class="o">=</span><span class="s1">'layerThickness'</span><span class="p">,</span>
-                            <span class="p">)</span>
-                            <span class="n">ds</span><span class="p">[</span><span class="n">omega_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">mpas_var</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">spec_vol</span> <span class="o">*</span> <span class="n">RhoSw</span><span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">_convert_geometric_to_pseudo_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_to_native_model_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
@@ -1194,6 +1156,58 @@
                 <span class="k">break</span>
         <span class="k">return</span> <span class="n">all_found</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_geometric_to_pseudo_vars</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add Omega's pseudo-thickness and vertical pseudo-velocities to a</span>
+<span class="sd">    dataset with MPAS-Ocean names, from the geometric fields that are</span>
+<span class="sd">    present, along with the ``SpecVol`` they need</span>
+
+<span class="sd">    RefPseudoThickness is deliberately not handled here: it belongs to the</span>
+<span class="sd">    vertical coordinate, and write_vert_coord_dataset() derives it from</span>
+<span class="sd">    restingThickness at zero surface pressure, which is the only correct</span>
+<span class="sd">    way to do it.</span>
+<span class="sd">    """</span>
+    <span class="n">pseudo_velocity_vars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'vertVelocityTop'</span><span class="p">:</span> <span class="s1">'VerticalPseudoVelocity'</span><span class="p">,</span>
+        <span class="s1">'vertAleTransportTop'</span><span class="p">:</span> <span class="s1">'TotalVerticalPseudoVelocity'</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">velocity_vars</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">mpas_var</span>
+        <span class="k">for</span> <span class="n">mpas_var</span><span class="p">,</span> <span class="n">omega_var</span> <span class="ow">in</span> <span class="n">pseudo_velocity_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">mpas_var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">omega_var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="p">]</span>
+
+    <span class="n">needs_spec_vol</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocity_vars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s1">'SpecVol'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s1">'layerThickness'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="s1">'PseudoThickness'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">needs_spec_vol</span>
+    <span class="p">):</span>
+        <span class="n">pseudothickness</span><span class="p">,</span> <span class="n">spec_vol</span> <span class="o">=</span> <span class="n">pseudothickness_from_ds</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">src_var_name</span><span class="o">=</span><span class="s1">'layerThickness'</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">pseudothickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec_vol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">'PseudoThickness'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s1">'PseudoThickness'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pseudothickness</span>
+            <span class="k">if</span> <span class="s1">'SpecVol'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s1">'SpecVol'</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec_vol</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocity_vars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s1">'SpecVol'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'Converting </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">velocity_vars</span><span class="p">)</span><span class="si">}</span><span class="s1"> to a vertical '</span>
+            <span class="sa">f</span><span class="s1">'pseudo-velocity for Omega requires SpecVol, or '</span>
+            <span class="sa">f</span><span class="s1">'layerThickness, temperature and salinity to compute it.'</span>
+        <span class="p">)</span>
+
+    <span class="n">ds_vert</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s1">'minLevelCell'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s1">'maxLevelCell'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">ds_vert</span> <span class="o">=</span> <span class="n">ds</span>
+    <span class="k">for</span> <span class="n">mpas_var</span> <span class="ow">in</span> <span class="n">velocity_vars</span><span class="p">:</span>
+        <span class="n">omega_var</span> <span class="o">=</span> <span class="n">pseudo_velocity_vars</span><span class="p">[</span><span class="n">mpas_var</span><span class="p">]</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">omega_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">vert_pseudo_velocity_from_ds</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">src_var_name</span><span class="o">=</span><span class="n">mpas_var</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_vert</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_lon_lat_for_tracer_conversion</span><span class="p">(</span>
