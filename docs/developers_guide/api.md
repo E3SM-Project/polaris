@@ -82,6 +82,8 @@ seaice/api
    complete_step_run
    serial.run_tasks
    serial.run_single_step
+   results.TaskResult
+   results.write_suite_results
 
 ```
 
