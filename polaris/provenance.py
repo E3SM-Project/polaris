@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import sys
 
+from polaris.build.mpas_ocean import get_mpas_ocean_source_dir
 from polaris.build.omega import (
     detect_omega_build_type,
     get_omega_source_dir,
@@ -198,17 +199,33 @@ def _get_component_git_version(config):
 
 def _get_component_source_dir(config):
     """
-    The source directory of the component, taken from the build if it records
-    one, or else the branch to build from if that is the root of a git
-    checkout
+    The source directory of the component: the branch if Polaris is building
+    the component from it, or else the source the build records
     """
-    source_dir = get_omega_source_dir(_get_build_dir(config))
-    if source_dir is not None:
-        # the build knows its source, so the branch is irrelevant
-        if not os.path.isdir(source_dir):
-            return None
-        return source_dir
+    if _is_building(config):
+        return _get_branch_source_dir(config)
 
+    build_dir = _get_build_dir(config)
+    for get_source_dir in (get_omega_source_dir, get_mpas_ocean_source_dir):
+        source_dir = get_source_dir(build_dir)
+        if source_dir is not None:
+            if not os.path.isdir(source_dir):
+                return None
+            return source_dir
+
+    return None
+
+
+def _is_building(config):
+    if not config.has_option('build', 'build'):
+        return False
+    try:
+        return config.getboolean('build', 'build')
+    except ValueError:
+        return False
+
+
+def _get_branch_source_dir(config):
     if not config.has_option('build', 'branch'):
         return None
     branch = config.get('build', 'branch')

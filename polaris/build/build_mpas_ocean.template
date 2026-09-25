@@ -16,6 +16,7 @@ fi
 
 {%- endif %}
 
+{# polaris.provenance reads the source directory from the last cd #}
 cd {{ mpas_ocean_subdir }}
 
 git submodule update --init --recursive .
