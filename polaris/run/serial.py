@@ -5,7 +5,8 @@ import os
 import pickle
 import sys
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta
+from functools import partial
 from typing import Dict, List, Optional
 
 import mpas_tools.io
@@ -21,7 +22,9 @@ from polaris.run import (
     setup_config,
     unpickle_suite,
 )
+from polaris.run.results import TaskResult, write_suite_results
 from polaris.validate import merge_diff_summary
+from polaris.version import __version__
 
 # ANSI fail text: https://stackoverflow.com/a/287944/7728169
 start_fail = '\033[91m'
@@ -85,37 +88,44 @@ def run_tasks(
             except OSError:
                 pass
 
-        failures = 0
         cwd = os.getcwd()
         suite_start = time.time()
-        task_times = dict()
-        result_strs = dict()
-        total_tasks = len(suite['tasks'])
-        exec_fail_tasks: List[str] = []
-        diff_fail_tasks: List[str] = []
-        diff_summaries: Dict[str, Dict] = {}
+        work_dir = suite.get('work_dir', cwd)
+        write_results = partial(
+            write_suite_results,
+            os.path.join(work_dir, f'{suite_name}_results.json'),
+            suite_name,
+            _read_results_provenance(task.base_work_dir),
+            datetime.now().astimezone(),
+        )
+
+        task_results: Dict[str, TaskResult] = {}
+        for task_name, task in suite['tasks'].items():
+            if is_task:
+                log = None
+            else:
+                task_prefix = task.path.replace('/', '_')
+                log = f'case_outputs/{task_prefix}.log'
+            task_results[task_name] = TaskResult(path=task.path, log=log)
+
+        write_results(0.0, task_results.values(), complete=False)
+
         for task_name in suite['tasks']:
             stdout_logger.info(f'{task_name}')
 
             task = suite['tasks'][task_name]
+            result = task_results[task_name]
 
             if is_task:
                 log_filename = None
                 task_logger = stdout_logger
             else:
-                task_prefix = task.path.replace('/', '_')
-                log_filename = f'{cwd}/case_outputs/{task_prefix}.log'
+                log_filename = f'{cwd}/{result.log}'
                 task_logger = None
 
-            (
-                result_str,
-                success,
-                task_time,
-                exec_failed,
-                diff_failed,
-                diff_summary,
-            ) = _log_and_run_task(
+            _log_and_run_task(
                 task,
+                result,
                 stdout_logger,
                 task_logger,
                 quiet,
@@ -125,16 +135,11 @@ def run_tasks(
                 steps_to_skip,
                 available_resources,
             )
-            result_strs[task_name] = result_str
-            if not success:
-                failures += 1
-            if exec_failed:
-                exec_fail_tasks.append(task_name)
-            if diff_failed:
-                diff_fail_tasks.append(task_name)
-            if diff_summary:
-                diff_summaries[task_name] = diff_summary
-            task_times[task_name] = task_time
+            write_results(
+                time.time() - suite_start,
+                task_results.values(),
+                complete=False,
+            )
 
         suite_time = time.time() - suite_start
 
@@ -145,16 +150,28 @@ def run_tasks(
             suite_name,
             suite,
             results={
-                'total': total_tasks,
-                'failures': exec_fail_tasks,
-                'diffs': diff_fail_tasks,
-                'diff_details': diff_summaries,
+                'total': len(task_results),
+                'failures': [
+                    name
+                    for name, result in task_results.items()
+                    if result.execution_passed is False
+                ],
+                'diffs': [
+                    name
+                    for name, result in task_results.items()
+                    if result.baseline_passed is False
+                ],
+                'diff_details': {
+                    name: result.baseline_diffs
+                    for name, result in task_results.items()
+                    if result.baseline_diffs
+                },
             },
         )
 
-        _log_task_runtimes(
-            stdout_logger, task_times, result_strs, suite_time, failures
-        )
+        write_results(suite_time, task_results.values(), complete=True)
+
+        _log_task_runtimes(stdout_logger, task_results, suite_time)
 
 
 def run_single_step(step_is_subprocess=False, quiet=False):
@@ -311,18 +328,18 @@ def _update_steps_to_run(
     return steps_to_run
 
 
-def _log_task_runtimes(
-    stdout_logger, task_times, result_strs, suite_time, failures
-):
+def _log_task_runtimes(stdout_logger, task_results, suite_time):
     """
     Log the runtimes for the task(s)
     """
     stdout_logger.info('Task Runtimes:')
-    for task_name, task_time in task_times.items():
-        task_time_str = str(timedelta(seconds=round(task_time)))
-        stdout_logger.info(
-            f'{task_time_str} {result_strs[task_name]} {task_name}'
-        )
+    failures = 0
+    for task_name, result in task_results.items():
+        task_time_str = str(timedelta(seconds=round(result.elapsed_seconds)))
+        result_str = pass_str if result.success else fail_str
+        stdout_logger.info(f'{task_time_str} {result_str} {task_name}')
+        if not result.success:
+            failures += 1
     suite_time_str = str(timedelta(seconds=round(suite_time)))
     stdout_logger.info(f'Total runtime: {suite_time_str}')
 
@@ -350,6 +367,7 @@ def _print_to_stdout(task, message):
 
 def _log_and_run_task(
     task,
+    result,
     stdout_logger,
     task_logger,
     quiet,
@@ -359,6 +377,9 @@ def _log_and_run_task(
     steps_to_skip,
     available_resources,
 ):
+    """
+    Run a task, logging its progress, and fill in its result
+    """
     task_name = task.path.replace('/', '_')
     with LoggingContext(
         task_name, logger=task_logger, log_filename=log_filename
@@ -389,6 +410,7 @@ def _log_and_run_task(
         task.steps_to_run = _update_steps_to_run(
             task.name, steps_to_run, steps_to_skip, config, task.steps
         )
+        result.steps_to_run = list(task.steps_to_run)
 
         task_start = time.time()
 
@@ -416,18 +438,8 @@ def _log_and_run_task(
         task_logger.info(f'POLARIS TASK: {"PASS" if task_pass else "FAIL"}')
         if task_pass:
             stdout_logger.info(status)
-            if baselines_passed is None:
-                result_str = pass_str
-                success = True
-            else:
-                if baselines_passed:
-                    baseline_str = pass_str
-                    result_str = pass_str
-                    success = True
-                else:
-                    baseline_str = fail_str
-                    result_str = fail_str
-                    success = False
+            if baselines_passed is not None:
+                baseline_str = pass_str if baselines_passed else fail_str
                 status = f'  baseline comp.:   {baseline_str}'
                 stdout_logger.info(status)
                 task_logger.info(
@@ -439,8 +451,6 @@ def _log_and_run_task(
             stdout_logger.error(status)
             if not is_task:
                 stdout_logger.error(f'  see: case_outputs/{task_name}.log')
-            result_str = fail_str
-            success = False
 
         task_time = time.time() - task_start
 
@@ -449,16 +459,10 @@ def _log_and_run_task(
             f'  task runtime:     {start_time_color}{task_time_str}{end_color}'
         )
 
-    exec_failed = not task_pass
-    diff_failed = baselines_passed is False
-    return (
-        result_str,
-        success,
-        task_time,
-        exec_failed,
-        diff_failed,
-        diff_summary,
-    )
+    result.execution_passed = task_pass
+    result.baseline_passed = baselines_passed
+    result.elapsed_seconds = task_time
+    result.baseline_diffs = diff_summary
 
 
 def _read_baseline_status_from_logs(step_work_dir: str) -> Optional[bool]:
@@ -1018,6 +1022,35 @@ def _write_output_for_pull_request(
     with open(out_path, 'w') as out:
         out.write('\n'.join(lines) + '\n')
     print('Done.')
+
+
+def _read_results_provenance(base_work_dir: str) -> Dict[str, Optional[str]]:
+    """
+    Read the metadata for the results file from the provenance file in the
+    base work directory, with ``None`` for anything it does not record
+    """
+    # keys in provenance are written exactly like these labels
+    labels = {
+        'polaris git version': 'polaris_git_version',
+        'component git version': 'component_git_version',
+        'machine': 'machine',
+        'partition': 'partition',
+        'compiler': 'compiler',
+        'build directory': 'build_directory',
+        'build type': 'build_type',
+        'work directory': 'work_directory',
+        'baseline work directory': 'baseline_work_directory',
+    }
+    provenance: Dict[str, Optional[str]] = {'polaris_version': __version__}
+    provenance.update({value: None for value in labels.values()})
+    _parse_provenance_into(
+        os.path.join(base_work_dir, 'provenance'), labels, provenance
+    )
+    if provenance['build_type'] is None:
+        provenance['build_type'] = detect_omega_build_type(
+            provenance['build_directory']
+        )
+    return provenance
 
 
 def _parse_provenance_into(path, labels, target_values):
