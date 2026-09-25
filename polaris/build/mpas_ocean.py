@@ -1,7 +1,9 @@
+import glob
 import importlib.resources
 import os
 import shutil
 import subprocess
+from typing import Optional
 
 from jinja2 import Template
 
@@ -185,3 +187,51 @@ def make_build_script(
         f.write(script)
 
     return script_filename
+
+
+def get_mpas_ocean_source_dir(build_dir: Optional[str]) -> Optional[str]:
+    """
+    Get the source directory that an MPAS-Ocean build was made from.
+
+    Parameters
+    ----------
+    build_dir : str, optional
+        Either an MPAS-Ocean source directory it was built in
+        (``components/mpas-ocean`` within an E3SM branch) or a build directory
+        that Polaris copied the build into.
+
+    Returns
+    -------
+    Optional[str]
+        The source directory of the build, or ``None`` if it cannot be
+        determined.
+    """
+    if not build_dir:
+        return None
+
+    build_dir = os.path.abspath(build_dir)
+    if os.path.exists(os.path.join(build_dir, 'src', 'Registry.xml')):
+        # MPAS-Ocean builds in its source directory
+        return build_dir
+
+    scripts = glob.glob(os.path.join(build_dir, 'build_mpas_ocean_*.sh'))
+    if not scripts:
+        return None
+
+    # the most recent build script is the one that made the build
+    script = max(scripts, key=os.path.getmtime)
+    return _read_source_dir_from_script(script)
+
+
+def _read_source_dir_from_script(script: str) -> Optional[str]:
+    # the last directory the build script changes to is the one it builds in
+    source_dir = None
+    try:
+        with open(script, 'r', encoding='utf-8') as f:
+            for line in f:
+                words = line.split()
+                if len(words) == 2 and words[0] == 'cd':
+                    source_dir = words[1]
+    except OSError:
+        return None
+    return source_dir
