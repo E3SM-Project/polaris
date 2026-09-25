@@ -115,6 +115,7 @@ class CombineStep(Step):
                     ds_out[var_name].attrs = ds_ann[var_name].attrs
 
         ds_out = self._to_canonical_teos10(ds_out)
+        ds_out.attrs['month'] = month
         write_netcdf(ds_out, self.output_filename)
         logger.info(f'Wrote {self.output_filename}')
 

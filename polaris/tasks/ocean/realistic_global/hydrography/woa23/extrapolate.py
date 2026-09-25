@@ -102,10 +102,26 @@ class ExtrapolateStep(Step):
         logger.info('Vertically extrapolating into land and grounded ice')
         self._extrap_vert(
             in_filename='woa_extrap_horiz.nc',
-            out_filename=self.output_filename,
+            out_filename='woa_extrap.nc',
             use_ocean_mask=False,
         )
+
+        self._write_product(in_filename='woa_extrap.nc')
         logger.info(f'Wrote {self.output_filename}')
+
+    def _write_product(self, in_filename):
+        """
+        Write the extrapolated product with the month it represents.
+
+        Parameters
+        ----------
+        in_filename : str
+            The fully extrapolated file to read.
+        """
+        with xr.open_dataset(in_filename, decode_times=False) as ds:
+            ds_out = ds.load()
+        ds_out.attrs['month'] = get_woa23_month(self.config)
+        write_netcdf(ds_out, self.output_filename)
 
     @staticmethod
     def _make_3d_ocean_mask():
