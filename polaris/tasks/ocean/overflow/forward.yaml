@@ -5,6 +5,8 @@ ocean:
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: {{ nu }}
@@ -43,8 +45,6 @@ mpas-ocean:
   cvmix:
     config_use_cvmix: true
     config_cvmix_convective_viscosity: 1.0
-  split_explicit_ts:
-    config_btr_dt: {{ btr_dt }}
   streams:
     restart:
       output_interval: 0010_00:00:00

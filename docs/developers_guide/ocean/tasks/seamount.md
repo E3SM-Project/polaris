@@ -97,7 +97,8 @@ the `init` step. Namelist and streams files are updated in
 with time steps determined algorithmically based on config options.  Both
 models take the same step from `dt_per_km` and the same integrator from
 `time_integrator`; the only model-dependent part is translating the
-integrator name to Omega's (`RK4` becomes `RungeKutta4`).  The
+integrator name to Omega's (`RK4` becomes `RungeKutta4` and `split_explicit`
+becomes `SplitExplicitRK2`).  The
 number of cells is approximated from config options in
 {py:meth}`polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count()`
 so that this can be used to constrain the number of MPI tasks that Polaris

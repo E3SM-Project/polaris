@@ -180,12 +180,16 @@ class Forward(OceanModelStep):
         model = config.get('ocean', 'model')
         duration_str = get_time_interval_string(seconds=duration_seconds)
         dt_str = get_time_interval_string(seconds=time_step)
+        # 20 barotropic substeps per time step for the split-explicit stepper
+        btr_dt_str = get_time_interval_string(seconds=time_step / 20.0)
         output_interval_str = get_time_interval_string(
             seconds=output_interval_seconds
         )
 
         time_integrator = section.get('time_integrator')
-        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        time_integrator_map = dict(
+            [('RK4', 'RungeKutta4'), ('split_explicit', 'SplitExplicitRK2')]
+        )
         if model == 'omega':
             if time_integrator in time_integrator_map.keys():
                 time_integrator = time_integrator_map[time_integrator]
@@ -202,6 +206,7 @@ class Forward(OceanModelStep):
             'forward.yaml',
             template_replacements=dict(
                 dt=dt_str,
+                btr_dt=btr_dt_str,
                 run_duration=duration_str,
                 time_integrator=time_integrator,
             ),

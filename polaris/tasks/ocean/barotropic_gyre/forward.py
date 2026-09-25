@@ -235,7 +235,9 @@ class Forward(OceanModelStep):
         time_integrator = config.get('barotropic_gyre', 'time_integrator')
         if time_integrator.lower() == 'rk4':
             dt_str = dt_btr_str
-        time_integrator_map = dict([('rk4', 'RungeKutta4')])
+        time_integrator_map = dict(
+            [('rk4', 'RungeKutta4'), ('split_explicit', 'SplitExplicitRK2')]
+        )
         if model == 'omega':
             if time_integrator.lower() in time_integrator_map.keys():
                 time_integrator = time_integrator_map[time_integrator.lower()]

@@ -245,15 +245,15 @@ The following config section is specific to this test case:
 # Options related to the seamount case
 [seamount]
 
-# Timestep per km horizontal resolution (s), shared by both models
-dt_per_km = 4.0
+# Baroclinic timestep per km horizontal resolution (s), shared by both
+# models, 30 barotropic substeps long
+dt_per_km = 56.25
 
-# Barotropic timestep per km horizontal resolution (s), MPAS-Ocean only, and
-# unused unless time_integrator is a split-explicit scheme
-btr_dt_per_km = 2.5
+# Barotropic timestep per km horizontal resolution (s), shared by both models
+btr_dt_per_km = 1.875
 
-# Time integrator, shared by both models
-time_integrator = RK4
+# Time integrator, shared by both models: Omega maps this to SplitExplicitRK2
+time_integrator = split_explicit
 
 # Horizontal tracer advection order, shared by both models
 horiz_adv_order = 3

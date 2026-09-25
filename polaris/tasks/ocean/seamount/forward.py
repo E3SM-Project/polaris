@@ -14,9 +14,6 @@ class Forward(OceanModelStep):
 
     yaml_filename : str
        The name of the yaml file for this forward step
-
-    nu : float
-       The Laplacian viscosity to use for this forward step
     """
 
     def __init__(
@@ -31,7 +28,6 @@ class Forward(OceanModelStep):
         ntasks=None,
         min_tasks=None,
         openmp_threads=1,
-        nu=1000.0,
     ):
         """
         Create a new test case
@@ -67,9 +63,6 @@ class Forward(OceanModelStep):
 
         openmp_threads : int, optional
             the number of OpenMP threads the step will use
-
-        nu : float, optional
-            the viscosity (if different from the default for the test group)
         """
         if min_tasks is None:
             min_tasks = ntasks
@@ -86,7 +79,6 @@ class Forward(OceanModelStep):
         )
         self.task_name = task_name
         self.yaml_filename = yaml_filename
-        self.nu = nu
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -116,9 +108,7 @@ class Forward(OceanModelStep):
         model = config.get('ocean', 'model')
         resolution = section.getfloat('resolution')
 
-        # Both models take the same time step with the same integrator:
-        # Omega has no split time stepper, so MPAS-Ocean gives up its
-        # split-explicit one to stay comparable
+        # Both models take the same time step with the same integrator
         dt_per_km = section.getfloat('dt_per_km')
         time_integrator = section.get('time_integrator')
         if model == 'omega':
@@ -152,7 +142,6 @@ class Forward(OceanModelStep):
             output_freq_units='seconds',
             horiz_adv_order=section.getint('horiz_adv_order'),
             bottom_drag_coeff=section.getfloat('bottom_drag_coeff'),
-            nu=self.nu,
         )
         self.add_yaml_file(
             'polaris.tasks.ocean.seamount',
@@ -184,7 +173,9 @@ def _omega_time_integrator(time_integrator):
     Map an MPAS-Ocean time-integrator name to its Omega equivalent, leaving
     names that are already Omega's alone.
     """
-    time_integrator_map = dict([('RK4', 'RungeKutta4')])
+    time_integrator_map = dict(
+        [('RK4', 'RungeKutta4'), ('split_explicit', 'SplitExplicitRK2')]
+    )
     if time_integrator in time_integrator_map:
         return time_integrator_map[time_integrator]
     return time_integrator

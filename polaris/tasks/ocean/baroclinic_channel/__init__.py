@@ -76,3 +76,50 @@ def add_baroclinic_channel_tasks(component):
                 config=config,
             )
         )
+
+    for time_integrator in ['split_explicit', 'rk4']:
+        _add_time_integrator_tasks(component, time_integrator)
+
+
+def _add_time_integrator_tasks(component, time_integrator):
+    """
+    Add the 10-km decomp, restart and threads tasks for one time integrator,
+    ``'split_explicit'`` or ``'rk4'``, in a directory named for it, so that a
+    suite can run the two time steppers side by side.  RK4's stages and halo
+    exchanges differ from those of the split-explicit stepper.
+    """
+    resolution = 10.0
+    resdir = resolution_to_string(resolution)
+    resdir = f'planar/baroclinic_channel/{time_integrator}/{resdir}'
+
+    config_filename = 'baroclinic_channel.cfg'
+    config = PolarisConfigParser(
+        filepath=os.path.join(component.name, resdir, config_filename)
+    )
+    config.add_from_package('polaris.ocean.eos', 'linear.cfg')
+    config.add_from_package(
+        'polaris.tasks.ocean.baroclinic_channel', 'baroclinic_channel.cfg'
+    )
+    if time_integrator == 'rk4':
+        config.add_from_package(
+            'polaris.tasks.ocean.baroclinic_channel',
+            'baroclinic_channel_rk4.cfg',
+        )
+
+    init = Init(component=component, resolution=resolution, indir=resdir)
+    init.set_shared_config(config, link=config_filename)
+
+    tasks = [
+        Decomp(
+            component=component, resolution=resolution, indir=resdir, init=init
+        ),
+        Restart(
+            component=component, resolution=resolution, indir=resdir, init=init
+        ),
+        Threads(
+            component=component, resolution=resolution, indir=resdir, init=init
+        ),
+    ]
+    for task in tasks:
+        task.set_shared_config(config, link=config_filename)
+        component.add_task(task)

@@ -117,11 +117,39 @@ n_wavelengths_x = 2
 n_wavelengths_y = 2
 
 # Time step per resolution (s/km), since dt is proportional to resolution
-dt_per_km = 3.0
+dt_per_km = 1.5
 
 # Convergence threshold below which the test fails
-conv_thresh = 1.8
+conv_thresh = 0.8
 ```
+
+The time integrator and the time steps that go with it are set in the
+`[convergence_forward]` section:
+
+```cfg
+# config options for convergence forward steps
+[convergence_forward]
+
+# time integrator: {'RK4', 'split_explicit', 'unsplit_explicit'}
+time_integrator = unsplit_explicit
+
+# RK4 time step per resolution (s/km), since dt is proportional to resolution
+rk4_dt_per_km = ${manufactured_solution:dt_per_km}
+
+# Unsplit time step per resolution (s/km), half the RK4 step
+unsplit_dt_per_km = 0.75
+
+# Split baroclinic time step per resolution (s/km), 30 barotropic substeps
+split_dt_per_km = 22.5
+
+# Barotropic time step per resolution (s/km)
+btr_dt_per_km = 0.75
+```
+
+The single layer means the wave this test measures is entirely the barotropic
+mode.  The split time stepper subcycles and time-averages that mode, which
+damps it, so `split_explicit` converges at a much lower order than the
+unsplit schemes; `conv_thresh` is set accordingly.
 
 ### cores
 

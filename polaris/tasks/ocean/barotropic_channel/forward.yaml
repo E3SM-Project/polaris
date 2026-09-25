@@ -69,8 +69,12 @@ mpas-ocean:
       - relativeVorticity
 
 Omega:
+  # split-explicit: 30 barotropic steps, each half the 1 s RK4 time step
   TimeIntegration:
-    TimeStepper: RungeKutta4
+    TimeStepper: SplitExplicitRK2
+    TimeStep: 0000_00:00:15
+    ModeSplitShare:
+      BtrTimeStep: 0000_00:00:00.500
   Tendencies:
     TracerHorzAdvTendencyEnable : false
     TracerDiffTendencyEnable : false
