@@ -6,13 +6,13 @@ from scipy.signal import convolve2d
 from polaris import Step
 from polaris.cf import add_cf_conventions, drop_dangling_references
 
+from .month import get_month_abbreviation, get_woa23_month
+
 
 class ExtrapolateStep(Step):
     """
     A step for extrapolating WOA23 into missing ocean, land and ice regions.
     """
-
-    output_filename = 'woa23_decav_0.25_jan_extrap.nc'
 
     def __init__(self, component, subdir, combine_step, combine_topo_step):
         """
@@ -42,19 +42,27 @@ class ExtrapolateStep(Step):
         )
         self.combine_step = combine_step
         self.combine_topo_step = combine_topo_step
-        self.add_output_file(filename=self.output_filename)
-        self.add_cf_check(self.output_filename)
         # this is an expensive step so cache it by default
         self.default_cached = True
 
+    @property
+    def output_filename(self):
+        """
+        The name of the extrapolated WOA23 file for the configured month.
+        """
+        month_name = get_month_abbreviation(get_woa23_month(self.config))
+        return f'woa23_decav_0.25_{month_name}_extrap.nc'
+
     def setup(self):
         """
-        Set up input files for the step.
+        Set up input and output files for the step.
         """
         super().setup()
         self.add_input_file(
             filename='woa.nc',
-            work_dir_target=f'{self.combine_step.path}/woa_combined.nc',
+            work_dir_target=(
+                f'{self.combine_step.path}/{self.combine_step.output_filename}'
+            ),
         )
         self.add_input_file(
             filename='topography.nc',
@@ -63,6 +71,8 @@ class ExtrapolateStep(Step):
                 f'{self.combine_topo_step.combined_filename}'
             ),
         )
+        self.add_output_file(filename=self.output_filename)
+        self.add_cf_check(self.output_filename)
 
     def run(self):
         """

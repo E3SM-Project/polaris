@@ -33,16 +33,24 @@ class CombineStep(Step):
             ntasks=1,
             min_tasks=1,
         )
-        self.add_output_file(filename='woa_combined.nc')
-        self.add_cf_check('woa_combined.nc')
         # this is an expensive step so cache it by default
         self.default_cached = True
 
+    @property
+    def output_filename(self):
+        """
+        The name of the combined WOA23 file for the configured month.
+        """
+        month_name = get_month_abbreviation(get_woa23_month(self.config))
+        return f'woa_combined_{month_name}.nc'
+
     def setup(self):
         """
-        Set up input files for the step.
+        Set up input and output files for the step.
         """
         super().setup()
+        self.add_output_file(filename=self.output_filename)
+        self.add_cf_check(self.output_filename)
 
         base_url = (
             'https://www.ncei.noaa.gov/thredds-ocean/fileServer/woa23/DATA'
@@ -113,8 +121,8 @@ class CombineStep(Step):
         ds_out = self._to_canonical_teos10(ds_out)
         # the WOA23 files' grid_mapping names a crs variable not copied here
         ds_out = add_cf_conventions(drop_dangling_references(ds_out))
-        write_netcdf(ds_out, 'woa_combined.nc')
-        logger.info('Wrote woa_combined.nc')
+        write_netcdf(ds_out, self.output_filename)
+        logger.info(f'Wrote {self.output_filename}')
 
     @staticmethod
     def _to_canonical_teos10(ds):
