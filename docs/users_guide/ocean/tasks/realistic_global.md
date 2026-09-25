@@ -25,11 +25,21 @@ The `analysis_members` tasks support both MPAS-Ocean and Omega.
 ## woa23
 
 This task is the Polaris port of the legacy Compass
-`utility/extrap_woa` workflow. It combines January and annual WOA23
-climatologies, uses a cached `e3sm/init` combined-topography product on the
-WOA grid to define the ocean mask used during preprocessing, and then fills
-missing temperature and salinity values through staged horizontal and vertical
-extrapolation.
+`utility/extrap_woa` workflow. It combines one monthly WOA23 climatology with
+the annual climatology, uses a cached `e3sm/init` combined-topography product
+on the WOA grid to define the ocean mask used during preprocessing, and then
+fills missing temperature and salinity values through staged horizontal and
+vertical extrapolation.
+
+The month is set by the `month` config option and should normally be the
+month in which simulations initialized from the product start. It defaults to
+January. To build the product for October, for example, set up the task with
+a user config file containing:
+
+```cfg
+[woa23]
+month = 10
+```
 
 The task can be set up with:
 
@@ -43,13 +53,16 @@ The task is organized into inspectable steps:
 
 1. `combine_topo` from the `e3sm/init` component is used to combine topography
    GEBCO and Bedmap3 datasets on the WOA23 0.25-degree latitude-longitude grid.
-2. `combine` creates `woa_combined.nc` by combining January and annual WOA23
-   in-situ temperature and practical-salinity fields, then deriving
-   conservative temperature and absolute salinity.
-3. `extrapolate` creates the final
-   `woa23_decav_0.25_jan_extrap.nc` product.
+2. `combine` creates `woa_combined_<mon>.nc` by combining the monthly and
+   annual WOA23 in-situ temperature and practical-salinity fields, then
+   deriving conservative temperature and absolute salinity.
+3. `extrapolate` creates the final `woa23_decav_0.25_<mon>_extrap.nc` product.
 4. `viz` produces horizontal maps and vertical sections of the extrapolated
    product.  This step is not run by default.
+
+Here, `<mon>` is the lowercase three-letter abbreviation of the month, such as
+`jan` or `oct`. Both products are single precision and record the month in a
+global attribute `month`.
 
 This layout is intended to match Polaris shared-step conventions so the WOA23
 preprocessing pipeline can later be reused by mesh-dependent
@@ -66,8 +79,8 @@ N/A. The task preserves the standard WOA23 depth levels.
 
 ### initial conditions
 
-The source fields come from the WOA23 January and annual climatologies in the
-Polaris input database.
+The source fields come from the WOA23 climatology for the configured month
+and the annual climatology in the Polaris input database.
 
 ### forcing
 
@@ -82,6 +95,10 @@ N/A.
 ```cfg
 # Options related to generating a reusable WOA23 hydrography product
 [woa23]
+
+# the month (1-12) of the WOA23 monthly climatology used above 1500 m,
+# typically the month in which simulations initialized from it start
+month = 1
 
 # the minimum weight sum needed to mark a new cell valid in horizontal
 # extrapolation
