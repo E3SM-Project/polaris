@@ -254,22 +254,46 @@ def vert_velocity_top_from_ds(ds, ds_vert=None):
         dimensions of ``VerticalPseudoVelocity``
     """
     pseudo_velocity = ds.VerticalPseudoVelocity
-    spec_vol = ds.SpecVol
-    layer_thickness = geom_thickness_from_ds(ds, config=None)
-
-    if ds_vert is not None:
-        n_vert_levels = spec_vol.sizes['nVertLevels']
-        z_index = xr.DataArray(np.arange(n_vert_levels), dims=['nVertLevels'])
-        valid = np.logical_and(
-            z_index >= ds_vert.minLevelCell - 1,
-            z_index <= ds_vert.maxLevelCell - 1,
-        )
-        spec_vol = spec_vol.where(valid)
-        layer_thickness = layer_thickness.where(valid)
-
-    spec_vol_interface = _mid_to_interface(spec_vol, layer_thickness)
+    spec_vol_interface = _spec_vol_at_interfaces(ds, ds_vert)
     vert_velocity_top = pseudo_velocity * RhoSw * spec_vol_interface
     return vert_velocity_top.transpose(*pseudo_velocity.dims)
+
+
+def vert_pseudo_velocity_from_ds(
+    ds, src_var_name='vertVelocityTop', ds_vert=None
+):
+    """
+    Compute a vertical pseudo-velocity at layer interfaces from a geometric
+    vertical velocity such as ``vertVelocityTop``, the inverse of
+    :py:func:`vert_velocity_top_from_ds`.  The specific volume is
+    interpolated to interfaces in the same way.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An ocean dataset with MPAS-Ocean names, containing ``src_var_name``
+        and ``SpecVol``, along with the geometric layer thickness or the
+        fields needed to compute it (see :py:func:`geom_thickness_from_ds`)
+
+    src_var_name : str, optional
+        The geometric vertical velocity at layer interfaces to convert,
+        typically ``vertVelocityTop`` or ``vertAleTransportTop``
+
+    ds_vert : xarray.Dataset, optional
+        The vertical coordinate dataset, whose ``minLevelCell`` and
+        ``maxLevelCell`` (one-based) mark the valid layers.  All layers are
+        valid if it is not given.
+
+    Returns
+    -------
+    pseudo_velocity : xarray.DataArray
+        The vertical pseudo-velocity at layer interfaces, with the
+        dimensions of ``src_var_name``
+    """
+    velocity = ds[src_var_name]
+    spec_vol_interface = _spec_vol_at_interfaces(ds, ds_vert)
+    pseudo_velocity = velocity / (RhoSw * spec_vol_interface)
+    return pseudo_velocity.transpose(*velocity.dims)
 
 
 def get_z_mid_and_interface(ds, allow_reconstruct=False, ds_vert=None):
@@ -664,6 +688,42 @@ def _reconstruct_z_mid_and_interface(ds, ds_vert):
         min_level_cell=min_level_cell,
         max_level_cell=max_level_cell,
     )
+
+
+def _spec_vol_at_interfaces(ds, ds_vert):
+    """
+    Interpolate ``SpecVol`` to layer interfaces, linearly in geometric
+    height, using only the valid layers if ``ds_vert`` is given
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        An ocean dataset with MPAS-Ocean names, containing ``SpecVol`` and
+        the geometric layer thickness or the fields needed to compute it
+
+    ds_vert : xarray.Dataset or None
+        The vertical coordinate dataset, whose ``minLevelCell`` and
+        ``maxLevelCell`` (one-based) mark the valid layers
+
+    Returns
+    -------
+    spec_vol_interface : xarray.DataArray
+        The specific volume at layer interfaces
+    """
+    spec_vol = ds.SpecVol
+    layer_thickness = geom_thickness_from_ds(ds, config=None)
+
+    if ds_vert is not None:
+        n_vert_levels = spec_vol.sizes['nVertLevels']
+        z_index = xr.DataArray(np.arange(n_vert_levels), dims=['nVertLevels'])
+        valid = np.logical_and(
+            z_index >= ds_vert.minLevelCell - 1,
+            z_index <= ds_vert.maxLevelCell - 1,
+        )
+        spec_vol = spec_vol.where(valid)
+        layer_thickness = layer_thickness.where(valid)
+
+    return _mid_to_interface(spec_vol, layer_thickness)
 
 
 def _mid_to_interface(field, layer_thickness):

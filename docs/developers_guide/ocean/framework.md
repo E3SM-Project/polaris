@@ -42,7 +42,11 @@ has them computed there and then. In addition,
 is not present in the dataset. This provides a way of using the same initial
 conditions for MPAS-Ocean and Omega when the geometric thickness is the state
 variable for MPAS-Ocean and the pseudo-thickness is the state variable for
-Omega. Going the other way, `open_model_dataset()` adds `layerThickness` to
+Omega. Likewise, it converts `vertVelocityTop` and `vertAleTransportTop` to
+`VerticalPseudoVelocity` and `TotalVerticalPseudoVelocity` with
+{py:func}`polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds()`,
+computing `SpecVol` from the state if it is not in the dataset.
+Going the other way, `open_model_dataset()` adds `layerThickness` to
 Omega output from `PseudoThickness` and `SpecVol`. It derives nothing that
 needs an equation of state, so a step that needs `SpecVol` or
 `vertVelocityTop` from Omega output that lacks them computes them itself with
@@ -871,6 +875,7 @@ The `polaris.ocean.vertical.diagnostics` module provides utilities:
 - {py:func}`polaris.ocean.vertical.diagnostics.pseudothickness_from_ds()`
 - {py:func}`polaris.ocean.vertical.diagnostics.spec_vol_from_ds()`
 - {py:func}`polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds()`
+- {py:func}`polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds()`
 - {py:func}`polaris.ocean.vertical.diagnostics.depth_from_thickness()`
 
 #### Tracer conventions

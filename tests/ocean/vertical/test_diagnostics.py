@@ -19,6 +19,7 @@ from polaris.ocean.vertical.diagnostics import (
     location_for_field,
     pseudothickness_from_ds,
     spec_vol_from_ds,
+    vert_pseudo_velocity_from_ds,
     vert_velocity_top_from_ds,
     vertical_coord_from_location,
 )
@@ -383,3 +384,42 @@ def test_vert_velocity_top_from_ds_invalid_layers():
     np.testing.assert_allclose(
         vert_velocity_top.values, [[[1.0, 1.5, 2.0, np.nan]]]
     )
+
+
+def test_vert_pseudo_velocity_from_ds():
+    """The inverse of vert_velocity_top_from_ds(), with the dimensions of
+    the geometric velocity"""
+    ds = _make_vert_velocity_ds()
+    ds['vertVelocityTop'] = (
+        ('Time', 'nCells', 'nVertLevelsP1'),
+        [[[1.0, 1.5, 2.5, 4.0]]],
+    )
+    pseudo_velocity = vert_pseudo_velocity_from_ds(ds)
+    assert pseudo_velocity.dims == ds.vertVelocityTop.dims
+    np.testing.assert_allclose(pseudo_velocity.values, np.ones((1, 1, 4)))
+
+
+@pytest.mark.parametrize('with_ds_vert', [False, True])
+def test_vert_pseudo_velocity_round_trip(with_ds_vert):
+    """Converting to a pseudo-velocity and back recovers the original
+    velocity at every interface next to a valid layer."""
+    ds = _make_vert_velocity_ds().drop_vars('VerticalPseudoVelocity')
+    velocity = np.array([[[0.0, -2.0e-4, 3.0e-5, 1.0e-4]]])
+    ds['vertAleTransportTop'] = (
+        ('Time', 'nCells', 'nVertLevelsP1'),
+        velocity,
+    )
+    ds_vert = None
+    if with_ds_vert:
+        ds_vert = xr.Dataset(
+            data_vars=dict(
+                minLevelCell=('nCells', [1]),
+                maxLevelCell=('nCells', [2]),
+            )
+        )
+        velocity[..., -1] = np.nan
+    ds['VerticalPseudoVelocity'] = vert_pseudo_velocity_from_ds(
+        ds, src_var_name='vertAleTransportTop', ds_vert=ds_vert
+    )
+    round_trip = vert_velocity_top_from_ds(ds, ds_vert=ds_vert)
+    np.testing.assert_allclose(round_trip.values, velocity)
