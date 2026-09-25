@@ -5,7 +5,8 @@ import os
 import pickle
 import sys
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta
+from functools import partial
 from typing import Dict, List, Optional
 
 import mpas_tools.io
@@ -21,8 +22,9 @@ from polaris.run import (
     setup_config,
     unpickle_suite,
 )
-from polaris.run.results import TaskResult
+from polaris.run.results import TaskResult, write_suite_results
 from polaris.validate import merge_diff_summary
+from polaris.version import __version__
 
 # ANSI fail text: https://stackoverflow.com/a/287944/7728169
 start_fail = '\033[91m'
@@ -88,23 +90,39 @@ def run_tasks(
 
         cwd = os.getcwd()
         suite_start = time.time()
+        work_dir = suite.get('work_dir', cwd)
+        write_results = partial(
+            write_suite_results,
+            os.path.join(work_dir, f'{suite_name}_results.json'),
+            suite_name,
+            _read_results_provenance(task.base_work_dir),
+            datetime.now().astimezone(),
+        )
+
         task_results: Dict[str, TaskResult] = {}
+        for task_name, task in suite['tasks'].items():
+            if is_task:
+                log = None
+            else:
+                task_prefix = task.path.replace('/', '_')
+                log = f'case_outputs/{task_prefix}.log'
+            task_results[task_name] = TaskResult(path=task.path, log=log)
+
+        write_results(0.0, task_results.values(), complete=False)
+
         for task_name in suite['tasks']:
             stdout_logger.info(f'{task_name}')
 
             task = suite['tasks'][task_name]
+            result = task_results[task_name]
 
             if is_task:
-                log = None
                 log_filename = None
                 task_logger = stdout_logger
             else:
-                task_prefix = task.path.replace('/', '_')
-                log = f'case_outputs/{task_prefix}.log'
-                log_filename = f'{cwd}/{log}'
+                log_filename = f'{cwd}/{result.log}'
                 task_logger = None
 
-            result = TaskResult(path=task.path, log=log)
             _log_and_run_task(
                 task,
                 result,
@@ -117,7 +135,11 @@ def run_tasks(
                 steps_to_skip,
                 available_resources,
             )
-            task_results[task_name] = result
+            write_results(
+                time.time() - suite_start,
+                task_results.values(),
+                complete=False,
+            )
 
         suite_time = time.time() - suite_start
 
@@ -146,6 +168,8 @@ def run_tasks(
                 },
             },
         )
+
+        write_results(suite_time, task_results.values(), complete=True)
 
         _log_task_runtimes(stdout_logger, task_results, suite_time)
 
@@ -998,6 +1022,35 @@ def _write_output_for_pull_request(
     with open(out_path, 'w') as out:
         out.write('\n'.join(lines) + '\n')
     print('Done.')
+
+
+def _read_results_provenance(base_work_dir: str) -> Dict[str, Optional[str]]:
+    """
+    Read the metadata for the results file from the provenance file in the
+    base work directory, with ``None`` for anything it does not record
+    """
+    # keys in provenance are written exactly like these labels
+    labels = {
+        'polaris git version': 'polaris_git_version',
+        'component git version': 'component_git_version',
+        'machine': 'machine',
+        'partition': 'partition',
+        'compiler': 'compiler',
+        'build directory': 'build_directory',
+        'build type': 'build_type',
+        'work directory': 'work_directory',
+        'baseline work directory': 'baseline_work_directory',
+    }
+    provenance: Dict[str, Optional[str]] = {'polaris_version': __version__}
+    provenance.update({value: None for value in labels.values()})
+    _parse_provenance_into(
+        os.path.join(base_work_dir, 'provenance'), labels, provenance
+    )
+    if provenance['build_type'] is None:
+        provenance['build_type'] = detect_omega_build_type(
+            provenance['build_directory']
+        )
+    return provenance
 
 
 def _parse_provenance_into(path, labels, target_values):
