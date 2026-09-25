@@ -5,6 +5,9 @@
 ```{toctree}
 :titlesonly: true
 
+global_ocean_dynamic_adjustment
+global_ocean_forward
+global_ocean_init
 horiz_press_grad_reference
 land_locked_cells
 ocean_analysis

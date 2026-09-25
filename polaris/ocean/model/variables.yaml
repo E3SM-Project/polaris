@@ -48,6 +48,9 @@ ocean:
     - temperature
     - salinity
     - normalVelocity
+  forcing_variables:
+    - windStressZonal
+    - windStressMeridional
 
 mpas-ocean:
   vert_coord_variables:
