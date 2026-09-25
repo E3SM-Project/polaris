@@ -3,7 +3,7 @@
 # realistic_global
 
 The `realistic_global` task group contains tasks that use realistic global
-ocean meshes, bathymetry and forcing. It currently contains two kinds of
+ocean meshes, bathymetry and forcing. It currently contains three kinds of
 tasks:
 
 - {ref}`ocean-realistic-global-woa23`, a mesh-independent preprocessing task
@@ -12,6 +12,8 @@ tasks:
 - {ref}`ocean-realistic-global-analysis-members`, short forward runs on
   realistic global meshes that exercise the global-statistics analysis member
   and compare its output between MPAS-Ocean and Omega.
+- {ref}`ocean-realistic-global-restart`, a short run split across a restart,
+  checking that the history output survives the restart intact.
 
 ## supported models
 
@@ -19,6 +21,11 @@ The `woa23` task is model-independent and does not require either MPAS-Ocean
 or Omega to be built.
 
 The `analysis_members` tasks support both MPAS-Ocean and Omega.
+
+The `restart` task supports Omega only.  It is a regression test for the way
+Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
+output with `xtime` rather than an elapsed time measured from the start of the
+clock, so the failure it looks for cannot arise there.
 
 (ocean-realistic-global-woa23)=
 
@@ -221,3 +228,89 @@ supports the standard Polaris colormap options described in
 The number of cores used by the `forward` step is determined
 algorithmically from the number of cells in the mesh. The `global_stats` and
 `viz` steps run serially.
+
+(ocean-realistic-global-restart)=
+
+## restart
+
+This task checks that splitting a run across a restart leaves the history
+output alone.  It is a regression test for
+[Omega #482](https://github.com/E3SM-Project/Omega/issues/482), where a run
+continued from a restart silently overwrote the history frames written before
+the restart instead of appending to them, leaving a file that was well formed
+and simply missing the earlier half of the run.
+
+It can be set up with:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/QU.240km/restart ...
+```
+
+### description
+
+The task contains four steps:
+
+1. `full_run` covers the whole two-hour period in one go.
+2. `first_segment` covers the first hour and writes a restart.
+3. `second_segment` continues from that restart and covers the second hour,
+   appending its history frames to the ones `first_segment` left behind.
+4. `validate` compares the history of the restart chain with the history of
+   the full run.
+
+Each segment writes its restart into a directory of its own under the task's
+`restarts` directory, and a continuing segment reads its predecessor's.
+`second_segment` starts from a copy of `first_segment`'s `output.nc`, so that
+it finds on disk what a continuation run would find: a history file that
+already holds the earlier frames and has to be appended to.
+
+`validate` checks two things, because a restart can go wrong in two ways.  The
+time axis has to hold every frame of the whole period, in increasing order,
+which is what #482 broke.  The state then has to match the uninterrupted run,
+which is the usual exact-restart check.
+
+### mesh
+
+The `QU.240km` quasi-uniform 240-km mesh, downloaded from the Polaris input
+database, as for the `analysis_members` tasks.
+
+### vertical grid
+
+The vertical grid is the one supplied with the cached initial condition.
+
+### initial conditions
+
+A cached TEOS-10 Omega initial condition from the `realistic_global` section
+of the Polaris input database, which supplies the mesh, vertical coordinate
+and initial state.
+
+### forcing
+
+As for the `analysis_members` tasks: zonal and meridional wind stress from the
+initial-condition file, applied through bulk wind stress.
+
+### time step and run duration
+
+The time step is 10 minutes.  Each segment runs for one hour and the full run
+for two, with a history frame every 30 minutes, so each segment writes two
+frames and the whole period has four.  The period is short on purpose: the
+task is about how the model writes its history across a restart, not about the
+circulation, and it is meant to be cheap enough for the pull-request suite.
+
+### config options
+
+```cfg
+[ocean]
+
+# Equation of state type
+eos_type = teos-10
+
+[realistic_global]
+
+# Time step duration per kilometer [s]
+dt_per_km = 3.0
+```
+
+### cores
+
+The number of cores used by each forward step is determined algorithmically
+from the number of cells in the mesh.  The `validate` step runs serially.

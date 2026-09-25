@@ -3,7 +3,7 @@
 # realistic_global
 
 The `realistic_global` tasks in `polaris.tasks.ocean.realistic_global` use
-realistic global ocean meshes, bathymetry and forcing.  They fall into two
+realistic global ocean meshes, bathymetry and forcing.  They fall into three
 groups:
 
 - `hydrography/woa23`, a mesh-independent preprocessing task that builds a
@@ -11,11 +11,13 @@ groups:
   0.25-degree latitude-longitude grid.
 - `analysis_members`, short forward runs on realistic global meshes that
   exercise the global-statistics analysis member in both MPAS-Ocean and Omega.
+- `restart`, a short Omega run split across a restart, checking that the
+  history output survives the restart intact.
 
 Tasks are added to the ocean component by
 {py:func}`polaris.tasks.ocean.realistic_global.add_realistic_global_tasks`,
-which registers the `woa23` task and one `analysis_members` task per mesh in
-its `mesh_dict`.  Adding a new mesh requires only a new entry in that
+which registers the `woa23` task, one `analysis_members` task per mesh in its
+`mesh_dict`, and a single `restart` task on `QU.240km`.  Adding a new mesh requires only a new entry in that
 dictionary giving the MPAS-Ocean and Omega initial-condition IDs and the cell
 count, plus a matching entry in the `mesh_info` dictionary in
 {py:class}`polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers`
@@ -106,6 +108,72 @@ This step normalizes two differences between the models:
   `Rms` field, while MPAS-Ocean writes a true root-mean-square, so the
   standard deviation is recovered as
   $\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}$.
+
+(dev-ocean-realistic-global-restart)=
+
+## restart
+
+The {py:class}`polaris.tasks.ocean.realistic_global.restart.Restart` task is a
+regression test for
+[Omega #482](https://github.com/E3SM-Project/Omega/issues/482).  It runs the
+same period twice, once in one go and once split across a restart, and checks
+that the two histories agree.
+
+The run lengths live as module-level constants in the task rather than in the
+config file, since they are chosen to make the failure visible -- two history
+frames per segment, so that a segment that clobbered rather than appended
+would be obvious -- rather than to be tuned by a user.
+
+### restart_step
+
+The class
+{py:class}`polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep`
+extends the shared `Forward` step with what a segment of a restart chain
+needs.  `setup()` layers the task's own `forward.yaml` on top of the shared
+one; because model config data is processed in the order it was added, the
+task's overrides win.  It also rejects any model other than Omega, since the
+failure being tested cannot arise in MPAS-Ocean.
+
+`runtime_setup()` creates the restart directory this segment writes into,
+which Omega does not create itself, and, for a continuing segment, copies the
+previous segment's `output.nc` into place.  Each segment gets a directory of
+its own under the task's `restarts`, named for the step, and a continuing
+segment reads its predecessor's.  A single shared directory would mean a
+segment's own end-of-run restart replaced the pointer file it had just read
+from, so re-running that step alone would silently continue from the wrong
+time.  The copy is what makes the test
+meaningful: it reproduces what a continuation run finds on disk, a history
+file that already holds the earlier frames.  It is a copy rather than a
+symlink so that appending to it cannot reach back into the previous segment's
+work directory.
+
+The previous segment's output is also added as an input file under the name
+`previous_output.nc`, which both establishes the dependency between the two
+steps and keeps the symlink out of the way of the copy.
+
+### the start time
+
+The one subtlety in `forward.yaml` is that every step is given the same
+`StartTime`, the start of the simulation, rather than the start of its own
+segment.  Omega measures the history time axis from the clock's start time, so
+a segment that moves the start time restarts that axis at zero, and its first
+frame then collides with the first frame already in the file.  That collision
+is what silently overwrote the earlier frames in #482.  On a `Continue` the
+clock's current time comes from the restart file instead, so the start time
+does not need to move.
+
+### validate
+
+The class
+{py:class}`polaris.tasks.ocean.realistic_global.restart.validate.Validate`
+compares the history of the restart chain with that of the full run in two
+ways.  It reads the elapsed-time coordinate with `xarray` directly, rather
+than through the Omega-to-MPAS-Ocean renaming in `open_model_dataset()`,
+because that coordinate is the variable under test; it then compares the state
+variables with {py:func}`polaris.validate.compare_variables` as any other
+exact-restart test would.  A chain that wrote fewer frames than the full run
+is reported as the #482 failure specifically, since that is the shape the bug
+takes.
 
 (dev-ocean-realistic-global-woa23)=
 

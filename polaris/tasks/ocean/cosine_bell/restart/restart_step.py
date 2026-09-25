@@ -59,21 +59,19 @@ class RestartStep(Forward):
         output_freq = int(output_interval)
 
         if do_restart:
-            restart_time_str = start_time_str
+            start_type = 'Continue'
             init_freq_units = 'never'
         else:
-            # Effectively never
-            restart_time_str = '99999-12-31_00:00:00'
+            start_type = 'StartUp'
             init_freq_units = 'OnStartup'
 
         package = 'polaris.tasks.ocean.cosine_bell.restart'
         replacements = dict(
             do_restart=do_restart,
-            not_restart=not do_restart,
             start_time=start_time_str,
             run_duration=run_duration_str,
             output_interval=output_interval_str,
-            restart_time=restart_time_str,
+            start_type=start_type,
             init_freq_units=init_freq_units,
             output_freq=f'{output_freq}',
         )
