@@ -610,9 +610,10 @@ surface heat flux and frazil formation in a single, thick surface layer. The
 column is initialized exactly at the local freezing point and every tendency is
 disabled except the surface tracer forcing and the frazil tendency, so the heat
 content of the top layer evolves only in response to the applied surface heat
-flux and to frazil growth. A forward run is performed for each frazil algorithm
-(`FixedProperty` and `teos`); as in the `frazil` task, the `teos` variant is
-omitted for MPAS-Ocean.
+flux and to frazil growth. Omega runs both frazil algorithms (`FixedProperty`
+and `teos`) with each of its five time integrators: `Forward-Backward`,
+`RungeKutta2`, `RungeKutta4`, `SplitExplicitRK2` and `UnsplitRK2`. MPAS-Ocean
+retains only the `RK4`/`FixedProperty` run.
 
 ### mesh
 
@@ -649,6 +650,11 @@ in [frazil](#frazil) above.
 
 The time step is given in {ref}`ocean-single-column`. The run duration is one
 day, with output written every time step.
+
+The optional visualization compares the top-layer heat content over the day
+and during the first five time steps, along with the top-layer temperature,
+freezing point and thickness. It also shows heat-content anomalies in the
+two deeper layers. The initial point is read from `init.nc`.
 
 ### config options
 
