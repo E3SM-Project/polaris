@@ -7,8 +7,6 @@ mpas-ocean:
     config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: {{ dt }}
-  split_explicit_ts:
-    config_btr_dt: {{ btr_dt }}
   forcing:
     config_use_bulk_thickness_flux: true
   land_ice:
@@ -55,6 +53,7 @@ mpas-ocean:
       - vertVelocityTop
       - surfacePressure
       - landIcePressure
+      - wettingVelocityFactor
     land_ice_fluxes:
       type: output
       precision: double
