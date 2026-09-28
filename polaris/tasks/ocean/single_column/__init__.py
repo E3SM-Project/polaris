@@ -4,6 +4,9 @@ from polaris.tasks.ocean.single_column.frazil import Frazil as Frazil
 from polaris.tasks.ocean.single_column.frazil.init import (
     FrazilInit as FrazilInit,
 )
+from polaris.tasks.ocean.single_column.frazil.top_layer import (
+    FrazilTopLayer as FrazilTopLayer,
+)
 from polaris.tasks.ocean.single_column.ideal_age import IdealAge as IdealAge
 from polaris.tasks.ocean.single_column.inertial import Inertial as Inertial
 from polaris.tasks.ocean.single_column.init import Init
@@ -185,3 +188,10 @@ def add_single_column_tasks(component):
                 case=case,
             )
         )
+
+    component.add_task(
+        FrazilTopLayer(
+            component=component,
+            subdir='column/frazil/freezing_topLayer',
+        )
+    )

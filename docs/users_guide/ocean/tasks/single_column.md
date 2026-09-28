@@ -601,6 +601,64 @@ See {ref}`ocean-single-column` and the frazil-specific options in the
 
 See {ref}`ocean-single-column`.
 
+## frazil top layer
+
+### description
+
+The `frazil/freezing_topLayer` task isolates the interaction between the
+surface heat flux and frazil formation in a single, thick surface layer. The
+column is initialized exactly at the local freezing point and every tendency is
+disabled except the surface tracer forcing and the frazil tendency, so the heat
+content of the top layer evolves only in response to the applied surface heat
+flux and to frazil growth. A forward run is performed for each frazil algorithm
+(`FixedProperty` and `teos`); as in the `frazil` task, the `teos` variant is
+omitted for MPAS-Ocean.
+
+### mesh
+
+See {ref}`ocean-single-column`.
+
+### vertical grid
+
+The column has three uniform 10 m layers:
+
+```cfg
+[vertical_grid]
+
+# Number of vertical levels
+vert_levels = 3
+
+# Depth of the bottom of the ocean, giving three 10 m layers
+bottom_depth = 30.0
+```
+
+### initial conditions
+
+Salinity uses the same linear profile as the `frazil` task, set by
+`salinity_surface` and `dsdz` in the `single_column_frazil` section.
+Temperature is set to the local freezing point computed from the equation of
+state at each layer, rather than to the uniform `temperature_freezing` value,
+so that frazil begins forming as soon as the surface cooling is applied.
+
+### forcing
+
+The surface latent heat flux is inherited from the `frazil` task, as described
+in [frazil](#frazil) above.
+
+### time step and run duration
+
+The time step is given in {ref}`ocean-single-column`. The run duration is one
+day, with output written every time step.
+
+### config options
+
+See {ref}`ocean-single-column` and the frazil-specific options in the
+`single_column_frazil` and `single_column_forcing` sections above.
+
+### cores
+
+See {ref}`ocean-single-column`.
+
 ## thermo
 
 ### description

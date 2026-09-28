@@ -341,6 +341,12 @@
    frazil.init.FrazilInit
    frazil.init.FrazilInit._compute_temperature_salinity
 
+   frazil.top_layer.FrazilTopLayer
+   frazil.top_layer.FrazilTopLayer.configure
+
+   frazil.top_layer.viz.TopLayerViz
+   frazil.top_layer.viz.TopLayerViz.run
+
    forward.Forward
    forward.Forward.dynamic_model_config
 ```
