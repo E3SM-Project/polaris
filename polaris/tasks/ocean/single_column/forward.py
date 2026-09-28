@@ -43,6 +43,7 @@ class Forward(OceanModelStep):
         enable_kpp=None,
         frazil_type=None,
         frazil_conservation=False,
+        time_integrator=None,
     ):
         """
         Create a new test case
@@ -123,6 +124,9 @@ class Forward(OceanModelStep):
 
         frazil_conservation : bool, optional
             Whether to include Omega frazil fluxes in the conservation check.
+
+        time_integrator : str, optional
+            Override the single-column time integrator for this step.
         """
         if disable_coriolis is None:
             disable_coriolis = not enable_hadv
@@ -140,6 +144,8 @@ class Forward(OceanModelStep):
             name = f'{name}_langmuir'
         if enable_kpp is False:
             name = f'{name}_no_kpp'
+        if time_integrator is not None:
+            name = f'{name}_{time_integrator}'
         super().__init__(
             component=component,
             name=name,
@@ -206,6 +212,7 @@ class Forward(OceanModelStep):
         self.enable_kpp = enable_kpp
         self.frazil_type = frazil_type
         self.frazil_conservation = frazil_conservation
+        self.time_integrator = time_integrator
 
     def setup(self):
         """
@@ -245,12 +252,18 @@ class Forward(OceanModelStep):
             seconds=output_interval_seconds
         )
 
-        time_integrator = section.get('time_integrator')
-        time_integrator_map = dict(
-            [('RK4', 'RungeKutta4'), ('split_explicit', 'SplitExplicitRK2')]
+        time_integrator = self.time_integrator or section.get(
+            'time_integrator'
         )
+        time_integrator_map = {
+            'RK4': 'RungeKutta4',
+            'Forward-Backward': 'Forward-Backward',
+            'RungeKutta2': 'RungeKutta2',
+            'SplitExplicitRK2': 'SplitExplicitRK2',
+            'UnsplitRK2': 'UnsplitRK2',
+        }
         if model == 'omega':
-            if time_integrator in time_integrator_map.keys():
+            if time_integrator in time_integrator_map:
                 time_integrator = time_integrator_map[time_integrator]
             else:
                 print(
