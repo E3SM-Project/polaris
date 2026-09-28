@@ -157,6 +157,30 @@ track frazil formation, while the shared `Viz` step plots the depth-dependent
 state and tendency fields.  The conservation summary step records aggregated
 frazil thickness and salinity for each algorithm variant.
 
+## frazil top layer
+
+The
+{py:class}`polaris.tasks.ocean.single_column.frazil.top_layer.FrazilTopLayer`
+task runs a three-layer, 10 m resolution column initialized at the local
+freezing point for each of the two frazil algorithms.  It reuses
+{py:class}`polaris.tasks.ocean.single_column.frazil.init.FrazilInit` with
+`at_freezing=True`, which sets temperature to the freezing point from the
+equation of state rather than to the uniform `temperature_freezing` value.
+
+The task's `forward.yaml` disables every Omega tendency except
+`SfcTracerForcingTendencyEnable` and `FrazilTendencyEnable`, so the only terms
+acting on the column are the surface heat flux and frazil formation.  The run
+is exactly one day long, with output every time step, set through the
+`run_duration_steps` argument to the shared `Forward` step.
+
+The
+{py:class}`polaris.tasks.ocean.single_column.frazil.top_layer.viz.TopLayerViz`
+step plots the top-layer heat content as a function of time for each frazil
+algorithm, together with the line the heat content would follow if the surface
+flux acted alone and no frazil formed.  The heat content uses the TEOS-10
+reference specific heat that Omega integrates with, `CP0_SW`, so the plot is
+consistent with the model's own heat budget.
+
 ## thermo
 
 The {py:class}`polaris.tasks.ocean.single_column.thermo.Thermo` test performs
