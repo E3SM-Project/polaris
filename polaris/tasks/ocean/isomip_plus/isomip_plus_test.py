@@ -1,7 +1,7 @@
-from polaris import Task
+from polaris.ocean.ice_shelf import IceShelfTask
 
 
-class IsomipPlusTest(Task):
+class IsomipPlusTest(IceShelfTask):
     """
     An ISOMIP+ test case
 
@@ -20,7 +20,8 @@ class IsomipPlusTest(Task):
         Whether the case has tidal forcing
 
     thin_film: bool
-        Whether a thin film is present under land ice
+        Whether a thin film is present under grounded ice, as it is for
+        experiments with time-varying geometry
 
     planar : bool, optional
         Whether the test case runs on a planar or a spherical mesh
@@ -35,7 +36,7 @@ class IsomipPlusTest(Task):
         vertical_coordinate,
         planar,
         shared_steps,
-        thin_film=False,
+        config,
         tidal_forcing=False,
     ):
         """
@@ -66,8 +67,9 @@ class IsomipPlusTest(Task):
             The shared step for creating a topography mapping file from
             the ISOMIP+ input data to the base mesh
 
-        thin_film: bool, optional
-            Whether the run includes a thin film below grounded ice
+        config : polaris.config.PolarisConfigParser
+            A config parser shared by the task and its steps, whose file is
+            in the task's work directory
 
         tidal_forcing: bool, optional
             Whether the run includes a single-period tidal forcing
@@ -75,28 +77,23 @@ class IsomipPlusTest(Task):
         name = experiment
         if tidal_forcing:
             name = f'tidal_forcing_{name}'
-        if thin_film:
-            name = f'thin_film_{name}'
 
         self.resolution = resolution
         self.experiment = experiment
         self.vertical_coordinate = vertical_coordinate
-        self.thin_film = thin_film
+        self.thin_film = experiment in ['inception', 'wetting', 'drying']
         self.tidal_forcing = tidal_forcing
         self.planar = planar
         subdir = f'{resdir}/{vertical_coordinate}/{name}'
-        super().__init__(component=component, name=name, subdir=subdir)
+        super().__init__(
+            component=component,
+            min_resolution=resolution,
+            name=name,
+            subdir=subdir,
+        )
+        self.set_shared_config(config)
 
         for symlink, step in shared_steps.items():
             if symlink == 'topo_final':
                 continue
             self.add_step(step, symlink=symlink)
-
-    def configure(self):
-        """
-        Modify the configuration options for this test case.
-        """
-        config = self.config
-        config.add_from_package(
-            'polaris.tasks.ocean.isomip_plus', 'isomip_plus.cfg'
-        )
