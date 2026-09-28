@@ -1,4 +1,5 @@
 from polaris.ocean.ice_shelf import IceShelfTask
+from polaris.tasks.ocean.isomip_plus.forward import Forward
 from polaris.tasks.ocean.isomip_plus.init import Init
 from polaris.tasks.ocean.isomip_plus.ssh_forward import SshForward
 
@@ -115,7 +116,7 @@ class IsomipPlusTest(IceShelfTask):
         init.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(init)
 
-        self.setup_ssh_adjustment_steps(
+        ssh_adjust = self.setup_ssh_adjustment_steps(
             mesh_filename=f'{init.path}/mesh.nc',
             graph_target=f'{init.path}/culled_graph.info',
             init_filename=f'{init.path}/init.nc',
@@ -125,3 +126,13 @@ class IsomipPlusTest(IceShelfTask):
             package='polaris.tasks.ocean.isomip_plus',
             yaml_filename='physics.yaml',
         )
+
+        forward = Forward(
+            component=component,
+            indir=subdir,
+            resolution=resolution,
+            init=init,
+            ssh_adjust=ssh_adjust,
+        )
+        forward.set_shared_config(config, link='isomip_plus.cfg')
+        self.add_step(forward)
