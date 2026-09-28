@@ -72,7 +72,7 @@ class TopoRemap(Step):
 
     def _preprocess(self):
         config = self.config
-        ice_density = config.getfloat('isomip_plus', 'ice_density')
+        ice_density = config.getfloat('isomip_plus_topo', 'ice_density')
         min_ice_thickness = config.getfloat(
             'isomip_plus_topo', 'min_ice_thickness'
         )
