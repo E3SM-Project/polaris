@@ -468,6 +468,7 @@
 
    init_utils.build_overflow_mesh
    init_utils.compute_bottom_depth
+   init_utils.compute_initial_density
    init_utils.compute_initial_temperature
 
    pstar_init.PStarInit
