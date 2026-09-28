@@ -2,6 +2,7 @@ from polaris.ocean.ice_shelf import IceShelfTask
 from polaris.tasks.ocean.isomip_plus.forward import Forward
 from polaris.tasks.ocean.isomip_plus.init import Init
 from polaris.tasks.ocean.isomip_plus.ssh_forward import SshForward
+from polaris.tasks.ocean.isomip_plus.viz import Viz
 
 
 class IsomipPlusTest(IceShelfTask):
@@ -136,3 +137,9 @@ class IsomipPlusTest(IceShelfTask):
         )
         forward.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(forward)
+
+        viz = Viz(
+            component=component, indir=subdir, init=init, forward=forward
+        )
+        viz.set_shared_config(config, link='isomip_plus.cfg')
+        self.add_step(viz)
