@@ -1,0 +1,85 @@
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  time_management:
+    config_do_restart: false
+    config_stop_time: none
+    config_run_duration: {{ run_duration }}
+  time_integration:
+    config_dt: {{ dt }}
+  split_explicit_ts:
+    config_btr_dt: {{ btr_dt }}
+  forcing:
+    config_use_bulk_thickness_flux: true
+  land_ice_fluxes:
+    config_land_ice_flux_mode: standalone
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_interior_restoring: true
+    config_use_activeTracers_surface_bulk_forcing: true
+  AM_globalStats:
+    config_AM_globalStats_enable: true
+    config_AM_globalStats_compute_on_startup: true
+    config_AM_globalStats_write_on_startup: true
+  streams:
+    forcing_data:
+      type: input
+      filename_template: forcing_data.nc
+      input_interval: initial_only
+      contents:
+      - tracersInteriorRestoringFields
+      - evaporationFlux
+      - seaIceHeatFlux
+      - seaIceSalinityFlux
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - mesh
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - normalVelocity
+      - layerThickness
+      - zMid
+      - minLevelCell
+      - maxLevelCell
+      - ssh
+      - density
+      - velocityX
+      - velocityY
+      - kineticEnergyCell
+      - vertVelocityTop
+      - surfacePressure
+      - landIcePressure
+    land_ice_fluxes:
+      type: output
+      precision: double
+      filename_template: land_ice_fluxes.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - xtime
+      - daysSinceStartOfSim
+      - ssh
+      - landIcePressure
+      - landIceDraft
+      - landIceFraction
+      - landIceMask
+      - landIceFloatingFraction
+      - landIceFloatingMask
+      - landIceFrictionVelocity
+      - topDrag
+      - topDragMagnitude
+      - landIceFreshwaterFlux
+      - landIceHeatFlux
+      - heatFluxToLandIce
+      - landIceInterfaceTracers
+      - landIceBoundaryLayerTracers
+      - landIceTracerTransferVelocities
+      - effectiveDensityInLandIce
+      - accumulatedLandIceMass
+      - accumulatedLandIceHeat
+    globalStatsOutput:
+      output_interval: 0001_00:00:00
