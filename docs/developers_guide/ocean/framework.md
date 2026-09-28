@@ -730,6 +730,16 @@ steps, as described in {ref}`ocean-ssh-adjustment`. It returns the last
 `ssh_adjustment` step, which is typically used as the
 initial state for subsequent forward steps.
 
+The module also provides helpers for computing the land-ice pressure from ice
+thickness ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_thickness()`)
+or ice draft ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_draft()`),
+the draft of floating ice from its pressure
+({py:func}`polaris.ocean.ice_shelf.compute_land_ice_draft_from_pressure()`),
+and the freezing temperature in an ice-shelf cavity
+({py:func}`polaris.ocean.ice_shelf.compute_freezing_temperature()`) using the
+coefficients in the `ice_shelf_freeze` config section, which match the
+MPAS-Ocean defaults.
+
 (dev-ocean-framework-vertical)=
 
 ## Vertical coordinate
