@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Machine-Readable Suite Results</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Task-Parallel-Safe Analysis Steps in Polaris" href="task_parallel_analysis_steps.html" />
+    <link rel="prev" title="Shared steps" href="shared_steps.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Machine-Readable Suite Results</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-a-suite-run-leaves-a-machine-readable-record-of-its-results">Requirement: A suite run leaves a machine-readable record of its results.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-record-is-useful-when-the-run-does-not-finish">Requirement: The record is useful when the run does not finish.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-record-carries-what-the-text-output-discards">Requirement: The record carries what the text output discards.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-consumers-can-detect-a-change-in-the-format">Requirement: Consumers can detect a change in the format.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-design">Algorithm Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-a-suite-run-leaves-a-machine-readable-record-of-its-results">Algorithm Design: A suite run leaves a machine-readable record of its results.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-record-is-useful-when-the-run-does-not-finish">Algorithm Design: The record is useful when the run does not finish.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-the-record-carries-what-the-text-output-discards">Algorithm Design: The record carries what the text output discards.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-design-consumers-can-detect-a-change-in-the-format">Algorithm Design: Consumers can detect a change in the format.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-a-suite-run-leaves-a-machine-readable-record-of-its-results">Implementation: A suite run leaves a machine-readable record of its results.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-record-is-useful-when-the-run-does-not-finish">Implementation: The record is useful when the run does not finish.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-a-suite-run-leaves-a-machine-readable-record-of-its-results">Testing and Validation: A suite run leaves a machine-readable record of its results.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-record-is-useful-when-the-run-does-not-finish">Testing and Validation: The record is useful when the run does not finish.</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Machine-Readable Suite Results</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/suite_results_file.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="machine-readable-suite-results">
+<h1>Machine-Readable Suite Results<a class="headerlink" href="#machine-readable-suite-results" title="Link to this heading"></a></h1>
+<p>date: 2026/09/25</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> reports a suite’s results only as text: a line per task
+on stdout and a <code class="docutils literal notranslate"><span class="pre">POLARIS</span> <span class="pre">TASK:</span> <span class="pre">PASS</span></code> or <code class="docutils literal notranslate"><span class="pre">FAIL</span></code> line in each task’s log in
+<code class="docutils literal notranslate"><span class="pre">case_outputs</span></code>. The nightly CDash job scrapes those strings and reports an
+execution time of <code class="docutils literal notranslate"><span class="pre">1.0</span></code> for every task because the real times are printed
+and then discarded (see
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/issues/771">#771</a>).</p>
+<p>This design adds a JSON results file that <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> writes alongside
+the suite’s pickle file. It records each task’s outcome, elapsed time and
+baseline differences, plus the provenance of the run. Downstream tools read
+the file instead of the logs, so the log wording is no longer an interface.</p>
+<p>Success means that the CDash job can build its test report from this file
+alone, with real per-task times, including for a run that was killed before
+it finished.</p>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-a-suite-run-leaves-a-machine-readable-record-of-its-results">
+<h3>Requirement: A suite run leaves a machine-readable record of its results.<a class="headerlink" href="#requirement-a-suite-run-leaves-a-machine-readable-record-of-its-results" title="Link to this heading"></a></h3>
+<p>For each task, the record gives its outcome, the outcome of any baseline
+comparison, its elapsed time, the steps it ran and where its log is. For
+the run, it gives the Polaris version, machine, compiler and build.</p>
+</section>
+<section id="requirement-the-record-is-useful-when-the-run-does-not-finish">
+<h3>Requirement: The record is useful when the run does not finish.<a class="headerlink" href="#requirement-the-record-is-useful-when-the-run-does-not-finish" title="Link to this heading"></a></h3>
+<p>A job that hits its wall-clock limit still leaves a record of the tasks that
+finished and of those that did not run.</p>
+</section>
+<section id="requirement-the-record-carries-what-the-text-output-discards">
+<h3>Requirement: The record carries what the text output discards.<a class="headerlink" href="#requirement-the-record-carries-what-the-text-output-discards" title="Link to this heading"></a></h3>
+<p>This includes elapsed times and the norms of any baseline differences.</p>
+</section>
+<section id="requirement-consumers-can-detect-a-change-in-the-format">
+<h3>Requirement: Consumers can detect a change in the format.<a class="headerlink" href="#requirement-consumers-can-detect-a-change-in-the-format" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="algorithm-design">
+<h2>Algorithm Design<a class="headerlink" href="#algorithm-design" title="Link to this heading"></a></h2>
+<section id="algorithm-design-a-suite-run-leaves-a-machine-readable-record-of-its-results">
+<h3>Algorithm Design: A suite run leaves a machine-readable record of its results.<a class="headerlink" href="#algorithm-design-a-suite-run-leaves-a-machine-readable-record-of-its-results" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span> <span class="pre">&lt;suite&gt;</span></code> writes <code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_results.json</span></code> in the suite’s base
+work directory. <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> in a task’s work directory writes
+<code class="docutils literal notranslate"><span class="pre">task_results.json</span></code> there. In both cases, the provenance comes from the
+<code class="docutils literal notranslate"><span class="pre">provenance</span></code> file in the base work directory.</p>
+<p>The file is a JSON object:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"schema_version"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"suite"</span><span class="p">:</span><span class="w"> </span><span class="s2">"omega_pr"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"complete"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"start_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-25T10:15:02-05:00"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"elapsed_seconds"</span><span class="p">:</span><span class="w"> </span><span class="mf">1834.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nt">"passed"</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="nt">"failed"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"pending"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"provenance"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"polaris_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.1.0-alpha.6"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"polaris_git_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4b2347b9e"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"component_git_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a1b2c3d"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"machine"</span><span class="p">:</span><span class="w"> </span><span class="s2">"chrysalis"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"partition"</span><span class="p">:</span><span class="w"> </span><span class="s2">"compute"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"compiler"</span><span class="p">:</span><span class="w"> </span><span class="s2">"intel"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"build_directory"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/build"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"build_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Release"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"work_directory"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/work"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"baseline_work_directory"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/baseline"</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"tasks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ocean/planar/manufactured_solution/convergence_both/default"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fail"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"execution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pass"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"baseline"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fail"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"elapsed_seconds"</span><span class="p">:</span><span class="w"> </span><span class="mf">95.3</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"steps_to_run"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"init"</span><span class="p">,</span><span class="w"> </span><span class="s2">"forward"</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"log"</span><span class="p">:</span><span class="w"> </span><span class="s2">"case_outputs/ocean_planar_manufactured_solution_...log"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"baseline_diffs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"normalVelocity"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"l1"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.2e-9</span><span class="p">,</span><span class="w"> </span><span class="nt">"l2"</span><span class="p">:</span><span class="w"> </span><span class="mf">3.4e-10</span><span class="p">,</span><span class="w"> </span><span class="nt">"linf"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.6e-11</span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">tasks</span></code> lists every task in the suite in the order they run.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">status</span></code> is <code class="docutils literal notranslate"><span class="pre">pass</span></code>, <code class="docutils literal notranslate"><span class="pre">fail</span></code> or <code class="docutils literal notranslate"><span class="pre">pending</span></code>. A task passes if it ran without
+error and no baseline comparison failed, the same criterion as the text
+output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">execution</span></code> is <code class="docutils literal notranslate"><span class="pre">pass</span></code> or <code class="docutils literal notranslate"><span class="pre">fail</span></code>, and <code class="docutils literal notranslate"><span class="pre">null</span></code> for a pending task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">baseline</span></code> is <code class="docutils literal notranslate"><span class="pre">pass</span></code> or <code class="docutils literal notranslate"><span class="pre">fail</span></code>, and <code class="docutils literal notranslate"><span class="pre">null</span></code> if no comparison was made.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code> is relative to the directory holding the results file. It is <code class="docutils literal notranslate"><span class="pre">null</span></code>
+for a single task, whose steps log separately.</p></li>
+<li><p>A provenance value that the <code class="docutils literal notranslate"><span class="pre">provenance</span></code> file does not record is <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p></li>
+</ul>
+</section>
+<section id="algorithm-design-the-record-is-useful-when-the-run-does-not-finish">
+<h3>Algorithm Design: The record is useful when the run does not finish.<a class="headerlink" href="#algorithm-design-the-record-is-useful-when-the-run-does-not-finish" title="Link to this heading"></a></h3>
+<p>The file is written before the first task runs, with every task <code class="docutils literal notranslate"><span class="pre">pending</span></code>,
+and rewritten after each task finishes. <code class="docutils literal notranslate"><span class="pre">complete</span></code> is <code class="docutils literal notranslate"><span class="pre">false</span></code> until the last
+write, which happens before <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> exits with a failure status.
+Each write goes to a temporary file that is renamed into place, so a reader
+never sees a partial file.</p>
+<p>A consumer that finds <code class="docutils literal notranslate"><span class="pre">complete:</span> <span class="pre">false</span></code> after the job has ended reports the
+<code class="docutils literal notranslate"><span class="pre">pending</span></code> tasks as not run.</p>
+</section>
+<section id="algorithm-design-the-record-carries-what-the-text-output-discards">
+<h3>Algorithm Design: The record carries what the text output discards.<a class="headerlink" href="#algorithm-design-the-record-carries-what-the-text-output-discards" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">elapsed_seconds</span></code> is wall-clock time, for each task and for the suite so
+far. <code class="docutils literal notranslate"><span class="pre">baseline_diffs</span></code> holds the maximum l1, l2 and l_infinity norms of the
+differences for each compared variable, merged across a task’s steps in the
+same way as for <code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_output_for_pr.md</span></code>. It is empty when no comparison
+was made. Non-finite norms are written as the strings <code class="docutils literal notranslate"><span class="pre">NaN</span></code>, <code class="docutils literal notranslate"><span class="pre">Infinity</span></code> and
+<code class="docutils literal notranslate"><span class="pre">-Infinity</span></code> so that the file is strict JSON.</p>
+</section>
+<section id="algorithm-design-consumers-can-detect-a-change-in-the-format">
+<h3>Algorithm Design: Consumers can detect a change in the format.<a class="headerlink" href="#algorithm-design-consumers-can-detect-a-change-in-the-format" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">schema_version</span></code> is an integer. It is incremented when a field is removed
+or its meaning changes, not when a field is added.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-a-suite-run-leaves-a-machine-readable-record-of-its-results">
+<h3>Implementation: A suite run leaves a machine-readable record of its results.<a class="headerlink" href="#implementation-a-suite-run-leaves-a-machine-readable-record-of-its-results" title="Link to this heading"></a></h3>
+<p>A new module, <code class="docutils literal notranslate"><span class="pre">polaris.run.results</span></code>, holds a <code class="docutils literal notranslate"><span class="pre">TaskResult</span></code> record and the
+function that writes the file. <code class="docutils literal notranslate"><span class="pre">polaris.run.serial.run_tasks()</span></code> builds a
+<code class="docutils literal notranslate"><span class="pre">TaskResult</span></code> per task, replacing the tuple that <code class="docutils literal notranslate"><span class="pre">_log_and_run_task()</span></code>
+returns now. It reads provenance with the parser it already uses for
+<code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_output_for_pr.md</span></code>, but from the base work directory, so that a
+single task has provenance as well.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">POLARIS</span> <span class="pre">TASK</span></code> and <code class="docutils literal notranslate"><span class="pre">POLARIS</span> <span class="pre">BASELINE</span></code> log lines and
+<code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_output_for_pr.md</span></code> are unchanged.</p>
+</section>
+<section id="implementation-the-record-is-useful-when-the-run-does-not-finish">
+<h3>Implementation: The record is useful when the run does not finish.<a class="headerlink" href="#implementation-the-record-is-useful-when-the-run-does-not-finish" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">run_tasks()</span></code> calls the writer once before the loop over tasks, once after
+each task and once with <code class="docutils literal notranslate"><span class="pre">complete=True</span></code> before logging the task runtimes,
+which is where a failed suite exits.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-a-suite-run-leaves-a-machine-readable-record-of-its-results">
+<h3>Testing and Validation: A suite run leaves a machine-readable record of its results.<a class="headerlink" href="#testing-and-validation-a-suite-run-leaves-a-machine-readable-record-of-its-results" title="Link to this heading"></a></h3>
+<p>Unit tests run <code class="docutils literal notranslate"><span class="pre">run_tasks()</span></code> on a mocked suite with a task that passes, one
+that raises, and one whose baseline comparison fails, and check the
+contents of the file. A run of <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> against a baseline from <code class="docutils literal notranslate"><span class="pre">main</span></code>
+checks the file from a real suite.</p>
+</section>
+<section id="testing-and-validation-the-record-is-useful-when-the-run-does-not-finish">
+<h3>Testing and Validation: The record is useful when the run does not finish.<a class="headerlink" href="#testing-and-validation-the-record-is-useful-when-the-run-does-not-finish" title="Link to this heading"></a></h3>
+<p>A unit test checks the file after the first of several tasks, and that the
+final file is written when the suite fails.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="shared_steps.html" class="btn btn-neutral float-left" title="Shared steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="task_parallel_analysis_steps.html" class="btn btn-neutral float-right" title="Task-Parallel-Safe Analysis Steps in Polaris" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

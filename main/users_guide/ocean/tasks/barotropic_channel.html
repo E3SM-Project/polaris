@@ -223,10 +223,12 @@ determined by cfg options <code class="docutils literal notranslate"><span class
 </section>
 <section id="time-step-and-run-duration">
 <h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
-<p>The time step for forward integration is 1 second.  The run duration is
-2 days for the <code class="docutils literal notranslate"><span class="pre">default</span></code> task and 2 hours for the <code class="docutils literal notranslate"><span class="pre">short</span></code> task, set by the
-<code class="docutils literal notranslate"><span class="pre">run_duration</span></code> option in the <code class="docutils literal notranslate"><span class="pre">[barotropic_channel_default]</span></code> and
-<code class="docutils literal notranslate"><span class="pre">[barotropic_channel_short]</span></code> config sections respectively.</p>
+<p>The time step for forward integration is 1 second in MPAS-Ocean. Omega uses
+its split-explicit time stepper instead, with a 15 second time step and a
+0.5 second barotropic time step.  The run duration is 2 days for the
+<code class="docutils literal notranslate"><span class="pre">default</span></code> task and 2 hours for the <code class="docutils literal notranslate"><span class="pre">short</span></code> task, set by the <code class="docutils literal notranslate"><span class="pre">run_duration</span></code>
+option in the <code class="docutils literal notranslate"><span class="pre">[barotropic_channel_default]</span></code> and <code class="docutils literal notranslate"><span class="pre">[barotropic_channel_short]</span></code>
+config sections respectively.</p>
 </section>
 <section id="config-options">
 <h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>

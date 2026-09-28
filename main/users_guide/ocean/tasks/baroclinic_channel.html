@@ -173,6 +173,12 @@ at least 2 steps, <code class="docutils literal notranslate"><span class="pre">i
 model, and some variation on <code class="docutils literal notranslate"><span class="pre">forward</span></code> (given another name in many test cases
 to distinguish multiple forward runs), which performs time integration of the
 model.</p>
+<p>The tasks use the split-explicit time stepper.  So that the two time steppers
+can be run side by side, the <code class="docutils literal notranslate"><span class="pre">decomp</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code> and <code class="docutils literal notranslate"><span class="pre">threads</span></code> tests are also
+available at 10 km under <code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/split_explicit</span></code>,
+identical to those under <code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/10km</span></code>, and under
+<code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/rk4</span></code> with the RK4 time stepper, whose stages
+and halo exchanges differ from those of the split-explicit stepper.</p>
 </section>
 <section id="suppported-models">
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
@@ -290,18 +296,18 @@ Run duration will be discussed for individual test cases.</p>
 <span class="k">[baroclinic_channel]</span>
 
 <span class="c1"># Time integration scheme</span>
-<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
 
 <span class="c1"># the size of the domain in km in the x and y directions</span>
 <span class="na">lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">160.0</span>
 <span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500.0</span>
 
 <span class="c1"># time step per resolution (s/km), since dt is proportional to resolution</span>
-<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60.0</span>
 
 <span class="c1"># barotropic time step per resolution (s/km), since btr_dt is proportional to</span>
 <span class="c1"># resolution</span>
-<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span>
 
 <span class="c1"># Logical flag that determines if locations of features are defined by distance</span>
 <span class="c1"># or fractions. False means fractions.</span>
@@ -357,6 +363,18 @@ other baroclinic channel tests.</p>
 <span class="na">output_interval_units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">hours</span>
 </pre></div>
 </div>
+<p>The tasks under <code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/rk4</span></code> also read these
+overrides, which switch to RK4 and the shorter time step it needs:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Overrides for the baroclinic channel tasks that use the RK4 time stepper</span>
+<span class="k">[baroclinic_channel]</span>
+
+<span class="c1"># Time integration scheme</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
+<span class="c1"># time step per resolution (s/km), shorter since RK4 is unsplit</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.0</span>
+</pre></div>
+</div>
 </section>
 <section id="default">
 <h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
@@ -403,10 +421,13 @@ duration is 3 time steps. The <code class="docutils literal notranslate"><span c
 <h2>decomp<a class="headerlink" href="#decomp" title="Link to this heading"></a></h2>
 <section id="id8">
 <h3>description<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/decomp</span></code> runs a short (15 min) integration
-of the model forward in time on 4 (<code class="docutils literal notranslate"><span class="pre">4proc</span></code> step) and then on 8 processors
-(<code class="docutils literal notranslate"><span class="pre">8proc</span></code> step) to make sure the resulting prognostic variables are
-bit-for-bit identical between the two runs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/10km/decomp</span></code> runs a short (3 time step)
+integration of the model forward in time on 4 (<code class="docutils literal notranslate"><span class="pre">4proc</span></code> step) and then on 8
+processors (<code class="docutils literal notranslate"><span class="pre">8proc</span></code> step) to make sure the resulting prognostic variables are
+bit-for-bit identical between the two runs.
+<code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/split_explicit/10km/decomp</span></code> is the same test,
+and <code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/rk4/10km/decomp</span></code> repeats it with the RK4
+time stepper.</p>
 </section>
 <section id="id9">
 <h3>mesh<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
@@ -444,10 +465,13 @@ step.</p>
 <h2>threads<a class="headerlink" href="#threads" title="Link to this heading"></a></h2>
 <section id="id16">
 <h3>description<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/threads</span></code> runs a short (15 min) integration
-of the model forward in time on 1 threads per processor (<code class="docutils literal notranslate"><span class="pre">1thread</span></code> step) and
-then on 2 threads (<code class="docutils literal notranslate"><span class="pre">2thread</span></code> step) to make sure the resulting prognostic
-variables are bit-for-bit identical between the two runs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/10km/threads</span></code> runs a short (3 time step)
+integration of the model forward in time on 1 thread per processor (<code class="docutils literal notranslate"><span class="pre">1thread</span></code>
+step) and then on 2 threads (<code class="docutils literal notranslate"><span class="pre">2thread</span></code> step) to make sure the resulting
+prognostic variables are bit-for-bit identical between the two runs.
+<code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/split_explicit/10km/threads</span></code> is the same test,
+and <code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/rk4/10km/threads</span></code> repeats it with the RK4
+time stepper.</p>
 </section>
 <section id="id17">
 <h3>mesh<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
@@ -485,12 +509,15 @@ per processor and the <code class="docutils literal notranslate"><span class="pr
 <h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
 <section id="id24">
 <h3>description<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">ocean/baroclinic_channel/10km/restart</span></code> runs a short (10 min)
+<p><code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/10km/restart</span></code> runs a short (2 time step)
 integration of the model forward in time (<code class="docutils literal notranslate"><span class="pre">full_run</span></code> step), saving a restart
-file every 5 minutes.  Then, a second run (<code class="docutils literal notranslate"><span class="pre">restart_run</span></code> step) is performed
-from the restart file 5 minutes into the simulation and prognostic variables
-are compared between the “full” and “restart” runs at minute 10 to make sure
-they are bit-for-bit identical.</p>
+file after every time step.  Then, a second run (<code class="docutils literal notranslate"><span class="pre">restart_run</span></code> step) is
+performed from the restart file one time step into the simulation and
+prognostic variables are compared between the “full” and “restart” runs at
+the end of the second time step to make sure they are bit-for-bit identical.
+<code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/split_explicit/10km/restart</span></code> is the same test,
+and <code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/rk4/10km/restart</span></code> repeats it with the RK4
+time stepper.</p>
 </section>
 <section id="id25">
 <h3>mesh<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>

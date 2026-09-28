@@ -196,19 +196,22 @@
 
         <span class="n">mesh_info</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">'QU.240km'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span>
-                <span class="n">dt</span><span class="o">=</span><span class="s1">'00:10:00'</span><span class="p">,</span>
+                <span class="n">dt</span><span class="o">=</span><span class="s1">'02:00:00'</span><span class="p">,</span>
+                <span class="n">btr_dt</span><span class="o">=</span><span class="s1">'00:04:00'</span><span class="p">,</span>
                 <span class="n">run_duration</span><span class="o">=</span><span class="s1">'0005_00:00:00'</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="s1">'EC30to60E2r2'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span>
-                <span class="n">dt</span><span class="o">=</span><span class="s1">'00:00:45'</span><span class="p">,</span>
+                <span class="n">dt</span><span class="o">=</span><span class="s1">'00:30:00'</span><span class="p">,</span>
+                <span class="n">btr_dt</span><span class="o">=</span><span class="s1">'00:01:00'</span><span class="p">,</span>
                 <span class="n">run_duration</span><span class="o">=</span><span class="s1">'0001_00:00:00'</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">}</span>
         <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.realistic_global'</span>
         <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">'time_integrator'</span><span class="p">:</span> <span class="s1">'RungeKutta4'</span><span class="p">,</span>
+            <span class="s1">'time_integrator'</span><span class="p">:</span> <span class="s1">'SplitExplicitRK2'</span><span class="p">,</span>
             <span class="s1">'run_duration'</span><span class="p">:</span> <span class="n">mesh_info</span><span class="p">[</span><span class="n">mesh_name</span><span class="p">][</span><span class="s1">'run_duration'</span><span class="p">],</span>
             <span class="s1">'dt'</span><span class="p">:</span> <span class="n">mesh_info</span><span class="p">[</span><span class="n">mesh_name</span><span class="p">][</span><span class="s1">'dt'</span><span class="p">],</span>
+            <span class="s1">'btr_dt'</span><span class="p">:</span> <span class="n">mesh_info</span><span class="p">[</span><span class="n">mesh_name</span><span class="p">][</span><span class="s1">'btr_dt'</span><span class="p">],</span>
             <span class="s1">'output_interval'</span><span class="p">:</span> <span class="s1">'0001_00:00:00'</span><span class="p">,</span>
             <span class="s1">'output_freq'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
             <span class="s1">'output_freq_units'</span><span class="p">:</span> <span class="s1">'days'</span><span class="p">,</span>

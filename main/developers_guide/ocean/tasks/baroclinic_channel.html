@@ -162,6 +162,12 @@ we describe the 5 test cases and their shared framework.</p>
 <span id="dev-ocean-baroclinic-channel-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
 <p>The shared config options for <code class="docutils literal notranslate"><span class="pre">baroclinic_channel</span></code> tests  are described in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/baroclinic_channel.html#ocean-baroclinic-channel"><span class="std std-ref">baroclinic channel</span></a> in the User’s Guide.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">decomp</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code> and <code class="docutils literal notranslate"><span class="pre">threads</span></code> tests are also added at 10 km under
+<code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> and <code class="docutils literal notranslate"><span class="pre">rk4</span></code>, each with its own shared config file and <code class="docutils literal notranslate"><span class="pre">init</span></code>
+step, so that a suite can run the two time steppers side by side.  The
+<code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> tasks are identical to those at <code class="docutils literal notranslate"><span class="pre">10km</span></code>; the <code class="docutils literal notranslate"><span class="pre">rk4</span></code> tasks also
+read the overrides in <code class="docutils literal notranslate"><span class="pre">baroclinic_channel_rk4.cfg</span></code>, which switch the time
+integrator to RK4.</p>
 <p>Additionally, the tests share a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with a few common model
 config options related to run duration and default horizontal  and vertical
 momentum and tracer diffusion, as well as defining <code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">input</span></code>, <code class="docutils literal notranslate"><span class="pre">restart</span></code>,
@@ -178,7 +184,8 @@ temperature field is computed along with uniform salinity and zero initial
 velocity.  Finally, if a baseline is available, the step ensures that of
 <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code> and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> in the <code class="docutils literal notranslate"><span class="pre">initial_state.nc</span></code> file
 identical to those same fields from the baseline run.</p>
-<p>The same <code class="docutils literal notranslate"><span class="pre">init</span></code> step is shared by all tasks at a given resolution.</p>
+<p>The same <code class="docutils literal notranslate"><span class="pre">init</span></code> step is shared by all tasks at a given resolution, except
+that the <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> and <code class="docutils literal notranslate"><span class="pre">rk4</span></code> tasks each have their own.</p>
 </section>
 <section id="forward">
 <h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>

@@ -193,7 +193,7 @@ the target model is known:</p>
 mesh, initial condition, and vertical coordinate from MPAS-Ocean.</p></li>
 <li><p>For MPAS-Ocean, a <code class="docutils literal notranslate"><span class="pre">zerovel</span></code> file is linked as both <code class="docutils literal notranslate"><span class="pre">mesh.nc</span></code> and <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>,
 and the <code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> template replacement is rewritten from
-<code class="docutils literal notranslate"><span class="pre">RungeKutta4</span></code> to MPAS-Ocean’s <code class="docutils literal notranslate"><span class="pre">RK4</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code> to MPAS-Ocean’s <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code>.</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">setup()</span></code> also renders <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> with the template replacements supplied
 by the task, so the time step, run duration and output interval can be varied

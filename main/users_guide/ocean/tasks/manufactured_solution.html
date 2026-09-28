@@ -262,12 +262,37 @@ mesh resolution. The run duration is 10 hours.</p>
 <span class="na">n_wavelengths_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
 
 <span class="c1"># Time step per resolution (s/km), since dt is proportional to resolution</span>
-<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>
 
 <span class="c1"># Convergence threshold below which the test fails</span>
-<span class="na">conv_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.8</span>
+<span class="na">conv_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.8</span>
 </pre></div>
 </div>
+<p>The time integrator and the time steps that go with it are set in the
+<code class="docutils literal notranslate"><span class="pre">[convergence_forward]</span></code> section:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence forward steps</span>
+<span class="k">[convergence_forward]</span>
+
+<span class="c1"># time integrator: {'RK4', 'split_explicit', 'unsplit_explicit'}</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">unsplit_explicit</span>
+
+<span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
+<span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${manufactured_solution:dt_per_km}</span>
+
+<span class="c1"># Unsplit time step per resolution (s/km), half the RK4 step</span>
+<span class="na">unsplit_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.75</span>
+
+<span class="c1"># Split baroclinic time step per resolution (s/km), 30 barotropic substeps</span>
+<span class="na">split_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">22.5</span>
+
+<span class="c1"># Barotropic time step per resolution (s/km)</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.75</span>
+</pre></div>
+</div>
+<p>The single layer means the wave this test measures is entirely the barotropic
+mode.  The split time stepper subcycles and time-averages that mode, which
+damps it, so <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> converges at a much lower order than the
+unsplit schemes; <code class="docutils literal notranslate"><span class="pre">conv_thresh</span></code> is set accordingly.</p>
 </section>
 <section id="cores">
 <h3>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h3>

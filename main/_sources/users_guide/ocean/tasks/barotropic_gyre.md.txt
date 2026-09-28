@@ -105,7 +105,7 @@ where `tau_0` is given by a config option.
 [barotropic_gyre]
 
 # time integrator
-time_integrator = split_explicit_ab2
+time_integrator = split_explicit
 
 # distance in kilometers between cell centers
 resolution = 20

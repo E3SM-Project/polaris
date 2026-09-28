@@ -190,8 +190,55 @@
                 <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
                 <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
+    <span class="k">for</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'split_explicit'</span><span class="p">,</span> <span class="s1">'rk4'</span><span class="p">]:</span>
+        <span class="n">_add_time_integrator_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">time_integrator</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_time_integrator_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">time_integrator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add the 10-km decomp, restart and threads tasks for one time integrator,</span>
+<span class="sd">    ``'split_explicit'`` or ``'rk4'``, in a directory named for it, so that a</span>
+<span class="sd">    suite can run the two time steppers side by side.  RK4's stages and halo</span>
+<span class="sd">    exchanges differ from those of the split-explicit stepper.</span>
+<span class="sd">    """</span>
+    <span class="n">resolution</span> <span class="o">=</span> <span class="mf">10.0</span>
+    <span class="n">resdir</span> <span class="o">=</span> <span class="n">resolution_to_string</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+    <span class="n">resdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'planar/baroclinic_channel/</span><span class="si">{</span><span class="n">time_integrator</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">resdir</span><span class="si">}</span><span class="s1">'</span>
+
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'baroclinic_channel.cfg'</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span>
+        <span class="n">filepath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">resdir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'linear.cfg'</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="s1">'polaris.tasks.ocean.baroclinic_channel'</span><span class="p">,</span> <span class="s1">'baroclinic_channel.cfg'</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">time_integrator</span> <span class="o">==</span> <span class="s1">'rk4'</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">'polaris.tasks.ocean.baroclinic_channel'</span><span class="p">,</span>
+            <span class="s1">'baroclinic_channel_rk4.cfg'</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">init</span> <span class="o">=</span> <span class="n">Init</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">)</span>
+    <span class="n">init</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Decomp</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span>
+        <span class="p">),</span>
+        <span class="n">Restart</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span>
+        <span class="p">),</span>
+        <span class="n">Threads</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">resdir</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </pre></div>
 
            </div>

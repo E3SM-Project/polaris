@@ -344,11 +344,17 @@ the config file in the work directory).</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for convergence tests</span>
 <span class="k">[convergence_forward]</span>
 
-<span class="c1"># time integrator: {'split_explicit', 'RK4'}</span>
-<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+<span class="c1"># time integrator: {'RK4', 'split_explicit', 'unsplit_explicit'}</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
 
 <span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
 <span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+
+<span class="c1"># Split baroclinic time step per resolution (s/km)</span>
+<span class="na">split_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30.0</span>
+
+<span class="c1"># Barotropic time step per resolution (s/km)</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code>, <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are the

@@ -278,7 +278,9 @@
         <span class="p">)</span>
 
         <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'overflow'</span><span class="p">,</span> <span class="s1">'time_integrator'</span><span class="p">)</span>
-        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">'RK4'</span><span class="p">,</span> <span class="s1">'RungeKutta4'</span><span class="p">)])</span>
+        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="p">[(</span><span class="s1">'RK4'</span><span class="p">,</span> <span class="s1">'RungeKutta4'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'split_explicit'</span><span class="p">,</span> <span class="s1">'SplitExplicitRK2'</span><span class="p">)]</span>
+        <span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="n">time_integrator_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -309,7 +311,12 @@
             <span class="s1">'polaris.tasks.ocean.overflow'</span><span class="p">,</span>
             <span class="s1">'forward.yaml'</span><span class="p">,</span>
             <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">horiz_adv_order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
+                <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'HorzTracerFluxLimiterEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="n">config_model</span><span class="o">=</span><span class="s1">'Omega'</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Forward.compute_cell_count">

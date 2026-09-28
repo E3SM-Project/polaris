@@ -236,7 +236,8 @@ the <code class="docutils literal notranslate"><span class="pre">init</span></co
 with time steps determined algorithmically based on config options.  Both
 models take the same step from <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and the same integrator from
 <code class="docutils literal notranslate"><span class="pre">time_integrator</span></code>; the only model-dependent part is translating the
-integrator name to Omega’s (<code class="docutils literal notranslate"><span class="pre">RK4</span></code> becomes <code class="docutils literal notranslate"><span class="pre">RungeKutta4</span></code>).  The
+integrator name to Omega’s (<code class="docutils literal notranslate"><span class="pre">RK4</span></code> becomes <code class="docutils literal notranslate"><span class="pre">RungeKutta4</span></code> and <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code>
+becomes <code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code>).  The
 number of cells is approximated from config options in
 <a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count.html#polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count" title="polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.forward.Forward.compute_cell_count()</span></code></a>
 so that this can be used to constrain the number of MPI tasks that Polaris

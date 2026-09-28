@@ -323,13 +323,13 @@ enabled in both models once Omega supports it.</p>
 <span class="k">[overflow]</span>
 
 <span class="c1"># Time integration scheme</span>
-<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
 
-<span class="c1"># Timestep per km horizontal resolution (s)</span>
-<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">7.5</span>
+<span class="c1"># Baroclinic timestep per km horizontal resolution (s)</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">45</span>
 
 <span class="c1"># Barotropic timestep per km horizontal resolution (s)</span>
-<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.5</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>
 
 <span class="c1"># The width of the domain in the across-slope dimension (km)</span>
 <span class="na">ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">40</span>

@@ -361,15 +361,15 @@ exists to measure.</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the seamount case</span>
 <span class="k">[seamount]</span>
 
-<span class="c1"># Timestep per km horizontal resolution (s), shared by both models</span>
-<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4.0</span>
+<span class="c1"># Baroclinic timestep per km horizontal resolution (s), shared by both</span>
+<span class="c1"># models, 30 barotropic substeps long</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">56.25</span>
 
-<span class="c1"># Barotropic timestep per km horizontal resolution (s), MPAS-Ocean only, and</span>
-<span class="c1"># unused unless time_integrator is a split-explicit scheme</span>
-<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.5</span>
+<span class="c1"># Barotropic timestep per km horizontal resolution (s), shared by both models</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.875</span>
 
-<span class="c1"># Time integrator, shared by both models</span>
-<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+<span class="c1"># Time integrator, shared by both models: Omega maps this to SplitExplicitRK2</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">split_explicit</span>
 
 <span class="c1"># Horizontal tracer advection order, shared by both models</span>
 <span class="na">horiz_adv_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>

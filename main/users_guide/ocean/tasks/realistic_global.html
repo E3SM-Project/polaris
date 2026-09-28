@@ -274,18 +274,21 @@ output of MPAS-Ocean and Omega on the same mesh and initial condition.</p>
 <tr class="row-odd"><th class="head"><p>mesh</p></th>
 <th class="head"><p>cells</p></th>
 <th class="head"><p>time step</p></th>
+<th class="head"><p>barotropic step</p></th>
 <th class="head"><p>run duration</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">QU.240km</span></code></p></td>
 <td><p>7,153</p></td>
-<td><p>10 min</p></td>
-<td><p>10 days</p></td>
+<td><p>2 h</p></td>
+<td><p>4 min</p></td>
+<td><p>5 days</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">EC30to60E2r2</span></code></p></td>
 <td><p>236,853</p></td>
-<td><p>45 s</p></td>
+<td><p>30 min</p></td>
+<td><p>1 min</p></td>
 <td><p>1 day</p></td>
 </tr>
 </tbody>
@@ -345,7 +348,9 @@ and shear mixing enabled, and a constant implicit bottom drag coefficient of
 <section id="id6">
 <h3>time step and run duration<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <p>The time step and run duration are set per mesh as shown in the table above.
-Output, including the global statistics, is written once per day.</p>
+The forward run uses the split-explicit time stepper (<code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code> in
+Omega), so each baroclinic step is 30 barotropic substeps long and divides a
+day evenly.  Output, including the global statistics, is written once per day.</p>
 </section>
 <section id="id7">
 <h3>config options<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>

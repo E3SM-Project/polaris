@@ -130,9 +130,6 @@
 
 <span class="sd">    yaml_filename : str</span>
 <span class="sd">       The name of the yaml file for this forward step</span>
-
-<span class="sd">    nu : float</span>
-<span class="sd">       The Laplacian viscosity to use for this forward step</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Forward.__init__">
@@ -149,7 +146,6 @@
         <span class="n">ntasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">min_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">nu</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new test case</span>
@@ -185,9 +181,6 @@
 
 <span class="sd">        openmp_threads : int, optional</span>
 <span class="sd">            the number of OpenMP threads the step will use</span>
-
-<span class="sd">        nu : float, optional</span>
-<span class="sd">            the viscosity (if different from the default for the test group)</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">min_tasks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">min_tasks</span> <span class="o">=</span> <span class="n">ntasks</span>
@@ -204,7 +197,6 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">=</span> <span class="n">task_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yaml_filename</span> <span class="o">=</span> <span class="n">yaml_filename</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="n">nu</span>
 
         <span class="c1"># make sure output is double precision</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="s1">'polaris.ocean.config'</span><span class="p">,</span> <span class="s1">'output.yaml'</span><span class="p">)</span>
@@ -237,9 +229,7 @@
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="n">resolution</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'resolution'</span><span class="p">)</span>
 
-        <span class="c1"># Both models take the same time step with the same integrator:</span>
-        <span class="c1"># Omega has no split time stepper, so MPAS-Ocean gives up its</span>
-        <span class="c1"># split-explicit one to stay comparable</span>
+        <span class="c1"># Both models take the same time step with the same integrator</span>
         <span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'dt_per_km'</span><span class="p">)</span>
         <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'time_integrator'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
@@ -273,7 +263,6 @@
             <span class="n">output_freq_units</span><span class="o">=</span><span class="s1">'seconds'</span><span class="p">,</span>
             <span class="n">horiz_adv_order</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s1">'horiz_adv_order'</span><span class="p">),</span>
             <span class="n">bottom_drag_coeff</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'bottom_drag_coeff'</span><span class="p">),</span>
-            <span class="n">nu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
             <span class="s1">'polaris.tasks.ocean.seamount'</span><span class="p">,</span>
@@ -310,7 +299,9 @@
 <span class="sd">    Map an MPAS-Ocean time-integrator name to its Omega equivalent, leaving</span>
 <span class="sd">    names that are already Omega's alone.</span>
 <span class="sd">    """</span>
-    <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">'RK4'</span><span class="p">,</span> <span class="s1">'RungeKutta4'</span><span class="p">)])</span>
+    <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="p">[(</span><span class="s1">'RK4'</span><span class="p">,</span> <span class="s1">'RungeKutta4'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'split_explicit'</span><span class="p">,</span> <span class="s1">'SplitExplicitRK2'</span><span class="p">)]</span>
+    <span class="p">)</span>
     <span class="k">if</span> <span class="n">time_integrator</span> <span class="ow">in</span> <span class="n">time_integrator_map</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">time_integrator_map</span><span class="p">[</span><span class="n">time_integrator</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">time_integrator</span>

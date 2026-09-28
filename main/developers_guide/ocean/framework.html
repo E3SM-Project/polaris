@@ -587,11 +587,15 @@ to test. When spherical meshes are being tested, the values in the
 <span class="c1"># config options for convergence forward steps</span>
 <span class="k">[convergence_forward]</span>
 
-<span class="c1"># time integrator: {'split_explicit', 'RK4'}</span>
+<span class="c1"># time integrator: {'RK4', 'split_explicit', 'unsplit_explicit'}</span>
 <span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
 
 <span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
 <span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+
+<span class="c1"># unsplit time step per resolution (s/km), since dt is proportional to</span>
+<span class="c1"># resolution</span>
+<span class="na">unsplit_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
 
 <span class="c1"># split time step per resolution (s/km), since dt is proportional to resolution</span>
 <span class="na">split_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30.0</span>
@@ -615,12 +619,15 @@ on the numerical methods being tested. The <code class="docutils literal notrans
 default. The L-infinity norm, <code class="docutils literal notranslate"><span class="pre">inf</span></code>, is also supported.</p>
 <p><code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> will typically be overridden by the specific convergence
 task’s config options, and indicates which time integrator to use for the
-forward run.  Depending on the time integrator, either <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code> or
-<code class="docutils literal notranslate"><span class="pre">split_dt_per_km</span></code> will be used to determine an appropriate time step for each
-mesh resolution (proportional to the cell size). For split time integrators,
-<code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> will be used to compute the barotropic time step in a similar
-way.  The <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are typically the same, and
-they are given in hours.</p>
+forward run.  Depending on the time integrator, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>,
+<code class="docutils literal notranslate"><span class="pre">unsplit_dt_per_km</span></code> or <code class="docutils literal notranslate"><span class="pre">split_dt_per_km</span></code> will be used to determine an
+appropriate time step for each mesh resolution (proportional to the cell
+size). For split time integrators, <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> will be used to compute the
+barotropic time step in a similar way; the unsplit scheme
+(<code class="docutils literal notranslate"><span class="pre">unsplit_explicit</span></code>, which Omega calls <code class="docutils literal notranslate"><span class="pre">UnsplitRK2</span></code>) sets the split factor to
+zero and skips the barotropic subcycle, so it does not read this value.
+The <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are typically the same and are
+specified in hours.</p>
 <p>Each convergence test can override these defaults with its own defaults by
 defining them in its own config file.  Convergence tests should bring in this
 config file in their constructor or by adding them to a shared <code class="docutils literal notranslate"><span class="pre">config</span></code>.  The

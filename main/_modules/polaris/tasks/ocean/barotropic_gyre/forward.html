@@ -359,7 +359,9 @@
         <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'barotropic_gyre'</span><span class="p">,</span> <span class="s1">'time_integrator'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">time_integrator</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'rk4'</span><span class="p">:</span>
             <span class="n">dt_str</span> <span class="o">=</span> <span class="n">dt_btr_str</span>
-        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">'rk4'</span><span class="p">,</span> <span class="s1">'RungeKutta4'</span><span class="p">)])</span>
+        <span class="n">time_integrator_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="p">[(</span><span class="s1">'rk4'</span><span class="p">,</span> <span class="s1">'RungeKutta4'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'split_explicit'</span><span class="p">,</span> <span class="s1">'SplitExplicitRK2'</span><span class="p">)]</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">time_integrator</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">time_integrator_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">time_integrator</span> <span class="o">=</span> <span class="n">time_integrator_map</span><span class="p">[</span><span class="n">time_integrator</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>

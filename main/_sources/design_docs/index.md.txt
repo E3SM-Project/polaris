@@ -12,6 +12,7 @@ ocean_analysis_initial
 overflow_nonlinear_eos
 pstar_init
 shared_steps
+suite_results_file
 task_parallel_analysis_steps
 task_parallelism
 task_parallelism_phase_a
