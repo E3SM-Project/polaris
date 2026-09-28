@@ -162,7 +162,8 @@ frazil thickness and salinity for each algorithm variant.
 The
 {py:class}`polaris.tasks.ocean.single_column.frazil.top_layer.FrazilTopLayer`
 task runs a three-layer, 10 m resolution column initialized at the local
-freezing point for each of the two frazil algorithms.  It reuses
+freezing point for both frazil algorithms and all five Omega time integrators.
+MPAS-Ocean retains only the RK4 `FixedProperty` run. It reuses
 {py:class}`polaris.tasks.ocean.single_column.frazil.init.FrazilInit` with
 `at_freezing=True`, which sets temperature to the freezing point from the
 equation of state rather than to the uniform `temperature_freezing` value.
@@ -171,15 +172,17 @@ The task's `forward.yaml` disables every Omega tendency except
 `SfcTracerForcingTendencyEnable` and `FrazilTendencyEnable`, so the only terms
 acting on the column are the surface heat flux and frazil formation.  The run
 is exactly one day long, with output every time step, set through the
-`run_duration_steps` argument to the shared `Forward` step.
+`run_duration_steps` argument to the shared `Forward` step. Each run overrides
+the shared time integrator without affecting other single-column tasks.
 
 The
 {py:class}`polaris.tasks.ocean.single_column.frazil.top_layer.viz.TopLayerViz`
-step plots the top-layer heat content as a function of time for each frazil
-algorithm, together with the line the heat content would follow if the surface
-flux acted alone and no frazil formed.  The heat content uses the TEOS-10
-reference specific heat that Omega integrates with, `CP0_SW`, so the plot is
-consistent with the model's own heat budget.
+step plots the heat content for each algorithm and integrator, with consistent
+colors by integrator and line styles by algorithm. It marks the initial state
+and one time step of surface cooling, and shows the first five time steps in
+detail alongside the deeper-layer heat-content anomalies. The heat content
+uses the TEOS-10 reference specific heat that Omega integrates with,
+`CP0_SW`, so the plot is consistent with the model's own heat budget.
 
 ## thermo
 
