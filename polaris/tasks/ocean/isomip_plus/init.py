@@ -9,6 +9,10 @@ from mpas_tools.mesh.cull import cull_dataset
 from polaris.constants import get_constant
 from polaris.coriolis import add_coriolis_to_dataset
 from polaris.model_step import make_graph_file
+from polaris.ocean.ice_shelf import (
+    compute_freezing_temperature,
+    compute_land_ice_draft_from_pressure,
+)
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.isomip_plus.mesh.xy import add_isomip_plus_xy
@@ -19,6 +23,9 @@ PROFILES = {
     'ocean0': {'init': 'warm', 'restoring': 'warm'},
     'ocean1': {'init': 'cold', 'restoring': 'warm'},
     'ocean2': {'init': 'warm', 'restoring': 'cold'},
+    'inception': {'init': 'warm', 'restoring': 'warm'},
+    'wetting': {'init': 'warm', 'restoring': 'warm'},
+    'drying': {'init': 'warm', 'restoring': 'warm'},
 }
 
 
@@ -33,7 +40,8 @@ class Init(OceanIOStep):
         The ISOMIP+ experiment
 
     thin_film : bool
-        Whether a thin film is present under grounded ice
+        Whether a thin film is present under grounded ice, as it is for
+        experiments with time-varying geometry
     """
 
     def __init__(
@@ -61,7 +69,8 @@ class Init(OceanIOStep):
             The ISOMIP+ experiment
 
         thin_film : bool
-            Whether a thin film is present under grounded ice
+            Whether a thin film is present under grounded ice, as it is for
+            experiments with time-varying geometry
         """
         super().__init__(component=component, name='init', indir=indir)
         if experiment not in PROFILES:
@@ -78,6 +87,8 @@ class Init(OceanIOStep):
             work_dir_target=f'{topo.path}/topography_remapped.nc',
         )
         self.add_output_file(filename='forcing.nc')
+        if thin_film:
+            self.add_output_file(filename='land_ice_forcing.nc')
 
     def setup(self):
         """
@@ -102,7 +113,12 @@ class Init(OceanIOStep):
             mesh_filename=mesh_filename, graph_filename='culled_graph.info'
         )
 
-        ds = self._compute_geometry(ds_mesh, ds_topo)
+        if 'Time' in ds_topo.dims:
+            ds_topo_init = ds_topo.isel(Time=0)
+        else:
+            ds_topo_init = ds_topo
+
+        ds = self._compute_geometry(ds_mesh, ds_topo_init)
         init_vertical_coord(config, ds)
         self._compute_state(ds)
 
@@ -112,16 +128,33 @@ class Init(OceanIOStep):
         self.write_initial_state_dataset(ds, self.get_init_filename(), config)
 
         self._write_forcing(ds)
+        if self.thin_film:
+            self._write_land_ice_forcing(ds, ds_topo)
 
     def _cull_mesh(self):
         """
-        Remove cells that never hold ocean from the mesh and topography
+        Remove cells that never hold ocean from the mesh and topography.
+        With a thin film, all cells are kept.
         """
         logger = self.logger
         ds_base = open_dataset('culled_mesh.nc')
         ds_topo = open_dataset('topography.nc')
 
-        keep = self._get_keep_mask(ds_topo)
+        if self.thin_film:
+            logger.info(
+                f'Keeping all {ds_base.sizes["nCells"]} cells, with a thin '
+                f'film under grounded ice'
+            )
+            return ds_base, ds_topo
+
+        min_ocean_fraction = self.config.getfloat(
+            'isomip_plus', 'min_ocean_fraction'
+        )
+        ocean_fraction = (
+            ds_topo.landIceFloatingFraction + ds_topo.openOceanFraction
+        )
+        # NaN fractions compare as False, so cells without data are removed
+        keep = ocean_fraction >= min_ocean_fraction
         logger.info(
             f'Keeping {int(keep.sum())} of {ds_base.sizes["nCells"]} cells '
             f'that hold ocean'
@@ -144,19 +177,6 @@ class Init(OceanIOStep):
         )
         return ds_mesh, ds_topo
 
-    def _get_keep_mask(self, ds_topo):
-        """
-        Get a mask of the cells that hold ocean at some time
-        """
-        min_ocean_fraction = self.config.getfloat(
-            'isomip_plus', 'min_ocean_fraction'
-        )
-        ocean_fraction = (
-            ds_topo.landIceFloatingFraction + ds_topo.openOceanFraction
-        )
-        # NaN fractions compare as False, so cells without data are removed
-        return ocean_fraction >= min_ocean_fraction
-
     def _compute_geometry(self, ds_mesh, ds_topo):
         """
         Compute the land-ice masks and fractions, pressure, SSH and bottom
@@ -165,34 +185,46 @@ class Init(OceanIOStep):
         config = self.config
         logger = self.logger
         section = config['isomip_plus']
-        min_land_ice_fraction = section.getfloat('min_land_ice_fraction')
-        min_ssh_adjust_fraction = section.getfloat(
-            'min_ssh_adjust_land_ice_fraction'
-        )
-        min_column_thickness = section.getfloat('min_column_thickness')
         mask_variable = config.get('ssh_adjustment', 'mask_variable')
 
         ds = ds_mesh.copy()
 
-        land_ice_fraction = ds_topo.landIceFraction
-        floating_fraction = ds_topo.landIceFloatingFraction
-
-        land_ice_mask = land_ice_fraction > min_land_ice_fraction
+        land_ice_fraction, floating_fraction, land_ice_mask = (
+            self._mask_land_ice_fractions(ds_topo)
+        )
         floating_mask = np.logical_and(land_ice_mask, floating_fraction > 0.0)
 
         ds['landIceMask'] = land_ice_mask.astype(int)
         ds['landIceFloatingMask'] = floating_mask.astype(int)
-        ds['landIceFraction'] = land_ice_fraction.where(land_ice_mask, 0.0)
-        ds['landIceFloatingFraction'] = floating_fraction.where(
-            land_ice_mask, 0.0
-        )
+        ds['landIceFraction'] = land_ice_fraction
+        ds['landIceFloatingFraction'] = floating_fraction
         ds['landIceGroundedFraction'] = ds_topo.landIceGroundedFraction
         ds['landIcePressure'] = ds_topo.landIcePressure
-        ssh_adjust_mask = land_ice_fraction > min_ssh_adjust_fraction
+
+        min_ssh_adjust_fraction = section.getfloat(
+            'min_ssh_adjust_land_ice_fraction'
+        )
+        ssh_adjust_mask = ds_topo.landIceFraction > min_ssh_adjust_fraction
         ds[mask_variable] = ssh_adjust_mask.astype(int)
 
         bottom_depth = -ds_topo.bedrockTopography
-        ssh = np.maximum(ds_topo.landIceDraft, -bottom_depth)
+        if self.thin_film:
+            min_column_thickness = section.getfloat(
+                'min_column_thickness_thin_film'
+            )
+            # grounded ice is heavier than the water it would displace, so
+            # the draft computed from its pressure is below the bed
+            draft = self._draft_from_pressure(ds_topo.landIcePressure)
+            thin_film_mask = draft <= -bottom_depth
+            ds['thinFilmMask'] = thin_film_mask.astype(int)
+            logger.info(
+                f'{int(thin_film_mask.sum())} cells have a thin film under '
+                f'grounded ice'
+            )
+        else:
+            min_column_thickness = section.getfloat('min_column_thickness')
+            draft = ds_topo.landIceDraft
+        ssh = np.maximum(draft, -bottom_depth)
         ds['landIceDraft'] = ssh
 
         # deepen the bottom where needed to keep a minimum column thickness
@@ -220,12 +252,55 @@ class Init(OceanIOStep):
 
         return ds
 
+    def _mask_land_ice_fractions(self, ds_topo):
+        """
+        Get the land-ice fractions, set to zero outside of the land-ice mask,
+        and the mask itself
+        """
+        min_land_ice_fraction = self.config.getfloat(
+            'isomip_plus', 'min_land_ice_fraction'
+        )
+        land_ice_fraction = ds_topo.landIceFraction
+        land_ice_mask = land_ice_fraction > min_land_ice_fraction
+        land_ice_fraction = land_ice_fraction.where(land_ice_mask, 0.0)
+        floating_fraction = ds_topo.landIceFloatingFraction.where(
+            land_ice_mask, 0.0
+        )
+        return land_ice_fraction, floating_fraction, land_ice_mask
+
+    def _draft_from_pressure(self, land_ice_pressure):
+        """
+        Get the draft of floating ice with the given land-ice pressure
+        """
+        ocean_density = self.config.getfloat('isomip_plus', 'ocean_density')
+        return compute_land_ice_draft_from_pressure(
+            land_ice_pressure=land_ice_pressure,
+            modify_mask=land_ice_pressure > 0.0,
+            ref_density=ocean_density,
+        )
+
     def _compute_state(self, ds):
         """
         Compute the initial temperature, salinity and velocity
         """
         profile = PROFILES[self.experiment]['init']
-        ds['temperature'], ds['salinity'] = self._get_profiles(ds, profile)
+        temperature, salinity = self._get_profiles(ds, profile)
+
+        if self.thin_film:
+            # thin-film cells are at the freezing point
+            freezing_temp = compute_freezing_temperature(
+                config=self.config,
+                salinity=salinity,
+                pressure=ds.landIcePressure,
+            )
+            thin_film_mask = ds.thinFilmMask == 1
+            temperature = xr.where(thin_film_mask, freezing_temp, temperature)
+            temperature = temperature.transpose(
+                'Time', 'nCells', 'nVertLevels'
+            )
+
+        ds['temperature'] = temperature
+        ds['salinity'] = salinity
 
         normal_velocity = xr.zeros_like(ds.xEdge)
         normal_velocity, _ = xr.broadcast(normal_velocity, ds.refBottomDepth)
@@ -303,3 +378,38 @@ class Init(OceanIOStep):
         )
 
         write_netcdf(ds_forcing, 'forcing.nc')
+
+    def _write_land_ice_forcing(self, ds, ds_topo):
+        """
+        Write the time-varying land-ice forcing from all records of the
+        topography
+        """
+        land_ice_fraction, floating_fraction, _ = (
+            self._mask_land_ice_fractions(ds_topo)
+        )
+        pressure = ds_topo.landIcePressure
+        draft = np.maximum(
+            self._draft_from_pressure(pressure), -ds.bottomDepth
+        )
+
+        ds_out = xr.Dataset()
+        ds_out['xtime'] = ds_topo.xtime
+        ds_out['landIcePressureForcing'] = pressure
+        ds_out.landIcePressureForcing.attrs['units'] = 'Pa'
+        ds_out.landIcePressureForcing.attrs['long_name'] = (
+            'Pressure from the weight of land ice at the ice-ocean interface'
+        )
+        ds_out['landIceDraftForcing'] = draft
+        ds_out.landIceDraftForcing.attrs['units'] = 'm'
+        ds_out.landIceDraftForcing.attrs['long_name'] = (
+            'The approximate elevation of the land ice-ocean interface'
+        )
+        ds_out['landIceFractionForcing'] = land_ice_fraction
+        ds_out.landIceFractionForcing.attrs['long_name'] = (
+            'The fraction of each cell covered by land ice'
+        )
+        ds_out['landIceFloatingFractionForcing'] = floating_fraction
+        ds_out.landIceFloatingFractionForcing.attrs['long_name'] = (
+            'The fraction of each cell covered by floating land ice'
+        )
+        write_netcdf(ds_out, 'land_ice_forcing.nc', char_dim_name='StrLen')
