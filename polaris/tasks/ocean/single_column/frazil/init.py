@@ -16,10 +16,20 @@ class FrazilInit(Init):
     case : str
         The initial condition/forcing case, either ``'melting'`` or
         ``'freezing'``
+
+    at_freezing : bool
+        For the ``'freezing'`` case, whether to initialize temperature at the
+        local EOS freezing point rather than at ``temperature_freezing``
     """
 
     def __init__(
-        self, component, subdir, case, name='init', forcing_vars=None
+        self,
+        component,
+        subdir,
+        case,
+        name='init',
+        forcing_vars=None,
+        at_freezing=False,
     ):
         """
         Create the step
@@ -42,6 +52,10 @@ class FrazilInit(Init):
         forcing_vars : list of str, optional
             the surface forcing fields to apply, see
             ``polaris.tasks.ocean.single_column.init.Init``
+
+        at_freezing : bool, optional
+            For the ``'freezing'`` case, initialize temperature at the local
+            EOS freezing point rather than at ``temperature_freezing``
         """
         if case not in ('melting', 'freezing'):
             raise ValueError(
@@ -56,6 +70,7 @@ class FrazilInit(Init):
             forcing_vars=forcing_vars,
         )
         self.case = case
+        self.at_freezing = at_freezing
 
     def _compute_temperature_salinity(self, config, ds, x_cell):
         """
@@ -64,7 +79,8 @@ class FrazilInit(Init):
         the melting case, temperature is a constant value above a
         transition depth and a different constant value below it.  In the
         freezing case, temperature is uniform (and close to the local
-        freezing point once frazil is enabled).
+        freezing point once frazil is enabled), or exactly at the local
+        freezing point if ``at_freezing`` is set.
         """
         section = config['single_column_frazil']
         salinity_surface = section.getfloat('salinity_surface')
@@ -91,6 +107,12 @@ class FrazilInit(Init):
                 temperature_upper
                 + (temperature_lower - temperature_upper) * smooth
             )
+        elif self.at_freezing:
+            temperature_vert = compute_ct_freezing(
+                config,
+                salinity.isel(Time=0, nCells=0),
+                pressure=self._compute_pressure(z_mid),
+            )
         else:
             temperature_freezing = section.getfloat('temperature_freezing')
             temperature_vert = temperature_freezing * xr.ones_like(z_mid)
@@ -109,17 +131,23 @@ class FrazilInit(Init):
 
         return temperature, salinity
 
-    def _report_below_freezing_fraction(
-        self, config, temperature, salinity, z_mid, layer_thickness
-    ):
-        """Report the water-column fraction below the EOS freezing point."""
-        pressure = (
+    @staticmethod
+    def _compute_pressure(z_mid):
+        """Hydrostatic pressure; the init has ssh = 0, so z_mid is exact."""
+        return (
             -z_mid
             * get_constant('seawater_density_reference')
             * get_constant('standard_acceleration_of_gravity')
         )
+
+    def _report_below_freezing_fraction(
+        self, config, temperature, salinity, z_mid, layer_thickness
+    ):
+        """Report the water-column fraction below the EOS freezing point."""
         freezing_temperature = compute_ct_freezing(
-            config, salinity.isel(Time=0, nCells=0), pressure=pressure
+            config,
+            salinity.isel(Time=0, nCells=0),
+            pressure=self._compute_pressure(z_mid),
         )
         below_freezing = (
             temperature.isel(Time=0, nCells=0) < freezing_temperature

@@ -1,0 +1,145 @@
+ocean:
+  hmix_del2:
+    config_use_mom_del2: false
+    config_use_tracer_del2: false
+  hmix_del4:
+    config_use_mom_del4: false
+    config_use_tracer_del4: false
+  frazil_ice:
+    config_use_frazil_ice_formation: true
+    config_frazil_fractional_thickness_limit: 0.1
+    config_frazil_maximum_depth: 100.
+  debug:
+    config_disable_tr_sflux: false
+    config_disable_thick_sflux: true
+    config_disable_thick_hadv: true
+    config_disable_thick_vadv: true
+    config_disable_tr_adv: true
+    config_disable_vel_pgrad: true
+    config_disable_vel_vadv: true
+    config_disable_vel_explicit_bottom_drag: true
+
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_surface_bulk_forcing: true
+  frazil_ice:
+    config_frazil_ice_density: {{ RhoSw }}
+    config_frazil_sea_ice_reference_salinity: {{ sea_ice_reference_salinity }}
+    config_frazil_heat_of_fusion: {{ latent_heat_of_fusion }}
+    config_frazil_use_surface_pressure: false
+  debug:
+    config_disable_vel_hadv: true
+    config_disable_vel_coriolis: true
+    config_disable_vel_hmix: true
+    config_disable_vel_topographic_wave_drag: true
+    config_disable_tr_nonlocalflux: true
+    config_disable_redi_k33: true
+  streams:
+    forcing_data:
+      type: input
+      filename_template: forcing.nc
+      input_interval: initial_only
+      contents:
+      - tracersSurfaceRestoringFields
+      - tracersInteriorRestoringFields
+      - tracersExponentialDecayFields
+      - tracersIdealAgeFields
+      - tracersTTDFields
+      - windStressZonal
+      - windStressMeridional
+      - landIceSurfaceTemperature
+      - atmosphericPressure
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - longWaveHeatFluxUp
+      - longWaveHeatFluxDown
+      - evaporationFlux
+      - rainFlux
+      - snowFlux
+      - seaIceFreshWaterFlux
+      - seaIceHeatFlux
+      - seaIceSalinityFlux
+      - icebergFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - zMid
+      - zTop
+      - ssh
+      - normalVelocity
+      - layerThickness
+      - accumulatedFrazilIceMass
+      - accumulatedFrazilIceSalinity
+      - frazilLayerThicknessTendency
+      - frazilTemperatureTendency
+      - frazilSalinityTendency
+      - latentHeatFlux
+
+Omega:
+  Frazil:
+    ConservationCheck: false
+  Tendencies:
+    ThicknessFluxTendencyEnable: false
+    PVTendencyEnable: false
+    KETendencyEnable: false
+    VelDiffTendencyEnable: false
+    VelHyperDiffTendencyEnable: false
+    SfcStressForcingTendencyEnable: false
+    SurfaceTracerRestoringEnable: false
+    BottomDragTendency:
+      Enable: false
+    SfcThicknessForcingTendencyEnable: false
+    SfcTracerForcingTendencyEnable: true
+    TracerHorzAdvTendencyEnable: false
+    TracerDiffTendencyEnable: false
+    TracerHyperDiffTendencyEnable: false
+    ThicknessVertAdvTendencyEnable: false
+    VelocityVertAdvTendencyEnable: false
+    TracerVertAdvTendencyEnable: false
+    PressureGradTendencyEnable: false
+    FrazilTendencyEnable: true
+    VelVertMixTendencyEnable: false
+    TracerVertMixTendencyEnable: false
+  IOStreams:
+    History:
+      Filename: output.nc
+      Freq: {{ output_freq }}
+      FreqUnits: Seconds
+      IfExists: append
+      # effectively never
+      FileFreq: 9999
+      FileFreqUnits: years
+      Contents:
+      - AuxiliaryState
+      - State
+      - GeomZMid
+      - Tracers
+      - SshCell
+      - Eos
+      - Forcing
+      - PseudoThicknessTend
+      - TracerTend
+      - FrazilOcnDtFrazilMass
+      - FrazilOcnDtFrazilSalt
+      - FrazilOcnDtFrazilEnergy
+    Forcing:
+      UsePointerFile: false
+      Filename: forcing.nc
+      Mode: read
+      Precision: double
+      Freq: 1
+      FreqUnits: OnStartup
+      UseStartEnd: false
+      Contents:
+      - Forcing
