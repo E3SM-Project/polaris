@@ -75,8 +75,6 @@ def add_isomip_plus_tasks(component, mesh_type):
             'ocean0',
             'ocean1',
             'ocean2',
-            'ocean3',
-            'ocean4',
             'inception',
             'wetting',
             'drying',
@@ -170,7 +168,7 @@ def _get_shared_steps(
 
     topo_remap_culled: Dict[str, TopoRemap] = dict()
     shared_steps: Dict[str, Dict[str, Step]] = dict()
-    for experiment in ['ocean1', 'ocean2', 'ocean3', 'ocean4']:
+    for experiment in ['ocean1', 'ocean2']:
         name = 'topo_remap_culled'
         subdir = f'{resdir}/topo/remap_culled/{experiment}'
         topo_remap_culled[experiment] = TopoRemap(
