@@ -9,6 +9,8 @@ ocean:
     config_btr_dt: {{ btr_dt }}
   forcing:
     config_use_bulk_wind_stress: true
+  advection:
+    config_horiz_tracer_adv_order: 3
   hmix_del2:
     config_use_mom_del2: true
   hmix_del4:

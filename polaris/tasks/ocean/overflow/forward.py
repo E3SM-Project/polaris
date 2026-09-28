@@ -191,6 +191,11 @@ class Forward(OceanModelStep):
             'forward.yaml',
             template_replacements=replacements,
         )
+        if self.horiz_adv_order == 2:
+            self.add_model_config_options(
+                options={'HorzTracerFluxLimiterEnable': False},
+                config_model='Omega',
+            )
 
     def compute_cell_count(self):
         """
