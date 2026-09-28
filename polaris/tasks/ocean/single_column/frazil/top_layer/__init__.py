@@ -6,6 +6,14 @@ from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.frazil.init import FrazilInit
 from polaris.tasks.ocean.single_column.frazil.top_layer.viz import TopLayerViz
 
+TIME_INTEGRATORS = (
+    'RK4',
+    'Forward-Backward',
+    'RungeKutta2',
+    'SplitExplicitRK2',
+    'UnsplitRK2',
+)
+
 
 class FrazilTopLayer(Task):
     """
@@ -13,11 +21,9 @@ class FrazilTopLayer(Task):
     initialized at the local freezing point.  All tendencies are disabled
     except the surface tracer forcing and the frazil tendency, so the change
     in the heat content of the top layer is set entirely by the applied
-    surface heat flux and by frazil formation.  A forward run is performed for
-    each frazil algorithm (``'FixedProperty'`` and ``'teos'``).  MPAS-Ocean
-    only supports ``'FixedProperty'``, so the ``'teos'`` forward step is
-    removed from the task in :py:meth:`configure()` when the ocean model is
-    MPAS-Ocean.
+    surface heat flux and by frazil formation.  Omega runs each of its five
+    time integrators with both frazil algorithms (``'FixedProperty'`` and
+    ``'teos'``).  MPAS-Ocean retains only RK4 with ``'FixedProperty'``.
     """
 
     def __init__(self, component, subdir):
@@ -71,28 +77,34 @@ class FrazilTopLayer(Task):
         comparisons = dict()
         forward_steps = dict()
         self._frazil_type_steps = dict()
-        for frazil_type in ('FixedProperty', 'teos'):
-            forward_step = Forward(
-                component=component,
-                init=init_step,
-                indir=subdir,
-                name=f'forward_{frazil_type}',
-                ntasks=1,
-                min_tasks=1,
-                openmp_threads=1,
-                validate_vars=validate_vars,
-                task_name='frazil_top_layer',
-                task_package=(
-                    'polaris.tasks.ocean.single_column.frazil.top_layer'
-                ),
-                frazil_type=frazil_type,
-                run_duration_steps=run_duration_steps,
-                frazil_conservation=True,
-            )
-            self.add_step(forward_step)
-            self._frazil_type_steps[frazil_type] = forward_step
-            comparisons[frazil_type] = f'../forward_{frazil_type}'
-            forward_steps[forward_step.name] = forward_step.path
+        for time_integrator in TIME_INTEGRATORS:
+            for frazil_type in ('FixedProperty', 'teos'):
+                forward_step = Forward(
+                    component=component,
+                    init=init_step,
+                    indir=subdir,
+                    name=f'forward_{frazil_type}',
+                    ntasks=1,
+                    min_tasks=1,
+                    openmp_threads=1,
+                    validate_vars=validate_vars,
+                    task_name='frazil_top_layer',
+                    task_package=(
+                        'polaris.tasks.ocean.single_column.frazil.top_layer'
+                    ),
+                    frazil_type=frazil_type,
+                    run_duration_steps=run_duration_steps,
+                    frazil_conservation=True,
+                    time_integrator=time_integrator,
+                )
+                self.add_step(forward_step)
+                self._frazil_type_steps[time_integrator, frazil_type] = (
+                    forward_step
+                )
+                comparisons[f'{time_integrator} {frazil_type}'] = (
+                    f'../{forward_step.name}'
+                )
+                forward_steps[forward_step.name] = forward_step.path
         self.conservation_summary = ConservationSummary(
             component=component,
             indir=subdir,
@@ -110,15 +122,17 @@ class FrazilTopLayer(Task):
 
     def configure(self):
         """
-        Remove the ``teos`` forward step, and the corresponding entries in
-        the conservation summary and viz comparisons, if the ocean model is
-        MPAS-Ocean, which only supports the ``'FixedProperty'`` algorithm
+        Keep the original RK4 FixedProperty case for MPAS-Ocean.
         """
         model = self.config.get('ocean', 'model')
         if model != 'mpas-ocean':
             return
-        teos_step = self._frazil_type_steps.pop('teos', None)
-        if teos_step is not None:
-            self.remove_step(teos_step)
-            self.conservation_summary.forward_steps.pop(teos_step.name, None)
-        self.viz.comparisons.pop('teos', None)
+        for (time_integrator, frazil_type), step in list(
+            self._frazil_type_steps.items()
+        ):
+            if (time_integrator, frazil_type) == ('RK4', 'FixedProperty'):
+                continue
+            self.remove_step(step)
+            self.conservation_summary.forward_steps.pop(step.name, None)
+            self.viz.comparisons.pop(f'{time_integrator} {frazil_type}', None)
+            del self._frazil_type_steps[time_integrator, frazil_type]
