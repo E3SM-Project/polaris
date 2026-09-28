@@ -1,12 +1,12 @@
 import numpy as np
 import xarray as xr
 
-from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 from polaris.tasks.ocean.overflow.init_utils import (
     build_overflow_mesh,
     compute_bottom_depth,
+    compute_initial_density,
     compute_initial_temperature,
 )
 
@@ -79,7 +79,7 @@ class Init(OceanIOStep):
         salinity = config.getfloat('overflow', 'salinity')
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)
 
-        ds['density'] = compute_density(config, ds.temperature, ds.salinity)
+        ds['density'] = compute_initial_density(config, ds, self.logger)
 
         # initial velocity on edges is stationary
         ds['normalVelocity'] = (
