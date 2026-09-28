@@ -6,6 +6,15 @@ from polaris import (
 from polaris import (
     Task as Task,
 )
+from polaris.ocean.ice_shelf.freeze import (
+    compute_freezing_temperature as compute_freezing_temperature,
+)
+from polaris.ocean.ice_shelf.pressure import (
+    compute_land_ice_pressure_from_draft as compute_land_ice_pressure_from_draft,  # noqa: E501
+)
+from polaris.ocean.ice_shelf.pressure import (
+    compute_land_ice_pressure_from_thickness as compute_land_ice_pressure_from_thickness,  # noqa: E501
+)
 from polaris.ocean.ice_shelf.ssh_adjustment import (
     SshAdjustment as SshAdjustment,
 )
