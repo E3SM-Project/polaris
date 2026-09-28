@@ -1,4 +1,5 @@
 from polaris.ocean.ice_shelf import IceShelfTask
+from polaris.tasks.ocean.isomip_plus.init import Init
 
 
 class IsomipPlusTest(IceShelfTask):
@@ -97,3 +98,18 @@ class IsomipPlusTest(IceShelfTask):
             if symlink == 'topo_final':
                 continue
             self.add_step(step, symlink=symlink)
+
+        if self.thin_film:
+            # the initial condition with a thin film is not yet supported
+            return
+
+        init = Init(
+            component=component,
+            indir=subdir,
+            culled_mesh=shared_steps['topo/cull_mesh'],
+            topo=shared_steps['topo_final'],
+            experiment=experiment,
+            thin_film=self.thin_film,
+        )
+        init.set_shared_config(config, link='isomip_plus.cfg')
+        self.add_step(init)
