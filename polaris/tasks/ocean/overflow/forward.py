@@ -157,7 +157,9 @@ class Forward(OceanModelStep):
         )
 
         time_integrator = config.get('overflow', 'time_integrator')
-        time_integrator_map = dict([('RK4', 'RungeKutta4')])
+        time_integrator_map = dict(
+            [('RK4', 'RungeKutta4'), ('split_explicit', 'SplitExplicitRK2')]
+        )
         model = config.get('ocean', 'model')
         if model == 'omega':
             if time_integrator in time_integrator_map.keys():
@@ -189,6 +191,11 @@ class Forward(OceanModelStep):
             'forward.yaml',
             template_replacements=replacements,
         )
+        if self.horiz_adv_order == 2:
+            self.add_model_config_options(
+                options={'HorzTracerFluxLimiterEnable': False},
+                config_model='Omega',
+            )
 
     def compute_cell_count(self):
         """

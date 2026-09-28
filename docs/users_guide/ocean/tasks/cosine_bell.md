@@ -215,11 +215,17 @@ the config file in the work directory).
 # config options for convergence tests
 [convergence_forward]
 
-# time integrator: {'split_explicit', 'RK4'}
-time_integrator = RK4
+# time integrator: {'RK4', 'split_explicit', 'unsplit_explicit'}
+time_integrator = split_explicit
 
 # RK4 time step per resolution (s/km), since dt is proportional to resolution
 rk4_dt_per_km = 3.0
+
+# Split baroclinic time step per resolution (s/km)
+split_dt_per_km = 30.0
+
+# Barotropic time step per resolution (s/km)
+btr_dt_per_km = 1.0
 ```
 
 The `convergence_eval_time`, `run_duration` and `output_interval` are the
