@@ -95,15 +95,29 @@ class TopLayerViz(OceanIOStep):
 
         with mplstyle_context():
             _, axes = plt.subplots(3, 2, figsize=(12, 14))
+            colors = plt.get_cmap('tab10')
+            steppers = dict.fromkeys(
+                name.split()[0] for name in self.comparisons
+            )
+            stepper_colors = {
+                name: colors(index) for index, name in enumerate(steppers)
+            }
+            styles = {
+                name: dict(
+                    color=stepper_colors[name.split()[0]],
+                    linestyle='--' if name.endswith('teos') else '-',
+                )
+                for name in self.comparisons
+            }
 
             for ax, zoom in zip(axes[0], (False, True), strict=True):
                 for comparison_name, t, fields in series:
                     ax.plot(
                         t,
                         fields['h_ct'][:, 0],
-                        '-',
                         marker='.' if zoom else None,
                         label=comparison_name,
+                        **styles[comparison_name],
                     )
                 ax.plot(0.0, h_ct_init, 'ko', label='initial (freezing point)')
                 ax.axhline(
@@ -126,15 +140,16 @@ class TopLayerViz(OceanIOStep):
                     ax.plot(
                         t,
                         fields[key][:, 0],
-                        '-',
                         marker='.',
                         label=comparison_name,
+                        **styles[comparison_name],
                     )
                     if key == 'temperature':
                         ax.plot(
                             t,
                             fields['ct_freezing'][:, 0],
-                            '--',
+                            ':',
+                            color=styles[comparison_name]['color'],
                             label=f'{comparison_name} freezing point',
                         )
                 ax.plot(0.0, float(init[key][0, 0]), 'ko')
@@ -146,7 +161,12 @@ class TopLayerViz(OceanIOStep):
             for ax, level in zip(axes[2], (1, 2), strict=True):
                 for comparison_name, t, fields in series:
                     anomaly = fields['h_ct'][:, level] - init['h_ct'][0, level]
-                    ax.plot(t, anomaly, '-', label=comparison_name)
+                    ax.plot(
+                        t,
+                        anomaly,
+                        label=comparison_name,
+                        **styles[comparison_name],
+                    )
                 ax.axhline(0.0, linestyle='--', color='k')
                 ax.set_ylabel(
                     f'Layer {level + 1} heat content anomaly (MJ m$^{{-2}}$)'
