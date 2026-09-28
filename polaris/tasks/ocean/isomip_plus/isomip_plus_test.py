@@ -102,10 +102,6 @@ class IsomipPlusTest(IceShelfTask):
                 continue
             self.add_step(step, symlink=symlink)
 
-        if self.thin_film:
-            # the initial condition with a thin film is not yet supported
-            return
-
         init = Init(
             component=component,
             indir=subdir,
@@ -116,6 +112,10 @@ class IsomipPlusTest(IceShelfTask):
         )
         init.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(init)
+
+        if self.thin_film:
+            # running the tasks with a thin film is not yet supported
+            return
 
         ssh_adjust = self.setup_ssh_adjustment_steps(
             mesh_filename=f'{init.path}/mesh.nc',
