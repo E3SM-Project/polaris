@@ -46,9 +46,9 @@ Omega does not yet support ice-shelf cavities, so it is out of scope.
 | `ocean0`    | Ocean1           | culled            | init, SSH adj., forward, viz |
 | `ocean1`    | Ocean1           | culled            | init, SSH adj., forward, viz |
 | `ocean2`    | Ocean2           | culled            | init, SSH adj., forward, viz |
-| `inception` | Ocean1 × 0, 1, 1 | thin film if used | init                         |
-| `wetting`   | Ocean1 × 1, 0, 0 | thin film if used | init                         |
-| `drying`    | Ocean1 × 1, 2, 2 | thin film if used | init                         |
+| `inception` | Ocean1 × 0, 1, 1 | thin film         | init                         |
+| `wetting`   | Ocean1 × 1, 0, 0 | thin film         | init                         |
+| `drying`    | Ocean1 × 1, 2, 2 | thin film         | init                         |
 
 The existing `ocean3` and `ocean4` tasks, which only remap their
 geometry, are removed ([D8](#decisions)). All other tasks keep the
@@ -108,15 +108,15 @@ Each task uses the ISOMIP+ input geometry named in the
 [Summary](#summary). Floating ice thinner than 100 m is removed
 (calved) before the geometry is used.
 
-### Requirement: Grounded cells are kept only where they can hold ocean
+### Requirement: Grounded cells are culled where they are never used
 
 Date last modified: 2026/09/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-A task's mesh contains every cell that holds ocean at some time in the
-task's geometry, and no other cells. Cells that are grounded at the
-start are held as thin-film columns.
+Tasks with static geometry contain only the cells that hold ocean.
+Tasks with time-varying geometry keep every cell, and cells under
+grounded ice hold a thin film. All tasks use wetting and drying.
 
 ### Requirement: Initial conditions and forcing follow the ISOMIP+ protocol
 
@@ -190,12 +190,15 @@ Compass sets it up for MPAS-Ocean:
 - three-equation melt with Jenkins heat and salt transfer coefficients
   0.0194 and 0.0194/35, $u_{tidal} = 0.01$ m s⁻¹, and a 10 m boundary
   layer;
-- implicit top and bottom drag with coefficient $2.5\times10^{-3}$;
+- implicit top and bottom drag with coefficient $2.5\times10^{-3}$
+  ([D12](#decisions));
 - vertical viscosity and diffusivity $10^{-3}$ and $5\times10^{-5}$
   m² s⁻¹, convective values 0.1 m² s⁻¹, no shear mixing;
 - horizontal Laplacian viscosity and diffusivity 6.0 and 1.0 m² s⁻¹;
-- split-explicit AB2 time stepping with $\Delta t = 120$ s per km and
-  $\Delta t_{btr} = 3$ s per km;
+- wetting and drying, with a minimum layer thickness of $10^{-3}$ m
+  ([D11](#decisions));
+- RK4 time stepping with $\Delta t = 6$ s per km, since MPAS-Ocean
+  supports wetting and drying only with RK4;
 - 36 uniform z-star levels over 720 m, at least 3 levels per column,
   no partial cells.
 
@@ -255,34 +258,30 @@ Among the task's cells:
 
 These thresholds are Compass's.
 
-### Algorithm Design: Grounded cells are kept only where they can hold ocean
+### Algorithm Design: Grounded cells are culled where they are never used
 
 Date last modified: 2026/09/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-A cell is kept if it holds ocean in at least one geometry record of
-the task. What counts as holding ocean depends on the geometry:
-
-- **Static geometry (`ocean0`–`ocean2`):** the floating plus
-  open-ocean fraction is at least `min_ocean_fraction` (0.5). This is
-  the rule Compass uses to cull its mesh. With one record, every
-  grounded cell is culled.
-- **Scaled geometry (`inception`, `wetting`, `drying`):** the water
-  column between the ice draft and the bed is thicker than the
-  thin-film minimum.
-
-Kept cells that are grounded in the first record are thin-film columns.
-Their temperature is the freezing point at the land-ice pressure and
-the local salinity.
+- **Static geometry (`ocean0`–`ocean2`):** a cell is kept if its
+  floating plus open-ocean fraction is at least `min_ocean_fraction`
+  (0.5), the rule Compass uses to cull its mesh. Grounded cells are
+  never used, so all of them are culled.
+- **Scaled geometry (`inception`, `wetting`, `drying`):** every cell of
+  the shared mesh is kept. The initial draft is the draft of floating
+  ice at the land-ice pressure ($\rho_{sw} = 1028$ kg m⁻³), limited to
+  the bed. Cells where it reaches the bed are grounded and hold a
+  thin film whose temperature is the freezing point at the land-ice
+  pressure and the local salinity.
 
 ```{admonition} Rationale
 MPAS-Ocean cannot activate a column during a run, so a cell that holds
-ocean at any time must be active from the start. Cells that are
-grounded in every record are never used, and the input domain is
-entirely below sea level, so keeping them would add 27–34 % more
-cells. The scaled records keep the Ocean1 fractions, so only the draft
-shows where the ice leaves the bed.
+ocean at any time must be active from the start. The input domain is
+entirely below sea level, so keeping the grounded cells of the static
+geometry would add 27–34 % more cells. For the scaled geometry, a rule
+based on the draft misclassifies grounded cells, whose draft in the
+input can sit up to 2.5 m above the bed, so every cell is kept.
 ```
 
 ### Algorithm Design: Initial conditions and forcing follow the ISOMIP+ protocol
@@ -457,7 +456,7 @@ from #151 move to `polaris/ocean/ice_shelf/pressure.py` and
 default coefficients. `ice_shelf_2d` drops its private copy of
 `_compute_land_ice_pressure_from_draft()` in favor of the shared one.
 
-### Implementation: Grounded cells are kept only where they can hold ocean
+### Implementation: Grounded cells are culled where they are never used
 
 Date last modified: 2026/09/28
 
@@ -467,16 +466,18 @@ Contributors: Xylar Asay-Davis, Claude
 
 1. reads the shared culled mesh and the task's remapped or scaled
    topography;
-2. builds the keep mask from all records and removes other cells with
-   `mpas_tools.mesh.cull`, carrying the topography fields over with
-   `cull_dataset()`;
+2. for static geometry, removes the cells that are less than half
+   floating ice or open ocean with `mpas_tools.mesh.cull`, carrying the
+   topography fields over with `cull_dataset()`;
 3. writes the task's mesh, with Coriolis added by
    `add_coriolis_to_dataset()`, and its graph file;
 4. computes masks, fractions, SSH, pressure and bottom depth from the
    first record, and the thin-film mask where the task has a thin film.
 
-The thin-film minimum column thickness is its own option in
-`[isomip_plus]`.
+The thin-film minimum column thickness and the seawater density used
+to compute the draft from the pressure are options in `[isomip_plus]`.
+The draft comes from a new shared helper,
+`compute_land_ice_draft_from_pressure()`.
 
 ### Implementation: Initial conditions and forcing follow the ISOMIP+ protocol
 
@@ -506,8 +507,8 @@ Contributors: Xylar Asay-Davis, Claude
 
 The task calls `setup_ssh_adjustment_steps()` with the init step's
 mesh, graph and initial condition. `[ssh_adjustment]` overrides set
-`time_integrator = split_explicit_ab2`, `split_dt_per_km = 120` and
-`btr_dt_per_km = 3`, matching the forward run. The init step writes
+`time_integrator = RK4` and `rk4_dt_per_km = 6`, matching the forward
+run. The init step writes
 the SSH-adjustment mask under the name in `mask_variable`.
 
 ### Implementation: Output supports regression testing and inspection
@@ -525,8 +526,9 @@ and links `forcing.nc` as the `forcing_data` stream. It writes:
   in that file;
 - global statistics.
 
-`[isomip_plus_forward]` holds `run_duration`, `split_dt_per_km` and
-`btr_dt_per_km`.
+`[isomip_plus_forward]` holds `run_duration` and `rk4_dt_per_km`.
+`physics.yaml` turns on wetting and drying with Compass's thin-film
+settings and sets the top drag coefficient.
 
 `Viz` plots the fields #151 plotted for the initial condition. For the
 forward output it adds melt rate, thermal driving, friction velocity,
@@ -584,16 +586,17 @@ Unit tests cover calving on a synthetic input grid and the pressure and
 freezing-point helpers. The `viz` plots show no ice thinner than 100 m
 and a calving front at $x \approx 640$ km.
 
-### Testing and Validation: Grounded cells are kept only where they can hold ocean
+### Testing and Validation: Grounded cells are culled where they are never used
 
 Date last modified: 2026/09/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-For each task, recompute the keep mask from the remapped or scaled
+For static geometry, recompute the keep mask from the remapped
 topography and check that the init mesh contains exactly those cells.
-In thin-film tasks, check that grounded cells have the minimum column
-thickness and freezing-point temperature.
+For scaled geometry, check that all cells are kept and that
+thin-film cells have the minimum column thickness and the
+freezing-point temperature.
 
 ### Testing and Validation: Initial conditions and forcing follow the ISOMIP+ protocol
 
@@ -630,22 +633,26 @@ Date last modified: 2026/09/28
 
 Contributors: Xylar Asay-Davis, Claude
 
-Compass and Polaris use the same MPAS-Ocean build. The comparison is at
-2 km on the planar mesh for Ocean0, Ocean1 and Ocean2, in three stages:
+Compass and Polaris use the same MPAS-Ocean build, and Compass's
+ISOMIP+ namelist sets the same top drag coefficient. The comparison is
+at 2 km on the planar mesh for Ocean0, Ocean1 and Ocean2. Compass's
+`thin_film_Ocean0`, which uses wetting and drying, is the counterpart
+of `ocean0`; its standard Ocean0–2 do not use it
+([D11](#decisions)). The comparison has three stages:
 
 1. **Model config.** Compare the generated namelists and streams. Every
    difference is either removed or listed in [Decisions](#decisions).
 2. **Forward run on a common initial condition.** Run the Polaris
-   `forward` step on Compass's adjusted initial condition, forcing and
-   graph file. Output should match Compass's `performance` step bit for
-   bit.
+   model config on Compass's adjusted initial condition, forcing and
+   graph partition. Output should match Compass's `performance` step
+   bit for bit.
 3. **Whole task.** Compare the initial conditions, SSH-adjustment
    convergence, and the melt diagnostics after one hour and after one
    month: ocean area and volume, ice-shelf area, mean melt rate, total
    melt flux, mean thermal driving and mean friction velocity.
 
-Each difference in stage 3 is attributed to one of D1–D4. Stage 3 is
-repeated for the spherical 2 km tasks.
+Each difference in stage 3 is attributed to one of D1–D4 or D11.
+Stage 3 is repeated for the spherical 2 km tasks.
 
 ## Planned Extensions
 
@@ -663,8 +670,18 @@ will need, so that the steps above can serve it.
 - MPAS-Ocean's time-varying land-ice forcing
   (`config_use_time_varying_land_ice_forcing`) reading
   `land_ice_forcing.nc`.
-- Wetting and drying settings for the thin film. Compass uses RK4 and a
-  6 s per km time step, 20 times shorter than without a thin film.
+- Possibly a limit on the land-ice pressure applied in grounded
+  regions (below).
+
+**Split-explicit wetting and drying.** RK4 at 6 s per km takes 20
+times as many steps as the split-explicit scheme at 120 s per km. Work
+on split-explicit wetting and drying (Carolyn Begeman's
+`alt-wetting-drying-se` branch) and on limiting the land-ice pressure
+in grounded regions
+([E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119))
+is not yet in E3SM. If either is needed, Polaris will build MPAS-Ocean
+from an `ocn-glc/fanssie-coupling` branch that also includes
+[E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047).
 
 **Long runs.** Ocean0 runs for 1 year and Ocean1–2 for 20. They need:
 
@@ -673,7 +690,8 @@ will need, so that the steps above can serve it.
   the restoring region, as Compass's `simulation` step does;
 - monthly-mean output.
 
-At 2 km, 20 years is about 2.6 million steps at 240 s.
+At 2 km, 20 years is about 53 million RK4 steps at 12 s, so long runs
+depend on split-explicit wetting and drying.
 
 **Standard output.** Barotropic and overturning streamfunctions and the
 MISOMIP fields on the 2 km output grid, as in Compass's
@@ -743,11 +761,12 @@ Date last modified: 2026/09/28
 Contributors: Xylar Asay-Davis, Claude
 
 The shared culled mesh keeps every cell over bedrock below sea level,
-so one mesh and one set of mapping files serve all tasks. Each task's
-`init` step then removes the cells that never hold ocean in its
-geometry. The #151 draft instead kept grounded cells as inactive
-columns with `maxLevelCell = 0`, which suits neither static nor
-time-varying geometry.
+so one mesh and one set of mapping files serve all tasks. For static
+geometry, each task's `init` step then removes the grounded cells.
+Tasks with time-varying geometry keep every cell. The #151 draft
+instead kept grounded cells as inactive columns with
+`maxLevelCell = 0`, which suits neither static nor time-varying
+geometry.
 
 *Effect:* for Ocean0–2, the ocean cells match Compass's selection rule,
 so only the geometry differences of D1 and D2 remain.
@@ -764,6 +783,15 @@ in its thin-film tasks. The protocol allows either.
 
 *Effect:* about 0.2 % more pressure under floating ice in Polaris
 before SSH adjustment. Adjustment removes most of it.
+
+In cells that are partly grounded, the remapped weight of the grounded
+ice can exceed what floats at the remapped draft. At 1 km, and at 2 km
+on the spherical mesh, the excess is larger than the water column in a
+few cells. Without wetting and drying, those runs produced NaN within a
+few steps at any time step. Computing the pressure from the draft, as
+Compass does, removed the failures, but wetting and drying handles the
+excess as a thin film and keeps the pressure physical
+([D11](#decisions)).
 
 ### D5: Forcing is written by the init step
 
@@ -835,3 +863,33 @@ The #151 draft gave Ocean2, `wetting` and `drying` a COLD initial
 condition, and `wetting` and `drying` COLD restoring. The protocol gives
 Ocean2 a WARM initial condition. The scaled tasks use the Ocean0
 profiles, as Compass's wetting and drying tests do.
+
+### D11: All model runs use wetting and drying
+
+Date last modified: 2026/09/28
+
+Contributors: Xylar Asay-Davis, Claude
+
+Wetting and drying is part of the reason for implementing ISOMIP+ in
+Polaris rather than porting Compass's tasks. It lets the pressure come
+from the weight of the ice even where cells are partly grounded
+([D4](#decisions)), and the scaled tasks need it for their thin film.
+MPAS-Ocean supports wetting and drying only with RK4, so the runs use
+Compass's thin-film settings and a time step of 6 s per km.
+
+*Effect:* Polaris's `ocean0` corresponds to Compass's
+`thin_film_Ocean0` rather than its `Ocean0`. Compass's standard
+Ocean0–2 use split-explicit time stepping without wetting and drying,
+so they differ from the Polaris tasks in their time stepping and their
+thin-layer treatment.
+
+### D12: The top drag coefficient follows COM
+
+Date last modified: 2026/09/28
+
+Contributors: Xylar Asay-Davis, Claude
+
+Compass turned on implicit top drag but left its coefficient at the
+MPAS-Ocean default of $10^{-3}$. The Polaris tasks set it to the COM
+value of $2.5\times10^{-3}$, and Compass's ISOMIP+ namelist is updated
+to match.
