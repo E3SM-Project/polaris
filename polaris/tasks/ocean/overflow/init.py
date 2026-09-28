@@ -13,7 +13,8 @@ from polaris.tasks.ocean.overflow.init_utils import (
 
 class Init(OceanIOStep):
     """
-    A step for creating a mesh and initial condition for overflow test cases.
+    A step for creating a mesh and initial condition for overflow test cases
+    on a geometric vertical coordinate (z-star or sigma).
     """
 
     def __init__(self, component, name='init', indir=None):
