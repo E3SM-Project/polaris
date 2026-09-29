@@ -114,6 +114,21 @@ def test_setup_waits_on_running_baseline(tester, monkeypatch):
     assert calls['submit'][3][2] == '1001'
 
 
+def test_setup_frontier_avoids_debug_qos(tester, monkeypatch):
+    fixture, manifest, calls = tester
+    monkeypatch.setenv('POLARIS_MACHINE', 'frontier')
+    monkeypatch.setenv('POLARIS_COMPILER', 'craygnu')
+    monkeypatch.setenv('POLARIS_MPI', 'mpich')
+
+    state = _setup(fixture, manifest)
+    row_dir = Path(state.pr_work_dir).parent
+    text = pr_test_setup.format_state(state, str(row_dir), 'frontier')
+    assert text.count('--qos=normal') == 3
+
+    _setup(fixture, manifest, submit=True)
+    assert calls['extra_args'] == [['--qos=normal']] * 3
+
+
 def test_setup_pin_mismatch(tester):
     fixture, manifest, _ = tester
     git(

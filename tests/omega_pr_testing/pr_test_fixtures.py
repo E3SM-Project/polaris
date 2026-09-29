@@ -146,15 +146,16 @@ def make_tester(tmp_path, monkeypatch):
     monkeypatch.setenv('POLARIS_MPI', 'openmpi')
     monkeypatch.setenv('POLARIS_BRANCH', fixture.polaris_dir)
 
-    calls: dict[str, list] = {'suite': [], 'submit': []}
+    calls: dict[str, list] = {'suite': [], 'submit': [], 'extra_args': []}
     monkeypatch.setattr(
         pr_test_setup, '_polaris_suite', _fake_polaris_suite(calls, fixture)
     )
     monkeypatch.setattr(pr_test_setup, '_set_up_ctests', _fake_ctests)
     monkeypatch.setattr(pr_test_setup, '_get_system', lambda machine: 'slurm')
 
-    def submit_job(script, work_dir, system, dependency=None):
+    def submit_job(script, work_dir, system, dependency=None, extra_args=None):
         calls['submit'].append((work_dir, script, dependency))
+        calls['extra_args'].append(extra_args)
         return str(1000 + len(calls['submit']))
 
     monkeypatch.setattr(pr_test_setup, 'submit_job', submit_job)
