@@ -350,6 +350,10 @@ seaice/api
    :toctree: generated/
 
    write_job_script
+   get_submit_args
+   submit_job
+   parse_job_id
+   is_job_active
 ```
 
 ### logging
