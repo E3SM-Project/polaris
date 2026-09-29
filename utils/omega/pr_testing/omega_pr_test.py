@@ -21,6 +21,8 @@ from pr_test_github import GitHubError
 from pr_test_manifest import ManifestError, fetch_manifest, get_row
 from pr_test_report import read_notes
 
+from polaris.job import SubmissionError
+
 #: the errors that are reported as a message rather than a traceback
 EXPECTED_ERRORS = (
     ConfigError,
@@ -32,6 +34,7 @@ EXPECTED_ERRORS = (
     pr_test_lint.LintError,
     pr_test_results.ReportError,
     pr_test_setup.SetupError,
+    SubmissionError,
 )
 
 
