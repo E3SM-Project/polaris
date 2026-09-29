@@ -96,7 +96,8 @@ can be submitted the moment it is set up.
    `CIME_OUTPUT_ROOT` are the same for every build, and CIME deletes them
    when it creates the case.  Different CIME machines have different roots,
    so pm-cpu and pm-gpu do not race with each other, but Frontier's two
-   rows do.
+   rows do.  Omega#582 fixes this for trees that include it; this rule can
+   go once Polaris' Omega submodule does.
 3. When a row's jobs have finished (check with `squeue` or `qstat`), write
    its comment, in a shell with that row's load script sourced:
    ```bash
