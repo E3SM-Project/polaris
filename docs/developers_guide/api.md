@@ -354,6 +354,7 @@ seaice/api
    submit_job
    parse_job_id
    is_job_active
+   SubmissionError
 ```
 
 ### logging
