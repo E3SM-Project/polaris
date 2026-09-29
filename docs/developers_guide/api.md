@@ -618,6 +618,7 @@ seaice/api
 
    write
    get_summary
+   read
 ```
 
 

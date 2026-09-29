@@ -18,3 +18,9 @@ write into the build directory (see {ref}`dev-build`), so they name the commit
 that was built.  For a build without a record, such as one made by hand, they
 come from the build's source tree at setup, which may have moved since the
 build, and are marked `(at setup, not build)`.
+
+{py:func}`polaris.provenance.read()` reads the file back, returning the
+entries before the list of tasks and the git entries for Polaris and the
+component, with their logs and whether they were marked
+`(at setup, not build)`.  The file also records the `model` the component
+is, `omega` or `mpas-ocean`, when there is one.
