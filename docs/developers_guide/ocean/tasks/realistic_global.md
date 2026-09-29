@@ -139,30 +139,52 @@ approach to shared, cacheable preprocessing steps.  See
 {ref}`dev-step-default-cached` for a full description of the
 `default_cached` / `free_running_steps` mechanism.
 
+### month
+
+The `month` option in the `[woa23]` config section selects the WOA23 monthly
+climatology, read with
+{py:func}`polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_woa23_month`.
+Because it is a config option, the month is only known once config files have
+been combined during setup. The `combine` and `extrapolate` steps therefore
+add their outputs in `setup()`, and each has an `output_filename` property
+that includes the month's three-letter abbreviation. Steps that use these
+products should get the filename from that property rather than hard-coding
+it.
+
+Cached outputs are keyed by their path in the work directory, so each month
+has its own entry in `polaris/ocean/cached_files.json`. A step that is cached
+for a month without an entry fails at setup, rather than falling back to
+running the step or to another month's product.
+
+Both products are written in single precision, like WOA23 itself, and carry a
+global attribute `month` so downstream steps can check which month they were
+given.
+
 ### combine
 
 The class
 {py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.combine.CombineStep`
-combines January and annual WOA23 temperature and salinity climatologies into
-a single dataset. January values are used where they exist, and annual values
-fill deeper levels where the monthly product is not available.
+combines the monthly and annual WOA23 temperature and salinity climatologies
+into a single dataset. Monthly values are used where they exist, down to
+1500 m, and annual values fill deeper levels.
 
 WOA23 supplies in-situ temperature and practical salinity, so this step uses
 `gsw` to derive conservative temperature and absolute salinity for the
-canonical `woa_combined.nc` product.
+canonical `woa_combined_<mon>.nc` product.
 
 ### extrapolate
 
 The class
 {py:class}`polaris.tasks.ocean.realistic_global.hydrography.woa23.extrapolate.ExtrapolateStep`
 uses the cached combined-topography product on the WOA grid together with
-`woa_combined.nc` to build a 3D ocean mask and then fill missing WOA values in
+`woa_combined_<mon>.nc` to build a 3D ocean mask and then fill missing WOA values in
 two stages:
 
 1. Horizontal then vertical extrapolation within the ocean mask
 2. Horizontal then vertical extrapolation into land and grounded-ice regions
 
-The final output is `woa23_decav_0.25_jan_extrap.nc`.
+Extrapolation is done in double precision. The final output is
+`woa23_decav_0.25_<mon>_extrap.nc`.
 
 ### viz
 
