@@ -116,8 +116,19 @@ def submodule_pin(repo: str, commit: str, path: str) -> str:
 
 
 def uncommitted_changes(repo: str) -> List[str]:
-    """Tracked files with changes that are not committed"""
-    output = git(['status', '--porcelain', '--untracked-files=no'], repo)
+    """
+    Tracked files with changes that are not committed, not counting
+    submodules, whose checkouts the utility never builds from
+    """
+    output = git(
+        [
+            'status',
+            '--porcelain',
+            '--untracked-files=no',
+            '--ignore-submodules=all',
+        ],
+        repo,
+    )
     return [line[3:] for line in output.splitlines() if line.strip()]
 
 

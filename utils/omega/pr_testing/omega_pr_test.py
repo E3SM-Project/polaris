@@ -7,10 +7,12 @@ follow.  Run this from a shell with the Polaris load script sourced.
 """
 
 import argparse
+import os
 import sys
 
 import pr_test_init
 import pr_test_lint
+import pr_test_setup
 from pr_test_config import ConfigError, read_config
 from pr_test_git import GitError
 from pr_test_github import GitHubError
@@ -26,6 +28,7 @@ EXPECTED_ERRORS = (
     ValueError,
     pr_test_init.InitError,
     pr_test_lint.LintError,
+    pr_test_setup.SetupError,
 )
 
 
@@ -71,6 +74,20 @@ def _lint(args):
         post=args.post,
     )
     _print_report(text, url, path)
+
+
+def _setup(args):
+    config = read_config(args.config_file)
+    state = pr_test_setup.run_setup(
+        config=config,
+        fork=args.fork,
+        branch=args.branch,
+        submit=args.submit,
+        baseline_dir=args.baseline_dir,
+    )
+    machine = state.row.split('/')[0]
+    row_dir = os.path.dirname(state.pr_work_dir)
+    print(pr_test_setup.format_state(state, row_dir, machine))
 
 
 def _print_report(text, url, path):
@@ -179,6 +196,24 @@ def _parse_args():
     _add_branch_args(lint)
     _add_report_args(lint)
     lint.set_defaults(func=_lint)
+
+    setup = subparsers.add_parser(
+        'setup',
+        help="Set up this machine's row: baseline, PR suite and CTests "
+        '(tester)',
+    )
+    _add_branch_args(setup)
+    setup.add_argument(
+        '--baseline-dir',
+        help='An existing baseline work directory to use, which must match',
+    )
+    setup.add_argument(
+        '--submit',
+        action='store_true',
+        help="Submit the jobs.  Agents pass this only with the requester's "
+        'permission.',
+    )
+    setup.set_defaults(func=_setup)
 
     return parser.parse_args()
 
