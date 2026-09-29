@@ -2,8 +2,8 @@
 
 This utility runs the testing the Omega pull request template asks for: the
 CTests and the Polaris `omega_pr` suite on each supported machine and
-compiler, plus linting and the documentation build, each reported as a
-`Testing` comment on the PR.  It can be driven by a developer or by AI
+compiler, plus linting and the documentation build, reported as `Testing`
+comments on the PR.  It can be driven by a developer or by AI
 agents, one per machine; agents follow [AGENTS.md](AGENTS.md).  The design
 is in `docs/design_docs/omega_pr_testing.md`.
 
@@ -14,8 +14,10 @@ is in `docs/design_docs/omega_pr_testing.md`.
    that pins the test and baseline commits and the rows to test.  The
    baseline is the Omega commit that Polaris `main` pins, unless another is
    given with a reason.
-2. **`lint`** (the initiator) reports on pre-commit and the docs build,
-   from Omega's CI when it passed and otherwise by running them.
+2. **`lint`** (the initiator) checks pre-commit and the docs build.  When
+   Omega's CI has passed on the PR head, there is nothing to post, since
+   the PR's checks show it.  Otherwise it runs them, and `--post` posts the
+   result.
 3. **`setup`** (each machine) checks the Polaris checkout against the
    manifest, reuses a matching baseline run if it finds one, and otherwise
    builds and sets one up.  It then builds and sets up the PR suite, and
