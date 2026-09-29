@@ -275,6 +275,7 @@ def setup_tasks(
         print(f'target gpus: {max_gpus}')
         print(f'minimum gpus: {max_of_min_gpus}')
 
+    job_options = None
     if machine is not None:
         suite_config = _get_suite_config(
             basic_config, suite_component, suite_name
@@ -290,18 +291,18 @@ def setup_tasks(
             suite=suite_name,
         )
 
-        if job_options is not None:
-            # Rewrite provenance (it was written earlier so that it exists
-            # even if setup fails) now that we know which scheduler options
-            # the suite's job script ended up using.
-            provenance.write(
-                work_dir,
-                tasks,
-                config=component_config,
-                machine=machine,
-                baseline_dir=baseline_dir,
-                job_options=job_options,
-            )
+    # Rewrite provenance (it was written earlier so that it exists even if
+    # setup fails) now that the model has been built, recording the version
+    # it was built from, and we know which scheduler options the suite's job
+    # script ended up using.
+    provenance.write(
+        work_dir,
+        tasks,
+        config=component_config,
+        machine=machine,
+        baseline_dir=baseline_dir,
+        job_options=job_options,
+    )
 
     return tasks
 

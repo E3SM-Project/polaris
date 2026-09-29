@@ -21,6 +21,16 @@ cd {{ mpas_ocean_subdir }}
 
 git submodule update --init --recursive .
 
+{# polaris.build.source_record reads this record of the source being built #}
+{
+    echo "source: {{ e3sm_base_dir }}"
+    echo "hash: $(git -C {{ e3sm_base_dir }} rev-parse HEAD)"
+    echo "describe: $(git -C {{ e3sm_base_dir }} describe --tags --dirty --always)"
+    echo "clean_build: {{ 'true' if clean else 'false' }}"
+    echo "log:"
+    git -C {{ e3sm_base_dir }} log --first-parent -n 5 --format='  %h %s'
+} > {{ build_dir }}/mpas_ocean_source.txt
+
 {%- if clean %}
 make clean
 {%- endif %}

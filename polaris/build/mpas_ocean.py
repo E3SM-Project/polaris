@@ -173,6 +173,7 @@ def make_build_script(
         load_script=load_script,
         update_e3sm_submodule=update_e3sm_submodule,
         polaris_source_dir=polaris_source_dir,
+        e3sm_base_dir=branch,
         mpas_ocean_subdir=mpas_ocean_subdir,
         build_dir=build_dir,
         make_target=make_target,

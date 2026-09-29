@@ -32,6 +32,21 @@ cd ${cwd}
 
 cd {{ build_dir }}
 
+{# polaris.build.source_record reads this record of the source being built #}
+if [ -f CMakeCache.txt ]; then
+    clean_build=false
+else
+    clean_build=true
+fi
+{
+    echo "source: {{ omega_base_dir }}"
+    echo "hash: $(git -C {{ omega_base_dir }} rev-parse HEAD)"
+    echo "describe: $(git -C {{ omega_base_dir }} describe --tags --dirty --always)"
+    echo "clean_build: ${clean_build}"
+    echo "log:"
+    git -C {{ omega_base_dir }} log --first-parent -n 5 --format='  %h %s'
+} > omega_source.txt
+
 export METIS_ROOT={{ metis_root }}
 export PARMETIS_ROOT={{ parmetis_root }}
 
