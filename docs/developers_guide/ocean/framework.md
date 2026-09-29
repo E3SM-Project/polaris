@@ -1127,6 +1127,17 @@ is mapped back to the names the files use with
 {py:meth}`polaris.tasks.ocean.Ocean.map_var_list_to_native_model()`.  This is
 the one place in the analysis where model-specific names are unavoidable.
 
+A vector the model does not write the components of is reconstructed from the
+climatology of its edge-normal component.
+`polaris.tasks.ocean.analysis.climatology.VECTOR_RECONSTRUCTIONS` maps each
+edge-normal field to its zonal and meridional components.
+`get_climatology_variables()` adds the edge-normal field whenever a component
+is asked for, and the climatology step drops it again if the simulation wrote
+every component.  The map step then reconstructs whatever is still missing
+with {py:func}`polaris.mesh.reconstruct.tangential_reconstruction`, using the
+weights in the mesh file, and treats a fill value on an edge as zero, since
+nothing crosses a closed edge.
+
 ### Reducing a field to a map
 
 A field with a vertical dimension has to be reduced to a horizontal map
