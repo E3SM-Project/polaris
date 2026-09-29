@@ -1,9 +1,15 @@
 import os
 
+import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris.analysis.units import units_to_mathtext
+from polaris.attrs import set_attrs
+from polaris.mesh.reconstruct import (
+    cartesian_to_local_geographic,
+    tangential_reconstruction,
+)
 from polaris.ocean.vertical.diagnostics import get_z_mid_and_interface
 from polaris.ocean.vertical.elevation import (
     apply_vertical_reduction,
@@ -11,7 +17,10 @@ from polaris.ocean.vertical.elevation import (
     parse_vertical_reduction,
 )
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
-from polaris.tasks.ocean.analysis.climatology import find_climatology_file
+from polaris.tasks.ocean.analysis.climatology import (
+    VECTOR_RECONSTRUCTIONS,
+    find_climatology_file,
+)
 from polaris.tasks.ocean.analysis.config_sections import map_section
 from polaris.tasks.ocean.analysis.sim_files import year_range_key
 from polaris.viz import plot_global_mpas_field
@@ -44,6 +53,11 @@ FIELD_GROUPS = {
 # Heat content is a field group of the maps rather than a product of its own,
 # and it is not one of the fields a user lists, so it is always present
 DERIVED_FIELD_GROUPS = ('heat_content',)
+
+# The least-squares stencil and weights every Omega mesh Polaris writes
+# carries, which reconstruct a vector at cell centers from its edge-normal
+# component
+RECONSTRUCTION_WEIGHT_FIELDS = ('ReconStencilCell', 'ReconWeightsCell')
 
 
 def get_field_groups(fields):
@@ -147,6 +161,7 @@ class ClimatologyMaps(AnalysisStep):
         self.fields = list(fields)
         self._coords: dict = {}
         self._mesh_ds: xr.Dataset | None = None
+        self._reconstruction_mesh: xr.Dataset | None = None
         self.add_dependency(climatology, name='climatology')
 
     def setup(self):
@@ -201,6 +216,9 @@ class ClimatologyMaps(AnalysisStep):
                 z_mid, z_interface = get_z_mid_and_interface(ds)
                 z_mid = _drop_time(z_mid)
                 z_interface = _drop_time(z_interface)
+                self._reconstruct_components(
+                    ds, min_level_cell, max_level_cell
+                )
                 for field in self.fields:
                     if field not in ds:
                         self.logger.info(
@@ -219,6 +237,81 @@ class ClimatologyMaps(AnalysisStep):
                         max_level_cell=max_level_cell,
                         descriptor=descriptor,
                     )
+
+    def _reconstruct_components(self, ds, min_level_cell, max_level_cell):
+        """
+        Add the vector components of this group that the simulation did not
+        write, reconstructed from the edge-normal field they are components
+        of, if the climatology has it
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            The climatology, to which the components are added
+
+        min_level_cell : xarray.DataArray
+            The zero-based index of the topmost valid layer of each column
+
+        max_level_cell : xarray.DataArray
+            The zero-based index of the bottommost valid layer of each column
+        """
+        for source, components in VECTOR_RECONSTRUCTIONS.items():
+            missing = [
+                component
+                for component in components
+                if component in self.fields and component not in ds
+            ]
+            if not missing or source not in ds:
+                continue
+            self.logger.info(
+                f'  reconstructing {", ".join(missing)} from {source}'
+            )
+            u_zonal, u_meridional = _reconstruct_zonal_meridional(
+                self._get_reconstruction_mesh(source, missing), ds[source]
+            )
+            n_levels = ds.sizes['nVertLevels']
+            levels = xr.DataArray(np.arange(n_levels), dims='nVertLevels')
+            in_column = (levels >= min_level_cell) & (levels <= max_level_cell)
+            units = ds[source].attrs.get('units')
+            for component, direction, da in zip(
+                components,
+                ('zonal', 'meridional'),
+                (u_zonal, u_meridional),
+                strict=True,
+            ):
+                if component in missing:
+                    # a layer outside the column is fill, as it is in any
+                    # field the model wrote
+                    ds[component] = set_attrs(
+                        da.where(in_column),
+                        long_name=f'{direction} component of {source}, '
+                        f'reconstructed at cell centers',
+                        units=units,
+                    )
+
+    def _get_reconstruction_mesh(self, source, components):
+        """
+        Get the reconstruction weights and cell locations, read from the mesh
+        once and kept for every season
+        """
+        if self._reconstruction_mesh is None:
+            ds = self._read_fields(
+                'mesh.nc',
+                list(RECONSTRUCTION_WEIGHT_FIELDS) + ['lonCell', 'latCell'],
+            )
+            missing = [
+                name for name in RECONSTRUCTION_WEIGHT_FIELDS if name not in ds
+            ]
+            if missing:
+                raise ValueError(
+                    f'The mesh has no {", ".join(missing)}, so '
+                    f'{", ".join(components)} cannot be reconstructed from '
+                    f'{source}.  Polaris writes these weights into every '
+                    f'Omega mesh it builds; a mesh from elsewhere needs them '
+                    f'added with utils/omega/add_reconstruction_weights.py.'
+                )
+            self._reconstruction_mesh = ds
+        return self._reconstruction_mesh
 
     def _mesh_coords(self):
         """
@@ -389,6 +482,56 @@ class ClimatologyMaps(AnalysisStep):
     def _range_key(self):
         """The zero-padded range of years, as the work tree spells it"""
         return year_range_key(self.start_year, self.end_year)
+
+
+def _reconstruct_zonal_meridional(ds_mesh, edge_field):
+    """
+    Reconstruct the zonal and meridional components of a vector at cell
+    centers from its component normal to each edge
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        The mesh, with MPAS-Ocean names, carrying ``ReconStencilCell``,
+        ``ReconWeightsCell``, ``lonCell`` and ``latCell``
+
+    edge_field : xarray.DataArray
+        The edge-normal component, with ``nEdges`` and ``nVertLevels``
+        dimensions
+
+    Returns
+    -------
+    u_zonal : xarray.DataArray
+        The zonal component at cell centers
+
+    u_meridional : xarray.DataArray
+        The meridional component at cell centers
+    """
+    # an edge outside the valid layers of the columns it joins is closed,
+    # so nothing crosses it: its fill value is a normal component of zero
+    edge_field = edge_field.fillna(0.0)
+    # the stencil gathers every edge of a cell's two rings, which is an
+    # order of magnitude more values than the field has, so one layer is
+    # gathered at a time
+    layers = []
+    for level in range(edge_field.sizes['nVertLevels']):
+        u_x, u_y, u_z = tangential_reconstruction(
+            ds_mesh,
+            edge_field.isel(nVertLevels=level),
+            stencil=ds_mesh.ReconStencilCell,
+            weights=ds_mesh.ReconWeightsCell,
+        )
+        u_zonal, u_meridional, _ = cartesian_to_local_geographic(
+            ds_mesh, u_x, u_y, u_z
+        )
+        layers.append(xr.concat([u_zonal, u_meridional], dim='component'))
+    reconstructed = xr.concat(layers, dim='nVertLevels').drop_vars(
+        ['nVertLevels', 'component', 'R3'], errors='ignore'
+    )
+    return (
+        reconstructed.isel(component=0),
+        reconstructed.isel(component=1),
+    )
 
 
 def _group_for_field(field):
