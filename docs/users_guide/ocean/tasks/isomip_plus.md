@@ -258,7 +258,7 @@ section_y = 40e3
 ```
 
 The cavity freezing point uses MPAS-Ocean's default coefficients, which are
-in the `ice_shelf_freeze` section.
+in the `ice_shelf_freeze` section as `mpas_ocean_coeff_*` options.
 
 ## cores
 
