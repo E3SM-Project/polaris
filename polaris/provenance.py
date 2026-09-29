@@ -8,6 +8,7 @@ from polaris.build.omega import (
     detect_omega_build_type,
     get_omega_source_dir,
 )
+from polaris.build.source_record import read_source_record
 from polaris.version import __version__
 
 
@@ -188,13 +189,24 @@ def _get_component_git_version(config):
     """
     The git version of the source the component was built from, if it can
     be determined
+
+    Polaris's build scripts record the version in the build directory.  A
+    build without that record falls back on the version its source tree is
+    at now, marked as such because the tree may have moved since the build.
     """
+    record = read_source_record(_get_build_dir(config))
+    if record is not None and record['describe'] is not None:
+        return record['describe']
+
     source_dir = _get_component_source_dir(config)
     if source_dir is None:
         return None
-    return _git_output(
+    version = _git_output(
         ['describe', '--tags', '--dirty', '--always'], source_dir
     )
+    if version is None:
+        return None
+    return f'{version} (at setup, not build)'
 
 
 def _get_component_source_dir(config):
