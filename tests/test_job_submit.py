@@ -4,6 +4,7 @@ import pytest
 
 from polaris import job
 from polaris.job import (
+    SubmissionError,
     get_submit_args,
     is_job_active,
     parse_job_id,
@@ -46,14 +47,28 @@ def test_parse_job_id():
         parse_job_id('sbatch: error: invalid account\n', 'slurm')
 
 
+def test_submit_args_extra():
+    assert get_submit_args(
+        'job.sh', 'slurm', dependency='1', extra_args=['--qos=normal']
+    ) == [
+        'sbatch',
+        '--dependency=afterany:1',
+        '--kill-on-invalid-dep=yes',
+        '--qos=normal',
+        'job.sh',
+    ]
+
+
 def test_submit_job_runs_in_work_dir(tmp_path, monkeypatch):
     calls = []
 
-    def check_output(args, cwd):
+    def run(args, cwd, capture_output, text):
         calls.append((args, cwd))
-        return b'Submitted batch job 42\n'
+        return subprocess.CompletedProcess(
+            args, 0, 'Submitted batch job 42\n', ''
+        )
 
-    monkeypatch.setattr(job.subprocess, 'check_output', check_output)
+    monkeypatch.setattr(job.subprocess, 'run', run)
 
     job_id = submit_job('job.sh', str(tmp_path), 'slurm', dependency='41')
 
@@ -69,6 +84,21 @@ def test_submit_job_runs_in_work_dir(tmp_path, monkeypatch):
             str(tmp_path),
         )
     ]
+
+
+def test_submit_job_refused(tmp_path, monkeypatch):
+    def run(args, cwd, capture_output, text):
+        return subprocess.CompletedProcess(
+            args,
+            1,
+            '',
+            'sbatch: error: QOSMaxSubmitJobPerUserLimit\n',
+        )
+
+    monkeypatch.setattr(job.subprocess, 'run', run)
+
+    with pytest.raises(SubmissionError, match='QOSMaxSubmitJobPerUserLimit'):
+        submit_job('job.sh', str(tmp_path), 'slurm')
 
 
 @pytest.mark.parametrize(
