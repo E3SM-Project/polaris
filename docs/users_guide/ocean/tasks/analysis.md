@@ -381,15 +381,19 @@ range can be set for each field independently.  A section is named for its
 field with the field name in lower case with underscores, so `velocityZonal`
 is configured by `[ocean_analysis_map_velocity_zonal]`.
 
+Omega does not write `velocityZonal` and `velocityMeridional` yet, so Polaris
+reconstructs them at cell centers from the climatology of `normalVelocity`,
+using the least-squares weights in the simulation's mesh file (see
+{ref}`dev-mesh-reconstruct`).  Reconstruction is linear, so this is exactly
+the climatology of the reconstructed velocity.  It needs `NormalVelocity` in
+the simulation's `MonthlyAverages` group; a simulation that writes the
+components themselves has those plotted instead.
+
 #### what is not there yet
 
-Two fields in the config file are asked for and reported as skipped rather
-than silently dropped.  Each says so in the step's log:
-
-- **`velocityZonal` and `velocityMeridional`** are not written by Omega yet.
-  Polaris does not reconstruct them from the edge-normal velocity; the
-  reconstruction belongs in the model, where it costs nothing in accuracy.
-- **`mixedLayerDepth`** is likewise a diagnostic Omega does not compute yet.
+**`mixedLayerDepth`** is in the config file's field list but is a diagnostic
+Omega does not compute yet, so its maps are reported as skipped in the step's
+log rather than silently dropped.
 
 The `heat_content` field group exists but derives nothing yet, so it produces
 no maps.
@@ -453,6 +457,11 @@ in.  Polaris cannot reconstruct it: geometric thickness is derived from
 pseudo-thickness through specific volume, and the monthly mean of that
 product is not the product of the monthly means.  A run without it is out of
 spec rather than merely configured without a field.
+
+**`The mesh has no ReconStencilCell, ReconWeightsCell`.**  The velocity
+components are reconstructed with least-squares weights that every Omega mesh
+Polaris builds carries.  A mesh made elsewhere needs them added with
+{ref}`dev-ocean-add-reconstruction-weights`.
 
 **`invalid interpolation syntax`** while reading the config file.  Polaris
 config files use extended interpolation, so a bare `$` in a value is an error.
