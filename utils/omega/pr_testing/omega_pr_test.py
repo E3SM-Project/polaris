@@ -68,7 +68,7 @@ def _init(args):
 
 def _lint(args):
     config = read_config(args.config_file)
-    text, url, path = pr_test_lint.run_lint(
+    text, url, path, from_ci = pr_test_lint.run_lint(
         config=config,
         fork=args.fork,
         branch=args.branch,
@@ -76,7 +76,14 @@ def _lint(args):
         agent=args.agent,
         post=args.post,
     )
-    _print_report(text, url, path)
+    if from_ci:
+        print(text)
+        print(
+            f"Not posted: Omega CI's checks passed, which the PR already "
+            f'shows.  The comment is in {path}'
+        )
+    else:
+        _print_report(text, url, path)
 
 
 def _setup(args):
@@ -219,7 +226,8 @@ def _parse_args():
 
     lint = subparsers.add_parser(
         'lint',
-        help='Report on linting and the documentation build (initiator)',
+        help='Check linting and the documentation build, posting only if '
+        "they had to run here because Omega's CI had not passed (initiator)",
     )
     _add_branch_args(lint)
     _add_report_args(lint)
