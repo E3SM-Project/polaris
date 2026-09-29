@@ -128,8 +128,9 @@ omega_pr_test.py report --fork <fork> --branch <branch> \
 - **CTests fail.**  `ctests.log` is in the PR build directory.
 - **The scheduler refuses a job**, for a per-user limit, say.  `setup`
   stops with the scheduler's message.  Tell the requester rather than
-  resubmitting.  The utility already submits Frontier's jobs with the
-  normal QOS and chains each row's jobs on Aurora.
+  resubmitting or choosing another queue.  The utility already submits
+  Frontier's jobs with the normal QOS, and Aurora's to the capacity queue,
+  one after another.
 - **Anything else.**  Stop and ask the requester rather than working
   around it.
 
