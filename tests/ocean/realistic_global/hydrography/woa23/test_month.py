@@ -70,9 +70,10 @@ def test_downstream_steps_use_the_month_in_filenames():
     )
 
 
+@pytest.mark.parametrize('month', range(1, 13))
 @pytest.mark.parametrize('step_name', ['combine', 'extrapolate'])
-def test_january_is_in_the_cache(step_name):
-    component, steps = _get_steps(1)
+def test_every_month_is_in_the_cache(step_name, month):
+    component, steps = _get_steps(month)
     step = steps[step_name]
 
     step.setup()
