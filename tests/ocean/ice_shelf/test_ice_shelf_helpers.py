@@ -2,6 +2,7 @@ from configparser import ConfigParser
 from importlib import resources
 
 import numpy as np
+import pytest
 import xarray as xr
 from numpy.testing import assert_allclose
 
@@ -14,9 +15,11 @@ from polaris.ocean.ice_shelf import (
 )
 
 
-def _read_freeze_config():
+def _read_freeze_config(model='mpas-ocean'):
     """Read the freezing-point config options shipped with polaris."""
     config = ConfigParser()
+    config.add_section('ocean')
+    config.set('ocean', 'model', model)
     text = (
         resources.files('polaris.ocean.ice_shelf')
         .joinpath('freeze.cfg')
@@ -86,10 +89,10 @@ def test_freeze_config_matches_mpas_ocean_defaults():
     """The coefficients match MPAS-Ocean's defaults for
     config_land_ice_cavity_freezing_temperature_coeff_*"""
     section = _read_freeze_config()['ice_shelf_freeze']
-    assert section.getfloat('coeff_0') == 6.22e-2
-    assert section.getfloat('coeff_S') == -5.63e-2
-    assert section.getfloat('coeff_p') == -7.43e-8
-    assert section.getfloat('coeff_pS') == -1.74e-10
+    assert section.getfloat('mpas_ocean_coeff_0') == 6.22e-2
+    assert section.getfloat('mpas_ocean_coeff_S') == -5.63e-2
+    assert section.getfloat('mpas_ocean_coeff_p') == -7.43e-8
+    assert section.getfloat('mpas_ocean_coeff_pS') == -1.74e-10
 
 
 def test_freezing_temperature():
@@ -107,3 +110,11 @@ def test_freezing_temperature():
     # freezing point decreases with salinity and pressure
     assert freezing.values[1] < freezing.values[0]
     assert freezing.values[2] < freezing.values[1]
+
+
+def test_freezing_temperature_not_supported_for_omega():
+    config = _read_freeze_config(model='omega')
+    salinity = xr.DataArray(np.array([34.0]))
+    pressure = xr.DataArray(np.array([1.0e6]))
+    with pytest.raises(NotImplementedError):
+        compute_freezing_temperature(config, salinity, pressure)
