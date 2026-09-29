@@ -130,8 +130,8 @@ beside it and a `realistic_global_analysis_test.cfg` shared at that level.
 registers one task, on the `QU.240km` mesh; adding a mesh means a new entry
 in the `MESH_INFO` dictionary in
 `polaris.tasks.ocean.realistic_global.analysis_test.forward` giving the
-initial-condition IDs, the cell count and the time step, and a call to add
-the task.
+initial-condition IDs, the cell count and the baroclinic and barotropic
+time steps, and a call to add the task.
 
 The
 {py:class}`polaris.tasks.ocean.realistic_global.analysis_test.RealisticGlobalAnalysisTest`

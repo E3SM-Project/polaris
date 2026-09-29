@@ -3,10 +3,15 @@ from polaris.tasks.ocean.realistic_global.forward import (
 )
 
 # the cached initial conditions and cell counts of the realistic global
-# meshes, as in polaris.tasks.ocean.realistic_global
+# meshes, as in polaris.tasks.ocean.realistic_global, and the baroclinic and
+# barotropic time steps, as for the analysis_members tasks
 MESH_INFO = {
     'QU.240km': dict(
-        mpaso_id=151209, omega_id=260807, ncells=7153, dt='00:10:00'
+        mpaso_id=151209,
+        omega_id=260807,
+        ncells=7153,
+        dt='02:00:00',
+        btr_dt='00:04:00',
     ),
 }
 
@@ -49,11 +54,12 @@ class Forward(RealisticGlobalForward):
         """
         mesh_info = MESH_INFO[mesh_name]
         replacements = {
-            'time_integrator': 'RungeKutta4',
+            'time_integrator': 'SplitExplicitRK2',
             # Omega's TimeInterval parser understands only DDDD_HH:MM:SS, so
             # the duration is given in days: 365 on the No Leap calendar
             'run_duration': '0365_00:00:00',
             'dt': mesh_info['dt'],
+            'btr_dt': mesh_info['btr_dt'],
             # the MPAS-Ocean output stream, which is not used
             'output_interval': '0001_00:00:00',
             'output_freq': '1',

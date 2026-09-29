@@ -318,8 +318,11 @@ of 1.0e-3.
 
 ### time step and run duration
 
-The time step is 10 minutes and the run lasts 365 days from
-`0001-01-01`, one year on the No Leap calendar.  Restarts are written
+The run uses the split-explicit time stepper (`SplitExplicitRK2`) with the
+same time steps as the `QU.240km`
+{ref}`ocean-realistic-global-analysis-members` task: 2 hours for the
+baroclinic step and 4 minutes for the barotropic one.  It lasts 365 days
+from `0001-01-01`, one year on the No Leap calendar.  Restarts are written
 monthly, because Omega requires the restart interval to be a multiple of
 every averaging period.
 
