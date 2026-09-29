@@ -25,6 +25,15 @@ GEOMETRY_VARIABLES = ('zMid', 'GeomZInterface')
 # its inputs are always in the climatology.
 HEAT_CONTENT_VARIABLES = ('temperature',)
 
+# The vector fields Polaris reconstructs at cell centers when the simulation
+# did not write their components, keyed by the edge-normal field they are
+# reconstructed from.  Reconstruction is linear, so reconstructing from the
+# climatology of the edge-normal field gives exactly the climatology of the
+# reconstructed components.
+VECTOR_RECONSTRUCTIONS = {
+    'normalVelocity': ('velocityZonal', 'velocityMeridional'),
+}
+
 # The model's mass-like thickness, read under its native name.  This is the
 # one variable the analysis deliberately does not translate: Omega's
 # ``PseudoThickness`` and MPAS-Ocean's ``layerThickness`` agree on the mass
@@ -56,7 +65,9 @@ def get_climatology_variables(config):
     Get the variables a climatology is computed for, in MPAS-Ocean names
 
     The list is the union of the fields requested for maps, the fields ocean
-    heat content is derived from, and the vertical geometry.  It is assembled
+    heat content is derived from, the edge-normal field any requested vector
+    components can be reconstructed from, and the vertical geometry.  It is
+    assembled
     from config options rather than passed in by the steps that read the
     climatology, so that the shared step stays neutral with respect to which
     tasks pulled it in.
@@ -77,7 +88,12 @@ def get_climatology_variables(config):
         ones appended
     """
     variables = list(config.getlist('ocean_analysis_climatology', 'fields'))
-    for variable in HEAT_CONTENT_VARIABLES + GEOMETRY_VARIABLES:
+    sources = tuple(
+        source
+        for source, components in VECTOR_RECONSTRUCTIONS.items()
+        if any(component in variables for component in components)
+    )
+    for variable in HEAT_CONTENT_VARIABLES + sources + GEOMETRY_VARIABLES:
         if variable not in variables:
             variables.append(variable)
     return variables
@@ -229,6 +245,7 @@ class Climatology(AnalysisStep):
         pairs.append((MASS_THICKNESS_VARIABLE, MASS_THICKNESS_VARIABLE))
 
         written = self._variables_written()
+        pairs = _drop_unneeded_for_reconstruction(pairs, written, suffix)
         present = [
             native for _, native in pairs if f'{native}{suffix}' in written
         ]
@@ -329,3 +346,46 @@ class Climatology(AnalysisStep):
         env = dict(os.environ)
         env['TMPDIR'] = scratch_dir
         return env
+
+
+def _drop_unneeded_for_reconstruction(pairs, written, suffix):
+    """
+    Drop the variables a vector reconstruction makes unnecessary
+
+    An edge-normal field is not needed if the simulation wrote every
+    component asked for, and a component the simulation did not write is not
+    missing if it can be reconstructed from an edge-normal field it did.
+
+    Parameters
+    ----------
+    pairs : list of tuple of str
+        The MPAS-Ocean and native name of each variable
+
+    written : set of str
+        The variables in the monthly means
+
+    suffix : str
+        What the files append to each field's name
+
+    Returns
+    -------
+    pairs : list of tuple of str
+        The pairs that are still needed
+    """
+    is_written = {
+        polaris: f'{native}{suffix}' in written for polaris, native in pairs
+    }
+    unneeded = set()
+    for source, components in VECTOR_RECONSTRUCTIONS.items():
+        if source not in is_written:
+            continue
+        requested = [c for c in components if c in is_written]
+        if all(is_written[c] for c in requested):
+            unneeded.add(source)
+        elif is_written[source]:
+            unneeded.update(c for c in requested if not is_written[c])
+    return [
+        (polaris, native)
+        for polaris, native in pairs
+        if polaris not in unneeded
+    ]
