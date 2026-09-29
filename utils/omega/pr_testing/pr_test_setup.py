@@ -50,8 +50,13 @@ BASELINE_JOB_PLACEHOLDER = '<baseline job id>'
 
 #: options added when submitting on a machine, overriding the job script.
 #: The omega_pr suite asks for each machine's debug target, but Frontier
-#: allows only one debug job at a time, and a row submits several.
-SUBMIT_ARGS: Dict[str, List[str]] = {'frontier': ['--qos=normal']}
+#: allows only one debug job at a time, and a row submits several.  Aurora's
+#: debug queue is limited in the same way; capacity is its queue for jobs of
+#: 1 to 16 nodes, since prod starts at 256.
+SUBMIT_ARGS: Dict[str, List[str]] = {
+    'aurora': ['-q', 'capacity'],
+    'frontier': ['--qos=normal'],
+}
 
 #: machines where each of a row's jobs waits for the one before.  Aurora
 #: limits how many jobs a user may have in the 'Q' state, and a job waiting
