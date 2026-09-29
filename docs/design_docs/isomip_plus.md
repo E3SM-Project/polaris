@@ -806,13 +806,17 @@ land-ice forcing.
 
 ### D6: The freezing point uses MPAS-Ocean's default coefficients
 
-Date last modified: 2026/09/28
+Date last modified: 2026/09/29
 
 Contributors: Xylar Asay-Davis, Claude
 
 The cavity freezing point uses MPAS-Ocean's default coefficients, as
 Compass does, both in the model and for thin-film initial temperatures.
 They differ from the COM liquidus in Table 4 of the protocol.
+
+The shared helper selects the formulation by ocean model. Omega uses
+TEOS-10 for its freezing temperature, and the helper raises an error for
+Omega until it supports ice-shelf cavities.
 
 ### D7: The forward run is short
 

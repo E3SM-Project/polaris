@@ -736,9 +736,10 @@ or ice draft ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_d
 the draft of floating ice from its pressure
 ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_draft_from_pressure()`),
 and the freezing temperature in an ice-shelf cavity
-({py:func}`polaris.ocean.ice_shelf.compute_freezing_temperature()`) using the
-coefficients in the `ice_shelf_freeze` config section, which match the
-MPAS-Ocean defaults.
+({py:func}`polaris.ocean.ice_shelf.compute_freezing_temperature()`), which
+uses the formulation of the ocean model.  For MPAS-Ocean, the coefficients are
+in the `ice_shelf_freeze` config section and match the MPAS-Ocean defaults.
+Omega uses TEOS-10 for its freezing temperature, which is not yet supported.
 
 (dev-ocean-framework-vertical)=
 
