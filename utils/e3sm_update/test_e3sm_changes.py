@@ -113,6 +113,13 @@ def submit_e3sm_tests(
             else:
                 print(f'Warning: skipping commit with no "#" for PR:\n{line}')
 
+    # the new hash needs its own test only if it differs from the last
+    # commit of interest (the final PR merge, or current if there are none)
+    last_hash = pull_requests[-1]['hash'] if pull_requests else current
+    test_new = _resolve_commit(new_submodule, new) != _resolve_commit(
+        new_submodule, last_hash
+    )
+
     print('Merge commits of interest: hash PR (component):')
     print(f'00: {current} {current_submodule} (current)')
     for index, data in enumerate(pull_requests):
@@ -120,7 +127,14 @@ def submit_e3sm_tests(
         pull_request = data['pull_request']
         component = data['component']
         print(f'{index + 1:02d}: {hash} {pull_request} ({component})')
-    print(f'{len(pull_requests) + 1:02d}: {new} {new_submodule} (new)')
+    index = len(pull_requests)
+    if test_new:
+        print(f'{index + 1:02d}: {new} {new_submodule} (new)')
+    else:
+        print(
+            f'{new} {new_submodule} (new) is the same commit as {index:02d} '
+            f'so it will not be tested separately'
+        )
     print('\n')
 
     print('Setting up worktrees of all commits of interest\n')
@@ -134,7 +148,7 @@ def submit_e3sm_tests(
 
     print('00: current\n')
     baseline = f'{work_base}/00_current'
-    setup_and_submit(
+    job_id = setup_and_submit(
         load_script=load_script,
         setup_command=setup_command,
         worktree=current_submodule,
@@ -147,26 +161,29 @@ def submit_e3sm_tests(
         pull_request = data['pull_request']
         workdir = f'{work_base}/{index + 1:02d}_{pull_request}_{previous}'
         print(f'{index + 1:02d}: {pull_request}\n')
-        setup_and_submit(
+        job_id = setup_and_submit(
             load_script=load_script,
             setup_command=setup_command,
             worktree=worktree,
             workdir=workdir,
             baseline=baseline,
+            dependency=job_id,
         )
         baseline = workdir
         previous = pull_request
 
-    index = len(pull_requests)
-    print(f'{index + 1:02d}: new\n')
-    workdir = f'{work_base}/{index + 1:02d}_new_{previous}'
-    setup_and_submit(
-        load_script=load_script,
-        setup_command=setup_command,
-        worktree=new_submodule,
-        workdir=workdir,
-        baseline=baseline,
-    )
+    if test_new:
+        index = len(pull_requests)
+        print(f'{index + 1:02d}: new\n')
+        workdir = f'{work_base}/{index + 1:02d}_new_{previous}'
+        setup_and_submit(
+            load_script=load_script,
+            setup_command=setup_command,
+            worktree=new_submodule,
+            workdir=workdir,
+            baseline=baseline,
+            dependency=job_id,
+        )
 
     print_pr_description(submodule, repo_url, current, new, pull_requests)
 
@@ -181,8 +198,19 @@ def setup_worktree(submodule, worktree, hash):
 
 
 def setup_and_submit(
-    load_script, setup_command, worktree, workdir, baseline=None
+    load_script,
+    setup_command,
+    worktree,
+    workdir,
+    baseline=None,
+    dependency=None,
 ):
+    """
+    Set up the tasks in a work directory and submit their job, returning
+    the job ID.  The job waits for the ``dependency`` job (the one that
+    produces its baseline) to finish, and is killed if that job no longer
+    exists rather than left pending forever.
+    """
     suite = _get_suite_name(setup_command)
 
     full_setup = (
@@ -195,11 +223,29 @@ def setup_and_submit(
     commands = f'source {shlex.quote(load_script)} && {full_setup}'
     print_and_run(commands)
 
+    sbatch = 'sbatch --parsable'
+    if dependency is not None:
+        sbatch = (
+            f'{sbatch} --kill-on-invalid-dep=yes '
+            f'--dependency=afterany:{dependency}'
+        )
     commands = (
         f'cd {shlex.quote(workdir)} && '
-        f'sbatch {shlex.quote(f"job_script.{suite}.sh")}'
+        f'{sbatch} {shlex.quote(f"job_script.{suite}.sh")}'
     )
-    print_and_run(commands)
+    output = print_and_run(commands, get_output=True)
+    # --parsable prints "<job_id>" or "<job_id>;<cluster>"
+    job_id = output.split('\n')[-1].split(';')[0].strip()
+    print(f'Submitted batch job {job_id}\n')
+    return job_id
+
+
+def _resolve_commit(worktree, ref):
+    commands = (
+        f'cd {shlex.quote(worktree)} && '
+        f'git rev-parse --verify {shlex.quote(f"{ref}^{{commit}}")}'
+    )
+    return print_and_run(commands, get_output=True)
 
 
 def _get_suite_name(setup_command):
@@ -255,10 +301,10 @@ def print_pr_description(submodule, repo_url, current, new, pull_requests):
         f'to [{new}]({repo_url}/tree/{new}).\n'
     )
 
+    repo_name = repo_url.rstrip('/').split('/')[-1]
     print(
-        'This update includes the following MPAS-Ocean and MPAS-Frameworks '
-        'PRs (check mark indicates bit-for-bit with previous PR in the '
-        'list):'
+        f'This update includes the following {repo_name} PRs (check mark '
+        f'indicates bit-for-bit with previous PR in the list):'
     )
     for data in pull_requests:
         pull_request = data['pull_request']
