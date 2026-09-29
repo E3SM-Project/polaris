@@ -75,9 +75,10 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    ```bash
    omega_pr_test.py setup --fork <fork> --branch <branch>
    ```
-   Each build can take an hour.  `setup` checks that this Polaris checkout
-   is clean, contains the manifest's Polaris commit and pins the same
-   Omega; if not, stop and tell the requester.
+   Each build typically takes about 5 minutes, and rarely more than 10.
+   `setup` checks that this Polaris checkout is clean, contains the
+   manifest's Polaris commit and pins the same Omega; if not, stop and tell
+   the requester.
 2. With permission, submit the jobs by running `setup` again with
    `--submit`.  It reuses the builds and chains the PR suite after the
    baseline.
