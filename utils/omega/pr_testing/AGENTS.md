@@ -125,6 +125,10 @@ omega_pr_test.py report --fork <fork> --branch <branch> \
   merged into `develop` since the Polaris pin can cause differences too.
   Say which tasks differ and what you think caused it.
 - **CTests fail.**  `ctests.log` is in the PR build directory.
+- **The scheduler refuses a job**, for a per-user limit, say.  `setup`
+  stops with the scheduler's message.  Tell the requester rather than
+  resubmitting.  The utility already submits Frontier's jobs with the
+  normal QOS and chains each row's jobs on Aurora.
 - **Anything else.**  Stop and ask the requester rather than working
   around it.
 
