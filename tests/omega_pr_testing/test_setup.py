@@ -129,6 +129,25 @@ def test_setup_frontier_avoids_debug_qos(tester, monkeypatch):
     assert calls['extra_args'] == [['--qos=normal']] * 3
 
 
+def test_setup_aurora_chains_jobs(tester, monkeypatch):
+    fixture, manifest, calls = tester
+    monkeypatch.setenv('POLARIS_MACHINE', 'aurora')
+    monkeypatch.setenv('POLARIS_COMPILER', 'oneapi-ifx')
+    monkeypatch.setenv('POLARIS_MPI', 'mpich')
+    monkeypatch.setattr(pr_test_setup, '_get_system', lambda machine: 'pbs')
+
+    state = _setup(fixture, manifest)
+    row_dir = Path(state.pr_work_dir).parent
+    text = pr_test_setup.format_state(state, str(row_dir), 'aurora')
+    assert "-W 'depend=afterany:<baseline job id>'" in text
+    assert "-W 'depend=afterany:<PR suite job id>'" in text
+
+    _setup(fixture, manifest, submit=True)
+    # each job waits for the one before, so only one is ever queued
+    dependencies = [call[2] for call in calls['submit']]
+    assert dependencies == [None, '1001', '1002']
+
+
 def test_setup_pin_mismatch(tester):
     fixture, manifest, _ = tester
     git(
