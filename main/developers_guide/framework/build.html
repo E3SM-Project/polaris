@@ -77,6 +77,7 @@
 <li class="toctree-l2"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Build utilities</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#source-record">Source record</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#required-environment">Required environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mpas-ocean-builder">MPAS-Ocean builder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#omega-builder">Omega builder</a></li>
@@ -162,6 +163,19 @@ The generated scripts are saved so you can re-run or inspect them later.</p>
 <li><p>MPAS-Ocean: <code class="docutils literal notranslate"><span class="pre">build_mpas_ocean_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code></p></li>
 <li><p>Omega: <code class="docutils literal notranslate"><span class="pre">build_omega_&lt;machine&gt;_&lt;compiler&gt;.sh</span></code></p></li>
 </ul>
+</section>
+<section id="source-record">
+<h2>Source record<a class="headerlink" href="#source-record" title="Link to this heading"></a></h2>
+<p>Before configuring (Omega) or making (MPAS-Ocean), each build script writes a
+record of the source it is building into the build directory:
+<code class="docutils literal notranslate"><span class="pre">omega_source.txt</span></code> or <code class="docutils literal notranslate"><span class="pre">mpas_ocean_source.txt</span></code>.  The record holds the source
+tree’s path, its full hash, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">describe</span> <span class="pre">--tags</span> <span class="pre">--dirty</span> <span class="pre">--always</span></code>, the last
+five first-parent commits, and <code class="docutils literal notranslate"><span class="pre">clean_build</span></code>.  For Omega, <code class="docutils literal notranslate"><span class="pre">clean_build</span></code> is
+<code class="docutils literal notranslate"><span class="pre">true</span></code> when the build directory had no <code class="docutils literal notranslate"><span class="pre">CMakeCache.txt</span></code>; for MPAS-Ocean, it is
+<code class="docutils literal notranslate"><span class="pre">true</span></code> when the script ran <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code>.</p>
+<p><a class="reference internal" href="../generated/polaris.build.source_record.read_source_record.html#polaris.build.source_record.read_source_record" title="polaris.build.source_record.read_source_record"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.build.source_record.read_source_record()</span></code></a> reads the record.
+<a class="reference internal" href="provenance.html#dev-provenance"><span class="std std-ref">Provenance</span></a> uses it to record the commit that was built, which may
+differ from the commit the source tree is at when a suite reuses the build.</p>
 </section>
 <section id="required-environment">
 <h2>Required environment<a class="headerlink" href="#required-environment" title="Link to this heading"></a></h2>

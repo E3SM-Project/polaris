@@ -564,6 +564,7 @@ seaice/api
    mpas_ocean.make_build_script
    omega.build_omega
    omega.make_build_script
+   source_record.read_source_record
 ```
 
 ### mpas

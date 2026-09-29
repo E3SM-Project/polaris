@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>polaris.build.omega.build_omega</title>
+  <title>polaris.build.source_record.read_source_record</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,8 +19,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.build.omega.make_build_script" href="polaris.build.omega.make_build_script.html" />
-    <link rel="prev" title="polaris.build.mpas_ocean.make_build_script" href="polaris.build.mpas_ocean.make_build_script.html" />
+    <link rel="next" title="polaris.mpas.area_for_field" href="polaris.mpas.area_for_field.html" />
+    <link rel="prev" title="polaris.build.omega.make_build_script" href="polaris.build.omega.make_build_script.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -98,9 +98,9 @@
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#build">build</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="polaris.build.mpas_ocean.build_mpas_ocean.html">polaris.build.mpas_ocean.build_mpas_ocean</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.build.mpas_ocean.make_build_script.html">polaris.build.mpas_ocean.make_build_script</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.build.omega.build_omega</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.build.omega.build_omega.html">polaris.build.omega.build_omega</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.build.omega.make_build_script.html">polaris.build.omega.make_build_script</a></li>
-<li class="toctree-l4"><a class="reference internal" href="polaris.build.source_record.read_source_record.html">polaris.build.source_record.read_source_record</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.build.source_record.read_source_record</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#mpas">mpas</a></li>
@@ -143,9 +143,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
-      <li class="breadcrumb-item active">polaris.build.omega.build_omega</li>
+      <li class="breadcrumb-item active">polaris.build.source_record.read_source_record</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/developers_guide/generated/polaris.build.omega.build_omega.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/developers_guide/generated/polaris.build.source_record.read_source_record.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -153,24 +153,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="polaris-build-omega-build-omega">
-<h1>polaris.build.omega.build_omega<a class="headerlink" href="#polaris-build-omega-build-omega" title="Link to this heading"></a></h1>
+  <section id="polaris-build-source-record-read-source-record">
+<h1>polaris.build.source_record.read_source_record<a class="headerlink" href="#polaris-build-source-record-read-source-record" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="polaris.build.omega.build_omega">
-<span class="sig-prename descclassname"><span class="pre">polaris.build.omega.</span></span><span class="sig-name descname"><span class="pre">build_omega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">branch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">build_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmake_flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/build/omega.html#build_omega"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.build.omega.build_omega" title="Link to this definition"></a></dt>
-<dd><p>Build Omega on the current machine.</p>
+<dt class="sig sig-object py" id="polaris.build.source_record.read_source_record">
+<span class="sig-prename descclassname"><span class="pre">polaris.build.source_record.</span></span><span class="sig-name descname"><span class="pre">read_source_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">build_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/polaris/build/source_record.html#read_source_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.build.source_record.read_source_record" title="Link to this definition"></a></dt>
+<dd><p>Read the record of the source that Polaris built a model from.</p>
+<p>Polaris’s build scripts write the record into the build directory before
+configuring the build, so it names the commit that was built even if the
+source tree has moved since.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>branch</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The relative or absolute path to the base of the Omega branch to build.</p></li>
-<li><p><strong>build_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The directory in which to build Omega.</p></li>
-<li><p><strong>clean</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to clean the build directory before building.</p></li>
-<li><p><strong>quiet</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to build quietly (suppress output).</p></li>
-<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to build in debug mode.</p></li>
-<li><p><strong>cmake_flags</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Additional flags to pass to CMake.</p></li>
-<li><p><strong>account</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The account to use for the build.</p></li>
-<li><p><strong>log_filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The filename to use for logging build output.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>build_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – The build directory of Omega or MPAS-Ocean</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>record</strong> (<em>dict, optional</em>) – The record, with the source tree’s path (<code class="docutils literal notranslate"><span class="pre">source</span></code>), its full hash
+(<code class="docutils literal notranslate"><span class="pre">hash</span></code>), the output of <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">describe</span></code> (<code class="docutils literal notranslate"><span class="pre">describe</span></code>), whether
+the build started from an empty build directory (<code class="docutils literal notranslate"><span class="pre">clean_build</span></code>)
+and its last five first-parent commits (<code class="docutils literal notranslate"><span class="pre">log</span></code>), or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the
+build directory has no record</p>
 </dd>
 </dl>
 </dd></dl>
@@ -181,8 +182,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.build.mpas_ocean.make_build_script.html" class="btn btn-neutral float-left" title="polaris.build.mpas_ocean.make_build_script" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.build.omega.make_build_script.html" class="btn btn-neutral float-right" title="polaris.build.omega.make_build_script" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.build.omega.make_build_script.html" class="btn btn-neutral float-left" title="polaris.build.omega.make_build_script" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.mpas.area_for_field.html" class="btn btn-neutral float-right" title="polaris.mpas.area_for_field" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -120,7 +120,12 @@
     <span class="n">detect_omega_build_type</span><span class="p">,</span>
     <span class="n">get_omega_source_dir</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.source_record</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_source_record</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+
+<span class="c1"># marks a component's git entries that come from its source tree at setup,</span>
+<span class="c1"># which may have moved since the build</span>
+<span class="n">_AT_SETUP</span> <span class="o">=</span> <span class="s1">'(at setup, not build)'</span>
 
 
 <div class="viewcode-block" id="write">
@@ -165,14 +170,14 @@
 <span class="sd">        returned by :py:func:`polaris.job.write_job_script()`.  If not</span>
 <span class="sd">        provided, no scheduler metadata is recorded.</span>
 <span class="sd">    """</span>
-    <span class="n">polaris_git_version</span> <span class="o">=</span> <span class="n">_get_polaris_git_version</span><span class="p">()</span>
+    <span class="n">polaris_git_info</span> <span class="o">=</span> <span class="n">_get_polaris_git_info</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># this is a call to clean and we don't need to document the component</span>
         <span class="c1"># version</span>
-        <span class="n">component_git_version</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">component_git_info</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">component_git_version</span> <span class="o">=</span> <span class="n">_get_component_git_version</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">component_git_info</span> <span class="o">=</span> <span class="n">_get_component_git_info</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
     <span class="n">pixi_list</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">pixi_exe</span> <span class="o">=</span> <span class="n">_get_pixi_executable</span><span class="p">()</span>
@@ -198,14 +203,8 @@
         <span class="s1">'**************************************************'</span>
         <span class="s1">'*********************</span><span class="se">\n</span><span class="s1">'</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">polaris_git_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'polaris git version: </span><span class="si">{</span><span class="n">polaris_git_version</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">'</span>
-        <span class="p">)</span>
-    <span class="k">if</span> <span class="n">component_git_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'component git version: </span><span class="si">{</span><span class="n">component_git_version</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">'</span>
-        <span class="p">)</span>
+    <span class="n">_write_git_info</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'polaris'</span><span class="p">,</span> <span class="n">polaris_git_info</span><span class="p">)</span>
+    <span class="n">_write_git_info</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'component'</span><span class="p">,</span> <span class="n">component_git_info</span><span class="p">)</span>
     <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'command: </span><span class="si">{</span><span class="n">calling_command</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="c1"># Add readily parsable, PR-friendly metadata discovered at setup time</span>
@@ -292,14 +291,20 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_polaris_git_version</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">"""The git version of the Polaris being run, if it is a git checkout"""</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">_get_polaris_git_info</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_polaris_git_info</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The git version, hash and log of the Polaris being run, if it is a git</span>
+<span class="sd">    checkout</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'.git'</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'git'</span><span class="p">,</span> <span class="s1">'describe'</span><span class="p">,</span> <span class="s1">'--tags'</span><span class="p">,</span> <span class="s1">'--dirty'</span><span class="p">,</span> <span class="s1">'--always'</span><span class="p">]</span>
-        <span class="n">version</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">version</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_get_git_info</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_component_git_version</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
@@ -307,12 +312,61 @@
 <span class="sd">    The git version of the source the component was built from, if it can</span>
 <span class="sd">    be determined</span>
 <span class="sd">    """</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">_get_component_git_info</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">'at_setup'</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">"describe"</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">_AT_SETUP</span><span class="si">}</span><span class="s1">'</span>
+    <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_component_git_info</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The git version, hash and log of the source the component was built</span>
+<span class="sd">    from, if they can be determined</span>
+
+<span class="sd">    Polaris's build scripts record these in the build directory.  A build</span>
+<span class="sd">    without that record falls back on its source tree as it is now, noted in</span>
+<span class="sd">    ``at_setup`` because the tree may have moved since the build.</span>
+<span class="sd">    """</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="n">read_source_record</span><span class="p">(</span><span class="n">_get_build_dir</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">record</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">'describe'</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">],</span>
+            <span class="s1">'hash'</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">],</span>
+            <span class="s1">'log'</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s1">'log'</span><span class="p">],</span>
+            <span class="s1">'at_setup'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">}</span>
+
     <span class="n">source_dir</span> <span class="o">=</span> <span class="n">_get_component_source_dir</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">source_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">_git_output</span><span class="p">(</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">_get_git_info</span><span class="p">(</span><span class="n">source_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">info</span><span class="p">[</span><span class="s1">'at_setup'</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">info</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_git_info</span><span class="p">(</span><span class="n">source_dir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The git version, full hash and last five first-parent commits of a</span>
+<span class="sd">    source tree, or None if it is not a git tree</span>
+<span class="sd">    """</span>
+    <span class="n">describe</span> <span class="o">=</span> <span class="n">_git_output</span><span class="p">(</span>
         <span class="p">[</span><span class="s1">'describe'</span><span class="p">,</span> <span class="s1">'--tags'</span><span class="p">,</span> <span class="s1">'--dirty'</span><span class="p">,</span> <span class="s1">'--always'</span><span class="p">],</span> <span class="n">source_dir</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="n">describe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="n">_git_output</span><span class="p">(</span>
+        <span class="p">[</span><span class="s1">'log'</span><span class="p">,</span> <span class="s1">'--first-parent'</span><span class="p">,</span> <span class="s1">'-n'</span><span class="p">,</span> <span class="s1">'5'</span><span class="p">,</span> <span class="s1">'--format=%h </span><span class="si">%s</span><span class="s1">'</span><span class="p">],</span> <span class="n">source_dir</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'describe'</span><span class="p">:</span> <span class="n">describe</span><span class="p">,</span>
+        <span class="s1">'hash'</span><span class="p">:</span> <span class="n">_git_output</span><span class="p">([</span><span class="s1">'rev-parse'</span><span class="p">,</span> <span class="s1">'HEAD'</span><span class="p">],</span> <span class="n">source_dir</span><span class="p">),</span>
+        <span class="s1">'log'</span><span class="p">:</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">log</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">log</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(),</span>
+        <span class="s1">'at_setup'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_component_source_dir</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
@@ -452,6 +506,26 @@
     <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">'Debug'</span>
     <span class="k">return</span> <span class="s1">'Release'</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_git_info</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Write the git version, hash and log of Polaris or the component, with the</span>
+<span class="sd">    log on indented continuation lines after its label</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">' </span><span class="si">{</span><span class="n">_AT_SETUP</span><span class="si">}</span><span class="s1">'</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">'at_setup'</span><span class="p">]</span> <span class="k">else</span> <span class="s1">''</span>
+    <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> git version: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">"describe"</span><span class="p">]</span><span class="si">}{</span><span class="n">marker</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">'</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> git hash: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">"hash"</span><span class="p">]</span><span class="si">}{</span><span class="n">marker</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">'log'</span><span class="p">]:</span>
+        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> git log:</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s1">'log'</span><span class="p">]:</span>
+            <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">provenance_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>

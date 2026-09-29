@@ -24,6 +24,20 @@ Names of generated scripts within the build directory:
 - MPAS-Ocean: `build_mpas_ocean_<machine>_<compiler>_<mpi>.sh`
 - Omega: `build_omega_<machine>_<compiler>.sh`
 
+## Source record
+
+Before configuring (Omega) or making (MPAS-Ocean), each build script writes a
+record of the source it is building into the build directory:
+`omega_source.txt` or `mpas_ocean_source.txt`.  The record holds the source
+tree's path, its full hash, `git describe --tags --dirty --always`, the last
+five first-parent commits, and `clean_build`.  For Omega, `clean_build` is
+`true` when the build directory had no `CMakeCache.txt`; for MPAS-Ocean, it is
+`true` when the script ran `make clean`.
+
+{py:func}`polaris.build.source_record.read_source_record()` reads the record.
+{ref}`dev-provenance` uses it to record the commit that was built, which may
+differ from the commit the source tree is at when a suite reuses the build.
+
 ## Required environment
 
 Builders read a small number of environment variables to select the correct

@@ -137,6 +137,16 @@
 <a class="reference internal" href="../generated/polaris.provenance.write.html#polaris.provenance.write" title="polaris.provenance.write"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.provenance.write()</span></code></a> for creating a file in the base work
 directory with provenance, such as the git version, conda packages, polaris
 commands, and tasks.</p>
+<p>For both Polaris and the component, the file records the git version, the
+full hash and the last five first-parent commits (<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">git</span> <span class="pre">version</span></code>,
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">git</span> <span class="pre">hash</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">git</span> <span class="pre">log</span></code> and the same for <code class="docutils literal notranslate"><span class="pre">component</span></code>).  The logs
+are on indented lines after their label, so every other entry can be read one
+line at a time.</p>
+<p>The component entries come from the source record that Polaris’s build scripts
+write into the build directory (see <a class="reference internal" href="build.html#dev-build"><span class="std std-ref">Build utilities</span></a>), so they name the commit
+that was built.  For a build without a record, such as one made by hand, they
+come from the build’s source tree at setup, which may have moved since the
+build, and are marked <code class="docutils literal notranslate"><span class="pre">(at</span> <span class="pre">setup,</span> <span class="pre">not</span> <span class="pre">build)</span></code>.</p>
 </section>
 
 
