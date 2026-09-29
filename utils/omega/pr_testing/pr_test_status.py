@@ -36,8 +36,10 @@ def run_status(pull_request: int, manifest: Optional[Manifest] = None) -> str:
         )
         if marker is not None and marker.get('pr') == pull_request
     ]
+    # lint is only posted when it did not come from CI, so it is listed only
+    # if it was
     rows = [row.name for row in (manifest.rows if manifest else TEMPLATE_ROWS)]
-    return format_status(['lint'] + rows, markers, head)
+    return format_status(rows, markers, head)
 
 
 def format_status(
