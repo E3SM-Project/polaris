@@ -53,6 +53,11 @@ BASELINE_JOB_PLACEHOLDER = '<baseline job id>'
 #: allows only one debug job at a time, and a row submits several.
 SUBMIT_ARGS: Dict[str, List[str]] = {'frontier': ['--qos=normal']}
 
+#: machines where each of a row's jobs waits for the one before.  Aurora
+#: limits how many jobs a user may have in the 'Q' state, and a job waiting
+#: on a dependency is held ('H') instead, so this keeps one job queued.
+SERIAL_SUBMISSION = {'aurora'}
+
 
 class SetupError(Exception):
     """The environment does not match the manifest, or setup failed"""
@@ -288,14 +293,18 @@ def format_state(state: SetupState, row_dir: str, machine: str) -> str:
             "Nothing was submitted.  With the requester's permission, run "
             'these, one at a time, in this order:'
         )
+        previous = None
         for job in state.jobs:
             dependency = None
             if job['depends_on_baseline']:
                 dependency = state.baseline_job or _baseline_placeholder(state)
+            if machine in SERIAL_SUBMISSION and previous is not None:
+                dependency = _job_placeholder(previous)
             args = get_submit_args(
                 job['script'], system, dependency, SUBMIT_ARGS.get(machine)
             )
             lines.append(f'  cd {job["work_dir"]} && {shlex.join(args)}')
+            previous = job['name']
         lines.append(
             f'Then record each job id in {JOB_ID_FILENAME} in the directory '
             f'it was submitted from.'
@@ -523,8 +532,11 @@ def _get_baseline_build_log(criteria, roots, baseline_work_dir):
 def _submit(jobs, machine, active_baseline_id):
     system = _get_system(machine)
     baseline_id = active_baseline_id
+    previous_id = None
     for job in jobs:
         dependency = baseline_id if job.depends_on_baseline else None
+        if machine in SERIAL_SUBMISSION and previous_id is not None:
+            dependency = previous_id
         job.job_id = submit_job(
             job.script,
             job.work_dir,
@@ -534,6 +546,7 @@ def _submit(jobs, machine, active_baseline_id):
         )
         with open(os.path.join(job.work_dir, JOB_ID_FILENAME), 'w') as f:
             f.write(f'{job.job_id}\n')
+        previous_id = job.job_id
         if job.name == 'baseline suite':
             baseline_id = job.job_id
 
@@ -567,3 +580,10 @@ def _baseline_placeholder(state):
     if any(job['name'] == 'baseline suite' for job in state.jobs):
         return BASELINE_JOB_PLACEHOLDER
     return None
+
+
+def _job_placeholder(name):
+    """What a job's id is called before it is submitted"""
+    if name == 'baseline suite':
+        return BASELINE_JOB_PLACEHOLDER
+    return f'<{name} job id>'
