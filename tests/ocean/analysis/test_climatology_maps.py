@@ -15,6 +15,12 @@ content range ending halfway through a layer.
 Heat content is the one field group that derives its field instead of
 reading it, so what it adds is that the value written is the one the kernel
 gives, in the unit the file claims, while what is plotted is in another.
+
+Velocity components the simulation did not write are reconstructed from the
+edge-normal velocity.  The reconstruction itself is tested with the mesh
+operators, so the mesh here carries weights simple enough to write the answer
+down: each cell reads one edge, and every cell sits at the origin of latitude
+and longitude, where the zonal and meridional directions are y and z.
 """
 
 import json
@@ -48,6 +54,14 @@ Z_INTERFACE = -THICKNESS * np.arange(N_LEVELS + 1)[None, None, :]
 Z_MID = 0.5 * (Z_INTERFACE[:, :, :-1] + Z_INTERFACE[:, :, 1:])
 
 SEASONS = ['ANN', 'JJA']
+
+VELOCITY_FIELDS = ['velocityZonal', 'velocityMeridional']
+
+# one edge per cell, so that each cell's stencil is the edge of the same index
+N_EDGES = N_CELLS
+
+# the edge that is closed in the bottom layer
+CLOSED_EDGE = 2
 
 
 def test_a_netcdf_is_registered_beside_every_plot(step):
@@ -160,6 +174,65 @@ def test_a_map_at_an_elevation_needs_the_geometry_the_model_wrote(
         step.run()
 
 
+def test_velocity_components_are_reconstructed_from_normal_velocity(
+    velocity_step, caplog
+):
+    with caplog.at_level(logging.INFO):
+        velocity_step.run()
+    assert 'reconstructing velocityZonal, velocityMeridional' in caplog.text
+    assert _images(velocity_step) == {
+        f'{field}_{season}_{label}.png'
+        for field in VELOCITY_FIELDS
+        for season in SEASONS
+        for label in ('top', 'bottom', 'k1')
+    }
+    # the climatology holds edge + 10 * level for season ANN, and cell i
+    # reads edge i with weights that give it that value in y and twice that
+    # in z
+    expected = np.arange(N_CELLS) + 10.0
+    zonal = _read_map(velocity_step, 'velocityZonal_ANN_k1.nc')
+    meridional = _read_map(velocity_step, 'velocityMeridional_ANN_k1.nc')
+    np.testing.assert_allclose(zonal.values, expected)
+    np.testing.assert_allclose(meridional.values, 2.0 * expected)
+    assert zonal.attrs['units'] == 'm s-1'
+    assert 'reconstructed' in zonal.attrs['long_name']
+
+
+def test_a_closed_edge_carries_no_flow(velocity_step):
+    """An edge below the seafloor is fill in the monthly means; nothing
+    crosses it, so it contributes zero rather than poisoning the cell."""
+    velocity_step.run()
+    zonal = _read_map(velocity_step, 'velocityZonal_ANN_bottom.nc')
+    assert zonal.values[CLOSED_EDGE] == 0.0
+    assert np.all(np.isfinite(zonal.values))
+
+
+def test_components_the_simulation_wrote_are_not_reconstructed(
+    velocity_step, tmp_path, caplog
+):
+    """Reconstruction is a fallback for a model that does not write the
+    components, so what the model wrote is what is plotted."""
+    for filename in os.listdir(str(tmp_path / 'climatology')):
+        path = str(tmp_path / 'climatology' / filename)
+        with xr.open_dataset(path) as ds:
+            ds = ds.load()
+        written = xr.full_like(ds.Temperature, -1.0)
+        ds['velocityZonal'] = written
+        ds['velocityMeridional'] = written
+        ds.to_netcdf(path)
+    with caplog.at_level(logging.INFO):
+        velocity_step.run()
+    assert 'reconstructing' not in caplog.text
+    zonal = _read_map(velocity_step, 'velocityZonal_ANN_k1.nc')
+    np.testing.assert_allclose(zonal.values, -1.0)
+
+
+def test_reconstruction_needs_the_weights_in_the_mesh(velocity_step):
+    _write_mesh_and_vert_coord(velocity_step.work_dir)
+    with pytest.raises(ValueError, match='cannot be reconstructed'):
+        velocity_step.run()
+
+
 def test_the_field_groups_cover_the_fields_that_are_asked_for():
     groups = get_field_groups(['ssh', 'temperature'])
     assert groups['temperature'] == ['temperature']
@@ -181,6 +254,13 @@ def step(tmp_path, monkeypatch):
 @pytest.fixture
 def ssh_step(tmp_path, monkeypatch):
     return _make_step(tmp_path, monkeypatch, 'ssh', ['ssh'])
+
+
+@pytest.fixture
+def velocity_step(tmp_path, monkeypatch):
+    step = _make_step(tmp_path, monkeypatch, 'velocity', VELOCITY_FIELDS)
+    _write_reconstruction_mesh(step.work_dir)
+    return step
 
 
 def _make_step(tmp_path, monkeypatch, field_group, fields):
@@ -256,7 +336,10 @@ def _write_climatology(climatology_dir):
     """One ncclimo-style file per season, with Omega names"""
     cells = np.arange(N_CELLS)[:, None]
     levels = np.arange(N_LEVELS)[None, :]
+    edges = np.arange(N_EDGES)[:, None]
     for index, season in enumerate(SEASONS):
+        normal_velocity = (index + edges + 10.0 * levels)[None, :, :]
+        normal_velocity[0, CLOSED_EDGE, -1] = np.nan
         ds = xr.Dataset(
             dict(
                 Temperature=(
@@ -264,6 +347,11 @@ def _write_climatology(climatology_dir):
                     (index + cells + 10.0 * levels)[None, :, :],
                 ),
                 SshCell=(('time', 'NCells'), (index + cells.T)),
+                NormalVelocity=(
+                    ('time', 'NEdges', 'NVertLayers'),
+                    normal_velocity,
+                    {'units': 'm s-1'},
+                ),
                 PseudoThickness=(
                     ('time', 'NCells', 'NVertLayers'),
                     np.full((1, N_CELLS, N_LEVELS), THICKNESS),
@@ -300,6 +388,31 @@ def _write_mesh_and_vert_coord(work_dir):
         )
     )
     ds_vert.to_netcdf(f'{work_dir}/vert_coord.nc')
+
+
+def _write_reconstruction_mesh(work_dir):
+    """A mesh whose weights are simple enough to write the answer down"""
+    stencil = np.zeros((N_CELLS, 2), dtype=int)
+    stencil[:, 0] = np.arange(N_CELLS) + 1
+    weights = np.zeros((N_CELLS, 3, 2))
+    # y and z, which are zonal and meridional at the origin
+    weights[:, 1, 0] = 1.0
+    weights[:, 2, 0] = 2.0
+    ds_mesh = xr.Dataset(
+        dict(
+            LatCell=('NCells', np.zeros(N_CELLS)),
+            LonCell=('NCells', np.zeros(N_CELLS)),
+            ReconStencilCell=(('NCells', 'MaxEdges2'), stencil),
+            ReconWeightsCell=(('NCells', 'R3', 'MaxEdges2'), weights),
+        )
+    )
+    ds_mesh.to_netcdf(f'{work_dir}/mesh.nc')
+
+
+def _read_map(step, filename):
+    """Read the field written beside one plot"""
+    with xr.open_dataset(os.path.join(step.work_dir, filename)) as ds:
+        return ds[ds.attrs['field']].load()
 
 
 def _images(step):
