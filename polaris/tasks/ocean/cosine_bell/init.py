@@ -69,10 +69,10 @@ class Init(OceanIOStep):
         bottom_depth = section.getfloat('bottom_depth')
 
         ds_mesh = open_dataset('mesh.nc')
-        angleEdge = ds_mesh.angleEdge
-        latCell = ds_mesh.latCell
-        latEdge = ds_mesh.latEdge
-        lonCell = ds_mesh.lonCell
+        angleEdge = ds_mesh.angleEdge.drop_attrs()
+        latCell = ds_mesh.latCell.drop_attrs()
+        latEdge = ds_mesh.latEdge.drop_attrs()
+        lonCell = ds_mesh.lonCell.drop_attrs()
         sphere_radius = ds_mesh.sphere_radius
 
         ds_mesh = add_coriolis_to_dataset(config, ds_mesh)
@@ -84,7 +84,9 @@ class Init(OceanIOStep):
         ds['ssh'] = xr.zeros_like(latCell)
 
         init_vertical_coord(config, ds)
-        temperature_array = temperature * xr.ones_like(ds_mesh.latCell)
+        temperature_array = (
+            temperature * xr.ones_like(ds_mesh.latCell).drop_attrs()
+        )
         temperature_array, _ = xr.broadcast(temperature_array, ds.refZMid)
         ds['temperature'] = temperature_array.expand_dims(dim='Time', axis=0)
         ds['salinity'] = salinity * xr.ones_like(ds.temperature)

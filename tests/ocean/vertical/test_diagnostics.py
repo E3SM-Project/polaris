@@ -399,6 +399,18 @@ def test_vert_pseudo_velocity_from_ds():
     np.testing.assert_allclose(pseudo_velocity.values, np.ones((1, 1, 4)))
 
 
+def test_vert_pseudo_velocity_does_not_inherit_attrs():
+    """The pseudo-velocity is not labeled as the geometric velocity it was
+    computed from."""
+    ds = _make_vert_velocity_ds()
+    ds['vertVelocityTop'] = (
+        ('Time', 'nCells', 'nVertLevelsP1'),
+        [[[1.0, 1.5, 2.5, 4.0]]],
+        {'long_name': 'vertical velocity', 'units': 'm s-1'},
+    )
+    assert vert_pseudo_velocity_from_ds(ds).attrs == {}
+
+
 @pytest.mark.parametrize('with_ds_vert', [False, True])
 def test_vert_pseudo_velocity_round_trip(with_ds_vert):
     """Converting to a pseudo-velocity and back recovers the original

@@ -3,6 +3,7 @@ import pytest
 import xarray as xr
 from numpy.testing import assert_allclose
 
+from polaris.cf import read_var_attrs
 from polaris.config import PolarisConfigParser
 from polaris.ocean.vertical.diagnostics import vert_velocity_top_from_ds
 from polaris.tasks.ocean import Ocean
@@ -84,6 +85,32 @@ def test_write_adds_total_vertical_pseudo_velocity(tmp_path):
         'NCells',
         'NVertLayersP1',
     )
+
+
+@pytest.mark.parametrize(
+    'mpas_var, omega_var',
+    [
+        ('vertVelocityTop', 'VerticalPseudoVelocity'),
+        ('vertAleTransportTop', 'TotalVerticalPseudoVelocity'),
+    ],
+)
+def test_vertical_pseudo_velocity_is_labeled_as_itself(
+    tmp_path, mpas_var, omega_var
+):
+    """A pseudo-velocity does not keep the long_name of the geometric
+    velocity it was converted from."""
+    ds = _make_state_ds().rename({'vertVelocityTop': mpas_var})
+    ds[mpas_var].attrs = {
+        'long_name': 'vertical velocity at the top of each layer',
+        'units': 'm s^-1',
+    }
+    filename = str(tmp_path / 'state.nc')
+
+    _make_component().write_model_dataset(ds, filename, _make_config())
+
+    ds_out = xr.open_dataset(filename)
+    expected = read_var_attrs('polaris.ocean.model', 'attrs.yaml')[omega_var]
+    assert ds_out[omega_var].attrs == expected
 
 
 def test_vertical_pseudo_velocity_round_trip(tmp_path):

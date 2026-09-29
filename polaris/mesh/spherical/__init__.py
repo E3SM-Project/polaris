@@ -14,7 +14,9 @@ from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 from mpas_tools.viz.paraview_extractor import extract_vtk
 
 from polaris import Step
+from polaris.cf import add_cf_conventions
 from polaris.constants import get_constant
+from polaris.mesh.attrs import add_mesh_var_attrs
 from polaris.mesh.reconstruct import (
     compute_reconstruction_weights,
     get_reconstruction_validate_vars,
@@ -84,8 +86,20 @@ class SphericalBaseStep(Step):
         da = xr.DataArray(
             cell_width,
             dims=['lat', 'lon'],
-            coords={'lat': lat, 'lon': lon},
+            coords={
+                'lat': (
+                    'lat',
+                    lat,
+                    {'long_name': 'latitude', 'units': 'degrees_north'},
+                ),
+                'lon': (
+                    'lon',
+                    lon,
+                    {'long_name': 'longitude', 'units': 'degrees_east'},
+                ),
+            },
             name='cellWidth',
+            attrs={'long_name': 'Target cell width', 'units': 'km'},
         )
         cell_width_filename = self.work_path(
             section.get('cell_width_filename')
@@ -168,6 +182,7 @@ class SphericalBaseStep(Step):
 
         angle_edge = recompute_angle_edge(ds_mesh)
         ds_mesh.angleEdge.values = angle_edge.values
+        ds_mesh = add_cf_conventions(add_mesh_var_attrs(ds_mesh))
         write_netcdf(ds_mesh, mpas_mesh_filename)
 
         self._check_cell_polygon_quality(ds_mesh=ds_mesh)
@@ -183,7 +198,9 @@ class SphericalBaseStep(Step):
             ds_weights = compute_reconstruction_weights(
                 ds_mesh, location='cell'
             )
-            write_netcdf(ds_weights, reconstruction_weights_filename)
+            write_netcdf(
+                add_cf_conventions(ds_weights), reconstruction_weights_filename
+            )
 
         if section.getboolean('add_mesh_density'):
             logger.info('Add meshDensity into the mesh file')

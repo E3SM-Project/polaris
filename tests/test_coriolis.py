@@ -149,7 +149,32 @@ def test_coriolis_attrs():
         attrs = ds_mesh[field].attrs
         assert attrs['long_name'] == f'Coriolis parameter at {location}'
         assert attrs['standard_name'] == 'coriolis_parameter'
-        assert attrs['units'] == 'radians s^-1'
+        assert attrs['units'] == 'radians s-1'
+
+
+def test_coriolis_attrs_are_not_inherited():
+    """The Coriolis fields carry only their own attributes.
+
+    On a beta plane they are computed from y, and xarray carries y's
+    attributes through that; setting long_name and units is not enough if
+    y carries anything else.
+    """
+    ds_mesh = _make_mesh()
+    for location in ['Cell', 'Edge', 'Vertex']:
+        ds_mesh[f'y{location}'].attrs = {
+            'long_name': f'y-coordinates of {location.lower()}s',
+            'units': 'm',
+            'description': 'y-coordinate on the plane',
+        }
+
+    ds_mesh = add_beta_plane_coriolis(ds_mesh, f0=1.0e-4, beta=1.0e-11)
+
+    for field in FIELDS:
+        assert set(ds_mesh[field].attrs) == {
+            'long_name',
+            'standard_name',
+            'units',
+        }
 
 
 # ---------------------------------------------------------------------------
