@@ -104,9 +104,10 @@ def test_init_steps_use_the_month_in_filenames():
     assert _work_dir_targets(remap_step)['woa23_extrap.nc'] == expected
 
 
+@pytest.mark.parametrize('month', range(1, 13))
 @pytest.mark.parametrize('step_name', ['woa23_combine', 'woa23_extrapolate'])
-def test_january_is_in_the_cache(step_name):
-    component, steps = _get_steps(1)
+def test_every_month_is_in_the_cache(step_name, month):
+    component, steps = _get_steps(month)
     step = steps[step_name]
 
     step.setup()
