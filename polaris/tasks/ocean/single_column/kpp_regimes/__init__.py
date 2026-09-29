@@ -63,6 +63,7 @@ class KPPRegimes(Task):
             task_package='polaris.tasks.ocean.single_column.kpp_regimes',
             enable_vadv=False,
             enable_hadv=False,
+            use_langmuir_circulation=False,
             # PVTendencyEnable (Omega) carries both relative vorticity and
             # Coriolis in one term; disabling horizontal advection must not
             # silently disable Coriolis for regimes whose physics depends on
@@ -85,7 +86,15 @@ class KPPRegimes(Task):
         )
 
         if name == 'kpp_langmuir':
-            self.add_step(Forward(**common_kwargs, use_theory_wave=True))
+            self.add_step(
+                Forward(
+                    **{
+                        **common_kwargs,
+                        'use_langmuir_circulation': True,
+                        'use_theory_wave': True,
+                    }
+                )
+            )
             self.add_step(Forward(**common_kwargs))
             comparisons = {
                 'langmuir': '../forward_no_vadv_no_hadv_simpleshapes_langmuir',

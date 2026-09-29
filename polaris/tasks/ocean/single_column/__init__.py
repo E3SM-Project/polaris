@@ -214,7 +214,7 @@ def add_single_column_tasks(component):
         ),
         'kpp_non_local_flux_suppression': (
             ['evap_strong'],
-            ['stable_temperature_strong'],
+            ['non_local_flux_suppression'],
         ),
         'kpp_langmuir': (
             [

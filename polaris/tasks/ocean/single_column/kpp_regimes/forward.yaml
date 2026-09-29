@@ -15,11 +15,6 @@ ocean:
     config_cvmix_kpp_matching: {{ match_technique }}
     config_cvmix_kpp_use_theory_wave: {{ use_theory_wave }}
     configure_cvmix_kpp_minimum_OBL_under_sea_ice: {{ min_OBL_under_sea_ice }}
-  eos_linear:
-    config_eos_linear_alpha: 0.2
-    config_eos_linear_beta: 0.01
-    # 1000.0 + 0.2 * 5 - 0.01 * 35
-    config_eos_linear_densityref: 1000.65
   forcing:
     config_use_bulk_wind_stress: true
   debug:
@@ -30,6 +25,8 @@ ocean:
     config_salinity_restoring_constant_piston_velocity: 1.585e-5
 
 mpas-ocean:
+  eos:
+    config_eos_type: jm
   frazil_ice:
     config_use_frazil_ice_formation: false
   tracer_forcing_activeTracers:
@@ -40,8 +37,8 @@ mpas-ocean:
     config_use_cvmix: true
     config_cvmix_background_scheme: constant
     config_cvmix_shear_mixing_scheme: KPP
-    config_cvmix_kpp_langmuir_mixing_opt: LWF16
-    config_cvmix_kpp_langmuir_entrainment_opt: LF17
+    config_cvmix_kpp_langmuir_mixing_opt: NONE
+    config_cvmix_kpp_langmuir_entrainment_opt: NONE
     # quadratic (the model default) can produce a discontinuous OBL-depth
     # jump at the first Richardson-number crossing in this configuration;
     # linear interpolation is an equally valid, more robust alternative
@@ -149,7 +146,7 @@ Omega:
   SurfaceRestoring:
     TracersToRestore: [Salinity]
   Eos:
-    EosType: linear
+    EosType: teos10
   # Default.yml disables these; without them SurfaceBuoyancyFlux stays zero
   # regardless of heat/salt forcing in forcing.nc
   Tendencies:

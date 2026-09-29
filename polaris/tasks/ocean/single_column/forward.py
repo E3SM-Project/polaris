@@ -36,6 +36,7 @@ class Forward(OceanModelStep):
         check_properties=None,
         run_duration_steps=None,
         match_technique='SimpleShapes',
+        use_langmuir_circulation=False,
         use_theory_wave=False,
         min_obl_under_sea_ice=5.0,
     ):
@@ -180,6 +181,7 @@ class Forward(OceanModelStep):
         self.constant_diff = constant_diff
 
         self.match_technique = match_technique
+        self.use_langmuir_circulation = use_langmuir_circulation
         self.use_theory_wave = use_theory_wave
         self.min_obl_under_sea_ice = min_obl_under_sea_ice
 
@@ -326,6 +328,12 @@ class Forward(OceanModelStep):
                     'config_use_cvmix_shear': True,
                 }
             )
+
+        omega_options.update(
+            {
+                'UseLangmuirTurbulence': self.use_langmuir_circulation,
+            }
+        )
 
         self.add_model_config_options(
             options=shared_options,
