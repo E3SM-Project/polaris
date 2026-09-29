@@ -278,10 +278,10 @@ def print_pr_description(submodule, repo_url, current, new, pull_requests):
         f'to [{new}]({repo_url}/tree/{new}).\n'
     )
 
+    repo_name = repo_url.rstrip('/').split('/')[-1]
     print(
-        'This update includes the following MPAS-Ocean and MPAS-Frameworks '
-        'PRs (check mark indicates bit-for-bit with previous PR in the '
-        'list):'
+        f'This update includes the following {repo_name} PRs (check mark '
+        f'indicates bit-for-bit with previous PR in the list):'
     )
     for data in pull_requests:
         pull_request = data['pull_request']
