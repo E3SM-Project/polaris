@@ -70,20 +70,27 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
 
 ## Tester
 
+Jobs often sit in the queue, so get every row's jobs submitted as early as
+you can.  Ask the requester up front for permission to submit, so each row
+can be submitted the moment it is set up.
+
 1. Set up your row, which builds the baseline (unless a matching one
    already exists) and the PR:
    ```bash
-   omega_pr_test.py setup --fork <fork> --branch <branch>
+   omega_pr_test.py setup --fork <fork> --branch <branch> --submit
    ```
-   Each build typically takes about 5 minutes, and rarely more than 10.
-   `setup` checks that this Polaris checkout is clean, contains the
-   manifest's Polaris commit and pins the same Omega; if not, stop and tell
-   the requester.
-2. With permission, submit the jobs by running `setup` again with
-   `--submit`.  It reuses the builds and chains the PR suite after the
-   baseline.
-3. When the jobs have finished (check with `squeue` or `qstat`), write the
-   comment:
+   Leave off `--submit` if you do not have permission yet; running `setup`
+   again with it later reuses the builds.  Each build typically takes about
+   5 minutes, and rarely more than 10.  `setup` checks that this Polaris
+   checkout is clean, contains the manifest's Polaris commit and pins the
+   same Omega; if not, stop and tell the requester.  It chains the PR suite
+   after the baseline.
+2. If you have more than one row on this machine, set up the next row as
+   soon as the previous `setup` finishes, in a new shell with that row's
+   load script sourced.  Do not wait for the first row's jobs.  Only run one
+   `setup` at a time, because two builds at once race in CIME's configure.
+3. When a row's jobs have finished (check with `squeue` or `qstat`), write
+   its comment, in a shell with that row's load script sourced:
    ```bash
    omega_pr_test.py report --fork <fork> --branch <branch> --agent "<name>"
    ```
