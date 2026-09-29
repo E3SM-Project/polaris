@@ -1153,11 +1153,15 @@ one.  Every case turns `nVertLevels` into nothing, which is what will let
 ocean heat content be a field group of the climatology maps rather than a
 product of its own.
 
-So far only the reductions that pick a layer by index --- `top`, `bottom` and
-`k<index>` --- are implemented, because they need no vertical geometry.  The
-rest raise `NotImplementedError`, and a step checks
-`polaris.ocean.vertical.elevation.IMPLEMENTED_KINDS` up front so that it can
-report what it is skipping once rather than per plot.
+The reductions that pick a layer by index --- `top`, `bottom` and
+`k<index>` --- need no vertical geometry.  Interpolating to an elevation
+does: pass `zMid` and `GeomZInterface`, which
+{py:func}`polaris.ocean.vertical.diagnostics.get_z_mid_and_interface` gets
+from what the model wrote.  Take them from the climatology rather than the
+vertical-coordinate file, since a map at an elevation is a map on the
+climatological-mean position of that surface.  An elevation range is not a
+slice but a weighted integral, so it goes through
+`polaris.ocean.vertical.elevation.elevation_range_weights()` instead.
 
 One detail catches people: both models write `minLevelCell` and
 `maxLevelCell` with the one-based indexing of MPAS-Ocean's Fortran, Omega's
