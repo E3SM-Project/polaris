@@ -293,7 +293,9 @@ def vert_pseudo_velocity_from_ds(
     velocity = ds[src_var_name]
     spec_vol_interface = _spec_vol_at_interfaces(ds, ds_vert)
     pseudo_velocity = velocity / (RhoSw * spec_vol_interface)
-    return pseudo_velocity.transpose(*velocity.dims)
+    # xarray carries the geometric velocity's long_name over, so drop the
+    # attributes rather than label a pseudo-velocity as a geometric one
+    return pseudo_velocity.transpose(*velocity.dims).drop_attrs()
 
 
 def get_z_mid_and_interface(ds, allow_reconstruct=False, ds_vert=None):
