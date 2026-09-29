@@ -10,10 +10,12 @@ import argparse
 import sys
 
 import pr_test_init
+import pr_test_lint
 from pr_test_config import ConfigError, read_config
 from pr_test_git import GitError
 from pr_test_github import GitHubError
 from pr_test_manifest import ManifestError, get_row
+from pr_test_report import read_notes
 
 #: the errors that are reported as a message rather than a traceback
 EXPECTED_ERRORS = (
@@ -23,6 +25,7 @@ EXPECTED_ERRORS = (
     ManifestError,
     ValueError,
     pr_test_init.InitError,
+    pr_test_lint.LintError,
 )
 
 
@@ -55,6 +58,51 @@ def _init(args):
         force=args.force,
     )
     print(pr_test_init.format_result(result, config.omega_repo))
+
+
+def _lint(args):
+    config = read_config(args.config_file)
+    text, url, path = pr_test_lint.run_lint(
+        config=config,
+        fork=args.fork,
+        branch=args.branch,
+        notes=read_notes(args.notes),
+        agent=args.agent,
+        post=args.post,
+    )
+    _print_report(text, url, path)
+
+
+def _print_report(text, url, path):
+    if url is None:
+        print(text)
+        print(f'Not posted.  The comment is in {path}')
+    else:
+        print(f'Posted {url}')
+
+
+def _add_branch_args(parser):
+    parser.add_argument(
+        '--fork', required=True, help="The URL of the requester's fork"
+    )
+    parser.add_argument('--branch', required=True, help='The test branch')
+
+
+def _add_report_args(parser):
+    parser.add_argument(
+        '--notes', help='A file with notes to add to the comment'
+    )
+    parser.add_argument(
+        '--agent',
+        help='The agent posting the comment, e.g. "Claude Code", which adds '
+        'the signature',
+    )
+    parser.add_argument(
+        '--post',
+        action='store_true',
+        help='Post the comment on the PR.  Agents pass this only with the '
+        "requester's permission.",
+    )
 
 
 def _parse_args():
@@ -123,6 +171,14 @@ def _parse_args():
         help='Overwrite branches of the same name on the fork',
     )
     init.set_defaults(func=_init)
+
+    lint = subparsers.add_parser(
+        'lint',
+        help='Report on linting and the documentation build (initiator)',
+    )
+    _add_branch_args(lint)
+    _add_report_args(lint)
+    lint.set_defaults(func=_lint)
 
     return parser.parse_args()
 
