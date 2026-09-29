@@ -12,11 +12,13 @@ import sys
 
 import pr_test_init
 import pr_test_lint
+import pr_test_results
 import pr_test_setup
+import pr_test_status
 from pr_test_config import ConfigError, read_config
 from pr_test_git import GitError
 from pr_test_github import GitHubError
-from pr_test_manifest import ManifestError, get_row
+from pr_test_manifest import ManifestError, fetch_manifest, get_row
 from pr_test_report import read_notes
 
 #: the errors that are reported as a message rather than a traceback
@@ -28,6 +30,7 @@ EXPECTED_ERRORS = (
     ValueError,
     pr_test_init.InitError,
     pr_test_lint.LintError,
+    pr_test_results.ReportError,
     pr_test_setup.SetupError,
 )
 
@@ -88,6 +91,31 @@ def _setup(args):
     machine = state.row.split('/')[0]
     row_dir = os.path.dirname(state.pr_work_dir)
     print(pr_test_setup.format_state(state, row_dir, machine))
+
+
+def _report(args):
+    config = read_config(args.config_file)
+    text, url, path = pr_test_results.run_report(
+        config=config,
+        fork=args.fork,
+        branch=args.branch,
+        row_name=args.row,
+        not_run=args.not_run,
+        notes=read_notes(args.notes),
+        agent=args.agent,
+        post=args.post,
+    )
+    _print_report(text, url, path)
+
+
+def _status(args):
+    manifest = None
+    if args.branch is not None:
+        if args.fork is None:
+            raise ValueError('--branch needs --fork.')
+        config = read_config(args.config_file)
+        manifest = fetch_manifest(config.omega_repo, args.fork, args.branch)
+    print(pr_test_status.run_status(args.pr, manifest))
 
 
 def _print_report(text, url, path):
@@ -214,6 +242,35 @@ def _parse_args():
         'permission.',
     )
     setup.set_defaults(func=_setup)
+
+    report = subparsers.add_parser(
+        'report', help="Write and post this machine's Testing comment (tester)"
+    )
+    _add_branch_args(report)
+    report.add_argument(
+        '--row',
+        help='The <machine>/<compiler> row, that of the loaded Polaris '
+        'environment by default',
+    )
+    report.add_argument(
+        '--not-run',
+        metavar='REASON',
+        help='Report the row as not run, and why',
+    )
+    _add_report_args(report)
+    report.set_defaults(func=_report)
+
+    status = subparsers.add_parser(
+        'status', help="List the rows' Testing comments on the PR"
+    )
+    status.add_argument('--pr', type=int, required=True, help='The Omega PR')
+    status.add_argument(
+        '--fork', help="The requester's fork, to list the manifest's rows"
+    )
+    status.add_argument(
+        '--branch', help="The test branch, to list the manifest's rows"
+    )
+    status.set_defaults(func=_status)
 
     return parser.parse_args()
 
