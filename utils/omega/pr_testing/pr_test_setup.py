@@ -48,6 +48,11 @@ JOB_ID_FILENAME = 'job_id'
 #: what the PR suite's dependency is called before the baseline is submitted
 BASELINE_JOB_PLACEHOLDER = '<baseline job id>'
 
+#: options added when submitting on a machine, overriding the job script.
+#: The omega_pr suite asks for each machine's debug target, but Frontier
+#: allows only one debug job at a time, and a row submits several.
+SUBMIT_ARGS: Dict[str, List[str]] = {'frontier': ['--qos=normal']}
+
 
 class SetupError(Exception):
     """The environment does not match the manifest, or setup failed"""
@@ -287,7 +292,9 @@ def format_state(state: SetupState, row_dir: str, machine: str) -> str:
             dependency = None
             if job['depends_on_baseline']:
                 dependency = state.baseline_job or _baseline_placeholder(state)
-            args = get_submit_args(job['script'], system, dependency)
+            args = get_submit_args(
+                job['script'], system, dependency, SUBMIT_ARGS.get(machine)
+            )
             lines.append(f'  cd {job["work_dir"]} && {shlex.join(args)}')
         lines.append(
             f'Then record each job id in {JOB_ID_FILENAME} in the directory '
@@ -518,7 +525,13 @@ def _submit(jobs, machine, active_baseline_id):
     baseline_id = active_baseline_id
     for job in jobs:
         dependency = baseline_id if job.depends_on_baseline else None
-        job.job_id = submit_job(job.script, job.work_dir, system, dependency)
+        job.job_id = submit_job(
+            job.script,
+            job.work_dir,
+            system,
+            dependency,
+            extra_args=SUBMIT_ARGS.get(machine),
+        )
         with open(os.path.join(job.work_dir, JOB_ID_FILENAME), 'w') as f:
             f.write(f'{job.job_id}\n')
         if job.name == 'baseline suite':
