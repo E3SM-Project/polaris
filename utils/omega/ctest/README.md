@@ -118,13 +118,16 @@ Omega-0    =  63.42 sec*proc (32 tests)
 
 Total Test time (real) =  63.51 sec
 
-(Copy the following to a comment in your Omega PR)
+(Copy the following to a comment in your Omega PR, or from
+ /path/to/build/ctest_output_for_pr.md)
 
-CTest unit tests:
-- Machine: chrysalis
-- Compiler: intel
-- Build type: Release
+### CTest unit tests:
+- Machine: `chrysalis`
+- Compiler: `intel`
+- Build type: `Release`
+- Build: `/path/to/build`
+- Omega: `<full hash>` (`<git describe>`)
 - Result: All tests passed
-- Log: /path/to/ctests.log
+- Log: `/path/to/build/ctests.log`
 
 ```
