@@ -39,8 +39,8 @@ def test_provenance_write_uses_deploy_pixi_executable(tmp_path, monkeypatch):
     monkeypatch.setenv('MACHE_DEPLOY_ACTIVE_PIXI_EXE', str(pixi_exe))
     monkeypatch.setattr(provenance.sys, 'argv', ['polaris', 'suite'])
 
-    def _check_output(args):
-        if args == ['git', 'describe', '--tags', '--dirty', '--always']:
+    def _check_output(args, **kwargs):
+        if args[0] == 'git':
             return b'test-version\n'
         if args == [str(pixi_exe), 'list']:
             return b'test-package\n'
@@ -65,8 +65,8 @@ def test_provenance_write_skips_pixi_list_when_pixi_missing(
     monkeypatch.setenv('HOME', str(tmp_path / 'home'))
     monkeypatch.setattr(provenance.sys, 'argv', ['polaris', 'suite'])
 
-    def _check_output(args):
-        if args == ['git', 'describe', '--tags', '--dirty', '--always']:
+    def _check_output(args, **kwargs):
+        if args[0] == 'git':
             return b'test-version\n'
         raise AssertionError(f'unexpected command: {args}')
 
