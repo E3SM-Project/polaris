@@ -71,12 +71,13 @@ def run_lint(
     notes: Optional[str] = None,
     agent: Optional[str] = None,
     post: bool = False,
-) -> Tuple[str, Optional[str], str]:
+) -> Tuple[str, Optional[str], str, bool]:
     """
     Report on linting and the documentation build for a test branch
 
     The results come from Omega's CI for the PR head if its job passed, and
-    otherwise from running the same commands on the test commit.
+    otherwise from running the same commands on the test commit.  Results
+    from CI are never posted, since the PR's own checks already show them.
 
     Parameters
     ----------
@@ -96,7 +97,7 @@ def run_lint(
         The agent posting the comment, which adds the signature
 
     post : bool, optional
-        Whether to post the comment
+        Whether to post the comment, if its results did not come from CI
 
     Returns
     -------
@@ -108,13 +109,18 @@ def run_lint(
 
     path : str
         The file the comment was written to
+
+    from_ci : bool
+        Whether the results came from Omega's CI, in which case the comment
+        was not posted
     """
     manifest = fetch_manifest(config.omega_repo, fork, branch)
     lint_dir = os.path.join(report.get_run_dir(config, manifest), 'lint')
 
     ci_run = _find_ci_run(manifest.pr_head)
     ci_line = _format_ci_line(manifest, ci_run)
-    if ci_run is not None and ci_run['conclusion'] == 'success':
+    from_ci = ci_run is not None and ci_run['conclusion'] == 'success'
+    if from_ci:
         results = _ci_results(ci_run)
     else:
         results = _local_results(config, manifest, lint_dir)
@@ -139,8 +145,11 @@ def run_lint(
         agent=agent,
     )
     path = os.path.join(lint_dir, 'report.md')
-    url = report.deliver(text, path, manifest.pull_request, post)
-    return text, url, path
+    # results that only repeat what the PR's own checks show are not posted
+    url = report.deliver(
+        text, path, manifest.pull_request, post and not from_ci
+    )
+    return text, url, path, from_ci
 
 
 def _find_ci_run(sha):
