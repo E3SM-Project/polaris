@@ -80,6 +80,14 @@ velocityZonal:
 velocityMeridional:
   long_name: meridional velocity
   units: m s-1
+VerticalPseudoVelocity:
+  long_name: vertical pseudo-velocity across a pseudo-height surface
+  units: m s-1
+TotalVerticalPseudoVelocity:
+  long_name: >-
+    total vertical pseudo-velocity across a moving, tilted pseudo-height
+    surface
+  units: m s-1
 SurfacePressure:
   long_name: sea surface pressure
   units: Pa
