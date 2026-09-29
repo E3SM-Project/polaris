@@ -7,6 +7,9 @@ from polaris.build.mpas_ocean import (
     make_build_script,
 )
 from polaris.build.omega import get_omega_source_dir
+from polaris.build.omega import make_build_script as make_omega_build_script
+from polaris.build.source_record import read_source_record
+from polaris.run.serial import _parse_provenance_into
 
 
 def test_get_omega_source_dir_from_cmake_cache(tmp_path):
@@ -52,7 +55,9 @@ def test_component_git_version_from_branch(tmp_path):
     branch = _make_repo(tmp_path / 'omega', tag='omega-1.0')
     config = _make_config(tmp_path / 'build', branch, build=True)
 
-    assert provenance._get_component_git_version(config) == 'omega-1.0'
+    assert provenance._get_component_git_version(config) == (
+        'omega-1.0 (at setup, not build)'
+    )
 
 
 def test_component_git_version_skips_uninitialized_submodule(tmp_path):
@@ -73,7 +78,9 @@ def test_component_git_version_from_omega_build(tmp_path):
     branch = _make_repo(tmp_path / 'submodule', tag='submodule-1.0')
     config = _make_config(build_dir, branch)
 
-    assert provenance._get_component_git_version(config) == 'omega-1.0'
+    assert provenance._get_component_git_version(config) == (
+        'omega-1.0 (at setup, not build)'
+    )
 
 
 def test_component_git_version_missing_build_source(tmp_path):
@@ -100,7 +107,9 @@ def test_component_git_version_building_over_old_build(tmp_path):
     branch = _make_repo(tmp_path / 'omega', tag='omega-1.0')
     config = _make_config(build_dir, branch, build=True)
 
-    assert provenance._get_component_git_version(config) == 'omega-1.0'
+    assert provenance._get_component_git_version(config) == (
+        'omega-1.0 (at setup, not build)'
+    )
 
 
 def test_component_git_version_from_mpas_ocean_in_place(tmp_path):
@@ -108,7 +117,9 @@ def test_component_git_version_from_mpas_ocean_in_place(tmp_path):
     branch = _make_repo(tmp_path / 'submodule', tag='submodule-1.0')
     config = _make_config(source_dir, branch)
 
-    assert provenance._get_component_git_version(config) == 'e3sm-1.0'
+    assert provenance._get_component_git_version(config) == (
+        'e3sm-1.0 (at setup, not build)'
+    )
 
 
 def test_component_git_version_from_mpas_ocean_build(tmp_path, monkeypatch):
@@ -118,7 +129,9 @@ def test_component_git_version_from_mpas_ocean_build(tmp_path, monkeypatch):
     branch = _make_repo(tmp_path / 'submodule', tag='submodule-1.0')
     config = _make_config(build_dir, branch)
 
-    assert provenance._get_component_git_version(config) == 'e3sm-1.0'
+    assert provenance._get_component_git_version(config) == (
+        'e3sm-1.0 (at setup, not build)'
+    )
 
 
 def test_component_git_version_missing_mpas_ocean_source(
@@ -131,6 +144,120 @@ def test_component_git_version_missing_mpas_ocean_source(
     config = _make_config(build_dir, branch)
 
     assert provenance._get_component_git_version(config) is None
+
+
+def test_omega_build_script_records_source(tmp_path, monkeypatch):
+    omega_dir = _make_repo(tmp_path / 'omega', tag='omega-1.0')
+    build_dir = tmp_path / 'build'
+    script = _make_omega_build_script(tmp_path, omega_dir, monkeypatch)
+
+    _run_source_record_block(script, build_dir)
+    record = read_source_record(str(build_dir))
+    assert record is not None
+    assert record['source'] == str(omega_dir)
+    assert record['hash'] == _git_output(omega_dir, 'rev-parse', 'HEAD')
+    assert record['describe'] == 'omega-1.0'
+    assert record['clean_build'] is True
+    assert len(record['log']) == 1
+    assert record['log'][0].endswith(' Initial commit')
+
+    # an incremental build does not start from an empty build directory
+    (build_dir / 'CMakeCache.txt').write_text('', encoding='utf-8')
+    _run_source_record_block(script, build_dir)
+    record = read_source_record(str(build_dir))
+    assert record is not None
+    assert record['clean_build'] is False
+
+
+def test_component_git_version_from_omega_record(tmp_path, monkeypatch):
+    omega_dir = _make_repo(tmp_path / 'omega', tag='omega-1.0')
+    source_dir = omega_dir / 'components' / 'omega'
+    source_dir.mkdir(parents=True)
+    build_dir = _make_omega_build_dir(tmp_path / 'build', source_dir)
+    script = _make_omega_build_script(tmp_path, omega_dir, monkeypatch)
+    _run_source_record_block(script, build_dir)
+    # the source tree moves on after the build
+    _commit(omega_dir, tag='omega-2.0')
+    branch = _make_repo(tmp_path / 'submodule', tag='submodule-1.0')
+
+    config = _make_config(build_dir, branch)
+    assert provenance._get_component_git_version(config) == 'omega-1.0'
+
+    # the record is also preferred once Polaris has built the branch
+    config = _make_config(build_dir, branch, build=True)
+    assert provenance._get_component_git_version(config) == 'omega-1.0'
+
+
+def test_component_git_version_from_mpas_ocean_record(tmp_path, monkeypatch):
+    e3sm_dir = tmp_path / 'e3sm'
+    _make_mpas_ocean_source(e3sm_dir)
+    build_dir = _make_mpas_ocean_build_dir(tmp_path, e3sm_dir, monkeypatch)
+    (script,) = build_dir.glob('build_mpas_ocean_*.sh')
+    _run_source_record_block(script, e3sm_dir / 'components' / 'mpas-ocean')
+    _commit(e3sm_dir, tag='e3sm-2.0')
+    branch = _make_repo(tmp_path / 'submodule', tag='submodule-1.0')
+    config = _make_config(build_dir, branch)
+
+    record = read_source_record(str(build_dir))
+    assert record is not None
+    assert record['source'] == str(e3sm_dir)
+    assert record['clean_build'] is False
+    assert provenance._get_component_git_version(config) == 'e3sm-1.0'
+
+
+def test_write_git_entries_from_record(tmp_path, monkeypatch):
+    polaris_dir = _make_polaris_checkout(tmp_path, monkeypatch)
+    omega_dir = _make_repo(tmp_path / 'omega', tag='omega-1.0')
+    source_dir = omega_dir / 'components' / 'omega'
+    source_dir.mkdir(parents=True)
+    build_dir = _make_omega_build_dir(tmp_path / 'build', source_dir)
+    script = _make_omega_build_script(tmp_path, omega_dir, monkeypatch)
+    _run_source_record_block(script, build_dir)
+    omega_hash = _git_output(omega_dir, 'rev-parse', 'HEAD')
+    _commit(omega_dir, tag='omega-2.0')
+    config = _make_config(build_dir, omega_dir)
+
+    work_dir = tmp_path / 'work'
+    provenance.write(str(work_dir), {}, config=config, machine='chrysalis')
+    text = (work_dir / 'provenance').read_text(encoding='utf-8')
+
+    polaris_hash = _git_output(polaris_dir, 'rev-parse', 'HEAD')
+    polaris_log = _git_output(
+        polaris_dir, 'log', '--first-parent', '--format=%h %s'
+    )
+    polaris_log = '\n'.join(f'  {line}' for line in polaris_log.splitlines())
+    omega_short = _git_output(omega_dir, 'rev-parse', '--short', 'omega-1.0')
+    assert f'polaris git hash: {polaris_hash}\n' in text
+    assert f'polaris git log:\n{polaris_log}\n\n' in text
+    assert f'component git hash: {omega_hash}\n' in text
+    assert f'component git log:\n  {omega_short} Initial commit\n\n' in text
+
+    values = _parse_one_line_keys(work_dir / 'provenance')
+    assert values['polaris git version'] == 'polaris-2.0'
+    assert values['component git version'] == 'omega-1.0'
+    assert values['component git hash'] == omega_hash
+    assert values['component git log'] == ''
+    # a commit subject on a continuation line is not read as a key
+    assert values['machine'] == 'chrysalis'
+
+
+def test_write_git_entries_at_setup(tmp_path, monkeypatch):
+    _make_polaris_checkout(tmp_path, monkeypatch)
+    branch = _make_repo(tmp_path / 'omega', tag='omega-1.0')
+    config = _make_config(tmp_path / 'build', branch, build=True)
+
+    work_dir = tmp_path / 'work'
+    provenance.write(str(work_dir), {}, config=config)
+
+    branch_hash = _git_output(branch, 'rev-parse', 'HEAD')
+    values = _parse_one_line_keys(work_dir / 'provenance')
+    assert values['component git version'] == (
+        'omega-1.0 (at setup, not build)'
+    )
+    assert values['component git hash'] == (
+        f'{branch_hash} (at setup, not build)'
+    )
+    assert values['component git log'] == '(at setup, not build)'
 
 
 def _make_repo(path, tag, exist_ok=False):
@@ -155,6 +282,81 @@ def _git(path, *args):
         ],
         cwd=path,
     )
+
+
+def _make_polaris_checkout(tmp_path, monkeypatch):
+    """A Polaris checkout to run from, with a subject that looks like a key"""
+    polaris_dir = _make_repo(tmp_path / 'polaris', tag='polaris-1.0')
+    (polaris_dir / 'CHANGES').write_text('chrysalis\n', encoding='utf-8')
+    _git(polaris_dir, 'add', '.')
+    _git(polaris_dir, 'commit', '-q', '-m', 'machine: update chrysalis')
+    _git(polaris_dir, 'tag', 'polaris-2.0')
+    monkeypatch.chdir(polaris_dir)
+    monkeypatch.setattr(provenance, '_get_pixi_executable', lambda: None)
+    return polaris_dir
+
+
+def _parse_one_line_keys(path):
+    """Read the provenance keys the way ``polaris.run.serial`` does"""
+    keys = [
+        'polaris git version',
+        'polaris git hash',
+        'polaris git log',
+        'component git version',
+        'component git hash',
+        'component git log',
+        'machine',
+    ]
+    values: dict[str, str] = dict()
+    _parse_provenance_into(str(path), {key: key for key in keys}, values)
+    return values
+
+
+def _commit(path, tag):
+    (path / 'CHANGES').write_text(f'{tag}\n', encoding='utf-8')
+    _git(path, 'add', '.')
+    _git(path, 'commit', '-q', '-m', f'Update to {tag}')
+    _git(path, 'tag', tag)
+
+
+def _git_output(path, *args):
+    output = subprocess.check_output(['git', *args], cwd=path)
+    return output.decode('utf-8').strip()
+
+
+def _make_omega_build_script(tmp_path, omega_dir, monkeypatch):
+    """The build script Polaris writes to build Omega from omega_dir"""
+    monkeypatch.setenv('POLARIS_BRANCH', str(tmp_path / 'polaris'))
+    monkeypatch.setenv('METIS_ROOT', str(tmp_path / 'metis'))
+    monkeypatch.setenv('PARMETIS_ROOT', str(tmp_path / 'parmetis'))
+    build_dir = tmp_path / 'build'
+    build_dir.mkdir(exist_ok=True)
+    script = make_omega_build_script(
+        machine='chrysalis',
+        compiler='gnu',
+        branch=str(omega_dir),
+        build_dir=str(build_dir),
+        debug=False,
+        cmake_flags=None,
+    )
+    return script
+
+
+def _run_source_record_block(script, cwd):
+    """
+    Run the lines of a build script that write the source record, which
+    end with the redirect to the record and start after a blank line
+    """
+    with open(script, 'r', encoding='utf-8') as f:
+        lines = f.read().splitlines()
+    end = next(
+        index for index, line in enumerate(lines) if line.startswith('} > ')
+    )
+    start = end
+    while lines[start - 1].strip() != '':
+        start -= 1
+    block = '\n'.join(lines[start : end + 1])
+    subprocess.check_call(['bash', '-e', '-c', block], cwd=cwd)
 
 
 def _make_omega_build_dir(build_dir, source_dir):
