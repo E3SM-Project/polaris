@@ -314,15 +314,16 @@ mesh, vertical coordinate and initial state.
 As for the {ref}`ocean-realistic-global-analysis-members` tasks: wind stress
 from the initial-condition file applied through bulk wind stress, CVMix with
 convection and shear mixing, and a constant implicit bottom drag coefficient
-of 1.0e-3.
+of 1.0e-3.  Unlike those tasks, the momentum hyperviscosity is raised from
+Omega's default of 1.2e11 to 1.0e15 m^4/s, which reduces, but does not
+remove, grid-scale noise in the velocity near the surface.  This is a coarse
+run for testing the analysis, not a scientifically valid simulation.
 
 ### time step and run duration
 
-The run uses the split-explicit time stepper (`SplitExplicitRK2`) with the
-same time steps as the `QU.240km`
-{ref}`ocean-realistic-global-analysis-members` task: 2 hours for the
-baroclinic step and 4 minutes for the barotropic one.  It lasts 365 days
-from `0001-01-01`, one year on the No Leap calendar.  Restarts are written
+The run uses the split-explicit time stepper (`SplitExplicitRK2`) with a
+1-hour baroclinic step and a 3-minute barotropic one, E3SM's values for this
+mesh.  It lasts 365 days from `0001-01-01`, one year on the No Leap calendar.  Restarts are written
 monthly, because Omega requires the restart interval to be a multiple of
 every averaging period.
 

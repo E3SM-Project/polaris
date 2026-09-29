@@ -4,14 +4,15 @@ from polaris.tasks.ocean.realistic_global.forward import (
 
 # the cached initial conditions and cell counts of the realistic global
 # meshes, as in polaris.tasks.ocean.realistic_global, and the baroclinic and
-# barotropic time steps, as for the analysis_members tasks
+# barotropic time steps.  For QU.240km these are E3SM's MPAS-Ocean values for
+# oQU240: a 2-hour step gave a growing surface hotspot along the Aleutians.
 MESH_INFO = {
     'QU.240km': dict(
         mpaso_id=151209,
         omega_id=260807,
         ncells=7153,
-        dt='02:00:00',
-        btr_dt='00:04:00',
+        dt='01:00:00',
+        btr_dt='00:03:00',
     ),
 }
 

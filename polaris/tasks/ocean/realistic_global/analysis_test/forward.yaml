@@ -1,4 +1,10 @@
 Omega:
+  Tendencies:
+    # Omega's default of 1.2e11 is meant for much finer meshes and leaves
+    # grid-scale noise in the velocity on this one.  1.0e15 gave the least of
+    # the values tried; 3.0e15 is unstable with a 1-hour time step.  Some
+    # noise remains in the wind-driven top layer.
+    ViscDel4: 1.0e15
   Analysis:
     GlobalStats:
       # Omega's default list plus the two remaining fields the ocean analysis
