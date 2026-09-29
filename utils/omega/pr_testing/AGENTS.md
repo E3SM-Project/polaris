@@ -4,7 +4,7 @@ These instructions are for an agent that a developer (the *requester*) has
 asked to test an Omega pull request with this utility.  Read the Polaris
 `AGENTS.md` at the root of this checkout as well; it still applies.
 
-There are two roles.  The **initiator** pins what to test and reports on
+There are two roles.  The **initiator** pins what to test and checks
 linting and the docs.  A **tester** runs one row of the Omega PR template's
 testing checklist on its own machine and reports it.  One agent can do both
 on the same machine.
@@ -60,12 +60,14 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    merge cleanly, stop and tell the requester.
 2. Show the requester the summary.  With permission, run the push command
    that `init` printed.
-3. Report on linting and the docs:
+3. Check linting and the docs:
    ```bash
    omega_pr_test.py lint --fork <fork> --branch <branch> --agent "<name>"
    ```
-   With permission, run it again with `--post`.  Post it whether it passed
-   or failed.
+   If Omega's CI passed on the PR head, tell the requester and post nothing;
+   the PR's own checks already show it, and `--post` will not post it.  If
+   `lint` had to run the checks itself, post the comment with `--post`, with
+   permission, whether they passed or failed.
 4. Give the requester the prompt `init` printed for each other machine.
 
 ## Tester
