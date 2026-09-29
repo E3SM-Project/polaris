@@ -11,6 +11,10 @@ from polaris.build.omega import (
 from polaris.build.source_record import read_source_record
 from polaris.version import __version__
 
+# marks a component's git entries that come from its source tree at setup,
+# which may have moved since the build
+_AT_SETUP = '(at setup, not build)'
+
 
 def write(
     work_dir,
@@ -52,14 +56,14 @@ mache.parallel.pbs.PbsOptions}, optional
         returned by :py:func:`polaris.job.write_job_script()`.  If not
         provided, no scheduler metadata is recorded.
     """
-    polaris_git_version = _get_polaris_git_version()
+    polaris_git_info = _get_polaris_git_info()
 
     if config is None:
         # this is a call to clean and we don't need to document the component
         # version
-        component_git_version = None
+        component_git_info = None
     else:
-        component_git_version = _get_component_git_version(config)
+        component_git_info = _get_component_git_info(config)
 
     pixi_list = None
     pixi_exe = _get_pixi_executable()
@@ -85,14 +89,8 @@ mache.parallel.pbs.PbsOptions}, optional
         '**************************************************'
         '*********************\n'
     )
-    if polaris_git_version is not None:
-        provenance_file.write(
-            f'polaris git version: {polaris_git_version}\n\n'
-        )
-    if component_git_version is not None:
-        provenance_file.write(
-            f'component git version: {component_git_version}\n\n'
-        )
+    _write_git_info(provenance_file, 'polaris', polaris_git_info)
+    _write_git_info(provenance_file, 'component', component_git_info)
     provenance_file.write(f'command: {calling_command}\n\n')
 
     # Add readily parsable, PR-friendly metadata discovered at setup time
@@ -175,38 +173,82 @@ def get_summary(config=None):
 
 def _get_polaris_git_version():
     """The git version of the Polaris being run, if it is a git checkout"""
+    info = _get_polaris_git_info()
+    if info is None:
+        return None
+    return info['describe']
+
+
+def _get_polaris_git_info():
+    """
+    The git version, hash and log of the Polaris being run, if it is a git
+    checkout
+    """
     if not os.path.exists('.git'):
         return None
-    try:
-        args = ['git', 'describe', '--tags', '--dirty', '--always']
-        version = subprocess.check_output(args).decode('utf-8')
-    except subprocess.CalledProcessError:
-        return None
-    return version.strip('\n')
+    return _get_git_info(os.getcwd())
 
 
 def _get_component_git_version(config):
     """
     The git version of the source the component was built from, if it can
     be determined
+    """
+    info = _get_component_git_info(config)
+    if info is None:
+        return None
+    if info['at_setup']:
+        return f'{info["describe"]} {_AT_SETUP}'
+    return info['describe']
 
-    Polaris's build scripts record the version in the build directory.  A
-    build without that record falls back on the version its source tree is
-    at now, marked as such because the tree may have moved since the build.
+
+def _get_component_git_info(config):
+    """
+    The git version, hash and log of the source the component was built
+    from, if they can be determined
+
+    Polaris's build scripts record these in the build directory.  A build
+    without that record falls back on its source tree as it is now, noted in
+    ``at_setup`` because the tree may have moved since the build.
     """
     record = read_source_record(_get_build_dir(config))
     if record is not None and record['describe'] is not None:
-        return record['describe']
+        return {
+            'describe': record['describe'],
+            'hash': record['hash'],
+            'log': record['log'],
+            'at_setup': False,
+        }
 
     source_dir = _get_component_source_dir(config)
     if source_dir is None:
         return None
-    version = _git_output(
+    info = _get_git_info(source_dir)
+    if info is None:
+        return None
+    info['at_setup'] = True
+    return info
+
+
+def _get_git_info(source_dir):
+    """
+    The git version, full hash and last five first-parent commits of a
+    source tree, or None if it is not a git tree
+    """
+    describe = _git_output(
         ['describe', '--tags', '--dirty', '--always'], source_dir
     )
-    if version is None:
+    if describe is None:
         return None
-    return f'{version} (at setup, not build)'
+    log = _git_output(
+        ['log', '--first-parent', '-n', '5', '--format=%h %s'], source_dir
+    )
+    return {
+        'describe': describe,
+        'hash': _git_output(['rev-parse', 'HEAD'], source_dir),
+        'log': [] if log is None else log.splitlines(),
+        'at_setup': False,
+    }
 
 
 def _get_component_source_dir(config):
@@ -346,6 +388,26 @@ def _get_build_type(config):
     if debug:
         return 'Debug'
     return 'Release'
+
+
+def _write_git_info(provenance_file, name, info):
+    """
+    Write the git version, hash and log of Polaris or the component, with the
+    log on indented continuation lines after its label
+    """
+    if info is None:
+        return
+    marker = f' {_AT_SETUP}' if info['at_setup'] else ''
+    provenance_file.write(
+        f'{name} git version: {info["describe"]}{marker}\n\n'
+    )
+    if info['hash'] is not None:
+        provenance_file.write(f'{name} git hash: {info["hash"]}{marker}\n\n')
+    if info['log']:
+        provenance_file.write(f'{name} git log:{marker}\n')
+        for line in info['log']:
+            provenance_file.write(f'  {line}\n')
+        provenance_file.write('\n')
 
 
 def _write_meta(provenance_file, label, value):
