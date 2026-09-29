@@ -238,7 +238,11 @@ mache.parallel.pbs.PbsOptions, None}
     return options
 
 
-def get_submit_args(job_script, system, dependency=None):
+class SubmissionError(RuntimeError):
+    """The scheduler refused a job script"""
+
+
+def get_submit_args(job_script, system, dependency=None, extra_args=None):
     """
     Get the command that submits a job script, optionally after another job
 
@@ -253,6 +257,10 @@ def get_submit_args(job_script, system, dependency=None):
     dependency : str, optional
         A job id that must finish, successfully or not, before this job
         starts
+
+    extra_args : list of str, optional
+        More options for ``sbatch`` or ``qsub``, which override those in the
+        job script
 
     Returns
     -------
@@ -274,11 +282,13 @@ def get_submit_args(job_script, system, dependency=None):
             args.extend(['-W', f'depend=afterany:{dependency}'])
     else:
         raise ValueError(f'Unsupported parallel system: {system}')
+    if extra_args:
+        args.extend(extra_args)
     args.append(job_script)
     return args
 
 
-def submit_job(job_script, work_dir, system, dependency=None):
+def submit_job(job_script, work_dir, system, dependency=None, extra_args=None):
     """
     Submit a job script from its work directory
 
@@ -300,14 +310,28 @@ def submit_job(job_script, work_dir, system, dependency=None):
         A job id that must finish, successfully or not, before this job
         starts
 
+    extra_args : list of str, optional
+        More options for ``sbatch`` or ``qsub``, which override those in the
+        job script
+
     Returns
     -------
     job_id : str
         The id of the submitted job
+
+    Raises
+    ------
+    polaris.job.SubmissionError
+        If the scheduler refuses the job, with its message
     """
-    args = get_submit_args(job_script, system, dependency)
-    output = subprocess.check_output(args, cwd=work_dir).decode('utf-8')
-    return parse_job_id(output, system)
+    args = get_submit_args(job_script, system, dependency, extra_args)
+    result = subprocess.run(args, cwd=work_dir, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise SubmissionError(
+            f'"{" ".join(args)}" in {work_dir} failed:\n'
+            f'{result.stderr.strip()}'
+        )
+    return parse_job_id(result.stdout, system)
 
 
 def parse_job_id(output, system):
