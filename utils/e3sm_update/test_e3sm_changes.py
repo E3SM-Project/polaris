@@ -148,7 +148,7 @@ def submit_e3sm_tests(
 
     print('00: current\n')
     baseline = f'{work_base}/00_current'
-    setup_and_submit(
+    job_id = setup_and_submit(
         load_script=load_script,
         setup_command=setup_command,
         worktree=current_submodule,
@@ -161,12 +161,13 @@ def submit_e3sm_tests(
         pull_request = data['pull_request']
         workdir = f'{work_base}/{index + 1:02d}_{pull_request}_{previous}'
         print(f'{index + 1:02d}: {pull_request}\n')
-        setup_and_submit(
+        job_id = setup_and_submit(
             load_script=load_script,
             setup_command=setup_command,
             worktree=worktree,
             workdir=workdir,
             baseline=baseline,
+            dependency=job_id,
         )
         baseline = workdir
         previous = pull_request
@@ -181,6 +182,7 @@ def submit_e3sm_tests(
             worktree=new_submodule,
             workdir=workdir,
             baseline=baseline,
+            dependency=job_id,
         )
 
     print_pr_description(submodule, repo_url, current, new, pull_requests)
@@ -196,8 +198,19 @@ def setup_worktree(submodule, worktree, hash):
 
 
 def setup_and_submit(
-    load_script, setup_command, worktree, workdir, baseline=None
+    load_script,
+    setup_command,
+    worktree,
+    workdir,
+    baseline=None,
+    dependency=None,
 ):
+    """
+    Set up the tasks in a work directory and submit their job, returning
+    the job ID.  The job waits for the ``dependency`` job (the one that
+    produces its baseline) to finish, and is killed if that job no longer
+    exists rather than left pending forever.
+    """
     suite = _get_suite_name(setup_command)
 
     full_setup = (
@@ -210,11 +223,21 @@ def setup_and_submit(
     commands = f'source {shlex.quote(load_script)} && {full_setup}'
     print_and_run(commands)
 
+    sbatch = 'sbatch --parsable'
+    if dependency is not None:
+        sbatch = (
+            f'{sbatch} --kill-on-invalid-dep=yes '
+            f'--dependency=afterany:{dependency}'
+        )
     commands = (
         f'cd {shlex.quote(workdir)} && '
-        f'sbatch {shlex.quote(f"job_script.{suite}.sh")}'
+        f'{sbatch} {shlex.quote(f"job_script.{suite}.sh")}'
     )
-    print_and_run(commands)
+    output = print_and_run(commands, get_output=True)
+    # --parsable prints "<job_id>" or "<job_id>;<cluster>"
+    job_id = output.split('\n')[-1].split(';')[0].strip()
+    print(f'Submitted batch job {job_id}\n')
+    return job_id
 
 
 def _resolve_commit(worktree, ref):

@@ -40,4 +40,6 @@ help of a config file similar to `example.cfg`.
    for running the suite or task(s) provided in the config file.  The
    setup command automatically adds `--clean_build` so the model builds in the
    work directory and compares with the previous pull request of interest as a
-   baseline.
+   baseline.  Each job waits for the job that produces its baseline to finish
+   (`--dependency=afterany`), and is killed if that job no longer exists
+   (`--kill-on-invalid-dep=yes`).
