@@ -110,3 +110,56 @@ def post_comment(number: int, body_file: str) -> str:
         ]
     )
     return output.strip()
+
+
+def get_check_runs(sha: str) -> List[Dict[str, Any]]:
+    """
+    The check runs on a commit of E3SM-Project/Omega
+
+    Parameters
+    ----------
+    sha : str
+        The commit
+
+    Returns
+    -------
+    check_runs : list of dict
+        Each run's ``name``, ``status``, ``conclusion``, ``id`` and
+        ``html_url``
+    """
+    output = gh(
+        [
+            'api',
+            '--paginate',
+            f'repos/{UPSTREAM}/commits/{sha}/check-runs',
+            '--jq',
+            '.check_runs[] | {name, status, conclusion, id, html_url} '
+            '| @json',
+        ]
+    )
+    return [json.loads(line) for line in output.splitlines() if line]
+
+
+def get_job_steps(job_id: int) -> List[Dict[str, Any]]:
+    """
+    The steps of a GitHub Actions job, whose id is that of its check run
+
+    Parameters
+    ----------
+    job_id : int
+        The job
+
+    Returns
+    -------
+    steps : list of dict
+        Each step's ``name`` and ``conclusion``
+    """
+    output = gh(
+        [
+            'api',
+            f'repos/{UPSTREAM}/actions/jobs/{job_id}',
+            '--jq',
+            '.steps[] | {name, conclusion} | @json',
+        ]
+    )
+    return [json.loads(line) for line in output.splitlines() if line]

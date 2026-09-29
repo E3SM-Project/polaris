@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 from importlib import resources
 from typing import Any, Dict, List, Optional
 
+import pr_test_git as git_tools
+from pr_test_git import REF_PREFIX
 from ruamel.yaml import YAML
 
 SCHEMA_VERSION = 1
@@ -211,6 +213,11 @@ class Manifest:
         """The name of the baseline branch on the requester's fork"""
         return f'{self.branch}-baseline'
 
+    @property
+    def run_name(self) -> str:
+        """The directory in the work base that this manifest's runs go in"""
+        return f'pr{self.pull_request}-{self.pr_head[:7]}'
+
     def to_yaml(self) -> str:
         """The manifest as the YAML that is committed"""
         contents: Dict[str, Any] = {
@@ -344,6 +351,68 @@ class Manifest:
             f'The manifest has no row for {machine}/{compiler}; its rows '
             f'are {names}.'
         )
+
+
+def fetch_manifest(repo: str, fork: str, branch: str) -> Manifest:
+    """
+    Fetch a test branch and its baseline branch, and read and check the
+    manifest
+
+    Parameters
+    ----------
+    repo : str
+        The Omega clone to fetch into
+
+    fork : str
+        The URL of the requester's fork
+
+    branch : str
+        The test branch
+
+    Returns
+    -------
+    manifest : pr_test_manifest.Manifest
+        The manifest, whose commits the clone now has
+    """
+    local = f'{REF_PREFIX}/{branch}'
+    git_tools.fetch(
+        repo,
+        fork,
+        [
+            f'refs/heads/{branch}:{local}',
+            f'refs/heads/{branch}-baseline:{local}-baseline',
+        ],
+    )
+    tip = git_tools.rev_parse(repo, local)
+    try:
+        text = git_tools.show_file(repo, tip, MANIFEST_FILENAME)
+    except git_tools.GitError as exc:
+        raise ManifestError(
+            f'{branch} on {fork} has no {MANIFEST_FILENAME} at its tip.'
+        ) from exc
+    manifest = Manifest.from_yaml(text)
+
+    problems = []
+    if git_tools.rev_parse(repo, f'{tip}^') != manifest.test_commit:
+        problems.append('the test commit is not the parent of the tip')
+    for name, sha in [
+        ('PR head', manifest.pr_head),
+        ('base branch head', manifest.base_head),
+    ]:
+        if not git_tools.is_ancestor(repo, sha, manifest.test_commit):
+            problems.append(f'the test commit does not contain the {name}')
+    baseline = git_tools.rev_parse(repo, f'{local}-baseline')
+    if baseline != manifest.baseline_commit:
+        problems.append(
+            f'{branch}-baseline is at {baseline[:12]}, not the baseline '
+            f'commit {manifest.baseline_commit[:12]}'
+        )
+    if problems:
+        raise ManifestError(
+            f'The manifest on {branch} does not match its branch: '
+            f'{"; ".join(problems)}.'
+        )
+    return manifest
 
 
 def _yaml():
