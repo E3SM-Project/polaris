@@ -13,6 +13,9 @@ def add_realistic_global_analysis_test_tasks(component):
     component : polaris.tasks.ocean.Ocean
         The ocean component the tasks will be added to
     """
-    component.add_task(
-        RealisticGlobalAnalysisTest(component=component, mesh_name='QU.240km')
-    )
+    for mesh_name in ['QU.240km', 'EC30to60E2r2']:
+        component.add_task(
+            RealisticGlobalAnalysisTest(
+                component=component, mesh_name=mesh_name
+            )
+        )

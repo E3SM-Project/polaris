@@ -8,6 +8,8 @@ from polaris.tasks.ocean.realistic_global.forward import (
 # QU.240km the time steps are E3SM's MPAS-Ocean values for oQU240: a 2-hour
 # step gave a growing surface hotspot along the Aleutians.  Its MOC bins are
 # three degrees, since Omega's default of one degree is finer than the mesh.
+# EC30to60E2r2 uses the time steps of its analysis_members task and Omega's
+# default MOC bins.
 MESH_INFO = {
     'QU.240km': dict(
         mpaso_id=151209,
@@ -16,6 +18,14 @@ MESH_INFO = {
         dt='01:00:00',
         btr_dt='00:03:00',
         moc_num_bins=60,
+    ),
+    'EC30to60E2r2': dict(
+        mpaso_id=200908,
+        omega_id=260807,
+        ncells=236853,
+        dt='00:30:00',
+        btr_dt='00:01:00',
+        moc_num_bins=180,
     ),
 }
 
