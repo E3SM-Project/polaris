@@ -71,7 +71,7 @@ class MeltShortViz(OceanIOStep):
         rho_sw = get_constant('seawater_density_reference')
         # no surface forcing is applied in this task
         heat_flux = 0.0
-        frazil_steps = 4
+        frazil_steps = 10
 
         ds_init = self.open_model_dataset('init.nc', config=config)
         init = _diagnostics(ds_init, rho_sw, config, model)
