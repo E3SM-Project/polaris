@@ -15,7 +15,7 @@ class FrazilInit(Init):
     ----------
     case : str
         The initial condition/forcing case, one of ``'melting'``,
-        ``'freezing'`` or ``'melt_short'``
+        ``'freezing'`` or ``'melting_short'``
 
     at_freezing : bool
         For the ``'freezing'`` case, whether to initialize temperature at the
@@ -44,7 +44,7 @@ class FrazilInit(Init):
 
         case : str
             The initial condition/forcing case, one of ``'melting'``,
-            ``'freezing'`` or ``'melt_short'``
+            ``'freezing'`` or ``'melting_short'``
 
         name : str, optional
             the name of the step
@@ -57,9 +57,9 @@ class FrazilInit(Init):
             For the ``'freezing'`` case, initialize temperature at the local
             EOS freezing point rather than at ``temperature_freezing``
         """
-        if case not in ('melting', 'freezing', 'melt_short'):
+        if case not in ('melting', 'freezing', 'melting_short'):
             raise ValueError(
-                "case must be 'melting', 'freezing' or 'melt_short', got "
+                "case must be 'melting', 'freezing' or 'melting_short', got "
                 f'{case!r}'
             )
         if forcing_vars is None:
@@ -81,7 +81,7 @@ class FrazilInit(Init):
         transition depth and a different constant value below it.  In the
         freezing case, temperature is uniform (and close to the local
         freezing point once frazil is enabled), or exactly at the local
-        freezing point if ``at_freezing`` is set.  In the ``melt_short``
+        freezing point if ``at_freezing`` is set.  In the ``melting_short``
         case, temperature is constant above the transition depth and a fixed
         amount below the local freezing point beneath it.
         """
@@ -110,10 +110,12 @@ class FrazilInit(Init):
                 temperature_upper
                 + (temperature_lower - temperature_upper) * smooth
             )
-        elif self.case == 'melt_short':
-            temperature_top = section.getfloat('temperature_top_melt_short')
-            supercooling = section.getfloat('supercooling_melt_short')
-            transition_depth = section.getfloat('transition_depth_melt_short')
+        elif self.case == 'melting_short':
+            temperature_top = section.getfloat('temperature_top_melting_short')
+            supercooling = section.getfloat('supercooling_melting_short')
+            transition_depth = section.getfloat(
+                'transition_depth_melting_short'
+            )
             ct_freezing = compute_ct_freezing(
                 config,
                 salinity.isel(Time=0, nCells=0),
