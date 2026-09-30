@@ -22,9 +22,9 @@ COLUMNS = (
 )
 
 
-class MeltShortViz(OceanIOStep):
+class MeltingShortViz(OceanIOStep):
     """
-    A step for plotting the evolution of both layers of the melt_short
+    A step for plotting the evolution of both layers of the melting_short
     forward runs, along with the frazil fluxes and conservation residuals
 
     Attributes

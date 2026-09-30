@@ -305,7 +305,7 @@ def _plot_frazil_fluxes(series, styles, heat_flux, frazil_steps):
         axes[0].axhline(
             heat_flux, color='k', ls='--', lw=1, label='surface heat flux'
         )
-    axes[0].set_title(f'Frazil tendencies, first {frazil_steps} steps')
+    axes[0].set_title(f'Frazil coupling terms, first {frazil_steps} steps')
     axes[0].legend(fontsize=7, ncol=2)
     axes[-1].set_xlabel('time (hours)')
     fig.tight_layout()
@@ -377,11 +377,13 @@ def _plot_conservation_residuals(
         axes, FRAZIL_RATE_UNITS.items(), strict=True
     ):
         ax.axhline(0.0, color='k', lw=1)
-        ax.set_ylabel(f'residual {variable}\n({units})')
+        budget = variable.rsplit('Frazil', 1)[-1]
+        ax.set_ylabel(f'residual {budget}\n({units})')
         ax.legend(fontsize=7, ncol=2)
         ax.grid(alpha=0.3)
     axes[0].set_title(
-        'Conservation residual (state rate - forcing and frazil), '
+        'Per-timestep column conservation residual '
+        f'(state change - forcing and frazil), '
         f'first {frazil_steps} steps'
     )
     axes[-1].set_xlabel('time (hours)')
