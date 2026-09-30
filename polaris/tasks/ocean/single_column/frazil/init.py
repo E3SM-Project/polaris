@@ -14,8 +14,8 @@ class FrazilInit(Init):
     Attributes
     ----------
     case : str
-        The initial condition/forcing case, either ``'melting'`` or
-        ``'freezing'``
+        The initial condition/forcing case, one of ``'melting'``,
+        ``'freezing'`` or ``'melt_short'``
 
     at_freezing : bool
         For the ``'freezing'`` case, whether to initialize temperature at the
@@ -43,8 +43,8 @@ class FrazilInit(Init):
             The subdirectory that the step will go into
 
         case : str
-            The initial condition/forcing case, either ``'melting'`` or
-            ``'freezing'``
+            The initial condition/forcing case, one of ``'melting'``,
+            ``'freezing'`` or ``'melt_short'``
 
         name : str, optional
             the name of the step
@@ -57,9 +57,10 @@ class FrazilInit(Init):
             For the ``'freezing'`` case, initialize temperature at the local
             EOS freezing point rather than at ``temperature_freezing``
         """
-        if case not in ('melting', 'freezing'):
+        if case not in ('melting', 'freezing', 'melt_short'):
             raise ValueError(
-                f"case must be 'melting' or 'freezing', got {case!r}"
+                "case must be 'melting', 'freezing' or 'melt_short', got "
+                f'{case!r}'
             )
         if forcing_vars is None:
             forcing_vars = ['latent_heat_flux'] if case == 'freezing' else []
@@ -80,7 +81,9 @@ class FrazilInit(Init):
         transition depth and a different constant value below it.  In the
         freezing case, temperature is uniform (and close to the local
         freezing point once frazil is enabled), or exactly at the local
-        freezing point if ``at_freezing`` is set.
+        freezing point if ``at_freezing`` is set.  In the ``melt_short``
+        case, temperature is constant above the transition depth and a fixed
+        amount below the local freezing point beneath it.
         """
         section = config['single_column_frazil']
         salinity_surface = section.getfloat('salinity_surface')
@@ -106,6 +109,20 @@ class FrazilInit(Init):
             temperature_vert = (
                 temperature_upper
                 + (temperature_lower - temperature_upper) * smooth
+            )
+        elif self.case == 'melt_short':
+            temperature_top = section.getfloat('temperature_top_melt_short')
+            supercooling = section.getfloat('supercooling_melt_short')
+            transition_depth = section.getfloat('transition_depth_melt_short')
+            ct_freezing = compute_ct_freezing(
+                config,
+                salinity.isel(Time=0, nCells=0),
+                pressure=self._compute_pressure(z_mid),
+            )
+            temperature_vert = xr.where(
+                depth < transition_depth,
+                temperature_top,
+                ct_freezing - supercooling,
             )
         elif self.at_freezing:
             temperature_vert = compute_ct_freezing(
