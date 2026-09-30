@@ -118,7 +118,7 @@ def _frazil_diagnostics(component, base_work_dir, forward_steps, config):
             os.path.join(base_work_dir, path, 'property_check_results.json')
         )
         output_filename = os.path.join(base_work_dir, path, 'output.nc')
-        mesh_filename = os.path.join(base_work_dir, path, 'culled_mesh.nc')
+        mesh_filename = os.path.join(base_work_dir, path, 'mesh.nc')
         init_filename = os.path.join(base_work_dir, path, 'init.nc')
         output = component.open_model_dataset(
             output_filename, config=config, decode_times=True
