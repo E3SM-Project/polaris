@@ -127,11 +127,13 @@ The `analysis_test` subpackage is laid out the way the `forward`, `init` and
 sits at `spherical/realistic_global/<mesh>/analysis_test/task` with its steps
 beside it and a `realistic_global_analysis_test.cfg` shared at that level.
 {py:func}`polaris.tasks.ocean.realistic_global.analysis_test.add_realistic_global_analysis_test_tasks`
-registers one task, on the `QU.240km` mesh; adding a mesh means a new entry
-in the `MESH_INFO` dictionary in
+registers a task on each of the `QU.240km` and `EC30to60E2r2` meshes.
+Adding a mesh takes three things: an entry in the `MESH_INFO` dictionary in
 `polaris.tasks.ocean.realistic_global.analysis_test.forward` giving the
-initial-condition IDs, the cell count and the baroclinic and barotropic
-time steps, and a call to add the task.
+initial-condition IDs, the cell count, the baroclinic and barotropic time
+steps and the number of MOC latitude bins; a `<mesh>.cfg` file in the
+subpackage setting `mom_del4`, as the per-mesh config files on
+`unified-mesh-dev` do; and the mesh name in the list in `tasks.py`.
 
 The
 {py:class}`polaris.tasks.ocean.realistic_global.analysis_test.RealisticGlobalAnalysisTest`
@@ -151,7 +153,8 @@ is a subclass of the shared {ref}`dev-ocean-realistic-global-framework`
 model.
 
 `setup()` adds this subpackage's `forward.yaml` after the shared one, so
-that it overrides it.  The fragment replaces the `History` stream with
+that it overrides it, and then the `mom_del4` config option as
+`config_mom_del4`, which is translated to Omega's `ViscDel4`.  The fragment replaces the `History` stream with
 monthly snapshots in `output/`, turns on the `MonthlyAverages` and `MOC`
 analysis groups, adds kinetic energy and sea surface height to
 `GlobalStats`, and makes restarts monthly.  A stream's options merge across
