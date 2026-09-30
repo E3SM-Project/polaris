@@ -4,8 +4,8 @@ from polaris.tasks.ocean.single_column.frazil import Frazil as Frazil
 from polaris.tasks.ocean.single_column.frazil.init import (
     FrazilInit as FrazilInit,
 )
-from polaris.tasks.ocean.single_column.frazil.melt_short import (
-    FrazilMeltShort as FrazilMeltShort,
+from polaris.tasks.ocean.single_column.frazil.melting_short import (
+    FrazilMeltingShort as FrazilMeltingShort,
 )
 from polaris.tasks.ocean.single_column.frazil.top_layer import (
     FrazilTopLayer as FrazilTopLayer,
@@ -207,9 +207,12 @@ def add_single_column_tasks(component):
             )
         )
 
-    component.add_task(
-        FrazilMeltShort(
-            component=component,
-            subdir='column/frazil/melt_short',
+    for name in ('warm', 'cold'):
+        component.add_task(
+            FrazilMeltingShort(
+                component=component,
+                subdir=f'column/frazil/melting_short/{name}',
+                name=name,
+                variant_cfg=f'{name}.cfg',
+            )
         )
-    )

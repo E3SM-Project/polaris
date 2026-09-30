@@ -4,8 +4,8 @@ from polaris.tasks.ocean.single_column.conservation_summary import (
 )
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.frazil.init import FrazilInit
-from polaris.tasks.ocean.single_column.frazil.melt_short.viz import (
-    MeltShortViz,
+from polaris.tasks.ocean.single_column.frazil.melting_short.viz import (
+    MeltingShortViz,
 )
 
 TIME_INTEGRATORS = (
@@ -18,7 +18,7 @@ TIME_INTEGRATORS = (
 RUN_DURATION_STEPS = 10
 
 
-class FrazilMeltShort(Task):
+class FrazilMeltingShort(Task):
     """
     A two-layer single-column frazil test with a warm top layer over a
     supercooled bottom layer and no surface forcing.  All tendencies are
@@ -28,7 +28,7 @@ class FrazilMeltShort(Task):
     ``'teos'``).  MPAS-Ocean retains only RK4 with ``'FixedProperty'``.
     """
 
-    def __init__(self, component, subdir, name='melt_short'):
+    def __init__(self, component, subdir, name, variant_cfg):
         """
         Create the test case
 
@@ -40,8 +40,12 @@ class FrazilMeltShort(Task):
         subdir : str
             The directory the task is in
 
-        name : str, optional
+        name : str
             The task name
+
+        variant_cfg : str
+            A config overlay in this package setting the initial temperature
+            for this variant
         """
         super().__init__(component=component, name=name, subdir=subdir)
 
@@ -52,13 +56,17 @@ class FrazilMeltShort(Task):
             'polaris.tasks.ocean.single_column.frazil', 'frazil.cfg'
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.single_column.frazil.melt_short',
-            'melt_short.cfg',
+            'polaris.tasks.ocean.single_column.frazil.melting_short',
+            'melting_short.cfg',
+        )
+        self.config.add_from_package(
+            'polaris.tasks.ocean.single_column.frazil.melting_short',
+            variant_cfg,
         )
         init_step = FrazilInit(
             component=component,
             subdir=f'{subdir}/init',
-            case='melt_short',
+            case='melting_short',
         )
         self.add_step(init_step)
 
@@ -82,9 +90,10 @@ class FrazilMeltShort(Task):
                     min_tasks=1,
                     openmp_threads=1,
                     validate_vars=validate_vars,
-                    task_name='frazil_melt_short',
+                    task_name='frazil_melting_short',
                     task_package=(
-                        'polaris.tasks.ocean.single_column.frazil.melt_short'
+                        'polaris.tasks.ocean.single_column.frazil.'
+                        'melting_short'
                     ),
                     frazil_type=frazil_type,
                     run_duration_steps=RUN_DURATION_STEPS,
@@ -106,7 +115,7 @@ class FrazilMeltShort(Task):
             frazil_diagnostics=True,
         )
         self.add_step(self.conservation_summary)
-        self.viz = MeltShortViz(
+        self.viz = MeltingShortViz(
             component=component,
             indir=subdir,
             init=init_step,
