@@ -15,7 +15,7 @@ TIME_INTEGRATORS = (
     'UnsplitRK2',
 )
 
-RUN_DURATION_STEPS = 4
+RUN_DURATION_STEPS = 10
 
 
 class FrazilMeltShort(Task):
