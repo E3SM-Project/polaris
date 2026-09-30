@@ -687,17 +687,26 @@ See {ref}`ocean-single-column` and the frazil-specific options in the
 
 See {ref}`ocean-single-column`.
 
-## frazil melt short
+## frazil melting short
 
 ### description
 
-The `frazil/melt_short` task isolates frazil melting in a short, two-layer
-run. A warm top layer sits above a supercooled bottom layer, no surface
-forcing is applied, and every tendency is disabled except frazil, so the
-evolution of both layers is driven entirely by frazil formation and melting.
-Omega runs both frazil algorithms (`FixedProperty` and `teos`) with each of
-its four time integrators: `RungeKutta2`, `RungeKutta4`, `SplitExplicitRK2`
-and `UnsplitRK2`. MPAS-Ocean retains only the `RK4`/`FixedProperty` run.
+The `frazil/melting_short/warm` and `frazil/melting_short/cold` tasks isolate
+frazil melting in a short, two-layer run. A top layer sits above a
+supercooled bottom layer, no surface forcing is applied, and every tendency is
+disabled except frazil, so the evolution of both layers is driven entirely by
+frazil formation and melting. Omega runs both frazil algorithms
+(`FixedProperty` and `teos`) with each of its four time integrators:
+`RungeKutta2`, `RungeKutta4`, `SplitExplicitRK2` and `UnsplitRK2`. MPAS-Ocean
+retains only the `RK4`/`FixedProperty` run.
+
+The two tasks differ only in their initial temperature, and each has its own
+initial condition:
+
+| Task | Change from `melting_short.cfg` |
+| --- | --- |
+| `frazil/melting_short/warm` | `warm.cfg` sets the top-layer temperature and bottom-layer supercooling for the warm variant |
+| `frazil/melting_short/cold` | `cold.cfg` sets the same two options for the cold variant |
 
 ### mesh
 
@@ -705,7 +714,7 @@ See {ref}`ocean-single-column`.
 
 ### vertical grid
 
-The task has two uniform 10 m layers:
+The tasks have two uniform 1 m layers:
 
 ```cfg
 [vertical_grid]
@@ -713,17 +722,18 @@ The task has two uniform 10 m layers:
 # Number of vertical levels
 vert_levels = 2
 
-# Depth of the bottom of the ocean, giving two 10 m layers
-bottom_depth = 20.0
+# Depth of the bottom of the ocean, giving two 1 m layers
+bottom_depth = 2.0
 ```
 
 ### initial conditions
 
 Salinity is uniform at `salinity_surface` (34 PSU) because `dsdz = 0.0`.
-Temperature is `temperature_top_melt_short` (2 degC) above
-`transition_depth_melt_short` (10 m) and `supercooling_melt_short` (0.5 degC)
+Temperature is `temperature_top_melting_short` above
+`transition_depth_melting_short` (1 m) and `supercooling_melting_short`
 below the local freezing point computed from the equation of state beneath
-it, so the top layer is warm and the bottom layer is supercooled.
+it, so the bottom layer is supercooled. The warm and cold variants set the
+first two of these options to different values.
 
 ### forcing
 
@@ -731,8 +741,8 @@ No surface forcing is applied; `latent_heat_flux` is overridden to zero.
 
 ### time step and run duration
 
-The time step is given in {ref}`ocean-single-column`. The run is four time
-steps long, with output written every time step.
+The time step is given in {ref}`ocean-single-column`. The run is a small,
+fixed number of time steps long, with output written every time step.
 
 The optional visualization writes `layer-evolution.png`, a two-by-four grid
 of temperature, thickness, salinity and thickness-times-temperature, with the

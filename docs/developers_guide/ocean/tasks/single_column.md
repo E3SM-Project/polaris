@@ -193,26 +193,33 @@ and salt rates, while `conservation-residuals.png` plots the corresponding
 top-layer budget residuals. These two frazil diagnostic plots are not produced
 for MPAS-Ocean because the history fields are Omega-specific.
 
-## frazil melt short
+## frazil melting short
 
 The
-{py:class}`polaris.tasks.ocean.single_column.frazil.melt_short.FrazilMeltShort`
-task runs a two-layer, 10 m resolution column with a warm top layer over a
-supercooled bottom layer and no surface forcing, for both frazil algorithms
-and the same four Omega time integrators. MPAS-Ocean retains only the RK4
-`FixedProperty` run. It reuses
+{py:class}`polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort`
+class runs a two-layer column with a top layer over a supercooled bottom
+layer and no surface forcing, for both frazil algorithms and the same four
+Omega time integrators. MPAS-Ocean retains only the RK4 `FixedProperty` run.
+It reuses
 {py:class}`polaris.tasks.ocean.single_column.frazil.init.FrazilInit` with
-`case='melt_short'`, which sets temperature to `temperature_top_melt_short`
-above `transition_depth_melt_short` and to `supercooling_melt_short` degrees
-below the freezing point from the equation of state beneath it.
+`case='melting_short'`, which sets temperature to
+`temperature_top_melting_short` above `transition_depth_melting_short` and to
+`supercooling_melting_short` degrees below the freezing point from the
+equation of state beneath it.
+
+Two tasks reuse this class, `melting_short/warm` and `melting_short/cold`,
+each adding one config overlay after `melting_short.cfg`: `warm.cfg` and
+`cold.cfg` set `temperature_top_melting_short` and
+`supercooling_melting_short` for that variant. The two tasks are otherwise
+identical and each builds its own init step.
 
 The task's `forward.yaml` disables every Omega tendency except
-`FrazilTendencyEnable`, and `melt_short.cfg` overrides `latent_heat_flux` to
-zero, so frazil is the only term acting on the column. The run is exactly four
-time steps long, with output every time step.
+`FrazilTendencyEnable`, and `melting_short.cfg` overrides `latent_heat_flux`
+to zero, so frazil is the only term acting on the column. The run duration is
+set by `RUN_DURATION_STEPS`, with output every time step.
 
 The
-{py:class}`polaris.tasks.ocean.single_column.frazil.melt_short.viz.MeltShortViz`
+{py:class}`polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz`
 step writes the same three figures, reusing the diagnostic and frazil-plotting
 helpers from `TopLayerViz`. Here `layer-evolution.png` is a two-by-four grid
 with the top layer on the first row and the bottom layer on the second, and
