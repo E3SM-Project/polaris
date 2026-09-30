@@ -262,7 +262,7 @@ The run writes, in the step's work directory:
   energy;
 - `moc_1MonthTimeStats.<year>-<month>.nc`, the monthly-mean global
   overturning streamfunction from the `MOC` group, in 60 latitude bins;
-- `global_stats_1DayInstants.<year>.nc`, daily global statistics of the
+- `global_stats_1DayInstants`, daily global statistics of the
   state, kinetic energy and sea surface height;
 - `output/ocn.hist.<year>-<month>.nc`, a monthly snapshot of the same fields
   as the monthly means, taken at the instant each mean is finalized, as a
