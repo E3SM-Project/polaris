@@ -169,7 +169,7 @@
 <li><p><strong>mesh_filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – A filename containing the MPAS mesh, with MPAS dimension and variable
 names.  Give <code class="docutils literal notranslate"><span class="pre">mesh_ds</span></code> instead for a mesh that needs to be read in
 some other way.</p></li>
-<li><p><strong>da</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><em>xarray.DataArray</em></a>) – The horizontal field to plot</p></li>
+<li><p><strong>da</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.9.0)"><em>xarray.DataArray</em></a>) – The horizontal field to plot</p></li>
 <li><p><strong>out_filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The image file name to be written</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="polaris.config.PolarisConfigParser.html#polaris.config.PolarisConfigParser" title="polaris.config.PolarisConfigParser"><em>polaris.config.PolarisConfigParser</em></a>) – The config options to use for colormap settings</p></li>
 <li><p><strong>colormap_section</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – <p>The name of a section in the config options. Options must include:</p>
@@ -209,7 +209,7 @@ given.</p></li>
 <li><p><strong>circular_boundary</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to clip the map to a circle inscribed in the axes, which is
 how a polar stereographic map of everything poleward of some latitude
 is drawn.  Meaningless without <code class="docutils literal notranslate"><span class="pre">extent</span></code></p></li>
-<li><p><strong>mesh_ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><em>xarray.Dataset</em></a><em>, </em><em>optional</em>) – The MPAS mesh, as an alternative to <code class="docutils literal notranslate"><span class="pre">mesh_filename</span></code>.  It must use
+<li><p><strong>mesh_ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.9.0)"><em>xarray.Dataset</em></a><em>, </em><em>optional</em>) – The MPAS mesh, as an alternative to <code class="docutils literal notranslate"><span class="pre">mesh_filename</span></code>.  It must use
 MPAS dimension and variable names, so a component whose model writes
 its own names must map them before passing the mesh in.</p></li>
 </ul>
