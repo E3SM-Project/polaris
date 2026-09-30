@@ -8,7 +8,6 @@ from polaris.tasks.ocean.single_column.frazil.top_layer.viz import TopLayerViz
 
 TIME_INTEGRATORS = (
     'RK4',
-    'Forward-Backward',
     'RungeKutta2',
     'SplitExplicitRK2',
     'UnsplitRK2',
@@ -17,16 +16,17 @@ TIME_INTEGRATORS = (
 
 class FrazilTopLayer(Task):
     """
-    A single-column frazil test case on a three-layer, 10 m resolution column
-    initialized at the local freezing point.  All tendencies are disabled
-    except the surface tracer forcing and the frazil tendency, so the change
-    in the heat content of the top layer is set entirely by the applied
+    A three-layer single-column frazil test initialized at the local freezing
+    point. All tendencies are disabled except surface tracer forcing and
+    frazil. The change in top-layer heat content is set entirely by the applied
     surface heat flux and by frazil formation.  Omega runs each of its five
     time integrators with both frazil algorithms (``'FixedProperty'`` and
     ``'teos'``).  MPAS-Ocean retains only RK4 with ``'FixedProperty'``.
     """
 
-    def __init__(self, component, subdir):
+    def __init__(
+        self, component, subdir, name='freezing_topLayer', variant_cfg=None
+    ):
         """
         Create the test case
 
@@ -37,10 +37,14 @@ class FrazilTopLayer(Task):
 
         subdir : str
             The directory the task is in
+
+        name : str, optional
+            The task name
+
+        variant_cfg : str, optional
+            A config overlay in this package for a variant of the test
         """
-        super().__init__(
-            component=component, name='freezing_topLayer', subdir=subdir
-        )
+        super().__init__(component=component, name=name, subdir=subdir)
 
         self.config.add_from_package(
             'polaris.tasks.ocean.single_column', 'single_column.cfg'
@@ -52,6 +56,11 @@ class FrazilTopLayer(Task):
             'polaris.tasks.ocean.single_column.frazil.top_layer',
             'top_layer.cfg',
         )
+        if variant_cfg is not None:
+            self.config.add_from_package(
+                'polaris.tasks.ocean.single_column.frazil.top_layer',
+                variant_cfg,
+            )
         init_step = FrazilInit(
             component=component,
             subdir=f'{subdir}/init',
