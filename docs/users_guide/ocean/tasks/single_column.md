@@ -611,9 +611,20 @@ column is initialized exactly at the local freezing point and every tendency is
 disabled except the surface tracer forcing and the frazil tendency, so the heat
 content of the top layer evolves only in response to the applied surface heat
 flux and to frazil growth. Omega runs both frazil algorithms (`FixedProperty`
-and `teos`) with each of its five time integrators: `Forward-Backward`,
-`RungeKutta2`, `RungeKutta4`, `SplitExplicitRK2` and `UnsplitRK2`. MPAS-Ocean
-retains only the `RK4`/`FixedProperty` run.
+and `teos`) with each of its four time integrators: `RungeKutta2`,
+`RungeKutta4`, `SplitExplicitRK2` and `UnsplitRK2`. MPAS-Ocean retains only the
+`RK4`/`FixedProperty` run.
+
+Three additional tasks each change one property of `freezing_topLayer`:
+
+| Task | Change from baseline |
+| --- | --- |
+| `frazil/freezing_topLayer_flux` | Surface latent heat flux of -2000 W/m$^2$ instead of -50 W/m$^2$ |
+| `frazil/freezing_topLayer_salinity` | Uniform initial salinity of 2.0 PSU instead of the baseline depth-dependent profile |
+| `frazil/freezing_topLayer_thin` | Three 0.5 m geometric layers instead of three 10 m layers |
+
+Each task has its own initial condition and forcing file, and runs the same
+time-integrator and frazil-algorithm combinations.
 
 ### mesh
 
@@ -621,7 +632,7 @@ See {ref}`ocean-single-column`.
 
 ### vertical grid
 
-The column has three uniform 10 m layers:
+The baseline, flux and salinity tasks have three uniform 10 m layers:
 
 ```cfg
 [vertical_grid]
@@ -633,6 +644,10 @@ vert_levels = 3
 bottom_depth = 30.0
 ```
 
+The thin task sets `bottom_depth = 1.5` m while retaining three uniform
+levels. Omega's initial pseudo-thickness can differ from 0.5 m because it is
+computed from pressure and the equation of state.
+
 ### initial conditions
 
 Salinity uses the same linear profile as the `frazil` task, set by
@@ -640,21 +655,92 @@ Salinity uses the same linear profile as the `frazil` task, set by
 Temperature is set to the local freezing point computed from the equation of
 state at each layer, rather than to the uniform `temperature_freezing` value,
 so that frazil begins forming as soon as the surface cooling is applied.
+The salinity task sets `salinity_surface = 2.0` PSU and `dsdz = 0.0` PSU/m,
+then computes the freezing temperature separately at each layer's pressure.
 
 ### forcing
 
 The surface latent heat flux is inherited from the `frazil` task, as described
-in [frazil](#frazil) above.
+in [frazil](#frazil) above. The flux task overrides
+`latent_heat_flux_freezing` to -2000 W/m$^2$.
 
 ### time step and run duration
 
 The time step is given in {ref}`ocean-single-column`. The run duration is one
 day, with output written every time step.
 
-The optional visualization compares the top-layer heat content over the day
-and during the first five time steps, along with the top-layer temperature,
-freezing point and thickness. It also shows heat-content anomalies in the
-two deeper layers. The initial point is read from `init.nc`.
+The optional visualization writes `layer-evolution.png`, showing top-layer
+temperature, salinity, thickness, and thickness-times-temperature over the day
+and during the first five time steps, with freezing-point curves and the
+initial state from `init.nc`. Omega uses pseudo-thickness for the thickness
+series; MPAS-Ocean uses geometric layer thickness. For Omega,
+`frazil-fluxes.png` shows per-step frazil energy, mass, and salt rates, and
+`conservation-residuals.png` shows the associated top-layer budget residuals.
+The two frazil diagnostic plots are not produced for MPAS-Ocean.
+
+### config options
+
+See {ref}`ocean-single-column` and the frazil-specific options in the
+`single_column_frazil` and `single_column_forcing` sections above.
+
+### cores
+
+See {ref}`ocean-single-column`.
+
+## frazil melt short
+
+### description
+
+The `frazil/melt_short` task isolates frazil melting in a short, two-layer
+run. A warm top layer sits above a supercooled bottom layer, no surface
+forcing is applied, and every tendency is disabled except frazil, so the
+evolution of both layers is driven entirely by frazil formation and melting.
+Omega runs both frazil algorithms (`FixedProperty` and `teos`) with each of
+its four time integrators: `RungeKutta2`, `RungeKutta4`, `SplitExplicitRK2`
+and `UnsplitRK2`. MPAS-Ocean retains only the `RK4`/`FixedProperty` run.
+
+### mesh
+
+See {ref}`ocean-single-column`.
+
+### vertical grid
+
+The task has two uniform 10 m layers:
+
+```cfg
+[vertical_grid]
+
+# Number of vertical levels
+vert_levels = 2
+
+# Depth of the bottom of the ocean, giving two 10 m layers
+bottom_depth = 20.0
+```
+
+### initial conditions
+
+Salinity is uniform at `salinity_surface` (34 PSU) because `dsdz = 0.0`.
+Temperature is `temperature_top_melt_short` (2 degC) above
+`transition_depth_melt_short` (10 m) and `supercooling_melt_short` (0.5 degC)
+below the local freezing point computed from the equation of state beneath
+it, so the top layer is warm and the bottom layer is supercooled.
+
+### forcing
+
+No surface forcing is applied; `latent_heat_flux` is overridden to zero.
+
+### time step and run duration
+
+The time step is given in {ref}`ocean-single-column`. The run is four time
+steps long, with output written every time step.
+
+The optional visualization writes `layer-evolution.png`, a two-by-four grid
+of temperature, thickness, salinity and thickness-times-temperature, with the
+top layer on the first row and the bottom layer on the second, including
+freezing-point curves. For Omega, `frazil-fluxes.png` shows per-step frazil
+energy, mass, and salt rates, and `conservation-residuals.png` shows the
+column-integrated budget residuals. The two frazil diagnostic plots are not
+produced for MPAS-Ocean.
 
 ### config options
 

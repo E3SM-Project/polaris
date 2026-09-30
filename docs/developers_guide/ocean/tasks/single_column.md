@@ -162,11 +162,18 @@ frazil thickness and salinity for each algorithm variant.
 The
 {py:class}`polaris.tasks.ocean.single_column.frazil.top_layer.FrazilTopLayer`
 task runs a three-layer, 10 m resolution column initialized at the local
-freezing point for both frazil algorithms and all five Omega time integrators.
-MPAS-Ocean retains only the RK4 `FixedProperty` run. It reuses
+freezing point for both frazil algorithms and four Omega time integrators:
+RK4, RungeKutta2, SplitExplicitRK2 and UnsplitRK2. MPAS-Ocean retains only the
+RK4 `FixedProperty` run. It reuses
 {py:class}`polaris.tasks.ocean.single_column.frazil.init.FrazilInit` with
 `at_freezing=True`, which sets temperature to the freezing point from the
 equation of state rather than to the uniform `temperature_freezing` value.
+Three sibling tasks reuse this class and add one config overlay after
+`top_layer.cfg`: `flux.cfg` sets the surface latent heat flux to -2000 W/m$^2$,
+`salinity.cfg` sets `salinity_surface = 2.0` and `dsdz = 0.0` so all layers
+start with the same salinity, and `thin.cfg` sets `bottom_depth = 1.5` m so
+three uniform layers each have 0.5 m geometric thickness. The init step
+recomputes the pressure-dependent freezing temperature for each task.
 
 The task's `forward.yaml` disables every Omega tendency except
 `SfcTracerForcingTendencyEnable` and `FrazilTendencyEnable`, so the only terms
@@ -177,12 +184,41 @@ the shared time integrator without affecting other single-column tasks.
 
 The
 {py:class}`polaris.tasks.ocean.single_column.frazil.top_layer.viz.TopLayerViz`
-step plots the heat content for each algorithm and integrator, with consistent
-colors by integrator and line styles by algorithm. It marks the initial state
-and one time step of surface cooling, and shows the first five time steps in
-detail alongside the deeper-layer heat-content anomalies. The heat content
-uses the TEOS-10 reference specific heat that Omega integrates with,
-`CP0_SW`, so the plot is consistent with the model's own heat budget.
+step writes three figures. `layer-evolution.png` shows top-layer temperature,
+salinity, thickness, and thickness-times-temperature over the full run and the
+first five time steps, with freezing-point curves and initial-state markers.
+It uses Omega pseudo-thickness for Omega and geometric layer thickness for
+MPAS-Ocean. For Omega, `frazil-fluxes.png` plots per-step frazil energy, mass,
+and salt rates, while `conservation-residuals.png` plots the corresponding
+top-layer budget residuals. These two frazil diagnostic plots are not produced
+for MPAS-Ocean because the history fields are Omega-specific.
+
+## frazil melt short
+
+The
+{py:class}`polaris.tasks.ocean.single_column.frazil.melt_short.FrazilMeltShort`
+task runs a two-layer, 10 m resolution column with a warm top layer over a
+supercooled bottom layer and no surface forcing, for both frazil algorithms
+and the same four Omega time integrators. MPAS-Ocean retains only the RK4
+`FixedProperty` run. It reuses
+{py:class}`polaris.tasks.ocean.single_column.frazil.init.FrazilInit` with
+`case='melt_short'`, which sets temperature to `temperature_top_melt_short`
+above `transition_depth_melt_short` and to `supercooling_melt_short` degrees
+below the freezing point from the equation of state beneath it.
+
+The task's `forward.yaml` disables every Omega tendency except
+`FrazilTendencyEnable`, and `melt_short.cfg` overrides `latent_heat_flux` to
+zero, so frazil is the only term acting on the column. The run is exactly four
+time steps long, with output every time step.
+
+The
+{py:class}`polaris.tasks.ocean.single_column.frazil.melt_short.viz.MeltShortViz`
+step writes the same three figures, reusing the diagnostic and frazil-plotting
+helpers from `TopLayerViz`. Here `layer-evolution.png` is a two-by-four grid
+with the top layer on the first row and the bottom layer on the second, and
+columns for temperature, thickness, salinity and thickness-times-temperature.
+Because frazil acts below the top layer, `conservation-residuals.png` is built
+from column-integrated state rates rather than from the top layer alone.
 
 ## thermo
 
