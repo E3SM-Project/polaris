@@ -1099,6 +1099,113 @@ Steps are created with
 tasks want --- the climatology, which every field group of `climatology_maps`
 reads --- is built once for a range no matter how many of them ask for it.
 
+### Reading a climatology
+
+{py:class}`polaris.tasks.ocean.analysis.climatology.Climatology` computes a
+climatology with `ncclimo`, and a step that reads one gets at it in two
+pieces.
+
+The climatology is added as a **dependency** with
+{py:meth}`polaris.Step.add_dependency()` rather than as an input file, because
+`ncclimo` names its output `<caseid>_<season>_<start>_<end>_climo.nc` and
+those names are not known until it has run.  The reading step then finds one
+season's file with
+{py:func}`polaris.tasks.ocean.analysis.climatology.find_climatology_file`,
+which globs on the season in the dependency's work directory --- and which
+also knows that `ncclimo` names the twelve monthly climatologies by month
+number rather than `JAN` through `DEC`.
+
+The variable list is the other piece.
+{py:func}`polaris.tasks.ocean.analysis.climatology.get_climatology_variables`
+assembles it from config options rather than from the steps that read the
+climatology, so that the shared step stays neutral with respect to which
+tasks pulled it in.  A step that needs a new variable in the climatology adds
+it there.
+
+Because `ncclimo` works on files rather than on an opened data set, the list
+is mapped back to the names the files use with
+{py:meth}`polaris.tasks.ocean.Ocean.map_var_list_to_native_model()`.  This is
+the one place in the analysis where model-specific names are unavoidable.
+
+A vector the model does not write the components of is reconstructed from the
+climatology of its edge-normal component.
+`polaris.tasks.ocean.analysis.climatology.VECTOR_RECONSTRUCTIONS` maps each
+edge-normal field to its zonal and meridional components.
+`get_climatology_variables()` adds the edge-normal field whenever a component
+is asked for, and the climatology step drops it again if the simulation wrote
+every component.  The map step then reconstructs whatever is still missing
+with {py:func}`polaris.mesh.reconstruct.tangential_reconstruction`, using the
+weights in the mesh file, and treats a fill value on an edge as zero, since
+nothing crosses a closed edge.
+
+### Reducing a field to a map
+
+A field with a vertical dimension has to be reduced to a horizontal map
+before it can be plotted, and `polaris.ocean.vertical.elevation` is where
+that lives.  It imports nothing from {py:class}`polaris.Step`, so it can be
+unit tested directly and reused by any vertically reduced diagnostic.
+
+{py:func}`polaris.ocean.vertical.elevation.parse_vertical_reduction` turns one
+entry of the `elevations` config option into a
+{py:class}`polaris.ocean.vertical.elevation.VerticalReduction`, and
+{py:func}`polaris.ocean.vertical.elevation.apply_vertical_reduction` applies
+one.  Every case turns `nVertLevels` into nothing, which is what will let
+ocean heat content be a field group of the climatology maps rather than a
+product of its own.
+
+The reductions that pick a layer by index --- `top`, `bottom` and
+`k<index>` --- need no vertical geometry.  Interpolating to an elevation
+does: pass `zMid` and `GeomZInterface`, which
+{py:func}`polaris.ocean.vertical.diagnostics.get_z_mid_and_interface` gets
+from what the model wrote.  Take them from the climatology rather than the
+vertical-coordinate file, since a map at an elevation is a map on the
+climatological-mean position of that surface.  An elevation range is not a
+slice but a weighted integral, so it goes through
+`polaris.ocean.vertical.elevation.elevation_range_weights()` instead.
+
+One detail catches people: both models write `minLevelCell` and
+`maxLevelCell` with the one-based indexing of MPAS-Ocean's Fortran, Omega's
+`MinLayerCell` and `MaxLayerCell` included, while the reductions index layers
+from zero.
+{py:func}`polaris.ocean.vertical.elevation.get_valid_level_range` is the one
+place that converts, and a step should get the two indices from it rather
+than reading them itself.
+
+### Plotting steps
+
+A step that plots maps writes, beside each PNG, a netCDF file with the same
+base name holding exactly what was plotted and the config options that
+produced it.  Both go in the step's own work directory.
+
+Two things are worth copying from
+{py:class}`polaris.tasks.ocean.analysis.climatology_maps.ClimatologyMaps`:
+
+- The `mosaic` descriptor that
+  {py:func}`polaris.viz.plot_global_mpas_field` returns is built once per step
+  and passed back in, since building it is the expensive part of plotting a
+  global mesh.
+- Outputs are registered during `run()` rather than `setup()`.  A field the
+  simulation did not write is reported and skipped, and a step that had
+  declared that field's plots at setup would fail Polaris's missing-output
+  check instead.
+
+The colormap options for a field live in a config section of its own, and
+{py:func}`polaris.tasks.ocean.analysis.config_sections.map_section` is what
+names it.  Field names are the models' own and are therefore camel case, while
+Polaris config sections are lower case with underscores, so `velocityZonal` is
+configured by `[ocean_analysis_map_velocity_zonal]` rather than by the field
+name pasted onto a prefix.  Call `map_section()` rather than building the name,
+so that exactly one place knows the prefix and the spelling rule.
+
+The mesh and vertical-coordinate files a simulation names are often its
+initial condition, which carries a full model state.  Opening one with
+{py:meth}`polaris.ocean.model.OceanIOStep.open_model_dataset` would solve the
+equation of state to derive a specific volume that a step wanting two index
+fields has no use for, so read the few fields you need and translate their
+names with
+{py:meth}`polaris.ocean.model.OceanIOStep.map_from_native_model_vars`
+instead.
+
 ### Publishing what the steps made
 
 Publication is three pieces, none of which knows anything about the ocean, so

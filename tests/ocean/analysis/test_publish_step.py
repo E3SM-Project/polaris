@@ -3,6 +3,7 @@ import logging
 import os
 
 import pytest
+from PIL import Image
 
 from polaris.analysis.manifest import FRAGMENT_FILENAME
 from polaris.analysis.publish import MERGED_FILENAME, PLOTS_DIRNAME
@@ -213,6 +214,7 @@ def test_the_step_reads_the_thumbnail_options_from_the_config(tmp_path):
     )
     config = step.config
     config.set('ocean_analysis', 'thumbnail_size', '40, 40', user=True)
+    config.set('ocean_analysis', 'thumbnail_scale', '1', user=True)
     config.set('ocean_analysis', 'thumbnail_format', 'webp', user=True)
     config.set('ocean_analysis', 'thumbnail_quality', '50', user=True)
 
@@ -220,6 +222,12 @@ def test_the_step_reads_the_thumbnail_options_from_the_config(tmp_path):
 
     thumbnails = os.listdir(os.path.join(output_path, THUMBNAILS_DIRNAME))
     assert thumbnails == ['climatology_maps_moc_ANN_0001-0010.webp']
+    with Image.open(
+        os.path.join(output_path, THUMBNAILS_DIRNAME, thumbnails[0])
+    ) as image:
+        # the stand-in plot is larger than the box, so this is the box at
+        # the scale asked for rather than the default
+        assert max(image.size) == 40
 
 
 def test_a_suite_that_made_nothing_publishes_an_empty_gallery(tmp_path):
