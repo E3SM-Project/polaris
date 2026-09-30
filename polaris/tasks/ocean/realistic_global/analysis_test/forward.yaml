@@ -1,10 +1,4 @@
 Omega:
-  Tendencies:
-    # Omega's default of 1.2e11 is meant for much finer meshes and leaves
-    # grid-scale noise in the velocity on this one.  1.0e15 gave the least of
-    # the values tried; 3.0e15 is unstable with a 1-hour time step.  Some
-    # noise remains in the wind-driven top layer.
-    ViscDel4: 1.0e15
   Analysis:
     GlobalStats:
       # Omega's default list plus the two remaining fields the ocean analysis
@@ -34,11 +28,10 @@ Omega:
         FileFreqUnits: months
     MOC:
       Enable: true
-      # Omega's default of one degree is finer than this mesh: a bin with no
-      # cells in it adds nothing to the running sum, and the streamfunction
-      # comes out as a staircase in latitude.  Three degrees stays coarser
-      # than 240 km.
-      NumBins: 60
+      # Set per mesh: a bin with no cells in it adds nothing to the running
+      # sum, so bins finer than the mesh make the streamfunction a staircase
+      # in latitude.
+      NumBins: {{ moc_num_bins }}
       MinLat: -90.0
       MaxLat: 90.0
       # Region masks are not implemented in Omega yet, and the ocean analysis

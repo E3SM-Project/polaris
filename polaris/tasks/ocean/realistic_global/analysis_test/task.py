@@ -51,6 +51,10 @@ class RealisticGlobalAnalysisTest(Task):
             'polaris.tasks.ocean.realistic_global.analysis_test',
             config_filename,
         )
+        config.add_from_package(
+            'polaris.tasks.ocean.realistic_global.analysis_test',
+            f'{mesh_name}.cfg',
+        )
         self.set_shared_config(config, link=config_filename)
 
         forward_step = Forward(

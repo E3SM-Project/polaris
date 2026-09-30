@@ -3,9 +3,11 @@ from polaris.tasks.ocean.realistic_global.forward import (
 )
 
 # the cached initial conditions and cell counts of the realistic global
-# meshes, as in polaris.tasks.ocean.realistic_global, and the baroclinic and
-# barotropic time steps.  For QU.240km these are E3SM's MPAS-Ocean values for
-# oQU240: a 2-hour step gave a growing surface hotspot along the Aleutians.
+# meshes, as in polaris.tasks.ocean.realistic_global, the baroclinic and
+# barotropic time steps and the number of latitude bins of the MOC.  For
+# QU.240km the time steps are E3SM's MPAS-Ocean values for oQU240: a 2-hour
+# step gave a growing surface hotspot along the Aleutians.  Its MOC bins are
+# three degrees, since Omega's default of one degree is finer than the mesh.
 MESH_INFO = {
     'QU.240km': dict(
         mpaso_id=151209,
@@ -13,6 +15,7 @@ MESH_INFO = {
         ncells=7153,
         dt='01:00:00',
         btr_dt='00:03:00',
+        moc_num_bins=60,
     ),
 }
 
@@ -65,6 +68,7 @@ class Forward(RealisticGlobalForward):
             'output_interval': '0001_00:00:00',
             'output_freq': '1',
             'output_freq_units': 'months',
+            'moc_num_bins': mesh_info['moc_num_bins'],
         }
         # every monthly file is declared as an output so that a run whose
         # analysis groups did not write is reported as a missing output
@@ -91,7 +95,8 @@ class Forward(RealisticGlobalForward):
 
     def setup(self):
         """
-        Add this step's yaml file over the shared one
+        Add this step's yaml file over the shared one, then the per-mesh
+        momentum hyperviscosity from the config options
         """
         if self.config.get('ocean', 'model') != 'omega':
             raise ValueError(
@@ -103,6 +108,12 @@ class Forward(RealisticGlobalForward):
             package='polaris.tasks.ocean.realistic_global.analysis_test',
             yaml='forward.yaml',
             template_replacements=self.replacements,
+        )
+        mom_del4 = self.config.getfloat(
+            'realistic_global_analysis_test', 'mom_del4'
+        )
+        self.add_model_config_options(
+            options={'config_mom_del4': mom_del4}, config_model='ocean'
         )
 
 
