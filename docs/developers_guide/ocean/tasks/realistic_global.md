@@ -132,7 +132,7 @@ Adding a mesh takes three things: an entry in the `MESH_INFO` dictionary in
 `polaris.tasks.ocean.realistic_global.analysis_test.forward` giving the
 initial-condition IDs, the cell count, the baroclinic and barotropic time
 steps and the number of MOC latitude bins; a `<mesh>.cfg` file in the
-subpackage setting `mom_del4`, as the per-mesh config files on
+subpackage setting `mom_del2` and `mom_del4`, as the per-mesh config files on
 `unified-mesh-dev` do; and the mesh name in the list in `tasks.py`.
 
 The
@@ -153,10 +153,11 @@ is a subclass of the shared {ref}`dev-ocean-realistic-global-framework`
 model.
 
 `setup()` adds this subpackage's `forward.yaml` after the shared one, so
-that it overrides it, and then the `mom_del4` config option as
-`config_mom_del4`, which is translated to Omega's `ViscDel4`.  The fragment replaces the `History` stream with
-monthly snapshots in `output/`, turns on the `MonthlyAverages` and `MOC`
-analysis groups, adds kinetic energy and sea surface height to
+that it overrides it, and then the `mom_del2` and `mom_del4` config
+options as `config_mom_del2` and `config_mom_del4`, which are translated to
+Omega's `ViscDel2` and `ViscDel4`.  The fragment replaces the `History`
+stream with monthly snapshots in `output/`, turns on the `MonthlyAverages`
+and `MOC` analysis groups, adds kinetic energy and sea surface height to
 `GlobalStats`, and makes restarts monthly.  A stream's options merge across
 yaml files, so the fragment has to set the `History` stream's `FileFreq`
 explicitly: the shared value of 9999 years would put every snapshot into one

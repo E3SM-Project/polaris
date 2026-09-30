@@ -319,11 +319,17 @@ mesh, vertical coordinate and initial state.
 As for the {ref}`ocean-realistic-global-analysis-members` tasks: wind stress
 from the initial-condition file applied through bulk wind stress, CVMix with
 convection and shear mixing, and a constant implicit bottom drag coefficient
-of 1.0e-3.  The biharmonic momentum viscosity is set per mesh by the
-`mom_del4` config option.  `EC30to60E2r2` uses Omega's default of 1.2e11
-m^4/s.  On `QU.240km` it is raised to 1.0e15 m^4/s, which reduces, but does
-not remove, grid-scale noise in the velocity near the surface.  These are
-coarse runs for testing the analysis, not scientifically valid simulations.
+of 1.0e-3.  The harmonic and biharmonic momentum viscosities are set per
+mesh by the `mom_del2` and `mom_del4` config options, raised from Omega's
+defaults of 1.0e3 m^2/s and 1.2e11 m^4/s to reduce, but not remove,
+grid-scale noise in the velocity.  On `QU.240km`, the biharmonic viscosity
+is raised to 1.0e15 m^4/s.  On `EC30to60E2r2`, the harmonic viscosity is
+raised to 1.0e4 m^2/s, since Omega does not scale the biharmonic viscosity
+with cell width and it cannot be raised enough to damp the 60-km cells
+without going unstable in the 30-km ones.  These values are provisional
+until Omega has KPP and the fix to its pressure-gradient errors over
+bathymetry.  These are coarse runs for testing the analysis, not
+scientifically valid simulations.
 
 ### time step and run duration
 
@@ -350,6 +356,9 @@ dt_per_km = 3.0
 
 [realistic_global_analysis_test]
 
+# The harmonic momentum viscosity (m^2/s): Omega's default
+mom_del2 = 1.0e3
+
 # The biharmonic momentum viscosity (m^4/s).  Omega's default of 1.2e11 is
 # meant for much finer meshes and leaves grid-scale noise in the velocity on
 # this one.  1.0e15 gave the least of the values tried in one-year runs;
@@ -358,7 +367,8 @@ dt_per_km = 3.0
 mom_del4 = 1.0e15
 ```
 
-This is for `QU.240km`.  On `EC30to60E2r2`, `mom_del4` is 1.2e11.
+This is for `QU.240km`.  On `EC30to60E2r2`, `mom_del2` is 1.0e4 and
+`mom_del4` is 1.2e11.
 
 ### cores
 
