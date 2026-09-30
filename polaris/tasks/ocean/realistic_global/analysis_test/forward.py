@@ -106,7 +106,7 @@ class Forward(RealisticGlobalForward):
     def setup(self):
         """
         Add this step's yaml file over the shared one, then the per-mesh
-        momentum hyperviscosity from the config options
+        momentum viscosities from the config options
         """
         if self.config.get('ocean', 'model') != 'omega':
             raise ValueError(
@@ -119,12 +119,12 @@ class Forward(RealisticGlobalForward):
             yaml='forward.yaml',
             template_replacements=self.replacements,
         )
-        mom_del4 = self.config.getfloat(
-            'realistic_global_analysis_test', 'mom_del4'
-        )
-        self.add_model_config_options(
-            options={'config_mom_del4': mom_del4}, config_model='ocean'
-        )
+        section = 'realistic_global_analysis_test'
+        options = {
+            'config_mom_del2': self.config.getfloat(section, 'mom_del2'),
+            'config_mom_del4': self.config.getfloat(section, 'mom_del4'),
+        }
+        self.add_model_config_options(options=options, config_model='ocean')
 
 
 def _monthly_filenames(template):
