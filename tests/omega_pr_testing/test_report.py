@@ -1,3 +1,4 @@
+import dataclasses
 import json
 from pathlib import Path
 
@@ -66,6 +67,17 @@ def test_report(finished):
     assert (marker['status'], marker['result']) == ('complete', 'pass')
     assert marker['new_warnings'] == 0
     assert Path(path) == Path(state.pr_work_dir).parent / 'report.md'
+
+
+def test_report_baseline_polaris(finished):
+    _, manifest, _ = finished
+    assert 'The baseline ran' not in pr_test_results.describe_commits(manifest)
+
+    other = dataclasses.replace(manifest, baseline_polaris_commit='b' * 40)
+    assert (
+        f'The baseline ran with Polaris `bbbbbbbbbb`, without the changes '
+        f'in Polaris `{manifest.polaris_commit[:10]}` that the PR needs.'
+    ) in pr_test_results.describe_commits(other)
 
 
 def test_report_failures(finished):

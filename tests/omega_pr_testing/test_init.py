@@ -25,6 +25,7 @@ def test_init_pins_test_and_baseline(fixture):
     assert manifest.base_head == fixture.develop
     assert manifest.baseline_commit == fixture.pin
     assert manifest.baseline_source == POLARIS_SUBMODULE
+    assert manifest.baseline_polaris_commit == manifest.polaris_commit
     assert manifest.requester == 'tester'
     assert manifest.rows == TEMPLATE_ROWS
     assert manifest.branch == f'omega-pr-test/5-{fixture.pr_head[:7]}'
@@ -97,6 +98,31 @@ def test_init_other_baseline_needs_reason(fixture):
     assert result.manifest.baseline_commit == fixture.develop
     assert result.manifest.baseline_source == 'develop'
     assert result.manifest.baseline_reason == 'The pin is too old'
+
+
+def test_init_baseline_polaris(fixture):
+    main = git(fixture.polaris_dir, 'rev-parse', 'HEAD')
+    # Polaris changes the PR needs, which move the pin as well
+    git(
+        fixture.polaris_dir,
+        'update-index',
+        '--cacheinfo',
+        f'160000,{fixture.develop},e3sm_submodules/Omega',
+    )
+    git(fixture.polaris_dir, 'commit', '-q', '-m', 'Follow the PR')
+
+    result = _initiate(fixture, polaris_ref='HEAD', baseline_polaris_ref=main)
+    manifest = result.manifest
+
+    assert manifest.polaris_commit == git(
+        fixture.polaris_dir, 'rev-parse', 'HEAD'
+    )
+    assert manifest.baseline_polaris_commit == main
+    # the baseline is the pin of the baseline's Polaris
+    assert manifest.baseline_commit == fixture.pin
+    assert f'second Polaris checkout at {main[:12]}' in result.prompts[0]
+    summary = pr_test_init.format_result(result, fixture.config.omega_repo)
+    assert f'Baseline Polaris: {main}' in summary
 
 
 def test_init_pr_moved(fixture, monkeypatch):

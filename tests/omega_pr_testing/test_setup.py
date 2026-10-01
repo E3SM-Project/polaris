@@ -1,6 +1,9 @@
 import json
+import os
+import subprocess
 from pathlib import Path
 
+import pr_test_init
 import pr_test_setup
 import pytest
 from pr_test_fixtures import commit, git, make_complete_baseline, make_tester
@@ -10,6 +13,32 @@ from pr_test_manifest import ManifestError
 @pytest.fixture
 def tester(tmp_path, monkeypatch):
     return make_tester(tmp_path, monkeypatch)
+
+
+@pytest.fixture
+def separate(tester, tmp_path):
+    """
+    A manifest whose baseline runs from a second Polaris checkout, without
+    the Polaris changes the PR needs
+    """
+    fixture, _, calls = tester
+    baseline_polaris = tmp_path / 'baseline_polaris'
+    git(tmp_path, 'clone', '-q', fixture.polaris_dir, str(baseline_polaris))
+    baseline_hash = git(baseline_polaris, 'rev-parse', 'HEAD')
+    commit(fixture.polaris_dir, 'stop.txt', 'StopType\n', 'Follow the PR')
+    manifest = pr_test_init.initiate(
+        config=fixture.config,
+        pull_request=5,
+        polaris_dir=fixture.polaris_dir,
+        polaris_ref='HEAD',
+        baseline_polaris_ref=baseline_hash,
+        push=True,
+        force=True,
+    ).manifest
+    load_script = _write_load_script(
+        tmp_path / 'load_polaris_chrysalis_intel_openmpi.sh', baseline_polaris
+    )
+    return fixture, manifest, calls, baseline_polaris, load_script
 
 
 def test_setup_new_baseline(tester):
@@ -164,6 +193,100 @@ def test_setup_pin_mismatch(tester):
         _setup(fixture, manifest)
 
 
+def test_setup_baseline_from_second_checkout(separate):
+    fixture, manifest, calls, baseline_polaris, load_script = separate
+    baseline_hash = manifest.baseline_polaris_commit
+
+    state = _setup(fixture, manifest, baseline_load_script=load_script)
+
+    baseline_call, pr_call = calls['suite']
+    assert baseline_call['polaris_dir'] == str(baseline_polaris)
+    assert baseline_call['load_script'] == load_script
+    assert pr_call['polaris_dir'] == fixture.polaris_dir
+    assert pr_call['load_script'] is None
+    assert f'polaris-{baseline_hash[:7]}_omega' in state.baseline_work_dir
+    assert state.polaris_hash == manifest.polaris_commit
+    assert state.baseline_polaris_hash == baseline_hash
+    row_dir = Path(state.pr_work_dir).parent
+    text = pr_test_setup.format_state(state, str(row_dir), 'chrysalis')
+    assert f'{baseline_hash} (baseline)' in text
+
+
+def test_setup_reuses_baseline_from_second_checkout(separate, tmp_path):
+    fixture, manifest, calls, _, load_script = separate
+    existing = make_complete_baseline(
+        tmp_path / 'old_tests' / 'baseline',
+        manifest,
+        manifest.baseline_polaris_commit,
+    )
+    fixture.config.baseline_search_roots = [str(tmp_path / 'old_tests')]
+
+    state = _setup(fixture, manifest, baseline_load_script=load_script)
+
+    assert state.baseline_work_dir == str(existing)
+    assert len(calls['suite']) == 1
+
+
+def test_setup_needs_baseline_load_script(separate):
+    fixture, manifest, _, _, _ = separate
+    with pytest.raises(
+        pr_test_setup.SetupError, match='--baseline-load-script'
+    ):
+        _setup(fixture, manifest)
+
+
+def test_setup_baseline_checkout_has_pr_polaris(separate, tmp_path):
+    fixture, manifest, _, _, _ = separate
+    load_script = _write_load_script(
+        tmp_path / 'load_pr.sh', Path(fixture.polaris_dir)
+    )
+    with pytest.raises(pr_test_setup.SetupError, match='baseline Omega'):
+        _setup(fixture, manifest, baseline_load_script=load_script)
+
+
+def test_setup_baseline_load_script_wrong_row(separate, tmp_path):
+    fixture, manifest, _, baseline_polaris, _ = separate
+    load_script = _write_load_script(
+        tmp_path / 'load_gnu.sh', baseline_polaris, compiler='gnu'
+    )
+    with pytest.raises(pr_test_setup.SetupError, match='POLARIS_COMPILER'):
+        _setup(fixture, manifest, baseline_load_script=load_script)
+
+
+def test_polaris_suite_in_clean_login_shell(tmp_path, monkeypatch):
+    calls = []
+
+    def run(args, cwd, env, check):
+        calls.append((args, cwd, env))
+
+    monkeypatch.setattr(subprocess, 'run', run)
+    monkeypatch.setenv('POLARIS_BRANCH', '/pr/polaris')
+    build_dir = str(tmp_path / 'build')
+
+    pr_test_setup._polaris_suite(
+        '/baseline/polaris',
+        branch='/omega/tree',
+        build_dir=build_dir,
+        work_dir='/work',
+        load_script='/baseline/polaris/load.sh',
+    )
+    pr_test_setup._polaris_suite(
+        '/pr/polaris', branch='/omega/tree', build_dir=build_dir, work_dir='/w'
+    )
+
+    (args, cwd, env), (pr_args, _, pr_env) = calls
+    assert args[:3] == ['/bin/bash', '-l', '-c']
+    assert args[3].startswith(
+        'source /baseline/polaris/load.sh && cd /baseline/polaris && '
+        'polaris suite -c ocean -t omega_pr --model omega --build'
+    )
+    assert cwd == '/baseline/polaris'
+    # nothing of the loaded environment reaches the baseline's setup
+    assert set(env) <= set(pr_test_setup.LOGIN_ENV_VARS)
+    assert pr_args[0] == 'polaris'
+    assert pr_env is None
+
+
 def test_setup_dirty_polaris(tester):
     fixture, manifest, _ = tester
     commit(fixture.polaris_dir, 'README.md', 'Polaris\n', 'Add a README')
@@ -202,3 +325,14 @@ def _setup(fixture, manifest, **kwargs):
         polaris_dir=fixture.polaris_dir,
         **kwargs,
     )
+
+
+def _write_load_script(path, polaris_dir, compiler='intel'):
+    """The exports of a load script for a checkout"""
+    path.write_text(
+        f'export POLARIS_MACHINE="chrysalis"\n'
+        f'export POLARIS_BRANCH="{polaris_dir}"\n'
+        f'export POLARIS_COMPILER="{compiler}"\n'
+        f'export POLARIS_MPI="openmpi"\n'
+    )
+    return os.path.abspath(path)
