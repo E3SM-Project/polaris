@@ -41,7 +41,9 @@ is in `docs/design_docs/omega_pr_testing.md`.
   Polaris commit.
 - A clone of E3SM-Project/Omega.
 - `~/.config/omega_pr_test.cfg`, copied from [example.cfg](example.cfg).
-- `gh`, logged in, for `init`, `lint`, `status` and `--post`.
+- Optionally, `gh`, logged in, which `--post` needs.  Without it,
+  comments are posted by hand, and everything else reads GitHub without
+  logging in.
 
 Source the load script, then run
 `./utils/omega/pr_testing/omega_pr_test.py <command> --help` for the
