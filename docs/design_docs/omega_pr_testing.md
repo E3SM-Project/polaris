@@ -399,7 +399,9 @@ jobs: the baseline suite, the pull request suite (`afterany` on the
 baseline) and the CTests. It submits them with `polaris.job.submit_job()`,
 which handles Slurm and PBS dependencies. On Frontier it adds
 `--qos=normal`: the `omega_pr` suite asks for each machine's debug target,
-and Frontier allows only one debug job at a time. On Aurora it adds
+and Frontier allows only one debug job at a time. It also adds
+`--time=01:00:00`, since the GPU row's baseline ran past the suite's
+30-minute wall time on Omega#524. On Aurora it adds
 `-q capacity`, Aurora's queue for 1 to 16 nodes, and each job waits for the
 one before, because Aurora limits how many jobs a user may have queued, and
 a job held on a dependency does not count. `utils/benchmark` keeps its own
