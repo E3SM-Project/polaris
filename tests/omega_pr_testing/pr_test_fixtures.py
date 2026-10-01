@@ -151,6 +151,8 @@ def make_tester(tmp_path, monkeypatch):
         pr_test_setup, '_polaris_suite', _fake_polaris_suite(calls, fixture)
     )
     monkeypatch.setattr(pr_test_setup, '_set_up_ctests', _fake_ctests)
+    # the fixture repositories have no submodules
+    monkeypatch.setattr(pr_test_setup, 'OMEGA_SUBMODULES', [])
     monkeypatch.setattr(pr_test_setup, '_get_system', lambda machine: 'slurm')
 
     def submit_job(script, work_dir, system, dependency=None, extra_args=None):
