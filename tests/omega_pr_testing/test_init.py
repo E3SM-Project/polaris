@@ -26,6 +26,11 @@ def test_init_pins_test_and_baseline(fixture):
     assert manifest.baseline_commit == fixture.pin
     assert manifest.baseline_source == POLARIS_SUBMODULE
     assert manifest.baseline_polaris_commit == manifest.polaris_commit
+    # one prompt for every machine, with no row in it
+    assert result.prompt == (
+        f'Test Omega PR 5 from branch {manifest.branch} on {fixture.fork}, '
+        f'following utils/omega/pr_testing/AGENTS.md.'
+    )
     assert manifest.requester == 'tester'
     assert manifest.rows == TEMPLATE_ROWS
     assert manifest.branch == f'omega-pr-test/5-{fixture.pr_head[:7]}'
@@ -130,8 +135,8 @@ def test_init_baseline_polaris(fixture):
     assert manifest.baseline_polaris_commit == main
     # the baseline is the pin of the baseline's Polaris
     assert manifest.baseline_commit == fixture.pin
-    assert result.prompts[0] == (
-        f'Test Omega PR 5 for aurora/oneapi-ifx from branch '
+    assert result.prompt == (
+        f'Test Omega PR 5 from branch '
         f'{manifest.branch} on {fixture.fork}, following '
         f'utils/omega/pr_testing/AGENTS.md.  The PR runs from a Polaris '
         f'checkout of test-merge on git@github.com:me/polaris.git, and the '
@@ -169,6 +174,21 @@ def test_get_row():
         get_row('chrysalis/nvidia')
     with pytest.raises(ValueError, match='<machine>/<compiler>'):
         get_row('chrysalis')
+
+
+def test_get_machine_rows():
+    names = [
+        row.name
+        for row in pr_test_manifest.get_machine_rows(TEMPLATE_ROWS, 'pm-cpu')
+    ]
+    # pm-cpu and pm-gpu share login nodes
+    assert names == ['pm-cpu/gnu', 'pm-gpu/gnugpu']
+    names = [
+        row.name
+        for row in pr_test_manifest.get_machine_rows(TEMPLATE_ROWS, 'frontier')
+    ]
+    assert names == ['frontier/craygnu', 'frontier/craygnu-mphipcc']
+    assert pr_test_manifest.get_machine_rows(TEMPLATE_ROWS, 'anvil') == []
 
 
 def test_template_rows_are_supported():

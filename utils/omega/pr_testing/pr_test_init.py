@@ -5,7 +5,7 @@ The initiator's work: pin the commits to test in a branch with a manifest
 import os
 import shlex
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Sequence
 
@@ -56,15 +56,15 @@ class InitResult:
     pushed : bool
         Whether the branches were pushed
 
-    prompts : list of str
-        What to tell the tester for each row
+    prompt : str
+        What to tell the tester on every machine
     """
 
     manifest: Manifest
     manifest_commit: str
     push_command: List[str]
     pushed: bool
-    prompts: List[str] = field(default_factory=list)
+    prompt: str
 
 
 def initiate(
@@ -262,39 +262,28 @@ def initiate(
     if push:
         subprocess.run(push_command, cwd=repo, check=True)
 
-    prompts = [
-        get_prompt(
-            manifest,
-            row,
-            fork,
-            config.polaris_fork,
-            polaris_ref,
-            baseline_polaris_ref,
-        )
-        for row in manifest.rows
-    ]
-    return InitResult(manifest, manifest_commit, push_command, push, prompts)
+    prompt = get_prompt(
+        manifest, fork, config.polaris_fork, polaris_ref, baseline_polaris_ref
+    )
+    return InitResult(manifest, manifest_commit, push_command, push, prompt)
 
 
 def get_prompt(
     manifest: Manifest,
-    row: Row,
     fork: str,
     polaris_fork: Optional[str] = None,
     polaris_ref: Optional[str] = None,
     baseline_polaris_ref: Optional[str] = None,
 ) -> str:
     """
-    The prompt for a tester, which is the whole handoff.  The utility's
-    AGENTS.md shows its template; keep the two the same.
+    The prompt for the tester on every machine, which is the whole
+    handoff.  Each tester works out its own rows.  The utility's AGENTS.md
+    shows the template; keep the two the same.
 
     Parameters
     ----------
     manifest : pr_test_manifest.Manifest
         The manifest
-
-    row : pr_test_manifest.Row
-        The tester's row
 
     fork : str
         The requester's fork with the test branch
@@ -314,7 +303,7 @@ def get_prompt(
         The prompt
     """
     prompt = (
-        f'Test Omega PR {manifest.pull_request} for {row.name} from branch '
+        f'Test Omega PR {manifest.pull_request} from branch '
         f'{manifest.branch} on {fork}, following '
         f'utils/omega/pr_testing/AGENTS.md.'
     )
@@ -361,8 +350,8 @@ def format_result(result: InitResult, repo: str) -> str:
                 f'  cd {repo} && {command}',
             ]
         )
-    lines.extend(['', 'Prompts for the testers:'])
-    lines.extend(f'  {prompt}' for prompt in result.prompts)
+    lines.extend(['', 'Prompt for the tester on every machine:', ''])
+    lines.append(result.prompt)
     return '\n'.join(lines)
 
 
