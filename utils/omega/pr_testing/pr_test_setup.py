@@ -6,6 +6,7 @@ jobs
 
 import json
 import os
+import re
 import shlex
 import subprocess
 from dataclasses import asdict, dataclass, field
@@ -62,6 +63,14 @@ SUBMIT_ARGS: Dict[str, List[str]] = {
 #: limits how many jobs a user may have in the 'Q' state, and a job waiting
 #: on a dependency is held ('H') instead, so this keeps one job queued.
 SERIAL_SUBMISSION = {'aurora'}
+
+#: the variables a clean login shell keeps, for setting up a baseline from
+#: another Polaris checkout
+LOGIN_ENV_VARS = ['HOME', 'USER', 'LOGNAME', 'TERM']
+
+_LOAD_SCRIPT_EXPORT = re.compile(
+    r'^export (POLARIS_[A-Z]+)="([^"]*)"$', re.MULTILINE
+)
 
 
 class SetupError(Exception):
@@ -141,6 +150,10 @@ class SetupState:
 
     jobs : list of dict
         The jobs to submit, with their ids once submitted
+
+    baseline_polaris_hash : str, optional
+        The Polaris commit the baseline was found or set up with, if it is
+        not ``polaris_hash``
     """
 
     fork: str
@@ -155,6 +168,7 @@ class SetupState:
     pr_work_dir: str
     ctest_dir: str
     jobs: List[Dict] = field(default_factory=list)
+    baseline_polaris_hash: Optional[str] = None
 
 
 def run_setup(
@@ -163,6 +177,7 @@ def run_setup(
     branch: str,
     submit: bool = False,
     baseline_dir: Optional[str] = None,
+    baseline_load_script: Optional[str] = None,
     polaris_dir: str = POLARIS_DIR,
 ) -> SetupState:
     """
@@ -185,6 +200,11 @@ def run_setup(
     baseline_dir : str, optional
         An existing baseline work directory to use, which must match
 
+    baseline_load_script : str, optional
+        The load script of a second Polaris checkout to find or set up the
+        baseline with, needed when the manifest's baseline Polaris commit
+        is not its Polaris commit
+
     polaris_dir : str, optional
         The Polaris checkout the loaded environment runs
 
@@ -195,7 +215,12 @@ def run_setup(
     """
     manifest = fetch_manifest(config.omega_repo, fork, branch)
     row = _get_env_row(manifest, polaris_dir)
-    polaris_hash = _check_polaris(manifest, polaris_dir)
+    polaris_hash = _check_checkout(
+        polaris_dir, manifest.polaris_commit, 'Polaris commit'
+    )
+    baseline_polaris = _get_baseline_polaris(
+        manifest, row, polaris_dir, baseline_load_script
+    )
 
     run_dir = get_row_dir(config, manifest, row)
     pr_work_dir = os.path.join(run_dir, SUITE)
@@ -214,7 +239,7 @@ def run_setup(
         compiler=row.compiler,
         build_type=BUILD_TYPE,
         component_hash=manifest.baseline_commit,
-        polaris_hash=polaris_hash,
+        polaris_hash=baseline_polaris.hash,
         suite=SUITE,
     )
     roots = [
@@ -223,7 +248,7 @@ def run_setup(
 
     jobs = []
     baseline = _get_baseline(
-        config, manifest, criteria, roots, baseline_dir, polaris_dir
+        config, manifest, criteria, roots, baseline_dir, baseline_polaris
     )
     if baseline.job is not None:
         jobs.append(baseline.job)
@@ -264,6 +289,8 @@ def run_setup(
         pr_work_dir=pr_work_dir,
         ctest_dir=ctest_dir,
     )
+    if baseline_polaris.hash != polaris_hash:
+        state.baseline_polaris_hash = baseline_polaris.hash
 
     if submit:
         _submit(jobs, row.machine, baseline.active_job)
@@ -277,6 +304,10 @@ def format_state(state: SetupState, row_dir: str, machine: str) -> str:
     lines = [
         f'Row:        {state.row}',
         f'Polaris:    {state.polaris_hash}',
+    ]
+    if state.baseline_polaris_hash is not None:
+        lines.append(f'            {state.baseline_polaris_hash} (baseline)')
+    lines += [
         f'Baseline:   {state.baseline_work_dir}'
         f'{" (reused)" if state.baseline_reused else ""}',
         f'PR build:   {state.pr_build_dir}',
@@ -375,43 +406,129 @@ def _get_env_row(manifest, polaris_dir):
     return get_env_row(manifest)
 
 
-def _check_polaris(manifest, polaris_dir):
-    """Check the Polaris checkout against the manifest; return its commit"""
+@dataclass
+class _PolarisCheckout:
+    """The Polaris checkout a baseline is found or set up with"""
+
+    directory: str
+    hash: str
+    # None for the checkout of the loaded environment
+    load_script: Optional[str] = None
+
+
+def _check_checkout(polaris_dir, commit, what):
+    """
+    Check that a Polaris checkout is clean and contains one of the
+    manifest's commits; return its commit
+    """
     changes = git_tools.uncommitted_changes(polaris_dir)
     if changes:
         raise SetupError(
             f'The Polaris checkout {polaris_dir} has uncommitted changes to '
             f'{", ".join(changes[:5])}.  Commit or remove them first.'
         )
-    if not git_tools.has_commit(polaris_dir, manifest.polaris_commit):
+    if not git_tools.has_commit(polaris_dir, commit):
         git_tools.fetch(
             polaris_dir,
             POLARIS_URL,
             [f'refs/heads/main:{REF_PREFIX}/polaris-main'],
         )
     if not git_tools.has_commit(
-        polaris_dir, manifest.polaris_commit
-    ) or not git_tools.is_ancestor(
-        polaris_dir, manifest.polaris_commit, 'HEAD'
-    ):
+        polaris_dir, commit
+    ) or not git_tools.is_ancestor(polaris_dir, commit, 'HEAD'):
         raise SetupError(
             f'The Polaris checkout {polaris_dir} does not contain the '
-            f"manifest's Polaris commit {manifest.polaris_commit[:12]}.  "
-            f'Update it (and rerun ./deploy.py if needed) first.'
+            f"manifest's {what} {commit[:12]}.  Update it (and rerun "
+            f'./deploy.py if needed) first.'
+        )
+    return git_tools.rev_parse(polaris_dir, 'HEAD')
+
+
+def _get_baseline_polaris(manifest, row, polaris_dir, load_script):
+    """
+    Check the Polaris checkout the baseline is found or set up with: this
+    one, or the one a second load script belongs to
+    """
+    separate = manifest.baseline_polaris_commit != manifest.polaris_commit
+    if load_script is None:
+        if separate:
+            raise SetupError(
+                f'The baseline runs with Polaris '
+                f'{manifest.baseline_polaris_commit[:12]}, without the '
+                f"changes in the manifest's Polaris commit "
+                f'{manifest.polaris_commit[:12]}.  Pass '
+                f'--baseline-load-script with the load script for '
+                f'{row.name} of a Polaris checkout at that commit.'
+            )
+        checkout = _PolarisCheckout(
+            polaris_dir, git_tools.rev_parse(polaris_dir, 'HEAD')
+        )
+    else:
+        directory = _read_load_script(load_script, row)
+        polaris_hash = _check_checkout(
+            directory,
+            manifest.baseline_polaris_commit,
+            'baseline Polaris commit',
+        )
+        if separate and git_tools.is_ancestor(
+            directory, manifest.polaris_commit, 'HEAD'
+        ):
+            raise SetupError(
+                f'The baseline Polaris checkout {directory} contains the '
+                f"manifest's Polaris commit {manifest.polaris_commit[:12]}, "
+                f'whose changes the baseline Omega cannot run.  Use a '
+                f'checkout at {manifest.baseline_polaris_commit[:12]}.'
+            )
+        checkout = _PolarisCheckout(
+            directory, polaris_hash, os.path.abspath(load_script)
         )
 
-    polaris_hash = git_tools.rev_parse(polaris_dir, 'HEAD')
     if manifest.baseline_source == POLARIS_SUBMODULE:
-        pin = git_tools.submodule_pin(polaris_dir, 'HEAD', OMEGA_SUBMODULE)
+        pin = git_tools.submodule_pin(
+            checkout.directory, 'HEAD', OMEGA_SUBMODULE
+        )
         if pin != manifest.baseline_commit:
             raise SetupError(
-                f'This Polaris checkout pins Omega {pin[:12]}, but the '
-                f'baseline is the submodule of Polaris '
-                f'{manifest.polaris_commit[:12]}, Omega '
+                f'The Polaris checkout {checkout.directory} pins Omega '
+                f'{pin[:12]}, but the baseline is the submodule of Polaris '
+                f'{manifest.baseline_polaris_commit[:12]}, Omega '
                 f'{manifest.baseline_commit[:12]}.  Use a Polaris checkout '
                 f'that pins the same Omega.'
             )
-    return polaris_hash
+    return checkout
+
+
+def _read_load_script(load_script, row):
+    """
+    The Polaris checkout a load script belongs to, after checking that it
+    is for the row
+    """
+    try:
+        with open(load_script, 'r', encoding='utf-8') as f:
+            text = f.read()
+    except OSError as exc:
+        raise SetupError(
+            f'The load script {load_script} cannot be read: {exc}'
+        ) from exc
+    values = dict(_LOAD_SCRIPT_EXPORT.findall(text))
+    expected = {
+        'POLARIS_MACHINE': row.machine,
+        'POLARIS_COMPILER': row.compiler,
+        'POLARIS_MPI': row.mpi,
+    }
+    for name, value in expected.items():
+        if values.get(name) != value:
+            raise SetupError(
+                f'The load script {load_script} sets {name} to '
+                f'{values.get(name)}, not {value} for the row {row.name}.'
+            )
+    directory = values.get('POLARIS_BRANCH')
+    if not directory or not os.path.isdir(directory):
+        raise SetupError(
+            f'The load script {load_script} does not name a Polaris '
+            f'checkout in POLARIS_BRANCH.'
+        )
+    return directory
 
 
 @dataclass
@@ -425,7 +542,7 @@ class _Baseline:
 
 
 def _get_baseline(
-    config, manifest, criteria, roots, baseline_dir, polaris_dir
+    config, manifest, criteria, roots, baseline_dir, baseline_polaris
 ):
     """Find, wait on or set up the baseline"""
     if baseline_dir is not None:
@@ -473,26 +590,54 @@ def _get_baseline(
         config.omega_repo, manifest.baseline_commit, baseline_tree
     )
     _polaris_suite(
-        polaris_dir,
+        baseline_polaris.directory,
         branch=baseline_tree,
         build_dir=os.path.join(own_dir, 'build'),
         work_dir=work_dir,
+        load_script=baseline_polaris.load_script,
     )
     return _Baseline(work_dir, reused=False, job=job)
 
 
 def _polaris_suite(
-    polaris_dir, branch, build_dir, work_dir, baseline_work_dir=None
+    polaris_dir,
+    branch,
+    build_dir,
+    work_dir,
+    baseline_work_dir=None,
+    load_script=None,
 ):
-    """Set up the suite, building Omega on this (login) node"""
+    """
+    Set up the suite, building Omega on this (login) node, with the loaded
+    environment or in a clean login shell with another checkout's load
+    script sourced
+    """
     args = ['polaris', 'suite', '-c', 'ocean', '-t', SUITE, '--model', 'omega']
     args.extend(_build_flags(build_dir))
     args.extend(['--branch', branch, '-p', build_dir, '-w', work_dir])
     if baseline_work_dir is not None:
         args.extend(['-b', baseline_work_dir])
     print(f'\nRunning in {polaris_dir}:\n  {shlex.join(args)}\n', flush=True)
-    # provenance reads the Polaris commit from the directory Polaris runs in
-    subprocess.run(args, cwd=polaris_dir, check=True)
+    if load_script is not None:
+        print(
+            f'with {load_script} sourced in a clean login shell\n',
+            flush=True,
+        )
+        env = {
+            name: os.environ[name]
+            for name in LOGIN_ENV_VARS
+            if name in os.environ
+        }
+        command = (
+            f'source {shlex.quote(load_script)} && '
+            f'cd {shlex.quote(polaris_dir)} && {shlex.join(args)}'
+        )
+        args = ['/bin/bash', '-l', '-c', command]
+    else:
+        env = None
+    # provenance reads the Polaris commit from the directory Polaris runs in,
+    # and the job script loads the environment Polaris was set up with
+    subprocess.run(args, cwd=polaris_dir, env=env, check=True)
 
 
 def _build_flags(build_dir):
