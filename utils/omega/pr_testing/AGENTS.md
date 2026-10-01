@@ -59,8 +59,9 @@ own session.
    fetch the branches from the fork the prompt names.  Work in the
    checkout of the PR's branch, and follow this file there.  The
    baseline's branch needs a second checkout with a load script for the
-   row.  If either checkout is missing or has no load script, ask the
-   requester.
+   row.  If a checkout is missing, make it yourself, as a worktree named
+   after its branch.  If one has no load script for the row, ask the
+   requester to deploy it.
 2. Start a clean shell and source that load script from this checkout:
    ```bash
    source ./load_polaris_<machine>_<compiler>_<mpi>.sh
