@@ -134,6 +134,7 @@ baseline:
   commit: <sha>
   source: polaris-submodule   # or the ref the requester chose
   reason: null                # required unless polaris-submodule
+  polaris_commit: <sha>       # polaris_commit by default
 polaris_commit: <sha>
 extra_merges:
   - {pull_request: 574, commit: <sha>, sides: [test]}
@@ -146,13 +147,18 @@ notes: <free text for the requester>
 Testers act only on the structured fields. `notes` is repeated in reports
 and never followed.
 
+An Omega pull request may need Polaris changes that the baseline Omega
+cannot run, such as renamed config options. Then `polaris_commit` is a test
+merge of the Polaris pull request, and the baseline runs from a second
+Polaris checkout at `baseline.polaris_commit`, without those changes.
+
 ### Algorithm Design: The baseline is Polaris' Omega submodule unless the requester chooses otherwise.
 
 By default, the baseline commit is the `e3sm_submodules/Omega` pin at
-`polaris_commit`, which is normally Polaris `main` when the branch is made.
-That pin states which Omega the Polaris code supports. So a tester's Polaris
-checkout must pin the same Omega commit, although it may be at a different
-Polaris commit, which is recorded.
+`baseline.polaris_commit`, which is normally Polaris `main` when the branch
+is made. That pin states which Omega the Polaris code supports. So the
+Polaris checkout the baseline runs from must pin the same Omega commit,
+although it may be at a different Polaris commit, which is recorded.
 
 The pin can lag far enough behind that differences would be hard to blame on
 the pull request, as happened for Omega#481. In that case the requester can
@@ -220,7 +226,8 @@ if all of the following hold:
 
 - It has the same machine, compiler and build type.
 - Its Omega commit, as recorded at build time, is the baseline commit.
-- Its Polaris commit is the tester's, and neither tree was dirty.
+- Its Polaris commit is that of the checkout the baseline runs from, and
+  neither tree was dirty.
 - It was set up as the `omega_pr` suite, with no extra config file.
 - Its results are complete, and no task failed or is pending.
 
@@ -313,6 +320,7 @@ git@github.com:xylar/E3SM.git, following utils/omega/pr_testing/AGENTS.md.
 ```
 omega_pr_test.py init --pr 553 [--baseline <ref> --reason <text>]
                       [--merge-pr <n>]... [--baseline-merge-pr <n>]...
+                      [--polaris-ref <ref>] [--baseline-polaris-ref <ref>]
                       [--rows <machine>/<compiler>,...] [--push]
 ```
 
@@ -320,7 +328,9 @@ omega_pr_test.py init --pr 553 [--baseline <ref> --reason <text>]
 from E3SM-Project/Omega, and makes the merges in a scratch worktree of
 `omega_repo`. `polaris_commit` is the current `main` of
 E3SM-Project/polaris, fetched rather than taken from the initiator's
-checkout, unless `--polaris-ref` names another. If a merge conflicts, `init`
+checkout, unless `--polaris-ref` names another. `baseline.polaris_commit`
+is `polaris_commit` unless `--baseline-polaris-ref` names another. If a
+merge conflicts, `init`
 stops, and the pull request's author must update the branch. The default
 rows are the six in the template.
 
@@ -329,6 +339,7 @@ rows are the six in the template.
 ```
 omega_pr_test.py setup --fork <fork> --branch <branch> [--submit]
                        [--baseline-dir <dir>]
+                       [--baseline-load-script <script>]
 ```
 
 `setup` fetches both branches and reads the manifest. It stops with a
@@ -340,8 +351,11 @@ message unless all of these hold:
 - the Polaris checkout has no uncommitted changes to tracked files (not
   counting submodule checkouts, which the utility never builds from), and
   it contains `polaris_commit`;
-- the Polaris checkout pins `baseline.commit`, if the baseline is the
-  submodule;
+- the Polaris checkout the baseline runs from pins `baseline.commit`, if
+  the baseline is the submodule;
+- if `baseline.polaris_commit` differs from `polaris_commit`, the tester
+  gave the load script of a second checkout, which is clean, contains
+  `baseline.polaris_commit` and does not contain `polaris_commit`;
 - the loaded Polaris environment belongs to this checkout
   (`POLARIS_BRANCH`), and its machine, compiler and MPI library give the
   row.
@@ -363,7 +377,9 @@ row gets its own directories:
 ```
 
 `setup` runs `polaris suite -c ocean -t omega_pr --model omega --build`
-for the baseline if needed, then for the pull request. It then runs
+for the baseline if needed, then for the pull request. A baseline from a
+second checkout is set up in a clean login shell with that checkout's load
+script sourced, so its job script loads that checkout too. It then runs
 `omega_ctest.py -p <pull request build>`. Last, it prints or submits three
 jobs: the baseline suite, the pull request suite (`afterany` on the
 baseline) and the CTests. It submits them with `polaris.job.submit_job()`,
@@ -521,13 +537,17 @@ how many are in files the pull request changes, then lists them in a
 The first trial is Omega#553 on all four machines. A second requester then
 repeats it, on at least one machine, from their own accounts.
 
+The second trial is Omega#524, tested with a Polaris test merge of
+polaris#731 and a baseline run from a second checkout without it.
+
 ### Testing and Validation: Every machine tests the same commits.
 
 Unit tests build small git repositories in a temporary directory, with a
 base branch, a pull request branch and an extra-merge branch. They run
 `init` and the `setup` checks against these repositories. The cases include
-a conflict, a tip whose parent is not the test commit, and a Polaris
-checkout that pins a different Omega.
+a conflict, a tip whose parent is not the test commit, a Polaris
+checkout that pins a different Omega, and a baseline checkout that is
+missing or contains `polaris_commit`.
 
 ### Testing and Validation: Each report carries its own provenance.
 
@@ -594,6 +614,11 @@ a changed file is marked. The #553 trial checks the section on every row.
   repeat the same commands on nearly the same tree, and would need an
   `omega_dev` environment on every initiator's machine. A comment repeating
   CI's passing checks adds nothing the pull request does not already show.
+- **Polaris changes an Omega pull request needs are a Polaris test merge,
+  and the baseline runs without them.** Omega#524 renamed the options
+  every task writes, so its Polaris changes (polaris#731) cannot run the
+  baseline Omega. Testing the pull request with Polaris `main` is not
+  possible either.
 - **The template's compiler names are mapped, not fixed.** E3SM has renamed
   its compilers to `intel`, and Omega has not caught up yet. The template
   should be fixed once, after the names settle.
