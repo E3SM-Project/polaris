@@ -372,7 +372,10 @@ message unless all of these hold:
   row.
 
 Omega worktrees are made from `omega_repo` at `<work_base>/omega/<sha12>`.
-They are keyed by commit, so baselines and pull requests share them. Each
+They are keyed by commit, so baselines and pull requests share them.
+`setup` makes each one and initializes the submodules its build needs
+once, under a lock, so that rows set up at the same time never update one
+tree's submodules at once. Each
 row gets its own directories:
 
 ```
