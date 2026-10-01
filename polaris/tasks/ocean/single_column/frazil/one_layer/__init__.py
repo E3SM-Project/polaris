@@ -4,7 +4,7 @@ from polaris.tasks.ocean.single_column.conservation_summary import (
 )
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.frazil.init import FrazilInit
-from polaris.tasks.ocean.single_column.frazil.top_layer.viz import TopLayerViz
+from polaris.tasks.ocean.single_column.frazil.one_layer.viz import OneLayerViz
 
 TIME_INTEGRATORS = (
     'RK4',
@@ -14,18 +14,22 @@ TIME_INTEGRATORS = (
 )
 
 
-class FrazilTopLayer(Task):
+class FrazilOneLayer(Task):
     """
-    A three-layer single-column frazil test initialized at the local freezing
+    A single-layer single-column frazil test initialized at the local freezing
     point. All tendencies are disabled except surface tracer forcing and
     frazil. The change in top-layer heat content is set entirely by the applied
-    surface heat flux and by frazil formation.  Omega runs each of its five
-    time integrators with both frazil algorithms (``'FixedProperty'`` and
+    surface heat flux and by frazil formation.  Omega runs each of its time
+    integrators with both frazil algorithms (``'FixedProperty'`` and
     ``'teos'``).  MPAS-Ocean retains only RK4 with ``'FixedProperty'``.
     """
 
     def __init__(
-        self, component, subdir, name='freezing_topLayer', variant_cfg=None
+        self,
+        component,
+        subdir,
+        name='freezing_1layer_baseline',
+        variant_cfg=None,
     ):
         """
         Create the test case
@@ -53,12 +57,12 @@ class FrazilTopLayer(Task):
             'polaris.tasks.ocean.single_column.frazil', 'frazil.cfg'
         )
         self.config.add_from_package(
-            'polaris.tasks.ocean.single_column.frazil.top_layer',
-            'top_layer.cfg',
+            'polaris.tasks.ocean.single_column.frazil.one_layer',
+            'one_layer.cfg',
         )
         if variant_cfg is not None:
             self.config.add_from_package(
-                'polaris.tasks.ocean.single_column.frazil.top_layer',
+                'polaris.tasks.ocean.single_column.frazil.one_layer',
                 variant_cfg,
             )
         init_step = FrazilInit(
@@ -97,9 +101,9 @@ class FrazilTopLayer(Task):
                     min_tasks=1,
                     openmp_threads=1,
                     validate_vars=validate_vars,
-                    task_name='frazil_top_layer',
+                    task_name='frazil_one_layer',
                     task_package=(
-                        'polaris.tasks.ocean.single_column.frazil.top_layer'
+                        'polaris.tasks.ocean.single_column.frazil.one_layer'
                     ),
                     frazil_type=frazil_type,
                     run_duration_steps=run_duration_steps,
@@ -121,7 +125,7 @@ class FrazilTopLayer(Task):
             frazil_diagnostics=True,
         )
         self.add_step(self.conservation_summary)
-        self.viz = TopLayerViz(
+        self.viz = OneLayerViz(
             component=component,
             indir=subdir,
             init=init_step,

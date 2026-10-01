@@ -5,7 +5,7 @@ import numpy as np
 
 from polaris.constants import get_constant
 from polaris.ocean.model import OceanIOStep, get_days_since_start
-from polaris.tasks.ocean.single_column.frazil.top_layer.viz import (
+from polaris.tasks.ocean.single_column.frazil.one_layer.viz import (
     FRAZIL_RATE_UNITS,
     _comparison_style,
     _diagnostics,
