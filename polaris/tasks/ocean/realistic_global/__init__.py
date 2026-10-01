@@ -1,8 +1,14 @@
 from polaris.tasks.ocean.realistic_global.analysis_members import (
     AnalysisMembers as AnalysisMembers,
 )
+from polaris.tasks.ocean.realistic_global.forcing.jra55 import (
+    Jra55 as Jra55,
+)
 from polaris.tasks.ocean.realistic_global.hydrography.woa23 import (
     Woa23 as Woa23,
+)
+from polaris.tasks.ocean.realistic_global.init.tasks import (
+    add_realistic_global_init_tasks,
 )
 
 
@@ -16,6 +22,8 @@ def add_realistic_global_tasks(component):
         The ocean component to which the tasks will be added.
     """
     component.add_task(Woa23(component=component))
+    component.add_task(Jra55(component=component))
+    add_realistic_global_init_tasks(component=component)
 
     mesh_dict = {
         'QU.240km': dict(mpaso_id=151209, omega_id=260807, ncells=7153),
