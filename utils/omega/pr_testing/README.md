@@ -13,14 +13,18 @@ is in `docs/design_docs/omega_pr_testing.md`.
    the result to the requester's fork as a test branch, with a manifest
    that pins the test and baseline commits and the rows to test.  The
    baseline is the Omega commit that Polaris `main` pins, unless another is
-   given with a reason.
+   given with a reason.  If the PR needs Polaris changes that the baseline
+   Omega cannot run, `--polaris-ref` names a Polaris test merge for the PR
+   and `--baseline-polaris-ref` the Polaris commit for the baseline.
 2. **`lint`** (the initiator) checks pre-commit and the docs build.  When
    Omega's CI has passed on the PR head, there is nothing to post, since
    the PR's checks show it.  Otherwise it runs them, and `--post` posts the
    result.
 3. **`setup`** (each machine) checks the Polaris checkout against the
    manifest, reuses a matching baseline run if it finds one, and otherwise
-   builds and sets one up.  It then builds and sets up the PR suite, and
+   builds and sets one up.  A baseline with its own Polaris commit is found
+   or set up from a second checkout, given by its load script with
+   `--baseline-load-script`.  It then builds and sets up the PR suite, and
    prepares the CTests.  It prints the three jobs, or submits them with
    `--submit`.
 4. **`report`** (each machine) writes the row's comment: a generated
@@ -33,6 +37,8 @@ is in `docs/design_docs/omega_pr_testing.md`.
 ## Setup on each machine
 
 - A Polaris checkout with a load script for the compiler (`./deploy.py`).
+  A PR that needs Polaris changes needs a second one at the baseline's
+  Polaris commit.
 - A clone of E3SM-Project/Omega.
 - `~/.config/omega_pr_test.cfg`, copied from [example.cfg](example.cfg).
 - `gh`, logged in, for `init`, `lint`, `status` and `--post`.

@@ -58,6 +58,10 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    build without an unmerged fix, the requester may ask for
    `--merge-pr <number>` (or `--baseline-merge-pr`).  If the PR does not
    merge cleanly, stop and tell the requester.
+   If the PR needs Polaris changes too, the requester gives you a Polaris
+   test merge for the PR and a Polaris commit for the baseline.  Fetch both
+   into this checkout and add
+   `--polaris-ref <test merge> --baseline-polaris-ref <commit>`.
 2. Show the requester the summary.  With permission, run the push command
    that `init` printed.
 3. Check linting and the docs:
@@ -87,6 +91,10 @@ can be submitted the moment it is set up.
    checkout is clean, contains the manifest's Polaris commit and pins the
    same Omega; if not, stop and tell the requester.  It chains the PR suite
    after the baseline.
+   If your prompt says the baseline runs from a second Polaris checkout,
+   ask the requester for that checkout's load script for your row, and add
+   `--baseline-load-script <script>`.  Do not source it yourself; `setup`
+   sources it in a clean shell for the baseline.
 2. If you have more than one row on this machine, set up each one in its
    own shell with that row's load script sourced.  The rows' `setup`s may
    run at the same time.  Do not wait for the first row's jobs.
