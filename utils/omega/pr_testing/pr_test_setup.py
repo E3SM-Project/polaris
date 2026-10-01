@@ -9,8 +9,10 @@ import os
 import re
 import shlex
 import subprocess
+import time
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, Iterator, List, Optional
 
 import pr_test_git as git_tools
 import pr_test_report as report
@@ -67,6 +69,19 @@ SERIAL_SUBMISSION = {'aurora'}
 #: the variables a clean login shell keeps, for setting up a baseline from
 #: another Polaris checkout
 LOGIN_ENV_VARS = ['HOME', 'USER', 'LOGNAME', 'TERM']
+
+#: the submodules polaris/build/build_omega.template initializes before it
+#: builds.  setup initializes them once per Omega worktree first, so that
+#: rows set up at the same time never update one tree's submodules at once.
+OMEGA_SUBMODULES = [
+    'externals/ekat',
+    'externals/scorpio',
+    'components/omega/external',
+    'cime',
+]
+
+#: how long setup waits for another setup to prepare an Omega worktree
+TREE_LOCK_TIMEOUT = 3600
 
 _LOAD_SCRIPT_EXPORT = re.compile(
     r'^export (POLARIS_[A-Z]+)="([^"]*)"$', re.MULTILINE
@@ -232,7 +247,7 @@ def run_setup(
 
     omega_dir = os.path.join(config.work_base, 'omega')
     test_tree = os.path.join(omega_dir, manifest.test_commit[:12])
-    git_tools.add_worktree(config.omega_repo, manifest.test_commit, test_tree)
+    prepare_tree(config.omega_repo, manifest.test_commit, test_tree)
 
     criteria = BaselineCriteria(
         machine=row.machine,
@@ -369,6 +384,37 @@ def read_state(row_dir: str) -> SetupState:
         ) from exc
 
 
+def prepare_tree(repo: str, sha: str, tree: str) -> None:
+    """
+    Make an Omega worktree and initialize the submodules its build needs,
+    once, even when several setups need the tree at the same time
+
+    Parameters
+    ----------
+    repo : str
+        The Omega clone to make the worktree from
+
+    sha : str
+        The commit to check out
+
+    tree : str
+        The path of the worktree
+    """
+    ready = f'{tree}.ready'
+    if not os.path.exists(ready):
+        with _tree_lock(tree):
+            if not os.path.exists(ready):
+                git_tools.add_worktree(repo, sha, tree)
+                git_tools.git(
+                    ['submodule', 'update', '--init', '--recursive', '--']
+                    + OMEGA_SUBMODULES,
+                    tree,
+                )
+                with open(ready, 'w') as f:
+                    f.write(f'{sha}\n')
+    git_tools.add_worktree(repo, sha, tree)
+
+
 def get_row_dir(config: PrTestConfig, manifest: Manifest, row: Row) -> str:
     """The directory a row's runs go in"""
     return os.path.join(
@@ -404,6 +450,40 @@ def _get_env_row(manifest, polaris_dir):
             f'script of this checkout.'
         )
     return get_env_row(manifest)
+
+
+@contextmanager
+def _tree_lock(tree: str) -> Iterator[None]:
+    """
+    Hold a lock on an Omega worktree, made with mkdir, which is atomic on
+    the shared file systems where flock may not work
+    """
+    lock = f'{tree}.lock'
+    os.makedirs(os.path.dirname(lock), exist_ok=True)
+    start = time.monotonic()
+    waiting = False
+    while True:
+        try:
+            os.mkdir(lock)
+            break
+        except FileExistsError:
+            if time.monotonic() - start > TREE_LOCK_TIMEOUT:
+                raise SetupError(
+                    f'Another setup has been preparing {tree} for more than '
+                    f'{TREE_LOCK_TIMEOUT // 60} minutes.  If none is '
+                    f'running, remove {lock} and run setup again.'
+                ) from None
+            if not waiting:
+                print(
+                    f'Waiting for another setup to prepare {tree}',
+                    flush=True,
+                )
+                waiting = True
+            time.sleep(10)
+    try:
+        yield
+    finally:
+        os.rmdir(lock)
 
 
 @dataclass
@@ -586,9 +666,7 @@ def _get_baseline(
     baseline_tree = os.path.join(
         config.work_base, 'omega', manifest.baseline_commit[:12]
     )
-    git_tools.add_worktree(
-        config.omega_repo, manifest.baseline_commit, baseline_tree
-    )
+    prepare_tree(config.omega_repo, manifest.baseline_commit, baseline_tree)
     _polaris_suite(
         baseline_polaris.directory,
         branch=baseline_tree,

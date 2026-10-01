@@ -288,6 +288,50 @@ def test_polaris_suite_in_clean_login_shell(tmp_path, monkeypatch):
     assert pr_env is None
 
 
+def test_prepare_tree_once(tester, monkeypatch):
+    fixture, manifest, _ = tester
+    tree = Path(fixture.config.work_base) / 'omega' / 'tree'
+    calls = []
+    git = pr_test_setup.git_tools.git
+
+    def counting_git(args, cwd):
+        calls.append(args[0])
+        return git(args, cwd)
+
+    monkeypatch.setattr(pr_test_setup.git_tools, 'git', counting_git)
+
+    for _ in range(2):
+        pr_test_setup.prepare_tree(
+            fixture.config.omega_repo, manifest.baseline_commit, str(tree)
+        )
+
+    # the submodules are initialized once, and the lock is released
+    assert calls.count('submodule') == 1
+    assert Path(f'{tree}.ready').exists()
+    assert not Path(f'{tree}.lock').exists()
+
+
+def test_tree_lock_held_by_another_setup(tmp_path, monkeypatch):
+    tree = tmp_path / 'omega' / 'tree'
+    Path(f'{tree}.lock').mkdir(parents=True)
+    monkeypatch.setattr(pr_test_setup, 'TREE_LOCK_TIMEOUT', 0)
+    monkeypatch.setattr(pr_test_setup.time, 'sleep', lambda seconds: None)
+
+    with pytest.raises(pr_test_setup.SetupError, match='remove'):
+        pr_test_setup.prepare_tree('/no/repo', 'a' * 40, str(tree))
+
+
+def test_submodules_match_build_template():
+    template = (
+        Path(__file__).resolve().parents[2]
+        / 'polaris'
+        / 'build'
+        / 'build_omega.template'
+    ).read_text()
+    for path in pr_test_setup.OMEGA_SUBMODULES:
+        assert path in template
+
+
 def test_setup_dirty_polaris(tester):
     fixture, manifest, _ = tester
     commit(fixture.polaris_dir, 'README.md', 'Polaris\n', 'Add a README')
