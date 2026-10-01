@@ -89,6 +89,9 @@ mpas-ocean:
 Omega:
   Frazil:
     ConservationCheck: false
+  State:
+    Validation:
+      AbortOnOOB: false
   Tendencies:
     ThicknessFluxTendencyEnable: false
     PVTendencyEnable: false

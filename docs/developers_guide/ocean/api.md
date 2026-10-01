@@ -339,11 +339,17 @@
    frazil.init.FrazilInit
    frazil.init.FrazilInit._compute_temperature_salinity
 
-   frazil.top_layer.FrazilTopLayer
-   frazil.top_layer.FrazilTopLayer.configure
+   frazil.one_layer.FrazilOneLayer
+   frazil.one_layer.FrazilOneLayer.configure
 
-   frazil.top_layer.viz.TopLayerViz
-   frazil.top_layer.viz.TopLayerViz.run
+   frazil.one_layer.viz.OneLayerViz
+   frazil.one_layer.viz.OneLayerViz.run
+
+   frazil.melting_short.FrazilMeltingShort
+   frazil.melting_short.FrazilMeltingShort.configure
+
+   frazil.melting_short.viz.MeltingShortViz
+   frazil.melting_short.viz.MeltingShortViz.run
 
    forward.Forward
    forward.Forward.dynamic_model_config

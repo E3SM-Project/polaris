@@ -7,8 +7,8 @@ from polaris.tasks.ocean.single_column.frazil.init import (
 from polaris.tasks.ocean.single_column.frazil.melting_short import (
     FrazilMeltingShort as FrazilMeltingShort,
 )
-from polaris.tasks.ocean.single_column.frazil.top_layer import (
-    FrazilTopLayer as FrazilTopLayer,
+from polaris.tasks.ocean.single_column.frazil.one_layer import (
+    FrazilOneLayer as FrazilOneLayer,
 )
 from polaris.tasks.ocean.single_column.ideal_age import IdealAge as IdealAge
 from polaris.tasks.ocean.single_column.inertial import Inertial as Inertial
@@ -193,13 +193,13 @@ def add_single_column_tasks(component):
         )
 
     for name, variant_cfg in (
-        ('freezing_topLayer', None),
-        ('freezing_topLayer_flux', 'flux.cfg'),
-        ('freezing_topLayer_salinity', 'salinity.cfg'),
-        ('freezing_topLayer_thin', 'thin.cfg'),
+        ('freezing_1layer_baseline', None),
+        ('freezing_1layer_cold', 'cold.cfg'),
+        ('freezing_1layer_fresh', 'fresh.cfg'),
+        ('freezing_1layer_thin', 'thin.cfg'),
     ):
         component.add_task(
-            FrazilTopLayer(
+            FrazilOneLayer(
                 component=component,
                 subdir=f'column/frazil/{name}',
                 name=name,
@@ -207,7 +207,7 @@ def add_single_column_tasks(component):
             )
         )
 
-    for name in ('warm', 'cold'):
+    for name in ('warm', 'cold', 'melt0.1h'):
         component.add_task(
             FrazilMeltingShort(
                 component=component,
