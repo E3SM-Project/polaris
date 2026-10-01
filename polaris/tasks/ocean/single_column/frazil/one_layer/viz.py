@@ -16,10 +16,10 @@ FRAZIL_RATE_UNITS = {
 }
 
 
-class TopLayerViz(OceanIOStep):
+class OneLayerViz(OceanIOStep):
     """
     A step for plotting the heat content of the top layer as a function of
-    time for each of the frazil top-layer forward runs
+    time for each of the frazil one-layer forward runs
 
     Attributes
     ----------
