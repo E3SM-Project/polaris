@@ -506,7 +506,7 @@ All config options shown in {ref}`ocean-single-column` are also used.
 
 See {ref}`ocean-single-column`.
 
-## frazil
+## frazil column
 
 ### description
 
@@ -601,27 +601,27 @@ See {ref}`ocean-single-column` and the frazil-specific options in the
 
 See {ref}`ocean-single-column`.
 
-## frazil top layer
+## frazil one layer freezing
 
 ### description
 
-The `frazil/freezing_topLayer` task isolates the interaction between the
-surface heat flux and frazil formation in a single, thick surface layer. The
-column is initialized exactly at the local freezing point and every tendency is
-disabled except the surface tracer forcing and the frazil tendency, so the heat
-content of the top layer evolves only in response to the applied surface heat
-flux and to frazil growth. Omega runs both frazil algorithms (`FixedProperty`
-and `teos`) with each of its four time integrators: `RungeKutta2`,
-`RungeKutta4`, `SplitExplicitRK2` and `UnsplitRK2`. MPAS-Ocean retains only the
-`RK4`/`FixedProperty` run.
+The `frazil/freezing_1layer_baseline` task isolates the interaction between
+the surface heat flux and frazil formation in a single, thick surface layer.
+The column is initialized exactly at the local freezing point and every
+tendency is disabled except the surface tracer forcing and the frazil
+tendency, so the heat content of the layer evolves only in response to the
+applied surface heat flux and to frazil growth. Omega runs both frazil
+algorithms (`FixedProperty` and `teos`) with each of its four time
+integrators: `RungeKutta2`, `RungeKutta4`, `SplitExplicitRK2` and
+`UnsplitRK2`. MPAS-Ocean retains only the `RK4`/`FixedProperty` run.
 
-Three additional tasks each change one property of `freezing_topLayer`:
+Three additional tasks modify the baseline:
 
 | Task | Change from baseline |
 | --- | --- |
-| `frazil/freezing_topLayer_flux` | Surface latent heat flux of -2000 W/m$^2$ instead of -50 W/m$^2$ |
-| `frazil/freezing_topLayer_salinity` | Uniform initial salinity of 2.0 PSU instead of the baseline depth-dependent profile |
-| `frazil/freezing_topLayer_thin` | Three 0.5 m geometric layers instead of three 10 m layers |
+| `frazil/freezing_1layer_cold` | Surface latent heat flux of -3000 W/m$^2$ instead of -50 W/m$^2$ |
+| `frazil/freezing_1layer_fresh` | Uniform initial salinity of 2.0 PSU instead of the baseline depth-dependent profile |
+| `frazil/freezing_1layer_thin` | A 0.5 m layer with a -3000 W/m$^2$ cooling flux (intended to hit the 0.1h mass limiter) |
 
 Each task has its own initial condition and forcing file, and runs the same
 time-integrator and frazil-algorithm combinations.
@@ -632,21 +632,21 @@ See {ref}`ocean-single-column`.
 
 ### vertical grid
 
-The baseline, flux and salinity tasks have three uniform 10 m layers:
+The baseline, cold and fresh tasks have a single uniform 10 m layer:
 
 ```cfg
 [vertical_grid]
 
 # Number of vertical levels
-vert_levels = 3
+vert_levels = 1
 
-# Depth of the bottom of the ocean, giving three 10 m layers
-bottom_depth = 30.0
+# Depth of the bottom of the ocean, giving a single 10 m layer
+bottom_depth = 10.0
 ```
 
-The thin task sets `bottom_depth = 1.5` m while retaining three uniform
-levels. Omega's initial pseudo-thickness can differ from 0.5 m because it is
-computed from pressure and the equation of state.
+The thin task sets `bottom_depth = 0.5` m while retaining one level. Omega's
+initial pseudo-thickness can differ from 0.5 m because it is computed from
+pressure and the equation of state.
 
 ### initial conditions
 
@@ -655,14 +655,14 @@ Salinity uses the same linear profile as the `frazil` task, set by
 Temperature is set to the local freezing point computed from the equation of
 state at each layer, rather than to the uniform `temperature_freezing` value,
 so that frazil begins forming as soon as the surface cooling is applied.
-The salinity task sets `salinity_surface = 2.0` PSU and `dsdz = 0.0` PSU/m,
-then computes the freezing temperature separately at each layer's pressure.
+The fresh task sets `salinity_surface = 2.0` PSU and `dsdz = 0.0` PSU/m,
+then computes the freezing temperature at the layer's pressure.
 
 ### forcing
 
 The surface latent heat flux is inherited from the `frazil` task, as described
-in [frazil](#frazil) above. The flux task overrides
-`latent_heat_flux_freezing` to -2000 W/m$^2$.
+in [frazil](#frazil) above. The cold and thin tasks both override
+`latent_heat_flux_freezing` to -3000 W/m$^2$.
 
 ### time step and run duration
 
@@ -691,8 +691,9 @@ See {ref}`ocean-single-column`.
 
 ### description
 
-The `frazil/melting_short/warm` and `frazil/melting_short/cold` tasks isolate
-frazil melting in a short, two-layer run. A top layer sits above a
+The `frazil/melting_short/warm`, `frazil/melting_short/cold` and
+`frazil/melting_short/melt0.1h` tasks isolate frazil melting in a short,
+two-layer run. A top layer sits above a
 supercooled bottom layer, no surface forcing is applied, and every tendency is
 disabled except frazil, so the evolution of both layers is driven entirely by
 frazil formation and melting. Omega runs both frazil algorithms
@@ -700,13 +701,14 @@ frazil formation and melting. Omega runs both frazil algorithms
 `RungeKutta2`, `RungeKutta4`, `SplitExplicitRK2` and `UnsplitRK2`. MPAS-Ocean
 retains only the `RK4`/`FixedProperty` run.
 
-The two tasks differ only in their initial temperature, and each has its own
-initial condition:
+The tasks differ in their initial temperature and, for `melt0.1h`, in their
+vertical grid; each has its own initial condition:
 
 | Task | Change from `melting_short.cfg` |
 | --- | --- |
-| `frazil/melting_short/warm` | `warm.cfg` sets the top-layer temperature and bottom-layer supercooling for the warm variant |
-| `frazil/melting_short/cold` | `cold.cfg` sets the same two options for the cold variant |
+| `frazil/melting_short/warm` | `warm.cfg` sets the top-layer temperature and bottom-layer supercooling so that all the frazil formed is melted |
+| `frazil/melting_short/cold` | `cold.cfg` sets the same two options so that there is more frazil formed than melted |
+| `frazil/melting_short/melt0.1h` | `melt0.1h.cfg` sets a thin melting layer over a 10x thicker supercooled layer, sized so that the frazil melt mass limiter (`MassLimit`) binds while frazil formation stays below its own limit |
 
 ### mesh
 
@@ -714,7 +716,7 @@ See {ref}`ocean-single-column`.
 
 ### vertical grid
 
-The tasks have two uniform 1 m layers:
+The warm and cold tasks have two uniform 1 m layers:
 
 ```cfg
 [vertical_grid]
@@ -725,6 +727,10 @@ vert_levels = 2
 # Depth of the bottom of the ocean, giving two 1 m layers
 bottom_depth = 2.0
 ```
+
+The `melt0.1h` task instead uses `grid_type = tanh_dz` with
+`bottom_depth = 11.0` m and `min_layer_thickness = 1.0` m, which for two
+levels gives a 1 m top layer over a 10 m bottom layer.
 
 ### initial conditions
 
