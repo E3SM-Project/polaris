@@ -520,6 +520,22 @@
    stats_analysis.StatsAnalysis.run
 ```
 
+### realistic_global.analysis_test
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_test
+
+.. autosummary::
+   :toctree: generated/
+
+   add_realistic_global_analysis_test_tasks
+
+   RealisticGlobalAnalysisTest
+
+   forward.Forward
+   forward.Forward.setup
+```
+
 ### realistic_global.hydrography.woa23
 
 ```{eval-rst}

@@ -21,7 +21,7 @@ class Forward(OceanModelStep):
         indir=None,
         subdir=None,
         update_eos=False,
-        output_filename='output.nc',
+        output_filenames=None,
         ntasks=None,
         min_tasks=None,
         options=None,
@@ -43,7 +43,12 @@ class Forward(OceanModelStep):
         subdir : str
             The subdirectory for the step
 
+        output_filenames : list of str, optional
+            The files the run writes, relative to the step's work directory,
+            each declared as an output; ``output.nc`` by default
         """
+        if output_filenames is None:
+            output_filenames = ['output.nc']
         super().__init__(
             component=component,
             name=name,
@@ -61,6 +66,9 @@ class Forward(OceanModelStep):
         self.ncells = ncells
         self.replacements = replacements
         self.package = package
+        # the directories Omega's streams write into, which Omega does not
+        # create itself; a subclass whose streams write elsewhere adds to it
+        self.stream_dirs = ['restart']
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
 
@@ -71,11 +79,12 @@ class Forward(OceanModelStep):
                 )
 
         # TODO replace validate_vars with all model-specific state vars
-        self.add_output_file(
-            filename=output_filename,
-            validate_vars=validate_vars,
-            check_properties=check_properties,
-        )
+        for output_filename in output_filenames:
+            self.add_output_file(
+                filename=output_filename,
+                validate_vars=validate_vars,
+                check_properties=check_properties,
+            )
 
     def setup(self):
         """
@@ -126,28 +135,30 @@ class Forward(OceanModelStep):
             yaml='forward.yaml',
             template_replacements=self.replacements,
         )
-        self._make_restart_dir()
+        self._make_stream_dirs()
 
     def runtime_setup(self):
         """
-        Make sure the restart directory exists before the model runs
+        Make sure the stream directories exist before the model runs
         """
         super().runtime_setup()
-        self._make_restart_dir()
+        self._make_stream_dirs()
 
-    def _make_restart_dir(self):
+    def _make_stream_dirs(self):
         """
-        Create the directory Omega's ``RestartWrite`` stream writes into.
+        Create the directories Omega's streams write into, ``restart`` for
+        the ``RestartWrite`` stream unless a subclass adds more.
 
-        Omega does not create it, so without this the restart write fails at
-        the end of the run and the run cannot be continued.  MPAS-Ocean needs
-        no equivalent: the MPAS framework creates stream directories itself
-        (``xml_stream_parser.c``).  The path matches ``IOStreams:
-        RestartWrite: Filename`` in ``forward.yaml``.
+        Omega does not create them, so without this the restart write fails
+        at the end of the run and the run cannot be continued.  MPAS-Ocean
+        needs no equivalent: the MPAS framework creates stream directories
+        itself (``xml_stream_parser.c``).  The paths match the ``Filename``
+        of each stream under ``IOStreams`` in the step's yaml files.
         """
         if self.config.get('ocean', 'model') != 'omega':
             return
-        os.makedirs(os.path.join(self.work_dir, 'restart'), exist_ok=True)
+        for dirname in self.stream_dirs:
+            os.makedirs(os.path.join(self.work_dir, dirname), exist_ok=True)
 
     def compute_cell_count(self):
         """
