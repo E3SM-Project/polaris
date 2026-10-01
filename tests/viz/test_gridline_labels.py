@@ -1,12 +1,13 @@
 """
 Unit tests for the room a spherical plot leaves around its map.
 
-Cartopy draws gridline labels outside the axes, and a ``GeoAxes`` reports a
-non-finite tight bounding box, so the layout engine reserves no room for them
-and they are drawn off the canvas: the outermost longitude label is cut in
-half and every latitude label is lost entirely.  These check that the axes
-report a finite bounding box, that every label lands inside the figure, and
-that the title clears the map rather than being drawn over it.
+Cartopy draws gridline labels outside the axes, so the layout engine only
+reserves room for them if the axes report a finite tight bounding box.  Before
+cartopy 0.26, a ``GeoAxes`` reported a non-finite one and the labels were
+drawn off the canvas: the outermost longitude label was cut in half and every
+latitude label was lost entirely.  These check that the axes report a finite
+bounding box, that every label lands inside the figure, and that the title
+clears the map rather than being drawn over it.
 
 They run in the Polaris style, since that is what sets the figure size and
 label size the plots are actually drawn with.
@@ -18,11 +19,7 @@ import pytest
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 
-from polaris.viz.helper import (
-    add_fitted_suptitle,
-    get_projection,
-    make_room_for_gridline_labels,
-)
+from polaris.viz.helper import add_fitted_suptitle, get_projection
 from polaris.viz.style import mplstyle_context
 
 # a rectangular projection, one with a curved boundary, an interrupted one and
@@ -35,9 +32,7 @@ PROJECTIONS = [
 ]
 
 
-def _figure(
-    projection_name, make_room, figsize=(8, 4.5), title=None, title_y=None
-):
+def _figure(projection_name, figsize=(8, 4.5), title=None, title_y=None):
     """Build the figure that ``plot_global_mpas_field()`` builds"""
     projection = get_projection(projection_name)
     fig = Figure(figsize=figsize, constrained_layout=True)
@@ -51,8 +46,6 @@ def _figure(
     gl = ax.gridlines(color='gray', linestyle=':', zorder=5, draw_labels=True)
     gl.right_labels = False
     gl.top_labels = False
-    if make_room:
-        make_room_for_gridline_labels(ax)
 
     lon = np.linspace(-180.0, 180.0, 13)
     lat = np.linspace(-90.0, 90.0, 7)
@@ -85,7 +78,7 @@ def _cropped_labels(fig, gl):
 @pytest.mark.parametrize('projection_name', PROJECTIONS)
 def test_no_gridline_label_is_cropped(projection_name):
     with mplstyle_context():
-        fig, ax, gl = _figure(projection_name, make_room=True)
+        fig, ax, gl = _figure(projection_name)
         # a non-finite box is what makes the layout engine reserve nothing
         bbox = ax.get_tightbbox(fig.canvas.get_renderer())
         assert np.isfinite([bbox.x0, bbox.y0, bbox.x1, bbox.y1]).all()
@@ -98,9 +91,7 @@ def test_no_gridline_label_is_cropped(projection_name):
 @pytest.mark.parametrize('figsize', [(8, 4.5), (8, 6.4)])
 def test_the_title_clears_the_map(figsize):
     with mplstyle_context():
-        fig, ax, _ = _figure(
-            'Mercator', make_room=True, figsize=figsize, title='a title'
-        )
+        fig, ax, _ = _figure('Mercator', figsize=figsize, title='a title')
         renderer = fig.canvas.get_renderer()
         title = fig._suptitle.get_window_extent(renderer=renderer)
         assert title.ymin >= ax.get_window_extent(renderer).ymax
@@ -115,7 +106,6 @@ def test_a_title_at_a_fixed_height_lands_on_the_map():
     with mplstyle_context():
         fig, ax, _ = _figure(
             'Mercator',
-            make_room=True,
             figsize=(8, 6.4),
             title='a title',
             title_y=0.935,
@@ -123,10 +113,3 @@ def test_a_title_at_a_fixed_height_lands_on_the_map():
         renderer = fig.canvas.get_renderer()
         title = fig._suptitle.get_window_extent(renderer=renderer)
         assert title.ymin < ax.get_window_extent(renderer).ymax
-
-
-def test_labels_are_cropped_without_the_fix():
-    """The bug this guards against, so the tests above cannot pass vacuously"""
-    with mplstyle_context():
-        fig, ax, gl = _figure('PlateCarree', make_room=False)
-        assert _cropped_labels(fig, gl)

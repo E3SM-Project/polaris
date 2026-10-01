@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "cartopy>=0.23.0",
+    "cartopy>=0.26.0",
     "cmocean",
     "gsw",
     "importlib_resources",

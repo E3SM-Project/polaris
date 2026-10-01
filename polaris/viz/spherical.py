@@ -15,11 +15,7 @@ from matplotlib.figure import Figure
 from mpas_tools.io import open_dataset
 from pyremap.descriptor.utility import interp_extrap_corner
 
-from polaris.viz.helper import (
-    add_fitted_suptitle,
-    get_projection,
-    make_room_for_gridline_labels,
-)
+from polaris.viz.helper import add_fitted_suptitle, get_projection
 from polaris.viz.style import mplstyle_context
 
 # the connectivity arrays mosaic remaps when it culls a mesh, mirroring
@@ -214,7 +210,6 @@ def plot_global_mpas_field(
         )
         gl.right_labels = False
         gl.top_labels = False
-        make_room_for_gridline_labels(ax)
 
         if plot_land:
             _add_land_lakes_coastline(ax)
@@ -372,7 +367,6 @@ def plot_global_lat_lon_field(
         )
         gl.right_labels = False
         gl.top_labels = False
-        make_room_for_gridline_labels(ax)
 
         plotHandle = ax.pcolormesh(
             lon_corner,
