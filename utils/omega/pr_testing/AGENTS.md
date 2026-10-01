@@ -87,17 +87,9 @@ can be submitted the moment it is set up.
    checkout is clean, contains the manifest's Polaris commit and pins the
    same Omega; if not, stop and tell the requester.  It chains the PR suite
    after the baseline.
-2. If you have more than one row on this machine, set up the next row as
-   soon as the previous `setup` finishes, in a new shell with that row's
-   load script sourced.  Do not wait for the first row's jobs.
-   Never run two `setup`s at once for the same CIME machine as the same
-   user, including one by another agent or a cron job.  Every Omega build
-   makes a throwaway CIME case whose build and run directories under
-   `CIME_OUTPUT_ROOT` are the same for every build, and CIME deletes them
-   when it creates the case.  Different CIME machines have different roots,
-   so pm-cpu and pm-gpu do not race with each other, but Frontier's two
-   rows do.  Omega#582 fixes this for trees that include it; this rule can
-   go once Polaris' Omega submodule does.
+2. If you have more than one row on this machine, set up each one in its
+   own shell with that row's load script sourced.  The rows' `setup`s may
+   run at the same time.  Do not wait for the first row's jobs.
 3. When a row's jobs have finished (check with `squeue` or `qstat`), write
    its comment, in a shell with that row's load script sourced:
    ```bash
