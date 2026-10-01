@@ -181,8 +181,8 @@ omega_pr_test.py report --fork <fork> --branch <branch> \
 - **The scheduler refuses a job**, for a per-user limit, say.  `setup`
   stops with the scheduler's message.  Tell the requester rather than
   resubmitting or choosing another queue.  The utility already submits
-  Frontier's jobs with the normal QOS, and Aurora's to the capacity queue,
-  one after another.
+  Frontier's jobs with the normal QOS and an hour's wall time, and
+  Aurora's to the capacity queue, one after another.
 - **Anything else.**  Stop and ask the requester rather than working
   around it.
 
