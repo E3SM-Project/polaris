@@ -17,8 +17,10 @@ Follow the repository's automated style configuration in
   `.github/instructions/docs.instructions.md`.
 - If `pixi-env/` exists, use it as the default Python environment for
   this repo. It is created by `./deploy.py`.
-- Do not run `./deploy.py` to create `pixi-env/` yourself. That setup
-  step must be performed by a developer, not an AI agent.
+- You may run `./deploy.py` to create or refresh `pixi-env/` and the
+  load scripts. Ask the developer before passing `--deploy-spack` or
+  `--spack-path`, which build or replace Spack environments that may be
+  shared.
 - Prefer executables from `pixi-env/.pixi/envs/default/bin/` for
   `python`, `pytest`, `pre-commit`, `ruff`, and `mypy` instead of the
   system environment.

@@ -15,8 +15,10 @@ These instructions apply to the whole repository unless a deeper
 - If `pixi-env/` exists, it is the preferred development environment for
   Python, testing, linting, and `pre-commit`. It is created by
   `./deploy.py`.
-- AI agents should not run `./deploy.py` to create `pixi-env/`
-  themselves. Creating or refreshing `pixi-env/` is a developer action.
+- AI agents may run `./deploy.py` to create or refresh `pixi-env/` and
+  the load scripts, with `--compiler` for the compilers they need. Ask the
+  developer before passing `--deploy-spack` or `--spack-path`, which build
+  or replace Spack environments that may be shared.
 - Prefer running tools from `pixi-env/.pixi/envs/default/bin/` (for
   example `python`, `pytest`, `pre-commit`, `ruff`, and `mypy`) instead
   of relying on the system environment.
