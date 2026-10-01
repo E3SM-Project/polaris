@@ -33,6 +33,7 @@ Initiate testing of Omega PR 553 with utils/omega/pr_testing, following
 utils/omega/pr_testing/AGENTS.md.
 ```
 
-`init` prints the prompt to give the agent on each other machine.
+`init` prints the prompt to give the agent on each other machine.  It is
+the same for every machine, and each agent works out its own rows.
 
 The design is in {doc}`../design_docs/omega_pr_testing`.

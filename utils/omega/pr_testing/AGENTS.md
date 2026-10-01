@@ -5,9 +5,9 @@ asked to test an Omega pull request with this utility.  Read the Polaris
 `AGENTS.md` at the root of this checkout as well; it still applies.
 
 There are two roles.  The **initiator** pins what to test and checks
-linting and the docs.  A **tester** runs one row of the Omega PR template's
-testing checklist on its own machine and reports it.  One agent can do both
-on the same machine.
+linting and the docs.  A **tester** runs the rows of the Omega PR
+template's testing checklist that belong to its machine and reports each
+one.  One agent can do both on the same machine.
 
 ## Rules
 
@@ -36,13 +36,14 @@ on the same machine.
 
 ## Handoff
 
-The prompt `init` prints for each row is the whole handoff.  The requester
-pastes it into the tester's session as it is, and everything else a tester
-needs is in this file.  It reads:
+The prompt `init` prints is the whole handoff, and it is the same for
+every machine.  The requester pastes it into each tester's session as it
+is.  The tester works out its own rows (see Before you start), and
+everything else it needs is in this file.  It reads:
 
 ```
-Test Omega PR <number> for <machine>/<compiler> from branch <branch> on
-<fork>, following utils/omega/pr_testing/AGENTS.md.
+Test Omega PR <number> from branch <branch> on <fork>, following
+utils/omega/pr_testing/AGENTS.md.
 ```
 
 When the PR needs Polaris changes, it goes on:
@@ -57,19 +58,24 @@ own session.
 
 ## Before you start
 
-1. Work in a Polaris checkout with a load script for the row's compiler;
-   creating one with `./deploy.py` is the requester's job.  Without Polaris
-   branches in your prompt, use a checkout of Polaris `main`.  With them,
-   fetch the branches from the fork the prompt names.  Work in the
-   checkout of the PR's branch, and follow this file there.  The
-   baseline's branch needs a second checkout with a load script for the
-   row.  If a checkout is missing, make it yourself, as a worktree named
-   after its branch.  If one has no load script for the row, ask the
-   requester to deploy it.
-2. Start a clean shell and source that load script from this checkout:
+1. Work in a Polaris checkout.  Without Polaris branches in your prompt,
+   use a checkout of Polaris `main`.  With them, fetch the branches from
+   the fork the prompt names.  Work in the checkout of the PR's branch,
+   and follow this file there.  The baseline's branch needs a second
+   checkout.  If a checkout is missing, make it yourself, as a worktree
+   named after its branch.
+2. Start a clean shell and source any of this checkout's load scripts for
+   this machine (`load_polaris_<machine>_<compiler>_<mpi>.sh`).  Then find
+   your rows, the manifest's rows for this machine:
    ```bash
-   source ./load_polaris_<machine>_<compiler>_<mpi>.sh
+   ./utils/omega/pr_testing/omega_pr_test.py status --pr <number> \
+       --fork <fork> --branch <branch>
    ```
+   It needs `gh`, logged in.  Its last line names your rows.  On
+   Perlmutter, they include both pm-cpu and pm-gpu rows.  Skip any row
+   that already has a current result.  Each of your rows needs a load
+   script for its compiler in each checkout; creating one with
+   `./deploy.py` is the requester's job, so if one is missing, ask for it.
 3. The requester's settings for this machine are in
    `~/.config/omega_pr_test.cfg` (see `example.cfg`).  Check that it has
    every setting in `example.cfg` your role needs (testers can leave out
@@ -110,8 +116,9 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    the PR's own checks already show it, and `--post` will not post it.  If
    `lint` had to run the checks itself, post the comment with `--post`, with
    permission, whether they passed or failed.
-4. Give the requester the prompt `init` printed for each other machine,
-   as it is (see Handoff).
+4. Give the requester the prompt `init` printed, as it is, for the
+   testers on the other machines (see Handoff).  Test this machine's rows
+   yourself, as a tester.
 
 ## Tester
 
@@ -119,8 +126,9 @@ Jobs often sit in the queue, so get every row's jobs submitted as early as
 you can.  Ask the requester up front for permission to submit, so each row
 can be submitted the moment it is set up.
 
-1. Set up your row, which builds the baseline (unless a matching one
-   already exists) and the PR:
+1. Set up your first row, in a clean shell with that row's load script
+   sourced.  This builds the baseline (unless a matching one already
+   exists) and the PR:
    ```bash
    omega_pr_test.py setup --fork <fork> --branch <branch> --submit
    ```
@@ -131,11 +139,11 @@ can be submitted the moment it is set up.
    same Omega; if not, stop and tell the requester.  It chains the PR suite
    after the baseline.
    If your prompt names a branch for the baseline, add
-   `--baseline-load-script <script>` with the load script for your row in
+   `--baseline-load-script <script>` with the load script for the row in
    that branch's checkout.  Do not source it yourself; `setup` sources it
    in a clean shell for the baseline.
-2. If you have more than one row on this machine, set up each one in its
-   own shell with that row's load script sourced.  The rows' `setup`s may
+2. Set up each of your other rows the same way, each in its own clean
+   shell with that row's load script sourced.  The rows' `setup`s may
    run at the same time.  Do not wait for the first row's jobs.
 3. When a row's jobs have finished (check with `squeue` or `qstat`), write
    its comment, in a shell with that row's load script sourced:
