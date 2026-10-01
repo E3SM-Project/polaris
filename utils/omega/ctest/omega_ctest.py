@@ -6,6 +6,7 @@ import shutil
 import subprocess
 
 from jinja2 import Template
+from mache.parallel import JOB_ENV_VARS
 from mache.permissions import update_permissions
 
 from polaris.build.omega import make_build_script as make_base_build_script
@@ -237,7 +238,7 @@ def main():
         help='Quoted string with additional cmake flags',
     )
     parser.add_argument(
-        '--account', dest='account', help='slurm account to submit the job to'
+        '--account', dest='account', help='account to submit the job to'
     )
 
     args = parser.parse_args()
@@ -270,8 +271,10 @@ def main():
             build_omega_dir, f'build_{machine}_{compiler}'
         )
 
-    if 'SLURM_JOB_ID' in os.environ:
-        # already on a comptue node so we will just run ctests directly
+    system = config.get('parallel', 'system')
+    job_env_var = JOB_ENV_VARS.get(system)
+    if job_env_var is not None and job_env_var in os.environ:
+        # already on a compute node so we will just run ctests directly
         submit = False
         build_only = False
     else:
@@ -313,7 +316,6 @@ def main():
     )
 
     if submit:
-        system = config.get('parallel', 'system')
         if system == 'slurm':
             submit = 'sbatch'
         elif system == 'pbs':
