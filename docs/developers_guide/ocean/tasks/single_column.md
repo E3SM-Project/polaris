@@ -157,6 +157,10 @@ track frazil formation, while the shared `Viz` step plots the depth-dependent
 state and tendency fields.  The conservation summary step records aggregated
 frazil thickness and salinity for each algorithm variant.
 
+Because `compute_frazil_fluxes` reads Omega-only history fields, the
+conservation property checks report `FAIL` for MPAS-Ocean; this is an
+accounting gap rather than a model error and does not fail the task.
+
 ## frazil one layer (freezing)
 
 The
@@ -192,6 +196,10 @@ MPAS-Ocean. For Omega, `frazil-fluxes.png` plots per-step frazil energy, mass,
 and salt rates, while `conservation-residuals.png` plots the corresponding
 top-layer budget residuals. These two frazil diagnostic plots are not produced
 for MPAS-Ocean because the history fields are Omega-specific.
+
+The conservation property checks likewise report `FAIL` for MPAS-Ocean, since
+the frazil transfer is missing from the expected change; this does not fail the
+task.
 
 ## frazil melting short
 
@@ -229,6 +237,10 @@ with the top layer on the first row and the bottom layer on the second, and
 columns for temperature, thickness, salinity and thickness-times-temperature.
 Because frazil acts below the top layer, `conservation-residuals.png` is built
 from column-integrated state rates rather than from the top layer alone.
+
+As for the other frazil tasks, the conservation property checks report `FAIL`
+for MPAS-Ocean because the frazil transfer is unaccounted; the task still
+passes.
 
 ## thermo
 
