@@ -310,14 +310,18 @@ omega_dev_env = /path/to/conda/envs/omega_dev
 baseline_search_roots = /path/to/earlier/test/dirs
 ```
 
-`init` ends by printing the prompt for each tester, which is the whole
-handoff. The utility's `AGENTS.md` shows its template, so a handoff never
-needs anything added:
+`init` ends by printing the prompt for the testers, which is the whole
+handoff and the same on every machine. The utility's `AGENTS.md` shows its
+template, so a handoff never needs anything added:
 
 ```
-Test Omega PR 553 for pm-cpu/gnu from branch omega-pr-test/553-54456ec on
+Test Omega PR 553 from branch omega-pr-test/553-54456ec on
 git@github.com:xylar/E3SM.git, following utils/omega/pr_testing/AGENTS.md.
 ```
+
+Each tester finds its rows with `status`, which names the manifest's rows
+for the machine it runs on. Perlmutter's pm-cpu and pm-gpu rows go to one
+tester, since the two share login nodes.
 
 When the PR needs Polaris changes, the prompt also names the Polaris
 branches for the PR and the baseline, on `polaris_fork`.
