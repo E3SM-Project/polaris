@@ -302,18 +302,25 @@ work_base = /path/to/scratch/omega_pr_test
 omega_repo = /path/to/a/clone/of/E3SM-Project/Omega
 # needed by the initiator only
 fork = git@github.com:<user>/E3SM.git
+# needed by the initiator only if the PR needs Polaris changes
+polaris_fork = git@github.com:<user>/polaris.git
 # needed by the initiator only if Omega's CI has not passed
 omega_dev_env = /path/to/conda/envs/omega_dev
 # other places to look for a baseline to reuse, besides work_base
 baseline_search_roots = /path/to/earlier/test/dirs
 ```
 
-`init` ends by printing the prompt for each tester:
+`init` ends by printing the prompt for each tester, which is the whole
+handoff. The utility's `AGENTS.md` shows its template, so a handoff never
+needs anything added:
 
 ```
 Test Omega PR 553 for pm-cpu/gnu from branch omega-pr-test/553-54456ec on
 git@github.com:xylar/E3SM.git, following utils/omega/pr_testing/AGENTS.md.
 ```
+
+When the PR needs Polaris changes, the prompt also names the Polaris
+branches for the PR and the baseline, on `polaris_fork`.
 
 ### Implementation: Testing can start from any supported machine.
 
