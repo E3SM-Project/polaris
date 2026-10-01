@@ -41,6 +41,8 @@ class _FakeConfig:
     def get(self, section, option):
         if option == 'steps_to_run':
             return 'init forward'
+        if option == 'job_name':
+            return '<<<default>>>'
         return 'NETCDF3_64BIT'
 
 
@@ -106,6 +108,7 @@ def _set_up(tmp_path, monkeypatch, paths, name='omega_pr', is_task=False):
 
     monkeypatch.chdir(suite_work_dir)
     monkeypatch.delenv('SLURM_JOB_ID', raising=False)
+    monkeypatch.delenv('PBS_JOBID', raising=False)
     monkeypatch.setattr(serial, 'unpickle_suite', lambda suite_name: suite)
     monkeypatch.setattr(serial, 'setup_config', lambda *args: _FakeConfig())
     monkeypatch.setattr(serial, 'set_parallel_systems', lambda *args: None)
@@ -126,6 +129,11 @@ def _read_results(work_dir, name):
 
 def _reject_constant(name):
     raise ValueError(f'{name} is not valid JSON')
+
+
+def _read_output_for_pr(work_dir, name):
+    with open(os.path.join(work_dir, f'{name}_output_for_pr.md')) as handle:
+        return handle.read()
 
 
 def test_results_file_records_each_outcome(tmp_path, monkeypatch):
@@ -238,6 +246,50 @@ def test_single_task_writes_task_results(tmp_path, monkeypatch):
     (task,) = results['tasks']
     assert task['status'] == 'pass'
     assert task['log'] is None
+
+
+def test_output_for_pr_log_without_scheduler(tmp_path, monkeypatch):
+    work_dir, _ = _set_up(tmp_path, monkeypatch, ['ocean/pass'])
+
+    serial.run_tasks('omega_pr')
+
+    assert '- Log: not found' in _read_output_for_pr(work_dir, 'omega_pr')
+
+
+def test_output_for_pr_log_on_slurm(tmp_path, monkeypatch):
+    work_dir, _ = _set_up(tmp_path, monkeypatch, ['ocean/pass'])
+    monkeypatch.setenv('SLURM_JOB_ID', '1234567')
+    job_log = os.path.join(work_dir, 'polaris_omega_pr.o1234567')
+    with open(job_log, 'w') as handle:
+        handle.write('job output\n')
+
+    serial.run_tasks('omega_pr')
+
+    assert f'- Log: `{job_log}`' in _read_output_for_pr(work_dir, 'omega_pr')
+
+
+def test_output_for_pr_missing_log_on_slurm(tmp_path, monkeypatch):
+    work_dir, _ = _set_up(tmp_path, monkeypatch, ['ocean/pass'])
+    monkeypatch.setenv('SLURM_JOB_ID', '1234567')
+
+    # Slurm writes the log as the job runs, so a missing log isn't reported
+    serial.run_tasks('omega_pr')
+
+    assert '- Log: not found' in _read_output_for_pr(work_dir, 'omega_pr')
+
+
+def test_output_for_pr_log_on_pbs(tmp_path, monkeypatch):
+    work_dir, _ = _set_up(tmp_path, monkeypatch, ['ocean/pass'])
+    monkeypatch.setenv(
+        'PBS_JOBID', '8883432.aurora-pbs-0001.hostmgmt.cm.aurora.alcf.anl.gov'
+    )
+
+    # PBS only copies the log to the work directory when the job ends
+    serial.run_tasks('omega_pr')
+
+    job_log = os.path.join(work_dir, 'polaris_omega_pr.o8883432')
+    assert not os.path.exists(job_log)
+    assert f'- Log: `{job_log}`' in _read_output_for_pr(work_dir, 'omega_pr')
 
 
 def test_task_result_status():
