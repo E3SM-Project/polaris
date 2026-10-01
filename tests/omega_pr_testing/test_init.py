@@ -111,7 +111,17 @@ def test_init_baseline_polaris(fixture):
     )
     git(fixture.polaris_dir, 'commit', '-q', '-m', 'Follow the PR')
 
-    result = _initiate(fixture, polaris_ref='HEAD', baseline_polaris_ref=main)
+    with pytest.raises(pr_test_init.InitError, match='needs --polaris-ref'):
+        _initiate(fixture, baseline_polaris_ref=main)
+    with pytest.raises(pr_test_init.InitError, match='polaris_fork'):
+        _initiate(fixture, polaris_ref='HEAD', baseline_polaris_ref=main)
+
+    fixture.config.polaris_fork = 'git@github.com:me/polaris.git'
+    git(fixture.polaris_dir, 'branch', 'test-merge')
+    git(fixture.polaris_dir, 'branch', 'baseline', main)
+    result = _initiate(
+        fixture, polaris_ref='test-merge', baseline_polaris_ref='baseline'
+    )
     manifest = result.manifest
 
     assert manifest.polaris_commit == git(
@@ -120,7 +130,13 @@ def test_init_baseline_polaris(fixture):
     assert manifest.baseline_polaris_commit == main
     # the baseline is the pin of the baseline's Polaris
     assert manifest.baseline_commit == fixture.pin
-    assert f'second Polaris checkout at {main[:12]}' in result.prompts[0]
+    assert result.prompts[0] == (
+        f'Test Omega PR 5 for aurora/oneapi-ifx from branch '
+        f'{manifest.branch} on {fixture.fork}, following '
+        f'utils/omega/pr_testing/AGENTS.md.  The PR runs from a Polaris '
+        f'checkout of test-merge on git@github.com:me/polaris.git, and the '
+        f'baseline from a second checkout of baseline on the same fork.'
+    )
     summary = pr_test_init.format_result(result, fixture.config.omega_repo)
     assert f'Baseline Polaris: {main}' in summary
 

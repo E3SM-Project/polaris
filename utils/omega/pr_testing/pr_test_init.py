@@ -94,12 +94,13 @@ def initiate(
         The number of the Omega pull request to test
 
     polaris_ref : str, optional
-        The Polaris commit the pull request is tested with, the current
-        ``main`` of E3SM-Project/polaris by default
+        The Polaris branch the pull request is tested with, on the
+        requester's Polaris fork, the current ``main`` of
+        E3SM-Project/polaris by default
 
     baseline_polaris_ref : str, optional
-        The Polaris commit the baseline runs with, whose Omega submodule is
-        the baseline, ``polaris_ref`` by default
+        The Polaris branch the baseline runs with, on the same fork, whose
+        Omega submodule is the baseline, ``polaris_ref`` by default
 
     baseline_ref : str, optional
         An Omega branch or commit to use as the baseline instead of the
@@ -138,6 +139,13 @@ def initiate(
         raise InitError('A baseline other than the submodule needs --reason.')
     if push and config.fork is None:
         raise InitError('Pushing needs "fork" in the config file.')
+    if baseline_polaris_ref is not None and polaris_ref is None:
+        raise InitError('--baseline-polaris-ref needs --polaris-ref.')
+    if polaris_ref is not None and config.polaris_fork is None:
+        raise InitError(
+            '--polaris-ref needs "polaris_fork" in the config file, so the '
+            'testers know where to fetch it.'
+        )
 
     pr = github.get_pull_request(pull_request)
     if pr['state'] != 'OPEN':
@@ -254,19 +262,76 @@ def initiate(
     if push:
         subprocess.run(push_command, cwd=repo, check=True)
 
-    baseline_note = ''
-    if baseline_polaris_commit != polaris_commit:
-        baseline_note = (
-            f'  The baseline runs from a second Polaris checkout at '
-            f'{baseline_polaris_commit[:12]}.'
-        )
     prompts = [
-        f'Test Omega PR {pull_request} for {row.name} from branch '
-        f'{manifest.branch} on {fork}, following '
-        f'utils/omega/pr_testing/AGENTS.md.{baseline_note}'
+        get_prompt(
+            manifest,
+            row,
+            fork,
+            config.polaris_fork,
+            polaris_ref,
+            baseline_polaris_ref,
+        )
         for row in manifest.rows
     ]
     return InitResult(manifest, manifest_commit, push_command, push, prompts)
+
+
+def get_prompt(
+    manifest: Manifest,
+    row: Row,
+    fork: str,
+    polaris_fork: Optional[str] = None,
+    polaris_ref: Optional[str] = None,
+    baseline_polaris_ref: Optional[str] = None,
+) -> str:
+    """
+    The prompt for a tester, which is the whole handoff.  The utility's
+    AGENTS.md shows its template; keep the two the same.
+
+    Parameters
+    ----------
+    manifest : pr_test_manifest.Manifest
+        The manifest
+
+    row : pr_test_manifest.Row
+        The tester's row
+
+    fork : str
+        The requester's fork with the test branch
+
+    polaris_fork : str, optional
+        The requester's Polaris fork, needed with ``polaris_ref``
+
+    polaris_ref : str, optional
+        The Polaris branch the pull request is tested with, if not ``main``
+
+    baseline_polaris_ref : str, optional
+        The Polaris branch the baseline runs with, if not ``polaris_ref``
+
+    Returns
+    -------
+    prompt : str
+        The prompt
+    """
+    prompt = (
+        f'Test Omega PR {manifest.pull_request} for {row.name} from branch '
+        f'{manifest.branch} on {fork}, following '
+        f'utils/omega/pr_testing/AGENTS.md.'
+    )
+    if polaris_ref is None:
+        return prompt
+    if baseline_polaris_ref is None or (
+        manifest.baseline_polaris_commit == manifest.polaris_commit
+    ):
+        return (
+            f'{prompt}  The PR and baseline run from a Polaris checkout of '
+            f'{polaris_ref} on {polaris_fork}.'
+        )
+    return (
+        f'{prompt}  The PR runs from a Polaris checkout of {polaris_ref} on '
+        f'{polaris_fork}, and the baseline from a second checkout of '
+        f'{baseline_polaris_ref} on the same fork.'
+    )
 
 
 def format_result(result: InitResult, repo: str) -> str:

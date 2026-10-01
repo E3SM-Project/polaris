@@ -26,6 +26,7 @@ def separate(tester, tmp_path):
     git(tmp_path, 'clone', '-q', fixture.polaris_dir, str(baseline_polaris))
     baseline_hash = git(baseline_polaris, 'rev-parse', 'HEAD')
     commit(fixture.polaris_dir, 'stop.txt', 'StopType\n', 'Follow the PR')
+    fixture.config.polaris_fork = 'polaris-fork'
     manifest = pr_test_init.initiate(
         config=fixture.config,
         pull_request=5,
