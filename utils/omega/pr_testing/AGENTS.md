@@ -40,8 +40,11 @@ on the same machine.
    source ./load_polaris_<machine>_<compiler>_<mpi>.sh
    ```
 3. The requester's settings for this machine are in
-   `~/.config/omega_pr_test.cfg` (see `example.cfg`).  If it is missing or
-   incomplete, ask the requester for the values rather than guessing.
+   `~/.config/omega_pr_test.cfg` (see `example.cfg`).  Check that it has
+   every setting in `example.cfg` and that its paths exist on this
+   machine.  If it is missing, incomplete or out of date, draft the file
+   or the change, show it to the requester, and write it only once they
+   agree.  Ask for any value you cannot check, such as the fork.
 4. `init`, `lint`, `status` and `--post` need `gh`, logged in.
 
 Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
