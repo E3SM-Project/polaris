@@ -335,7 +335,7 @@ omega_pr_test.py init --pr 553 [--baseline <ref> --reason <text>]
                       [--rows <machine>/<compiler>,...] [--push]
 ```
 
-`init` uses `gh` to find the pull request head and base branch, fetches them
+`init` asks GitHub for the pull request head and base branch, fetches them
 from E3SM-Project/Omega, and makes the merges in a scratch worktree of
 `omega_repo`. `polaris_commit` is the current `main` of
 E3SM-Project/polaris, fetched rather than taken from the initiator's
@@ -461,6 +461,12 @@ Polaris submodule baseline.
 report.md`. Without it, `report` prints the text for the requester to
 paste.
 
+`gh` is never required. Queries use it when it is installed and logged in,
+and otherwise GitHub's REST API, which needs no login for a public
+repository (a token in `GH_TOKEN` raises the rate limit). The requester is
+the owner of `fork`. Only posting needs `gh`; without it, `--post` stops,
+and the comment is posted by hand.
+
 ### Implementation: The requester controls every outward-facing action.
 
 `AGENTS.md` lists these flags. It says an agent passes one only when
@@ -474,7 +480,7 @@ body, and `AGENTS.md` tells testers not to edit it either.
 omega_pr_test.py status --pr 553
 ```
 
-`status` reads the pull request's comments with `gh api` and parses the
+`status` reads the pull request's comments from GitHub and parses the
 markers. It prints one line per row and one for `lint`, each with its
 result, and marks as stale any
 row whose `pr_head` is not the pull request's current head.
