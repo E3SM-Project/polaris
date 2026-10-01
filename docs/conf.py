@@ -4,6 +4,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import logging
 import os
 from datetime import date
 
@@ -93,6 +94,25 @@ intersphinx_mapping = {
     'xarray': ('https://xarray.pydata.org/en/stable', None),
     'tranche': ('https://xylar.github.io/tranche/', None),
 }
+
+
+def _downgrade_unreachable_inventory(record):
+    """
+    Report an intersphinx inventory that cannot be fetched as information
+    rather than a warning, so an outage at another project's docs site does
+    not fail a build that treats warnings as errors
+    """
+    if 'failed to reach any of the inventories' in str(record.msg):
+        record.levelno = logging.INFO
+        record.levelname = 'INFO'
+    return True
+
+
+# Sphinx puts its loggers under a "sphinx." namespace, so intersphinx's own
+# "sphinx.ext.intersphinx" logger is "sphinx.sphinx.ext.intersphinx"
+logging.getLogger('sphinx.sphinx.ext.intersphinx').addFilter(
+    _downgrade_unreachable_inventory
+)
 
 # -- MyST settings ---------------------------------------------------
 

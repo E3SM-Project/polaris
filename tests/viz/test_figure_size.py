@@ -21,7 +21,7 @@ from PIL import Image
 from test_cull_mesh_to_cells import _quad_mesh_dataset
 
 from polaris.config import PolarisConfigParser
-from polaris.viz.helper import get_projection, make_room_for_gridline_labels
+from polaris.viz.helper import get_projection
 from polaris.viz.spherical import (
     _fit_figure_to_map,
     _set_circular_boundary,
@@ -56,7 +56,6 @@ def _figure(projection_name, extent, title, fig_width, fig_height):
     gl = ax.gridlines(color='gray', linestyle=':', zorder=5, draw_labels=True)
     gl.right_labels = False
     gl.top_labels = False
-    make_room_for_gridline_labels(ax)
 
     lon = np.linspace(-180.0, 180.0, 13)
     lat = np.linspace(-90.0, 90.0, 7)
