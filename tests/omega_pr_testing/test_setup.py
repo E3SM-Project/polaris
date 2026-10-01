@@ -153,10 +153,10 @@ def test_setup_frontier_avoids_debug_qos(tester, monkeypatch):
     state = _setup(fixture, manifest)
     row_dir = Path(state.pr_work_dir).parent
     text = pr_test_setup.format_state(state, str(row_dir), 'frontier')
-    assert text.count('--qos=normal') == 3
+    assert text.count('--qos=normal --time=01:00:00') == 3
 
     _setup(fixture, manifest, submit=True)
-    assert calls['extra_args'] == [['--qos=normal']] * 3
+    assert calls['extra_args'] == [['--qos=normal', '--time=01:00:00']] * 3
 
 
 def test_setup_aurora_chains_jobs(tester, monkeypatch):
