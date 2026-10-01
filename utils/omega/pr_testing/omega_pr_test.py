@@ -98,6 +98,7 @@ def _setup(args):
         branch=args.branch,
         submit=args.submit,
         baseline_dir=args.baseline_dir,
+        baseline_load_script=args.baseline_load_script,
     )
     machine = state.row.split('/')[0]
     row_dir = os.path.dirname(state.pr_work_dir)
@@ -254,6 +255,13 @@ def _parse_args():
     setup.add_argument(
         '--baseline-dir',
         help='An existing baseline work directory to use, which must match',
+    )
+    setup.add_argument(
+        '--baseline-load-script',
+        help='The load script for this row of a second Polaris checkout at '
+        "the manifest's baseline Polaris commit, to find or set up the "
+        'baseline with.  Needed when that commit is not the Polaris commit '
+        'the PR is tested with.',
     )
     setup.add_argument(
         '--submit',

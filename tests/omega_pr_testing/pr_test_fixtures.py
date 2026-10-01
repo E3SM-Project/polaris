@@ -167,14 +167,21 @@ def make_tester(tmp_path, monkeypatch):
 
 def _fake_polaris_suite(calls, fixture):
     def polaris_suite(
-        polaris_dir, branch, build_dir, work_dir, baseline_work_dir=None
+        polaris_dir,
+        branch,
+        build_dir,
+        work_dir,
+        baseline_work_dir=None,
+        load_script=None,
     ):
         calls['suite'].append(
             {
+                'polaris_dir': polaris_dir,
                 'branch': branch,
                 'build_dir': build_dir,
                 'work_dir': work_dir,
                 'baseline_work_dir': baseline_work_dir,
+                'load_script': load_script,
             }
         )
         omega_hash = git(branch, 'rev-parse', 'HEAD')
