@@ -131,10 +131,17 @@ def describe_commits(manifest: Manifest) -> str:
     ]
     if baseline_extras:
         baseline = f'{baseline}, with {", ".join(baseline_extras)} merged in'
-    return (
+    text = (
         f'Tested {merged} as `{manifest.test_commit[:10]}`, against '
         f'{baseline}.'
     )
+    if manifest.baseline_polaris_commit != manifest.polaris_commit:
+        text = (
+            f'{text} The baseline ran with Polaris '
+            f'`{manifest.baseline_polaris_commit[:10]}`, without the changes '
+            f'in Polaris `{manifest.polaris_commit[:10]}` that the PR needs.'
+        )
+    return text
 
 
 def _not_run_report(manifest, row, reason, notes, agent):
