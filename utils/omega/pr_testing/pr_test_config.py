@@ -35,6 +35,11 @@ class PrTestConfig:
         The requester's fork to push test branches to, needed only by the
         initiator
 
+    polaris_fork : str, optional
+        The requester's Polaris fork with any Polaris branches the testing
+        needs, named in the testers' prompts; needed only by the initiator
+        when testing with Polaris other than ``main``
+
     omega_dev_env : str, optional
         A conda environment made from Omega's ``dev-conda.txt``, needed only
         by the initiator when Omega's CI has not passed
@@ -46,6 +51,7 @@ class PrTestConfig:
     work_base: str
     omega_repo: str
     fork: Optional[str] = None
+    polaris_fork: Optional[str] = None
     omega_dev_env: Optional[str] = None
     baseline_search_roots: List[str] = field(default_factory=list)
 
@@ -93,6 +99,7 @@ def read_config(filename: Optional[str] = None) -> PrTestConfig:
         work_base=_expand(parser.get(SECTION, 'work_base')),
         omega_repo=_expand(parser.get(SECTION, 'omega_repo')),
         fork=_optional(parser, 'fork', expand=False),
+        polaris_fork=_optional(parser, 'polaris_fork', expand=False),
         omega_dev_env=_optional(parser, 'omega_dev_env'),
         baseline_search_roots=[
             _expand(root) for root in roots.replace(',', ' ').split()
