@@ -36,6 +36,7 @@ class RestartStep(Forward):
         ncells,
         replacements,
         previous_step=None,
+        options=None,
     ):
         """
         Create the step
@@ -72,6 +73,10 @@ class RestartStep(Forward):
         previous_step : polaris.Step, optional
             The segment this one continues from.  When given, this step reads
             that segment's restart and appends to its history file.
+
+        options : dict, optional
+            Model config options for this step, keyed by the model they are
+            for, as for ``Forward``
         """
         super().__init__(
             component=component,
@@ -83,6 +88,7 @@ class RestartStep(Forward):
             omega_id=omega_id,
             ncells=ncells,
             replacements=replacements,
+            options=options,
         )
 
         self.previous_step = previous_step

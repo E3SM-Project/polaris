@@ -124,6 +124,11 @@ config file, since they are chosen to make the failure visible -- two history
 frames per segment, so that a segment that clobbered rather than appended
 would be obvious -- rather than to be tuned by a user.
 
+The per-mesh time steps and viscosity are module-level constants too.  The
+viscosity is passed to every step as a model config option rather than set in
+the task's `forward.yaml`, which only the segments of the restart chain read,
+so that the full run and the chain run the same model.
+
 ### restart_step
 
 The class

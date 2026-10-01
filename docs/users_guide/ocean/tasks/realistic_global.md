@@ -252,9 +252,9 @@ polaris setup -t ocean/spherical/realistic_global/QU.240km/restart ...
 
 The task contains four steps:
 
-1. `full_run` covers the whole two-hour period in one go.
-2. `first_segment` covers the first hour and writes a restart.
-3. `second_segment` continues from that restart and covers the second hour,
+1. `full_run` covers the whole four-hour period in one go.
+2. `first_segment` covers the first two hours and writes a restart.
+3. `second_segment` continues from that restart and covers the last two hours,
    appending its history frames to the ones `first_segment` left behind.
 4. `validate` compares the history of the restart chain with the history of
    the full run.
@@ -292,8 +292,11 @@ initial-condition file, applied through bulk wind stress.
 
 ### time step and run duration
 
-The time step is 10 minutes.  Each segment runs for one hour and the full run
-for two, with a history frame every 30 minutes, so each segment writes two
+The task uses the split-explicit time stepper (`SplitExplicitRK2` in Omega)
+with a 1-hour baroclinic and a 3-minute barotropic time step, and a biharmonic
+momentum viscosity of 1.0e15 m^4/s, the settings of the year-long QU240 runs
+that the ocean analysis is tested on.  Each segment runs for two hours and the
+full run for four, with a history frame every hour, so each segment writes two
 frames and the whole period has four.  The period is short on purpose: the
 task is about how the model writes its history across a restart, not about the
 circulation, and it is meant to be cheap enough for the pull-request suite.

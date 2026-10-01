@@ -16,19 +16,26 @@ SIM_START_TIME = '0001-01-01_00:00:00'
 #: of these.  The period is short on purpose: this task is about how the model
 #: writes its history across a restart, not about the circulation, and it is
 #: meant to be cheap enough for the pull-request suite.
-SEGMENT_DURATION = '0000_01:00:00'
+SEGMENT_DURATION = '0000_02:00:00'
 
 #: The full run, which the restart chain is compared against
-FULL_DURATION = '0000_02:00:00'
+FULL_DURATION = '0000_04:00:00'
 
 #: How often a history frame is written.  Two frames per segment, so that a
 #: segment that clobbered rather than appended would be obvious.
-OUTPUT_INTERVAL = '0000_00:30:00'
-OUTPUT_FREQ = '30'
-OUTPUT_FREQ_UNITS = 'minutes'
+OUTPUT_INTERVAL = '0000_01:00:00'
+OUTPUT_FREQ = '1'
+OUTPUT_FREQ_UNITS = 'hours'
 
-#: Per-mesh time step
-DT = {'QU.240km': '00:10:00'}
+#: Per-mesh baroclinic and barotropic time steps for the split-explicit time
+#: stepper and biharmonic momentum viscosity (m^4/s).  For QU.240km these are
+#: the settings of the analysis_test task (polaris #787): E3SM's MPAS-Ocean
+#: time steps for oQU240, since a 2-hour step grew a surface hotspot along the
+#: Aleutians in a one-year run, and a viscosity well above Omega's default of
+#: 1.2e11, which is meant for much finer meshes and leaves grid-scale noise.
+MESH_INFO = {
+    'QU.240km': dict(dt='01:00:00', btr_dt='00:03:00', mom_del4=1.0e15),
+}
 
 
 class Restart(Task):
@@ -95,13 +102,20 @@ class Restart(Task):
         self.set_shared_config(config, link=config_filename)
 
         shared = dict(
-            time_integrator='RungeKutta4',
-            dt=DT[mesh_name],
+            time_integrator='SplitExplicitRK2',
+            dt=MESH_INFO[mesh_name]['dt'],
+            btr_dt=MESH_INFO[mesh_name]['btr_dt'],
             output_interval=OUTPUT_INTERVAL,
             output_freq=OUTPUT_FREQ,
             output_freq_units=OUTPUT_FREQ_UNITS,
             sim_start_time=SIM_START_TIME,
         )
+
+        # given to every step, so that the full run and the restart chain
+        # run the same model
+        options = {
+            'ocean': {'config_mom_del4': MESH_INFO[mesh_name]['mom_del4']}
+        }
 
         mesh_args = dict(
             mesh_name=mesh_name,
@@ -119,6 +133,7 @@ class Restart(Task):
             name='full_run',
             subdir=f'{subdir}/full_run',
             replacements=dict(shared, run_duration=FULL_DURATION),
+            options=options,
             **mesh_args,
         )
         full_run.set_shared_config(config, link=config_filename)
@@ -139,6 +154,7 @@ class Restart(Task):
                     start_type=start_type,
                 ),
                 previous_step=previous_step,
+                options=options,
                 **mesh_args,
             )
             step.set_shared_config(config, link=config_filename)
