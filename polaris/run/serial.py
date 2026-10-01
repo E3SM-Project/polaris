@@ -7,7 +7,7 @@ import sys
 import time
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import mpas_tools.io
 from mpas_tools.logging import LoggingContext, check_call
@@ -967,9 +967,10 @@ def _write_output_for_pull_request(
     else:
         lines.append('- Build type: unknown')
 
-    # Try to include job scheduler log path for Slurm
-    job_log = _derive_job_log_path(suite_name, suite)
-    if job_log and os.path.exists(job_log):
+    # Try to include the job scheduler log path.  PBS only stages the log
+    # into the work directory when the job ends, so it can't exist yet.
+    job_log, check_exists = _derive_job_log_path(suite_name, suite)
+    if job_log and (not check_exists or os.path.exists(job_log)):
         lines.append(f'- Log: `{job_log}`')
     else:
         lines.append('- Log: not found')
@@ -1096,11 +1097,31 @@ def _parse_baseline_build(baseline_workdir: Optional[str]) -> Optional[str]:
     return None
 
 
-def _derive_job_log_path(suite_name: str, suite: dict) -> Optional[str]:
-    """Best-effort reconstruction of the Slurm job log path."""
+def _derive_job_log_path(
+    suite_name: str, suite: dict
+) -> Tuple[Optional[str], bool]:
+    """
+    Best-effort reconstruction of the Slurm or PBS job log path
+
+    Returns
+    -------
+    job_log : str or None
+        The path to the job log, or ``None`` if it can't be determined
+
+    check_exists : bool
+        Whether the log should already exist.  Slurm writes the log as the
+        job runs, whereas PBS only copies it to the work directory when the
+        job ends.
+    """
     job_id = os.environ.get('SLURM_JOB_ID')
+    check_exists = True
     if not job_id:
-        return None
+        # PBS job IDs look like 8883432.aurora-pbs-0001...; the log name
+        # only uses the part before the first dot
+        job_id = os.environ.get('PBS_JOBID', '').split('.')[0]
+        check_exists = False
+    if not job_id:
+        return None, False
 
     # Reconstruct the job_name the same way the job script did
     # using the common component config
@@ -1115,6 +1136,7 @@ def _derive_job_log_path(suite_name: str, suite: dict) -> Optional[str]:
             suite_suffix = f'_{suite_name}' if suite_name else ''
             job_name = f'polaris{suite_suffix}'
         work_dir = suite.get('work_dir', os.getcwd())
-        return os.path.join(work_dir, f'{job_name}.o{job_id}')
+        job_log = os.path.join(work_dir, f'{job_name}.o{job_id}')
+        return job_log, check_exists
     except (StopIteration, KeyError, OSError, AttributeError):
-        return None
+        return None, False
