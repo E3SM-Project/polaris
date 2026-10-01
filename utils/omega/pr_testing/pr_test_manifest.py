@@ -86,6 +86,35 @@ TEMPLATE_ROWS = [
 ]
 
 
+#: machines whose rows are tested from the same login nodes
+SHARED_LOGIN_NODES = [{'pm-cpu', 'pm-gpu'}]
+
+
+def get_machine_rows(rows: List[Row], machine: str) -> List[Row]:
+    """
+    The rows a tester on a machine runs: those of the machine, and of any
+    machine that shares its login nodes
+
+    Parameters
+    ----------
+    rows : list of pr_test_manifest.Row
+        The rows to choose from
+
+    machine : str
+        The Polaris machine the tester is on
+
+    Returns
+    -------
+    machine_rows : list of pr_test_manifest.Row
+        The tester's rows, in order
+    """
+    machines = {machine}
+    for group in SHARED_LOGIN_NODES:
+        if machine in group:
+            machines |= group
+    return [row for row in rows if row.machine in machines]
+
+
 def get_row(name: str) -> Row:
     """
     Get a row by ``<machine>/<compiler>``
