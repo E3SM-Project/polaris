@@ -7,7 +7,9 @@ from typing import Any, Dict, List, Optional
 
 import pr_test_github as github
 import pr_test_report as report
-from pr_test_manifest import TEMPLATE_ROWS, Manifest
+from pr_test_manifest import TEMPLATE_ROWS, Manifest, get_machine_rows
+
+from polaris.machines import discover_machine
 
 
 def run_status(pull_request: int, manifest: Optional[Manifest] = None) -> str:
@@ -20,7 +22,9 @@ def run_status(pull_request: int, manifest: Optional[Manifest] = None) -> str:
         The number of the Omega PR
 
     manifest : pr_test_manifest.Manifest, optional
-        The manifest whose rows to list, the Omega PR template's by default
+        The manifest whose rows to list, the Omega PR template's by default.
+        With a manifest, the rows a tester on this machine runs are named
+        as well.
 
     Returns
     -------
@@ -39,7 +43,22 @@ def run_status(pull_request: int, manifest: Optional[Manifest] = None) -> str:
     # lint is only posted when it did not come from CI, so it is listed only
     # if it was
     rows = [row.name for row in (manifest.rows if manifest else TEMPLATE_ROWS)]
-    return format_status(rows, markers, head)
+    text = format_status(rows, markers, head)
+    if manifest is not None:
+        text = f'{text}\n\n{format_machine_rows(manifest)}'
+    return text
+
+
+def format_machine_rows(manifest: Manifest) -> str:
+    """The line naming the rows a tester on this machine runs"""
+    machine = discover_machine(quiet=True)
+    if machine is None:
+        return 'This machine is not one Polaris recognizes.'
+    rows = get_machine_rows(manifest.rows, machine)
+    if not rows:
+        return f'No rows to test on this machine ({machine}).'
+    names = ', '.join(row.name for row in rows)
+    return f'Rows to test on this machine ({machine}): {names}'
 
 
 def format_status(

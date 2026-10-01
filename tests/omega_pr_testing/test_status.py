@@ -1,5 +1,6 @@
 import pr_test_github
 import pr_test_status
+from pr_test_manifest import POLARIS_SUBMODULE, TEMPLATE_ROWS, Manifest
 
 HEAD = 'a' * 40
 OLD_HEAD = 'b' * 40
@@ -56,6 +57,40 @@ def test_run_status(monkeypatch):
     assert 'pass' in rows['lint']
     # a marker for another PR is ignored
     assert rows['pm-cpu/gnu'].split() == ['pm-cpu/gnu', '-']
+
+
+def test_run_status_names_machine_rows(monkeypatch):
+    monkeypatch.setattr(
+        pr_test_github, 'get_comment_bodies', lambda number: []
+    )
+    monkeypatch.setattr(
+        pr_test_github,
+        'get_pull_request',
+        lambda number: {'headRefOid': HEAD},
+    )
+    monkeypatch.setattr(
+        pr_test_status, 'discover_machine', lambda quiet: 'pm-cpu'
+    )
+    manifest = Manifest(
+        requester='tester',
+        pull_request=5,
+        pr_head=HEAD,
+        base_branch='develop',
+        base_head=OLD_HEAD,
+        test_commit='c' * 40,
+        baseline_commit='d' * 40,
+        baseline_source=POLARIS_SUBMODULE,
+        baseline_reason=None,
+        polaris_commit='e' * 40,
+        baseline_polaris_commit='e' * 40,
+        rows=TEMPLATE_ROWS,
+    )
+
+    text = pr_test_status.run_status(5, manifest)
+
+    assert text.splitlines()[-1] == (
+        'Rows to test on this machine (pm-cpu): pm-cpu/gnu, pm-gpu/gnugpu'
+    )
 
 
 def _marker(row, pr_head, status='complete', result='pass', **extra):
