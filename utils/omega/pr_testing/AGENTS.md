@@ -71,7 +71,7 @@ own session.
    ./utils/omega/pr_testing/omega_pr_test.py status --pr <number> \
        --fork <fork> --branch <branch>
    ```
-   It needs `gh`, logged in.  Its last line names your rows.  On
+   Its last line names your rows.  On
    Perlmutter, they include both pm-cpu and pm-gpu rows.  Skip any row
    that already has a current result.  Each of your rows needs a load
    script for its compiler in each checkout; creating one with
@@ -85,7 +85,11 @@ own session.
    also put the whole proposed file in a code block, and write it only
    once the requester agrees.  Ask for any value you cannot check, such as
    the fork.
-4. `init`, `lint`, `status` and `--post` need `gh`, logged in.
+4. `gh` is optional.  The utility uses it when it is installed and logged
+   in, and otherwise reads GitHub without logging in.  Only `--post`
+   needs it.  Without it, `--post` stops and names the comment's file:
+   put the comment in your reply as a code block, and ask the requester
+   to post it on the PR by hand.
 
 Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
 
