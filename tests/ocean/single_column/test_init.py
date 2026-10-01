@@ -54,7 +54,9 @@ def _make_config(model):
         'polaris.tasks.ocean.single_column', 'single_column.cfg'
     )
     # the wind stress is what the ekman task reads from the forcing file
-    config.add_from_package('polaris.tasks.ocean.single_column', 'wind.cfg')
+    config.add_from_package(
+        'polaris.tasks.ocean.single_column', 'wind_stress.cfg'
+    )
     # the single-column tasks all use a linear equation of state
     config.add_from_package('polaris.ocean.eos', 'linear.cfg')
     config.set('ocean', 'model', model)

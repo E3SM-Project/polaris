@@ -231,6 +231,11 @@ class Init(OceanIOStep):
             wind_stress_meridional * forcing_array_surface
         )
 
+        wind_speed_10m = section.getfloat('wind_speed_10m')
+        ice_fraction = section.getfloat('ice_fraction')
+        ds_forcing['windSpeed10m'] = wind_speed_10m * forcing_array_surface
+        ds_forcing['iceFraction'] = ice_fraction * forcing_array_surface
+
         all_forcing_vars = [
             'latent_heat_flux',
             'sensible_heat_flux',
