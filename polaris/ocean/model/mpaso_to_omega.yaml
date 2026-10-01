@@ -326,7 +326,7 @@ config:
     # Omega's FrazilType selects between "basic" (FixedPropertyFrazil) and
     # "teos" (TeosFrazil); MPAS-Ocean does not have an equivalent switch,
     # since it always uses the fixed-property-style formulation
-    config_frazil_fractional_thickness_limit: MassLimit
+    config_frazil_fractional_thickness_limit: LayerMassFracMax
     config_frazil_maximum_depth: DepthLimit
     # Note: config_frazil_heat_of_fusion, config_frazil_ice_density,
     #       config_frazil_sea_ice_reference_salinity,
