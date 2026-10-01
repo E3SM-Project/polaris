@@ -16,7 +16,10 @@ then posts a comment made from the files Polaris and the CTests wrote, with
 the commits of Polaris and both Omega builds and any new compiler warnings.
 
 The baseline is the Omega commit Polaris pins in `e3sm_submodules/Omega`,
-unless the requester chooses another and says why.  An existing baseline
+unless the requester chooses another and says why.  If the PR needs
+Polaris changes that the baseline Omega cannot run, the PR is tested with a
+Polaris test merge and the baseline runs from a second Polaris checkout
+without those changes.  An existing baseline
 run is reused when its provenance matches (see
 {py:func}`polaris.baselines.find_baseline`), which relies on the record of
 the source that Polaris's build scripts write (see {ref}`dev-provenance`).
