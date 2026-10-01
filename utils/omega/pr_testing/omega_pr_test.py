@@ -57,6 +57,7 @@ def _init(args):
         config=config,
         pull_request=args.pr,
         polaris_ref=args.polaris_ref,
+        baseline_polaris_ref=args.baseline_polaris_ref,
         baseline_ref=args.baseline,
         reason=args.reason,
         merge_prs=args.merge_pr,
@@ -210,8 +211,16 @@ def _parse_args():
     )
     init.add_argument(
         '--polaris-ref',
-        help='The Polaris commit whose Omega submodule is the baseline, the '
-        'current main of E3SM-Project/polaris by default',
+        help='The Polaris commit the PR is tested with, which every '
+        "tester's checkout must contain, the current main of "
+        'E3SM-Project/polaris by default',
+    )
+    init.add_argument(
+        '--baseline-polaris-ref',
+        help='The Polaris commit the baseline runs with, whose Omega '
+        'submodule is the baseline, the --polaris-ref commit by default.  '
+        'Needed when the PR needs Polaris changes that the baseline Omega '
+        'cannot run.',
     )
     init.add_argument('--notes', help='Notes for the requester')
     init.add_argument(

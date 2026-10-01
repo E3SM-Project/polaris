@@ -176,8 +176,13 @@ class Manifest:
         Why the requester chose a baseline other than the submodule
 
     polaris_commit : str
-        The Polaris commit whose Omega submodule is the default baseline;
-        every tester's Polaris must contain it
+        The Polaris commit the pull request is tested with; every tester's
+        Polaris must contain it
+
+    baseline_polaris_commit : str
+        The Polaris commit the baseline runs with, whose Omega submodule is
+        the default baseline.  It is ``polaris_commit`` unless the pull
+        request needs Polaris changes that the baseline Omega cannot run.
 
     extra_merges : list of pr_test_manifest.ExtraMerge
         Other pull requests merged into the test or baseline commit
@@ -199,6 +204,7 @@ class Manifest:
     baseline_source: str
     baseline_reason: Optional[str]
     polaris_commit: str
+    baseline_polaris_commit: str
     extra_merges: List[ExtraMerge] = field(default_factory=list)
     rows: List[Row] = field(default_factory=list)
     notes: Optional[str] = None
@@ -232,6 +238,7 @@ class Manifest:
                 'commit': self.baseline_commit,
                 'source': self.baseline_source,
                 'reason': self.baseline_reason,
+                'polaris_commit': self.baseline_polaris_commit,
             },
             'polaris_commit': self.polaris_commit,
             'extra_merges': [
@@ -302,6 +309,7 @@ class Manifest:
                 baseline_source=str(baseline['source']),
                 baseline_reason=baseline.get('reason'),
                 polaris_commit=str(contents['polaris_commit']),
+                baseline_polaris_commit=str(baseline['polaris_commit']),
                 extra_merges=[
                     ExtraMerge(
                         pull_request=int(merge['pull_request']),

@@ -71,6 +71,7 @@ def initiate(
     config: PrTestConfig,
     pull_request: int,
     polaris_ref: Optional[str] = None,
+    baseline_polaris_ref: Optional[str] = None,
     baseline_ref: Optional[str] = None,
     reason: Optional[str] = None,
     merge_prs: Sequence[int] = (),
@@ -93,8 +94,12 @@ def initiate(
         The number of the Omega pull request to test
 
     polaris_ref : str, optional
-        The Polaris commit whose Omega submodule is the baseline, the
-        current ``main`` of E3SM-Project/polaris by default
+        The Polaris commit the pull request is tested with, the current
+        ``main`` of E3SM-Project/polaris by default
+
+    baseline_polaris_ref : str, optional
+        The Polaris commit the baseline runs with, whose Omega submodule is
+        the baseline, ``polaris_ref`` by default
 
     baseline_ref : str, optional
         An Omega branch or commit to use as the baseline instead of the
@@ -142,7 +147,14 @@ def initiate(
     requester = github.get_user()
 
     polaris_commit = _resolve_polaris(polaris_dir, polaris_ref)
-    pin = git_tools.submodule_pin(polaris_dir, polaris_commit, OMEGA_SUBMODULE)
+    baseline_polaris_commit = polaris_commit
+    if baseline_polaris_ref is not None:
+        baseline_polaris_commit = git_tools.rev_parse(
+            polaris_dir, baseline_polaris_ref
+        )
+    pin = git_tools.submodule_pin(
+        polaris_dir, baseline_polaris_commit, OMEGA_SUBMODULE
+    )
 
     repo = config.omega_repo
     base_branch = pr['baseRefName']
@@ -206,6 +218,7 @@ def initiate(
         baseline_source=baseline_source,
         baseline_reason=reason,
         polaris_commit=polaris_commit,
+        baseline_polaris_commit=baseline_polaris_commit,
         extra_merges=extra_merges,
         rows=list(TEMPLATE_ROWS if rows is None else rows),
         notes=notes,
@@ -241,10 +254,16 @@ def initiate(
     if push:
         subprocess.run(push_command, cwd=repo, check=True)
 
+    baseline_note = ''
+    if baseline_polaris_commit != polaris_commit:
+        baseline_note = (
+            f'  The baseline runs from a second Polaris checkout at '
+            f'{baseline_polaris_commit[:12]}.'
+        )
     prompts = [
         f'Test Omega PR {pull_request} for {row.name} from branch '
         f'{manifest.branch} on {fork}, following '
-        f'utils/omega/pr_testing/AGENTS.md.'
+        f'utils/omega/pr_testing/AGENTS.md.{baseline_note}'
         for row in manifest.rows
     ]
     return InitResult(manifest, manifest_commit, push_command, push, prompts)
@@ -258,6 +277,10 @@ def format_result(result: InitResult, repo: str) -> str:
         f'Baseline commit: {manifest.baseline_commit} '
         f'({manifest.baseline_source})',
         f'Polaris commit:  {manifest.polaris_commit}',
+    ]
+    if manifest.baseline_polaris_commit != manifest.polaris_commit:
+        lines.append(f'Baseline Polaris: {manifest.baseline_polaris_commit}')
+    lines += [
         f'Manifest commit: {result.manifest_commit}',
         '',
     ]
