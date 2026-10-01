@@ -152,7 +152,7 @@ def initiate(
         raise InitError(
             f'{UPSTREAM}#{pull_request} is {pr["state"].lower()}, not open.'
         )
-    requester = github.get_user()
+    requester = github.get_requester(config.fork)
 
     polaris_commit = _resolve_polaris(polaris_dir, polaris_ref)
     baseline_polaris_commit = polaris_commit

@@ -126,7 +126,7 @@ def mock_github(monkeypatch, head, state='OPEN'):
         }
 
     monkeypatch.setattr(pr_test_github, 'get_pull_request', get_pull_request)
-    monkeypatch.setattr(pr_test_github, 'get_user', lambda: 'tester')
+    monkeypatch.setattr(pr_test_github, 'get_requester', lambda fork: 'tester')
 
 
 def make_tester(tmp_path, monkeypatch):
