@@ -34,7 +34,7 @@ from polaris.tasks.ocean.isomip_plus.topo import (
 
 def add_isomip_plus_tasks(component, mesh_type):
     """
-    Add tasks for different baroclinic channel tests to the ocean component
+    Add ISOMIP+ tasks to the ocean component
 
     component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
@@ -48,40 +48,39 @@ def add_isomip_plus_tasks(component, mesh_type):
         resdir = f'{mesh_type}/isomip_plus/{mesh_name}'
 
         filepath = os.path.join(component.name, resdir, 'isomip_plus_topo.cfg')
-        config = PolarisConfigParser(filepath=filepath)
+        topo_config = PolarisConfigParser(filepath=filepath)
         if not planar:
-            config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
-            config.set(
+            topo_config.add_from_package(
+                'polaris.mesh.spherical', 'spherical.cfg'
+            )
+            topo_config.set(
                 'spherical_mesh',
                 'mpas_mesh_filename',
                 'base_mesh_without_xy.nc',
             )
 
-        config.add_from_package('polaris.remap', 'mapping.cfg')
+        topo_config.add_from_package('polaris.remap', 'mapping.cfg')
 
-        config.add_from_package(
-            'polaris.tasks.ocean.isomip_plus', 'isomip_plus.cfg'
-        )
-
-        config.add_from_package(
+        topo_config.add_from_package(
             'polaris.tasks.ocean.isomip_plus', 'isomip_plus_topo.cfg'
         )
 
         shared_steps = _get_shared_steps(
-            mesh_type, resolution, mesh_name, resdir, component, config
+            mesh_type, resolution, mesh_name, resdir, component, topo_config
         )
 
         for experiment in [
             'ocean0',
             'ocean1',
             'ocean2',
-            'ocean3',
-            'ocean4',
             'inception',
             'wetting',
             'drying',
         ]:
             for vertical_coordinate in ['z-star']:
+                config = _get_task_config(
+                    component, resdir, vertical_coordinate, experiment
+                )
                 task = IsomipPlusTest(
                     component=component,
                     resdir=resdir,
@@ -90,8 +89,29 @@ def add_isomip_plus_tasks(component, mesh_type):
                     vertical_coordinate=vertical_coordinate,
                     planar=planar,
                     shared_steps=shared_steps[experiment],
+                    config=config,
                 )
                 component.add_task(task)
+
+
+def _get_task_config(component, resdir, vertical_coordinate, experiment):
+    """Get a config parser shared by the steps of one task"""
+    filepath = os.path.join(
+        component.name,
+        resdir,
+        vertical_coordinate,
+        experiment,
+        'isomip_plus.cfg',
+    )
+    config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.ocean.eos', 'linear.cfg')
+    config.add_from_package('polaris.ocean.ice_shelf', 'ssh_adjustment.cfg')
+    config.add_from_package('polaris.ocean.ice_shelf', 'freeze.cfg')
+    config.add_from_package(
+        'polaris.tasks.ocean.isomip_plus', 'isomip_plus.cfg'
+    )
+    config.set('vertical_grid', 'coord_type', vertical_coordinate)
+    return config
 
 
 def _get_shared_steps(
@@ -170,7 +190,7 @@ def _get_shared_steps(
 
     topo_remap_culled: Dict[str, TopoRemap] = dict()
     shared_steps: Dict[str, Dict[str, Step]] = dict()
-    for experiment in ['ocean1', 'ocean2', 'ocean3', 'ocean4']:
+    for experiment in ['ocean1', 'ocean2']:
         name = 'topo_remap_culled'
         subdir = f'{resdir}/topo/remap_culled/{experiment}'
         topo_remap_culled[experiment] = TopoRemap(
