@@ -98,6 +98,7 @@ def make_build_script(
     debug,
     cmake_flags,
     account=None,
+    build_command=None,
 ):
     """
     Make a shell script for checking out Omega and its submodules and building
@@ -125,6 +126,12 @@ def make_build_script(
 
     account : str, optional
         The account to use for the build.
+
+    build_command : str, optional
+        The command that builds Omega once CMake has configured it, run from
+        ``build_dir``.  The default is Omega's own ``./omega_build.sh``.  The
+        CTest utility passes a ``ctest -S`` command here so the build is
+        recorded for CDash.
 
     Returns
     -------
@@ -158,6 +165,9 @@ def make_build_script(
     if account is not None:
         cmake_flags = f'{cmake_flags} -DOMEGA_CIME_PROJECT={account}'
 
+    if build_command is None:
+        build_command = './omega_build.sh'
+
     if machine in ['pm-cpu', 'pm-gpu']:
         nersc_host = 'export NERSC_HOST="perlmuter"'
     else:
@@ -175,6 +185,7 @@ def make_build_script(
         build_type=build_type,
         cmake_flags=cmake_flags,
         nersc_host=nersc_host,
+        build_command=build_command,
     )
     script_filename = f'build_omega_{machine}_{compiler}.sh'
     script_filename = os.path.join(build_dir, script_filename)

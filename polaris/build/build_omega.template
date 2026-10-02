@@ -61,4 +61,4 @@ cmake \
    -S {{ omega_base_dir }}/components/omega \
    -B . {{ cmake_flags }}
 
-./omega_build.sh
+{{ build_command }}
