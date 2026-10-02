@@ -1026,6 +1026,31 @@
 </tbody>
 </table>
 </section>
+<section id="realistic-global-restart">
+<h3>realistic_global.restart<a class="headerlink" href="#realistic-global-restart" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.restart.Restart.html#polaris.tasks.ocean.realistic_global.restart.Restart" title="polaris.tasks.ocean.realistic_global.restart.Restart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Restart</span></code></a>(component, subdir, mesh_name, ...)</p></td>
+<td><p>A task that checks that splitting a run across a restart leaves the history output alone.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart_step.RestartStep</span></code></a>(component, name, ...)</p></td>
+<td><p>One segment of the realistic global restart chain.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart_step.RestartStep.setup</span></code></a>()</p></td>
+<td><p>Add this task's overrides on top of the shared realistic_global forward yaml, which <code class="docutils literal notranslate"><span class="pre">Forward.setup()</span></code> adds first</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.runtime_setup.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.runtime_setup" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart_step.RestartStep.runtime_setup</span></code></a>()</p></td>
+<td><p>Make the shared restart directory, and seed the history file with the previous segment's frames when this segment continues from one</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.restart.validate.Validate.html#polaris.tasks.ocean.realistic_global.restart.validate.Validate" title="polaris.tasks.ocean.realistic_global.restart.validate.Validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate</span></code></a>(component, ...)</p></td>
+<td><p>Check that a run split across a restart writes the same history as the same run done in one go.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.restart.validate.Validate.run.html#polaris.tasks.ocean.realistic_global.restart.validate.Validate.run" title="polaris.tasks.ocean.realistic_global.restart.validate.Validate.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate.Validate.run</span></code></a>()</p></td>
+<td><p>Compare the history of the restart chain with the history of the uninterrupted run</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="realistic-global-hydrography-woa23">
 <h3>realistic_global.hydrography.woa23<a class="headerlink" href="#realistic-global-hydrography-woa23" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">

@@ -178,21 +178,19 @@
         <span class="n">output_freq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">output_interval</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">do_restart</span><span class="p">:</span>
-            <span class="n">restart_time_str</span> <span class="o">=</span> <span class="n">start_time_str</span>
+            <span class="n">start_type</span> <span class="o">=</span> <span class="s1">'Continue'</span>
             <span class="n">init_freq_units</span> <span class="o">=</span> <span class="s1">'never'</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Effectively never</span>
-            <span class="n">restart_time_str</span> <span class="o">=</span> <span class="s1">'99999-12-31_00:00:00'</span>
+            <span class="n">start_type</span> <span class="o">=</span> <span class="s1">'StartUp'</span>
             <span class="n">init_freq_units</span> <span class="o">=</span> <span class="s1">'OnStartup'</span>
 
         <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.cosine_bell.restart'</span>
         <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">do_restart</span><span class="o">=</span><span class="n">do_restart</span><span class="p">,</span>
-            <span class="n">not_restart</span><span class="o">=</span><span class="ow">not</span> <span class="n">do_restart</span><span class="p">,</span>
             <span class="n">start_time</span><span class="o">=</span><span class="n">start_time_str</span><span class="p">,</span>
             <span class="n">run_duration</span><span class="o">=</span><span class="n">run_duration_str</span><span class="p">,</span>
             <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
-            <span class="n">restart_time</span><span class="o">=</span><span class="n">restart_time_str</span><span class="p">,</span>
+            <span class="n">start_type</span><span class="o">=</span><span class="n">start_type</span><span class="p">,</span>
             <span class="n">init_freq_units</span><span class="o">=</span><span class="n">init_freq_units</span><span class="p">,</span>
             <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_freq</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
         <span class="p">)</span>

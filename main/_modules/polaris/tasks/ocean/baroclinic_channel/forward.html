@@ -413,12 +413,11 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_restart</span><span class="p">:</span>
             <span class="n">init_freq</span> <span class="o">=</span> <span class="s1">'never'</span>
-            <span class="n">restart_start_time</span> <span class="o">=</span> <span class="n">start_str</span>
+            <span class="n">start_type</span> <span class="o">=</span> <span class="s1">'Continue'</span>
             <span class="n">mpaso_options</span><span class="p">[</span><span class="s1">'config_do_restart'</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">init_freq</span> <span class="o">=</span> <span class="s1">'OnStartup'</span>
-            <span class="c1"># The restart start time must be &gt;= simulation start time</span>
-            <span class="n">restart_start_time</span> <span class="o">=</span> <span class="s1">'0001-01-01_00:00:01'</span>
+            <span class="n">start_type</span> <span class="o">=</span> <span class="s1">'StartUp'</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># update the viscosity to the requested value *after* loading</span>
@@ -439,8 +438,7 @@
         <span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">init_freq</span><span class="o">=</span><span class="n">init_freq</span><span class="p">,</span>
             <span class="n">restart_filename</span><span class="o">=</span><span class="n">restart_filename</span><span class="p">,</span>
-            <span class="n">restart_start_time</span><span class="o">=</span><span class="n">restart_start_time</span><span class="p">,</span>
-            <span class="n">not_restart</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_restart</span><span class="p">,</span>
+            <span class="n">start_type</span><span class="o">=</span><span class="n">start_type</span><span class="p">,</span>
             <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">output_freq</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
             <span class="n">output_freq_units</span><span class="o">=</span><span class="n">output_freq_units</span><span class="p">,</span>
             <span class="n">time_integrator</span><span class="o">=</span><span class="n">time_integrator</span><span class="p">,</span>

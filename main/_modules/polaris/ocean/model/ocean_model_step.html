@@ -123,6 +123,7 @@
     <span class="n">Optional</span><span class="p">,</span>
     <span class="n">Tuple</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML</span>
@@ -158,6 +159,90 @@
         <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]]]],</span>
     <span class="p">],</span>
 <span class="p">]</span>
+
+<span class="c1">#: MPAS-Ocean spellings for a time option that has deliberately been left</span>
+<span class="c1">#: unset, which a task uses to say "stop on the other criterion, not this one"</span>
+<span class="n">UNSET_TIME_VALUES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'none'</span><span class="p">,</span> <span class="s1">'None'</span><span class="p">})</span>
+
+<span class="c1">#: The MPAS-Ocean options that say when a run ends.  These have no Omega</span>
+<span class="c1">#: counterpart to rename to -- Omega names the kind of criterion in</span>
+<span class="c1">#: ``StopType`` and holds its value in ``StopCriterion`` -- so they are kept</span>
+<span class="c1">#: out of the option map in ``mpaso_to_omega.yaml`` and are handled by</span>
+<span class="c1">#: :py:func:`_add_stop_options` instead.</span>
+<span class="n">STOP_OPTIONS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">'config_run_duration'</span><span class="p">,</span> <span class="s1">'config_stop_time'</span><span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_set</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">OptionValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether a time option holds a value, as opposed to being left unset"""</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">UNSET_TIME_VALUES</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_stop_options</span><span class="p">(</span>
+    <span class="n">configs</span><span class="p">:</span> <span class="n">ConfigsType</span><span class="p">,</span>
+    <span class="n">stop_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Add Omega's ``StopType`` and ``StopCriterion`` to ``configs``, given the</span>
+<span class="sd">    MPAS-Ocean stop options a set of yaml configs asked for.</span>
+
+<span class="sd">    MPAS-Ocean says when a run ends with two options, either of which may be</span>
+<span class="sd">    left unset: ``config_run_duration`` and ``config_stop_time``.  Omega says</span>
+<span class="sd">    the same thing with a ``StopType`` naming which kind of criterion is in</span>
+<span class="sd">    use and a single ``StopCriterion`` holding its value.  One option becoming</span>
+<span class="sd">    two cannot be written in an option-name map, so these are kept out of</span>
+<span class="sd">    ``mpaso_to_omega.yaml`` and translated here.</span>
+
+<span class="sd">    Setting both to real values is an error.  Omega cannot express it: there</span>
+<span class="sd">    is one criterion field, so there is nothing for a precedence rule to</span>
+<span class="sd">    choose between.  MPAS-Ocean has such a rule, and Omega used to have a</span>
+<span class="sd">    matching one, but it went with the options it applied to, and quietly</span>
+<span class="sd">    honouring the old order here would mean the two models were being told</span>
+<span class="sd">    different things by the same yaml.</span>
+
+<span class="sd">    A stop option that is absent or unset is left out entirely rather than</span>
+<span class="sd">    written as ``none``, so that Omega falls back to its own default instead</span>
+<span class="sd">    of being handed a criterion it cannot parse.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    configs : dict</span>
+<span class="sd">        The mapped Omega configs, updated in place.</span>
+
+<span class="sd">    stop_options : dict</span>
+<span class="sd">        The MPAS-Ocean stop options found in this set of yaml configs, keyed</span>
+<span class="sd">        by their MPAS-Ocean names.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If both stop options are set to real values.</span>
+<span class="sd">    """</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">stop_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'config_run_duration'</span><span class="p">)</span>
+    <span class="n">stop_time</span> <span class="o">=</span> <span class="n">stop_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'config_stop_time'</span><span class="p">)</span>
+
+    <span class="n">has_duration</span> <span class="o">=</span> <span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_is_set</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
+    <span class="n">has_stop_time</span> <span class="o">=</span> <span class="n">stop_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_is_set</span><span class="p">(</span><span class="n">stop_time</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">has_duration</span> <span class="ow">and</span> <span class="n">has_stop_time</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'config_run_duration and config_stop_time are both set, to '</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">duration</span><span class="si">!r}</span><span class="s1"> and </span><span class="si">{</span><span class="n">stop_time</span><span class="si">!r}</span><span class="s1">.  Omega holds one stop '</span>
+            <span class="sa">f</span><span class="s1">'criterion, so there is no way to say which of these it should '</span>
+            <span class="sa">f</span><span class="s1">'use.  Set one and leave the other unset (as "none").'</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">has_duration</span> <span class="ow">or</span> <span class="n">has_stop_time</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="n">section</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">],</span> <span class="n">configs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'TimeIntegration'</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">has_duration</span><span class="p">:</span>
+        <span class="n">section</span><span class="p">[</span><span class="s1">'StopType'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'AfterDuration'</span>
+        <span class="n">section</span><span class="p">[</span><span class="s1">'StopCriterion'</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">OptionValue</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">section</span><span class="p">[</span><span class="s1">'StopType'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'AtTime'</span>
+        <span class="n">section</span><span class="p">[</span><span class="s1">'StopCriterion'</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">OptionValue</span><span class="p">,</span> <span class="n">stop_time</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="OceanModelStep">
@@ -920,6 +1005,7 @@
 <span class="sd">        """</span>
         <span class="n">out_configs</span><span class="p">:</span> <span class="n">ConfigsType</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">not_found</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">stop_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptionValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">options</span> <span class="ow">in</span> <span class="n">configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">mpaso_value</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mpaso_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -927,6 +1013,11 @@
                         <span class="sa">f</span><span class="s1">'Nested sections are not supported in '</span>
                         <span class="sa">f</span><span class="s1">'MPAS-Ocean configs: </span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">'</span>
                     <span class="p">)</span>
+                <span class="k">if</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">STOP_OPTIONS</span><span class="p">:</span>
+                    <span class="c1"># these have no Omega counterpart to rename to; they are</span>
+                    <span class="c1"># turned into a StopType/StopCriterion pair below</span>
+                    <span class="n">stop_options</span><span class="p">[</span><span class="n">option</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpaso_value</span>
+                    <span class="k">continue</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">omega_sections</span><span class="p">,</span> <span class="n">omega_option</span><span class="p">,</span> <span class="n">omega_value</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_map_mpaso_to_omega_section_option</span><span class="p">(</span>
@@ -949,6 +1040,8 @@
                     <span class="n">not_found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">sec_str</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_warn_not_found</span><span class="p">(</span><span class="n">not_found</span><span class="p">)</span>
+
+        <span class="n">_add_stop_options</span><span class="p">(</span><span class="n">out_configs</span><span class="p">,</span> <span class="n">stop_options</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">out_configs</span>
 

@@ -67,6 +67,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#woa23">woa23</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis-members">analysis_members</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="horiz_press_grad.html">horizontal pressure gradient</a></li>
@@ -153,7 +154,7 @@
   <section class="tex2jax_ignore mathjax_ignore" id="realistic-global">
 <span id="ocean-realistic-global"></span><h1>realistic_global<a class="headerlink" href="#realistic-global" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> task group contains tasks that use realistic global
-ocean meshes, bathymetry and forcing. It currently contains two kinds of
+ocean meshes, bathymetry and forcing. It currently contains three kinds of
 tasks:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#ocean-realistic-global-woa23"><span class="std std-ref">woa23</span></a>, a mesh-independent preprocessing task
@@ -162,12 +163,18 @@ the native 0.25-degree latitude-longitude grid.</p></li>
 <li><p><a class="reference internal" href="#ocean-realistic-global-analysis-members"><span class="std std-ref">analysis_members</span></a>, short forward runs on
 realistic global meshes that exercise the global-statistics analysis member
 and compare its output between MPAS-Ocean and Omega.</p></li>
+<li><p><a class="reference internal" href="#ocean-realistic-global-restart"><span class="std std-ref">restart</span></a>, a short run split across a restart,
+checking that the history output survives the restart intact.</p></li>
 </ul>
 <section id="supported-models">
 <h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">woa23</span></code> task is model-independent and does not require either MPAS-Ocean
 or Omega to be built.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> tasks support both MPAS-Ocean and Omega.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">restart</span></code> task supports Omega only.  It is a regression test for the way
+Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
+output with <code class="docutils literal notranslate"><span class="pre">xtime</span></code> rather than an elapsed time measured from the start of the
+clock, so the failure it looks for cannot arise there.</p>
 </section>
 <section id="woa23">
 <span id="ocean-realistic-global-woa23"></span><h2>woa23<a class="headerlink" href="#woa23" title="Link to this heading"></a></h2>
@@ -377,6 +384,90 @@ supports the standard Polaris colormap options described in
 <p>The number of cores used by the <code class="docutils literal notranslate"><span class="pre">forward</span></code> step is determined
 algorithmically from the number of cells in the mesh. The <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> and
 <code class="docutils literal notranslate"><span class="pre">viz</span></code> steps run serially.</p>
+</section>
+</section>
+<section id="restart">
+<span id="ocean-realistic-global-restart"></span><h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
+<p>This task checks that splitting a run across a restart leaves the history
+output alone.  It is a regression test for
+<a class="reference external" href="https://github.com/E3SM-Project/Omega/issues/482">Omega #482</a>, where a run
+continued from a restart silently overwrote the history frames written before
+the restart instead of appending to them, leaving a file that was well formed
+and simply missing the earlier half of the run.</p>
+<p>It can be set up with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/QU.240km/restart<span class="w"> </span>...
+</pre></div>
+</div>
+<section id="id9">
+<h3>description<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>The task contains four steps:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">full_run</span></code> covers the whole four-hour period in one go.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">first_segment</span></code> covers the first two hours and writes a restart.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">second_segment</span></code> continues from that restart and covers the last two hours,
+appending its history frames to the ones <code class="docutils literal notranslate"><span class="pre">first_segment</span></code> left behind.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">validate</span></code> compares the history of the restart chain with the history of
+the full run.</p></li>
+</ol>
+<p>Each segment writes its restart into a directory of its own under the task’s
+<code class="docutils literal notranslate"><span class="pre">restarts</span></code> directory, and a continuing segment reads its predecessor’s.
+<code class="docutils literal notranslate"><span class="pre">second_segment</span></code> starts from a copy of <code class="docutils literal notranslate"><span class="pre">first_segment</span></code>’s <code class="docutils literal notranslate"><span class="pre">output.nc</span></code>, so that
+it finds on disk what a continuation run would find: a history file that
+already holds the earlier frames and has to be appended to.</p>
+<p><code class="docutils literal notranslate"><span class="pre">validate</span></code> checks two things, because a restart can go wrong in two ways.  The
+time axis has to hold every frame of the whole period, in increasing order,
+which is what #482 broke.  The state then has to match the uninterrupted run,
+which is the usual exact-restart check.</p>
+</section>
+<section id="id10">
+<h3>mesh<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code> quasi-uniform 240-km mesh, downloaded from the Polaris input
+database, as for the <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> tasks.</p>
+</section>
+<section id="id11">
+<h3>vertical grid<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>The vertical grid is the one supplied with the cached initial condition.</p>
+</section>
+<section id="id12">
+<h3>initial conditions<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<p>A cached TEOS-10 Omega initial condition from the <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> section
+of the Polaris input database, which supplies the mesh, vertical coordinate
+and initial state.</p>
+</section>
+<section id="id13">
+<h3>forcing<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<p>As for the <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> tasks: zonal and meridional wind stress from the
+initial-condition file, applied through bulk wind stress.</p>
+</section>
+<section id="id14">
+<h3>time step and run duration<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<p>The task uses the split-explicit time stepper (<code class="docutils literal notranslate"><span class="pre">SplitExplicitRK2</span></code> in Omega)
+with a 1-hour baroclinic and a 3-minute barotropic time step, and a biharmonic
+momentum viscosity of 1.0e15 m^4/s, the settings of the year-long QU240 runs
+that the ocean analysis is tested on.  Each segment runs for two hours and the
+full run for four, with a history frame every hour, so each segment writes two
+frames and the whole period has four.  The period is short on purpose: the
+task is about how the model writes its history across a restart, not about the
+circulation, and it is meant to be cheap enough for the pull-request suite.</p>
+</section>
+<section id="id15">
+<h3>config options<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean]</span>
+
+<span class="c1"># Equation of state type</span>
+<span class="na">eos_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">teos-10</span>
+
+<span class="k">[realistic_global]</span>
+
+<span class="c1"># Time step duration per kilometer [s]</span>
+<span class="na">dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+</pre></div>
+</div>
+</section>
+<section id="id16">
+<h3>cores<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<p>The number of cores used by each forward step is determined algorithmically
+from the number of cells in the mesh.  The <code class="docutils literal notranslate"><span class="pre">validate</span></code> step runs serially.</p>
 </section>
 </section>
 </section>

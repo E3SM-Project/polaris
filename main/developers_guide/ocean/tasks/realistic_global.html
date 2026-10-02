@@ -88,6 +88,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">realistic_global</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#framework">framework</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis-members">analysis_members</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#hydrography-woa23">hydrography/woa23</a></li>
 </ul>
 </li>
@@ -154,7 +155,7 @@
   <section class="tex2jax_ignore mathjax_ignore" id="realistic-global">
 <span id="dev-ocean-realistic-global"></span><h1>realistic_global<a class="headerlink" href="#realistic-global" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> tasks in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global</span></code> use
-realistic global ocean meshes, bathymetry and forcing.  They fall into two
+realistic global ocean meshes, bathymetry and forcing.  They fall into three
 groups:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">hydrography/woa23</span></code>, a mesh-independent preprocessing task that builds a
@@ -162,11 +163,13 @@ reusable hydrography product from the World Ocean Atlas 2023 on its native
 0.25-degree latitude-longitude grid.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">analysis_members</span></code>, short forward runs on realistic global meshes that
 exercise the global-statistics analysis member in both MPAS-Ocean and Omega.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restart</span></code>, a short Omega run split across a restart, checking that the
+history output survives the restart intact.</p></li>
 </ul>
 <p>Tasks are added to the ocean component by
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.add_realistic_global_tasks.html#polaris.tasks.ocean.realistic_global.add_realistic_global_tasks" title="polaris.tasks.ocean.realistic_global.add_realistic_global_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.add_realistic_global_tasks()</span></code></a>,
-which registers the <code class="docutils literal notranslate"><span class="pre">woa23</span></code> task and one <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> task per mesh in
-its <code class="docutils literal notranslate"><span class="pre">mesh_dict</span></code>.  Adding a new mesh requires only a new entry in that
+which registers the <code class="docutils literal notranslate"><span class="pre">woa23</span></code> task, one <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> task per mesh in its
+<code class="docutils literal notranslate"><span class="pre">mesh_dict</span></code>, and a single <code class="docutils literal notranslate"><span class="pre">restart</span></code> task on <code class="docutils literal notranslate"><span class="pre">QU.240km</span></code>.  Adding a new mesh requires only a new entry in that
 dictionary giving the MPAS-Ocean and Omega initial-condition IDs and the cell
 count, plus a matching entry in the <code class="docutils literal notranslate"><span class="pre">mesh_info</span></code> dictionary in
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers.html#polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers" title="polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_members.AnalysisMembers</span></code></a>
@@ -247,6 +250,71 @@ the model is known.</p></li>
 standard deviation is recovered as
 <span class="math notranslate nohighlight">\(\sigma = \sqrt{\mathrm{rms}^2 - \mathrm{mean}^2}\)</span>.</p></li>
 </ul>
+</section>
+</section>
+<section id="restart">
+<span id="dev-ocean-realistic-global-restart"></span><h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.restart.Restart.html#polaris.tasks.ocean.realistic_global.restart.Restart" title="polaris.tasks.ocean.realistic_global.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.restart.Restart</span></code></a> task is a
+regression test for
+<a class="reference external" href="https://github.com/E3SM-Project/Omega/issues/482">Omega #482</a>.  It runs the
+same period twice, once in one go and once split across a restart, and checks
+that the two histories agree.</p>
+<p>The run lengths live as module-level constants in the task rather than in the
+config file, since they are chosen to make the failure visible – two history
+frames per segment, so that a segment that clobbered rather than appended
+would be obvious – rather than to be tuned by a user.</p>
+<p>The per-mesh time steps and viscosity are module-level constants too.  The
+viscosity is passed to every step as a model config option rather than set in
+the task’s <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code>, which only the segments of the restart chain read,
+so that the full run and the chain run the same model.</p>
+<section id="restart-step">
+<h3>restart_step<a class="headerlink" href="#restart-step" title="Link to this heading"></a></h3>
+<p>The class
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep</span></code></a>
+extends the shared <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step with what a segment of a restart chain
+needs.  <code class="docutils literal notranslate"><span class="pre">setup()</span></code> layers the task’s own <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> on top of the shared
+one; because model config data is processed in the order it was added, the
+task’s overrides win.  It also rejects any model other than Omega, since the
+failure being tested cannot arise in MPAS-Ocean.</p>
+<p><code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> creates the restart directory this segment writes into,
+which Omega does not create itself, and, for a continuing segment, copies the
+previous segment’s <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> into place.  Each segment gets a directory of
+its own under the task’s <code class="docutils literal notranslate"><span class="pre">restarts</span></code>, named for the step, and a continuing
+segment reads its predecessor’s.  A single shared directory would mean a
+segment’s own end-of-run restart replaced the pointer file it had just read
+from, so re-running that step alone would silently continue from the wrong
+time.  The copy is what makes the test
+meaningful: it reproduces what a continuation run finds on disk, a history
+file that already holds the earlier frames.  It is a copy rather than a
+symlink so that appending to it cannot reach back into the previous segment’s
+work directory.</p>
+<p>The previous segment’s output is also added as an input file under the name
+<code class="docutils literal notranslate"><span class="pre">previous_output.nc</span></code>, which both establishes the dependency between the two
+steps and keeps the symlink out of the way of the copy.</p>
+</section>
+<section id="the-start-time">
+<h3>the start time<a class="headerlink" href="#the-start-time" title="Link to this heading"></a></h3>
+<p>The one subtlety in <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> is that every step is given the same
+<code class="docutils literal notranslate"><span class="pre">StartTime</span></code>, the start of the simulation, rather than the start of its own
+segment.  Omega measures the history time axis from the clock’s start time, so
+a segment that moves the start time restarts that axis at zero, and its first
+frame then collides with the first frame already in the file.  That collision
+is what silently overwrote the earlier frames in #482.  On a <code class="docutils literal notranslate"><span class="pre">Continue</span></code> the
+clock’s current time comes from the restart file instead, so the start time
+does not need to move.</p>
+</section>
+<section id="validate">
+<h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
+<p>The class
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.restart.validate.Validate.html#polaris.tasks.ocean.realistic_global.restart.validate.Validate" title="polaris.tasks.ocean.realistic_global.restart.validate.Validate"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.restart.validate.Validate</span></code></a>
+compares the history of the restart chain with that of the full run in two
+ways.  It reads the elapsed-time coordinate with <code class="docutils literal notranslate"><span class="pre">xarray</span></code> directly, rather
+than through the Omega-to-MPAS-Ocean renaming in <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code>,
+because that coordinate is the variable under test; it then compares the state
+variables with <a class="reference internal" href="../../generated/polaris.validate.compare_variables.html#polaris.validate.compare_variables" title="polaris.validate.compare_variables"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.validate.compare_variables()</span></code></a> as any other
+exact-restart test would.  A chain that wrote fewer frames than the full run
+is reported as the #482 failure specifically, since that is the shape the bug
+takes.</p>
 </section>
 </section>
 <section id="hydrography-woa23">

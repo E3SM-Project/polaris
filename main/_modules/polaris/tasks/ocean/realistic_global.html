@@ -117,6 +117,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.hydrography.woa23</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Woa23</span> <span class="k">as</span> <span class="n">Woa23</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.restart</span><span class="w"> </span><span class="kn">import</span> <span class="n">Restart</span> <span class="k">as</span> <span class="n">Restart</span>
 
 
 <div class="viewcode-block" id="add_realistic_global_tasks">
@@ -147,7 +148,22 @@
                 <span class="n">omega_id</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">'omega_id'</span><span class="p">],</span>
                 <span class="n">ncells</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">'ncells'</span><span class="p">],</span>
             <span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+    <span class="c1"># the restart task is only defined for the mesh it is cheap enough to run</span>
+    <span class="c1"># on in the pull-request suite</span>
+    <span class="n">mesh_name</span> <span class="o">=</span> <span class="s1">'QU.240km'</span>
+    <span class="n">mesh_info</span> <span class="o">=</span> <span class="n">mesh_dict</span><span class="p">[</span><span class="n">mesh_name</span><span class="p">]</span>
+    <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
+        <span class="n">Restart</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'spherical/realistic_global/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+            <span class="n">mpaso_id</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">'mpaso_id'</span><span class="p">],</span>
+            <span class="n">omega_id</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">'omega_id'</span><span class="p">],</span>
+            <span class="n">ncells</span><span class="o">=</span><span class="n">mesh_info</span><span class="p">[</span><span class="s1">'ncells'</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
 
 </pre></div>
 
