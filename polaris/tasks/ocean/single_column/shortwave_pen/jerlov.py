@@ -38,8 +38,8 @@ JERLOV_DEPTH2 = {1: 23.0, 2: 20.0, 3: 17.0, 4: 14.0, 5: 7.90}
 
 # The Manizza band fractions Omega defaults to, used to split the visible
 # fraction between the red and blue bands in the same proportion.
-MANIZZA_RED_FRACTION = 0.23
-MANIZZA_BLUE_FRACTION = 0.19
+MANIZZA_RED_FRACTION = 0.21
+MANIZZA_BLUE_FRACTION = 0.21
 
 
 def omega_jerlov_equivalent(water_type):
@@ -60,7 +60,8 @@ def omega_jerlov_equivalent(water_type):
     -------
     options : dict
         The ``NearIrFraction``, ``NearIrCoeff``, ``RedFraction`` and
-        ``BlueFraction`` config options for Omega's ``Tendencies`` section
+        ``BlueFraction`` config options for Omega's
+        ``Tendencies:PenetratingShortwaveTendency`` section
 
     extinction_coeff : float
         The extinction coefficient to use for both the red and blue bands
