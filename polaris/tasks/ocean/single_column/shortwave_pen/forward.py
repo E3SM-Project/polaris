@@ -132,7 +132,6 @@ class ShortwavePenForward(Forward):
                     'RedFraction': section.getfloat('red_fraction'),
                     'BlueFraction': section.getfloat('blue_fraction'),
                 }
-            options['PenetratingShortwaveTendencyEnable'] = True
             self.add_model_config_options(
                 options=options, config_model='Omega'
             )
