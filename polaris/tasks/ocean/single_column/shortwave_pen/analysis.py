@@ -1,34 +1,33 @@
-import numpy as np
-
 from polaris.constants import get_constant
 from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep
-from polaris.tasks.ocean.single_column.thermo.analysis import CP0_SW
+from polaris.tasks.ocean.single_column.shortwave_pen.jerlov import (
+    JERLOV_WATER_TYPES,
+)
 
 
 class Analysis(OceanIOStep):
     """
-    A step that compares the ``forward_constant`` (all shortwave heating
-    absorbed in the surface layer) and ``forward_pen`` (Omega's
-    penetrating-shortwave-radiation scheme) runs of the ``shortwave_pen``
-    task.
+    A step that checks how the column potential energy of the ``jerlov`` runs
+    of the ``shortwave_pen`` task varies with water clarity.
 
-    Two quantities are checked:
+    Every run is driven by the same incident surface shortwave flux, so they
+    all add the same energy to the column; the conservation of that energy is
+    checked by the property checks on the forward steps themselves.  What
+    differs is where the heat ends up.  Clearer water lets the flux penetrate
+    further, lowering density deeper in the column, which raises the column
+    potential energy more than depositing the same heat near the surface.
+    The check therefore requires the potential energy gain to decrease as the
+    water grows more turbid.
 
-    * the column-integrated heating (the mass-weighted temperature change
-      summed over the water column) should be identical between the two
-      runs, since both are driven by the same incident surface flux and the
-      extinction coefficients used to build the penetrating-shortwave
-      forcing are large enough that a negligible amount of shortwave flux
-      escapes through the bottom of the column
-    * the column potential energy is expected to increase more for the
-      penetrating-shortwave run, since heat deposited at depth lowers
-      density deeper in the water column, producing a larger increase in
-      column potential energy than concentrating all heating at the
-      surface
+    Attributes
+    ----------
+    water_types : list of int
+        The Jerlov water types being compared, in increasing order of
+        turbidity
     """
 
-    def __init__(self, component, indir, init, constant_step, pen_step):
+    def __init__(self, component, indir, init, water_types):
         """
         Create the step
 
@@ -44,14 +43,11 @@ class Analysis(OceanIOStep):
         init : polaris.Step
             The initial-condition step providing the mesh
 
-        constant_step : polaris.Step
-            The forward step with all shortwave heating absorbed at the
-            surface
-
-        pen_step : polaris.Step
-            The forward step with penetrating shortwave radiation enabled
+        water_types : list of int
+            The Jerlov water types to compare
         """
         super().__init__(component=component, name='analysis', indir=indir)
+        self.water_types = sorted(water_types)
         self.add_input_file(
             filename='mesh.nc', work_dir_target=f'{init.path}/culled_mesh.nc'
         )
@@ -59,14 +55,11 @@ class Analysis(OceanIOStep):
             filename='init.nc',
             work_dir_target=f'{init.path}/init.nc',
         )
-        self.add_input_file(
-            filename='output_constant.nc',
-            work_dir_target=f'{constant_step.path}/output.nc',
-        )
-        self.add_input_file(
-            filename='output_pen.nc',
-            work_dir_target=f'{pen_step.path}/output.nc',
-        )
+        for water_type in self.water_types:
+            self.add_input_file(
+                filename=f'output_jerlov_type{water_type}.nc',
+                target=f'../forward_jerlov_type{water_type}/output.nc',
+            )
 
     def run(self):
         """
@@ -74,54 +67,45 @@ class Analysis(OceanIOStep):
         """
         config = self.config
         logger = self.logger
-        tol = config.getfloat(
-            'single_column_shortwave_pen', 'heating_error_tolerance'
-        )
-        rho_sw = get_constant('seawater_density_reference')
         gravity = get_constant('standard_acceleration_of_gravity')
 
-        ds_mesh = self.open_model_dataset('mesh.nc', config=config)
-        area = ds_mesh['areaCell'].values.astype(float)
-
         ds_init = self.open_model_dataset('init.nc', config=config)
-        ds_const = self.open_model_dataset('output_constant.nc', config=config)
-        ds_pen = self.open_model_dataset('output_pen.nc', config=config)
-
-        heat_const = _column_heating(ds_init, ds_const, area, rho_sw)
-        heat_pen = _column_heating(ds_init, ds_pen, area, rho_sw)
-
-        rel_err = abs(heat_const - heat_pen) / abs(heat_const)
-        logger.info(
-            'Column-integrated heating over the run:\n'
-            f'  constant (surface-absorbed): {heat_const:.6e} J\n'
-            f'  penetrating shortwave:       {heat_pen:.6e} J\n'
-            f'  relative difference:         {rel_err:.3e} (tol {tol:g})'
-        )
-        if rel_err > tol:
-            raise ValueError(
-                'The column-integrated heating differs between the '
-                'constant-absorption and penetrating-shortwave runs by '
-                f'more than the tolerance ({rel_err:.3e} > {tol:g}).'
-            )
-
         pe0 = _potential_energy(ds_init, config, gravity, time_index=0)
-        pe_const = _potential_energy(ds_const, config, gravity, time_index=-1)
-        pe_pen = _potential_energy(ds_pen, config, gravity, time_index=-1)
-        dpe_const = pe_const - pe0
-        dpe_pen = pe_pen - pe0
-        logger.info(
-            'Column potential energy change over the run:\n'
-            f'  constant (surface-absorbed): {dpe_const:.6e} J/m^2\n'
-            f'  penetrating shortwave:       {dpe_pen:.6e} J/m^2'
-        )
-        if dpe_pen <= dpe_const:
-            raise ValueError(
-                'Expected the penetrating-shortwave run, which deposits '
-                'heat deeper in the water column, to increase the column '
-                'potential energy more than the constant-absorption run, '
-                'which concentrates the heating at the surface '
-                f'(dPE_pen={dpe_pen:.6e} <= dPE_const={dpe_const:.6e}).'
+
+        changes = dict()
+        for water_type in self.water_types:
+            ds = self.open_model_dataset(
+                f'output_jerlov_type{water_type}.nc', config=config
             )
+            pe = _potential_energy(ds, config, gravity, time_index=-1)
+            changes[water_type] = pe - pe0
+
+        summary = '\n'.join(
+            f'  type {water_type} ({JERLOV_WATER_TYPES[water_type]}): '
+            f'{changes[water_type]:.6e} J/m^2'
+            for water_type in self.water_types
+        )
+        logger.info(f'Column potential energy change over the run:\n{summary}')
+
+        if len(self.water_types) < 2:
+            logger.info(
+                'Fewer than two water types were run, so the potential '
+                'energy comparison is skipped'
+            )
+            return
+
+        for clearer, murkier in zip(
+            self.water_types[:-1], self.water_types[1:], strict=False
+        ):
+            if changes[clearer] <= changes[murkier]:
+                raise ValueError(
+                    f'Expected Jerlov water type {clearer} '
+                    f'({JERLOV_WATER_TYPES[clearer]}), which is clearer and '
+                    f'so deposits heat deeper, to increase the column '
+                    f'potential energy more than water type {murkier} '
+                    f'({JERLOV_WATER_TYPES[murkier]}) '
+                    f'({changes[clearer]:.6e} <= {changes[murkier]:.6e}).'
+                )
 
 
 def _pick(ds, *names):
@@ -140,29 +124,6 @@ def _at_time(da, time_index):
         if time_dim in da.dims:
             return da.isel({time_dim: time_index})
     return da
-
-
-def _column_heating(ds_init, ds_final, area, rho_sw):
-    """
-    The change in column-integrated heat content (J), summed over the
-    domain, between the initial condition and the final snapshot of
-    ``ds_final``
-    """
-    thickness0 = _at_time(
-        _pick(ds_init, 'PseudoThickness', 'layerThickness'), 0
-    )
-    temperature0 = _at_time(_pick(ds_init, 'Temperature', 'temperature'), 0)
-    thickness1 = _at_time(
-        _pick(ds_final, 'PseudoThickness', 'layerThickness'), -1
-    )
-    temperature1 = _at_time(_pick(ds_final, 'Temperature', 'temperature'), -1)
-
-    dims = thickness0.dims
-    vert_dim = 'NVertLayers' if 'NVertLayers' in dims else 'nVertLevels'
-
-    ht0 = (thickness0 * temperature0).sum(dim=vert_dim).values.astype(float)
-    ht1 = (thickness1 * temperature1).sum(dim=vert_dim).values.astype(float)
-    return float(np.sum(rho_sw * CP0_SW * area * (ht1 - ht0)))
 
 
 def _potential_energy(ds, config, gravity, time_index):

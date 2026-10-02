@@ -11,12 +11,14 @@ the vertical dynamics of the ocean model only. The test cases are:
 - Testing the Ekman solution under wind forcing
 - Testing the Ideal Age tracer under surface forcing
 - Testing the Coriolis term by quantifying the inertial frequency
-- Comparing Omega's penetrating-shortwave-radiation scheme against
-  surface-absorbed shortwave heating
+- Comparing penetrating-shortwave-radiation schemes across Jerlov water types
 
 ## suppported models
 
-All but the ideal age task support MPAS-Ocean and Omega, whereas the ideal age task supports MPAS-Ocean only. The `shortwave_pen` task supports Omega only, since the MPAS-Ocean shortwave penetration scheme is very different from Omega.
+All but the ideal age task support MPAS-Ocean and Omega, whereas the ideal age
+task supports MPAS-Ocean only. The `shortwave_pen` task supports both models.
+MPAS-Ocean uses its two-band Jerlov scheme, while Omega runs both an equivalent
+configuration and a three-band Manizza configuration.
 ## mesh
 
 The mesh is planar and spans the minimum number of cells (16 for MPAS-Ocean).
@@ -586,23 +588,18 @@ See {ref}`ocean-single-column`.
 
 ### description
 
-The `shortwave_pen` task compares Omega's penetrating-shortwave-radiation
-tendency term against the default behavior of absorbing all incident
-shortwave heat flux in the surface layer. It runs an `extinction` step that
-builds a forcing file of red- and blue-band extinction coefficients, then two
-forward runs of 3 hours each with an identical constant incident surface
-shortwave flux: `forward_constant` (penetrating shortwave disabled, matching
-the default behavior of applying shortwave heating at the surface) and
-`forward_pen` (penetrating shortwave enabled, using the extinction
-coefficients from the `extinction` step). The `analysis` step compares the
-resulting temperature profiles, checks that the column-integrated heating is
-the same between the two runs (since both are forced by the same total
-incident shortwave flux), and checks that the increase in column potential
-energy in the penetrating-shortwave run exceeds that of the
-constant-absorption run (depositing heat deeper in the column lowers density
-deeper in the ocean column). The `viz` step generates plots of the vertical
-profiles for both runs and the difference profiles (such as
-`temperature_diff.png`).
+The `shortwave_pen` task runs three-hour forward simulations for the selected
+Jerlov water types (types I, IB and III by default). MPAS-Ocean uses its
+two-band Jerlov scheme. Omega runs a Jerlov-equivalent configuration and a
+three-band Manizza configuration with distinct red and blue extinction
+coefficients. All runs use the same constant incident shortwave flux.
+
+Each forward step uses the shared conservation checks to compare the change in
+column energy with the incident shortwave energy. The analysis step checks that
+the potential-energy increase is larger for clearer water, which deposits heat
+deeper in the column. The viz step produces temperature profiles, temperature
+anomalies and analytic absorption-fraction profiles. A run from the other
+model can be overlaid by setting `reference_output_dir`.
 
 ### mesh
 
@@ -619,26 +616,26 @@ depth. See {ref}`ocean-single-column`.
 
 ### forcing
 
-A constant incident surface shortwave heat flux is applied in both forward
-runs, overriding the default in {ref}`ocean-single-column`:
+A constant incident surface shortwave heat flux is applied in every forward
+run, overriding the default in {ref}`ocean-single-column`:
 
 ```cfg
 # config options for forcing single column testcases
 [single_column_forcing]
 
-# Constant incident surface shortwave heat flux applied to both forward
-# runs [W/m^2]. Positive values indicate a net input of heat to the ocean.
+# Constant incident surface shortwave heat flux applied to every forward
+# run [W/m^2]. Positive values indicate a net input of heat to the ocean.
 short_wave_heat_flux = 200.0
 ```
 
-`forward_pen` additionally reads the extinction-coefficient forcing file
-produced by the `extinction` step.
+Omega reads the extinction-coefficient forcing files produced by the
+`extinction` steps. MPAS-Ocean reads the Jerlov coefficients from its model
+configuration.
 
 ### time step and run duration
 
 The time step is given in {ref}`ocean-single-column`. The run duration is three
-hours, long enough for the two runs to develop a detectable difference in
-their temperature profiles, and output is written every 600 s, overriding the
+hours, and output is written every 600 s, overriding the
 multi-day defaults in {ref}`ocean-single-column`:
 
 ```cfg
@@ -657,18 +654,40 @@ output_interval = 600.
 # config options for the shortwave_pen single-column task
 [single_column_shortwave_pen]
 
-# Red-band extinction coefficient used to build the extinction-coefficient
-# forcing file for the penetrating-shortwave run [1/m]
+# Red-band extinction coefficient for the type-I Manizza run [1/m]. Other
+# water types scale this value to preserve the red/blue ratio.
 extinction_coeff_red = 0.35
 
-# Blue-band extinction coefficient used to build the extinction-coefficient
-# forcing file for the penetrating-shortwave run [1/m]
+# Blue-band extinction coefficient for the type-I Manizza run [1/m]
 extinction_coeff_blue = 0.03
 
-# Relative tolerance used when comparing the column-integrated heating
-# between the constant-absorption and penetrating-shortwave runs
-heating_error_tolerance = 1.0e-10
+# Jerlov water types to run: I, IB and III
+water_types = 1, 3, 5
+
+# Omega Manizza band parameters
+near_ir_fraction = 0.58
+near_ir_coeff = 2.86
+red_fraction = 0.23
+blue_fraction = 0.19
+
+# Work directory from the other model, used for optional viz overlays
+reference_output_dir =
 ```
+
+For the Jerlov-equivalent Omega runs, the parameters are mapped from the
+MPAS-Ocean Jerlov table as follows:
+
+| Parameter | Value |
+| --- | --- |
+| `NearIrFraction` | `rfac` |
+| `NearIrCoeff` | `1 / depth1` |
+| `RedFraction + BlueFraction` | `1 - rfac` |
+| `Kred = Kblue` | `1 / depth2` |
+
+The red and blue fractions retain the Manizza ratio while summing to the
+Jerlov visible fraction. MPAS-Ocean enables
+`config_enable_shortwave_energy_fixer` so the residual below its 200 m optical
+cutoff is deposited in the bottom layer.
 
 All other config options shown in {ref}`ocean-single-column` are also used.
 

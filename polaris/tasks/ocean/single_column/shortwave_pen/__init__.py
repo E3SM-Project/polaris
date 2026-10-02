@@ -9,21 +9,29 @@ from polaris.tasks.ocean.single_column.shortwave_pen.extinction import (
 from polaris.tasks.ocean.single_column.shortwave_pen.forward import (
     ShortwavePenForward,
 )
-from polaris.tasks.ocean.single_column.viz import Viz
+from polaris.tasks.ocean.single_column.shortwave_pen.jerlov import (
+    manizza_scale,
+    omega_jerlov_equivalent,
+)
+from polaris.tasks.ocean.single_column.shortwave_pen.viz import Viz
 
 
 class ShortwavePen(Task):
     """
-    A single-column test that compares Omega's penetrating-shortwave-
-    radiation scheme against the default behavior of absorbing all
-    shortwave heating in the surface layer.  Both runs are driven by the
-    same constant, uniform incident surface shortwave flux for 3 hours;
-    the column-integrated heating should be identical between the two runs
-    while the vertical distribution of the heating, and thus the resulting
-    temperature profile and column potential energy, should differ.
+    A single-column test of penetrating shortwave radiation over a range of
+    Jerlov water types.  Every run is driven by the same constant, uniform
+    incident surface shortwave flux for 3 hours, so the incident energy is
+    identical and only the vertical distribution of the heating differs.
 
-    This task requires Omega; MPAS-Ocean does not implement a penetrating-
-    shortwave-radiation scheme.
+    Each water type gets a ``jerlov`` run, in which MPAS-Ocean's two-band
+    scheme and Omega's three-band scheme are configured to absorb the flux
+    identically.  Under Omega each water type additionally gets a ``manizza``
+    run, whose red and blue bands take distinct extinction coefficients, to
+    show what the third band changes.
+
+    The constructor builds the Omega superset of steps so component
+    configuration can detect the required ocean I/O and model support.  The
+    steps are rebuilt for the selected ocean model in :py:meth:`configure`.
     """
 
     def __init__(self, component, indir):
@@ -34,6 +42,9 @@ class ShortwavePen(Task):
         ----------
         component : polaris.tasks.ocean.Ocean
             The ocean component that this task belongs to
+
+        indir : str
+            The directory the task is in
         """
         name = 'shortwave_pen'
         subdir = os.path.join(indir, name)
@@ -48,6 +59,40 @@ class ShortwavePen(Task):
             'shortwave_pen.cfg',
         )
 
+        self._setup_steps(model='omega')
+
+    def configure(self):
+        """
+        Build the steps now that the ocean model and the water types to run
+        are known
+        """
+        super().configure()
+        model = self.config.get('ocean', 'model')
+        self._setup_steps(model=model)
+
+    def _setup_steps(self, model):
+        """
+        Add a forward step for each water type, along with the Omega-only
+        Manizza runs and the extinction-coefficient steps they need
+
+        Parameters
+        ----------
+        model : {'mpas-ocean', 'omega'}
+            The ocean model to build steps for
+        """
+        config = self.config
+        component = self.component
+        subdir = self.subdir
+        section = config['single_column_shortwave_pen']
+        water_types = config.getlist(
+            'single_column_shortwave_pen', 'water_types', dtype=int
+        )
+        coeff_red = section.getfloat('extinction_coeff_red')
+        coeff_blue = section.getfloat('extinction_coeff_blue')
+
+        for step in list(self.steps.values()):
+            self.remove_step(step)
+
         init_step = Init(
             component,
             name='init',
@@ -56,62 +101,67 @@ class ShortwavePen(Task):
         )
         self.add_step(init_step)
 
-        extinction_step = Extinction(
-            component=component,
-            subdir=f'{subdir}/extinction',
-            init=init_step,
-        )
-        self.add_step(extinction_step)
-
         validate_vars = ['temperature', 'salinity']
+        forward_steps = dict()
 
-        constant_step = ShortwavePenForward(
-            component=component,
-            init=init_step,
-            extinction=extinction_step,
-            name='forward_constant',
-            indir=self.subdir,
-            use_penetrating_sw=False,
-            ntasks=1,
-            min_tasks=1,
-            openmp_threads=1,
-            validate_vars=validate_vars,
-        )
-        self.add_step(constant_step)
+        for water_type in water_types:
+            _, jerlov_coeff = omega_jerlov_equivalent(water_type)
+            scale = manizza_scale(water_type)
+            coeffs = {
+                'jerlov': (jerlov_coeff, jerlov_coeff),
+                'manizza': (coeff_red * scale, coeff_blue * scale),
+            }
+            # only Omega has a third band to vary
+            schemes = ['jerlov'] if model == 'mpas-ocean' else list(coeffs)
 
-        pen_step = ShortwavePenForward(
-            component=component,
-            init=init_step,
-            extinction=extinction_step,
-            name='forward_pen',
-            indir=self.subdir,
-            use_penetrating_sw=True,
-            ntasks=1,
-            min_tasks=1,
-            openmp_threads=1,
-            validate_vars=validate_vars,
-        )
-        self.add_step(pen_step)
+            for scheme in schemes:
+                suffix = f'{scheme}_type{water_type}'
+                red, blue = coeffs[scheme]
+                extinction_step = Extinction(
+                    component=component,
+                    name=f'extinction_{suffix}',
+                    subdir=f'{subdir}/extinction_{suffix}',
+                    init=init_step,
+                    extinction_coeff_red=red,
+                    extinction_coeff_blue=blue,
+                )
+                # MPAS-Ocean gets its coefficients from the Jerlov table in
+                # the model, so the forcing file would go unused
+                if model == 'omega':
+                    self.add_step(extinction_step)
+
+                forward_step = ShortwavePenForward(
+                    component=component,
+                    init=init_step,
+                    extinction=extinction_step,
+                    name=f'forward_{suffix}',
+                    indir=subdir,
+                    water_type=water_type,
+                    scheme=scheme,
+                    ntasks=1,
+                    min_tasks=1,
+                    openmp_threads=1,
+                    validate_vars=validate_vars,
+                )
+                self.add_step(forward_step)
+                forward_steps[suffix] = forward_step
 
         self.add_step(
             Analysis(
                 component=component,
-                indir=self.subdir,
+                indir=subdir,
                 init=init_step,
-                constant_step=constant_step,
-                pen_step=pen_step,
+                water_types=water_types,
             )
         )
         self.add_step(
             Viz(
                 component=component,
-                indir=self.subdir,
+                indir=subdir,
                 init=init_step,
+                water_types=water_types,
                 comparisons={
-                    'constant': '../forward_constant',
-                    'pen': '../forward_pen',
+                    suffix: f'../forward_{suffix}' for suffix in forward_steps
                 },
-                variables={'temperature': 'degC'},
-                plot_diff=True,
-            ),
+            )
         )
