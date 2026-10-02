@@ -215,6 +215,7 @@
     <span class="n">debug</span><span class="p">,</span>
     <span class="n">cmake_flags</span><span class="p">,</span>
     <span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">build_command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Make a shell script for checking out Omega and its submodules and building</span>
@@ -242,6 +243,12 @@
 
 <span class="sd">    account : str, optional</span>
 <span class="sd">        The account to use for the build.</span>
+
+<span class="sd">    build_command : str, optional</span>
+<span class="sd">        The command that builds Omega once CMake has configured it, run from</span>
+<span class="sd">        ``build_dir``.  The default is Omega's own ``./omega_build.sh``.  The</span>
+<span class="sd">        CTest utility passes a ``ctest -S`` command here so the build is</span>
+<span class="sd">        recorded for CDash.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -275,6 +282,9 @@
     <span class="k">if</span> <span class="n">account</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cmake_flags</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cmake_flags</span><span class="si">}</span><span class="s1"> -DOMEGA_CIME_PROJECT=</span><span class="si">{</span><span class="n">account</span><span class="si">}</span><span class="s1">'</span>
 
+    <span class="k">if</span> <span class="n">build_command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">build_command</span> <span class="o">=</span> <span class="s1">'./omega_build.sh'</span>
+
     <span class="k">if</span> <span class="n">machine</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'pm-cpu'</span><span class="p">,</span> <span class="s1">'pm-gpu'</span><span class="p">]:</span>
         <span class="n">nersc_host</span> <span class="o">=</span> <span class="s1">'export NERSC_HOST="perlmuter"'</span>
     <span class="k">else</span><span class="p">:</span>
@@ -292,6 +302,7 @@
         <span class="n">build_type</span><span class="o">=</span><span class="n">build_type</span><span class="p">,</span>
         <span class="n">cmake_flags</span><span class="o">=</span><span class="n">cmake_flags</span><span class="p">,</span>
         <span class="n">nersc_host</span><span class="o">=</span><span class="n">nersc_host</span><span class="p">,</span>
+        <span class="n">build_command</span><span class="o">=</span><span class="n">build_command</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">script_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'build_omega_</span><span class="si">{</span><span class="n">machine</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">.sh'</span>
     <span class="n">script_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="n">script_filename</span><span class="p">)</span>
