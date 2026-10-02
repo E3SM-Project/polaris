@@ -28,6 +28,48 @@ ocean:
     config_disable_tr_adv: true
     config_disable_tr_vmix: true
 
+mpas-ocean:
+  io:
+    config_write_output_on_startup: false
+  frazil_ice:
+    config_use_frazil_ice_formation: false
+  tracer_forcing_activeTracers:
+    config_use_activeTracers_surface_bulk_forcing: true
+    config_use_activeTracers_surface_restoring: false
+    config_use_activeTracers_interior_restoring: false
+  cvmix:
+    config_use_cvmix_kpp: false
+    config_cvmix_background_scheme: constant
+    config_cvmix_shear_mixing_scheme: KPP
+  debug:
+    config_disable_vel_hadv: true
+    config_disable_vel_coriolis: true
+    config_disable_vel_hmix: true
+    config_disable_vel_topographic_wave_drag: true
+    config_disable_tr_nonlocalflux: true
+    config_disable_redi_k33: true
+  streams:
+    forcing_data:
+      type: input
+      filename_template: forcing.nc
+      input_interval: initial_only
+      contents:
+      - shortWaveHeatFlux
+    output:
+      type: output
+      filename_template: output.nc
+      output_interval: {{ output_interval }}
+      clobber_mode: truncate
+      contents:
+      - tracers
+      - xtime
+      - daysSinceStartOfSim
+      - zMid
+      - zTop
+      - layerThickness
+      - potentialDensity
+      - shortWaveHeatFlux
+
 Omega:
   Tendencies:
     TracerVertAdvTendencyEnable: false

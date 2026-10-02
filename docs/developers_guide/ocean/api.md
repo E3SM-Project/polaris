@@ -626,6 +626,14 @@
    thermo.analysis.Analysis
    thermo.analysis.Analysis.run
 
+   shortwave_pen.ShortwavePen
+   shortwave_pen.analysis.Analysis
+   shortwave_pen.analysis.Analysis.run
+   shortwave_pen.extinction.Extinction
+   shortwave_pen.forward.ShortwavePenForward
+   shortwave_pen.viz.Viz
+   shortwave_pen.viz.Viz.run
+
    viz.Viz
    viz.Viz.run
 ```

@@ -9,8 +9,7 @@ the vertical dynamics of the ocean model only. The test cases are:
 - Testing the Ideal Age tracer under surface forcing
 - Testing the Coriolis term by quantifying the inertial frequency
 - Testing the Ekman solution under wind forcing
-- Comparing Omega's penetrating-shortwave-radiation scheme against
-  surface-absorbed shortwave heating
+- Comparing penetrating-shortwave-radiation schemes across Jerlov water types
 
 Here, we describe the tests and their shared framework.
 
@@ -188,10 +187,10 @@ pseudo-thickness, the geometric `layerThickness` is used instead.
 ## shortwave_pen
 
 The {py:class}`polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen`
-task compares Omega's penetrating-shortwave-radiation tendency term against
-the default behavior of absorbing all incident shortwave heat flux in the
-surface layer. It supports Omega only, since the shortwave penetration 
-capability in Omega is very different from than what is in MPAS-Ocean.
+task compares penetrating shortwave radiation across Jerlov water types. It
+supports both MPAS-Ocean and Omega. MPAS-Ocean uses its two-band Jerlov
+scheme. Omega runs an equivalent configuration and a three-band Manizza
+configuration with distinct red and blue extinction coefficients.
 
 ### extinction
 
@@ -200,50 +199,43 @@ The
 step is the helper step that builds the extinction-coefficient forcing file,
 `shortwave_extinction_coeffs.nc`, read by Omega's penetrating-shortwave
 scheme. It writes uniform `ExtinctionCoeffRedCell` and
-`ExtinctionCoeffBlueCell` fields for the two-band exponential implemented in 
-omega. The coefficients are computed from the config options
+`ExtinctionCoeffBlueCell` fields. The type-I coefficients are taken from
 `single_column_shortwave_pen:extinction_coeff_red` and
-`single_column_shortwave_pen:extinction_coeff_blue`.
+`single_column_shortwave_pen:extinction_coeff_blue`; other water types scale
+both coefficients by the Jerlov visible-depth ratio.
 
 ### forward
 
 The
 {py:class}`polaris.tasks.ocean.single_column.shortwave_pen.forward.ShortwavePenForward`
 step subclasses
-{py:class}`polaris.tasks.ocean.single_column.forward.Forward` and adds a
-`use_penetrating_sw` attribute. When `True`, the step links in the extinction
-coefficient forcing file produced by the `extinction` step and sets Omega's
-`Tendencies:PenetratingShortwaveTendencyEnable` config option to `true`; when
-`False` the option is set to `false`, matching Omega's default behavior of
-absorbing shortwave flux in the surface layer. The task creates two such
-steps, `forward_constant` and `forward_pen`, using the same constant incident
-surface shortwave flux (`single_column_forcing:short_wave_heat_flux`) so that
-the two runs are forced identically apart from how that flux is distributed
-in the vertical. Both runs disable `config_use_cvmix_convection` and
-`config_use_cvmix_shear` to isolate the radiative heating from
-convective/shear-driven mixing, and the task overrides
-`single_column:run_duration` to run for 3 hours rather than the usual
-multi-day duration.
+{py:class}`polaris.tasks.ocean.single_column.forward.Forward`. Jerlov steps
+configure `config_sw_absorption_type = 'jerlov'` and
+`config_jerlov_water_type` for MPAS-Ocean. For Omega they enable
+`Tendencies:PenetratingShortwaveTendencyEnable` and set the four band
+parameters. MPAS-Ocean also enables
+`config_enable_shortwave_energy_fixer` to deposit the residual below the 200 m
+cutoff in the bottom layer. Every forward step disables
+`config_use_cvmix_convection` and `config_use_cvmix_shear` to isolate radiative
+heating, and the task runs for 3 hours rather than the usual multi-day
+duration.
 
 ### analysis
 
 The
 {py:class}`polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis`
-step compares the `forward_constant` and `forward_pen` outputs. It computes
-the column-integrated heating (mass-weighted temperature change) for each run
-and asserts they agree within `single_column_shortwave_pen:heating_error_tolerance`,
-since both runs are forced by the same total incident shortwave flux. It also
-computes the column potential energy using
-{py:func}`polaris.ocean.eos.compute_density` and asserts that the increase in
-potential energy in `forward_pen` exceeds that in `forward_constant`,
-since depositing heat deeper in the column lowers density deeper in the
-gravity well.
+step reads the Jerlov-equivalent outputs and checks that the column
+potential-energy increase decreases as the water becomes more turbid. Energy
+conservation itself is provided by the property checks registered by the
+shared `Forward` step, which use
+{py:func}`polaris.ocean.conservation.compute_total_energy` and
+{py:func}`polaris.ocean.conservation.compute_flux_forcing`.
 
 ### viz
 
-The
-{py:class}`polaris.tasks.ocean.single_column.viz.Viz`
-step plots vertical profiles of temperature for both
-runs, as well as the vertical difference profile (`temperature_diff.png`)
-highlighting the difference between penetrating shortwave radiation and
-surface-absorbed heating.
+The task-local
+{py:class}`polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz`
+step plots temperature profiles and anomalies for every water type, and an
+analytic absorption-fraction comparison between the two-band Jerlov and
+three-band Manizza schemes. It can overlay outputs from a run using the other
+ocean model when `reference_output_dir` is configured.

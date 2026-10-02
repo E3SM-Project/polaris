@@ -273,8 +273,7 @@ class Viz(OceanIOStep):
                     self.variables,
                     comparisons,
                     ds_list,
-                    z_mid_final,
-                    z_interface_final,
+                    ds_vert,
                     ymin,
                     ymax,
                 )
@@ -284,8 +283,7 @@ def _plot_diff_profiles(
     variables,
     comparisons,
     ds_list,
-    z_mid_final,
-    z_interface_final,
+    ds_vert,
     ymin,
     ymax,
 ):
@@ -310,12 +308,12 @@ def _plot_diff_profiles(
             u_diff = ds2['velocityZonal'].mean(dim='nCells') - ds1[
                 'velocityZonal'
             ].mean(dim='nCells')
-            z = _vertical_coord(
-                'velocityZonal',
-                u_diff,
-                z_mid_final,
-                z_interface_final,
-            )
+            z = vertical_coord_from_location(
+                ds2,
+                location_for_field(u_diff),
+                allow_reconstruct=True,
+                ds_vert=ds_vert,
+            ).mean(dim='nCells')
             plt.plot(
                 u_diff,
                 z,
@@ -327,12 +325,12 @@ def _plot_diff_profiles(
             v_diff = ds2['velocityMeridional'].mean(dim='nCells') - ds1[
                 'velocityMeridional'
             ].mean(dim='nCells')
-            z = _vertical_coord(
-                'velocityMeridional',
-                v_diff,
-                z_mid_final,
-                z_interface_final,
-            )
+            z = vertical_coord_from_location(
+                ds2,
+                location_for_field(v_diff),
+                allow_reconstruct=True,
+                ds_vert=ds_vert,
+            ).mean(dim='nCells')
             plt.plot(
                 v_diff,
                 z,
@@ -349,12 +347,12 @@ def _plot_diff_profiles(
             var_diff = ds2[field_name].mean(dim='nCells') - ds1[
                 field_name
             ].mean(dim='nCells')
-            z = _vertical_coord(
-                field_name,
-                var_diff,
-                z_mid_final,
-                z_interface_final,
-            )
+            z = vertical_coord_from_location(
+                ds2,
+                location_for_field(var_diff, field_name),
+                allow_reconstruct=True,
+                ds_vert=ds_vert,
+            ).mean(dim='nCells')
             plt.plot(
                 var_diff,
                 z,
