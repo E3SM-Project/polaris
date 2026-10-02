@@ -212,7 +212,7 @@ step subclasses
 {py:class}`polaris.tasks.ocean.single_column.forward.Forward`. Jerlov steps
 configure `config_sw_absorption_type = 'jerlov'` and
 `config_jerlov_water_type` for MPAS-Ocean. For Omega they enable
-`Tendencies:PenetratingShortwaveTendencyEnable` and set the four band
+`Tendencies:PenetratingShortwaveTendency:Enable` and set the four band
 parameters. MPAS-Ocean also enables
 `config_enable_shortwave_energy_fixer` to deposit the residual below the 200 m
 cutoff in the bottom layer. Every forward step disables

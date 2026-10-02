@@ -73,6 +73,8 @@ mpas-ocean:
 Omega:
   Tendencies:
     TracerVertAdvTendencyEnable: false
+    PenetratingShortwaveTendency:
+      Enable: true
   IOStreams:
     History:
       Filename: output.nc

@@ -667,8 +667,8 @@ water_types = 1, 3, 5
 # Omega Manizza band parameters
 near_ir_fraction = 0.58
 near_ir_coeff = 2.86
-red_fraction = 0.23
-blue_fraction = 0.19
+red_fraction = 0.21
+blue_fraction = 0.21
 
 # Work directory from the other model, used for optional viz overlays
 reference_output_dir =
