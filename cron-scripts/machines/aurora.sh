@@ -4,8 +4,8 @@
 # what deploy.py and the tasks need before any Polaris environment exists.
 
 # shellcheck disable=SC1091
-source /usr/share/lmod/8.7.59/init/bash
-export MODULEPATH="/opt/aurora/26.26.0/spack/unified/1.1.1/install/modulefiles/mpich/5.0.0.aurora_test.3c70a61-hlkigtk/Core:/opt/aurora/26.26.0/spack/unified/1.1.1/install/modulefiles/mpich/5.0.0.aurora_test.3c70a61-hlkigtk/intel-oneapi-compilers/2025.3.1:/opt/aurora/26.26.0/spack/unified/1.1.1/install/modulefiles/Core:/opt/aurora/26.26.0/spack/unified/1.1.1/install/modulefiles/intel-oneapi-compilers/2025.3.1:/usr/share/lmod/modulefiles/Linux:/usr/share/lmod/modulefiles/Core:/usr/share/lmod/lmod/modulefiles/Core:/opt/cray/pals/lmod/modulefiles/core:/opt/cray/modulefiles:/opt/aurora/26.26.0/modulefiles:/opt/aurora/25.190.0/modulefiles"
+source /usr/share/lmod/lmod/init/bash
+export MODULEPATH="/opt/aurora/26.181.0/spack/unified/1.1.1/install/modulefiles/mpich/5.0.0.aurora_test.87e2045-frxgreu/Core:/opt/aurora/26.181.0/spack/unified/1.1.1/install/modulefiles/mpich/5.0.0.aurora_test.87e2045-frxgreu/intel-oneapi-compilers/2026.1.0:/opt/aurora/26.181.0/spack/unified/1.1.1/install/modulefiles/Core:/opt/aurora/26.181.0/spack/unified/1.1.1/install/modulefiles/intel-oneapi-compilers/2026.1.0:/usr/share/lmod/modulefiles/Linux:/usr/share/lmod/modulefiles/Core:/usr/share/lmod/lmod/modulefiles/Core:/opt/cray/pals/lmod/modulefiles/core:/opt/cray/modulefiles:/opt/aurora/26.181.0/modulefiles:/opt/aurora/26.26.0/modulefiles"
 
 # qsub is not on cron's PATH
 export PATH=/opt/pbs/bin:$PATH
