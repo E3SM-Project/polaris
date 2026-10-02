@@ -18,14 +18,18 @@ mpas-ocean:
       output_interval: {{ output_interval }}
 
 Omega:
+  TimeIntegration:
+    # Whether a restart is read is decided here rather than by keeping
+    # RestartRead out of the way with a start time it never reaches, which is
+    # what Omega's UseStartEnd sentinel used to be for.
+    StartType: {{ start_type }}
   IOStreams:
     InitialState:
       FreqUnits: {{ init_freq_units }}
     RestartRead:
       UsePointerFile: false
-      UseStartEnd: {{ not_restart }}
+      UseStartEnd: false
       Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
-      StartTime: {{ restart_time }}
     RestartWrite:
       UsePointerFile: false
       Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
