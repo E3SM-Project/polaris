@@ -2,7 +2,7 @@ import importlib.resources
 import os
 import shutil
 import subprocess
-from typing import Optional
+from typing import Optional, Tuple
 
 from jinja2 import Template
 
@@ -248,6 +248,42 @@ def get_omega_source_dir(build_dir: Optional[str]) -> Optional[str]:
         return None
 
     return _read_cmake_cache_value(cache_path, 'CMAKE_HOME_DIRECTORY')
+
+
+def get_omega_cime_target(
+    build_dir: Optional[str],
+) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Get the machine and compiler that a standalone Omega build was
+    configured for.
+
+    Parameters
+    ----------
+    build_dir : str, optional
+        The root of the standalone Omega build directory.
+
+    Returns
+    -------
+    machine : str, optional
+        The ``OMEGA_CIME_MACHINE`` of the build, or ``None`` if it cannot be
+        determined.
+
+    compiler : str, optional
+        The ``OMEGA_CIME_COMPILER`` of the build, or ``None`` if it cannot
+        be determined.
+    """
+    if not build_dir:
+        return None, None
+
+    build_dir = os.path.abspath(build_dir)
+    cache_path = os.path.join(build_dir, 'CMakeCache.txt')
+    if not _is_omega_build_dir(build_dir) or not os.path.exists(cache_path):
+        return None, None
+
+    return (
+        _read_cmake_cache_value(cache_path, 'OMEGA_CIME_MACHINE'),
+        _read_cmake_cache_value(cache_path, 'OMEGA_CIME_COMPILER'),
+    )
 
 
 def _is_omega_build_dir(build_dir: str) -> bool:

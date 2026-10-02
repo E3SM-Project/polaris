@@ -3,12 +3,25 @@ cd {{ build_dir }}
 log_path="$(pwd)/ctests.log"
 
 echo ""
-echo "(Copy the following to a comment in your Omega PR)"
+echo "(Copy the following to a comment in your Omega PR, or from"
+echo " $(pwd)/ctest_output_for_pr.md)"
 echo ""
+{
 echo "### CTest unit tests:"
 echo "- Machine: \`{{ machine }}\`"
 echo "- Compiler: \`{{ compiler }}\`"
 echo "- Build type: \`{{ build_type }}\`"
+echo "- Build: \`$(pwd)\`"
+
+# the record of the source that was built, which Polaris's Omega build
+# script writes
+if [ -f omega_source.txt ]; then
+	omega_hash=$(sed -n 's/^hash: //p' omega_source.txt)
+	omega_describe=$(sed -n 's/^describe: //p' omega_source.txt)
+	echo "- Omega: \`${omega_hash}\` (\`${omega_describe}\`)"
+else
+	echo "- Omega: unknown (the build has no omega_source.txt)"
+fi
 
 # Summarize CTest results
 if grep -q "100% tests passed" ctests.log; then
@@ -56,3 +69,4 @@ else
 	fi
 fi
 echo "- Log: \`${log_path}\`"
+} | tee ctest_output_for_pr.md

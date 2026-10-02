@@ -260,6 +260,88 @@ def test_write_git_entries_at_setup(tmp_path, monkeypatch):
     assert values['component git log'] == '(at setup, not build)'
 
 
+def test_read_git_entries_from_record(tmp_path, monkeypatch):
+    polaris_dir = _make_polaris_checkout(tmp_path, monkeypatch)
+    omega_dir = _make_repo(tmp_path / 'omega', tag='omega-1.0')
+    source_dir = omega_dir / 'components' / 'omega'
+    source_dir.mkdir(parents=True)
+    build_dir = _make_omega_build_dir(tmp_path / 'build', source_dir)
+    script = _make_omega_build_script(tmp_path, omega_dir, monkeypatch)
+    _run_source_record_block(script, build_dir)
+    omega_hash = _git_output(omega_dir, 'rev-parse', 'HEAD')
+    _commit(omega_dir, tag='omega-2.0')
+    config = _make_config(build_dir, omega_dir)
+    config.add_section('ocean')
+    config.set('ocean', 'model', 'omega')
+
+    work_dir = tmp_path / 'work'
+    provenance.write(str(work_dir), {}, config=config, machine='chrysalis')
+    values = provenance.read(str(work_dir))
+    assert values is not None
+
+    polaris_log = _git_output(
+        polaris_dir, 'log', '--first-parent', '--format=%h %s'
+    )
+    omega_short = _git_output(omega_dir, 'rev-parse', '--short', 'omega-1.0')
+    assert values['polaris'] == {
+        'describe': 'polaris-2.0',
+        'hash': _git_output(polaris_dir, 'rev-parse', 'HEAD'),
+        'log': polaris_log.splitlines(),
+        'at_setup': False,
+    }
+    assert values['component'] == {
+        'describe': 'omega-1.0',
+        'hash': omega_hash,
+        'log': [f'{omega_short} Initial commit'],
+        'at_setup': False,
+    }
+    # a commit subject in a log is not read as a key
+    assert values['machine'] == 'chrysalis'
+    assert values['model'] == 'omega'
+    assert values['build directory'] == str(build_dir)
+
+
+def test_read_git_entries_at_setup(tmp_path, monkeypatch):
+    _make_polaris_checkout(tmp_path, monkeypatch)
+    branch = _make_repo(tmp_path / 'omega', tag='omega-1.0')
+    config = _make_config(tmp_path / 'build', branch, build=True)
+
+    work_dir = tmp_path / 'work'
+    provenance.write(str(work_dir), {}, config=config)
+    values = provenance.read(str(work_dir))
+    assert values is not None
+    component = values['component']
+
+    assert component['describe'] == 'omega-1.0'
+    assert component['hash'] == _git_output(branch, 'rev-parse', 'HEAD')
+    assert component['at_setup']
+
+
+def test_read_stops_at_tasks(tmp_path):
+    (tmp_path / 'provenance').write_text(
+        'polaris git version: polaris-1.0\n\n'
+        'machine: chrysalis\n\n'
+        'tasks:\n'
+        '  path:          ocean/planar/merry_go_round/default\n'
+        'pixi list:\n'
+        'Environment: default\n',
+        encoding='utf-8',
+    )
+
+    values = provenance.read(str(tmp_path))
+
+    assert values is not None
+    assert values['polaris']['describe'] == 'polaris-1.0'
+    assert values['component'] is None
+    assert values['machine'] == 'chrysalis'
+    assert 'path' not in values
+    assert 'Environment' not in values
+
+
+def test_read_without_provenance(tmp_path):
+    assert provenance.read(str(tmp_path)) is None
+
+
 def _make_repo(path, tag, exist_ok=False):
     path.mkdir(parents=True, exist_ok=exist_ok)
     (path / 'README').write_text('test\n', encoding='utf-8')

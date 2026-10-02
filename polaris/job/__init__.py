@@ -1,5 +1,7 @@
 import importlib.resources as imp_res
 import os as os
+import re
+import subprocess
 
 import numpy as np
 from jinja2 import Template as Template
@@ -234,6 +236,163 @@ mache.parallel.pbs.PbsOptions, None}
         handle.write(text)
 
     return options
+
+
+class SubmissionError(RuntimeError):
+    """The scheduler refused a job script"""
+
+
+def get_submit_args(job_script, system, dependency=None, extra_args=None):
+    """
+    Get the command that submits a job script, optionally after another job
+
+    Parameters
+    ----------
+    job_script : str
+        The job script to submit
+
+    system : {'slurm', 'pbs'}
+        The scheduler, as in the ``[parallel] system`` config option
+
+    dependency : str, optional
+        A job id that must finish, successfully or not, before this job
+        starts
+
+    extra_args : list of str, optional
+        More options for ``sbatch`` or ``qsub``, which override those in the
+        job script
+
+    Returns
+    -------
+    args : list of str
+        The submission command and its arguments
+    """
+    if system == 'slurm':
+        args = ['sbatch']
+        if dependency is not None:
+            args.extend(
+                [
+                    f'--dependency=afterany:{dependency}',
+                    '--kill-on-invalid-dep=yes',
+                ]
+            )
+    elif system == 'pbs':
+        args = ['qsub']
+        if dependency is not None:
+            args.extend(['-W', f'depend=afterany:{dependency}'])
+    else:
+        raise ValueError(f'Unsupported parallel system: {system}')
+    if extra_args:
+        args.extend(extra_args)
+    args.append(job_script)
+    return args
+
+
+def submit_job(job_script, work_dir, system, dependency=None, extra_args=None):
+    """
+    Submit a job script from its work directory
+
+    Polaris job scripts change to the directory they were submitted from, so
+    the script is always submitted from ``work_dir``.
+
+    Parameters
+    ----------
+    job_script : str
+        The job script to submit, relative to ``work_dir`` or absolute
+
+    work_dir : str
+        The directory to submit the job from
+
+    system : {'slurm', 'pbs'}
+        The scheduler, as in the ``[parallel] system`` config option
+
+    dependency : str, optional
+        A job id that must finish, successfully or not, before this job
+        starts
+
+    extra_args : list of str, optional
+        More options for ``sbatch`` or ``qsub``, which override those in the
+        job script
+
+    Returns
+    -------
+    job_id : str
+        The id of the submitted job
+
+    Raises
+    ------
+    polaris.job.SubmissionError
+        If the scheduler refuses the job, with its message
+    """
+    args = get_submit_args(job_script, system, dependency, extra_args)
+    result = subprocess.run(args, cwd=work_dir, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise SubmissionError(
+            f'"{" ".join(args)}" in {work_dir} failed:\n'
+            f'{result.stderr.strip()}'
+        )
+    return parse_job_id(result.stdout, system)
+
+
+def parse_job_id(output, system):
+    """
+    Get the job id from the output of a submission command
+
+    Parameters
+    ----------
+    output : str
+        The output of ``sbatch`` or ``qsub``
+
+    system : {'slurm', 'pbs'}
+        The scheduler, as in the ``[parallel] system`` config option
+
+    Returns
+    -------
+    job_id : str
+        The id of the submitted job
+    """
+    if system == 'slurm':
+        match = re.search(r'Submitted batch job (\d+)', output)
+        if match is not None:
+            return match.group(1)
+    else:
+        for line in reversed(output.splitlines()):
+            job_id = line.strip()
+            if re.fullmatch(r'\d+(?:\.[\w.-]+)?', job_id):
+                return job_id
+
+    raise ValueError(
+        f'Could not determine the {system} job id from output:\n{output}'
+    )
+
+
+def is_job_active(job_id, system):
+    """
+    Whether a job is still queued or running
+
+    Parameters
+    ----------
+    job_id : str
+        The id of the job
+
+    system : {'slurm', 'pbs'}
+        The scheduler, as in the ``[parallel] system`` config option
+
+    Returns
+    -------
+    active : bool
+        Whether the scheduler still lists the job as queued or running
+    """
+    if system == 'slurm':
+        args = ['squeue', '--noheader', '--jobs', job_id, '--format=%T']
+    elif system == 'pbs':
+        args = ['qstat', job_id]
+    else:
+        raise ValueError(f'Unsupported parallel system: {system}')
+
+    # both commands fail for a job that has finished and been purged
+    result = subprocess.run(args, capture_output=True, text=True)
+    return result.returncode == 0 and result.stdout.strip() != ''
 
 
 def _get_job_option(config, option):
