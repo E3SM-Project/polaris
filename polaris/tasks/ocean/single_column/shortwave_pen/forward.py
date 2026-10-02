@@ -1,18 +1,30 @@
 from polaris.tasks.ocean.single_column.forward import Forward
+from polaris.tasks.ocean.single_column.shortwave_pen.jerlov import (
+    omega_jerlov_equivalent,
+)
 
 
 class ShortwavePenForward(Forward):
     """
-    A forward step for the ``shortwave_pen`` task that either applies the
-    incident shortwave flux entirely in the surface layer (Omega's default
-    behavior) or distributes it through the water column using Omega's
-    penetrating-shortwave-radiation tendency term.
+    A forward step for the ``shortwave_pen`` task that distributes the
+    incident shortwave flux through the water column, either with MPAS-Ocean's
+    two-band Jerlov scheme or with Omega's three-band penetrating-shortwave-
+    radiation tendency term.
+
+    With ``scheme='jerlov'`` the two models are configured to absorb the flux
+    identically, so their profiles can be compared directly.  With
+    ``scheme='manizza'``, which Omega alone supports, the red and blue bands
+    are given distinct extinction coefficients to show what the third band
+    changes.
 
     Attributes
     ----------
-    use_penetrating_sw : bool
-        Whether to enable Omega's penetrating-shortwave-radiation tendency
-        term and read the extinction-coefficient forcing file
+    water_type : int
+        The Jerlov water type, between 1 (I) and 5 (III)
+
+    scheme : {'jerlov', 'manizza'}
+        Whether the red and blue bands share the Jerlov visible extinction
+        coefficient or take distinct Manizza coefficients
     """
 
     def __init__(
@@ -22,7 +34,8 @@ class ShortwavePenForward(Forward):
         extinction,
         name,
         indir,
-        use_penetrating_sw,
+        water_type,
+        scheme,
         ntasks=None,
         min_tasks=None,
         openmp_threads=1,
@@ -48,9 +61,11 @@ class ShortwavePenForward(Forward):
         indir : str
             The directory the step is in
 
-        use_penetrating_sw : bool
-            Whether to enable the penetrating-shortwave-radiation tendency
-            term
+        water_type : int
+            The Jerlov water type, between 1 (I) and 5 (III)
+
+        scheme : {'jerlov', 'manizza'}
+            The shortwave absorption scheme to configure
 
         ntasks : int, optional
             The number of tasks the step would ideally use
@@ -64,6 +79,11 @@ class ShortwavePenForward(Forward):
         validate_vars : list, optional
             A list of variable names to compare with a baseline
         """
+        if scheme not in ('jerlov', 'manizza'):
+            raise ValueError(
+                f'Unknown shortwave absorption scheme "{scheme}"; expected '
+                f'"jerlov" or "manizza"'
+            )
         super().__init__(
             component=component,
             init=init,
@@ -75,38 +95,66 @@ class ShortwavePenForward(Forward):
             validate_vars=validate_vars,
             task_name='shortwave_pen',
         )
-        self.use_penetrating_sw = use_penetrating_sw
-        if use_penetrating_sw:
+        self.water_type = water_type
+        self.scheme = scheme
+        self.extinction_path = extinction.path
+
+    def setup(self):
+        """
+        Add the extinction-coefficient forcing file, which only Omega reads
+        """
+        super().setup()
+        if self.config.get('ocean', 'model') == 'omega':
             self.add_input_file(
                 filename='shortwave_extinction_coeffs.nc',
                 work_dir_target=(
-                    f'{extinction.path}/shortwave_extinction_coeffs.nc'
+                    f'{self.extinction_path}/shortwave_extinction_coeffs.nc'
                 ),
             )
 
     def dynamic_model_config(self, at_setup):
         """
-        Set the Omega config option that enables or disables the
-        penetrating-shortwave-radiation tendency term
+        Set the model config options that control shortwave absorption
         """
         super().dynamic_model_config(at_setup=at_setup)
 
         config = self.config
         model = config.get('ocean', 'model')
-        if model != 'omega':
-            raise ValueError(
-                'The shortwave_pen task requires Omega; MPAS-Ocean does not '
-                'implement a penetrating-shortwave-radiation scheme.'
-            )
+        section = config['single_column_shortwave_pen']
 
-        self.add_model_config_options(
-            options={
-                'PenetratingShortwaveTendencyEnable': (
-                    self.use_penetrating_sw
-                ),
-            },
-            config_model='Omega',
-        )
+        if model == 'omega':
+            if self.scheme == 'jerlov':
+                options, _ = omega_jerlov_equivalent(self.water_type)
+            else:
+                options = {
+                    'NearIrFraction': section.getfloat('near_ir_fraction'),
+                    'NearIrCoeff': section.getfloat('near_ir_coeff'),
+                    'RedFraction': section.getfloat('red_fraction'),
+                    'BlueFraction': section.getfloat('blue_fraction'),
+                }
+            options['PenetratingShortwaveTendencyEnable'] = True
+            self.add_model_config_options(
+                options=options, config_model='Omega'
+            )
+        elif model == 'mpas-ocean':
+            if self.scheme != 'jerlov':
+                raise ValueError(
+                    'MPAS-Ocean only supports the two-band Jerlov scheme; '
+                    f'the "{self.scheme}" scheme requires Omega.'
+                )
+            self.add_model_config_options(
+                options={
+                    'config_sw_absorption_type': 'jerlov',
+                    'config_jerlov_water_type': self.water_type,
+                    # deposits the flux below the 200 m cutoff in the bottom
+                    # layer, as Omega does, so the column conserves energy
+                    'config_enable_shortwave_energy_fixer': True,
+                },
+                config_model='mpas-ocean',
+            )
+        else:
+            raise ValueError(f'Unknown ocean model {model}')
+
         # radiative forcing only: isolate the effect of the shortwave
         # absorption profile from convective/shear-driven mixing
         self.add_model_config_options(

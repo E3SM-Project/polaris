@@ -10,9 +10,25 @@ class Extinction(OceanIOStep):
     file contains uniform, per-cell red- and blue-band extinction
     coefficients (``ExtinctionCoeffRedCell`` and ``ExtinctionCoeffBlueCell``)
     used by the penetrating-shortwave-radiation tendency term.
+
+    Attributes
+    ----------
+    extinction_coeff_red : float
+        The red-band extinction coefficient in 1/m
+
+    extinction_coeff_blue : float
+        The blue-band extinction coefficient in 1/m
     """
 
-    def __init__(self, component, subdir, init, name='extinction'):
+    def __init__(
+        self,
+        component,
+        subdir,
+        init,
+        extinction_coeff_red,
+        extinction_coeff_blue,
+        name='extinction',
+    ):
         """
         Create the step
 
@@ -26,8 +42,19 @@ class Extinction(OceanIOStep):
 
         init : polaris.Step
             The initial-condition step providing the mesh
+
+        extinction_coeff_red : float
+            The red-band extinction coefficient in 1/m
+
+        extinction_coeff_blue : float
+            The blue-band extinction coefficient in 1/m
+
+        name : str, optional
+            The name of the step
         """
         super().__init__(component=component, name=name, subdir=subdir)
+        self.extinction_coeff_red = extinction_coeff_red
+        self.extinction_coeff_blue = extinction_coeff_blue
         self.add_input_file(
             filename='mesh.nc', work_dir_target=f'{init.path}/culled_mesh.nc'
         )
@@ -38,18 +65,15 @@ class Extinction(OceanIOStep):
         Run this step of the test case
         """
         config = self.config
-        section = config['single_column_shortwave_pen']
-        extinction_coeff_red = section.getfloat('extinction_coeff_red')
-        extinction_coeff_blue = section.getfloat('extinction_coeff_blue')
 
         ds_mesh = self.open_model_dataset('mesh.nc', config=config)
 
         ds = xr.Dataset()
-        ds['ExtinctionCoeffRedCell'] = extinction_coeff_red * xr.ones_like(
-            ds_mesh.xCell
+        ds['ExtinctionCoeffRedCell'] = (
+            self.extinction_coeff_red * xr.ones_like(ds_mesh.xCell)
         )
-        ds['ExtinctionCoeffBlueCell'] = extinction_coeff_blue * xr.ones_like(
-            ds_mesh.xCell
+        ds['ExtinctionCoeffBlueCell'] = (
+            self.extinction_coeff_blue * xr.ones_like(ds_mesh.xCell)
         )
 
         self.write_model_dataset(ds, 'shortwave_extinction_coeffs.nc', config)
