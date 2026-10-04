@@ -82,6 +82,7 @@ def _run(build_dir, ctest_output):
             machine='chrysalis',
             compiler='intel',
             build_type='Release',
+            ctest_command='./omega_ctest.sh',
         ),
         encoding='utf-8',
     )
