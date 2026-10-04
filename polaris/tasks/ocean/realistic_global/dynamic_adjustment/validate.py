@@ -5,6 +5,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_cfl_max,
     check_salinity_max,
     check_temperature_max,
+    check_temperature_min,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
     collect_stage_diagnostics,
@@ -47,10 +48,11 @@ class Validate(Step):
     comparison of the final stage is handled separately by that forward step's
     ``validate_vars``.
 
-    One caveat the threshold cannot express: Omega's temperature is
+    One caveat the thresholds cannot express: Omega's temperature is
     conservative temperature where MPAS-Ocean's is potential temperature, so
-    ``temperature_max`` is not literally the same quantity in the two models.
-    Against a blow-up threshold the difference is immaterial.
+    ``temperature_max`` and ``temperature_min`` are not literally the same
+    quantity in the two models.  Against these thresholds the difference is
+    immaterial.
 
     Attributes
     ----------
@@ -227,6 +229,16 @@ class StageCheck(Step):
                 temperature,
                 when,
                 config.getfloat(SECTION, 'temperature_max'),
+                stage_name,
+                logger,
+            )
+            temperature, when = extreme_and_day(
+                ds, 'temperatureMin', 'min', exclude_days
+            )
+            check_temperature_min(
+                temperature,
+                when,
+                config.getfloat(SECTION, 'temperature_min'),
                 stage_name,
                 logger,
             )
