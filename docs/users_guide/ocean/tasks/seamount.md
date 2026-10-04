@@ -381,7 +381,17 @@ profiles.
 
 N/A
 
-### vertical mixing and bottom drag
+### horizontal and vertical mixing, and bottom drag
+
+Momentum mixing is Laplacian viscosity at 200 m^2 s^-1 plus hyperviscosity at
+3.2e9 m^4 s^-1.  Tracer diffusion, both Laplacian and biharmonic, is switched
+off explicitly rather than left to a model default.  Leaving it unset had
+Omega running with `EddyDiff2 = 10` m^2 s^-1 while MPAS-Ocean ran with none
+-- an unintended difference in a case whose point is partly to compare the two
+models.  It acts along the coordinate surfaces, and on a sigma coordinate over
+a seamount those are tilted, so at a slope of 0.1 it is an effective
+diapycnal diffusivity of order 0.1 m^2 s^-1 in a case whose exact solution is
+a resting ocean.
 
 All vertical mixing is off in both models. The exact solution is a resting
 ocean, so the only thing that would trigger convection is a spurious pressure
