@@ -90,12 +90,20 @@ class Init(OceanIOStep):
 
         init_vertical_coord(config, ds)
 
-        # Set the Beckmann and Haidvogel 1993 eqn 15-16 stratification,
-        # carried entirely by temperature since salinity is constant.  The
-        # tracers keep the Time dimension that zMid carries, matching
-        # layerThickness and the other state variables; TEOS-10 requires
-        # its inputs to be aligned, and the linear EOS did not.
-        temperature, salinity = compute_tracers(config, ds.zMid)
+        # Set the configured stratification -- Beckmann and Haidvogel 1993
+        # eqn 15-16, or a profile linear in pressure -- carried entirely by
+        # temperature since salinity is constant.  The tracers keep the Time
+        # dimension that zMid carries, matching layerThickness and the other
+        # state variables; TEOS-10 requires its inputs to be aligned, and the
+        # linear EOS did not.  layerThickness is what the linear-in-pressure
+        # profile integrates the hydrostatic balance over; ssh is zero here,
+        # so the surface pressure it starts from is zero as well.
+        temperature, salinity = compute_tracers(
+            config,
+            ds.zMid,
+            layer_thickness=ds.layerThickness,
+            logger=logger,
+        )
 
         ds['temperature'] = temperature
         ds['salinity'] = salinity

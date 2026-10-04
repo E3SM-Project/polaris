@@ -7,12 +7,23 @@ ocean:
     config_time_integrator: {{ time_integrator }}
   split_explicit_ts:
     config_btr_dt: {{ btr_dt }}
+  # Every horizontal mixing option is set explicitly rather than left to a
+  # model default: setting only some of them let each model fall back to its
+  # own for the rest, which had Omega running with tracer diffusion at
+  # 10 m^2 s^-1 while MPAS-Ocean ran with none.  Tracer diffusion is the one
+  # that matters most here.  It acts along the coordinate surfaces, and on a
+  # sigma coordinate over a seamount those are tilted, so at a slope of 0.1
+  # it is an effective diapycnal diffusivity of order 0.1 m^2 s^-1 in a case
+  # whose exact solution is a resting ocean.  This is the same trap the
+  # advection order below is pinned against.
   hmix_del2:
     config_use_mom_del2: true
     config_mom_del2: 200.0
+    config_use_tracer_del2: false
   hmix_del4:
     config_use_mom_del4: true
     config_mom_del4: 3.2e9
+    config_use_tracer_del4: false
   bottom_drag:
     config_bottom_drag_mode: implicit
     config_implicit_bottom_drag_type: constant
@@ -64,6 +75,12 @@ mpas-ocean:
       - daysSinceStartOfSim
 
 Omega:
+  # Set explicitly rather than left to Omega's default, so that the scheme a
+  # run used is recorded in its own config rather than inferred from the
+  # model version.  MPAS-Ocean has only the centered scheme, so this block
+  # has no counterpart in the mpas-ocean section above.
+  PressureGrad:
+    PressureGradType: {{ pressure_grad_type }}
   Tendencies:
     SSHTendencyEnable: false
   Tracers:

@@ -10,27 +10,34 @@ def add_seamount_tasks(component):
     """
     Add tasks following the seamount test case
 
-    Variants combine the equation of state (linear or nonlinear) with the
-    vertical coordinate used for the initial condition, ``sigma``
-    (terrain-following) or ``zstar``.  Both coordinates are geometric, so
-    both are supported by MPAS-Ocean and by Omega, which reads them as
-    pseudo-thickness.
+    Variants combine the equation of state (linear or nonlinear), the
+    stratification (the Beckmann and Haidvogel exponential profile or one
+    linear in pressure) and the vertical coordinate used for the initial
+    condition, ``sigma`` (terrain-following) or ``zstar``.  Both coordinates
+    are geometric, so both are supported by MPAS-Ocean and by Omega, which
+    reads them as pseudo-thickness.
 
     component : polaris.ocean.Ocean
         the ocean component that the task will be added to
     """
     for eos_type in ['linear', 'nonlinear']:
-        for coord_type in ['sigma', 'zstar']:
-            _add_seamount_variant_tasks(component, eos_type, coord_type)
+        for stratification in ['exponential', 'linear_pressure']:
+            for coord_type in ['sigma', 'zstar']:
+                _add_seamount_variant_tasks(
+                    component, eos_type, stratification, coord_type
+                )
 
 
-def _add_seamount_variant_tasks(component, eos_type, coord_type):
+def _add_seamount_variant_tasks(
+    component, eos_type, stratification, coord_type
+):
     """
     Add the seamount tasks for one combination of equation of state
-    (``'linear'`` or ``'nonlinear'``) and vertical coordinate for the
-    initial condition (``'sigma'`` or ``'zstar'``).
+    (``'linear'`` or ``'nonlinear'``), stratification (``'exponential'`` or
+    ``'linear_pressure'``) and vertical coordinate for the initial condition
+    (``'sigma'`` or ``'zstar'``).
     """
-    taskdir = f'planar/seamount/{eos_type}/{coord_type}'
+    taskdir = f'planar/seamount/{eos_type}/{stratification}/{coord_type}'
     config_filename = 'seamount.cfg'
     config = PolarisConfigParser(
         filepath=os.path.join(component.name, taskdir, config_filename)
@@ -46,8 +53,11 @@ def _add_seamount_variant_tasks(component, eos_type, coord_type):
         # Beckmann and Haidvogel profile; the nonlinear trees take everything
         # they need from teos10.cfg
         config.add_from_package(
-            'polaris.tasks.ocean.seamount', 'seamount_linear.cfg'
+            'polaris.tasks.ocean.seamount', 'seamount_linear_eos.cfg'
         )
+    config.add_from_package(
+        'polaris.tasks.ocean.seamount', f'seamount_{stratification}.cfg'
+    )
     config.add_from_package(
         'polaris.tasks.ocean.seamount', f'seamount_{coord_type}.cfg'
     )
