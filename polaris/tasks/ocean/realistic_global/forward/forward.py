@@ -148,20 +148,19 @@ class Forward(OceanModelStep):
         whose predecessor did not produce its restart fails before the model
         launches, rather than aborting inside it.
 
-        The restart filenames are declared for MPAS-Ocean only.  Omega names
-        its restart streams without a ``.nc`` extension, and whether it appends
-        one has not been verified against a build, so declaring a filename
-        there would risk failing every stage on a guess.  See the Omega block
-        of ``restart_streams.yaml``.
+        Omega writes each stage's restart into a directory of its own, so the
+        files declared for Omega are the ones in those directories; see
+        :py:meth:`ForwardStage.restart_files`.
         """
         self.init_condition.add_input_files(self)
         stage = self.stage
         model = self.config.get('ocean', 'model')
-        if stage is not None and model == 'mpas-ocean':
-            if stage.restart_in is not None:
-                self.add_input_file(filename=f'../{stage.restart_in}')
-            if stage.restart_out is not None:
-                self.add_output_file(filename=f'../{stage.restart_out}')
+        if stage is not None:
+            restart_in, restart_out = stage.restart_files(model)
+            if restart_in is not None:
+                self.add_input_file(filename=restart_in)
+            if restart_out is not None:
+                self.add_output_file(filename=restart_out)
         super().setup()
 
     def compute_cell_count(self):
@@ -280,6 +279,14 @@ class Forward(OceanModelStep):
             if self.work_dir is not None:
                 restart_dir = os.path.join(self.work_dir, '..', 'restarts')
                 os.makedirs(restart_dir, exist_ok=True)
+                if model == 'omega':
+                    # Omega writes into this directory but does not make it
+                    os.makedirs(
+                        os.path.join(
+                            self.work_dir, stage.omega_restart_write_dir()
+                        ),
+                        exist_ok=True,
+                    )
 
     def _mesh_path(self):
         """
