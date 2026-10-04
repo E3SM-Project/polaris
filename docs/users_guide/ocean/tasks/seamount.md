@@ -23,11 +23,9 @@ salinity, `eos_linear_Tref` and `eos_linear_Sref` must both be zero; the
 Beckmann and Haidvogel reference state is folded into `eos_linear_rhoref`
 instead.
 
-Omega has no split time stepper, so it is limited by the barotropic gravity
-wave.  Rather than let the two models use different integrators, MPAS-Ocean
-gives up its split-explicit scheme and both run RK4 at the same `dt_per_km`
-until Omega gains a split time stepper.  `btr_dt_per_km` therefore has no
-effect unless `time_integrator` is set back to a split-explicit scheme.
+Both models use a split-explicit time stepper (`SplitExplicitRK2` in Omega)
+with the same baroclinic and barotropic steps, `dt_per_km` and
+`btr_dt_per_km`, so the two runs stay comparable.
 
 (ocean-seamount-variants)=
 
