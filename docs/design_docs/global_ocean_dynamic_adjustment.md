@@ -368,7 +368,7 @@ Four rules keep a schedule honest, all enforced at setup:
 
 ### Implementation: The same conceptual workflow supports either MPAS-Ocean or Omega
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/04
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -393,18 +393,14 @@ the restart stream is both an input and an output stream, so one
 `config_do_restart` and `config_start_time`. The start time is stated explicitly
 rather than through a restart-pointer file.
 
-The schedule and stage abstraction remain model-agnostic, and the Omega read
-side is written — a separate `RestartRead` stream in `restart_streams.yaml`,
-switched on per stage — but unrun. Omega's restart filenames carry no `.nc`
-extension and it is not established whether Omega appends one, so the restart
-files are declared as step inputs and outputs for MPAS-Ocean only;
-[Omega#482](https://github.com/E3SM-Project/Omega/issues/482), where restarts
-and history output interact badly, will change how an Omega restart run has to
-be configured. `split_explicit_ab2` also remains unsupported for Omega, which
-makes RK4 and its much shorter time step the only option and a month-long Omega
-adjustment impractical for now. Together with the damping error described above,
-these are current Omega limitations for realistic global runs rather than gaps
-in this workflow.
+The schedule and stage abstraction remain model-agnostic. For Omega, each
+stage reads its predecessor's restart through a `StartType` and a pointer file,
+as described in the forward framework's design; the chain has been run on
+u-oi240-lr240 and u-oi30-lr10 with an Omega test merge that adds Rayleigh
+damping. Omega runs the adjustment with its split-explicit integrator,
+`SplitExplicitRK2`, on the schedules' split time steps; RK4 would have to
+advance on the barotropic step. The damping error described above reflects a
+current Omega limitation rather than a gap in this workflow.
 
 ### Implementation: Dynamic adjustment is decomposed into inspectable restart stages
 

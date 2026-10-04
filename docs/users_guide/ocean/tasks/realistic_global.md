@@ -1454,4 +1454,9 @@ cfl_max = 0.2
 # summary come from the global statistics, and the stratification questions
 # density would answer are asked of the initial condition, not of a stage.
 output_density = False
+
+# Omega's split-explicit integrator (SplitExplicitRK2).  RK4 would have to run
+# on the barotropic time step, which is impractical for a sequence of stages
+# this long; the schedules' dt and btr_dt are split time steps.
+omega_time_integrator = split_explicit
 ```
