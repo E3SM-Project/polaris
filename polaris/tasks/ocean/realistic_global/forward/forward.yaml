@@ -11,6 +11,11 @@ ocean:
     time_integration:
         config_dt: {{ dt }}
         config_time_integrator: {{ time_integrator }}
+    # neutral rather than MPAS-Ocean only, so that it reaches Omega's
+    # SplitExplicitRK2 as BtrTimeStep.  Integrators without a barotropic
+    # subcycle ignore it.
+    split_explicit_ts:
+        config_btr_dt: {{ btr_dt }}
     # Horizontal mixing must be turned on explicitly, since the MPAS-Ocean
     # Registry defaults leave it off, which lets grid-scale noise grow until
     # the run NaNs.  It is resolution-dependent, so it comes from the
@@ -42,8 +47,6 @@ mpas-ocean:
     time_management:
         config_do_restart: {{ do_restart }}
         config_start_time: '{{ start_time }}'
-    time_integration:
-        config_btr_dt: {{ btr_dt }}
     eos:
         config_eos_type: jm
     cvmix:

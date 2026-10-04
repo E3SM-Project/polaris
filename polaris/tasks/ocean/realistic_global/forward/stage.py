@@ -10,10 +10,12 @@ from polaris.mpas.time import (
 
 # Map from the neutral (MPAS-Ocean) time-integrator names to the Omega names.
 # Only integrators with an Omega equivalent appear here; a neutral name that is
-# absent (e.g. ``split_explicit_ab2``) is not yet supported for Omega.  A
-# split-explicit integrator for Omega is in development.
+# absent (e.g. ``split_explicit_ab2``) is not supported for Omega.  Omega's
+# split-explicit integrator, SplitExplicitRK2, goes by MPAS-Ocean's
+# ``split_explicit``, as in the convergence framework.
 _OMEGA_TIME_INTEGRATORS = {
     'RK4': 'RungeKutta4',
+    'split_explicit': 'SplitExplicitRK2',
 }
 
 # Integrators that use split (barotropic/baroclinic) time stepping.  These use
@@ -22,6 +24,7 @@ _OMEGA_TIME_INTEGRATORS = {
 # RK4 / Omega's RungeKutta4) has no barotropic subcycling and must advance on
 # the short barotropic step.
 _SPLIT_TIME_INTEGRATORS = {
+    'split_explicit',
     'split_explicit_ab2',
 }
 

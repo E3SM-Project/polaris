@@ -672,10 +672,8 @@ runs use E3SM's physics: GM, Redi, KPP, the submesoscale parameterization and
 MPAS-Ocean uses split-explicit time stepping, which is what makes the long
 spin-ups this task feeds into affordable.
 
-Omega can run these too, but only as a smoke test.  It has no split-explicit
-integrator, which makes RK4 and its short time step the only option and
-dynamic adjustment impractical; and the physics it is missing means the
-adjustment coefficients cannot yet be tuned in any meaningful way.
+Omega can run these too, but only as a smoke test: the physics it is missing
+means the adjustment coefficients cannot yet be tuned in any meaningful way.
 
 :::{note}
 `cached_forward` is expected to be temporary.  Once Omega has the full physics
@@ -852,16 +850,15 @@ effect only where Redi is on.
 
 The time integrator is the one setting chosen per model rather than shared:
 `mpaso_time_integrator` defaults to `split_explicit_ab2` and
-`omega_time_integrator` to `RK4`.  Omega has no split time stepper yet, so
-`RK4` (translated to `RungeKutta4`) is the only integrator it supports, while
-MPAS-Ocean needs split time stepping to make the month-long spin-ups that build
-on this workflow affordable.  The `cached_forward` tasks set
-`mpaso_time_integrator = RK4` so that both models advance the same way, at the
-cost of MPAS-Ocean taking the short step too.  Both options use neutral (MPAS-Ocean) naming, and
-an `omega_time_integrator` that Omega does not support is an error at run time
-rather than at setup, so the option can still be changed after setting a task
-up.  Once Omega gains a split integrator the two are expected to become the
-same again.
+`omega_time_integrator` to `RK4`.  MPAS-Ocean needs split time stepping to make
+the month-long spin-ups that build on this workflow affordable.  Omega supports
+`RK4` (translated to `RungeKutta4`) and `split_explicit` (translated to
+`SplitExplicitRK2`), but not `split_explicit_ab2`.  The `cached_forward` tasks
+set `mpaso_time_integrator = RK4` so that both models advance the same way, at
+the cost of MPAS-Ocean taking the short step too.  Both options use neutral
+(MPAS-Ocean) naming, and an `omega_time_integrator` that Omega does not
+support is an error at run time rather than at setup, so the option can still
+be changed after setting a task up.
 
 ### time step and run duration
 
@@ -900,11 +897,11 @@ eos_type = teos-10
 # (MPAS-Ocean) naming; the Omega one is translated to the Omega name.
 #
 # MPAS-Ocean uses split time stepping ('split_explicit_ab2' or 'RK4'), which is
-# far cheaper for the long spin-ups this workflow feeds into.  Omega has no
-# split time stepper yet, so only 'RK4' (translated to 'RungeKutta4') is
-# supported there and anything else raises an error at run time.  Once Omega
-# gains a split integrator, the two options are expected to become the same
-# again.
+# far cheaper for the long spin-ups this workflow feeds into.  Omega supports
+# 'RK4' (translated to 'RungeKutta4') and 'split_explicit' (translated to
+# 'SplitExplicitRK2'), and anything else raises an error at run time.  Omega
+# still defaults to 'RK4', which is what the cached_forward time steps were
+# tuned for.
 #
 # The time step follows from this choice (see dt_per_km and btr_dt_per_km), so
 # the two models generally run with different time steps.
@@ -929,7 +926,7 @@ restart_interval =
 stats_interval = 0001_00:00:00
 
 # Baroclinic time step per km of the mesh minimum resolution (s/km).  Only used
-# for split time stepping (split_explicit_ab2).
+# for split time stepping (split_explicit_ab2, or split_explicit for Omega).
 dt_per_km = 30.0
 
 # Barotropic time step per km of the mesh minimum resolution (s/km).  Used as
