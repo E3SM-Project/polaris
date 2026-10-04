@@ -1280,16 +1280,19 @@ columns are blank for an Omega run.  A blank means "this model does not report
 it", not that something went wrong; the log says which source each metric came
 from.
 
-There are three checks, all per stage, run in a `<stage>_check` step
+There are four checks, all per stage, run in a `<stage>_check` step
 immediately after that stage, so a stage that is already out of bounds stops the
 sequence instead of costing the whole job:
 
 * the maximum temperature in the stage must stay below `temperature_max`;
+* the minimum temperature must stay above `temperature_min`, which catches water
+  colder than the initial condition that only the numerics can have produced,
+  such as a tracer overshoot in a thin bottom cell that does not blow up;
 * the maximum salinity must stay below `salinity_max`;
 * the maximum CFL number must stay below `cfl_max`, which is what catches a
   stage whose time step is too long for the flow it produced.
 
-All three report *when* the extreme occurred as well as how large it was, which
+All four report *when* the extreme occurred as well as how large it was, which
 is usually most of the diagnosis.
 
 They deliberately ignore the sample written before a stage's first time step.
@@ -1355,10 +1358,10 @@ schedules whose stages differ in length and damping.
 Each check is skipped, with a log line, when the configured model does not
 report the quantity: Omega's `GlobalStats` has no CFL number.
 
-One caveat the threshold cannot express: Omega's temperature is conservative
-temperature where MPAS-Ocean's is potential temperature, so `temperature_max` is
-not literally the same quantity in the two models.  Against a blow-up threshold
-the difference is immaterial.
+One caveat the thresholds cannot express: Omega's temperature is conservative
+temperature where MPAS-Ocean's is potential temperature, so `temperature_max`
+and `temperature_min` are not literally the same quantity in the two models.
+Against these thresholds the difference is immaterial.
 
 The `viz` step writes `dynamic_adjustment_stats.png` from the same statistics,
 plotting kinetic energy (maximum, mean and domain-integrated), maximum normal
@@ -1397,6 +1400,16 @@ schedule =
 # extrapolation more than a day to fall below 33 -- so a bound at 33 would fail
 # the first three stages of a healthy run.
 temperature_max = 35.0
+
+# Minimum allowed temperature (deg C) reached during any stage, on the same
+# terms as temperature_max.  A detector for numerical problems rather than a
+# physical bound: with no surface heat loss, water colder than the initial
+# condition can only come from the numerics, as in a tracer update that is not
+# monotone in a thin partial bottom cell.  The coldest water in the WOA23
+# initial conditions is about -2.12 deg C on every unified mesh, and healthy
+# MPAS-Ocean adjustments stay above it.  None of these meshes has ice-shelf
+# cavities, where water below this bound is real; revisit it if one gains them.
+temperature_min = -2.5
 
 # Maximum allowed salinity (PSU) reached during any stage, on the same terms.
 # A blow-up detector rather than a plausibility bound: the WOA23 source data

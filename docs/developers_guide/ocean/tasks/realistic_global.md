@@ -431,7 +431,8 @@ found reads as a stage that wrote no statistics.
 The checks live in
 {py:mod}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks`,
 so that a step decides what to read and a check decides what is acceptable.
-The `temperature_max`, `salinity_max` and `cfl_max` thresholds all belong to
+The `temperature_max`, `temperature_min`, `salinity_max` and `cfl_max`
+thresholds all belong to
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.validate.StageCheck`,
 one per stage, added right after its forward step so the sequence stops at the
 stage that broke.  Each is skipped, with a log line, when the model reports no
@@ -496,8 +497,8 @@ schedule start times rather than from the time variable in the files, because a
 restart may or may not reset what the model counts from.
 
 Omega's temperature is conservative temperature where MPAS-Ocean's is potential
-temperature, so `temperature_max` is not literally the same quantity in the two
-models — immaterial against a blow-up threshold.
+temperature, so `temperature_max` and `temperature_min` are not literally the
+same quantity in the two models — immaterial against these thresholds.
 
 
 (dev-ocean-realistic-global-woa23)=

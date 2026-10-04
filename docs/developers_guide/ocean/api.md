@@ -717,6 +717,7 @@
    schedule.excluded_days_in_stage
 
    checks.check_temperature_max
+   checks.check_temperature_min
    checks.check_salinity_max
    checks.check_cfl_max
 

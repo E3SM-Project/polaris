@@ -474,7 +474,7 @@ option at another file before setup.
 
 ### Implementation: The workflow includes basic validation that the adjustment remained well behaved
 
-Date last modified: 2026/09/24
+Date last modified: 2026/10/04
 
 Contributors: Xylar Asay-Davis, Codex, Claude
 
@@ -484,9 +484,10 @@ Validation ended up split between a per-stage `StageCheck` step and a final
 1. A baseline comparison of the final `simulation/output.nc`
    (`temperature`, `salinity`, `layerThickness`, `normalVelocity`), handled by
    the forward step's built-in `validate_vars` mechanism.
-2. Three thresholds per stage, applied by `StageCheck` immediately after that
-   stage: the maximum `temperature` below `temperature_max`, the maximum
-   `salinity` below `salinity_max`, and the maximum CFL number below `cfl_max`.
+2. Four thresholds per stage, applied by `StageCheck` immediately after that
+   stage: the maximum `temperature` below `temperature_max`, the minimum above
+   `temperature_min`, the maximum `salinity` below `salinity_max`, and the
+   maximum CFL number below `cfl_max`.
    Each reports *when* the extreme occurred as well as how large it was, which
    is usually most of the diagnosis, and each is skipped with a log line when
    the configured model does not report the quantity.
