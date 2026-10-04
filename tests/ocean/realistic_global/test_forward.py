@@ -154,9 +154,21 @@ def test_model_replacements_omega_maps_rk4():
     assert rep['time_integrator'] == 'RungeKutta4'
 
 
+def test_model_replacements_omega_maps_split_explicit():
+    # Omega's SplitExplicitRK2 is a split integrator, so it takes the long
+    # baroclinic step and subcycles on the short barotropic one
+    stage = ForwardStage.from_config(
+        _forward_config(omega_time_integrator='split_explicit')
+    )
+    rep = stage.model_replacements('omega', min_res=30.0)
+    assert rep['time_integrator'] == 'SplitExplicitRK2'
+    assert rep['dt'] == '0000_00:15:00.000'  # 30 s/km * 30 km
+    assert rep['btr_dt'] == '0000_00:00:45.000'  # 1.5 s/km * 30 km
+
+
 def test_the_two_models_get_their_own_integrator_and_time_step():
-    # the default is split time stepping for MPAS-Ocean, which Omega does not
-    # support yet, and RK4 for Omega; the time step follows from that choice
+    # the default is split_explicit_ab2 for MPAS-Ocean, which Omega does not
+    # support, and RK4 for Omega; the time step follows from that choice
     stage = ForwardStage.from_config(_forward_config())
     rep = stage.model_replacements('mpas-ocean', min_res=30.0)
     assert rep['time_integrator'] == 'split_explicit_ab2'
