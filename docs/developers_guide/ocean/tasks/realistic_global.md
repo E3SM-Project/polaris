@@ -205,20 +205,32 @@ config file, since they are chosen to make the failure visible -- two history
 frames per segment, so that a segment that clobbered rather than appended
 would be obvious -- rather than to be tuned by a user.
 
-The per-mesh time steps and viscosity are module-level constants too.  The
-viscosity is passed to every step as a model config option rather than set in
-the task's `forward.yaml`, which only the segments of the restart chain read,
-so that the full run and the chain run the same model.
+Everything else comes from the `[realistic_global_forward]` config options,
+as for any other forward run: the task's `restart.cfg` is added after the
+forward and per-mesh config files and overrides the time stepper, time steps
+and viscosity.  All three forward steps are `RestartStep`s, including the full
+run, so that the full run and the chain run the same model.
 
 ### restart_step
 
 The class
 {py:class}`polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep`
-extends the shared `Forward` step with what a segment of a restart chain
-needs.  `setup()` layers the task's own `forward.yaml` on top of the shared
-one; because model config data is processed in the order it was added, the
-task's overrides win.  It also rejects any model other than Omega, since the
-failure being tested cannot arise in MPAS-Ocean.
+extends the
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.forward.Forward` step
+with what a step of a restart chain needs.  `dynamic_model_config()` builds
+the step's
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage`
+from config with the task's run duration and history interval, so that config
+changes after setup still take effect, and then layers the task's own
+`forward.yaml` on top of the shared one; because model config data is
+processed in the order it was added, the task's overrides win.  `setup()`
+rejects any model other than Omega, since the failure being tested cannot
+arise in MPAS-Ocean.
+
+The task's `forward.yaml` sets only Omega's start type, start time and restart
+streams.  It does not use the `restart_in`/`restart_out` chaining of
+`ForwardStage`, whose Omega side has not been run yet; see
+`restart_streams.yaml`.
 
 `runtime_setup()` creates the restart directory this segment writes into,
 which Omega does not create itself, and, for a continuing segment, copies the

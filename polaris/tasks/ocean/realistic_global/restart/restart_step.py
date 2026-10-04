@@ -1,8 +1,10 @@
+import dataclasses
 import os
 import shutil
 
-from polaris.tasks.ocean.realistic_global.analysis_members.forward import (
+from polaris.tasks.ocean.realistic_global.forward import (
     Forward,
+    ForwardStage,
 )
 
 #: The package holding this task's yaml overrides
@@ -11,20 +13,32 @@ PACKAGE = 'polaris.tasks.ocean.realistic_global.restart'
 
 class RestartStep(Forward):
     """
-    One segment of the realistic global restart chain.
+    One forward run of the realistic global restart task: the full run, or
+    one segment of the restart chain.
 
     The chain is two segments that between them cover the same period as the
-    task's ``full_run``.  Both segments read and write restarts through a
-    ``restarts`` directory shared by the whole task, following the restart
-    chain in ``realistic_global/dynamic_adjustment``, and the continuing
-    segment appends its history to the frames the first segment already
-    wrote.
+    task's ``full_run``.  Each step writes its restart into a directory of its
+    own under a ``restarts`` directory shared by the whole task, and the
+    continuing segment reads its predecessor's and appends its history to the
+    frames the first segment already wrote.
+
+    The run itself is a realistic_global forward run like any other, built
+    from the ``[realistic_global_forward]`` config options.  Only the run
+    duration and output interval are the task's own, and this task's
+    ``forward.yaml`` adds Omega's start type, start time and restart streams on
+    top.
 
     Attributes
     ----------
+    run_duration : str
+        How long this step runs, as an MPAS-style duration string
+
+    output_interval : str
+        The interval between history frames
+
     previous_step : polaris.Step or None
-        The segment this one continues from, or ``None`` for the first
-        segment of the chain.
+        The segment this one continues from, or ``None`` for a step that
+        starts from the initial condition.
     """
 
     def __init__(
@@ -32,13 +46,10 @@ class RestartStep(Forward):
         component,
         name,
         subdir,
-        mesh_name,
-        mpaso_id,
-        omega_id,
-        ncells,
-        replacements,
+        init_condition,
+        run_duration,
+        output_interval,
         previous_step=None,
-        options=None,
     ):
         """
         Create the step
@@ -54,45 +65,28 @@ class RestartStep(Forward):
         subdir : str
             The subdirectory for the step
 
-        mesh_name : str
-            The name of the mesh (e.g. ``QU.240km``)
+        init_condition : polaris.tasks.ocean.realistic_global.forward.InitialCondition
+            The source of the model input files
 
-        mpaso_id : int
-            The ID of the MPAS-Ocean initial condition in the Polaris input
-            database
+        run_duration : str
+            How long this step runs, as an MPAS-style duration string
 
-        omega_id : int
-            The ID of the Omega initial condition in the Polaris input
-            database
-
-        ncells : int
-            The approximate number of cells in the mesh, used to constrain
-            resources
-
-        replacements : dict
-            Template replacements for the forward yaml files
+        output_interval : str
+            The interval between history frames
 
         previous_step : polaris.Step, optional
             The segment this one continues from.  When given, this step reads
             that segment's restart and appends to its history file.
-
-        options : dict, optional
-            Model config options for this step, keyed by the model they are
-            for, as for ``Forward``
-        """
+        """  # noqa: E501
         super().__init__(
             component=component,
-            package='polaris.tasks.ocean.realistic_global.analysis_members',
+            init_condition=init_condition,
             name=name,
             subdir=subdir,
-            mesh_name=mesh_name,
-            mpaso_id=mpaso_id,
-            omega_id=omega_id,
-            ncells=ncells,
-            replacements=replacements,
-            options=options,
         )
 
+        self.run_duration = run_duration
+        self.output_interval = output_interval
         self.previous_step = previous_step
 
         if previous_step is not None:
@@ -106,8 +100,7 @@ class RestartStep(Forward):
 
     def setup(self):
         """
-        Add this task's overrides on top of the shared realistic_global
-        forward yaml, which ``Forward.setup()`` adds first
+        Reject any model but Omega, then set up the forward run
         """
         model = self.config.get('ocean', 'model')
         if model != 'omega':
@@ -122,21 +115,45 @@ class RestartStep(Forward):
 
         super().setup()
 
-        replacements = dict(
-            self.replacements,
-            restart_read_dir=self.restart_read_target(),
-            restart_write_dir=self.restart_write_target(),
+    def dynamic_model_config(self, at_setup):
+        """
+        Build this step's stage from config with the task's run duration and
+        output interval, then add this task's overrides on top of the shared
+        forward yaml, which ``Forward.dynamic_model_config()`` adds first
+
+        Parameters
+        ----------
+        at_setup : bool
+            Whether this is being run during setup of the step, as opposed to
+            at run time.
+        """
+        # rebuilt every time, as Forward does when it has no stage, so that a
+        # user's config changes after setup still take effect
+        stage = ForwardStage.from_config(self.config, name=self.name)
+        self.stage = dataclasses.replace(
+            stage,
+            run_duration=self.run_duration,
+            output_interval=self.output_interval,
+            restart_interval=self.run_duration,
         )
 
+        super().dynamic_model_config(at_setup=at_setup)
+
+        start_type = 'StartUp' if self.previous_step is None else 'Continue'
         self.add_yaml_file(
             package=PACKAGE,
             yaml='forward.yaml',
-            template_replacements=replacements,
+            template_replacements=dict(
+                start_type=start_type,
+                sim_start_time=self.stage.start_time,
+                restart_read_dir=self.restart_read_target(),
+                restart_write_dir=self.restart_write_target(),
+            ),
         )
 
     def runtime_setup(self):
         """
-        Make the shared restart directory, and seed the history file with the
+        Make this step's restart directory, and seed the history file with the
         previous segment's frames when this segment continues from one
         """
         super().runtime_setup()
@@ -157,8 +174,7 @@ class RestartStep(Forward):
 
     def restart_write_dir(self):
         """
-        The absolute path of the directory this segment writes its restart
-        into
+        The absolute path of the directory this step writes its restart into
         """
         return os.path.normpath(
             os.path.join(self.work_dir, self.restart_write_target())
@@ -166,17 +182,17 @@ class RestartStep(Forward):
 
     def restart_write_target(self):
         """
-        The path, relative to the step's work directory, that this segment
-        writes its restart into.  Each segment gets one of its own, so that
-        a segment's own restart cannot replace the pointer it read from.
+        The path, relative to the step's work directory, that this step writes
+        its restart into.  Each step gets one of its own, so that a segment's
+        own restart cannot replace the pointer it read from.
         """
         return f'../restarts/{self.name}'
 
     def restart_read_target(self):
         """
-        The path, relative to the step's work directory, that this segment
-        reads a restart from.  A segment that starts from an initial state
-        never opens it, so it is pointed at its own directory.
+        The path, relative to the step's work directory, that this step reads
+        a restart from.  A step that starts from an initial state never opens
+        it, so it is pointed at its own directory.
         """
         if self.previous_step is None:
             return self.restart_write_target()

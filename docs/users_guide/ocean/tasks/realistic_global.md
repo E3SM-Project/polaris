@@ -582,16 +582,22 @@ initial-condition file, applied through bulk wind stress.
 
 ### time step and run duration
 
-The task uses the split-explicit time stepper (`SplitExplicitRK2` in Omega)
-with a 1-hour baroclinic and a 3-minute barotropic time step, and a biharmonic
-momentum viscosity of 1.0e15 m^4/s, the settings of the year-long QU240 runs
-that the ocean analysis is tested on.  Each segment runs for two hours and the
-full run for four, with a history frame every hour, so each segment writes two
-frames and the whole period has four.  The period is short on purpose: the
-task is about how the model writes its history across a restart, not about the
+Every step is a `cached_forward` run on `QU.240km`, configured by the same
+`[realistic_global_forward]` options, with a few overrides.  It uses the
+split-explicit time stepper (`SplitExplicitRK2` in Omega) with a 1-hour
+baroclinic and a 3-minute barotropic time step, and a biharmonic momentum
+viscosity of 1.0e15 m^4/s, the settings of the year-long QU240 runs that the
+ocean analysis is tested on.  Each segment runs for two hours and the full run
+for four, with a history frame every hour, so each segment writes two frames
+and the whole period has four.  The period is short on purpose: the task is
+about how the model writes its history across a restart, not about the
 circulation, and it is meant to be cheap enough for the pull-request suite.
 
 ### config options
+
+The task reads the `[realistic_global_forward]` options described under
+{ref}`ocean-realistic-global-forward`, including the per-mesh ones for
+`QU.240km`, and overrides these:
 
 ```cfg
 [ocean]
@@ -599,10 +605,22 @@ circulation, and it is meant to be cheap enough for the pull-request suite.
 # Equation of state type
 eos_type = teos-10
 
-[realistic_global]
 
-# Time step duration per kilometer [s]
-dt_per_km = 3.0
+# Overrides of the forward-run options for the restart task, which is only
+# defined on QU.240km.  The run durations and history interval are fixed by
+# the task rather than set here.
+[realistic_global_forward]
+
+# Omega's split-explicit time stepper with E3SM's MPAS-Ocean time steps for
+# oQU240, as in the analysis_test task (polaris #787): a 2-hour step grew a
+# surface hotspot along the Aleutians in a one-year run
+omega_time_integrator = split_explicit
+dt = 01:00:00
+btr_dt = 00:03:00
+
+# well above the default of 1.2e11, which is meant for much finer meshes and
+# leaves grid-scale noise on this one
+mom_del4 = 1.0e15
 ```
 
 ### cores

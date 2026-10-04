@@ -563,6 +563,7 @@
 
    restart_step.RestartStep
    restart_step.RestartStep.setup
+   restart_step.RestartStep.dynamic_model_config
    restart_step.RestartStep.runtime_setup
 
    validate.Validate
