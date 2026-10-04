@@ -68,6 +68,37 @@ def check_temperature_max(
     )
 
 
+def check_temperature_min(
+    value: Optional[float],
+    when: Optional[float],
+    temperature_min: float,
+    stage_name: str,
+    logger: Any,
+) -> None:
+    """
+    Raise if the stage's minimum temperature falls below the threshold.
+
+    The lower counterpart to :py:func:`check_temperature_max`.  Without
+    surface heat loss, water colder than anything in the initial condition can
+    only come from the numerics -- a tracer update that is not monotone, say,
+    in a thin partial bottom cell -- and it can do so without the run blowing
+    up, so a maximum alone would not catch it.
+
+    See :py:func:`check_temperature_max` for the arguments; ``value`` is the
+    smallest temperature reached in the stage.
+    """
+    _check_lower_bound(
+        value=value,
+        when=when,
+        limit=temperature_min,
+        stage_name=stage_name,
+        quantity='temperature',
+        units=' degC',
+        logger=logger,
+        consequence='it is below the threshold for a numerical problem',
+    )
+
+
 def check_salinity_max(
     value: Optional[float],
     when: Optional[float],
@@ -154,6 +185,35 @@ def _check_upper_bound(
     logger.info(
         f'Stage {stage_name!r}: max {quantity} {value:.4g}{units}'
         f'{_at_day(when)} <= {limit:.4g}{units}.'
+    )
+
+
+def _check_lower_bound(
+    value: Optional[float],
+    when: Optional[float],
+    limit: float,
+    stage_name: str,
+    quantity: str,
+    units: str,
+    logger: Any,
+    consequence: str,
+) -> None:
+    """Raise if ``value`` is below ``limit``, saying when it got there."""
+    if value is None:
+        logger.info(
+            f'Stage {stage_name!r}: no {quantity} reported; skipping that '
+            f'check.'
+        )
+        return
+    if value < limit:
+        raise ValueError(
+            f'Stage {stage_name!r}: {quantity} fell to {value:.4g}{units}'
+            f'{_at_day(when)}, below the allowed {limit:.4g}{units}; '
+            f'{consequence}.'
+        )
+    logger.info(
+        f'Stage {stage_name!r}: min {quantity} {value:.4g}{units}'
+        f'{_at_day(when)} >= {limit:.4g}{units}.'
     )
 
 
