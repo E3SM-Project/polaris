@@ -589,10 +589,12 @@ def test_stages_inherit_the_per_mesh_overrides():
 
 
 def test_stages_inherit_the_time_integrators():
-    # neither is set in any shipped schedule any more
+    # neither is set in any shipped schedule any more.  Omega's split-explicit
+    # default is the one the adjustment needs: RK4 would have to advance on the
+    # barotropic step, which is impractical for stages this long
     for stage in load_schedule_stages('u-oi30-lr10', _config('u-oi30-lr10')):
         assert stage.mpaso_time_integrator == 'split_explicit_ab2'
-        assert stage.omega_time_integrator == 'RK4'
+        assert stage.omega_time_integrator == 'split_explicit'
 
 
 def test_damping_is_off_in_config_and_turned_on_per_stage():
