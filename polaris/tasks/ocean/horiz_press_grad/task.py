@@ -68,7 +68,12 @@ class HorizPressGradTask(Task):
         section = self.config['horiz_press_grad']
         horiz_resolutions = section.getexpression('horiz_resolutions')
         vert_resolutions = section.getexpression('vert_resolutions')
+        schemes = section.getexpression('pressure_grad_types')
 
+        assert schemes, (
+            'The "pressure_grad_types" configuration option must be set in '
+            'the "horiz_press_grad" section.'
+        )
         assert horiz_resolutions is not None, (
             'The "horiz_resolutions" configuration option must be set in the '
             '"horiz_press_grad" section.'
@@ -101,15 +106,21 @@ class HorizPressGradTask(Task):
             self.add_step(init_step)
             init_steps[horiz_res] = init_step
 
+        # one forward step per scheme over the shared init step: Init is
+        # scheme-independent, writing both schemes' Polaris-side HPGA from the
+        # same state, so running it once is both cheaper and what lets the
+        # analysis compare the schemes at an identical initial condition
         for horiz_res in horiz_resolutions:
-            forward_step = Forward(
-                component=self.component,
-                horiz_res=horiz_res,
-                init=init_steps[horiz_res],
-                indir=self.subdir,
-            )
-            self.add_step(forward_step)
-            forward_steps[horiz_res] = forward_step
+            for scheme in schemes:
+                forward_step = Forward(
+                    component=self.component,
+                    horiz_res=horiz_res,
+                    init=init_steps[horiz_res],
+                    indir=self.subdir,
+                    scheme=scheme,
+                )
+                self.add_step(forward_step)
+                forward_steps[horiz_res, scheme] = forward_step
 
         self.add_step(
             Analysis(
@@ -119,5 +130,6 @@ class HorizPressGradTask(Task):
                     'init': init_steps,
                     'forward': forward_steps,
                 },
+                schemes=schemes,
             )
         )
