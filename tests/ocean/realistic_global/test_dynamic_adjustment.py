@@ -20,6 +20,7 @@ from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_cfl_max,
     check_salinity_max,
     check_temperature_max,
+    check_temperature_min,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.diagnostics import (  # noqa: E501
     column_names,
@@ -1035,6 +1036,19 @@ def test_check_temperature_max_skipped_when_not_reported():
     check_temperature_max(None, 1.0, 33.0, 'simulation', LOGGER)
 
 
+def test_check_temperature_min_passes():
+    check_temperature_min(-2.1, 1.0, -2.5, 'simulation', LOGGER)
+
+
+def test_check_temperature_min_raises():
+    with pytest.raises(ValueError, match='fell to -13.*below the allowed'):
+        check_temperature_min(-13.3, 4.0, -2.5, 'damped_adjustment_2', LOGGER)
+
+
+def test_check_temperature_min_skipped_when_not_reported():
+    check_temperature_min(None, 1.0, -2.5, 'simulation', LOGGER)
+
+
 def test_cfl_max_passes():
     check_cfl_max(0.053, 1.0, 0.2, 'damped_adjustment_2', LOGGER)
 
@@ -1146,6 +1160,23 @@ def test_stage_check_catches_a_blow_up_for_either_model(
     _write_stage_stats(tmp_path, 'damped_1', model, **series)
     monkeypatch.chdir(tmp_path / 'checks')
     with pytest.raises(ValueError, match='above the allowed'):
+        step.run()
+
+
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+def test_stage_check_catches_a_cold_overshoot_for_either_model(
+    tmp_path, monkeypatch, model
+):
+    """
+    The Omega u-oi30-lr10 case: thin bottom cells cooled to -13 degC without
+    the run blowing up, which only a lower bound catches.
+    """
+    step = _stage_check(tmp_path, model, 'damped_1')
+    series = _stats_series(5.0, 3.5)
+    series['temperatureMin'] = [-2.12, -5.3, -13.3]
+    _write_stage_stats(tmp_path, 'damped_1', model, **series)
+    monkeypatch.chdir(tmp_path / 'checks')
+    with pytest.raises(ValueError, match='temperature fell to -13.3'):
         step.run()
 
 
