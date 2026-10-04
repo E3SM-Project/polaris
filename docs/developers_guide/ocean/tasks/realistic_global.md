@@ -229,8 +229,9 @@ arise in MPAS-Ocean.
 
 The task's `forward.yaml` sets only Omega's start type, start time and restart
 streams.  It does not use the `restart_in`/`restart_out` chaining of
-`ForwardStage`, whose Omega side has not been run yet; see
-`restart_streams.yaml`.
+`ForwardStage`, though the Omega side of that chain in `restart_streams.yaml`
+follows the same pattern: a start type, and a pointer file in a restart
+directory of each step's own.
 
 `runtime_setup()` creates the restart directory this segment writes into,
 which Omega does not create itself, and, for a continuing segment, copies the

@@ -517,7 +517,7 @@ def dynamic_model_config(self, at_setup):
 
 ### Implementation: The framework composes into restart and dynamic-adjustment workflows
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/04
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -533,17 +533,17 @@ each one's `restart_in` and `restart_out` so that consecutive stages share a
 `restarts` directory. For MPAS-Ocean the restart stream is both an input and an
 output stream, so one `filename_template` serves both directions and the read
 side is just `config_do_restart` and `config_start_time`; the start time is
-stated explicitly rather than using a restart-pointer file. Omega needs a
-separate `RestartRead` stream, which the `Omega` block of
-`restart_streams.yaml` supplies, switched on per stage by
-`ForwardStage.restart_stream_replacements`.
-
-That Omega block is written but unrun: Omega's restart filenames carry no `.nc`
-extension and it is not established whether Omega appends one, so the restart
-files are declared as step inputs and outputs for MPAS-Ocean only.
-[Omega#482](https://github.com/E3SM-Project/Omega/issues/482), where restarts
-and history output interact badly, will also change how an Omega restart run has
-to be configured.
+stated explicitly rather than using a restart-pointer file. Omega decides
+whether to read a restart from its `StartType` and finds it through a pointer
+file, as the restart task does. The `Omega` block of `restart_streams.yaml`
+requests the `RestartRead` stream, and
+`ForwardStage.restart_stream_replacements` fills in the start type and the
+directories: each stage writes its restart and pointer into a directory under
+`restarts` named for its restart time, and a restarting stage reads its
+predecessor's. A shared directory would let a stage's own restart replace the
+pointer it had just read. Omega names its restart files without a `.nc`
+extension, so they are declared as step inputs and outputs for MPAS-Ocean only,
+and the chain relies on the dependencies between steps.
 
 A restart test — two `Forward` steps with different durations and restart
 settings, compared for bit-for-bit agreement — is still not implemented. Nothing
@@ -748,17 +748,18 @@ step and Rayleigh damping only for MPAS-Ocean.
 
 ### Testing and Validation: The framework composes into restart and dynamic-adjustment workflows
 
-Date last modified: 2026/08/11
+Date last modified: 2026/10/04
 
 Contributors: Xylar Asay-Davis, Claude
 
 Tests confirm that the restart-in settings render the expected restart flag and
-start time, that `restart_stream_replacements` switches Omega's read side on,
-and that `restart_streams.yaml` requests Omega's `RestartRead` stream. Which
-files a step declares is checked from the dynamic-adjustment side, where the
-chain is built: that a stage in a chain declares both ends of it, that a lone
-stage declares neither, and that an Omega stage declares no restart files at
-all, matching the unrun state of that path.
+start time, that `restart_stream_replacements` gives a first stage Omega's
+`StartUp` and a restarting one `Continue` with its predecessor's restart
+directory, and that `restart_streams.yaml` requests Omega's `RestartRead`
+stream through a pointer file. Which files a step declares is checked from the
+dynamic-adjustment side, where the chain is built: that a stage in a chain
+declares both ends of it, that a lone stage declares neither, and that an Omega
+stage declares no restart files at all.
 
 ### Testing and Validation: Forward steps produce inspectable outputs and support basic validation
 
