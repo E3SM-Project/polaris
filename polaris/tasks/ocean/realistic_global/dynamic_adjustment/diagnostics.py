@@ -568,11 +568,15 @@ def open_stage_stats(component: Any, filename: str, config: Any) -> Any:
     -------
     xarray.Dataset
         The statistics, with the minimum, maximum and mean of each field
-        under their MPAS-Ocean names.
+        under their MPAS-Ocean names, each a time series.
     """
     ds = component.open_model_dataset(filename, config)
     if config.get('ocean', 'model') != 'omega':
         return ds
+    # Omega writes each statistic with a length-one Scalar dimension after
+    # time, which would leave every series 2-D
+    if 'Scalar' in ds.dims:
+        ds = ds.isel(Scalar=0)
     fields = list(_OMEGA_STATS_FIELDS)
     omega_names = global_stats_var_names(
         fields=fields,

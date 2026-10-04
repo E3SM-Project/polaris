@@ -1241,6 +1241,22 @@ def test_open_stage_stats_gives_omegas_statistics_mpas_ocean_names():
     ]
 
 
+def test_open_stage_stats_drops_omegas_scalar_dimension():
+    """
+    Omega writes each statistic as (time, Scalar) with Scalar of length one,
+    and the checks need a time series to take an extreme of.
+    """
+    ds = xr.Dataset(
+        {'Temperature_SpatialMax': (('Time', 'Scalar'), [[30.0], [29.0]])}
+    )
+    ds_stats = open_stage_stats(
+        _StatsComponent(ds), 'global_stats', _model_config('omega')
+    )
+    assert ds_stats.temperatureMax.dims == ('Time',)
+    value, _ = extreme_and_day(ds_stats, 'temperatureMax', 'max')
+    assert value == 29.0
+
+
 def test_open_stage_stats_leaves_mpas_oceans_statistics_alone():
     """MPAS-Ocean's names are the ones the metrics are written in."""
     ds = xr.Dataset({'temperatureMax': ('Time', [1.0, 2.0])})
