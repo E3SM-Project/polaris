@@ -276,6 +276,14 @@ class Forward(OceanModelStep):
             if self.work_dir is not None:
                 restart_dir = os.path.join(self.work_dir, '..', 'restarts')
                 os.makedirs(restart_dir, exist_ok=True)
+                if model == 'omega':
+                    # Omega writes into this directory but does not make it
+                    os.makedirs(
+                        os.path.join(
+                            self.work_dir, stage.omega_restart_write_dir()
+                        ),
+                        exist_ok=True,
+                    )
 
     def _mesh_path(self):
         """

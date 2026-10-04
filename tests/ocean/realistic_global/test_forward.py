@@ -1072,26 +1072,34 @@ def test_compute_cell_count_raises_when_estimate_missing():
 # --- restart chaining ---
 
 
-def test_restart_stream_replacements_switch_omegas_read_side():
+def test_restart_stream_replacements_chain_omegas_restart_dirs():
     """
     MPAS-Ocean's restart stream is both input and output, so it needs nothing
-    here; Omega reads through a separate RestartRead that has to be switched
-    off for a stage that is not restarting.
+    here; Omega reads a restart only on a Continue, through the pointer file
+    its predecessor wrote into a directory of its own.
     """
-    first = ForwardStage(name='first').restart_stream_replacements()
-    # the first stage reads InitialState, and RestartRead never opens
-    assert first['init_freq_units'] == 'OnStartup'
-    assert first['restart_read_use_start_end'] == 'true'
-    assert first['restart_read_time'] == '99999-12-31_00:00:00'
+    first = ForwardStage(
+        name='first',
+        restart_out='restarts/rst.0001-01-11_00.00.00.nc',
+    ).restart_stream_replacements()
+    assert first == dict(
+        start_type='StartUp',
+        restart_read_dir='../restarts/rst.0001-01-11_00.00.00',
+        restart_write_dir='../restarts/rst.0001-01-11_00.00.00',
+    )
 
     second = ForwardStage(
         name='second',
         do_restart=True,
         start_time='0001-01-11_00:00:00',
+        restart_in='restarts/rst.0001-01-11_00.00.00.nc',
+        restart_out='restarts/rst.0001-01-21_00.00.00.nc',
     ).restart_stream_replacements()
-    assert second['init_freq_units'] == 'never'
-    assert second['restart_read_use_start_end'] == 'false'
-    assert second['restart_read_time'] == '0001-01-11_00:00:00'
+    assert second == dict(
+        start_type='Continue',
+        restart_read_dir='../restarts/rst.0001-01-11_00.00.00',
+        restart_write_dir='../restarts/rst.0001-01-21_00.00.00',
+    )
 
 
 def test_restart_streams_yaml_requests_omegas_restart_read():
@@ -1106,16 +1114,22 @@ def test_restart_streams_yaml_requests_omegas_restart_read():
         .read_text()
     )
     streams = YAML(typ='rt').load(
-        text.replace('{{ init_freq_units }}', 'never')
-        .replace('{{ restart_read_use_start_end }}', 'false')
-        .replace('{{ restart_read_time }}', '0001-01-11_00:00:00')
+        text.replace('{{ start_type }}', 'Continue')
+        .replace('{{ restart_read_dir }}', '../restarts/a')
+        .replace('{{ restart_write_dir }}', '../restarts/b')
     )
+    assert streams['Omega']['TimeIntegration']['StartType'] == 'Continue'
     omega = streams['Omega']['IOStreams']
-    assert set(omega) == {'InitialState', 'RestartRead', 'RestartWrite'}
-    assert omega['RestartRead']['UsePointerFile'] is False
-    # both directions point at the shared restarts directory
-    for name in ('RestartRead', 'RestartWrite'):
-        assert omega[name]['Filename'] == '../restarts/rst.$Y-$M-$D_$h.$m.$s'
+    assert set(omega) == {'RestartRead', 'RestartWrite'}
+    assert omega['RestartRead']['PointerFilename'] == (
+        '../restarts/a/ocn.pointer'
+    )
+    assert omega['RestartWrite']['PointerFilename'] == (
+        '../restarts/b/ocn.pointer'
+    )
+    assert omega['RestartWrite']['Filename'] == (
+        '../restarts/b/ocn.restart.$Y-$M-$D_$h.$m.$s'
+    )
 
     restart = streams['mpas-ocean']['streams']['restart']
     assert restart['filename_template'] == (

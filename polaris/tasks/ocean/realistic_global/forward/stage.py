@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -546,28 +547,52 @@ class ForwardStage:
         MPAS-Ocean needs nothing here -- its restart stream is both an input
         and an output stream, so ``config_do_restart`` and
         ``config_start_time`` from ``forward.yaml`` already drive the read
-        side.  Omega reads through a separate ``RestartRead`` stream that has
-        to be switched off for the first stage, which is what these express:
-        a stage that is not restarting reads its state from ``InitialState``
-        instead, and ``RestartRead`` is pushed out of the way with a start time
-        it will never reach.
+        side.  Omega decides whether to read a restart from its
+        ``StartType``, and finds the restart through a pointer file.  Each
+        stage writes into a directory of its own (see
+        :py:meth:`omega_restart_write_dir`), and a restarting stage reads its
+        predecessor's, which is the directory named for ``restart_in``.
 
         Returns
         -------
         dict of str
             The template replacements for ``restart_streams.yaml``.
         """
+        write_dir = self.omega_restart_write_dir()
         if self.do_restart:
+            if self.restart_in is None:
+                raise ValueError(
+                    f'Stage {self.name!r} restarts but has no restart_in.'
+                )
             return dict(
-                init_freq_units='never',
-                restart_read_use_start_end='false',
-                restart_read_time=self.start_time,
+                start_type='Continue',
+                restart_read_dir=_omega_restart_dir(self.restart_in),
+                restart_write_dir=write_dir,
             )
         return dict(
-            init_freq_units='OnStartup',
-            restart_read_use_start_end='true',
-            restart_read_time='99999-12-31_00:00:00',
+            start_type='StartUp',
+            restart_read_dir=write_dir,
+            restart_write_dir=write_dir,
         )
+
+    def omega_restart_write_dir(self) -> str:
+        """
+        The directory Omega writes this stage's restart and pointer file into,
+        relative to the step's work directory.
+
+        It is ``restart_out`` without its extension, e.g.
+        ``../restarts/rst.0001-01-11_00.00.00``, so that the next stage, whose
+        ``restart_in`` is the same path, can find it without knowing which
+        stage came before it.
+
+        Returns
+        -------
+        str
+            The directory, relative to the step's work directory.
+        """
+        if self.restart_out is None:
+            raise ValueError(f'Stage {self.name!r} has no restart_out.')
+        return _omega_restart_dir(self.restart_out)
 
     def horiz_mixing_options(self) -> Dict[str, Any]:
         """
@@ -649,6 +674,14 @@ class ForwardStage:
             if self.GM_constant_kappa is not None:
                 options['config_GM_constant_kappa'] = self.GM_constant_kappa
         return options
+
+
+def _omega_restart_dir(restart_path: str) -> str:
+    """
+    The Omega restart directory for an MPAS-style restart path, relative to a
+    step's work directory.
+    """
+    return f'../{os.path.splitext(restart_path)[0]}'
 
 
 def _time_step_string(

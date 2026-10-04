@@ -19,32 +19,29 @@ mpas-ocean:
 
 # Omega splits the two directions into separate streams, so RestartRead has to
 # be requested here: setup drops any Default.yml stream that no yaml file asks
-# for, and forward.yaml requests only RestartWrite and History.  Following
-# cosine_bell/restart, a stage that is not restarting reads InitialState on
-# startup and keeps RestartRead out of the way with a start time it never
-# reaches; a restarting stage does the reverse.
+# for, and forward.yaml requests only RestartWrite and History.  This follows
+# the realistic_global restart task: whether a restart is read at all is
+# decided by StartType, and the pointer file names the restart to read.
 #
-# UNVERIFIED.  There is no Omega build in this worktree, so none of this has
-# been run.  Two things in particular need checking before an Omega dynamic
-# adjustment is trusted:
+# Each stage writes into a directory of its own under ``../restarts``, named
+# for the restart time, and a restarting stage reads its predecessor's.  A
+# shared directory would let a stage's own restart replace the pointer it had
+# just read, so re-running that stage alone would continue from the wrong time.
+# A stage that starts from the initial state never opens RestartRead, so it is
+# pointed at its own directory.
 #
-#   * the Filename has no .nc extension, matching cosine_bell/restart and
-#     forward.yaml's RestartWrite.  Whether Omega appends one is why the forward
-#     step does not declare Omega restart files as step inputs and outputs.
-#   * https://github.com/E3SM-Project/Omega/issues/482 -- restarts and history
-#     output interact badly and history output is mangled across a restart.  Its
-#     resolution will change how a restart run has to be configured, so treat
-#     this whole block as provisional.
+# StartTime is left at Omega's default, the start of the whole sequence, as in
+# the restart task: on a Continue the clock's current time comes from the
+# restart file.
 Omega:
+    TimeIntegration:
+        StartType: {{ start_type }}
     IOStreams:
-        InitialState:
-            FreqUnits: {{ init_freq_units }}
         RestartRead:
-            UsePointerFile: false
-            UseStartEnd: {{ restart_read_use_start_end }}
-            Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
-            StartTime: {{ restart_read_time }}
-            Mode: read
+            UsePointerFile: true
+            PointerFilename: {{ restart_read_dir }}/ocn.pointer
+            UseStartEnd: false
         RestartWrite:
-            UsePointerFile: false
-            Filename: ../restarts/rst.$Y-$M-$D_$h.$m.$s
+            UsePointerFile: true
+            PointerFilename: {{ restart_write_dir }}/ocn.pointer
+            Filename: {{ restart_write_dir }}/ocn.restart.$Y-$M-$D_$h.$m.$s
