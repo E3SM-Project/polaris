@@ -129,9 +129,9 @@ Omega:
       - Forcing
       - PseudoThicknessTend
       - TracerTend
-      - FrazilOcnDtFrazilMass
-      - FrazilOcnDtFrazilSalt
-      - FrazilOcnDtFrazilEnergy
+      - FrazilMassFlux
+      - FrazilSaltFlux
+      - FrazilEnergyFlux
     Forcing:
       UsePointerFile: false
       Filename: forcing.nc
