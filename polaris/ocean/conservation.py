@@ -302,9 +302,9 @@ def compute_frazil_fluxes(ds_mesh, ds, time_index_end=-1):
     while its energy field has the sign of the ocean energy contribution.
     """
     fields = (
-        'FrazilOcnDtFrazilMass',
-        'FrazilOcnDtFrazilSalt',
-        'FrazilOcnDtFrazilEnergy',
+        'FrazilMassFlux',
+        'FrazilSaltFlux',
+        'FrazilEnergyFlux',
     )
     missing = [field for field in fields if field not in ds]
     if missing:
