@@ -73,8 +73,9 @@ SERIAL_SUBMISSION = {'aurora'}
 LOGIN_ENV_VARS = ['HOME', 'USER', 'LOGNAME', 'TERM']
 
 #: the submodules polaris/build/build_omega.template initializes before it
-#: builds.  setup initializes them once per Omega worktree first, so that
-#: rows set up at the same time never update one tree's submodules at once.
+#: builds, if they are not already.  setup initializes them once per Omega
+#: worktree first, so that rows set up at the same time never update one
+#: tree's submodules at once.
 OMEGA_SUBMODULES = [
     'externals/ekat',
     'externals/scorpio',
