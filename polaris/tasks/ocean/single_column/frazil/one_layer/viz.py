@@ -10,9 +10,9 @@ from polaris.tasks.ocean.single_column.thermo.analysis import CP0_SW
 from polaris.viz import mplstyle_context
 
 FRAZIL_RATE_UNITS = {
-    'FrazilOcnDtFrazilEnergy': 'W m$^{-2}$',
-    'FrazilOcnDtFrazilMass': 'kg m$^{-2}$ s$^{-1}$',
-    'FrazilOcnDtFrazilSalt': 'kg m$^{-2}$ s$^{-1}$',
+    'FrazilEnergyFlux': 'W m$^{-2}$',
+    'FrazilMassFlux': 'kg m$^{-2}$ s$^{-1}$',
+    'FrazilSaltFlux': 'kg m$^{-2}$ s$^{-1}$',
 }
 
 
@@ -322,9 +322,9 @@ def _plot_conservation_residuals(
     frazil can act outside the top layer.
     """
     budget_vars = (
-        'FrazilOcnDtFrazilEnergy',
-        'FrazilOcnDtFrazilMass',
-        'FrazilOcnDtFrazilSalt',
+        'FrazilEnergyFlux',
+        'FrazilMassFlux',
+        'FrazilSaltFlux',
     )
     cp0_sw = CP0_SW
     fig, axes = plt.subplots(3, 1, figsize=(10, 12), sharex=True)
@@ -359,7 +359,7 @@ def _plot_conservation_residuals(
             frazil_rate = item['frazil_rates'][variable]
             count = min(frazil_steps, len(rate), len(frazil_rate))
             expected_rate = -frazil_rate[:count]
-            if variable == 'FrazilOcnDtFrazilEnergy':
+            if variable == 'FrazilEnergyFlux':
                 expected_rate = expected_rate + heat_flux
             residual = rate[:count] - expected_rate
             mean_residual = np.mean(residual)
@@ -377,7 +377,7 @@ def _plot_conservation_residuals(
         axes, FRAZIL_RATE_UNITS.items(), strict=True
     ):
         ax.axhline(0.0, color='k', lw=1)
-        budget = variable.rsplit('Frazil', 1)[-1]
+        budget = variable.removeprefix('Frazil').removesuffix('Flux')
         ax.set_ylabel(f'residual {budget}\n({units})')
         ax.legend(fontsize=7, ncol=2)
         ax.grid(alpha=0.3)
