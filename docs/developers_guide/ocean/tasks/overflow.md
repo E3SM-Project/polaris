@@ -17,11 +17,14 @@ coordinate used for the initial condition:
 |-----------------------------------|--------------|-----------------|--------|
 | `planar/overflow/linear/zstar`    | `linear.cfg` | `Init`          | z-star |
 | `planar/overflow/linear/pstar`    | `linear.cfg` | `PStarInit`     | p-star |
+| `planar/overflow/linear/sigma`    | `linear.cfg` | `Init`          | sigma  |
 | `planar/overflow/nonlinear/pstar` | `teos10.cfg` | `PStarInit`     | p-star |
+| `planar/overflow/nonlinear/sigma` | `teos10.cfg` | `Init`          | sigma  |
 
 Each tree has its own shared config parser (combining the shared EOS
-config file, `overflow.cfg` and — for the p-star trees —
-`overflow_pstar.cfg`) and its own shared `init` step.
+config file, `overflow.cfg` and — for the p-star and sigma trees —
+`overflow_pstar.cfg` or `overflow_sigma.cfg`) and its own shared `init`
+step.
 
 ## framework
 
@@ -37,25 +40,34 @@ defining `mesh`, `input`, `restart`, and `output` streams.
 ### init_utils
 
 The module `polaris.tasks.ocean.overflow.init_utils` contains helpers
-shared by the two init steps:
+for the init steps:
 {py:func}`polaris.tasks.ocean.overflow.init_utils.build_overflow_mesh()`
 builds and culls the planar hex mesh, adds the Coriolis parameter and
 writes the mesh files;
 {py:func}`polaris.tasks.ocean.overflow.init_utils.compute_bottom_depth()`
-computes the tanh shelf bathymetry; and
+computes the tanh shelf bathymetry;
 {py:func}`polaris.tasks.ocean.overflow.init_utils.compute_initial_temperature()`
-computes the cold-block temperature profile.
+computes the cold-block temperature profile; and
+{py:func}`polaris.tasks.ocean.overflow.init_utils.compute_initial_density()`
+computes the density of the resting initial state on a geometric
+coordinate, at its hydrostatic pressure so that it is also valid for a
+nonlinear EOS.
 
 ### init
 
 The class {py:class}`polaris.tasks.ocean.overflow.init.Init`
-defines a step for setting up the z-star initial state for each test case.
+defines a step for setting up the initial state on a geometric vertical
+coordinate, z-star or sigma, for each test case.
 
 First, a mesh appropriate for the resolution is generated using
 {py:func}`mpas_tools.planar_hex.make_planar_hex_mesh()`.  Then, the mesh is
 culled to remove periodicity in the x and y directions.  The bottom topography
-is defined along with a vertical grid with 60 layers by default.  Next, the
-ocean state is generated with cold water on the continental shelf.
+is defined along with a vertical grid with 60 z-star or 64 sigma layers by
+default.  Next, the ocean state is generated with cold water on the
+continental shelf.  As for the p-star init step, the framework converts the
+coordinate to pseudo-thickness for Omega and, in the `nonlinear/sigma`
+tree, the tracers to potential temperature and practical salinity for
+MPAS-Ocean.
 
 ### pstar_init
 
