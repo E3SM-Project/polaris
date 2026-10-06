@@ -60,6 +60,35 @@ def test_run_status(monkeypatch):
 
 
 def test_run_status_names_machine_rows(monkeypatch):
+    _no_comments(monkeypatch)
+    monkeypatch.setattr(
+        pr_test_status, 'discover_machine', lambda quiet: 'pm-cpu'
+    )
+
+    text = pr_test_status.run_status(5, _manifest())
+
+    assert text.splitlines()[-1] == (
+        'Rows to test on this machine (pm-cpu): pm-cpu/gnu, pm-gpu/gnugpu'
+    )
+
+
+def test_run_status_off_the_machines(monkeypatch):
+    _no_comments(monkeypatch)
+    monkeypatch.setattr(pr_test_status, 'discover_machine', lambda quiet: None)
+
+    text = pr_test_status.run_status(5, _manifest())
+
+    lines = text.splitlines()
+    assert lines[-5:] == [
+        "Rows to test from each machine's login nodes:",
+        '  aurora: aurora/oneapi-ifx',
+        '  chrysalis: chrysalis/intel',
+        '  frontier: frontier/craygnu, frontier/craygnu-mphipcc',
+        '  pm-cpu and pm-gpu: pm-cpu/gnu, pm-gpu/gnugpu',
+    ]
+
+
+def _no_comments(monkeypatch):
     monkeypatch.setattr(
         pr_test_github, 'get_comment_bodies', lambda number: []
     )
@@ -68,10 +97,10 @@ def test_run_status_names_machine_rows(monkeypatch):
         'get_pull_request',
         lambda number: {'headRefOid': HEAD},
     )
-    monkeypatch.setattr(
-        pr_test_status, 'discover_machine', lambda quiet: 'pm-cpu'
-    )
-    manifest = Manifest(
+
+
+def _manifest():
+    return Manifest(
         requester='tester',
         pull_request=5,
         pr_head=HEAD,
@@ -84,12 +113,6 @@ def test_run_status_names_machine_rows(monkeypatch):
         polaris_commit='e' * 40,
         baseline_polaris_commit='e' * 40,
         rows=TEMPLATE_ROWS,
-    )
-
-    text = pr_test_status.run_status(5, manifest)
-
-    assert text.splitlines()[-1] == (
-        'Rows to test on this machine (pm-cpu): pm-cpu/gnu, pm-gpu/gnugpu'
     )
 
 

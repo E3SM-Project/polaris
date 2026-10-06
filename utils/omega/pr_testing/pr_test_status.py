@@ -7,7 +7,12 @@ from typing import Any, Dict, List, Optional
 
 import pr_test_github as github
 import pr_test_report as report
-from pr_test_manifest import TEMPLATE_ROWS, Manifest, get_machine_rows
+from pr_test_manifest import (
+    TEMPLATE_ROWS,
+    Manifest,
+    get_machine_rows,
+    group_login_rows,
+)
 
 from polaris.machines import discover_machine
 
@@ -24,7 +29,7 @@ def run_status(pull_request: int, manifest: Optional[Manifest] = None) -> str:
     manifest : pr_test_manifest.Manifest, optional
         The manifest whose rows to list, the Omega PR template's by default.
         With a manifest, the rows a tester on this machine runs are named
-        as well.
+        as well, or off the machines, the rows to test from each one.
 
     Returns
     -------
@@ -50,15 +55,22 @@ def run_status(pull_request: int, manifest: Optional[Manifest] = None) -> str:
 
 
 def format_machine_rows(manifest: Manifest) -> str:
-    """The line naming the rows a tester on this machine runs"""
+    """
+    The line naming the rows a tester on this machine runs or, off the
+    machines, the rows to test from each machine's login nodes
+    """
     machine = discover_machine(quiet=True)
-    if machine is None:
-        return 'This machine is not one Polaris recognizes.'
-    rows = get_machine_rows(manifest.rows, machine)
-    if not rows:
-        return f'No rows to test on this machine ({machine}).'
-    names = ', '.join(row.name for row in rows)
-    return f'Rows to test on this machine ({machine}): {names}'
+    rows = []
+    if machine is not None:
+        rows = get_machine_rows(manifest.rows, machine)
+    if rows:
+        names = ', '.join(row.name for row in rows)
+        return f'Rows to test on this machine ({machine}): {names}'
+    lines = ["Rows to test from each machine's login nodes:"]
+    for machines, login_rows in group_login_rows(manifest.rows):
+        names = ', '.join(row.name for row in login_rows)
+        lines.append(f'  {" and ".join(machines)}: {names}')
+    return '\n'.join(lines)
 
 
 def format_status(
