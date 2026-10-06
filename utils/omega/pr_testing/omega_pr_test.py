@@ -3,7 +3,7 @@
 Test an Omega pull request on the supported machines
 
 See README.md for the workflow and AGENTS.md for the instructions agents
-follow.  Run this from a shell with the Polaris load script sourced.
+follow.  Run this from a shell with a Polaris load script sourced.
 """
 
 import argparse
@@ -19,7 +19,7 @@ from pr_test_config import ConfigError, read_config
 from pr_test_git import GitError
 from pr_test_github import GitHubError
 from pr_test_manifest import ManifestError, fetch_manifest, get_row
-from pr_test_report import read_notes
+from pr_test_report import post_file, read_notes
 
 from polaris.job import SubmissionError
 
@@ -118,6 +118,11 @@ def _report(args):
         post=args.post,
     )
     _print_report(text, url, path)
+
+
+def _post(args):
+    url = post_file(args.pr, args.comment)
+    print(f'Posted {url}')
 
 
 def _status(args):
@@ -287,6 +292,16 @@ def _parse_args():
     )
     _add_report_args(report)
     report.set_defaults(func=_report)
+
+    post = subparsers.add_parser(
+        'post',
+        help='Post a Testing comment that report or lint wrote, such as one '
+        'copied from a machine without gh.  Agents run this only with the '
+        "requester's permission.",
+    )
+    post.add_argument('--pr', type=int, required=True, help='The Omega PR')
+    post.add_argument('comment', help="The comment's file")
+    post.set_defaults(func=_post)
 
     status = subparsers.add_parser(
         'status', help="List the rows' Testing comments on the PR"

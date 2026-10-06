@@ -2,6 +2,7 @@ import dataclasses
 import json
 from pathlib import Path
 
+import pr_test_github
 import pr_test_report
 import pr_test_results
 import pr_test_setup
@@ -20,6 +21,8 @@ CTEST_MD = """### CTest unit tests:
 - Compiler: `intel`
 - Result: All tests passed
 """
+
+URL = 'https://github.com/E3SM-Project/Omega/pull/5#comment'
 
 
 @pytest.fixture
@@ -133,6 +136,36 @@ def test_report_not_run(finished):
         'not-run',
     )
     assert Path(path).parent.name == 'aurora_oneapi-ifx'
+
+
+def test_post_file(finished, tmp_path, monkeypatch):
+    fixture, manifest, _ = finished
+    _, _, path = pr_test_results.run_report(
+        fixture.config, fixture.fork, manifest.branch
+    )
+    posted = _mock_post(monkeypatch)
+
+    assert pr_test_report.post_file(5, path) == URL
+    assert posted == [(5, path)]
+
+    with pytest.raises(ValueError, match='for PR 5, not 6'):
+        pr_test_report.post_file(6, path)
+    other = tmp_path / 'other.md'
+    other.write_text('## Testing: by hand\n')
+    with pytest.raises(ValueError, match='no omega-pr-test marker'):
+        pr_test_report.post_file(5, str(other))
+    assert len(posted) == 1
+
+
+def _mock_post(monkeypatch):
+    posted = []
+
+    def post_comment(number, body_file):
+        posted.append((number, body_file))
+        return URL
+
+    monkeypatch.setattr(pr_test_github, 'post_comment', post_comment)
+    return posted
 
 
 def _finish(state):

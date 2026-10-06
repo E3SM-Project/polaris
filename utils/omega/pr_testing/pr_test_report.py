@@ -171,6 +171,42 @@ def deliver(
     return github.post_comment(pull_request, path)
 
 
+def post_file(pull_request: int, path: str) -> str:
+    """
+    Post a Testing comment that ``report`` or ``lint`` wrote, perhaps on
+    another machine, from its file
+
+    The comment must have a marker for the pull request, so that only a
+    comment the utility wrote is posted, and only on the PR it is for.
+
+    Parameters
+    ----------
+    pull_request : int
+        The Omega pull request to post it on
+
+    path : str
+        The comment's file
+
+    Returns
+    -------
+    url : str
+        The URL of the posted comment
+    """
+    with open(path, 'r', encoding='utf-8') as f:
+        marker = parse_marker(f.read())
+    if marker is None:
+        raise ValueError(
+            f'{path} has no {MARKER_PREFIX} marker, so it is not a comment '
+            f'that report or lint wrote.'
+        )
+    if marker.get('pr') != pull_request:
+        raise ValueError(
+            f'{path} is a comment for PR {marker.get("pr")}, not '
+            f'{pull_request}.'
+        )
+    return github.post_comment(pull_request, path)
+
+
 def read_notes(filename: Optional[str]) -> Optional[str]:
     """The contents of a notes file, if one was given"""
     if filename is None:
