@@ -17,12 +17,15 @@ comment. For Omega#481, agents on four machines did this from a handoff
 written for that pull request alone. This design turns that process into a
 Polaris utility, `utils/omega/pr_testing`, that any developer can use.
 
-The developer who wants the results, the requester, starts two kinds of
-agent. An initiator runs on any supported machine and pins the commits under
-test in a branch on the requester's fork, then reports on linting and the
-documentation build. A tester on each machine builds and runs both sides
-against that pin, then reports its rows, including any new compiler
-warnings. Scripts do the steps whose mistakes would pass unnoticed: choosing
+The developer who wants the results, the requester, gives the work two
+roles. An initiator pins the commits under test in a branch on the
+requester's fork, then reports on linting and the documentation build. A
+tester builds and runs both sides against that pin on each machine, then
+reports its rows, including any new compiler warnings. By default, one agent
+on the requester's own computer takes both roles and runs each machine's
+commands over ssh, through connections the requester opens by logging in.
+Frontier does not allow such connections, so an agent on Frontier tests its
+rows. Scripts do the steps whose mistakes would pass unnoticed: choosing
 the commits and producing the reports. Agent instructions cover the order of
 setup and what to do when something fails, using the tools Polaris already
 has.
@@ -37,7 +40,13 @@ what result.
 
 Nothing depends on one person's paths, fork, accounts or allocations.
 
-### Requirement: Testing can start from any supported machine.
+### Requirement: Testing can start from the requester's computer or any supported machine.
+
+### Requirement: GitHub credentials are needed on one computer only.
+
+Pushing the test branch and posting comments need the requester's
+credentials. Setting those up on every machine is a chore that should not
+be needed.
 
 ### Requirement: Every machine tests the same commits.
 
@@ -92,18 +101,35 @@ changes.
 ### Algorithm Design: Any developer can request testing.
 
 The requester is usually the pull request's assignee, but may be its author
-or another reviewer. They run each agent in their own Polaris checkout on
-that machine, with an existing load script. Per-machine settings come from a
-config file the requester writes once per machine, and the agent asks for
-any that are missing.
+or another reviewer. Their agent runs in their own Polaris checkout, and
+runs commands in their own checkouts on each machine. Settings come from a
+config file the requester writes once on their computer and once per
+machine, and the agent asks for any that are missing.
 
 The agent instructions are committed in Polaris and reviewed like code. The
 test branch carries data, not instructions.
 
-### Algorithm Design: Testing can start from any supported machine.
+### Algorithm Design: Testing can start from the requester's computer or any supported machine.
 
-The initiator only does git work, so any machine with an Omega clone will
-do. The initiator may also be the tester for its own machine.
+The initiator only does git work, so any computer with an Omega clone and a
+Polaris environment will do. The initiator may also be the tester for any
+machine it can run commands on.
+
+### Algorithm Design: GitHub credentials are needed on one computer only.
+
+The agent on the requester's computer runs the utility on each machine over
+ssh, using a shared connection (`ControlMaster`) that the requester opens
+by logging in, so the agent never handles a password or passcode. The
+connection lasts as long as their login session, unless they choose to
+keep it open longer (`ControlPersist`). The
+utility runs on the machine as it would for an agent there; nothing in it
+knows about ssh. The agent copies each report back unchanged and posts it
+from the requester's computer, where `gh` is logged in.
+
+An agent on a machine that the requester's computer cannot reach this way,
+such as Frontier, tests that machine's rows itself. It posts with `gh` if
+it is logged in there. Otherwise it gives the requester the report, which
+the agent on their computer can post.
 
 ### Algorithm Design: Every machine tests the same commits.
 
@@ -194,7 +220,7 @@ signature that `AGENTS.md` prescribes. History and paths go in collapsed
 
 Each outward-facing step prints what it would do, and acts only when given
 a flag: `init --push`, `setup --submit`, and `--post` for `lint` and
-`report`. The agent passes one of these only when the requester has allowed
+`report`. The `post` command is outward-facing in itself. The agent passes one of these only when the requester has allowed
 it in that session.
 A manifest or any other document cannot grant permission.
 
@@ -288,13 +314,14 @@ reused because an earlier build failed, `setup` rebuilds it with
 - `AGENTS.md`: instructions for the initiator and tester roles, and the
   prompts the requester gives each one.
 - `README.md`: the same workflow, written for people running the commands.
-- `omega_pr_test.py`: the subcommands `init`, `lint`, `setup`, `report`
-  and `status`, with the modules they use in `pr_test_*.py`.  The script's
+- `omega_pr_test.py`: the subcommands `init`, `lint`, `setup`, `report`,
+  `post` and `status`, with the modules they use in `pr_test_*.py`.  The script's
   directory is on `sys.path`, so the prefix keeps a module from shadowing
   a standard one, such as `warnings`.
 - `pr_test_warnings.py`: the build log parser.
-- `example.cfg`: the per-machine settings. Copy it to
-  `~/.config/omega_pr_test.cfg`, or pass another path with `-f`.
+- `example.cfg`: the settings for the requester's computer and each
+  machine. Copy it to `~/.config/omega_pr_test.cfg`, or pass another path
+  with `-f`.
 
 ```ini
 [omega_pr_test]
@@ -308,11 +335,16 @@ polaris_fork = git@github.com:<user>/polaris.git
 omega_dev_env = /path/to/conda/envs/omega_dev
 # other places to look for a baseline to reuse, besides work_base
 baseline_search_roots = /path/to/earlier/test/dirs
+
+# on the requester's computer only: <ssh host>:<Polaris on the machine>
+[machines]
+chrysalis = chrys:/path/to/polaris
 ```
 
-`init` ends by printing the prompt for the testers, which is the whole
-handoff and the same on every machine. The utility's `AGENTS.md` shows its
-template, so a handoff never needs anything added:
+`init` ends by printing the prompt for an agent testing on a machine
+itself, such as Frontier, which is the whole handoff and the same on every
+machine. The utility's `AGENTS.md` shows its template, so a handoff never
+needs anything added:
 
 ```
 Test Omega PR 553 from branch omega-pr-test/553-54456ec on
@@ -320,13 +352,14 @@ git@github.com:xylar/E3SM.git, following utils/omega/pr_testing/AGENTS.md.
 ```
 
 Each tester finds its rows with `status`, which names the manifest's rows
-for the machine it runs on. Perlmutter's pm-cpu and pm-gpu rows go to one
-tester, since the two share login nodes.
+for the machine it runs on, or, on the requester's computer, the rows for
+each machine. Perlmutter's pm-cpu and pm-gpu rows are tested from the same
+login nodes.
 
 When the PR needs Polaris changes, the prompt also names the Polaris
 branches for the PR and the baseline, on `polaris_fork`.
 
-### Implementation: Testing can start from any supported machine.
+### Implementation: Testing can start from the requester's computer or any supported machine.
 
 ```
 omega_pr_test.py init --pr 553 [--baseline <ref> --reason <text>]
@@ -344,6 +377,19 @@ is `polaris_commit` unless `--baseline-polaris-ref` names another. If a
 merge conflicts, `init`
 stops, and the pull request's author must update the branch. The default
 rows are the six in the template.
+
+### Implementation: GitHub credentials are needed on one computer only.
+
+`AGENTS.md` has the agent run each command on a machine with
+`ssh -o BatchMode=yes <host> bash -l -s`, the commands on standard input.
+Each command gets a fresh login shell, and `ssh` fails rather than prompting
+when the requester's connection is gone. `setup` and `./deploy.py` run
+under `nohup`, so that a dropped connection does not kill a build. The
+`[machines]` section of the config file on the requester's computer names
+each machine's ssh host and Polaris checkout. The utility checks that each
+names a Polaris machine and has that form, and `status` shows them with
+each machine's rows. Reports come back with `scp`,
+and `post` posts them (see below, under results).
 
 ### Implementation: Every machine tests the same commits.
 
@@ -466,11 +512,21 @@ Polaris submodule baseline.
 report.md`. Without it, `report` prints the text for the requester to
 paste.
 
+A report written on a machine without `gh` is copied unchanged to the
+requester's computer and posted there:
+
+```
+omega_pr_test.py post --pr 553 <report.md>
+```
+
+`post` refuses a file without a marker for that pull request, so it posts
+only what `report` or `lint` wrote, on the right pull request.
+
 `gh` is never required. Queries use it when it is installed and logged in,
 and otherwise GitHub's REST API, which needs no login for a public
 repository (a token in `GH_TOKEN` raises the rate limit). The requester is
-the owner of `fork`. Only posting needs `gh`; without it, `--post` stops,
-and the comment is posted by hand.
+the owner of `fork`. Only posting needs `gh`; without it, `--post` and
+`post` stop, and the comment is posted by hand.
 
 ### Implementation: The requester controls every outward-facing action.
 
@@ -562,6 +618,13 @@ repeats it, on at least one machine, from their own accounts.
 The second trial is Omega#524, tested with a Polaris test merge of
 polaris#731 and a baseline run from a second checkout without it.
 
+### Testing and Validation: GitHub credentials are needed on one computer only.
+
+A trial tests Chrysalis, Perlmutter and Aurora over ssh from one laptop,
+with an agent on Frontier, and posts every report from the laptop. Unit
+tests check that `post` refuses a file without a marker or with a marker
+for another pull request.
+
 ### Testing and Validation: Every machine tests the same commits.
 
 Unit tests build small git repositories in a temporary directory, with a
@@ -624,6 +687,14 @@ a changed file is marked. The #553 trial checks the section on every row.
 - **The test branch lives on the requester's fork.** Recreating the merge
   on each machine would avoid a push, but it could not carry conflict
   resolutions or extra merges.
+- **One agent drives the machines over ssh, by default.** For Omega#481
+  and the first trials of this utility, an agent ran on each machine. Each
+  needed its own handoff and, to post, its own `gh` login, and the
+  requester relayed between them. Driving E3SM-Unified's deployment on
+  Chrysalis, Perlmutter and Aurora from one laptop over ssh needed only the
+  requester's usual logins. The utility itself stays on the machines, so
+  an agent on a machine runs the same commands, which Frontier still
+  needs.
 - **Each row gets its own comment.** Rows finish at different times on
   different machines, and separate comments need no coordination.
 - **Baselines are found from provenance, not from `utils/benchmark`'s
