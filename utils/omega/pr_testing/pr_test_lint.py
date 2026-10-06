@@ -82,7 +82,7 @@ def run_lint(
     Parameters
     ----------
     config : pr_test_config.PrTestConfig
-        The per-machine settings
+        The settings
 
     fork : str
         The URL of the requester's fork

@@ -1,26 +1,56 @@
 """
-The per-machine settings of the Omega PR testing utility
+The settings of the Omega PR testing utility, on the requester's computer
+or on a machine
 """
 
 import configparser
 import os
+import re
 from dataclasses import dataclass, field
-from typing import List, Optional
+from importlib import resources
+from typing import Dict, List, Optional
+
+from pr_test_manifest import SHARED_LOGIN_NODES
 
 #: where the settings are read from unless another file is given
 DEFAULT_CONFIG = os.path.join('~', '.config', 'omega_pr_test.cfg')
 
 SECTION = 'omega_pr_test'
 
+#: the section with the machines an agent on the requester's computer
+#: tests over ssh
+MACHINES_SECTION = 'machines'
+
+_HOST = re.compile(r'^[\w.@-]+$')
+
 
 class ConfigError(Exception):
-    """The settings are missing or incomplete"""
+    """The settings are missing, incomplete or invalid"""
+
+
+@dataclass(frozen=True)
+class RemoteMachine:
+    """
+    How an agent on the requester's computer reaches a machine over ssh
+
+    Attributes
+    ----------
+    host : str
+        The ssh host, usually an alias in the requester's ``~/.ssh/config``
+
+    polaris_dir : str
+        The Polaris checkout on the machine, as the machine's shell would
+        expand it
+    """
+
+    host: str
+    polaris_dir: str
 
 
 @dataclass
 class PrTestConfig:
     """
-    The per-machine settings of the Omega PR testing utility
+    The settings of the Omega PR testing utility
 
     Attributes
     ----------
@@ -46,6 +76,10 @@ class PrTestConfig:
 
     baseline_search_roots : list of str
         Other directories to look in for a baseline to reuse
+
+    machines : dict of str to pr_test_config.RemoteMachine
+        The machines an agent on the requester's computer tests over ssh,
+        by Polaris machine; only on the requester's computer
     """
 
     work_base: str
@@ -54,11 +88,35 @@ class PrTestConfig:
     polaris_fork: Optional[str] = None
     omega_dev_env: Optional[str] = None
     baseline_search_roots: List[str] = field(default_factory=list)
+    machines: Dict[str, RemoteMachine] = field(default_factory=dict)
+
+    def find_machine(self, machine: str) -> Optional[RemoteMachine]:
+        """
+        How to reach a machine over ssh, or one that shares its login nodes
+
+        Parameters
+        ----------
+        machine : str
+            The Polaris machine
+
+        Returns
+        -------
+        remote : pr_test_config.RemoteMachine, optional
+            The machine's ``[machines]`` entry, or ``None`` if it has none
+        """
+        if machine in self.machines:
+            return self.machines[machine]
+        for group in SHARED_LOGIN_NODES:
+            if machine in group:
+                for other in sorted(group):
+                    if other in self.machines:
+                        return self.machines[other]
+        return None
 
 
 def read_config(filename: Optional[str] = None) -> PrTestConfig:
     """
-    Read the per-machine settings
+    Read the settings
 
     Parameters
     ----------
@@ -104,7 +162,48 @@ def read_config(filename: Optional[str] = None) -> PrTestConfig:
         baseline_search_roots=[
             _expand(root) for root in roots.replace(',', ' ').split()
         ],
+        machines=_read_machines(parser, filename),
     )
+
+
+def _read_machines(parser, filename):
+    """Read and check the ``[machines]`` section, if there is one"""
+    if not parser.has_section(MACHINES_SECTION):
+        return {}
+    where = f'[{MACHINES_SECTION}] in {filename}'
+    machines = {}
+    for machine in parser.options(MACHINES_SECTION):
+        if not _is_polaris_machine(machine):
+            raise ConfigError(
+                f'{where} names {machine}, which is not a Polaris machine.'
+            )
+        value = parser.get(MACHINES_SECTION, machine, raw=True).strip()
+        host, _, polaris_dir = value.partition(':')
+        host = host.strip()
+        polaris_dir = polaris_dir.strip()
+        if not _HOST.match(host) or not polaris_dir.startswith(('/', '~')):
+            raise ConfigError(
+                f'{where} gives {machine} as "{value}", not as '
+                f'<ssh host>:<absolute path to Polaris on the machine>.'
+            )
+        machines[machine] = RemoteMachine(host, polaris_dir)
+
+    for group in SHARED_LOGIN_NODES:
+        given = sorted(group & set(machines))
+        if len({machines[machine] for machine in given}) > 1:
+            raise ConfigError(
+                f'{where} gives {" and ".join(given)} differently, but '
+                f'they are tested from the same login nodes.  Give one.'
+            )
+    return machines
+
+
+def _is_polaris_machine(machine):
+    """Whether Polaris has a config file for a machine"""
+    if machine.startswith('default'):
+        return False
+    filename = f'{machine}.cfg'
+    return resources.files('polaris.machines').joinpath(filename).is_file()
 
 
 def _optional(parser, option, expand=True):
