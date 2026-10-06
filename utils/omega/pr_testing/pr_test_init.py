@@ -57,7 +57,8 @@ class InitResult:
         Whether the branches were pushed
 
     prompt : str
-        What to tell the tester on every machine
+        What to tell an agent testing on a machine itself, such as
+        Frontier, which cannot be reached over ssh
     """
 
     manifest: Manifest
@@ -276,8 +277,9 @@ def get_prompt(
     baseline_polaris_ref: Optional[str] = None,
 ) -> str:
     """
-    The prompt for the tester on every machine, which is the whole
-    handoff.  Each tester works out its own rows.  The utility's AGENTS.md
+    The prompt for an agent testing on a machine itself, which is the
+    whole handoff and the same on every machine.  Each tester works out its
+    own rows.  The utility's AGENTS.md
     shows the template; keep the two the same.
 
     Parameters
@@ -350,7 +352,14 @@ def format_result(result: InitResult, repo: str) -> str:
                 f'  cd {repo} && {command}',
             ]
         )
-    lines.extend(['', 'Prompt for the tester on every machine:', ''])
+    lines.extend(
+        [
+            '',
+            'Prompt for an agent testing on a machine itself, such as '
+            'Frontier:',
+            '',
+        ]
+    )
     lines.append(result.prompt)
     return '\n'.join(lines)
 
