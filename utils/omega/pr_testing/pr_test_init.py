@@ -89,7 +89,7 @@ def initiate(
     Parameters
     ----------
     config : pr_test_config.PrTestConfig
-        The per-machine settings
+        The settings
 
     pull_request : int
         The number of the Omega pull request to test

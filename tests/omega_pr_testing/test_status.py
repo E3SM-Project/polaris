@@ -1,5 +1,6 @@
 import pr_test_github
 import pr_test_status
+from pr_test_config import PrTestConfig, RemoteMachine
 from pr_test_manifest import POLARIS_SUBMODULE, TEMPLATE_ROWS, Manifest
 
 HEAD = 'a' * 40
@@ -86,6 +87,28 @@ def test_run_status_off_the_machines(monkeypatch):
         '  frontier: frontier/craygnu, frontier/craygnu-mphipcc',
         '  pm-cpu and pm-gpu: pm-cpu/gnu, pm-gpu/gnugpu',
     ]
+
+
+def test_run_status_names_how_to_reach_machines(monkeypatch):
+    _no_comments(monkeypatch)
+    monkeypatch.setattr(pr_test_status, 'discover_machine', lambda quiet: None)
+    config = PrTestConfig(
+        work_base='/work',
+        omega_repo='/omega',
+        machines={'pm-cpu': RemoteMachine('pm', '~/polaris')},
+    )
+
+    text = pr_test_status.run_status(5, _manifest(), config)
+
+    lines = text.splitlines()
+    assert lines[-2] == (
+        '  frontier: frontier/craygnu, frontier/craygnu-mphipcc (no '
+        '[machines] line, so an agent on the machine tests it)'
+    )
+    assert lines[-1] == (
+        '  pm-cpu and pm-gpu: pm-cpu/gnu, pm-gpu/gnugpu (ssh pm, Polaris in '
+        '~/polaris)'
+    )
 
 
 def _no_comments(monkeypatch):

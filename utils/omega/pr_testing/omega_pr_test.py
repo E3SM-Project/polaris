@@ -126,13 +126,14 @@ def _post(args):
 
 
 def _status(args):
+    config = None
     manifest = None
     if args.branch is not None:
         if args.fork is None:
             raise ValueError('--branch needs --fork.')
         config = read_config(args.config_file)
         manifest = fetch_manifest(config.omega_repo, args.fork, args.branch)
-    print(pr_test_status.run_status(args.pr, manifest))
+    print(pr_test_status.run_status(args.pr, manifest, config))
 
 
 def _print_report(text, url, path):
@@ -174,8 +175,7 @@ def _parse_args():
     parser.add_argument(
         '-f',
         '--config_file',
-        help='The per-machine config file, ~/.config/omega_pr_test.cfg by '
-        'default',
+        help='The config file, ~/.config/omega_pr_test.cfg by default',
     )
     subparsers = parser.add_subparsers(required=True, metavar='command')
 

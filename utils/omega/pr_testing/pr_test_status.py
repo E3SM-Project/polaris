@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 import pr_test_github as github
 import pr_test_report as report
+from pr_test_config import PrTestConfig
 from pr_test_manifest import (
     TEMPLATE_ROWS,
     Manifest,
@@ -17,7 +18,11 @@ from pr_test_manifest import (
 from polaris.machines import discover_machine
 
 
-def run_status(pull_request: int, manifest: Optional[Manifest] = None) -> str:
+def run_status(
+    pull_request: int,
+    manifest: Optional[Manifest] = None,
+    config: Optional[PrTestConfig] = None,
+) -> str:
     """
     Summarize the Testing comments on an Omega PR
 
@@ -30,6 +35,10 @@ def run_status(pull_request: int, manifest: Optional[Manifest] = None) -> str:
         The manifest whose rows to list, the Omega PR template's by default.
         With a manifest, the rows a tester on this machine runs are named
         as well, or off the machines, the rows to test from each one.
+
+    config : pr_test_config.PrTestConfig, optional
+        The settings, whose ``[machines]`` entries are named with each
+        machine's rows off the machines
 
     Returns
     -------
@@ -50,14 +59,17 @@ def run_status(pull_request: int, manifest: Optional[Manifest] = None) -> str:
     rows = [row.name for row in (manifest.rows if manifest else TEMPLATE_ROWS)]
     text = format_status(rows, markers, head)
     if manifest is not None:
-        text = f'{text}\n\n{format_machine_rows(manifest)}'
+        text = f'{text}\n\n{format_machine_rows(manifest, config)}'
     return text
 
 
-def format_machine_rows(manifest: Manifest) -> str:
+def format_machine_rows(
+    manifest: Manifest, config: Optional[PrTestConfig] = None
+) -> str:
     """
     The line naming the rows a tester on this machine runs or, off the
-    machines, the rows to test from each machine's login nodes
+    machines, the rows to test from each machine's login nodes, with how
+    to reach each machine if the settings are given
     """
     machine = discover_machine(quiet=True)
     rows = []
@@ -69,7 +81,10 @@ def format_machine_rows(manifest: Manifest) -> str:
     lines = ["Rows to test from each machine's login nodes:"]
     for machines, login_rows in group_login_rows(manifest.rows):
         names = ', '.join(row.name for row in login_rows)
-        lines.append(f'  {" and ".join(machines)}: {names}')
+        line = f'  {" and ".join(machines)}: {names}'
+        if config is not None:
+            line = f'{line} {_format_remote(config, machines[0])}'
+        lines.append(line)
     return '\n'.join(lines)
 
 
@@ -120,3 +135,11 @@ def format_status(
             f'{str(marker.get("test", ""))[:10]}{extra}{stale}'
         )
     return '\n'.join(lines)
+
+
+def _format_remote(config, machine):
+    """How the settings say to reach a machine"""
+    remote = config.find_machine(machine)
+    if remote is None:
+        return '(no [machines] line, so an agent on the machine tests it)'
+    return f'(ssh {remote.host}, Polaris in {remote.polaris_dir})'
