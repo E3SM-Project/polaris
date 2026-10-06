@@ -255,6 +255,12 @@ class Forward(OceanModelStep):
         if 'kpp_regimes' in self.task_package:
             template_replacements['match_technique'] = self.match_technique
             template_replacements['use_theory_wave'] = self.use_theory_wave
+            template_replacements['langmuir_mixing_opt'] = (
+                'LWF16' if self.use_langmuir_circulation else 'NONE'
+            )
+            template_replacements['langmuir_entrainment_opt'] = (
+                'LF17' if self.use_langmuir_circulation else 'NONE'
+            )
             template_replacements['min_OBL_under_sea_ice'] = (
                 self.min_obl_under_sea_ice
             )

@@ -25,6 +25,9 @@ ocean:
     config_salinity_restoring_constant_piston_velocity: 1.585e-5
 
 mpas-ocean:
+  io:
+    # Match Omega: first write after one output interval, not at time zero.
+    config_write_output_on_startup: false
   eos:
     config_eos_type: jm
   frazil_ice:
@@ -37,8 +40,8 @@ mpas-ocean:
     config_use_cvmix: true
     config_cvmix_background_scheme: constant
     config_cvmix_shear_mixing_scheme: KPP
-    config_cvmix_kpp_langmuir_mixing_opt: NONE
-    config_cvmix_kpp_langmuir_entrainment_opt: NONE
+    config_cvmix_kpp_langmuir_mixing_opt: {{ langmuir_mixing_opt }}
+    config_cvmix_kpp_langmuir_entrainment_opt: {{ langmuir_entrainment_opt }}
     # quadratic (the model default) can produce a discontinuous OBL-depth
     # jump at the first Richardson-number crossing in this configuration;
     # linear interpolation is an equally valid, more robust alternative
@@ -155,11 +158,11 @@ Omega:
   IOStreams:
     History:
       Filename: output.nc
-      Freq: 1
-      FreqUnits: Hours
+      Freq: {{ output_freq }}
+      FreqUnits: Seconds
       IfExists: append
-      FileFreq: 1
-      FileFreqUnits: hours
+      FileFreq: {{ output_freq }}
+      FileFreqUnits: Seconds
       Contents:
       - AuxiliaryState
       - State
