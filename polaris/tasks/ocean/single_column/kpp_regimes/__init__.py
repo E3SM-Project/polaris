@@ -63,6 +63,7 @@ class KPPRegimes(Task):
             task_package='polaris.tasks.ocean.single_column.kpp_regimes',
             enable_vadv=False,
             enable_hadv=False,
+            match_technique='SimpleShapes',
             use_langmuir_circulation=False,
             # PVTendencyEnable (Omega) carries both relative vorticity and
             # Coriolis in one term; disabling horizontal advection must not
@@ -106,9 +107,8 @@ class KPPRegimes(Task):
             )
             self.add_step(
                 Forward(
-                    **common_kwargs,
+                    **dict(common_kwargs, match_technique='MatchBoth'),
                     min_obl_under_sea_ice=30.0,
-                    match_technique='MatchBoth',
                 )
             )
             comparisons = {
@@ -118,7 +118,7 @@ class KPPRegimes(Task):
         else:
             self.add_step(Forward(**common_kwargs))
             self.add_step(
-                Forward(**common_kwargs, match_technique='MatchBoth')
+                Forward(**dict(common_kwargs, match_technique='MatchBoth'))
             )
             comparisons = {
                 'standard': '../forward_no_vadv_no_hadv_simpleshapes',

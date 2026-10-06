@@ -35,7 +35,7 @@ class Forward(OceanModelStep):
         conservation_intervals=None,
         check_properties=None,
         run_duration_steps=None,
-        match_technique='SimpleShapes',
+        match_technique=None,
         use_langmuir_circulation=False,
         use_theory_wave=False,
         min_obl_under_sea_ice=5.0,
@@ -271,9 +271,18 @@ class Forward(OceanModelStep):
             template_replacements=template_replacements,
         )
 
-        shared_options = {}
+        # Preserve legacy mixing in non-KPP tests even when model defaults
+        # enable KPP. Dedicated KPP tasks opt in explicitly.
+        is_kpp = (
+            self.task_package
+            == 'polaris.tasks.ocean.single_column.kpp_regimes'
+        )
+        shared_options = {'config_use_cvmix_kpp': is_kpp}
         mpas_options = {}
-        omega_options = {}
+        omega_options = {
+            'KPPNonLocalTracerFluxTendencyEnable': is_kpp,
+            'KPPNonLocalTracerDiagnosticsEnable': is_kpp,
+        }
 
         if self.task_name == 'ekman':
             nu = self.config.getfloat(
