@@ -7,7 +7,7 @@ import configparser
 import io
 from dataclasses import dataclass, field
 from importlib import resources
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import pr_test_git as git_tools
 from pr_test_git import REF_PREFIX
@@ -113,6 +113,31 @@ def get_machine_rows(rows: List[Row], machine: str) -> List[Row]:
         if machine in group:
             machines |= group
     return [row for row in rows if row.machine in machines]
+
+
+def group_login_rows(rows: List[Row]) -> List[Tuple[List[str], List[Row]]]:
+    """
+    The rows grouped by the login nodes they are tested from
+
+    Parameters
+    ----------
+    rows : list of pr_test_manifest.Row
+        The rows to group
+
+    Returns
+    -------
+    groups : list of tuple
+        The machines that share each group's login nodes and the group's
+        rows, in the order the rows first appear
+    """
+    groups: List[Tuple[List[str], List[Row]]] = []
+    for row in rows:
+        if any(row in group_rows for _, group_rows in groups):
+            continue
+        machine_rows = get_machine_rows(rows, row.machine)
+        machines = list(dict.fromkeys(r.machine for r in machine_rows))
+        groups.append((machines, machine_rows))
+    return groups
 
 
 def get_row(name: str) -> Row:
