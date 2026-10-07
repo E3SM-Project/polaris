@@ -35,11 +35,6 @@ def add_manufactured_solution_tasks(component):
     filepath = os.path.join(component.name, basedir, config_filename)
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.ocean.eos', 'constant.cfg')
-    config.set(
-        'ocean',
-        'eos_constant_rhoref',
-        value=f'{get_constant("seawater_density_reference"):02g}',
-    )
     config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
     config.add_from_package(
         'polaris.tasks.ocean.manufactured_solution', config_filename
@@ -197,3 +192,27 @@ class ManufacturedSolution(Task):
         config.add_from_package(
             'polaris.tasks.ocean.manufactured_solution', config_filename
         )
+
+    def configure(self):
+        """
+        Set the reference density and, for MPAS-Ocean, use RK4, since its
+        unsplit-explicit time stepper is close to first order
+        """
+        super().configure()
+        # set() options all come from this file, so they are combined in a
+        # single layer.  Setting them here, after the config files have been
+        # added, lets them override those files.
+        config = self.config
+        config.set(
+            'ocean',
+            'eos_constant_rhoref',
+            value=f'{get_constant("seawater_density_reference"):02g}',
+        )
+        if config.get('ocean', 'model') == 'mpas-ocean':
+            config.set(
+                'convergence_forward',
+                'time_integrator',
+                'RK4',
+                comment="MPAS-Ocean's unsplit_explicit is close to first "
+                'order, so use RK4 instead',
+            )
