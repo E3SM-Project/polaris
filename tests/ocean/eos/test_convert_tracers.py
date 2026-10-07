@@ -69,7 +69,7 @@ def test_convert_tracers_to_mpas_ocean_nominal_location():
     assert ds_out.temperature.attrs['long_name'] == 'potential temperature'
     assert ds_out.temperature.attrs['units'] == 'degC'
     assert ds_out.salinity.attrs['long_name'] == 'practical salinity'
-    assert ds_out.salinity.attrs['units'] == 'PSU'
+    assert ds_out.salinity.attrs['units'] == '1'
 
 
 def test_convert_tracers_to_mpas_ocean_per_cell_location():
@@ -213,7 +213,7 @@ def test_convert_tracers_does_not_keep_the_source_conventions_metadata():
     }
     assert ds_out.salinity.attrs == {
         'long_name': 'practical salinity',
-        'units': 'PSU',
+        'units': '1',
     }
 
 

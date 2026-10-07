@@ -107,15 +107,25 @@ def check_ocean_dc_edge(
     ds_out['oceanEdgeMask'] = (
         ('nEdges',),
         ocean_edge.astype(np.int32),
+        {'long_name': 'mask of ocean-interior edges'},
     )
-    ds_out['dcEdgeRatio'] = (('nEdges',), ratio)
+    ds_out['dcEdgeRatio'] = (
+        ('nEdges',),
+        ratio,
+        {
+            'long_name': 'ratio of dcEdge to the ocean background cell width',
+            'units': '1',
+        },
+    )
     ds_out['dcEdgeTooSmallMask'] = (
         ('nEdges',),
         too_small.astype(np.int32),
+        {'long_name': 'mask of edges below the minimum dcEdge ratio'},
     )
     ds_out['dcEdgeTooLargeMask'] = (
         ('nEdges',),
         too_large.astype(np.int32),
+        {'long_name': 'mask of edges above the maximum dcEdge ratio'},
     )
     ds_out.attrs['min_dc_edge_ratio'] = min_ratio
     ds_out.attrs['max_dc_edge_ratio'] = max_ratio
