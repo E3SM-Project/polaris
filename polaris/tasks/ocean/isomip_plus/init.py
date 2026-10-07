@@ -208,13 +208,15 @@ class Init(OceanIOStep):
         ds[mask_variable] = ssh_adjust_mask.astype(int)
 
         bottom_depth = -ds_topo.bedrockTopography
+        # the initial SSH is where ice with the prescribed pressure would
+        # float, limited by the bed
+        draft = self._draft_from_pressure(ds_topo.landIcePressure)
         if self.thin_film:
             min_column_thickness = section.getfloat(
                 'min_column_thickness_thin_film'
             )
             # grounded ice is heavier than the water it would displace, so
             # the draft computed from its pressure is below the bed
-            draft = self._draft_from_pressure(ds_topo.landIcePressure)
             thin_film_mask = draft <= -bottom_depth
             ds['thinFilmMask'] = thin_film_mask.astype(int)
             logger.info(
@@ -223,7 +225,6 @@ class Init(OceanIOStep):
             )
         else:
             min_column_thickness = section.getfloat('min_column_thickness')
-            draft = ds_topo.landIceDraft
         ssh = np.maximum(draft, -bottom_depth)
         ds['landIceDraft'] = ssh
 
