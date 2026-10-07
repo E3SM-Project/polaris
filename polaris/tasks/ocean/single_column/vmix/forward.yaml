@@ -22,8 +22,6 @@ ocean:
     config_disable_vel_explicit_bottom_drag: true
     config_disable_tr_adv: false
     config_disable_vel_pgrad: true
-  tracer_forcing_activeTracers:
-    config_salinity_restoring_constant_piston_velocity: 1.585e-5
 
 mpas-ocean:
   frazil_ice:
@@ -110,7 +108,7 @@ mpas-ocean:
       - vertDiffTopOfCell
 
 Omega:
-  # This is needed for consistency with MPAS-O
+  # MPAS-Ocean also restores only salinity (temperaturePistonVelocity = 0)
   SurfaceRestoring:
     TracersToRestore: [Salinity]
   IOStreams:

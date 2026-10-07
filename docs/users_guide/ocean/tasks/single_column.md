@@ -72,11 +72,9 @@ surface restoring on.
 # config options for forcing single column testcases
 [single_column_forcing]
 
-# Piston velocity to control rate of restoring toward temperature_surface_restoring_value
-temperature_piston_velocity = 4.0e-6
-
-# Piston velocity to control rate of restoring toward salinity_surface_restoring_value
-salinity_piston_velocity = 4.0e-6
+# Piston velocity to control rate of restoring toward
+# salinity_surface_restoring_value [m/s].  Temperature is not restored.
+piston_velocity = 1.585e-5
 
 # Temperature to restore towards when surface restoring is turned on
 temperature_surface_restoring_value = ${single_column:surface_temperature}
