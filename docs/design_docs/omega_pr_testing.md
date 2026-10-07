@@ -293,9 +293,14 @@ The baseline and pull request builds each leave a complete build log. A
 warning is identified by its source path relative to the Omega tree, its
 message and its warning flag, but not by its line number. A pull request
 that adds lines above an existing warning therefore does not make that
-warning look new. The report lists each identity that occurs more often in
-the pull request build than in the baseline build. It marks the ones whose
-file is in `git diff --name-only <base_head>...<pr_head>`.
+warning look new. The report lists each identity that the baseline build
+does not have, and marks the ones whose file is in
+`git diff --name-only <base_head>...<pr_head>`. In those files, it also
+lists an identity that occurs more often in the pull request build. In
+other files, a higher count says nothing about the pull request's code: a
+header's warning occurs once for each file that includes it, and a parallel
+build can interleave the output of two compilers so that one occurrence
+cannot be parsed.
 
 With the submodule as the baseline, warnings added on `develop` since the
 pin also appear as new. The mark separates those from the pull request's

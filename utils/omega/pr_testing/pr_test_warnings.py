@@ -4,8 +4,11 @@ Find the compiler warnings a PR build has that its baseline build does not
 A warning is identified by its source path relative to the Omega tree (or
 the build directory), its message and its flag, but not its line number, so
 that a PR that adds lines above an existing warning does not make it look
-new.  A warning that appears more often in the PR build than in the
-baseline build is new.
+new.  A warning that the baseline build does not have is new.  So is one
+that appears more often in the PR build, but only in a file the PR changes:
+elsewhere, a header's warning appears once for each file that includes it,
+and a parallel build can garble a line of the log beyond recognition, so a
+higher count says nothing about the PR's code.
 """
 
 import os
@@ -124,10 +127,13 @@ def read_build_warnings(build_dir: str) -> Optional['Counter[BuildWarning]']:
 
 
 def find_new_warnings(
-    baseline: 'Counter[BuildWarning]', pr: 'Counter[BuildWarning]'
+    baseline: 'Counter[BuildWarning]',
+    pr: 'Counter[BuildWarning]',
+    changed_files: Iterable[str] = (),
 ) -> List[Tuple[BuildWarning, int, int]]:
     """
-    The warnings that appear more often in the PR build
+    The warnings the baseline build does not have, and those in files the
+    PR changes that appear more often in the PR build
 
     Parameters
     ----------
@@ -137,15 +143,20 @@ def find_new_warnings(
     pr : collections.Counter
         The warnings in the PR build
 
+    changed_files : iterable of str, optional
+        The files the PR changes, relative to the Omega tree
+
     Returns
     -------
     new : list of tuple
         Each new warning with its baseline and PR counts, sorted by path
     """
+    changed = set(changed_files)
     new = [
         (warning, baseline[warning], count)
         for warning, count in pr.items()
-        if count > baseline[warning]
+        if baseline[warning] == 0
+        or (warning.path in changed and count > baseline[warning])
     ]
     return sorted(new, key=lambda item: (item[0].path, item[0].message))
 
@@ -202,7 +213,7 @@ def format_warnings_section(
         )
 
     changed: Set[str] = set(changed_files)
-    new = find_new_warnings(baseline, pr)
+    new = find_new_warnings(baseline, pr, changed)
     logs = (
         f'- Baseline build log: '
         f'`{os.path.join(baseline_build_dir, "build_omega.log")}`\n'
