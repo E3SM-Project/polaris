@@ -5,7 +5,7 @@ import numpy as np
 
 from polaris.constants import get_constant
 from polaris.ocean.eos import compute_ct_freezing
-from polaris.ocean.model import OceanIOStep, get_days_since_start
+from polaris.ocean.model import OceanIOStep, get_time_since_start
 from polaris.tasks.ocean.single_column.thermo.analysis import CP0_SW
 from polaris.viz import mplstyle_context
 
@@ -91,7 +91,9 @@ class OneLayerViz(OceanIOStep):
                 target, config=config, decode_times=True
             )
             # the model does not write a t=0 record, so prepend the init state
-            days = np.asarray(get_days_since_start(ds), dtype=float)
+            days = np.asarray(
+                get_time_since_start(ds, units='days'), dtype=float
+            )
             run = _diagnostics(ds, rho_sw, config, model)
             fields = {
                 key: np.concatenate([init[key], value], axis=0)

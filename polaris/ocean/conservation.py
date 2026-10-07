@@ -301,6 +301,8 @@ def compute_frazil_fluxes(ds_mesh, ds, time_index_end=-1):
     Omega reports frazil fluxes with the coupling conventions
     (counted positive into the ocean).
     """
+    from polaris.ocean.model.time import get_time_since_start
+
     fields = (
         'FrazilMassFlux',
         'FrazilSaltFlux',
@@ -313,7 +315,7 @@ def compute_frazil_fluxes(ds_mesh, ds, time_index_end=-1):
             + ', '.join(missing)
         )
 
-    time = np.asarray(get_days_since_start(ds), dtype=float) * 86400.0
+    time = np.asarray(get_time_since_start(ds, units='seconds'), dtype=float)
     end = len(time) if time_index_end == -1 else time_index_end + 1
     time = time[:end]
     intervals = np.diff(np.concatenate(([0.0], time)))
