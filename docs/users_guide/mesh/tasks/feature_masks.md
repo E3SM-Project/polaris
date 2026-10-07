@@ -24,12 +24,13 @@ changes how native ocean mesh files are opened.
 ## Configuration
 
 The configurable task uses `feature_masks.cfg` and the `[feature_masks]`
-section.
-The required options are:
+section.  You must set `mesh_filename` and `mesh_name`.  `mask_group` defaults
+to `Ocean Basins` and can be any of the aggregation group names listed in the
+[geometric_features documentation](https://mpas-dev.github.io/geometric_features/main/aggregation.html),
+such as `MOC Basins`.
 
-- `mesh_filename`: path to the standard MPAS mesh file;
-- `mesh_name`: name used in output filenames and metadata;
-- `mask_group`: one of the supported aggregation group names.
+Each task produces masks for a single `mask_group`.  To create masks for
+several groups, set up the task in a separate work directory for each group.
 
 The output filename is:
 
@@ -40,14 +41,54 @@ The output filename is:
 where `prefix` and `date` come from the selected mask group.  The task also
 writes the GeoJSON feature collection used to create the masks.
 
-Common optional settings include:
+The remaining options are not tuned for any particular mesh.  For a large
+mesh, the main thing to change is `cpus_per_task`, if more cores are
+available.
 
-- `mask_types`: use `default`, or a space-separated list from `cell`, `edge`,
-  and `vertex`;
-- `add_edge_sign`: add `transectEdgeMaskSigns` for transect edge masks;
-- `cpus_per_task` and `min_cpus_per_task`: multiprocessing resources;
-- `chunk_size`, `subdivision_threshold`, and `subdivision_resolution`:
-  controls passed to `mpas_tools`.
+## config options
+
+```cfg
+# options for creating region or transect masks on an MPAS mesh
+[feature_masks]
+
+# Path to an existing standard MPAS mesh file for configurable use
+mesh_filename = <<<missing>>>
+
+# Mesh name used in output filenames and metadata
+mesh_name = <<<missing>>>
+
+# Any group name supported by geometric_features.get_aggregator_by_name()
+mask_group = Ocean Basins
+
+# Mask types. Use "default" for:
+#   regions: cell vertex
+#   transects: cell edge vertex
+mask_types = default
+
+# Whether transect output should include transectEdgeMaskSigns
+add_edge_sign = False
+
+# Number of MPAS locations processed per chunk
+chunk_size = 1000
+
+# Region polygon subdivision threshold in degrees
+subdivision_threshold = 30.0
+
+# Transect subdivision resolution in meters. None means no subdivision.
+subdivision_resolution = None
+
+# Whether mpas_tools should display progress bars
+show_progress = False
+
+# Python multiprocessing start method: fork, spawn, or forkserver
+multiprocessing_method = forkserver
+
+# number of cores to use if available
+cpus_per_task = 128
+
+# minimum number of cores, below which the step fails
+min_cpus_per_task = 1
+```
 
 ## Example
 
