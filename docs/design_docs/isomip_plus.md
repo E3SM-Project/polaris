@@ -39,6 +39,14 @@ This work delivers the first stage:
   wetting and drying tasks, long runs, standard output, Ocean3–4 and
   MISOMIP1 will require.
 
+In every task, the land-ice pressure is the weight of the ice, and the
+sea-surface height adjusts to it, as it will when MALI supplies the
+pressure ([D13](#decisions)). The tasks need MPAS-Ocean with the
+land-ice options of
+[E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047) and the cap
+on land-ice pressure in grounded cells from
+[E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119).
+
 Omega does not yet support ice-shelf cavities, so it is out of scope.
 
 | Task        | Geometry         | Grounded cells    | Steps in this work           |
@@ -136,13 +144,14 @@ The ocean starts at rest. Temperature and salinity are restored within
 
 ### Requirement: Ice-shelf pressure is balanced before the forward run
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
 The Ocean0–2 forward runs start from a state in which the pressure from
 the ice shelf and the sea-surface height are in approximate dynamic
-balance.
+balance. The pressure is the weight of the ice; the sea-surface height
+adjusts to it.
 
 ### Requirement: Output supports regression testing and inspection
 
@@ -223,7 +232,7 @@ MPAS-Ocean interpolates these fields linearly between records.
 
 ### Algorithm Design: Geometry follows the ISOMIP+ protocol
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -245,14 +254,16 @@ function that calves one snapshot can also serve the Ocean3–4 geometry
 The calved geometry is remapped conservatively onto the shared culled
 mesh by the existing steps ([D1](#decisions)). The ice-shelf pressure
 is $p = \rho_i g H$ with $\rho_i = 918$ kg m⁻³. The initial SSH is the
-remapped ice draft, limited to be no deeper than the bed.
+draft of floating ice at that pressure, with
+$\rho_{sw} = 1028$ kg m⁻³, limited to be no deeper than the bed
+([D13](#decisions)).
 
 Among the task's cells:
 
 - `landIceMask` is 1 where the land-ice fraction exceeds 0.5, and the
   land-ice fractions are zero elsewhere;
-- the SSH-adjustment mask is 1 where the land-ice fraction exceeds
-  0.01;
+- the SSH-adjustment mask, which selects the cells whose SSH change is
+  logged, is 1 where the land-ice fraction exceeds 0.01;
 - the bottom depth is deepened where needed so the water column is at
   least $1.1\times10^{-2}$ m thick, or $10^{-3}$ m in thin-film tasks.
 
@@ -260,7 +271,7 @@ These thresholds are Compass's.
 
 ### Algorithm Design: Grounded cells are culled where they are never used
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -269,11 +280,10 @@ Contributors: Xylar Asay-Davis, Claude
   (0.5), the rule Compass uses to cull its mesh. Grounded cells are
   never used, so all of them are culled.
 - **Scaled geometry (`inception`, `wetting`, `drying`):** every cell of
-  the shared mesh is kept. The initial draft is the draft of floating
-  ice at the land-ice pressure ($\rho_{sw} = 1028$ kg m⁻³), limited to
-  the bed. Cells where it reaches the bed are grounded and hold a
-  thin film whose temperature is the freezing point at the land-ice
-  pressure and the local salinity.
+  the shared mesh is kept. Cells where the draft at the land-ice
+  pressure reaches the bed are grounded and hold a thin film whose
+  temperature is the freezing point at the land-ice pressure and the
+  local salinity.
 
 ```{admonition} Rationale
 MPAS-Ocean cannot activate a column during a run, so a cell that holds
@@ -322,15 +332,16 @@ The Coriolis parameter is constant, $f = -1.409\times10^{-4}$ s⁻¹.
 
 ### Algorithm Design: Ice-shelf pressure is balanced before the forward run
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
-The existing framework algorithm is used unchanged. Each of ten
-iterations runs the model for one hour with melt fluxes off. The
-land-ice pressure then changes by $\rho_{top}\,g\,\Delta\eta$ in masked
-cells, where $\Delta\eta$ is the SSH change over the run. Compass's
-`adjust_ssh` does the same.
+The existing framework algorithm is used in the mode that adjusts SSH.
+Each of ten iterations runs the model for one hour with melt fluxes
+off. The SSH in every cell is then replaced by its value at the end of
+the run, and the layers are stretched to match. The land-ice pressure
+does not change ([D13](#decisions)). Compass's `adjust_ssh` changes
+the pressure instead.
 
 ### Algorithm Design: Output supports regression testing and inspection
 
@@ -501,15 +512,19 @@ task selects them by name in code, not by overriding the options.
 
 ### Implementation: Ice-shelf pressure is balanced before the forward run
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
 The task calls `setup_ssh_adjustment_steps()` with the init step's
 mesh, graph and initial condition. `[ssh_adjustment]` overrides set
-`time_integrator = RK4` and `rk4_dt_per_km = 6`, matching the forward
-run. The init step writes
-the SSH-adjustment mask under the name in `mask_variable`.
+`adjust_variable = ssh`, and `time_integrator = RK4` and
+`rk4_dt_per_km = 6` to match the forward run. The init step writes the
+SSH-adjustment mask under the name in `mask_variable`.
+
+No task used the framework's SSH mode before. `update_layer_thickness()`,
+which it calls, now accepts the vertical coordinate as
+`init_vertical_coord()` writes it, with one-based level indices.
 
 ### Implementation: Output supports regression testing and inspection
 
@@ -629,12 +644,15 @@ they pass. Inspect the plots.
 
 ### Testing and Validation: Differences from Compass are documented
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
 Compass and Polaris use the same MPAS-Ocean build, and Compass's
-ISOMIP+ namelist sets the same top drag coefficient. The comparison is
+ISOMIP+ namelist sets the same top drag coefficient. Compass's
+namelists use the land-ice options that E3SM#8047 replaced, so the
+build predates E3SM#8047, and the Polaris tasks are run before their
+switch to the new options. The comparison is
 at 2 km on the planar mesh for Ocean0, Ocean1 and Ocean2. Compass's
 `thin_film_Ocean0`, which uses wetting and drying, is the counterpart
 of `ocean0`; its standard Ocean0–2 do not use it
@@ -651,12 +669,12 @@ of `ocean0`; its standard Ocean0–2 do not use it
    month: ocean area and volume, ice-shelf area, mean melt rate, total
    melt flux, mean thermal driving and mean friction velocity.
 
-Each difference in stage 3 is attributed to one of D1–D4 or D11.
+Each difference in stage 3 is attributed to one of D1–D4, D11 or D13.
 Stage 3 is repeated for the spherical 2 km tasks.
 
 ## Planned Extensions
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -670,18 +688,13 @@ will need, so that the steps above can serve it.
 - MPAS-Ocean's time-varying land-ice forcing
   (`config_use_time_varying_land_ice_forcing`) reading
   `land_ice_forcing.nc`.
-- Possibly a limit on the land-ice pressure applied in grounded
-  regions (below).
 
 **Split-explicit wetting and drying.** RK4 at 6 s per km takes 20
 times as many steps as the split-explicit scheme at 120 s per km. Work
 on split-explicit wetting and drying (Carolyn Begeman's
-`alt-wetting-drying-se` branch) and on limiting the land-ice pressure
-in grounded regions
-([E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119))
-is not yet in E3SM. If either is needed, Polaris will build MPAS-Ocean
-from an `ocn-glc/fanssie-coupling` branch that also includes
-[E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047).
+`alt-wetting-drying-se` branch) is not yet in E3SM. If it is needed,
+Polaris will build MPAS-Ocean from an `ocn-glc/fanssie-coupling` branch
+that also includes E3SM#8047.
 
 **Long runs.** Ocean0 runs for 1 year and Ocean1–2 for 20. They need:
 
@@ -773,7 +786,7 @@ so only the geometry differences of D1 and D2 remain.
 
 ### D4: Pressure comes from ice thickness
 
-Date last modified: 2026/09/28
+Date last modified: 2026/10/07
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -781,8 +794,9 @@ Polaris computes $p = \rho_i g H$ with $\rho_i = 918$ kg m⁻³. Compass
 computes $p = -\rho_{sw} g z_d$ with $\rho_{sw} = 1026$ kg m⁻³, except
 in its thin-film tasks. The protocol allows either.
 
-*Effect:* about 0.2 % more pressure under floating ice in Polaris
-before SSH adjustment. Adjustment removes most of it.
+*Effect:* about 0.2 % more pressure under floating ice in Polaris than
+in Compass's initial condition. SSH adjustment does not remove it
+([D13](#decisions)).
 
 In cells that are partly grounded, the remapped weight of the grounded
 ice can exceed what floats at the remapped draft. At 1 km, and at 2 km
@@ -791,7 +805,8 @@ few cells. Without wetting and drying, those runs produced NaN within a
 few steps at any time step. Computing the pressure from the draft, as
 Compass does, removed the failures, but wetting and drying handles the
 excess as a thin film and keeps the pressure physical
-([D11](#decisions)).
+([D11](#decisions)). Polaris does nothing to relieve the excess
+([D13](#decisions)).
 
 ### D5: Forcing is written by the init step
 
@@ -897,3 +912,47 @@ Compass turned on implicit top drag but left its coefficient at the
 MPAS-Ocean default of $10^{-3}$. The Polaris tasks set it to the COM
 value of $2.5\times10^{-3}$, and Compass's ISOMIP+ namelist is updated
 to match.
+
+### D13: Pressure is prescribed; SSH is adjusted
+
+Date last modified: 2026/10/07
+
+Contributors: Xylar Asay-Davis, Claude
+
+Every task keeps the land-ice pressure from the ice thickness
+([D4](#decisions)), and Polaris never changes it. The initial SSH is
+the draft of floating ice at that pressure, with
+$\rho_{sw} = 1028$ kg m⁻³, limited by the bed. SSH adjustment moves
+SSH, not the pressure. The only change to the pressure is the cap in
+grounded cells that MPAS-Ocean applies with
+[E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119).
+
+This replaces the first version of this design, in which SSH
+adjustment changed the pressure, as Compass does. `ice_shelf_2d` and
+the framework default still adjust the pressure.
+
+```{admonition} Rationale
+The goal is MALI coupling, in which the ice sheet supplies the pressure
+and the ocean's SSH responds. There, SSH is not known in advance and
+the pressure cannot be adjusted.
+```
+
+*Effect:*
+
+- In fully floating and open-ocean cells, the initial SSH is within
+  0.5 m of the remapped draft (1.4 m in 1 km Ocean2), since the input
+  geometry floats at 1028 kg m⁻³. The largest SSH change in the first
+  adjustment iteration is 0.3–1.0 m, compared with 5–22 m when the
+  pressure was adjusted.
+- In partly grounded cells along the grounding line (57–327 per task),
+  the initial SSH is deeper than the remapped draft, by up to 5–20 m
+  depending on the task. Pressure adjustment used to absorb this.
+- In a few cells, the pressure exceeds floatation even at the bed, by
+  up to 5.2 m of ice: 9–12 cells in 1 km Ocean0 and Ocean1, 2–3 in
+  1 km Ocean2, and 1 in spherical 2 and 4 km Ocean0 and Ocean1. These
+  cells start at the bed with the minimum column. Without #119's cap,
+  SSH adjustment does not settle next to them in 1 km Ocean2. On the
+  planar mesh, the largest SSH change grows to 5.3 m. With the cap, it
+  ends at 0.1 m.
+- Compass adjusts the pressure, so the two differ in how the pressure
+  and SSH are balanced, not only in the initial pressure.
