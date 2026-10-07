@@ -136,11 +136,11 @@ profile of the ISOMIP+ protocol:
 | `ocean2`                         | WARM         | COLD           |
 | `inception`, `wetting`, `drying` | WARM         | WARM           |
 
-The sea-surface height is the ice draft, and the land-ice pressure comes
-from the weight of the ice. The bottom depth is deepened where needed to
-keep a minimum water-column thickness. The equation of state is linear, with
-the coefficients of the ISOMIP+ protocol, and the Coriolis parameter is
-constant.
+The land-ice pressure comes from the weight of the ice, and the sea-surface
+height starts where ice with that pressure would float, limited to the bed.
+The bottom depth is deepened where needed to keep a minimum water-column
+thickness. The equation of state is linear, with the coefficients of the
+ISOMIP+ protocol, and the Coriolis parameter is constant.
 
 ## forcing
 
@@ -161,13 +161,17 @@ wetting and drying only with the RK4 time integrator.
 
 ## SSH adjustment
 
-Before the forward run, the land-ice pressure is adjusted over ten one-hour
-runs so that it is in balance with the sea-surface height, as described in
-{ref}`ocean-ssh-adjustment`.
+Before the forward run, the sea-surface height is adjusted over ten one-hour
+runs so that it is in balance with the land-ice pressure, as described in
+{ref}`ocean-ssh-adjustment`. The land-ice pressure stays fixed.
 
 ```cfg
 # Options related to ssh adjustment steps
 [ssh_adjustment]
+
+# The land-ice pressure is prescribed from the ice thickness, so SSH is
+# adjusted instead
+adjust_variable = ssh
 
 # Time integration scheme, RK4 for wetting and drying
 time_integrator = RK4
@@ -190,12 +194,16 @@ min_ocean_fraction = 0.5
 # considered a land-ice cell by MPAS-Ocean (landIceMask == 1)
 min_land_ice_fraction = 0.5
 
-# Minimum fraction of a cell that contains land ice in order for the land-ice
-# pressure to be adjusted during SSH adjustment
+# Minimum fraction of a cell that contains land ice in order for its SSH change
+# to be logged during SSH adjustment (SSH is adjusted in every cell)
 min_ssh_adjust_land_ice_fraction = 0.01
 
 # Minimum thickness (m) of the initial ocean column
 min_column_thickness = 1.1e-2
+
+# The density (kg/m^3) of seawater used to compute the ice draft (and the
+# initial SSH) from the land-ice pressure
+ocean_density = 1028.0
 
 # The approximate area (km^2) of the ocean, used to estimate the number of
 # cells in the mesh and the resources for model runs
@@ -304,10 +312,10 @@ subject to melting stays fixed.
 
 The tasks currently have only an `init` step, which writes the initial
 condition, the restoring forcing and the time-varying land-ice forcing in
-`land_ice_forcing.nc`. The ice draft is computed from the land-ice pressure,
-assuming the ice floats, and limited to the bed. Where the draft reaches the
-bed, the ice is grounded and the cell holds a thin film 1 mm thick whose
-temperature is at the freezing point.
+`land_ice_forcing.nc`. As in the other tasks, the ice draft is computed from
+the land-ice pressure, assuming the ice floats, and limited to the bed. Where
+the draft reaches the bed, the ice is grounded and the cell holds a thin film
+1 mm thick whose temperature is at the freezing point.
 
 ```cfg
 # config options for ISOMIP+ initial conditions
@@ -316,10 +324,6 @@ temperature is at the freezing point.
 # Minimum thickness (m) of the initial ocean column in tasks with a thin film
 # under grounded ice
 min_column_thickness_thin_film = 1e-3
-
-# The density (kg/m^3) of seawater used to compute the ice draft from the
-# land-ice pressure in tasks with a thin film
-ocean_density = 1028.0
 ```
 
 ```cfg
