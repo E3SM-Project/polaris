@@ -8,8 +8,8 @@ from polaris.ocean.conservation import (
     compute_total_energy,
     compute_total_mass,
     compute_total_salt,
-    get_elapsed_seconds,
 )
+from polaris.ocean.model import get_time_since_start
 
 # the conservation budgets summarized for each forward step, in the order
 # they appear in the summary log file
@@ -125,7 +125,7 @@ def _frazil_diagnostics(component, base_work_dir, forward_steps, config):
         )
         mesh = component.open_model_dataset(mesh_filename, config=config)
         init = component.open_model_dataset(init_filename, config=config)
-        dt = get_elapsed_seconds(output, time_index_end=-1)
+        dt = get_time_since_start(output, units='seconds')[-1]
         frazil = compute_frazil_fluxes(mesh, output)
         forcing = {
             budget: compute_flux_forcing(
