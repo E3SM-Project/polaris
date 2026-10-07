@@ -5,6 +5,9 @@ mpas-ocean:
     config_use_activeTracers_surface_bulk_forcing: true
     config_use_activeTracers_surface_restoring: true
     config_use_activeTracers_interior_restoring: true
+  # MPAS-Ocean drops the shortwave flux entirely if this is 'none'
+  shortwaveRadiation:
+    config_sw_absorption_type: jerlov
   tracer_forcing_idealAgeTracers:
     config_use_idealAgeTracers: true
     config_use_idealAgeTracers_idealAge_forcing: true
@@ -24,3 +27,14 @@ mpas-ocean:
       - velocityMeridional
       - layerThickness
       - idealAgeTracers
+      - windStressZonal
+      - windStressMeridional
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - evaporationFlux
+      - rainFlux
+      - seaIceFreshWaterFlux
+      - icebergFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux

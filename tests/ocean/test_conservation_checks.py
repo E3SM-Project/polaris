@@ -16,7 +16,9 @@ import xarray as xr
 
 from polaris.ocean.conservation import (
     TRACERS_TO_CHECK,
+    compute_flux_forcing,
     compute_total_mass,
+    cp_sw,
     rho_sw,
 )
 from polaris.ocean.model.ocean_model_step import (
@@ -139,3 +141,60 @@ def test_elapsed_seconds_from_days_since_start():
     assert _elapsed_seconds(
         ds, time_index_start=0, time_index_end=-1
     ) == pytest.approx(9.0 * 86400.0)
+
+
+def _evaporation_dataset(surface_temperatures, evaporation=1.0e-3):
+    # one cell of unit area, two layers; only the top layer temperature
+    # matters for the enthalpy carried by evaporation
+    n_times = len(surface_temperatures)
+    temperature = np.zeros((n_times, 1, 2))
+    temperature[:, 0, 0] = surface_temperatures
+    ds = xr.Dataset(
+        {
+            'temperature': (('Time', 'nCells', 'nVertLevels'), temperature),
+            'evaporationFlux': (
+                ('Time', 'nCells'),
+                np.full((n_times, 1), evaporation),
+            ),
+        }
+    )
+    ds_mesh = xr.Dataset({'areaCell': ('nCells', np.ones(1))})
+    return ds_mesh, ds
+
+
+def test_enthalpy_uses_the_first_record_without_times():
+    ds_mesh, ds = _evaporation_dataset([10.0, 20.0, 30.0])
+    dt = 2.0 * 86400.0
+    total = compute_flux_forcing(ds_mesh, ds, 'energy', dt, model='mpas-ocean')
+    assert total == pytest.approx(1.0e-3 * cp_sw['mpas-ocean'] * 10.0 * dt)
+
+
+def test_enthalpy_is_integrated_over_the_records_with_times():
+    # the surface temperature rises linearly, so the trapezoidal rule is
+    # exact and the integral uses the mean surface temperature of 20 C
+    ds_mesh, ds = _evaporation_dataset([10.0, 20.0, 30.0])
+    times = np.array([0.0, 1.0, 2.0]) * 86400.0
+    dt = times[-1]
+    total = compute_flux_forcing(
+        ds_mesh, ds, 'energy', dt, model='mpas-ocean', times=times
+    )
+    assert total == pytest.approx(1.0e-3 * cp_sw['mpas-ocean'] * 20.0 * dt)
+
+
+def test_enthalpy_starts_from_the_initial_condition():
+    # Omega writes no output record at the start of the run, so the surface
+    # temperature at time zero comes from the initial condition
+    ds_mesh, ds = _evaporation_dataset([20.0, 30.0])
+    _, ds_init = _evaporation_dataset([10.0])
+    times = np.array([1.0, 2.0]) * 86400.0
+    dt = times[-1]
+    total = compute_flux_forcing(
+        ds_mesh,
+        ds,
+        'energy',
+        dt,
+        model='omega',
+        times=times,
+        ds_init=ds_init,
+    )
+    assert total == pytest.approx(1.0e-3 * cp_sw['omega'] * 20.0 * dt)

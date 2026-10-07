@@ -174,10 +174,7 @@ class Init(OceanIOStep):
             dim='Time', axis=0
         )
         section = config['single_column_forcing']
-        temperature_piston_velocity = section.getfloat(
-            'temperature_piston_velocity'
-        )
-        salinity_piston_velocity = section.getfloat('salinity_piston_velocity')
+        piston_velocity = section.getfloat('piston_velocity')
         temperature_surface_restoring_value = section.getfloat(
             'temperature_surface_restoring_value'
         )
@@ -191,11 +188,12 @@ class Init(OceanIOStep):
             'salinity_interior_restoring_rate'
         )
         if model == 'mpas-ocean':
-            ds_forcing['temperaturePistonVelocity'] = (
-                temperature_piston_velocity * forcing_array_surface
+            # Omega restores only salinity, so MPAS-Ocean does the same
+            ds_forcing['temperaturePistonVelocity'] = xr.zeros_like(
+                forcing_array_surface
             )
             ds_forcing['salinityPistonVelocity'] = (
-                salinity_piston_velocity * forcing_array_surface
+                piston_velocity * forcing_array_surface
             )
             ds_forcing['temperatureSurfaceRestoringValue'] = (
                 temperature_surface_restoring_value * forcing_array_surface

@@ -222,7 +222,7 @@ class Forward(OceanModelStep):
 
         shared_options = {}
         mpas_options = {}
-        omega_options = {}
+        omega_options: dict[str, bool | float] = {}
 
         if self.task_name == 'ekman':
             nu = self.config.getfloat(
@@ -261,6 +261,14 @@ class Forward(OceanModelStep):
             shared_options.update(
                 {
                     'config_use_activeTracers_surface_restoring': True,
+                }
+            )
+            # MPAS-Ocean reads its piston velocities from the forcing file
+            omega_options.update(
+                {
+                    'PistonVelocity': config.getfloat(
+                        'single_column_forcing', 'piston_velocity'
+                    ),
                 }
             )
 

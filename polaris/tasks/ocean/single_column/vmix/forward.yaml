@@ -22,8 +22,8 @@ ocean:
     config_disable_vel_explicit_bottom_drag: true
     config_disable_tr_adv: false
     config_disable_vel_pgrad: true
-  tracer_forcing_activeTracers:
-    config_salinity_restoring_constant_piston_velocity: 1.585e-5
+    config_disable_tr_sflux: false
+    config_disable_thick_sflux: false
 
 mpas-ocean:
   frazil_ice:
@@ -32,6 +32,9 @@ mpas-ocean:
     config_use_activeTracers_surface_bulk_forcing: true
     config_use_activeTracers_surface_restoring: false
     config_use_activeTracers_interior_restoring: false
+  # MPAS-Ocean drops the shortwave flux entirely if this is 'none'
+  shortwaveRadiation:
+    config_sw_absorption_type: jerlov
   cvmix:
     config_use_cvmix_kpp: false
     config_cvmix_background_scheme: constant
@@ -108,9 +111,20 @@ mpas-ocean:
       - BruntVaisalaFreqTop
       - vertViscTopOfCell
       - vertDiffTopOfCell
+      - windStressZonal
+      - windStressMeridional
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - evaporationFlux
+      - rainFlux
+      - seaIceFreshWaterFlux
+      - icebergFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
 
 Omega:
-  # This is needed for consistency with MPAS-O
+  # MPAS-Ocean also restores only salinity (temperaturePistonVelocity = 0)
   SurfaceRestoring:
     TracersToRestore: [Salinity]
   IOStreams:
@@ -129,6 +143,7 @@ Omega:
       - Tracers
       - SshCell
       - Eos
+      - Forcing
     Forcing:
       UsePointerFile: false
       Filename: forcing.nc

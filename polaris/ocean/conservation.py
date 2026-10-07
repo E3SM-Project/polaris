@@ -199,7 +199,16 @@ def compute_total_salt(ds_mesh, ds):
 
 
 def compute_flux_forcing(
-    ds_mesh, ds, budget, dt, model=None, config=None, time_index_start=0
+    ds_mesh,
+    ds,
+    budget,
+    dt,
+    model=None,
+    config=None,
+    time_index_start=0,
+    time_index_end=-1,
+    times=None,
+    ds_init=None,
 ):
     """
     Integrate the surface forcing fluxes that contribute to a given budget
@@ -208,6 +217,15 @@ def compute_flux_forcing(
     Only the flux variables that are present in ``ds`` contribute, so the
     forcing fields must be included in the output stream for the
     corresponding budget to be checked against the forcing.
+
+    The enthalpy carried by mass fluxes (e.g. rain and evaporation) depends
+    on the surface temperature, which can change over the run.  If ``times``
+    is given, this enthalpy flux is integrated in time with the trapezoidal
+    rule over the surface temperature in each output record.  This only
+    approximates the enthalpy flux the model applied, since the model uses
+    the surface temperature at every time step.  Ideally, the ocean models
+    would write out the heat flux they applied, so that it could be
+    integrated exactly.
 
     Parameters
     ----------
@@ -233,6 +251,24 @@ def compute_flux_forcing(
         the equation of state when a frozen mass flux carries an enthalpy
         flux and the model's freezing temperature is not in the output
 
+    time_index_start : int, optional
+        The time index in ``ds`` of the record that holds the forcing fluxes
+        and, if ``ds_init`` is not given, the start of the interval
+
+    time_index_end : int, optional
+        The time index in ``ds`` at the end of the interval, used only if
+        ``times`` is given
+
+    times : numpy.ndarray, optional
+        The time in seconds since the start of the simulation of each record
+        in ``ds``.  If given, the enthalpy flux is integrated over the
+        surface temperature in each record of the interval.  Otherwise, the
+        surface temperature at ``time_index_start`` is used throughout.
+
+    ds_init : xarray.Dataset, optional
+        The initial condition, which supplies the surface temperature at the
+        start of the simulation when the interval starts there
+
     Returns
     -------
     total : float
@@ -244,6 +280,7 @@ def compute_flux_forcing(
         raise ValueError(f'Unknown conservation budget "{budget}"')
     area_cell = ds_mesh.areaCell
     total = 0.0
+    ds_all = ds
     ds = ds.isel(Time=time_index_start)
     for var in _FLUX_VARS[budget]:
         if var in ds:
@@ -267,6 +304,8 @@ def compute_flux_forcing(
         # compute_total_salt) carries the same rho_sw/1000 conversion
         total *= rho_sw / 1000.0
 
+    total *= dt
+
     if budget == 'energy':
         temperature_sources = {
             'evaporationFlux': 'surface',
@@ -284,20 +323,106 @@ def compute_flux_forcing(
             if var in ENTHALPY_FLUX_VARS
         }
 
-        total += _compute_enthalpy_forcing(
+        total += _integrate_enthalpy_forcing(
             ds_mesh,
-            ds,
+            ds_all,
             model,
             temperature_sources,
+            dt,
+            config=config,
+            time_index_start=time_index_start,
+            time_index_end=time_index_end,
+            times=times,
+            ds_init=ds_init,
+        )
+
+    return total
+
+
+def _integrate_enthalpy_forcing(
+    ds_mesh,
+    ds,
+    model,
+    temperature_sources,
+    dt,
+    config,
+    time_index_start,
+    time_index_end,
+    times,
+    ds_init,
+):
+    """
+    Integrate the enthalpy heat flux carried by mass fluxes over an interval,
+    in J
+    """
+    active = {
+        var: source for var, source in temperature_sources.items() if var in ds
+    }
+    if not active:
+        return 0.0
+
+    if 'temperature' not in ds:
+        raise ValueError(
+            'An enthalpy-carrying mass flux is present in the output but '
+            '"temperature" is not available, so the enthalpy contribution '
+            'to the energy budget cannot be computed.'
+        )
+
+    ds_flux = ds.isel(Time=time_index_start)
+    if times is None:
+        surface_temperature = ds_flux.temperature.isel(nVertLevels=0)
+        return dt * _compute_enthalpy_forcing(
+            ds_mesh,
+            ds_flux,
+            surface_temperature,
+            model,
+            active,
             config=config,
         )
 
-    return total * dt
+    # An approximation of the enthalpy flux the model applied at every time
+    # step, from the surface temperature in each output record.  Ideally,
+    # the models would write out the heat flux they applied instead.
+    times = np.asarray(times, dtype=float)
+    index_end = time_index_end % len(times)
+    sample_times = []
+    surface_temperatures = []
+    if ds_init is not None:
+        sample_times.append(0.0)
+        surface_temperatures.append(
+            _drop_time(ds_init.temperature).isel(nVertLevels=0)
+        )
+        indices = [
+            index for index in range(index_end + 1) if times[index] > 0.0
+        ]
+    else:
+        indices = list(range(time_index_start, index_end + 1))
+    for index in indices:
+        sample_times.append(times[index])
+        surface_temperatures.append(
+            ds.temperature.isel(Time=index, nVertLevels=0)
+        )
+
+    rates = [
+        _compute_enthalpy_forcing(
+            ds_mesh,
+            ds_flux,
+            surface_temperature,
+            model,
+            active,
+            config=config,
+        )
+        for surface_temperature in surface_temperatures
+    ]
+    if len(rates) == 1:
+        return dt * rates[0]
+    return float(np.trapezoid(rates, sample_times))
 
 
 def _compute_enthalpy_forcing(
     ds_mesh,
     ds,
+    surface_temperature,
     model,
     temperature_sources,
     config=None,
@@ -313,6 +438,9 @@ def _compute_enthalpy_forcing(
 
     ds : xarray.Dataset
         The output dataset, which may contain surface forcing flux variables
+
+    surface_temperature : xarray.DataArray
+        The temperature of the top model layer
 
     model : {'omega', 'mpas-ocean'}
         The model name, used to select the specific heat capacity
@@ -342,18 +470,8 @@ def _compute_enthalpy_forcing(
     active = {
         var: source for var, source in temperature_sources.items() if var in ds
     }
-    if not active:
-        return 0.0
-
-    if 'temperature' not in ds:
-        raise ValueError(
-            'An enthalpy-carrying mass flux is present in the output but '
-            '"temperature" is not available, so the enthalpy contribution '
-            'to the energy budget cannot be computed.'
-        )
 
     area_cell = ds_mesh.areaCell
-    surface_temperature = ds.temperature.isel(nVertLevels=0)
 
     total = 0.0
     for var, source in active.items():

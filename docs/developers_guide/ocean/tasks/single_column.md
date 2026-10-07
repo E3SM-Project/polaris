@@ -61,7 +61,7 @@ A forcing netCDF file is also created based on the config options given in the
 
 | Option | Description |
 |--------|-------------|
-| `temperature_piston_velocity`, `salinity_piston_velocity` | Surface restoring rates |
+| `piston_velocity` | Surface salinity restoring rate |
 | `temperature_surface_restoring_value`, `salinity_surface_restoring_value` | Target surface values |
 | `temperature_interior_restoring_rate`, `salinity_interior_restoring_rate` | Interior restoring rates |
 | `latent_heat_flux`, `sensible_heat_flux`, `shortwave_heat_flux` | Surface heat flux components |
