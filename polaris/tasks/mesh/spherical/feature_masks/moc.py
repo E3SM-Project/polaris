@@ -37,7 +37,8 @@ def moc_masks_filename(mesh_name, date):
 def add_moc_transects(ds_masks, ds_mesh, logger):
     """
     Append the southern-boundary transects to MOC basin masks, and drop the
-    string variables that are incompatible with CDF5.
+    ``history`` and ``constituents`` string variables, which ``mpas_tools``
+    truncates to 64 characters.
 
     Parameters
     ----------

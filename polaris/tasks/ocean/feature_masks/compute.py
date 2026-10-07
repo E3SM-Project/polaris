@@ -54,7 +54,8 @@ class ComputeOceanFeatureMasksStep(ComputeFeatureMasksStep, OceanIOStep):
     def _post_process_masks(self, ds_masks, ds_mesh, mask_group):
         """
         For 'MOC Basins', append southern-boundary transects to the mask
-        dataset and drop string variables that are incompatible with CDF5.
+        dataset and drop the truncated ``history`` and ``constituents``
+        string variables.
         """
         if mask_group != MOC_MASK_GROUP:
             return ds_masks

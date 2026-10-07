@@ -66,8 +66,10 @@ model:
 - {py:func}`polaris.tasks.mesh.spherical.feature_masks.moc.add_moc_transects`
   calls `mpas_tools.ocean.moc.add_moc_southern_boundary_transects()` to append
   southern-boundary transect masks derived algorithmically from the basin cell
-  masks, then drops the string variables `'history'` and `'constituents'`,
-  which that function may attach and which are incompatible with CDF5 output.
+  masks, then drops the per-region string variables `history` and
+  `constituents`.  These come from the MOC Basins feature properties, and
+  `mpas_tools` truncates them to 64 characters, which leaves them of little
+  use.
 
 The module also defines `MOC_MASK_GROUP` (`'MOC Basins'`) and `MOC_PREFIX`
 (`'mocBasinsAndTransects'`).
