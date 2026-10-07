@@ -399,11 +399,12 @@ has no `SpecVol`, which `open_model_dataset` needs to turn `PseudoThickness`
 into a geometric `layerThickness`, so the step derives the specific volume from
 the equation of state itself.  It produces:
 
-* `initial_state_summary.png`: histograms of the initial condition (a
-  de-Haney'd port of Compass' `plot_initial_state`).  The prognostic
-  layer-thickness panel shows each model's *native* variable —
+* `initial_state_summary.png`: histograms of the initial condition (a port
+  of Compass' `plot_initial_state` without its Haney-number panel).  The
+  prognostic layer-thickness panel shows each model's *native* variable —
   `layerThickness` for MPAS-Ocean and `PseudoThickness` for Omega — read from
-  the raw output file.
+  the raw output file and, like the other 3D panels, masked below the
+  seafloor.
 * `vertical_coordinate.png`: the vertical-coordinate structure derived from the
   geometric `restingThickness` of the deepest column (there are no
   `refMidDepth`/`refBottomDepth` reference profiles in this workflow).
@@ -415,7 +416,9 @@ the equation of state itself.  It produces:
   present.
 * vertical transects (via `mpas_tools` `compute_transect`/`plot_transect`) of
   temperature and salinity along each transect in
-  `[realistic_global_init_viz_transects]`.
+  `[realistic_global_init_viz_transects]`.  Layer interfaces are not drawn,
+  because the thin upper layers pack them into a band that hides the upper
+  few hundred meters; `vertical_coordinate.png` shows the layer structure.
 * **Omega only**: a stratification check using the TEOS-10 in-situ `Density`
   (global surface/seafloor maps and transects).  Density is not plotted for
   MPAS-Ocean, whose equation of state differs and is not evaluated here.
@@ -427,10 +430,13 @@ the equation of state itself.  It produces:
 Colormaps come from the shared viz defaults in
 {py:func}`polaris.viz.get_viz_defaults`, looked up by variable name, so a
 variable gets the same colormap everywhere it is plotted; none are named in
-the plotting code.  The limits, by contrast, are computed per plot from the
-data range and written into `[realistic_global_init_viz]` just before each
-call.  That is deliberate and differs from the `analysis_members` `viz` step,
-which reads fixed limits from `realistic_global.cfg`: fixed limits are what
-you want to compare runs or times against each other, and the data range is
-what you want when the question is whether a brand-new initial condition is
-sane.  For a diverging colormap the range is made symmetric about zero.
+the plotting code.  Units come from the same defaults (Omega's `Density`
+falls back on `density`), except that MPAS-Ocean's salinity is labeled PSU,
+since it is practical rather than absolute salinity.  The limits, by
+contrast, are computed per plot from the data range and written into
+`[realistic_global_init_viz]` just before each call.  That is deliberate and
+differs from the `analysis_members` `viz` step, which reads fixed limits from
+`realistic_global.cfg`: fixed limits are what you want to compare runs or
+times against each other, and the data range is what you want when the
+question is whether a brand-new initial condition is sane.  For a diverging
+colormap the range is made symmetric about zero.
