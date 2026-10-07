@@ -22,6 +22,8 @@ ocean:
     config_disable_vel_explicit_bottom_drag: true
     config_disable_tr_adv: false
     config_disable_vel_pgrad: true
+    config_disable_tr_sflux: false
+    config_disable_thick_sflux: false
 
 mpas-ocean:
   frazil_ice:
