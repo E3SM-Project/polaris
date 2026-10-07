@@ -60,6 +60,7 @@ def _init(args):
         baseline_polaris_ref=args.baseline_polaris_ref,
         baseline_ref=args.baseline,
         reason=args.reason,
+        test_ref=args.test_ref,
         merge_prs=args.merge_pr,
         baseline_merge_prs=args.baseline_merge_pr,
         rows=rows,
@@ -193,6 +194,12 @@ def _parse_args():
     )
     init.add_argument(
         '--reason', help='Why --baseline is used instead of the submodule'
+    )
+    init.add_argument(
+        '--test-ref',
+        help='A merge of the PR into its base branch that the requester '
+        'made, such as one resolving conflicts, to test instead of the merge '
+        'init makes: a branch on the fork or a commit',
     )
     init.add_argument(
         '--merge-pr',

@@ -375,6 +375,7 @@ branches for the PR and the baseline, on `polaris_fork`.
 
 ```
 omega_pr_test.py init --pr 553 [--baseline <ref> --reason <text>]
+                      [--test-ref <ref>]
                       [--merge-pr <n>]... [--baseline-merge-pr <n>]...
                       [--polaris-ref <ref>] [--baseline-polaris-ref <ref>]
                       [--rows <machine>/<compiler>,...] [--push]
@@ -387,8 +388,11 @@ E3SM-Project/polaris, fetched rather than taken from the initiator's
 checkout, unless `--polaris-ref` names another. `baseline.polaris_commit`
 is `polaris_commit` unless `--baseline-polaris-ref` names another. If a
 merge conflicts, `init`
-stops, and the pull request's author must update the branch. The default
-rows are the six in the template.
+stops, and the pull request's author must update the branch. Alternatively,
+the requester can resolve the conflicts in a merge of their own, and
+`--test-ref` names it, a branch on the fork or a commit. `init` checks that it
+contains the pull request head and the base branch head and uses it as the
+test commit. The default rows are the six in the template.
 
 ### Implementation: GitHub credentials are needed on one computer only.
 

@@ -82,6 +82,7 @@ def initiate(
     baseline_polaris_ref: Optional[str] = None,
     baseline_ref: Optional[str] = None,
     reason: Optional[str] = None,
+    test_ref: Optional[str] = None,
     merge_prs: Sequence[int] = (),
     baseline_merge_prs: Sequence[int] = (),
     rows: Optional[Sequence[Row]] = None,
@@ -116,6 +117,13 @@ def initiate(
 
     reason : str, optional
         Why ``baseline_ref`` is used, required with it
+
+    test_ref : str, optional
+        A merge of the pull request into its base branch that the requester
+        made, such as one that resolves conflicts, to test instead of the
+        merge ``init`` makes: a branch on the fork or a commit in the Omega
+        clone.  It must contain the pull request head and the base branch
+        head.
 
     merge_prs : sequence of int, optional
         Other Omega pull requests to merge into the test commit
@@ -191,12 +199,29 @@ def initiate(
         baseline_start = _resolve_omega(repo, baseline_ref, base_branch)
         baseline_source = baseline_ref
 
+    test_start = base_head
+    test_merges = [
+        (pull_request, pr_head, f'into {base_branch} ({base_head[:10]})')
+    ]
+    if test_ref is not None:
+        test_start = _resolve_test_ref(repo, config.fork, test_ref)
+        for name, sha in [
+            (f'{UPSTREAM}#{pull_request} head', pr_head),
+            (f'head of {base_branch}', base_head),
+        ]:
+            if not git_tools.is_ancestor(repo, sha, test_start):
+                raise InitError(
+                    f'{test_ref} does not contain the {name} ({sha[:12]}).  '
+                    f'Update it and run init again.'
+                )
+        test_merges = []
+
     work_dir = os.path.join(config.work_base, 'omega', f'init-{pull_request}')
     test_commit = _make_merges(
         repo,
         os.path.join(work_dir, 'test'),
-        base_head,
-        [(pull_request, pr_head, f'into {base_branch} ({base_head[:10]})')]
+        test_start,
+        test_merges
         + [(number, heads[number], 'for testing') for number in merge_prs],
     )
     baseline_commit = baseline_start
@@ -485,6 +510,28 @@ def _resolve_omega(repo, ref, base_branch):
         return git_tools.rev_parse(repo, f'{REF_PREFIX}/baseline-ref')
     except git_tools.GitError:
         return _fetch_commit(repo, ref)
+
+
+def _resolve_test_ref(repo, fork, ref):
+    """
+    The commit of a test merge the requester made, a branch on the fork or
+    a commit in the Omega clone
+    """
+    if fork is not None:
+        try:
+            git_tools.fetch(
+                repo, fork, [f'refs/heads/{ref}:{REF_PREFIX}/test-ref']
+            )
+            return git_tools.rev_parse(repo, f'{REF_PREFIX}/test-ref')
+        except git_tools.GitError:
+            pass
+    try:
+        return git_tools.rev_parse(repo, ref)
+    except git_tools.GitError as exc:
+        raise InitError(
+            f'--test-ref {ref} is neither a branch on the fork nor a commit '
+            f'in {repo}.'
+        ) from exc
 
 
 def _make_merges(repo, worktree, start, merges):

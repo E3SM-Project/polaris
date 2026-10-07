@@ -129,6 +129,37 @@ def test_init_conflict(fixture):
         _initiate(fixture, merge_prs=[9])
 
 
+def test_init_test_ref(fixture):
+    # a merge the requester made, such as one resolving conflicts
+    repo = fixture.config.omega_repo
+    git(repo, 'fetch', '-q', 'origin', 'refs/pull/5/head')
+    git(repo, 'checkout', '-q', '-b', 'test-merge', fixture.develop)
+    git(repo, 'merge', '-q', '--no-edit', fixture.pr_head)
+    test_merge = git(repo, 'rev-parse', 'HEAD')
+    git(repo, 'push', '-q', fixture.fork, 'test-merge')
+    git(repo, 'checkout', '-q', '--detach')
+
+    result = _initiate(fixture, test_ref='test-merge')
+
+    assert result.manifest.test_commit == test_merge
+    assert git(repo, 'rev-parse', f'{result.manifest_commit}^') == test_merge
+
+
+def test_init_test_ref_needs_pr_head(fixture):
+    repo = fixture.config.omega_repo
+    git(repo, 'fetch', '-q', 'origin', 'refs/pull/7/head')
+    branch = f'{fixture.extra_head}:refs/heads/fix'
+    git(repo, 'push', '-q', fixture.fork, branch)
+
+    with pytest.raises(pr_test_init.InitError, match='#5 head'):
+        _initiate(fixture, test_ref='fix')
+
+
+def test_init_test_ref_missing(fixture):
+    with pytest.raises(pr_test_init.InitError, match='neither a branch'):
+        _initiate(fixture, test_ref='no-such-branch')
+
+
 def test_init_other_baseline_needs_reason(fixture):
     with pytest.raises(pr_test_init.InitError, match='--reason'):
         _initiate(fixture, baseline_ref='develop')

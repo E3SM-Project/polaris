@@ -87,7 +87,9 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    asks, with `--baseline <ref> --reason "<why>"`.  If `develop` does not
    build without an unmerged fix, the requester may ask for
    `--merge-pr <number>` (or `--baseline-merge-pr`).  If the PR does not
-   merge cleanly, stop and tell the requester.
+   merge cleanly, stop and tell the requester.  They may resolve the
+   conflicts in a merge of their own, on a branch of the fork, which you
+   then test with `--test-ref <branch>`.
    If the PR needs Polaris changes too, the requester names two branches
    on their Polaris fork (`polaris_fork` in the config): a test merge for
    the PR and a branch for the baseline.  Fetch both into this checkout as
