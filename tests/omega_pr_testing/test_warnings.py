@@ -104,12 +104,26 @@ def test_moved_warning_is_not_new():
     assert new == [(added, 0, 1)]
 
 
-def test_second_instance_is_new():
+def test_second_instance_in_changed_file_is_new():
     warning = BuildWarning('a.cpp', '-Wunused', 'unused variable')
 
-    assert find_new_warnings(Counter({warning: 1}), Counter({warning: 2})) == [
-        (warning, 1, 2)
-    ]
+    new = find_new_warnings(
+        Counter({warning: 1}), Counter({warning: 2}), ['a.cpp']
+    )
+
+    assert new == [(warning, 1, 2)]
+
+
+def test_second_instance_elsewhere_is_not_new():
+    # a header included by one more file, or a line of the baseline log
+    # garbled by a parallel build
+    warning = BuildWarning('gptl.h', '-Wmacro-redefined', 'macro redefined')
+
+    new = find_new_warnings(
+        Counter({warning: 4}), Counter({warning: 5}), ['a.cpp']
+    )
+
+    assert new == []
 
 
 def test_warnings_section(tmp_path):
