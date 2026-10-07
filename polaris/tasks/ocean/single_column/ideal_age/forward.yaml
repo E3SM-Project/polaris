@@ -24,3 +24,14 @@ mpas-ocean:
       - velocityMeridional
       - layerThickness
       - idealAgeTracers
+      - windStressZonal
+      - windStressMeridional
+      - latentHeatFlux
+      - sensibleHeatFlux
+      - shortWaveHeatFlux
+      - evaporationFlux
+      - rainFlux
+      - seaIceFreshWaterFlux
+      - icebergFreshWaterFlux
+      - riverRunoffFlux
+      - iceRunoffFlux
