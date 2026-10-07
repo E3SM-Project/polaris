@@ -270,6 +270,17 @@ logged and recorded, and nothing else acts on it.  Whether that should
 change, and what the tolerances should be, is under discussion in
 [issue #753](https://github.com/E3SM-Project/polaris/issues/753).
 
+The expected change in each budget comes from the surface forcing fluxes in
+the output file, so the forcing fields must be written to the output stream
+for a budget to account for them.  The enthalpy carried by mass fluxes such
+as rain and evaporation depends on the surface temperature.  The check
+integrates it with the trapezoidal rule over the surface temperature in each
+output record.  This only approximates the flux the model applied at every
+time step, so a task whose surface temperature changes during the run needs a
+looser energy tolerance.  Ideally, the ocean models would write out the heat
+flux they applied so that the check could integrate it exactly (see
+[issue #837](https://github.com/E3SM-Project/polaris/issues/837)).
+
 As shown in the previous example, we have added a mesh file with the name
 'mesh.nc' because conservation checks require the area of cells.
 

@@ -642,6 +642,9 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                     time_index_end=time_index_end,
                 )
                 baseline_str = f'time index {time_index_start}'
+            # used to approximate the time-varying enthalpy flux carried by
+            # mass fluxes from the surface temperature in each record
+            times = get_time_since_start(ds, units='seconds')
             for output_property, tracer_name in _expand_properties(
                 properties, ds
             ):
@@ -673,6 +676,9 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
                         output_property,
                         dt,
                         time_index_start=time_index_start,
+                        time_index_end=time_index_end,
+                        times=times,
+                        ds_init=ds_start,
                         model=config.get('ocean', 'model'),
                         config=config,
                     )
