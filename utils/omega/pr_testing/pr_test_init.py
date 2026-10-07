@@ -20,7 +20,9 @@ from pr_test_manifest import (
     UPSTREAM,
     ExtraMerge,
     Manifest,
+    ManifestError,
     Row,
+    fetch_manifest,
 )
 
 #: the Polaris checkout this utility is part of
@@ -59,6 +61,10 @@ class InitResult:
     prompt : str
         What to tell an agent testing on a machine itself, such as
         Frontier, which cannot be reached over ssh
+
+    existing : bool
+        Whether the fork already had the test branch with an equivalent
+        manifest, which is then the one returned, and nothing needs pushing
     """
 
     manifest: Manifest
@@ -66,6 +72,7 @@ class InitResult:
     push_command: List[str]
     pushed: bool
     prompt: str
+    existing: bool = False
 
 
 def initiate(
@@ -250,6 +257,28 @@ def initiate(
     _remove_scratch(repo, work_dir)
 
     fork = config.fork or '<your fork>'
+
+    # Testers may already be using the fork's test branch.  Replacing it with
+    # an equivalent manifest only changes the commit hashes under them.
+    existing = _find_equivalent(repo, config.fork, manifest)
+    if existing is not None:
+        existing_manifest, existing_commit = existing
+        prompt = get_prompt(
+            existing_manifest,
+            fork,
+            config.polaris_fork,
+            polaris_ref,
+            baseline_polaris_ref,
+        )
+        return InitResult(
+            existing_manifest,
+            existing_commit,
+            push_command=[],
+            pushed=False,
+            prompt=prompt,
+            existing=True,
+        )
+
     push_command = ['git', 'push']
     if force:
         push_command.append('--force')
@@ -341,7 +370,14 @@ def format_result(result: InitResult, repo: str) -> str:
         '',
     ]
     command = shlex.join(result.push_command)
-    if result.pushed:
+    if result.existing:
+        lines.append(
+            f'The fork already has {manifest.branch} with an equivalent '
+            f'manifest: the same PR head, base, baseline, Polaris commits, '
+            f'merges and rows.  Nothing needs pushing, and testers use it '
+            f'as it is.'
+        )
+    elif result.pushed:
         lines.append(
             f'Pushed {manifest.branch} and {manifest.baseline_branch}.'
         )
@@ -362,6 +398,47 @@ def format_result(result: InitResult, repo: str) -> str:
     )
     lines.append(result.prompt)
     return '\n'.join(lines)
+
+
+def _find_equivalent(repo, fork, manifest):
+    """
+    The fork's manifest and manifest commit, if the fork already has the
+    test branch and it pins the same commits.  Test and baseline commits
+    are compared by tree, since remaking a merge changes only its hash.
+    """
+    if fork is None:
+        return None
+    try:
+        if not git_tools.has_remote_branch(repo, fork, manifest.branch):
+            return None
+        existing = fetch_manifest(repo, fork, manifest.branch)
+    except (git_tools.GitError, ManifestError):
+        return None
+
+    same_fields = all(
+        getattr(existing, name) == getattr(manifest, name)
+        for name in [
+            'pull_request',
+            'pr_head',
+            'base_branch',
+            'base_head',
+            'polaris_commit',
+            'baseline_polaris_commit',
+            'extra_merges',
+            'rows',
+        ]
+    )
+    if not same_fields:
+        return None
+    for name in ['test_commit', 'baseline_commit']:
+        if git_tools.tree(repo, getattr(existing, name)) != git_tools.tree(
+            repo, getattr(manifest, name)
+        ):
+            return None
+    existing_commit = git_tools.rev_parse(
+        repo, f'{REF_PREFIX}/{manifest.branch}'
+    )
+    return existing, existing_commit
 
 
 def _resolve_polaris(polaris_dir, polaris_ref):

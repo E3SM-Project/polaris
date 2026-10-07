@@ -63,6 +63,17 @@ def fetch(repo: str, url: str, refspecs: List[str]) -> None:
     git(['fetch', '--quiet', url] + [f'+{spec}' for spec in refspecs], repo)
 
 
+def has_remote_branch(repo: str, url: str, branch: str) -> bool:
+    """Whether a remote has a branch"""
+    output = git(['ls-remote', '--heads', url, f'refs/heads/{branch}'], repo)
+    return bool(output)
+
+
+def tree(repo: str, commit: str) -> str:
+    """The hash of a commit's tree"""
+    return git(['rev-parse', '--verify', f'{commit}^{{tree}}'], repo)
+
+
 def rev_parse(repo: str, rev: str) -> str:
     """The full hash of a commit"""
     return git(['rev-parse', '--verify', f'{rev}^{{commit}}'], repo)
