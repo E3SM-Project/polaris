@@ -594,6 +594,21 @@ two-band Jerlov scheme. Omega runs a Jerlov-equivalent configuration and a
 three-band Manizza configuration with distinct red and blue extinction
 coefficients. All runs use the same constant incident shortwave flux.
 
+The Roman numerals identify Jerlov water types. The numeric `water_types`
+options select these types using the IDs in the MPAS-Ocean Jerlov table:
+
+| ID | Jerlov water type |
+| --- | --- |
+| 1 | I |
+| 2 | IA |
+| 3 | IB |
+| 4 | II |
+| 5 | III |
+
+The two-band optical parameterization and Jerlov water type designations follow Paulson
+and Simpson (1977), ["Irradiance Measurements in the Upper Ocean"](
+https://doi.org/10.1175/1520-0485%281977%29007%3C0952%3AIMITUO%3E2.0.CO%3B2).
+
 Each forward step uses the shared conservation checks to compare the change in
 column energy with the incident shortwave energy. The analysis step checks that
 the potential-energy increase is larger for clearer water, which deposits heat

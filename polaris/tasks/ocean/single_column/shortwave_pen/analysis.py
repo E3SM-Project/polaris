@@ -1,6 +1,6 @@
 from polaris.constants import get_constant
-from polaris.ocean.eos import compute_density
 from polaris.ocean.model import OceanIOStep
+from polaris.ocean.vertical import compute_column_potential_energy
 from polaris.tasks.ocean.single_column.shortwave_pen.jerlov import (
     JERLOV_WATER_TYPES,
 )
@@ -69,15 +69,18 @@ class Analysis(OceanIOStep):
         logger = self.logger
         gravity = get_constant('standard_acceleration_of_gravity')
 
+        ds_mesh = self.open_model_dataset('mesh.nc', config=config)
         ds_init = self.open_model_dataset('init.nc', config=config)
-        pe0 = _potential_energy(ds_init, config, gravity, time_index=0)
+        pe0 = _potential_energy(
+            ds_init, ds_mesh, config, gravity, time_index=0
+        )
 
         changes = dict()
         for water_type in self.water_types:
             ds = self.open_model_dataset(
                 f'output_jerlov_type{water_type}.nc', config=config
             )
-            pe = _potential_energy(ds, config, gravity, time_index=-1)
+            pe = _potential_energy(ds, ds_mesh, config, gravity, time_index=-1)
             changes[water_type] = pe - pe0
 
         summary = '\n'.join(
@@ -108,39 +111,13 @@ class Analysis(OceanIOStep):
                 )
 
 
-def _pick(ds, *names):
-    """Return the first variable in ``names`` present in ``ds``."""
-    for name in names:
-        if name in ds:
-            return ds[name]
-    raise KeyError(
-        f'None of {names} found in dataset (available: {list(ds.data_vars)})'
+def _potential_energy(ds, ds_mesh, config, gravity, time_index):
+    """Return the area-averaged column potential energy in J/m^2."""
+    pe_per_cell = compute_column_potential_energy(
+        ds, config, gravity, time_index
     )
-
-
-def _at_time(da, time_index):
-    """Select the given time index from ``da``, if it has a time dimension"""
-    for time_dim in ('time', 'Time'):
-        if time_dim in da.dims:
-            return da.isel({time_dim: time_index})
-    return da
-
-
-def _potential_energy(ds, config, gravity, time_index):
-    """
-    The domain-averaged column potential energy (J/m^2),
-    ``g * sum(rho * z_mid * thickness)``, at the given time index
-    """
-    thickness = _at_time(
-        _pick(ds, 'PseudoThickness', 'layerThickness'), time_index
+    area_cell = ds_mesh.areaCell
+    pe = (pe_per_cell * area_cell).sum(dim='nCells') / area_cell.sum(
+        dim='nCells'
     )
-    temperature = _at_time(_pick(ds, 'Temperature', 'temperature'), time_index)
-    salinity = _at_time(_pick(ds, 'Salinity', 'salinity'), time_index)
-    z_mid = _at_time(_pick(ds, 'zMid'), time_index)
-
-    dims = thickness.dims
-    vert_dim = 'NVertLayers' if 'NVertLayers' in dims else 'nVertLevels'
-
-    density = compute_density(config, temperature, salinity)
-    pe_per_cell = gravity * (density * z_mid * thickness).sum(dim=vert_dim)
-    return float(pe_per_cell.mean().values)
+    return float(pe.values)

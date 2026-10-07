@@ -5,7 +5,7 @@ import xarray as xr
 from ruamel.yaml import YAML
 
 from polaris.constants import get_constant
-from polaris.ocean.eos import compute_specvol
+from polaris.ocean.eos import compute_density, compute_specvol
 from polaris.ocean.vertical.ztilde import (
     get_iter_count_for_eos,
     pressure_and_spec_vol_from_state_at_geom_height,
@@ -14,6 +14,56 @@ from polaris.ocean.vertical.ztilde import (
 )
 
 RhoSw = get_constant('seawater_density_reference')
+
+
+def compute_column_potential_energy(ds, config, gravity, time_index):
+    """Compute column potential energy per unit horizontal area.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A model output dataset containing vertical position and layer mass
+        information.
+
+    config : polaris.config.PolarisConfigParser
+        Configuration containing the ocean model and equation of state.
+
+    gravity : float
+        Gravitational acceleration in m s-2.
+
+    time_index : int
+        Time index to use when the input variables have a time dimension.
+
+    Returns
+    -------
+    potential_energy : xarray.DataArray
+        Column potential energy in J m-2 for each horizontal cell.
+    """
+    model = config.get('ocean', 'model')
+    z_mid = _at_time(_pick(ds, 'zMid'), time_index)
+
+    if model == 'omega':
+        thickness = _at_time(
+            _pick(ds, 'PseudoThickness', 'pseudoThickness'), time_index
+        )
+        mass_per_area = RhoSw * thickness
+    elif model == 'mpas-ocean':
+        thickness = _at_time(_pick(ds, 'layerThickness'), time_index)
+        temperature = _at_time(
+            _pick(ds, 'Temperature', 'temperature'), time_index
+        )
+        salinity = _at_time(_pick(ds, 'Salinity', 'salinity'), time_index)
+        density = compute_density(config, temperature, salinity)
+        mass_per_area = density * thickness
+    else:
+        raise ValueError(f'Unknown ocean model {model}')
+
+    vertical_dim = next(
+        dim
+        for dim in ('nVertLevels', 'NVertLayers')
+        if dim in mass_per_area.dims
+    )
+    return gravity * (mass_per_area * z_mid).sum(dim=vertical_dim)
 
 
 def _variables_at_layer_tops():
@@ -762,3 +812,21 @@ def _mid_to_interface(field, layer_thickness):
     ) / (thickness_above + thickness_below)
     both_valid = np.logical_and(field_above.notnull(), field_below.notnull())
     return xr.where(both_valid, interpolated, field_above.fillna(field_below))
+
+
+def _pick(ds, *names):
+    """Return the first variable in ``names`` present in ``ds``."""
+    for name in names:
+        if name in ds:
+            return ds[name]
+    raise KeyError(
+        f'None of {names} found in dataset (available: {list(ds.data_vars)})'
+    )
+
+
+def _at_time(da, time_index):
+    """Select a time index if ``da`` has a time dimension."""
+    for time_dim in ('time', 'Time'):
+        if time_dim in da.dims:
+            return da.isel({time_dim: time_index})
+    return da
