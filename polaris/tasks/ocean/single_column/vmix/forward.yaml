@@ -32,6 +32,9 @@ mpas-ocean:
     config_use_activeTracers_surface_bulk_forcing: true
     config_use_activeTracers_surface_restoring: false
     config_use_activeTracers_interior_restoring: false
+  # MPAS-Ocean drops the shortwave flux entirely if this is 'none'
+  shortwaveRadiation:
+    config_sw_absorption_type: jerlov
   cvmix:
     config_use_cvmix_kpp: false
     config_cvmix_background_scheme: constant
