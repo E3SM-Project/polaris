@@ -1,6 +1,8 @@
 from polaris.tasks.ocean.single_column.forward import Forward
 from polaris.tasks.ocean.single_column.shortwave_pen.jerlov import (
+    manizza_scale,
     omega_jerlov_equivalent,
+    validate_manizza_parameters,
 )
 
 
@@ -103,8 +105,10 @@ class ShortwavePenForward(Forward):
         """
         Add the extinction-coefficient forcing file, which only Omega reads
         """
+        model = self.config.get('ocean', 'model')
+        _validate_model_scheme(model, self.scheme)
         super().setup()
-        if self.config.get('ocean', 'model') == 'omega':
+        if model == 'omega':
             self.add_input_file(
                 filename='shortwave_extinction_coeffs.nc',
                 work_dir_target=(
@@ -116,16 +120,30 @@ class ShortwavePenForward(Forward):
         """
         Set the model config options that control shortwave absorption
         """
-        super().dynamic_model_config(at_setup=at_setup)
-
         config = self.config
         model = config.get('ocean', 'model')
+        _validate_model_scheme(model, self.scheme)
+        super().dynamic_model_config(at_setup=at_setup)
+
         section = config['single_column_shortwave_pen']
 
         if model == 'omega':
             if self.scheme == 'jerlov':
                 options, _ = omega_jerlov_equivalent(self.water_type)
             else:
+                scale = manizza_scale(self.water_type)
+                validate_manizza_parameters(
+                    near_ir_fraction=section.getfloat('near_ir_fraction'),
+                    near_ir_coeff=section.getfloat('near_ir_coeff'),
+                    red_fraction=section.getfloat('red_fraction'),
+                    blue_fraction=section.getfloat('blue_fraction'),
+                    extinction_coeff_red=(
+                        section.getfloat('extinction_coeff_red') * scale
+                    ),
+                    extinction_coeff_blue=(
+                        section.getfloat('extinction_coeff_blue') * scale
+                    ),
+                )
                 options = {
                     'NearIrFraction': section.getfloat('near_ir_fraction'),
                     'NearIrCoeff': section.getfloat('near_ir_coeff'),
@@ -136,11 +154,6 @@ class ShortwavePenForward(Forward):
                 options=options, config_model='Omega'
             )
         elif model == 'mpas-ocean':
-            if self.scheme != 'jerlov':
-                raise ValueError(
-                    'MPAS-Ocean only supports the two-band Jerlov scheme; '
-                    f'the "{self.scheme}" scheme requires Omega.'
-                )
             self.add_model_config_options(
                 options={
                     'config_sw_absorption_type': 'jerlov',
@@ -154,12 +167,10 @@ class ShortwavePenForward(Forward):
         else:
             raise ValueError(f'Unknown ocean model {model}')
 
-        # radiative forcing only: isolate the effect of the shortwave
-        # absorption profile from convective/shear-driven mixing
-        self.add_model_config_options(
-            options={
-                'config_use_cvmix_convection': False,
-                'config_use_cvmix_shear': False,
-            },
-            config_model='ocean',
+
+def _validate_model_scheme(model, scheme):
+    if model == 'mpas-ocean' and scheme != 'jerlov':
+        raise ValueError(
+            'MPAS-Ocean only supports the two-band Jerlov scheme; '
+            f'the "{scheme}" scheme requires Omega.'
         )

@@ -2,6 +2,9 @@ import numpy as np
 import xarray as xr
 
 from polaris.ocean.vertical.diagnostics import (
+    compute_column_potential_energy as compute_column_potential_energy,
+)
+from polaris.ocean.vertical.diagnostics import (
     compute_zint_zmid_from_layer_thickness,
 )
 from polaris.ocean.vertical.sigma import (

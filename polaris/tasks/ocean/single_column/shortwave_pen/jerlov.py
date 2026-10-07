@@ -176,11 +176,50 @@ def manizza_absorption_fraction(
     fraction : numpy.ndarray
         The fraction of the incident shortwave flux reaching each depth
     """
+    depth = np.asarray(depth, dtype=float)
+    if not np.all(np.isfinite(depth)) or np.any(depth < 0.0):
+        raise ValueError('Depth must be finite and nonnegative')
+    validate_manizza_parameters(
+        near_ir_fraction=near_ir_fraction,
+        near_ir_coeff=near_ir_coeff,
+        red_fraction=red_fraction,
+        blue_fraction=blue_fraction,
+        extinction_coeff_red=extinction_coeff_red,
+        extinction_coeff_blue=extinction_coeff_blue,
+    )
     return (
         near_ir_fraction * np.exp(-near_ir_coeff * depth)
         + red_fraction * np.exp(-extinction_coeff_red * depth)
         + blue_fraction * np.exp(-extinction_coeff_blue * depth)
     )
+
+
+def validate_manizza_parameters(
+    near_ir_fraction,
+    near_ir_coeff,
+    red_fraction,
+    blue_fraction,
+    extinction_coeff_red,
+    extinction_coeff_blue,
+):
+    """Validate fractions and extinction coefficients for Manizza optics."""
+    fractions = np.asarray(
+        [near_ir_fraction, red_fraction, blue_fraction], dtype=float
+    )
+    coefficients = np.asarray(
+        [near_ir_coeff, extinction_coeff_red, extinction_coeff_blue],
+        dtype=float,
+    )
+    if not np.all(np.isfinite(fractions)):
+        raise ValueError('Manizza band fractions must be finite')
+    if np.any((fractions < 0.0) | (fractions > 1.0)):
+        raise ValueError('Manizza band fractions must be between 0 and 1')
+    if not np.isclose(fractions.sum(), 1.0, rtol=0.0, atol=1.0e-12):
+        raise ValueError('Manizza band fractions must sum to one')
+    if not np.all(np.isfinite(coefficients)):
+        raise ValueError('Manizza extinction coefficients must be finite')
+    if np.any(coefficients < 0.0):
+        raise ValueError('Manizza extinction coefficients must be nonnegative')
 
 
 def _validate_water_type(water_type):
