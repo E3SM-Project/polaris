@@ -117,10 +117,10 @@ n_wavelengths_x = 2
 n_wavelengths_y = 2
 
 # Time step per resolution (s/km), since dt is proportional to resolution
-dt_per_km = 1.5
+dt_per_km = 0.75
 
 # Convergence threshold below which the test fails
-conv_thresh = 0.8
+conv_thresh = 1.8
 ```
 
 The time integrator and the time steps that go with it are set in the
@@ -136,8 +136,8 @@ time_integrator = unsplit_explicit
 # RK4 time step per resolution (s/km), since dt is proportional to resolution
 rk4_dt_per_km = ${manufactured_solution:dt_per_km}
 
-# Unsplit time step per resolution (s/km), half the RK4 step
-unsplit_dt_per_km = 0.75
+# Unsplit time step per resolution (s/km)
+unsplit_dt_per_km = ${manufactured_solution:dt_per_km}
 
 # Split baroclinic time step per resolution (s/km), 30 barotropic substeps
 split_dt_per_km = 22.5
@@ -146,10 +146,15 @@ split_dt_per_km = 22.5
 btr_dt_per_km = 0.75
 ```
 
+Omega uses `unsplit_explicit`. MPAS-Ocean's `unsplit_explicit` is close to
+first order, so the task switches MPAS-Ocean to `RK4` at the same time step.
+Setting `time_integrator` in a user config file overrides this for both
+models.
+
 The single layer means the wave this test measures is entirely the barotropic
 mode.  The split time stepper subcycles and time-averages that mode, which
 damps it, so `split_explicit` converges at a much lower order than the
-unsplit schemes; `conv_thresh` is set accordingly.
+unsplit schemes and will not meet the default `conv_thresh`.
 
 ### cores
 
