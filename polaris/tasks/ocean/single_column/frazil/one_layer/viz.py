@@ -358,7 +358,7 @@ def _plot_conservation_residuals(
         ):
             frazil_rate = item['frazil_rates'][variable]
             count = min(frazil_steps, len(rate), len(frazil_rate))
-            expected_rate = -frazil_rate[:count]
+            expected_rate = frazil_rate[:count]
             if variable == 'FrazilEnergyFlux':
                 expected_rate = expected_rate + heat_flux
             residual = rate[:count] - expected_rate

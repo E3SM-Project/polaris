@@ -298,8 +298,8 @@ def compute_flux_forcing(
 def compute_frazil_fluxes(ds_mesh, ds, time_index_end=-1):
     """Integrate Omega frazil contributions to ocean-state change.
 
-    Omega reports frazil mass and salt as positive transfers out of the ocean,
-    while its energy field has the sign of the ocean energy contribution.
+    Omega reports frazil fluxes with the coupling conventions
+    (counted positive into the ocean).
     """
     fields = (
         'FrazilMassFlux',
@@ -323,9 +323,9 @@ def compute_frazil_fluxes(ds_mesh, ds, time_index_end=-1):
         flux = np.asarray(ds[field].values, dtype=float)[:end]
         totals.append(float(np.sum(flux * intervals[:, None] * area)))
     return dict(
-        mass=-totals[0],
-        salt=-totals[1],
-        energy=-totals[2],
+        mass=totals[0],
+        salt=totals[1],
+        energy=totals[2],
     )
 
 
