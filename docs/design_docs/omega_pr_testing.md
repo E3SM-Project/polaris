@@ -148,6 +148,13 @@ The tip of the first branch adds a single file, the manifest
 of the tested tree. Before building anything, a tester checks that the
 parent contains the recorded pull request head and base branch head.
 
+Only the initiator runs `init`, since testers may already be using the
+branches. If the fork already has the test branch with a manifest that
+pins the same pull request head, base, baseline, Polaris commits, merges
+and rows, `init` leaves it alone rather than replace it with merges that
+differ only in their hashes. Test and baseline commits are compared by
+tree.
+
 ```yaml
 schema_version: 1
 requester: <GitHub user>

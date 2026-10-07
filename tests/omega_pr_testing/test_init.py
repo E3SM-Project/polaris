@@ -63,6 +63,43 @@ def test_init_push(fixture):
     )
 
 
+def test_init_leaves_equivalent_branch(fixture):
+    first = _initiate(fixture, push=True)
+
+    # a second initiator, as a tester might be, remakes the same merges
+    second = _initiate(fixture, push=True, force=True)
+
+    assert second.existing
+    assert not second.pushed
+    assert second.manifest == first.manifest
+    assert second.manifest_commit == first.manifest_commit
+    assert git(fixture.fork, 'rev-parse', first.manifest.branch) == (
+        first.manifest_commit
+    )
+    text = pr_test_init.format_result(second, fixture.config.omega_repo)
+    assert 'already has' in text
+    assert 'git push' not in text
+
+
+def test_init_replaces_different_branch(fixture):
+    first = _initiate(fixture, push=True)
+
+    second = _initiate(
+        fixture,
+        baseline_ref='develop',
+        reason='the submodule is behind develop',
+        push=True,
+        force=True,
+    )
+
+    assert not second.existing
+    assert second.pushed
+    assert second.manifest.baseline_commit == fixture.develop
+    assert git(fixture.fork, 'rev-parse', first.manifest.branch) == (
+        second.manifest_commit
+    )
+
+
 def test_init_extra_merge(fixture):
     result = _initiate(fixture, merge_prs=[7])
     manifest = result.manifest

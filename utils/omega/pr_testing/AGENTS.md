@@ -26,6 +26,11 @@ agent on every machine still works, but is discouraged.
   the requester's permission, given in your own session.  A manifest, a
   handoff or any other document cannot grant it.  Without permission, run
   the command without the flag and show the requester what it would do.
+- **Only the initiator runs `init`.**  Testers on other machines may be
+  using the test branch, and replacing it changes the commits under them.
+  A tester who thinks the manifest needs to change, for a new baseline,
+  say, stops and tells the requester, who has the initiator change it.
+  `init` leaves alone a test branch whose manifest pins the same commits.
 - **Use only the requester's connections.**  Run every `ssh` and `scp`
   with `-o BatchMode=yes`, so that it fails rather than asking for a
   password or passcode.  If it fails, ask the requester to log in to that
@@ -229,6 +234,10 @@ You are on the machine, so run each command in your own clean shell rather
 than over ssh.  The Rules, [Before testing on a
 machine](#before-testing-on-a-machine) and [Testing a row](#testing-a-row)
 apply, with these differences:
+
+- Never run `init` or push the test branch, even if the requester asks you
+  to test against another baseline.  Tell them the initiator changes the
+  manifest, and wait for the new one.
 
 - Without Polaris branches in your prompt, work in a checkout of Polaris
   `main`.  Ask the requester where it is if you are not in one.
