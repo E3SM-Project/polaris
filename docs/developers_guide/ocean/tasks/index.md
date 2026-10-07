@@ -17,6 +17,7 @@ horiz_press_grad
 divergent_2d
 ice_shelf_2d
 inertial_gravity_wave
+isomip_plus
 internal_wave
 manufactured_solution
 merry_go_round

@@ -7,6 +7,7 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris.constants import get_constant
 from polaris.coriolis import add_coriolis_to_dataset
 from polaris.mesh.planar import compute_planar_hex_nx_ny
+from polaris.ocean.ice_shelf import compute_land_ice_pressure_from_draft
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.vertical import init_vertical_coord
 
@@ -139,7 +140,7 @@ class Init(OceanIOStep):
 
         ref_density = get_constant('seawater_density_reference')
         landIceDraft = ds.ssh
-        landIcePressure = _compute_land_ice_pressure_from_draft(
+        landIcePressure = compute_land_ice_pressure_from_draft(
             land_ice_draft=landIceDraft,
             modify_mask=modify_mask,
             ref_density=ref_density,
@@ -179,34 +180,3 @@ class Init(OceanIOStep):
             y_cell > (y_max - 0.6 * dc), 1.0, 0.0
         )
         write_netcdf(ds_forcing, 'init_mode_forcing_data.nc')
-
-
-def _compute_land_ice_pressure_from_draft(
-    land_ice_draft, modify_mask, ref_density=None
-):
-    """
-    Compute the pressure from an overlying ice shelf from ice draft
-
-    Parameters
-    ----------
-    land_ice_draft : xarray.DataArray
-        The ice draft (sea surface height)
-
-    modify_mask : xarray.DataArray
-        A mask that is 1 where ``landIcePressure`` can be deviate from 0
-
-    ref_density : float, optional
-        A reference density for seawater displaced by the ice shelf
-
-    Returns
-    -------
-    land_ice_pressure : xarray.DataArray
-        The pressure from the overlying land ice on the ocean
-    """
-    gravity = get_constant('standard_acceleration_of_gravity')
-    if ref_density is None:
-        ref_density = get_constant('seawater_density_reference')
-    land_ice_pressure = modify_mask * np.maximum(
-        -ref_density * gravity * land_ice_draft, 0.0
-    )
-    return land_ice_pressure
