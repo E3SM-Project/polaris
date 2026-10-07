@@ -60,15 +60,16 @@ For tasks without a thin film,
 are less than half floating ice or open ocean from the shared culled mesh,
 carrying the topography over with
 {py:func}`mpas_tools.mesh.cull.cull_dataset()`. Tasks with a thin film keep
-all cells, compute the draft from the land-ice pressure and mark the cells
-where it reaches the bed as thin-film cells at the freezing point. It
-writes the task's mesh with Coriolis and its graph file, then computes the
-land-ice masks and fractions, SSH, pressure and bottom depth, the vertical
-coordinate, and the initial temperature and salinity. The WARM or COLD
-profile for each task is given by `PROFILES` in the module. The step writes
-the staged files for the ocean model and `forcing.nc` with the restoring and
-evaporation fields. With a thin film, it also writes `land_ice_forcing.nc`
-with every record of the scaled topography.
+all cells. Every task computes the draft, which is also the initial SSH,
+from the land-ice pressure, limited to the bed. Tasks with a thin film mark
+the cells where it reaches the bed as thin-film cells at the freezing point.
+The step writes the task's mesh with Coriolis and its graph file, then
+computes the land-ice masks and fractions, SSH, pressure and bottom depth,
+the vertical coordinate, and the initial temperature and salinity. The WARM
+or COLD profile for each task is given by `PROFILES` in the module. The step
+writes the staged files for the ocean model and `forcing.nc` with the
+restoring and evaporation fields. With a thin film, it also writes
+`land_ice_forcing.nc` with every record of the scaled topography.
 
 (dev-ocean-isomip-plus-ssh-adjustment)=
 
@@ -77,7 +78,10 @@ with every record of the scaled topography.
 The task sets up the SSH-adjustment steps with
 {py:meth}`polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps()`,
 using {py:class}`polaris.tasks.ocean.isomip_plus.ssh_forward.SshForward`,
-which turns on the equation of state from the config options. The model
+which turns on the equation of state from the config options. The
+`[ssh_adjustment]` section sets `adjust_variable = ssh`, so the
+{py:class}`polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment` steps
+adjust SSH and leave the land-ice pressure from `init` unchanged. The model
 physics is in `physics.yaml`, which the SSH-adjustment and forward runs share.
 It uses RK4 time integration with wetting and drying, following Compass's
 thin-film tests, and sets the ISOMIP+ top drag coefficient.
