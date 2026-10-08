@@ -15,13 +15,19 @@ MPAS-Ocean's results from the ISOMIP+ intercomparison
 with the legacy Compass package. In Polaris, the setup serves as a platform
 for idealized ice-shelf-cavity tests. The `ocean0`, `ocean1` and `ocean2`
 tasks run the corresponding ISOMIP+ experiments for a short time. The
-`inception`, `wetting` and `drying` tasks, which scale the Ocean1 ice load
-in time to test wetting and drying, currently produce only an initial
-condition and forcing.
+`inception`, `wetting` and `drying` tasks change the Ocean1 ice load over
+hours or days, so that the grounding line moves and cells dry or wet within
+a short run.
 
 ## supported models
 
-These tasks support only MPAS-Ocean.
+These tasks support only MPAS-Ocean. They need the land-ice options of
+[E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047) and the cap on
+land-ice pressure in grounded cells from
+[E3SM-Ocean-Discussion#119](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/119).
+Until both are in E3SM, build MPAS-Ocean from
+[xylar/E3SM:ocn/thin-film-wetting-drying](https://github.com/xylar/E3SM/tree/ocn/thin-film-wetting-drying)
+and point Polaris to it with `-p`.
 
 ## shared steps
 
@@ -148,8 +154,13 @@ Temperature and salinity are restored toward the task's restoring profile
 within 10 km of the northern boundary, at a rate that increases linearly from
 zero at $x = 790$ km to $1/(10\ \mathrm{days})$ at $x = 800$ km. In the same
 region, "evaporation" of 200 m/yr removes water at the surface temperature
-and salinity to offset the meltwater from the ice shelf. Melt fluxes use
-MPAS-Ocean's three-equation parameterization.
+and salinity to offset the meltwater from the ice shelf. In the
+`inception`, `wetting` and `drying` tasks, MPAS-Ocean's tidal forcing, with
+zero amplitude, holds the sea-surface height at zero in the same region. The
+water that the ice displaces as its load grows leaves the domain there, and
+water flows back in as the load shrinks. Otherwise, the closed domain's sea
+level would rise by about 10 m for each 5 % of the Ocean1 load. Melt fluxes
+use MPAS-Ocean's three-equation parameterization.
 
 ## wetting and drying
 
@@ -253,6 +264,10 @@ restore_xmax = 800e3
 # Run duration in hours
 run_duration = 1.0
 
+# Output interval in hours, or "none" to write output only at the end of the
+# run
+output_interval = none
+
 # Time step in seconds as a function of resolution for RK4 time integration,
 # which is required for wetting and drying
 rk4_dt_per_km = 6
@@ -304,51 +319,86 @@ not yet support.
 
 ### description
 
-These tasks scale the pressure and draft of the Ocean1 geometry in time by
-the factors in the `isomip_plus_scaling` section: `inception` grows an ice
-shelf from open ocean, `wetting` removes the ice load and `drying` doubles it.
-The fractions of floating and grounded ice are not scaled, so the area
-subject to melting stays fixed.
+These tasks scale the pressure of the Ocean1 geometry in time by the factors
+in the `isomip_plus_scaling` section. `inception` grows an ice shelf from
+open ocean over 4 days. `wetting` thins the ice by 5 % and then 10 %, and
+`drying` thickens it by the same amounts, in two 6-hour steps. The fractions
+of floating and grounded ice are not scaled, so the area subject to melting
+stays fixed.
 
-The tasks currently have only an `init` step, which writes the initial
-condition, the restoring forcing and the time-varying land-ice forcing in
-`land_ice_forcing.nc`. As in the other tasks, the ice draft is computed from
-the land-ice pressure, assuming the ice floats, and limited to the bed. Where
-the draft reaches the bed, the ice is grounded and the cell holds a thin film
-1 mm thick whose temperature is at the freezing point.
+Each task has the same steps as `ocean0`. The `init` step also writes the
+time-varying land-ice forcing in `land_ice_forcing.nc`, which the `forward`
+step reads. The SSH-adjustment runs use the first record of the forcing.
+
+The initial sea-surface height is where ice with the prescribed pressure
+would float. Where that is below the bed, the ice is grounded, and the cell
+holds a thin film of fresh water at its freezing point. The film is 1 mm
+thick per active layer, the column at which MPAS-Ocean caps the land-ice
+pressure in grounded cells.
+
+In addition to the plots of the other tasks, the `viz` step plots the
+water-column thickness at each output time, with columns less than twice
+the thin film in red, and time series of their area under the ice and of
+the mean sea-surface height in the open ocean.
 
 ```cfg
 # config options for ISOMIP+ initial conditions
 [isomip_plus]
 
-# Minimum thickness (m) of the initial ocean column in tasks with a thin film
-# under grounded ice
-min_column_thickness_thin_film = 1e-3
+# Thickness (m) of each active layer of the thin film under grounded ice,
+# where MPAS-Ocean caps the land-ice pressure.  This must match
+# config_drying_min_cell_height in physics.yaml.
+thin_film_layer_thickness = 1e-3
 ```
 
 ```cfg
 # config options for ISOMIP+ topography scaling
 [isomip_plus_scaling]
 
-# simple thickening and thinning experiments that involve scaling the Ocean1
-# landIcePressure and landIceDraft over time
+# simple thickening and thinning experiments that scale the Ocean1
+# landIcePressure and landIceDraft over time.  The records are hours or days
+# apart so that a short run moves the grounding line.  They must be evenly
+# spaced and extend at least one record past the end of the forward run,
+# since MPAS-Ocean reads the next record ahead.
 #
-# "inception" reference dates
-inception_dates = 0001-01-01_00:00:00, 0002-01-01_00:00:00, 0003-01-01_00:00:00
+# "inception" reference dates: the ice grows from nothing over 4 days
+inception_dates = 0001-01-01_00:00:00, 0001-01-05_00:00:00, 0001-01-09_00:00:00
 # scaling at each date
 inception_scales = 0.0, 1.0, 1.0
 
-# "drying" reference dates
-drying_dates = 0001-01-01_00:00:00, 0002-01-01_00:00:00, 0003-01-01_00:00:00
+# "drying" reference dates: the ice thickens in two 6-hour steps
+drying_dates = 0001-01-01_00:00:00, 0001-01-01_06:00:00, 0001-01-01_12:00:00,
+               0001-01-01_18:00:00
 # scaling at each date
-drying_scales = 1.0, 2.0, 2.0
+drying_scales = 1.0, 1.05, 1.1, 1.1
 
-# "wetting" reference dates
-wetting_dates = 0001-01-01_00:00:00, 0002-01-01_00:00:00, 0003-01-01_00:00:00
+# "wetting" reference dates: the ice thins in two 6-hour steps
+wetting_dates = 0001-01-01_00:00:00, 0001-01-01_06:00:00, 0001-01-01_12:00:00,
+                0001-01-01_18:00:00
 # scaling at each date
-wetting_scales = 1.0, 0.0, 0.0
+wetting_scales = 1.0, 0.95, 0.9, 0.9
 ```
+
+The records must be evenly spaced, since MPAS-Ocean finds them by their
+spacing, and must extend at least one record past the end of the run, since
+MPAS-Ocean reads the next record ahead.
 
 ### time step and run duration
 
-N/A. These tasks do not yet run the model.
+The RK4 time step is 6 s per km of resolution, as in the other tasks. The
+`wetting` and `drying` runs last 12 hours, with output every hour, and the
+`inception` run lasts 4 days, with output every 6 hours:
+
+```cfg
+# config options for ISOMIP+ forward runs with a thin film under grounded ice
+[isomip_plus_forward]
+
+# Run duration in hours, over which the ice load changes at a constant rate
+run_duration = 12.0
+
+# Output interval in hours
+output_interval = 1.0
+```
+
+If you change `run_duration`, extend the record dates to match, since the
+records must reach past the end of the run.
