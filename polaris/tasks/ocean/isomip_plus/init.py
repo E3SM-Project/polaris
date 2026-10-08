@@ -213,7 +213,8 @@ class Init(OceanIOStep):
         ds[mask_variable] = ssh_adjust_mask.astype(int)
 
         ds['bottomDepth'] = -ds_topo.bedrockTopography
-        # init_vertical_coord() adds the Time dimension to ssh
+        # init_vertical_coord() adds the Time dimension to ssh.  A thin film
+        # is one layer thick until _set_ssh_from_bed() knows the layers.
         ds['ssh'] = self._get_ssh_from_bed(ds.landIcePressure, ds.bottomDepth)
 
         for var in [
@@ -247,7 +248,10 @@ class Init(OceanIOStep):
                 f'grounded ice'
             )
 
-        ssh = self._get_ssh_from_bed(land_ice_pressure, ds.bottomDepth)
+        level_count = ds.maxLevelCell - ds.minLevelCell + 1
+        ssh = self._get_ssh_from_bed(
+            land_ice_pressure, ds.bottomDepth, level_count
+        )
         raised = ssh > draft
         logger.info(
             f'Raised the SSH above the draft in {int(raised.sum())} cells '
@@ -257,17 +261,22 @@ class Init(OceanIOStep):
         update_layer_thickness(self.config, ds)
         ds['landIceDraft'] = ds.ssh
 
-    def _get_ssh_from_bed(self, land_ice_pressure, bottom_depth):
+    def _get_ssh_from_bed(
+        self, land_ice_pressure, bottom_depth, level_count=1
+    ):
         """
         Get the SSH where ice with the prescribed pressure would float,
         raised where needed to keep the minimum column thickness above the
-        bed
+        bed.  With a thin film, that is the thin-film layer thickness in each
+        of the ``level_count`` active layers, the column at which MPAS-Ocean
+        caps the land-ice pressure in grounded cells.
         """
+        section = self.config['isomip_plus']
         if self.thin_film:
-            option = 'min_column_thickness_thin_film'
+            layer_thickness = section.getfloat('thin_film_layer_thickness')
+            min_column_thickness = layer_thickness * level_count
         else:
-            option = 'min_column_thickness'
-        min_column_thickness = self.config.getfloat('isomip_plus', option)
+            min_column_thickness = section.getfloat('min_column_thickness')
         draft = self._draft_from_pressure(land_ice_pressure)
         return np.maximum(draft, -bottom_depth + min_column_thickness)
 
