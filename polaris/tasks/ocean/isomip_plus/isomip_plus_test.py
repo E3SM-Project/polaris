@@ -136,7 +136,11 @@ class IsomipPlusTest(IceShelfTask):
         self.add_step(forward)
 
         viz = Viz(
-            component=component, indir=subdir, init=init, forward=forward
+            component=component,
+            indir=subdir,
+            init=init,
+            forward=forward,
+            thin_film=self.thin_film,
         )
         viz.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(viz)
