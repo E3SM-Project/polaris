@@ -44,6 +44,11 @@ class KPPViz(OceanIOStep):
                 'vertViscTopOfCell',
                 'vertNonLocalFlux',
             ]:
+                if comparison_name == 'no_kpp' and variable_name not in (
+                    'vertDiffTopOfCell',
+                    'vertViscTopOfCell',
+                ):
+                    continue
                 self.add_output_file(
                     f'{comparison_name}_{variable_name}_time_depth.png'
                 )
@@ -78,6 +83,8 @@ class KPPViz(OceanIOStep):
         fig, ax = plt.subplots(figsize=(6, 4))
         plotted = False
         for comparison_name, ds in datasets.items():
+            if comparison_name == 'no_kpp':
+                continue
             if 'boundaryLayerDepth' not in ds:
                 continue
             time_days = get_time_since_start(ds, units='days')
@@ -131,6 +138,11 @@ class KPPViz(OceanIOStep):
         depth.
         """
         for comparison_name, ds in datasets.items():
+            if comparison_name == 'no_kpp' and variable_name not in (
+                'vertDiffTopOfCell',
+                'vertViscTopOfCell',
+            ):
+                continue
             source_name = next(
                 (
                     name

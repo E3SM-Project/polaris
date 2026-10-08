@@ -49,6 +49,8 @@ class KPPRegimes(Task):
             'salinity',
             'layerThickness',
             'normalVelocity',
+            'vertDiffTopOfCell',
+            'vertViscTopOfCell',
         ]
 
         common_kwargs = dict(
@@ -125,11 +127,23 @@ class KPPRegimes(Task):
                 'matchboth': '../forward_no_vadv_no_hadv_matchboth',
             }
 
+        viz_comparisons = dict(comparisons)
+        if name in ('kpp_combined', 'kpp_cooling_with_mixedlayer'):
+            no_kpp = Forward(
+                **dict(
+                    common_kwargs,
+                    match_technique=None,
+                    enable_kpp=False,
+                )
+            )
+            self.add_step(no_kpp)
+            viz_comparisons['no_kpp'] = f'../{no_kpp.name}'
+
         self.add_step(
             KPPViz(
                 component=component,
                 indir=f'{indir}/{name}',
-                comparisons=comparisons,
+                comparisons=viz_comparisons,
                 regime=name,
             )
         )

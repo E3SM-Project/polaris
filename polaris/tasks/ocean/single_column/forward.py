@@ -39,6 +39,7 @@ class Forward(OceanModelStep):
         use_langmuir_circulation=False,
         use_theory_wave=False,
         min_obl_under_sea_ice=5.0,
+        enable_kpp=None,
     ):
         """
         Create a new test case
@@ -99,6 +100,11 @@ class Forward(OceanModelStep):
             The equivalent MPAS-Ocean ``config_cvmix_kpp_matching`` option is
             set to the same value.
 
+        enable_kpp : bool, optional
+            Enable KPP and non-local transport. By default, only dedicated
+            KPP regime tasks enable them. An explicit false value adds a
+            ``no_kpp`` suffix and retains background and local mixing.
+
         disable_coriolis : bool, optional
             Whether to disable Omega's ``PVTendencyEnable`` (which carries
             both relative and planetary vorticity/Coriolis in a single
@@ -121,6 +127,8 @@ class Forward(OceanModelStep):
             name = f'{name}_{match_technique.lower()}'
         if use_theory_wave:
             name = f'{name}_langmuir'
+        if enable_kpp is False:
+            name = f'{name}_no_kpp'
         super().__init__(
             component=component,
             name=name,
@@ -184,6 +192,7 @@ class Forward(OceanModelStep):
         self.use_langmuir_circulation = use_langmuir_circulation
         self.use_theory_wave = use_theory_wave
         self.min_obl_under_sea_ice = min_obl_under_sea_ice
+        self.enable_kpp = enable_kpp
 
     def setup(self):
         """
@@ -253,7 +262,9 @@ class Forward(OceanModelStep):
             output_freq=f'{int(output_interval_seconds)}',
         )
         if 'kpp_regimes' in self.task_package:
-            template_replacements['match_technique'] = self.match_technique
+            template_replacements['match_technique'] = (
+                self.match_technique or 'SimpleShapes'
+            )
             template_replacements['use_theory_wave'] = self.use_theory_wave
             template_replacements['langmuir_mixing_opt'] = (
                 'LWF16' if self.use_langmuir_circulation else 'NONE'
@@ -277,8 +288,17 @@ class Forward(OceanModelStep):
             self.task_package
             == 'polaris.tasks.ocean.single_column.kpp_regimes'
         )
+        if self.enable_kpp is not None:
+            is_kpp = self.enable_kpp
         shared_options = {'config_use_cvmix_kpp': is_kpp}
-        mpas_options = {}
+        mpas_options: dict[str, bool | str] = {}
+        if self.enable_kpp is False:
+            mpas_options.update(
+                {
+                    'config_use_cvmix': True,
+                    'config_disable_tr_nonlocalflux': True,
+                }
+            )
         omega_options = {
             'KPPNonLocalTracerFluxTendencyEnable': is_kpp,
             'KPPNonLocalTracerDiagnosticsEnable': is_kpp,

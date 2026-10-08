@@ -610,11 +610,20 @@ All regimes use one MPI rank and one OpenMP thread, with one rank minimum.
 
 ### output and interpretation
 
-Each task includes `init`, two forward steps, `viz` and `analysis`.
+Each task includes `init`, two KPP forward steps, `viz` and `analysis`.
 Ordinary cases write to `forward_no_vadv_no_hadv_simpleshapes/output.nc`
 and `forward_no_vadv_no_hadv_matchboth/output.nc`. Langmuir uses the
 `simpleshapes` step for the disabled variant and
 `forward_no_vadv_no_hadv_simpleshapes_langmuir/output.nc` for the enabled one.
+
+`kpp_combined` and `kpp_cooling_with_mixedlayer` also include
+`forward_no_vadv_no_hadv_no_kpp/output.nc`, a control with the same initial
+state, forcing and timing. KPP and non-local transport are disabled, while
+background diffusion, convective adjustment and local shear mixing remain
+enabled. Its visualization adds `no_kpp_vertDiffTopOfCell_time_depth.png`
+and `no_kpp_vertViscTopOfCell_time_depth.png`. The control is excluded from
+the BLD plot and KPP-specific analysis because KPP's depth diagnostic is
+not meaningful when the scheme is disabled.
 
 The visualization includes BLD time series and time-depth plots of bulk
 Richardson number, diffusivity, viscosity and non-local flux when available.

@@ -185,6 +185,14 @@ are `forward_no_vadv_no_hadv_simpleshapes` and
 enabled run. Visualization and analysis consume these paths through the
 constructor's `comparisons` dictionary.
 
+Combined forcing and mixed-layer cooling add a third `Forward` with
+`enable_kpp=False` and `match_technique=None`. The resulting
+`forward_no_vadv_no_hadv_no_kpp` step retains background, convective and
+local shear mixing but disables KPP and non-local transport in both models.
+Its `no_kpp` entry is added only to the visualization comparisons, not the
+analysis inputs. `KPPViz` registers and plots only diffusivity and viscosity
+for this entry, omitting BLD and other KPP-specific diagnostics.
+
 Keep KPP defaults scoped to this task package. Non-KPP single-column
 steps retain their original names and explicitly disable KPP and its
 non-local tendency; changing a shared default must not rename their
@@ -257,7 +265,10 @@ the mixed-layer case. The strong-cooling maximum is not restricted to
 the diagnosed BLD and cannot establish stability specifically within it.
 
 Forward steps register baseline validation for `temperature`, `salinity`,
-`layerThickness` and `normalVelocity` when a baseline is supplied. They
+`layerThickness`, `normalVelocity`, `vertDiffTopOfCell` and
+`vertViscTopOfCell` when a baseline is supplied, including the no-KPP
+controls. The coefficient fields represent total local diffusivity and
+viscosity, not just the KPP contribution. They
 also register mass, salt and energy property checks, except combined
 forcing and suppression, which currently register mass and salt only.
 The KPP config sets energy tolerance to $10^{-6}$ and salt tolerance to
