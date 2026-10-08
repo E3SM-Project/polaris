@@ -9,6 +9,7 @@ the vertical dynamics of the ocean model only. The test cases are:
 - Testing the Ideal Age tracer under surface forcing
 - Testing the Coriolis term by quantifying the inertial frequency
 - Testing the Ekman solution under wind forcing
+- Comparing penetrating-shortwave-radiation schemes across Jerlov water types
 
 Here, we describe the tests and their shared framework.
 
@@ -182,3 +183,59 @@ Because the freshwater mass fluxes (rain, river runoff, snow and ice runoff)
 also carry an SST-/freezing-point-dependent enthalpy heat flux, the heat
 budget is skipped for those runs.  For MPAS-Ocean (Boussinesq), which has no
 pseudo-thickness, the geometric `layerThickness` is used instead.
+
+## shortwave_pen
+
+The {py:class}`polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen`
+task compares penetrating shortwave radiation across Jerlov water types. It
+supports both MPAS-Ocean and Omega. MPAS-Ocean uses its two-band Jerlov
+scheme. Omega runs an equivalent configuration and a three-band Manizza
+configuration with distinct red and blue extinction coefficients.
+
+### extinction
+
+The
+{py:class}`polaris.tasks.ocean.single_column.shortwave_pen.extinction.Extinction`
+step is the helper step that builds the extinction-coefficient forcing file,
+`shortwave_extinction_coeffs.nc`, read by Omega's penetrating-shortwave
+scheme. It writes uniform `ExtinctionCoeffRedCell` and
+`ExtinctionCoeffBlueCell` fields. The type-I coefficients are taken from
+`single_column_shortwave_pen:extinction_coeff_red` and
+`single_column_shortwave_pen:extinction_coeff_blue`; other water types scale
+both coefficients by the Jerlov visible-depth ratio.
+
+### forward
+
+The
+{py:class}`polaris.tasks.ocean.single_column.shortwave_pen.forward.ShortwavePenForward`
+step subclasses
+{py:class}`polaris.tasks.ocean.single_column.forward.Forward`. Jerlov steps
+configure `config_sw_absorption_type = 'jerlov'` and
+`config_jerlov_water_type` for MPAS-Ocean. For Omega they enable
+`Tendencies:PenetratingShortwaveTendency:Enable` and set the four band
+parameters. MPAS-Ocean also enables
+`config_enable_shortwave_energy_fixer` to deposit the residual below the 200 m
+cutoff in the bottom layer. Every forward step disables
+`config_use_cvmix_convection` and `config_use_cvmix_shear` to isolate radiative
+heating, and the task runs for 3 hours rather than the usual multi-day
+duration.
+
+### analysis
+
+The
+{py:class}`polaris.tasks.ocean.single_column.shortwave_pen.analysis.Analysis`
+step reads the Jerlov-equivalent outputs and checks that the column
+potential-energy increase decreases as the water becomes more turbid. Energy
+conservation itself is provided by the property checks registered by the
+shared `Forward` step, which use
+{py:func}`polaris.ocean.conservation.compute_total_energy` and
+{py:func}`polaris.ocean.conservation.compute_flux_forcing`.
+
+### viz
+
+The task-local
+{py:class}`polaris.tasks.ocean.single_column.shortwave_pen.viz.Viz`
+step plots temperature profiles and anomalies for every water type, and an
+analytic absorption-fraction comparison between the two-band Jerlov and
+three-band Manizza schemes. It can overlay outputs from a run using the other
+ocean model when `reference_output_dir` is configured.
