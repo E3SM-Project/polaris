@@ -8,3 +8,19 @@ mpas-ocean:
     config_time_varying_land_ice_forcing_cycle_start: none
     config_time_varying_land_ice_forcing_cycle_duration: 0002-00-00_00:00:00
     config_time_varying_land_ice_forcing_interval: {{ forcing_interval }}
+  tidal_forcing:
+    # hold SSH at zero in the restoring region, so the water displaced by the
+    # changing ice load can leave the domain without changing T or S
+    config_use_tidal_forcing: true
+    config_tidal_forcing_type: direct
+    config_tidal_forcing_model: monochromatic
+    config_tidal_forcing_monochromatic_amp: 0.0
+    config_tidal_forcing_monochromatic_period: 1.0
+    config_tidal_forcing_monochromatic_baseline: 0.0
+  streams:
+    tidal_forcing_mask:
+      type: input
+      filename_template: forcing_data.nc
+      input_interval: initial_only
+      contents:
+      - tidalInputMask
