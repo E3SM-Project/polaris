@@ -320,8 +320,12 @@ composes the full chain:
    mapping file from the 0.25-degree WOA23 lat-lon grid to the culled MPAS
    mesh.  This is the only MPI step in the WOA23 chain (it runs `mbtempest`
    or ESMF).  Its task count scales with the approximate culled ocean cell
-   count via the ``remap_cells_per_task`` and ``remap_min_cells_per_task``
-   options in the ``[realistic_global_init]`` config section.
+   count via the `remap_cells_per_task` and `remap_min_cells_per_task`
+   options in the `[realistic_global_init]` config section.  It and
+   **jra55_map** are thin subclasses of
+   {py:class}`~polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep`,
+   which links the source and culled mesh, sizes the task count and builds
+   the weights; each subclass supplies only its source.
 3. **remap_woa23** ({py:class}`~polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step`):
    a serial step that applies the weights from **woa23_map** with `ncremap`,
    remapping WOA23 conservative temperature and absolute salinity to the

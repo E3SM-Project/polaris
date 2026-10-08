@@ -634,19 +634,18 @@
    cull_topo.CullTopoStep.setup
    cull_topo.CullTopoStep.run
 
+   lat_lon_map.LatLonMapStep
+   lat_lon_map.LatLonMapStep.setup
+   lat_lon_map.LatLonMapStep.constrain_resources
+   lat_lon_map.LatLonMapStep.run
+
    woa23_map.Woa23MapStep
-   woa23_map.Woa23MapStep.setup
-   woa23_map.Woa23MapStep.constrain_resources
-   woa23_map.Woa23MapStep.run
 
    remap_woa23.RemapWoa23Step
    remap_woa23.RemapWoa23Step.setup
    remap_woa23.RemapWoa23Step.run
 
    jra55_map.Jra55MapStep
-   jra55_map.Jra55MapStep.setup
-   jra55_map.Jra55MapStep.constrain_resources
-   jra55_map.Jra55MapStep.run
 
    remap_jra55.RemapJra55Step
    remap_jra55.RemapJra55Step.setup
