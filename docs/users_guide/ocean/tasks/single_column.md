@@ -669,7 +669,7 @@ then computes the freezing temperature at the layer's pressure.
 ### forcing
 
 The surface latent heat flux is inherited from the `frazil` task, as described
-in [frazil](#frazil) above. The cold and thin tasks both override
+in [frazil column](#frazil-column) above. The cold and thin tasks both override
 `latent_heat_flux_freezing` to -3000 W/m$^2$.
 
 ### time step and run duration
