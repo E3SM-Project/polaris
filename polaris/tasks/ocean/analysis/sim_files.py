@@ -13,6 +13,9 @@ from typing import List, NamedTuple, Optional
 
 from polaris.yaml import PolarisYaml
 
+# the Omega analysis group that writes the monthly means the analysis reads
+MONTHLY_MEAN_GROUP = 'MonthlyAverages'
+
 
 class SimFile(NamedTuple):
     """
@@ -35,6 +38,31 @@ class SimFile(NamedTuple):
     path: str
     year: Optional[int]
     month: Optional[int]
+
+
+def time_mean_suffix(stream):
+    """
+    Get the suffix Omega appends to the name of each field of a time mean
+
+    Omega names the time mean of ``Temperature`` over a month
+    ``Temperature_TimeMean1Month``.  The analysis strips the suffix from the
+    files it produces from such output, so that the rest of Polaris sees the
+    field's own name.
+
+    Parameters
+    ----------
+    stream : AnalysisStream
+        The stream the time means are read from
+
+    Returns
+    -------
+    suffix : str
+        The suffix, e.g. ``'_TimeMean1Month'``, or an empty string if the
+        stream holds snapshots
+    """
+    if not stream.is_reduction:
+        return ''
+    return f'_TimeMean{stream.period}'
 
 
 def year_range_key(start_year, end_year):
@@ -61,7 +89,9 @@ def year_range_key(start_year, end_year):
     return f'{start_year:04d}-{end_year:04d}'
 
 
-def expand_template(template, start_year, end_year, simulation_path=None):
+def expand_template(
+    template, start_year, end_year, simulation_path=None, month_offset=0
+):
     """
     Expand a file-name template over a range of years
 
@@ -83,6 +113,13 @@ def expand_template(template, start_year, end_year, simulation_path=None):
 
     simulation_path : str, optional
         The directory a relative template is resolved against
+
+    month_offset : int, optional
+        The number of months after the one a file covers that it is named
+        for.  Omega names a monthly mean for the instant it was finalized,
+        the start of the following month (E3SM-Project/Omega#554), so the
+        mean for January of year 1 is in the file named ``0001-02``.  The
+        ``year`` and ``month`` of each file are the ones it covers.
 
     Returns
     -------
@@ -115,18 +152,16 @@ def expand_template(template, start_year, end_year, simulation_path=None):
 
     sim_files = []
     for year in range(start_year, end_year + 1):
-        path = template.replace('$Y', f'{year:04d}')
         if not has_month:
+            path = template.replace('$Y', f'{year:04d}')
             sim_files.append(SimFile(path=path, year=year, month=None))
             continue
         for month in range(1, 13):
-            sim_files.append(
-                SimFile(
-                    path=path.replace('$M', f'{month:02d}'),
-                    year=year,
-                    month=month,
-                )
+            named_year, named_month = _shift_month(year, month, month_offset)
+            path = template.replace('$Y', f'{named_year:04d}').replace(
+                '$M', f'{named_month:02d}'
             )
+            sim_files.append(SimFile(path=path, year=year, month=month))
 
     return sim_files
 
@@ -540,16 +575,43 @@ class SimulationFiles:
         sim_files : list of SimFile
             The monthly-mean files, which are known to exist
         """
-        template = self._stream_template(
-            stream_name='History', description='monthly means'
+        stream = self._analysis_stream(
+            group_name=MONTHLY_MEAN_GROUP,
+            description='monthly means',
+            required=True,
         )
+        assert stream is not None
         return self._expand_and_check(
-            template=template,
+            stream=stream,
             start_year=start_year,
             end_year=end_year,
             description='monthly-mean',
-            source=f'the History stream in {self.omega_config.filename}',
+            source=(
+                f'the {MONTHLY_MEAN_GROUP} analysis group in '
+                f'{self.omega_config.filename}'
+            ),
         )
+
+    def monthly_mean_stream(self):
+        """
+        Get the output stream the monthly means are read from
+
+        Omega names each variable of a time mean for the field and the
+        period, so a step that reads the files needs the stream and not just
+        its file name; see :py:func:`time_mean_suffix`.
+
+        Returns
+        -------
+        stream : AnalysisStream
+            The stream
+        """
+        stream = self._analysis_stream(
+            group_name=MONTHLY_MEAN_GROUP,
+            description='monthly means',
+            required=True,
+        )
+        assert stream is not None
+        return stream
 
     def global_stats_files(self, start_year, end_year):
         """
@@ -568,14 +630,14 @@ class SimulationFiles:
         sim_files : list of SimFile
             The global statistics files, which are known to exist
         """
-        template = self._analysis_template(
+        stream = self._analysis_stream(
             group_name='GlobalStats',
             description='global statistics',
             required=True,
         )
-        assert template is not None
+        assert stream is not None
         return self._expand_and_check(
-            template=template,
+            stream=stream,
             start_year=start_year,
             end_year=end_year,
             description='global statistics',
@@ -624,15 +686,15 @@ class SimulationFiles:
             The MOC files, which are known to exist, or ``None`` if the
             simulation does not write MOC output
         """
-        template = self._analysis_template(
+        stream = self._analysis_stream(
             group_name='Moc',
             description='meridional overturning circulation',
             required=False,
         )
-        if template is None:
+        if stream is None:
             return None
         return self._expand_and_check(
-            template=template,
+            stream=stream,
             start_year=start_year,
             end_year=end_year,
             description='MOC',
@@ -690,8 +752,8 @@ class SimulationFiles:
         )
         return value
 
-    def _analysis_template(self, group_name, description, required):
-        """Get a file-name template from an Omega analysis group"""
+    def _analysis_stream(self, group_name, description, required):
+        """Get the output stream to read from an Omega analysis group"""
         reason = self._analysis_group_problem(group_name)
         if reason is None:
             streams = self.omega_config.analysis_streams(group_name)
@@ -708,7 +770,7 @@ class SimulationFiles:
                     f"config's {group_name} group, the {stream.period} "
                     f'{kind} stream)'
                 )
-                return stream.filename
+                return stream
 
         if required:
             raise ValueError(
@@ -737,14 +799,22 @@ class SimulationFiles:
         return None
 
     def _expand_and_check(
-        self, template, start_year, end_year, description, source
+        self, stream, start_year, end_year, description, source
     ):
-        """Expand a template over a year range and check that it all exists"""
+        """
+        Expand a stream's template over a year range and check that it all
+        exists
+        """
+        template = stream.filename
+        # a file of monthly means is named for the month after the one it
+        # covers; see expand_template
+        month_offset = 1 if stream.is_reduction and '$M' in template else 0
         sim_files = expand_template(
             template=template,
             start_year=start_year,
             end_year=end_year,
             simulation_path=self.simulation_path,
+            month_offset=month_offset,
         )
         check_files_exist(
             sim_files=sim_files,
@@ -798,6 +868,12 @@ def _check_template(template):
             f'Only $Y and $M are supported, since the analysis reads output '
             f'written no more often than monthly.'
         )
+
+
+def _shift_month(year, month, month_offset):
+    """Get the year and month some number of months after a given one"""
+    index = year * 12 + (month - 1) + month_offset
+    return index // 12, index % 12 + 1
 
 
 def _omega_analysis_filename(filename, period, is_reduction):
