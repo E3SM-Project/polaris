@@ -288,17 +288,19 @@ class Init(OceanIOStep):
         temperature, salinity = self._get_profiles(ds, profile)
 
         if self.thin_film:
-            # thin-film cells are at the freezing point
+            # thin-film cells hold fresh water at the freezing point
+            thin_film_mask = ds.thinFilmMask == 1
+            salinity = xr.where(thin_film_mask, 0.0, salinity)
             freezing_temp = compute_freezing_temperature(
                 config=self.config,
                 salinity=salinity,
                 pressure=ds.landIcePressure,
             )
-            thin_film_mask = ds.thinFilmMask == 1
             temperature = xr.where(thin_film_mask, freezing_temp, temperature)
             temperature = temperature.transpose(
                 'Time', 'nCells', 'nVertLevels'
             )
+            salinity = salinity.transpose('Time', 'nCells', 'nVertLevels')
 
         ds['temperature'] = temperature
         ds['salinity'] = salinity
