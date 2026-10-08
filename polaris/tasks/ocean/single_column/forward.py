@@ -215,6 +215,9 @@ class Forward(OceanModelStep):
             'Forward-Backward': 'Forward-Backward',
             'RungeKutta2': 'RungeKutta2',
             'SplitExplicitRK2': 'SplitExplicitRK2',
+            # Note: this mapping should really be to SplitExplicitAB2, which
+            # is not yet implemented
+            'split_explicit': 'SplitExplicitRK2',
             'UnsplitRK2': 'UnsplitRK2',
         }
         if model == 'omega':
