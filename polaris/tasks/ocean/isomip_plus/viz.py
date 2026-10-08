@@ -1,19 +1,26 @@
 import cmocean  # noqa: F401
+import matplotlib.pyplot as plt
 import xarray as xr
 from mpas_tools.ocean.viz.transect import compute_transect, plot_transect
 
 from polaris.constants import get_constant
 from polaris.ocean.model import OceanIOStep
-from polaris.viz import plot_horiz_field
+from polaris.viz import mplstyle_context, plot_horiz_field
 
 
 class Viz(OceanIOStep):
     """
     A step for plotting the initial condition and the end of the forward run
     of an ISOMIP+ task
+
+    Attributes
+    ----------
+    thin_film : bool
+        Whether a thin film is present under grounded ice, in which case the
+        water column is also plotted over the forward run
     """
 
-    def __init__(self, component, indir, init, forward):
+    def __init__(self, component, indir, init, forward, thin_film):
         """
         Create the step
 
@@ -30,8 +37,13 @@ class Viz(OceanIOStep):
 
         forward : polaris.Step
             The forward step
+
+        thin_film : bool
+            Whether a thin film is present under grounded ice, in which case
+            the water column is also plotted over the forward run
         """
         super().__init__(component=component, name='viz', indir=indir)
+        self.thin_film = thin_film
         self.add_input_file(
             filename='mesh.nc', work_dir_target=f'{init.path}/mesh.nc'
         )
@@ -221,6 +233,70 @@ class Viz(OceanIOStep):
             cmap_title='m/s',
         )
 
+        if self.thin_film:
+            self._plot_thin_film(plots, ds_mesh, ds_init, ds_vert_coord)
+
+    def _plot_thin_film(self, plots, ds_mesh, ds_init, ds_vert_coord):
+        """
+        Plot where the water column is near its minimum thickness at each
+        output time, the area of those cells under the ice, and the mean SSH
+        in the open ocean
+        """
+        config = self.config
+        layer_thickness = config.getfloat(
+            'isomip_plus', 'thin_film_layer_thickness'
+        )
+        bottom_depth = config.getfloat('vertical_grid', 'bottom_depth')
+        ds_out = self.open_model_dataset('output.nc', config)
+
+        # a column is "dry" if it is less than twice the thin film, which has
+        # the minimum thickness in each active layer
+        level_count = (
+            ds_vert_coord.maxLevelCell - ds_vert_coord.minLevelCell + 1
+        )
+        dry_thickness = 2.0 * layer_thickness * level_count
+        under_ice = ds_init.landIceMask == 1
+        area = ds_mesh.areaCell
+        open_area = float(area.where(~under_ice).sum())
+
+        hours = 24.0 * ds_out.daysSinceStartOfSim.values
+        dry_area = []
+        open_ocean_ssh = []
+        for t_index, hour in enumerate(hours):
+            ssh = ds_out.ssh.isel(Time=t_index)
+            column_thickness = ssh + ds_vert_coord.bottomDepth
+            dry = column_thickness < dry_thickness
+            dry_area.append(1e-6 * float(area.where(dry & under_ice).sum()))
+            open_ocean_ssh.append(
+                float((ssh * area).where(~under_ice).sum()) / open_area
+            )
+            # dry columns are below the color range, so they are red (zero
+            # would be masked on the log scale)
+            vmin = 1e-2
+            plots.horiz(
+                xr.where(dry, 0.5 * vmin, column_thickness),
+                f'columnThickness_{hour:03.0f}h',
+                vmin=vmin,
+                vmax=bottom_depth,
+                cmap='cmo.deep',
+                cmap_scale='log',
+                cmap_set_under='r',
+            )
+
+        with mplstyle_context():
+            _plot_time_series(
+                hours,
+                dry_area,
+                r'dry area under ice (km$^2$)',
+                'dryAreaUnderIce.png',
+            )
+            _plot_time_series(
+                hours,
+                open_ocean_ssh,
+                'mean open-ocean SSH (m)',
+                'openOceanSsh.png',
+            )
+
 
 class _PlotHelper:
     """
@@ -288,6 +364,18 @@ class _PlotHelper:
             figsize=self.figsize,
             colorbar_label=units,
         )
+
+
+def _plot_time_series(hours, values, ylabel, filename):
+    """
+    Plot a quantity against time in hours
+    """
+    fig, ax = plt.subplots(figsize=(6, 3))
+    ax.plot(hours, values, 'k.-')
+    ax.set_xlabel('time (hours)')
+    ax.set_ylabel(ylabel)
+    fig.savefig(filename, bbox_inches='tight')
+    plt.close(fig)
 
 
 def _use_isomip_coords(ds_mesh):
