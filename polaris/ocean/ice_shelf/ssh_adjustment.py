@@ -138,7 +138,13 @@ class SshAdjustment(Step):
         # Write the largest change in SSH and its lon/lat to a file
         with open('maxDeltaSSH.log', 'w') as log_file:
             mask = land_ice_pressure > 0.0
-            i_cell = np.abs(delta_ssh.where(mask)).argmax().values
+            if mask.any():
+                delta_ssh_logged = delta_ssh.where(mask)
+            else:
+                # with no land ice (e.g. before an ice shelf grows), log the
+                # largest change anywhere
+                delta_ssh_logged = delta_ssh
+            i_cell = np.abs(delta_ssh_logged).argmax().values
 
             ds_cell = ds_final.isel(nCells=i_cell)
             ds_mesh = ds_mesh.isel(nCells=i_cell)
