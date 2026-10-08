@@ -151,6 +151,59 @@
 </tbody>
 </table>
 </section>
+<section id="feature-mask-tasks">
+<h3>Feature-Mask Tasks<a class="headerlink" href="#feature-mask-tasks" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.html#polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep" title="polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeFeatureMasksStep</span></code></a>(component[, name, ...])</p></td>
+<td><p>A step for creating region or transect masks on a standard MPAS mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.setup.html#polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.setup" title="polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeFeatureMasksStep.setup</span></code></a>()</p></td>
+<td><p>Set up the step in the work directory, including linking inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.constrain_resources.html#polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.constrain_resources" title="polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.constrain_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeFeatureMasksStep.constrain_resources</span></code></a>(...)</p></td>
+<td><p>Constrain resources based on available cores.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.run.html#polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.run" title="polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeFeatureMasksStep.run</span></code></a>()</p></td>
+<td><p>Run the feature-mask step.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep._open_mesh_dataset.html#polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep._open_mesh_dataset" title="polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep._open_mesh_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeFeatureMasksStep._open_mesh_dataset</span></code></a>(...)</p></td>
+<td><p>Open a standard MPAS mesh dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep._write_mask_dataset.html#polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep._write_mask_dataset" title="polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep._write_mask_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputeFeatureMasksStep._write_mask_dataset</span></code></a>(...)</p></td>
+<td><p>Write a standard MPAS mask dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.FeatureMasksTask.html#polaris.tasks.mesh.spherical.feature_masks.FeatureMasksTask" title="polaris.tasks.mesh.spherical.feature_masks.FeatureMasksTask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureMasksTask</span></code></a>(component)</p></td>
+<td><p>A configurable task for creating feature masks on a standard MPAS mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.add_feature_mask_tasks.html#polaris.tasks.mesh.spherical.feature_masks.add_feature_mask_tasks" title="polaris.tasks.mesh.spherical.feature_masks.add_feature_mask_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_feature_mask_tasks</span></code></a>(component)</p></td>
+<td><p>Add configurable feature-mask tasks to the mesh component.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.build_mask_feature_collection.html#polaris.tasks.mesh.spherical.feature_masks.build_mask_feature_collection" title="polaris.tasks.mesh.spherical.feature_masks.build_mask_feature_collection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_mask_feature_collection</span></code></a>(mask_group)</p></td>
+<td><p>Build the feature collection for a named mask group.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.compute_feature_masks.html#polaris.tasks.mesh.spherical.feature_masks.compute_feature_masks" title="polaris.tasks.mesh.spherical.feature_masks.compute_feature_masks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_feature_masks</span></code></a>(ds_mesh, fc_mask, ...)</p></td>
+<td><p>Compute masks for a region or transect feature collection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.get_feature_mask_steps.html#polaris.tasks.mesh.spherical.feature_masks.get_feature_mask_steps" title="polaris.tasks.mesh.spherical.feature_masks.get_feature_mask_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_mask_steps</span></code></a>(mesh_name, mask_group)</p></td>
+<td><p>Get shared feature-mask steps for one mesh and mask group.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.get_feature_object_type.html#polaris.tasks.mesh.spherical.feature_masks.get_feature_object_type" title="polaris.tasks.mesh.spherical.feature_masks.get_feature_object_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_object_type</span></code></a>(fc_mask)</p></td>
+<td><p>Get the common object type in a feature collection.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.moc.add_moc_transects.html#polaris.tasks.mesh.spherical.feature_masks.moc.add_moc_transects" title="polaris.tasks.mesh.spherical.feature_masks.moc.add_moc_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_moc_transects</span></code></a>(ds_masks, ds_mesh, logger)</p></td>
+<td><p>Append the southern-boundary transects to MOC basin masks, and drop the <code class="docutils literal notranslate"><span class="pre">history</span></code> and <code class="docutils literal notranslate"><span class="pre">constituents</span></code> string variables, which <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code> truncates to 64 characters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.mesh.spherical.feature_masks.moc.moc_masks_filename.html#polaris.tasks.mesh.spherical.feature_masks.moc.moc_masks_filename" title="polaris.tasks.mesh.spherical.feature_masks.moc.moc_masks_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">moc_masks_filename</span></code></a>(mesh_name, date)</p></td>
+<td><p>Get the filename for a MOC basin-and-transect mask file.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="unified-coastline-tasks">
 <h3>Unified Coastline Tasks<a class="headerlink" href="#unified-coastline-tasks" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">

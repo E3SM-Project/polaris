@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.feature\_masks.ComputeFeatureMasksStep.\_open\_mesh\_dataset
+=========================================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks
+
+.. automethod:: ComputeFeatureMasksStep._open_mesh_dataset

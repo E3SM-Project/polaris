@@ -52,7 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../suites.html">Suites</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Mesh component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">Tasks</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../index.html#base-mesh-tasks">Base Mesh Tasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#spherical-mesh-tasks">Spherical Mesh Tasks</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#unified-mesh-tasks">Unified Mesh Tasks</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="coastline.html">Coastline tasks</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">River-network tasks</a></li>
@@ -133,7 +133,7 @@
 <p>The unified-mesh river-network tasks simplify HydroRIVERS source data,
 build target-grid channel masks, and prepare clipped base-mesh geometry that
 downstream sizing-field and base-mesh workflows (see
-<a class="reference internal" href="sizing_field.html#users-mesh-unified-sizing-field"><span class="std std-ref">Sizing-field tasks</span></a> and <a class="reference internal" href="../index.html#mesh-base-mesh-task"><span class="std std-ref">Base Mesh Tasks</span></a>) can
+<a class="reference internal" href="sizing_field.html#users-mesh-unified-sizing-field"><span class="std std-ref">Sizing-field tasks</span></a> and <a class="reference internal" href="../base_mesh.html#mesh-base-mesh-task"><span class="std std-ref">Base Mesh Tasks</span></a>) can
 consume directly.</p>
 <p>The standalone task runs the full river workflow in one place: source
 simplification, target-grid channel rasterization, coastline-clipped base-mesh
@@ -237,7 +237,7 @@ retained river network for the current task configuration.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">river_network_overlay.png</span></code>, <code class="docutils literal notranslate"><span class="pre">rasterized_river_network.png</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">debug_summary.txt</span></code> from the visualization step.</p></li>
 </ul>
-<p>The downstream shared base-mesh river step (see <a class="reference internal" href="../index.html#mesh-base-mesh-task"><span class="std std-ref">Base Mesh Tasks</span></a>)
+<p>The downstream shared base-mesh river step (see <a class="reference internal" href="../base_mesh.html#mesh-base-mesh-task"><span class="std std-ref">Base Mesh Tasks</span></a>)
 also writes:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">clipped_river_network.geojson</span></code>, with networks sorted largest-first by

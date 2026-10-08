@@ -1,0 +1,46 @@
+﻿polaris.tasks.mesh.spherical.feature\_masks.ComputeFeatureMasksStep
+===================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks
+
+.. autoclass:: ComputeFeatureMasksStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ComputeFeatureMasksStep.__init__
+      ~ComputeFeatureMasksStep.add_dependency
+      ~ComputeFeatureMasksStep.add_input_file
+      ~ComputeFeatureMasksStep.add_output_file
+      ~ComputeFeatureMasksStep.add_property_check
+      ~ComputeFeatureMasksStep.check_properties
+      ~ComputeFeatureMasksStep.constrain_resources
+      ~ComputeFeatureMasksStep.process_inputs_and_outputs
+      ~ComputeFeatureMasksStep.run
+      ~ComputeFeatureMasksStep.runtime_setup
+      ~ComputeFeatureMasksStep.set_resources
+      ~ComputeFeatureMasksStep.set_shared_config
+      ~ComputeFeatureMasksStep.setup
+      ~ComputeFeatureMasksStep.validate_baselines
+      ~ComputeFeatureMasksStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ComputeFeatureMasksStep.cores
+      ~ComputeFeatureMasksStep.gpus
+      ~ComputeFeatureMasksStep.may_span_nodes
+      ~ComputeFeatureMasksStep.min_cores
+      ~ComputeFeatureMasksStep.min_gpus
+   
+   
