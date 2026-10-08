@@ -459,6 +459,8 @@
 
    viz.Viz
    viz.Viz.run
+
+   xtime.get_record_times
 ```
 
 ### frazil
