@@ -445,9 +445,10 @@ therefore override it. The three 240 km meshes replace the 80-layer default
 with a 16-level `tanh_dz` grid over a 3000 m bottom depth, because they exist
 for fast smoke-testing rather than for realistic simulation. The same mechanism
 carries the ocean-culled cell count used to size MPI tasks, and is where
-per-mesh forward-run options belong as well. Anything that describes what the
-*ocean* does on a mesh belongs there rather than in the mesh component's own
-per-mesh config, which describes the mesh itself.
+per-mesh forward-run options belong as well (see
+[global_ocean_forward.md](global_ocean_forward.md)). Anything that describes
+what the *ocean* does on a mesh belongs there rather than in the mesh
+component's own per-mesh config, which describes the mesh itself.
 
 Three behaviors of the iteration were settled during implementation rather than
 in [pstar_init.md](pstar_init.md), which specifies the fixed-point algorithm
@@ -557,10 +558,10 @@ The step this section called `diagnostics` landed as `viz`, matching the name
 used elsewhere in Polaris. It is created as a shared step but returned — and so
 run — only when `include_viz=True`, which the standalone `RealisticGlobalInit`
 task passes and consumers that reuse the init outputs as dependencies do not.
-Workflows that build on the initial condition, such as forward runs and
-dynamic adjustment, are meant to call `get_realistic_init_steps` the same way
-and get the same step instances rather than a second copy of a chain that
-costs hours.
+Workflows that build on the initial condition, such as
+[forward runs](global_ocean_forward.md) and dynamic adjustment, are meant to
+call `get_realistic_init_steps` the same way and get the same step instances
+rather than a second copy of a chain that costs hours.
 
 The `viz` step makes Omega's geometric `layerThickness` itself. Omega's initial
 state carries `PseudoThickness` and no `SpecVol`, and `open_model_dataset` no
@@ -712,7 +713,7 @@ task regenerates the product.
 
 The read side -- staging `forcing.nc` as a model *input*, and the associated
 namelist and config settings -- belongs to the forward-model work rather than
-to this design.
+to this design; see [global_ocean_forward.md](global_ocean_forward.md).
 
 ### Implementation: The workflow is practical for very large global meshes
 
