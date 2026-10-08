@@ -16,12 +16,14 @@ Each task then gets its own config file, `isomip_plus.cfg`, in its work
 directory, shared with the steps the task adds itself. The task config
 includes the linear equation of state from `polaris.ocean.eos`, and the
 SSH-adjustment and freezing-point options from `polaris.ocean.ice_shelf`.
+The `inception`, `wetting` and `drying` tasks add `thin_film.cfg`, and
+`inception` also `inception.cfg`, which set the forward run's duration and
+output interval.
 
 {py:class}`polaris.tasks.ocean.isomip_plus.IsomipPlusTest` is an
 {py:class}`polaris.ocean.ice_shelf.IceShelfTask`. Its `thin_film` attribute
 is set for the tasks with time-varying geometry (`inception`, `wetting` and
-`drying`), which currently have only an `init` step. The `ocean0`, `ocean1`
-and `ocean2` tasks also have SSH-adjustment, `forward` and `viz` steps.
+`drying`). Every task has `init`, SSH-adjustment, `forward` and `viz` steps.
 
 The x and y coordinates of the ISOMIP+ domain come from a stereographic
 projection ({py:func}`polaris.tasks.ocean.isomip_plus.projection.get_projections()`)
@@ -61,15 +63,18 @@ carrying the topography over with
 {py:func}`mpas_tools.mesh.cull.cull_dataset()`. Tasks with a thin film keep
 all cells. Every task computes the draft, which is also the initial SSH,
 from the land-ice pressure, limited to the bed. Tasks with a thin film mark
-the cells where it reaches the bed as thin-film cells at the freezing point.
+the cells where it reaches the bed as thin-film cells. After the vertical
+coordinate is built, they raise the SSH where needed so that the column has
+`thin_film_layer_thickness` per active layer, and the thin film starts fresh
+at its freezing point.
 The step writes the task's mesh with Coriolis and its graph file, then
 computes the land-ice masks and fractions, SSH, pressure and bottom depth,
 the vertical coordinate, and the initial temperature and salinity. The WARM
 or COLD profile for each task is given by `PROFILES` in the module. The step
 writes the staged files for the ocean model and `forcing.nc` with the
 restoring fields and `tidalInputMask`, which is 1 in the restoring region.
-With a thin film, it also writes `land_ice_forcing.nc` with every record of
-the scaled topography.
+With a thin film, it also writes `land_ice_forcing.nc` with the pressure and
+fractions of every record of the scaled topography.
 
 (dev-ocean-isomip-plus-ssh-adjustment)=
 
@@ -99,8 +104,14 @@ from the last SSH-adjustment output with the settings in `physics.yaml` and
 baseline. `forward.yaml` turns on MPAS-Ocean's tidal forcing in its `direct`
 mode with zero amplitude. After each time step, it sets the layer thicknesses
 where `tidalInputMask` is 1 so that the SSH there is zero, leaving the tracer
-concentrations unchanged, so the meltwater leaves the domain in the restoring
-region.
+concentrations unchanged, so the meltwater, and with a thin film the water
+that the ice displaces, leaves the domain in the restoring region. With a
+thin film, the step also links `land_ice_forcing.nc` and adds
+`thin_film.yaml`, which turns on MPAS-Ocean's time-varying land-ice forcing.
+MPAS-Ocean finds the land-ice forcing records by their spacing, which the
+step reads from `land_ice_forcing.nc` at runtime with
+{py:func}`polaris.tasks.ocean.isomip_plus.xtime.get_record_times()`, since
+the file does not exist at setup.
 
 (dev-ocean-isomip-plus-viz)=
 
@@ -110,4 +121,7 @@ region.
 condition and the end of the forward run with
 {py:func}`polaris.viz.plot_horiz_field()` and the transect functions from
 `mpas_tools.ocean.viz.transect`, substituting the ISOMIP+ coordinates for the
-mesh coordinates.
+mesh coordinates. With a thin film, it also plots the water-column thickness
+at each output time, and time series of the area under the ice where the
+column is less than twice the thin film and of the mean SSH in the open
+ocean.

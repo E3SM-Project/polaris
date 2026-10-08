@@ -416,6 +416,8 @@
 
    viz.Viz
    viz.Viz.run
+
+   xtime.get_record_times
 ```
 
 ### inertial_gravity_wave
