@@ -29,6 +29,8 @@ mpas-ocean:
     config_time_varying_land_ice_forcing_cycle_start: none
     config_time_varying_land_ice_forcing_cycle_duration: 0002-00-00_00:00:00
     config_time_varying_land_ice_forcing_interval: 0001-00-00_00:00:00
+  land_ice:
+    config_use_land_ice_pressure: true
   land_ice_fluxes:
     config_land_ice_flux_mode: {{ land_ice_flux_mode }}
   frazil_ice:
@@ -80,7 +82,6 @@ mpas-ocean:
       - landIceInterfaceTracers
       - landIceBoundaryLayerTracers
       - landIceTracerTransferVelocities
-      - effectiveDensityInLandIce
       - accumulatedLandIceMass
       - accumulatedLandIceHeat
     frazil:
