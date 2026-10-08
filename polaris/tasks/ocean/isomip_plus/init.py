@@ -14,7 +14,7 @@ from polaris.ocean.ice_shelf import (
     compute_land_ice_draft_from_pressure,
 )
 from polaris.ocean.model import OceanIOStep
-from polaris.ocean.vertical import init_vertical_coord
+from polaris.ocean.vertical import init_vertical_coord, update_layer_thickness
 from polaris.tasks.ocean.isomip_plus.mesh.xy import add_isomip_plus_xy
 
 # the profiles used for the initial condition and for restoring in each
@@ -120,6 +120,8 @@ class Init(OceanIOStep):
 
         ds = self._compute_geometry(ds_mesh, ds_topo_init)
         init_vertical_coord(config, ds)
+        if self.thin_film:
+            self._thicken_thin_film(ds)
         self._compute_state(ds)
 
         self.write_vert_coord_dataset(
@@ -212,9 +214,6 @@ class Init(OceanIOStep):
         # float, limited by the bed
         draft = self._draft_from_pressure(ds_topo.landIcePressure)
         if self.thin_film:
-            min_column_thickness = section.getfloat(
-                'min_column_thickness_thin_film'
-            )
             # grounded ice is heavier than the water it would displace, so
             # the draft computed from its pressure is below the bed
             thin_film_mask = draft <= -bottom_depth
@@ -223,19 +222,27 @@ class Init(OceanIOStep):
                 f'{int(thin_film_mask.sum())} cells have a thin film under '
                 f'grounded ice'
             )
+            # a film one layer thick for now; _thicken_thin_film() gives it
+            # the minimum thickness in each active layer once the layers are
+            # known
+            layer_thickness = section.getfloat('thin_film_layer_thickness')
+            ssh = np.maximum(draft, -bottom_depth + layer_thickness)
+            ds['bottomDepth'] = bottom_depth
         else:
             min_column_thickness = section.getfloat('min_column_thickness')
-        ssh = np.maximum(draft, -bottom_depth)
-        ds['landIceDraft'] = ssh
+            ssh = np.maximum(draft, -bottom_depth)
 
-        # deepen the bottom where needed to keep a minimum column thickness
-        min_depth = -ssh + min_column_thickness
-        too_thin = bottom_depth < min_depth
-        ds['bottomDepth'] = xr.where(too_thin, min_depth, bottom_depth)
-        logger.info(
-            f'Adjusted bottomDepth for {int(too_thin.sum())} cells to '
-            f'achieve a minimum column thickness of {min_column_thickness} m'
-        )
+            # deepen the bottom where needed to keep a minimum column
+            # thickness
+            min_depth = -ssh + min_column_thickness
+            too_thin = bottom_depth < min_depth
+            ds['bottomDepth'] = xr.where(too_thin, min_depth, bottom_depth)
+            logger.info(
+                f'Adjusted bottomDepth for {int(too_thin.sum())} cells to '
+                f'achieve a minimum column thickness of '
+                f'{min_column_thickness} m'
+            )
+        ds['landIceDraft'] = ssh
 
         # init_vertical_coord() adds the Time dimension to ssh
         ds['ssh'] = ssh
@@ -252,6 +259,27 @@ class Init(OceanIOStep):
             ds[var] = ds[var].expand_dims(dim='Time', axis=0)
 
         return ds
+
+    def _thicken_thin_film(self, ds):
+        """
+        Raise the SSH where needed so every active layer has the thin-film
+        layer thickness, the column at which MPAS-Ocean caps the land-ice
+        pressure in grounded cells
+        """
+        layer_thickness = self.config.getfloat(
+            'isomip_plus', 'thin_film_layer_thickness'
+        )
+        level_count = ds.maxLevelCell - ds.minLevelCell + 1
+        min_ssh = -ds.bottomDepth + layer_thickness * level_count
+        ssh = ds.ssh.isel(Time=0)
+        raised = ssh < min_ssh
+        ds['ssh'] = xr.where(raised, min_ssh, ssh)
+        update_layer_thickness(self.config, ds)
+        ds['landIceDraft'] = ds.ssh
+        self.logger.info(
+            f'Raised the SSH in {int(raised.sum())} cells to give '
+            f'{layer_thickness} m in each active layer'
+        )
 
     def _mask_land_ice_fractions(self, ds_topo):
         """
