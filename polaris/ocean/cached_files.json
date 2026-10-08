@@ -37,6 +37,7 @@
     "ocean/spherical/qu/geostrophic/init/60km/initial_state.nc": "spherical/qu/geostrophic/init/60km/initial_state.250528.nc",
     "ocean/spherical/qu/geostrophic/init/90km/culled_mesh.nc": "spherical/qu/geostrophic/init/90km/culled_mesh.260923.nc",
     "ocean/spherical/qu/geostrophic/init/90km/init.nc": "spherical/qu/geostrophic/init/90km/init.260923.nc",
+    "ocean/spherical/realistic_global/forcing/jra55/stress/jra55_stress.nc": "spherical/realistic_global/forcing/jra55/stress/jra55_stress.260803.nc",
     "ocean/spherical/realistic_global/hydrography/woa23/combine/woa_combined.nc": "spherical/realistic_global/hydrography/woa23/combine/woa_combined.260601.nc",
     "ocean/spherical/realistic_global/hydrography/woa23/extrapolate/woa23_decav_0.25_jan_extrap.nc": "spherical/realistic_global/hydrography/woa23/extrapolate/woa23_decav_0.25_jan_extrap.260601.nc"
 }

@@ -1,13 +1,9 @@
-# Overrides applied on top of realistic_global/forward.yaml by the steps of
-# the restart task.  The base file already writes history as a single
+# Overrides applied on top of realistic_global/forward/forward.yaml by the
+# steps of the restart task.  The base file already writes history as a single
 # appended, multi-frame output.nc (IfExists: append with a FileFreq far longer
-# than any run), which is the arrangement Omega #482 was reported against, so
-# only the run length, the restart streams and the start type are set here.
-
-ocean:
-  time_management:
-    config_stop_time: none
-    config_run_duration: {{ run_duration }}
+# than any run), which is the arrangement Omega #482 was reported against, and
+# the run duration and history interval come from the step's ForwardStage, so
+# only the start type, the start time and the restart streams are set here.
 
 Omega:
   TimeIntegration:
@@ -19,13 +15,8 @@ Omega:
     # what silently overwrote earlier frames in Omega #482.  On a Continue the
     # clock's current time comes from the restart file instead.
     StartTime: {{ sim_start_time }}
-    StopType: AfterDuration
-    StopCriterion: {{ run_duration }}
   IOStreams:
-    History:
-      Freq: {{ output_freq }}
-      FreqUnits: {{ output_freq_units }}
-    # Each segment writes its restart into a directory of its own under the
+    # Each step writes its restart into a directory of its own under the
     # task's shared ``restarts``, and a continuing segment reads the previous
     # segment's directory.  Sharing one directory instead would mean the
     # second segment's own restart replaced the pointer it had just read, so
