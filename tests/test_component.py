@@ -4,6 +4,13 @@ from polaris import Component
 from polaris.config import PolarisConfigParser
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.topo.combine import get_lat_lon_topo_steps
+from polaris.tasks.ocean import Ocean
+from polaris.tasks.ocean.realistic_global.forcing.jra55.steps import (
+    get_jra55_steps,
+)
+from polaris.tasks.ocean.realistic_global.hydrography.woa23.steps import (
+    get_woa23_steps,
+)
 
 FILEPATH = 'component/some/where/thing.cfg'
 
@@ -63,6 +70,24 @@ def test_get_or_create_shared_config_rejects_a_mismatched_filepath():
             create=lambda: PolarisConfigParser(filepath='somewhere/else.cfg'),
         )
     assert FILEPATH not in component.configs
+
+
+@pytest.mark.parametrize(
+    'get_steps', [get_woa23_steps, get_jra55_steps], ids=['woa23', 'jra55']
+)
+def test_shared_steps_hand_back_the_config_their_steps_use(get_steps):
+    """
+    The two realistic_global helpers that were rebuilding their config, rather
+    than getting the one their shared steps are already using.
+    """
+    component = Ocean()
+    first_steps, first_config = get_steps(component=component)
+    second_steps, second_config = get_steps(component=component)
+    assert second_config is first_config
+    for name, step in first_steps.items():
+        assert second_steps[name] is step, name
+    # and re-registering what was handed back is a no-op rather than an error
+    component.add_config(second_config)
 
 
 def test_shared_topo_steps_hand_back_the_config_their_steps_use():
