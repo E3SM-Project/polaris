@@ -22,7 +22,7 @@ forward step plus one runnable "simple forward" task (a run whose duration and
 cadence come from config). The framework is deliberately shaped so that the two
 other forward run types from Compass — a restart test and the staged dynamic
 adjustment described in
-`global_ocean_dynamic_adjustment.md` — are
+[global_ocean_dynamic_adjustment.md](global_ocean_dynamic_adjustment.md) — are
 straightforward to build on top of it later.
 
 That first phase has landed, and so has more than it promised. Two runnable
@@ -151,7 +151,7 @@ existing restart (a restart flag, a start time, and a restart input file).
 The framework itself is not required to implement the restart test or dynamic
 adjustment in this phase; it is required only to leave clean seams for them,
 consistent with
-`global_ocean_dynamic_adjustment.md`, which
+[global_ocean_dynamic_adjustment.md](global_ocean_dynamic_adjustment.md), which
 decomposes dynamic adjustment into one restart-chained forward step per stage.
 
 ### Requirement: Forward steps produce inspectable outputs and support basic validation
@@ -274,7 +274,7 @@ scalings, a damping strength, and the fields needed to continue from a restart
 fills this structure from a config section; a future dynamic-adjustment workflow
 fills a list of them from a schedule file. This is the "common internal
 representation" called for in
-`global_ocean_dynamic_adjustment.md`.
+[global_ocean_dynamic_adjustment.md](global_ocean_dynamic_adjustment.md).
 
 The mapping from this structure onto model configuration should happen in one
 place. Durations are formatted as model duration strings; the time integrator
@@ -298,7 +298,7 @@ file. A restart test then becomes two forward steps — a full run that writes a
 restart partway through and a restart run that resumes from it — compared for
 bit-for-bit agreement. A dynamic-adjustment workflow becomes an ordered list of
 settings structures, each producing a restart consumed by the next, exactly as
-laid out in `global_ocean_dynamic_adjustment.md`.
+laid out in [global_ocean_dynamic_adjustment.md](global_ocean_dynamic_adjustment.md).
 
 The forward step does not need to know which of these workflows it participates
 in; it only needs to honor the settings it is given. Keeping start and stop times
@@ -475,7 +475,7 @@ damping (Rayleigh) coefficient, the mixing and parameterization options
 described further below, and the restart fields (`do_restart`, `start_time`,
 `restart_in`, `restart_out`). Durations are duration strings of the form
 `DDDD_HH:MM:SS`, matching the schedule format in
-`global_ocean_dynamic_adjustment.md`.
+[global_ocean_dynamic_adjustment.md](global_ocean_dynamic_adjustment.md).
 
 The time integrator turned out to be the one setting that cannot be shared, so
 there are two fields rather than one: `mpaso_time_integrator`, defaulting to

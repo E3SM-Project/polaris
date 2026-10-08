@@ -559,9 +559,10 @@ used elsewhere in Polaris. It is created as a shared step but returned — and s
 run — only when `include_viz=True`, which the standalone `RealisticGlobalInit`
 task passes and consumers that reuse the init outputs as dependencies do not.
 Workflows that build on the initial condition, such as
-[forward runs](global_ocean_forward.md) and dynamic adjustment, are meant to
-call `get_realistic_init_steps` the same way and get the same step instances
-rather than a second copy of a chain that costs hours.
+[forward runs](global_ocean_forward.md) and
+[dynamic adjustment](global_ocean_dynamic_adjustment.md), are meant to call
+`get_realistic_init_steps` the same way and get the same step instances rather
+than a second copy of a chain that costs hours.
 
 The `viz` step makes Omega's geometric `layerThickness` itself. Omega's initial
 state carries `PseudoThickness` and no `SpecVol`, and `open_model_dataset` no
@@ -775,7 +776,8 @@ itself is exercised by running it on a mesh. The 240 km meshes exist for
 exactly that, which is why they override the vertical grid down to 16 levels.
 Initial conditions built this way have also been carried through dynamic
 adjustment on `u-oi30-lr10` and `u-oi6to18-lr6to10` in downstream work, which
-is where artifacts in the WOA23 source data were found.
+is where artifacts in the WOA23 source data were found; see
+[global_ocean_dynamic_adjustment.md](global_ocean_dynamic_adjustment.md).
 
 ### Testing and Validation: A reusable global hydrography product is available from WOA
 
