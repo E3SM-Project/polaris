@@ -110,6 +110,14 @@ def _get_task_config(component, resdir, vertical_coordinate, experiment):
     config.add_from_package(
         'polaris.tasks.ocean.isomip_plus', 'isomip_plus.cfg'
     )
+    if experiment in ['inception', 'wetting', 'drying']:
+        config.add_from_package(
+            'polaris.tasks.ocean.isomip_plus', 'thin_film.cfg'
+        )
+    if experiment == 'inception':
+        config.add_from_package(
+            'polaris.tasks.ocean.isomip_plus', 'inception.cfg'
+        )
     config.set('vertical_grid', 'coord_type', vertical_coordinate)
     return config
 

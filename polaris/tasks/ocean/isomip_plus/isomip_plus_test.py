@@ -113,10 +113,6 @@ class IsomipPlusTest(IceShelfTask):
         init.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(init)
 
-        if self.thin_film:
-            # running the tasks with a thin film is not yet supported
-            return
-
         ssh_adjust = self.setup_ssh_adjustment_steps(
             mesh_filename=f'{init.path}/mesh.nc',
             graph_target=f'{init.path}/culled_graph.info',
@@ -134,6 +130,7 @@ class IsomipPlusTest(IceShelfTask):
             resolution=resolution,
             init=init,
             ssh_adjust=ssh_adjust,
+            thin_film=self.thin_film,
         )
         forward.set_shared_config(config, link='isomip_plus.cfg')
         self.add_step(forward)
