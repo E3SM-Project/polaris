@@ -1,10 +1,17 @@
 ocean:
+  cvmix:
+    config_use_cvmix_kpp: false
   time_management:
     config_stop_time: none
     config_run_duration: {{ run_duration }}
   time_integration:
     config_dt: {{ dt }}
     config_time_integrator: {{ time_integrator }}
+
+Omega:
+  Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
 
 mpas-ocean:
   run_modes:

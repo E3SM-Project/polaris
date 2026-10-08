@@ -18,6 +18,7 @@ ocean:
   # background + convective vertical mixing matching the compass
   # configuration of this test; shear mixing stays off
   cvmix:
+    config_use_cvmix_kpp: false
     config_use_cvmix_convection: true
     config_cvmix_convective_diffusion: 1.0
     config_cvmix_convective_triggerBVF: 0.0
@@ -67,6 +68,8 @@ mpas-ocean:
 
 Omega:
   Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
     SSHTendencyEnable: false
   Advection:
     HorzTracerFluxLimiterEnable: {{ horiz_fct_enable_omega }}

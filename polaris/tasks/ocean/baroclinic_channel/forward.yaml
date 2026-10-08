@@ -10,6 +10,7 @@ ocean:
     config_use_mom_del4: false
     config_use_tracer_del4: false
   cvmix:
+    config_use_cvmix_kpp: false
     config_use_cvmix_convection: true
     config_use_cvmix_shear: true
     config_cvmix_background_diffusion: 1.0e-5
@@ -50,6 +51,9 @@ mpas-ocean:
       - layerThickness
 
 Omega:
+  Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
   TimeIntegration:
     # Whether a restart is read is decided here rather than by keeping
     # RestartRead out of the way with a start time it never reaches, which is

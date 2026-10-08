@@ -9,6 +9,8 @@ the vertical dynamics of the ocean model only. The test cases are:
 - Testing the Ideal Age tracer under surface forcing
 - Testing the Coriolis term by quantifying the inertial frequency
 - Testing the Ekman solution under wind forcing
+- Testing KPP boundary-layer regimes; see
+  {ref}`dev-ocean-single-column-kpp`.
 
 Here, we describe the tests and their shared framework.
 
@@ -130,6 +132,158 @@ compares the inertial frequency with its theoretical value and induces a
 failure if the frequency is more than a given fractional difference from
 theory, as determined by the config option
 `single_column_inertial:period_tolerance_fraction`.
+
+(dev-ocean-single-column-kpp)=
+
+## KPP regimes
+
+The {py:class}`polaris.tasks.ocean.single_column.kpp_regimes.KPPRegimes`
+task class creates all nine regimes documented in
+{ref}`ocean-single-column-kpp`. Their physical goals, literature
+attributions, profile values and forcing signs are described there.
+This section covers configuration composition, model-specific controls
+and validation; the regimes are not additional implementations of KPP.
+
+### registration and shared initialization
+
+`add_single_column_tasks()` in
+`polaris/tasks/ocean/single_column/__init__.py` registers each regime's
+forcing and profile configuration lists. It starts with `single_column.cfg`
+and `neutral_temperature_salinity.cfg`, adds forcing files, then adds
+`stable_temperature_strong.cfg` and finally the regime-specific profile
+files. Later entries override earlier ones. In particular, the file named
+`neutral_temperature_salinity.cfg` does not make the final wind or
+suppression profile neutral: the strong profile is loaded afterward.
+
+`KPPRegimes` adds `kpp_regimes.cfg` and `polaris.ocean.eos/teos10.cfg` to
+the shared configuration. Shared initialization steps are keyed by regime,
+at `ocean/column/init/kpp/<regime>/stable`, and linked into each task as
+`init`. Do not key them on forcing alone: cooling and mixed-layer cooling
+share forcing but have different initial profiles.
+
+The common {py:class}`polaris.tasks.ocean.single_column.init.Init` writes
+the mesh, initial tracers, vertical coordinate and forcing described in
+{ref}`dev-ocean-single-column-framework`. The named-grid branch of
+{py:func}`polaris.ocean.vertical.grid_1d.generate_1d_grid` crops the JSON
+interface depths instead of scaling them. Document and inspect the
+generated layer count, not just `vert_levels`, when changing a named grid.
+
+The suppression profile override is currently loaded after `evap_strong.cfg`.
+It zeros the inherited evaporation, latent and shortwave terms and sets
+sensible heating to +125 W/m². Removing those overrides would change the
+experiment, even if the task name remained unchanged.
+
+### forward steps and model controls
+
+All cases use the shared
+{py:class}`polaris.tasks.ocean.single_column.forward.Forward`. The KPP
+constructor explicitly supplies `match_technique='SimpleShapes'`; the
+second ordinary forward step overrides it with `MatchBoth`. Their paths
+are `forward_no_vadv_no_hadv_simpleshapes` and
+`forward_no_vadv_no_hadv_matchboth`. Langmuir instead creates two
+`SimpleShapes` steps, distinguished by the `_langmuir` suffix for the
+enabled run. Visualization and analysis consume these paths through the
+constructor's `comparisons` dictionary.
+
+Combined forcing and mixed-layer cooling add a third `Forward` with
+`enable_kpp=False` and `match_technique=None`. The resulting
+`forward_no_vadv_no_hadv_no_kpp` step retains background, convective and
+local shear mixing but disables KPP and non-local transport in both models.
+Its `no_kpp` entry is added only to the visualization comparisons, not the
+analysis inputs. `KPPViz` registers and plots only diffusivity and viscosity
+for this entry, omitting BLD and other KPP-specific diagnostics.
+
+Keep KPP defaults scoped to this task package. Non-KPP single-column
+steps retain their original names and explicitly disable KPP and its
+non-local tendency; changing a shared default must not rename their
+forward outputs or activate additional physics.
+
+`kpp_regimes/forward.yaml` supplies common KPP parameters and model-specific
+options. `Forward.dynamic_model_config()` provides template replacements
+and explicit enable flags. Important controls are:
+
+| Control | Setting |
+|---------|---------|
+| Critical bulk Richardson number | 0.25 |
+| Surface-layer extent | 0.1 |
+| Background diffusivity / viscosity | $10^{-5}$ / $10^{-4}$ m²/s |
+| Shear Richardson-number smoothing | Two loops |
+| MPAS-Ocean BLD interpolation | Linear |
+| EOS | TEOS-10 in Omega; `jm` in MPAS-Ocean |
+| Ordinary Langmuir setting | Disabled |
+| Enabled Langmuir variant | Omega `UseLangmuirTurbulence`; MPAS-Ocean theory-wave estimate, `LWF16` mixing and `LF17` entrainment |
+| Sea-ice minimum BLD | 30 m in both sea-ice forward steps |
+
+The MPAS-Ocean theory-wave switch alone does not enable Langmuir mixing:
+the mixing and entrainment options must also differ from `NONE`. The
+forward constructor keeps Omega's Coriolis tendency independent of the
+horizontal-advection switch; `kpp_wind` removes Coriolis through the
+initial mesh's `[coriolis] type = zero` setting.
+
+The ordinary 600 s timestep and 3600 s output interval come from config.
+For strong cooling, `run_duration_steps=36` overrides the run duration
+and sets output every timestep. Omega's history frequency uses the
+templated seconds interval. MPAS-Ocean disables its startup output, so
+both first write after one interval. Use the actual initial-condition
+file when a true time-zero state is needed.
+
+### visualization
+
+{py:class}`polaris.tasks.ocean.single_column.kpp_regimes.viz.KPPViz`
+writes `boundary_layer_depth.png` and comparison-specific time-depth
+figures for available Richardson-number, viscosity, diffusivity and
+non-local-flux diagnostics. It uses the shared ocean I/O abstraction to
+read model fields under MPAS-style names. Missing optional diagnostics
+are skipped; absence of a figure is not a physical pass criterion.
+
+### analysis and validation
+
+{py:class}`polaris.tasks.ocean.single_column.kpp_regimes.analysis.Analysis`
+reports cell-mean BLD at the output nearest day one and the relative
+final diffusivity difference between matching variants. Regime-specific
+checks are:
+
+| Regime | Analysis diagnostic |
+|--------|---------------------|
+| Wind | Compare day-one BLD with $h=u_* (15t/N_0^2)^{1/3}$ using diagnosed stratification |
+| Cooling, evaporation, mixed-layer cooling | Log initial/final BLD, finite tracer/density checks, F11 trajectory error and final non-local flux |
+| Combined | Common BLD and matching comparison; no separate combined-forcing analytic check |
+| Suppression | Warn if final maximum absolute non-local flux exceeds $10^{-10}$, or diffusivity is nonpositive |
+| Langmuir | Warn if enabled day-one BLD is less than disabled BLD |
+| Sea ice | Warn if the sampled BLD is below 30 m |
+| Strong cooling | Warn if surface temperature does not decrease or final column-wide maximum $N^2$ is nonpositive |
+
+These checks log information and warnings rather than asserting a
+regime-specific accuracy tolerance. Missing diagnostics may skip checks.
+The current F11 implementation is
+$h=\sqrt{2.8 B t/N^2}$, with positive destabilizing flux magnitude $B$.
+`initial_n_squared()` estimates temperature-driven stratification from
+the configured EOS. It omits salinity gradients: for the uniform-temperature
+evaporation case it returns zero and can produce division-by-zero/NaN
+diagnostics. Its zero-mixed-layer formula is also only a reference for
+the mixed-layer case. The strong-cooling maximum is not restricted to
+the diagnosed BLD and cannot establish stability specifically within it.
+
+Forward steps register baseline validation for `temperature`, `salinity`,
+`layerThickness`, `normalVelocity`, `vertDiffTopOfCell` and
+`vertViscTopOfCell` when a baseline is supplied, including the no-KPP
+controls. The coefficient fields represent total local diffusivity and
+viscosity, not just the KPP contribution. They
+also register mass, salt and energy property checks, except combined
+forcing and suppression, which currently register mass and salt only.
+The KPP config sets energy tolerance to $10^{-6}$ and salt tolerance to
+$10^{-10}$; mass uses the inherited tolerance. Consult each forward
+step's `property_check_results.json` as well as the suite status: property
+failures can be reported independently of task execution success.
+
+### extending a regime
+
+Add a registration entry with forcing and profile configurations and keep
+its shared init path unique. Add any special paired-forward controls to
+`KPPRegimes`, supplying matching `comparisons` paths to visualization and
+analysis. Record whether the case adapts a published experiment or tests
+a specific implementation feature, and distinguish its intended physical
+signature from an enforced validation threshold.
 
 ## thermo
 
