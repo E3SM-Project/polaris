@@ -129,7 +129,7 @@ class Init(OceanIOStep):
 
         self._write_forcing(ds)
         if self.thin_film:
-            self._write_land_ice_forcing(ds, ds_topo)
+            self._write_land_ice_forcing(ds_topo)
 
     def _cull_mesh(self):
         """
@@ -382,7 +382,7 @@ class Init(OceanIOStep):
 
         write_netcdf(ds_forcing, 'forcing.nc')
 
-    def _write_land_ice_forcing(self, ds, ds_topo):
+    def _write_land_ice_forcing(self, ds_topo):
         """
         Write the time-varying land-ice forcing from all records of the
         topography
@@ -390,22 +390,14 @@ class Init(OceanIOStep):
         land_ice_fraction, floating_fraction, _ = (
             self._mask_land_ice_fractions(ds_topo)
         )
-        pressure = ds_topo.landIcePressure
-        draft = np.maximum(
-            self._draft_from_pressure(pressure), -ds.bottomDepth
-        )
-
+        # MPAS-Ocean computes the draft from the pressure, so the draft is
+        # not part of the forcing
         ds_out = xr.Dataset()
         ds_out['xtime'] = ds_topo.xtime
-        ds_out['landIcePressureForcing'] = pressure
+        ds_out['landIcePressureForcing'] = ds_topo.landIcePressure
         ds_out.landIcePressureForcing.attrs['units'] = 'Pa'
         ds_out.landIcePressureForcing.attrs['long_name'] = (
             'Pressure from the weight of land ice at the ice-ocean interface'
-        )
-        ds_out['landIceDraftForcing'] = draft
-        ds_out.landIceDraftForcing.attrs['units'] = 'm'
-        ds_out.landIceDraftForcing.attrs['long_name'] = (
-            'The approximate elevation of the land ice-ocean interface'
         )
         ds_out['landIceFractionForcing'] = land_ice_fraction
         ds_out.landIceFractionForcing.attrs['long_name'] = (
