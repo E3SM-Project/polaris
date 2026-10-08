@@ -1,7 +1,9 @@
 import os
+import re
 import shutil
 import subprocess
 import sys
+from typing import Any, Dict, List, Optional
 
 from polaris.build.mpas_ocean import get_mpas_ocean_source_dir
 from polaris.build.omega import (
@@ -14,6 +16,9 @@ from polaris.version import __version__
 # marks a component's git entries that come from its source tree at setup,
 # which may have moved since the build
 _AT_SETUP = '(at setup, not build)'
+
+# the labels of the git entries that _write_git_info() writes
+_GIT_ENTRY = re.compile(r'(polaris|component) git (version|hash|log)')
 
 
 def write(
@@ -97,6 +102,7 @@ mache.parallel.pbs.PbsOptions}, optional
     _write_meta(provenance_file, 'machine', machine)
     _write_scheduler_metadata(provenance_file, job_options)
     _write_meta(provenance_file, 'compiler', _get_compiler(config))
+    _write_meta(provenance_file, 'model', _get_model(config))
     _write_meta(provenance_file, 'work directory', work_dir)
     _write_meta(provenance_file, 'build directory', _get_build_dir(config))
     _write_meta(provenance_file, 'build type', _get_build_type(config))
@@ -169,6 +175,79 @@ def get_summary(config=None):
 
     summary['command'] = ' '.join(sys.argv)
     return summary
+
+
+def read(work_dir: str) -> Optional[Dict[str, Any]]:
+    """
+    Read the provenance file that :py:func:`polaris.provenance.write` wrote
+    to a work directory
+
+    Parameters
+    ----------
+    work_dir : str
+        The work directory with the provenance file
+
+    Returns
+    -------
+    provenance : dict, optional
+        The entries before the list of tasks, keyed by their labels (for
+        example ``machine`` or ``build directory``), with the git entries
+        gathered into ``polaris`` and ``component``.  Each of those is
+        ``None`` if the file does not record it, or else has the git
+        version (``describe``), the full hash (``hash``), the last five
+        first-parent commits (``log``) and whether the entries came from
+        the source tree at setup rather than from a record of the build
+        (``at_setup``).  ``None`` if there is no provenance file.
+    """
+    path = os.path.join(work_dir, 'provenance')
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            lines = f.read().splitlines()
+    except (OSError, UnicodeDecodeError):
+        return None
+
+    provenance: Dict[str, Any] = {'polaris': None, 'component': None}
+    log: Optional[List[str]] = None
+    for line in lines:
+        if log is not None and line.startswith(' '):
+            log.append(line.strip())
+            continue
+        log = None
+        if line.startswith('tasks:'):
+            # the tasks and pixi list that follow are not one-line entries
+            break
+        key, separator, value = line.partition(':')
+        if separator == '':
+            continue
+        key = key.strip()
+        value = value.strip()
+        at_setup = value.endswith(_AT_SETUP)
+        if at_setup:
+            value = value[: -len(_AT_SETUP)].strip()
+
+        match = _GIT_ENTRY.fullmatch(key)
+        if match is None:
+            provenance[key] = value or None
+            continue
+
+        name, field = match.groups()
+        if provenance[name] is None:
+            provenance[name] = {
+                'describe': None,
+                'hash': None,
+                'log': [],
+                'at_setup': False,
+            }
+        info = provenance[name]
+        info['at_setup'] = info['at_setup'] or at_setup
+        if field == 'log':
+            log = info['log']
+        elif field == 'version':
+            info['describe'] = value or None
+        else:
+            info['hash'] = value or None
+
+    return provenance
 
 
 def _get_polaris_git_version():

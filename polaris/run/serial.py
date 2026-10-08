@@ -16,6 +16,7 @@ from polaris import Task
 from polaris.build.omega import detect_omega_build_type
 from polaris.logging import log_function_call, log_method_call
 from polaris.parallel import set_parallel_systems
+from polaris.provenance import read as read_provenance
 from polaris.run import (
     complete_step_run,
     load_dependencies,
@@ -35,6 +36,9 @@ pass_str = f'{start_pass}PASS{end_color}'
 success_str = f'{start_pass}SUCCESS{end_color}'
 fail_str = f'{start_fail}FAIL{end_color}'
 error_str = f'{start_fail}ERROR{end_color}'
+
+# how the models that provenance records are named in PR summaries
+_MODEL_NAMES = {'omega': 'Omega', 'mpas-ocean': 'MPAS-Ocean'}
 
 
 def run_tasks(
@@ -918,8 +922,8 @@ def _write_output_for_pull_request(
     ``POLARIS_RUN_OUTPUT`` in ``utils/benchmark/benchmark.py`` to match.
     """
     work_dir = suite.get('work_dir', os.getcwd())
-    provenance_path = os.path.join(work_dir, 'provenance')
-    if not os.path.exists(provenance_path):
+    pr_provenance = read_provenance(work_dir)
+    if pr_provenance is None:
         return
 
     # keys in provenance are written exactly like these labels
@@ -933,12 +937,13 @@ def _write_output_for_pull_request(
         'compiler': 'compiler',
     }
 
-    values: Dict[str, Optional[str]] = {v: None for v in labels.values()}
-    _parse_provenance_into(provenance_path, labels, values)
+    values: Dict[str, Optional[str]] = {
+        value: pr_provenance.get(key) for key, value in labels.items()
+    }
 
-    # If a baseline workdir exists, parse its provenance to get baseline build
-    baseline_build: Optional[str] = None
-    baseline_build = _parse_baseline_build(values.get('baseline'))
+    baseline_provenance, baseline_build = _read_baseline_provenance(
+        values['baseline']
+    )
 
     # Build the output content. Only include optional lines if present.
     lines = [f'### Polaris `{suite_name}` suite']
@@ -951,6 +956,7 @@ def _write_output_for_pull_request(
         lines.append(f'- PR build: `{values["build"]}`')
     if values['work']:
         lines.append(f'- PR workdir: `{values["work"]}`')
+    lines.extend(_format_commit_lines(pr_provenance, baseline_provenance))
     if values['machine']:
         lines.append(f'- Machine: `{values["machine"]}`')
     if values['partition']:
@@ -1018,6 +1024,8 @@ def _write_output_for_pull_request(
                     )
                 lines.append('```')
 
+    lines.extend(_format_commit_logs(pr_provenance, baseline_provenance))
+
     out_path = os.path.join(work_dir, f'{suite_name}_output_for_pr.md')
     print(f'Writing output useful for copy/paste into PRs to:\n  {out_path}')
     with open(out_path, 'w') as out:
@@ -1074,27 +1082,105 @@ def _parse_provenance_into(path, labels, target_values):
         pass
 
 
-def _parse_baseline_build(baseline_workdir: Optional[str]) -> Optional[str]:
-    if not baseline_workdir:
-        return None
-    path = os.path.join(baseline_workdir, 'provenance')
-    if not os.path.exists(path):
-        return None
-    try:
-        with open(path, 'r') as f:
-            for line in f:
-                if ':' not in line:
-                    continue
-                parts = line.strip().split(':', 1)
-                if len(parts) != 2:
-                    continue
-                key = parts[0].strip().lower()
-                val = parts[1].strip()
-                if key == 'build directory':
-                    return val
-    except (OSError, UnicodeDecodeError):
-        return None
-    return None
+def _read_baseline_provenance(
+    baseline_dir: Optional[str],
+) -> Tuple[Optional[dict], Optional[str]]:
+    """
+    The provenance of the baseline run and its build directory, or ``None``
+    for either one that is not known
+    """
+    if not baseline_dir:
+        return None, None
+    baseline_provenance = read_provenance(baseline_dir)
+    if baseline_provenance is None:
+        return None, None
+    return baseline_provenance, baseline_provenance.get('build directory')
+
+
+def _format_commit_lines(
+    pr_provenance: dict, baseline_provenance: Optional[dict]
+) -> List[str]:
+    """
+    Lines naming the Polaris and component commits of the PR and baseline
+    runs, with Polaris on one line when both runs used the same commit
+    """
+    return [
+        f'- {label}: {_format_commit(info)}'
+        for label, info in _commit_sides(pr_provenance, baseline_provenance)
+    ]
+
+
+def _format_commit_logs(
+    pr_provenance: dict, baseline_provenance: Optional[dict]
+) -> List[str]:
+    """
+    A collapsed block with the recent commits of each side, or nothing if
+    provenance records no logs
+    """
+    sides = _commit_sides(pr_provenance, baseline_provenance)
+    sides = [(label, info) for label, info in sides if info['log']]
+    if not sides:
+        return []
+
+    lines = ['', '<details>', '<summary>Recent commits</summary>', '']
+    for label, info in sides:
+        lines.append(f'{label}:')
+        lines.append('```')
+        lines.extend(info['log'])
+        lines.append('```')
+    lines.append('</details>')
+    return lines
+
+
+def _commit_sides(
+    pr_provenance: dict, baseline_provenance: Optional[dict]
+) -> List[tuple]:
+    """
+    The labels and git entries to report, in the order they are listed
+    """
+    component = _MODEL_NAMES.get(pr_provenance.get('model') or '', 'Component')
+    pr_polaris = pr_provenance['polaris']
+    if baseline_provenance is None:
+        sides = [
+            ('Polaris', pr_polaris),
+            (f'PR {component}', pr_provenance['component']),
+        ]
+        return [(label, info) for label, info in sides if info is not None]
+
+    baseline_polaris = baseline_provenance['polaris']
+    if _same_commit(pr_polaris, baseline_polaris):
+        sides = [('Polaris', pr_polaris)]
+    else:
+        sides = [
+            ('Baseline Polaris', baseline_polaris),
+            ('PR Polaris', pr_polaris),
+        ]
+    sides.extend(
+        [
+            (f'Baseline {component}', baseline_provenance['component']),
+            (f'PR {component}', pr_provenance['component']),
+        ]
+    )
+    return [(label, info) for label, info in sides if info is not None]
+
+
+def _same_commit(info1: Optional[dict], info2: Optional[dict]) -> bool:
+    if info1 is None or info2 is None:
+        return info1 is info2
+    return (info1['hash'], info1['describe']) == (
+        info2['hash'],
+        info2['describe'],
+    )
+
+
+def _format_commit(info: dict) -> str:
+    if info['hash'] and info['describe']:
+        text = f'`{info["hash"]}` (`{info["describe"]}`)'
+    else:
+        text = f'`{info["hash"] or info["describe"]}`'
+    if info['at_setup']:
+        text = f'{text} (at setup, not build)'
+    return text
 
 
 def _derive_job_log_path(
