@@ -1,5 +1,11 @@
+import os
+
+import numpy as np
+from mpas_tools.io import open_dataset
+
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 from polaris.tasks.ocean.isomip_plus.cell_count import estimate_cell_count
+from polaris.tasks.ocean.isomip_plus.xtime import get_record_times
 
 
 class Forward(OceanModelStep):
@@ -11,9 +17,15 @@ class Forward(OceanModelStep):
     ----------
     resolution : float
         The horizontal resolution (km) of the mesh
+
+    thin_film : bool
+        Whether a thin film is present under grounded ice, in which case the
+        land-ice pressure and fractions vary in time
     """
 
-    def __init__(self, component, indir, resolution, init, ssh_adjust):
+    def __init__(
+        self, component, indir, resolution, init, ssh_adjust, thin_film
+    ):
         """
         Create the step
 
@@ -33,6 +45,10 @@ class Forward(OceanModelStep):
 
         ssh_adjust : polaris.Step
             The last SSH-adjustment step, which produced the initial condition
+
+        thin_film : bool
+            Whether a thin film is present under grounded ice, in which case
+            the land-ice pressure and fractions vary in time
         """
         super().__init__(
             component=component,
@@ -45,6 +61,7 @@ class Forward(OceanModelStep):
             update_eos=True,
         )
         self.resolution = resolution
+        self.thin_film = thin_film
 
         # make sure output is double precision
         self.add_yaml_file('polaris.ocean.config', 'output.yaml')
@@ -60,6 +77,11 @@ class Forward(OceanModelStep):
             filename='forcing_data.nc',
             work_dir_target=f'{init.path}/forcing.nc',
         )
+        if thin_film:
+            self.add_input_file(
+                filename='land_ice_forcing.nc',
+                work_dir_target=f'{init.path}/land_ice_forcing.nc',
+            )
 
         self.add_output_file(
             filename='output.nc',
@@ -129,10 +151,17 @@ class Forward(OceanModelStep):
         run_duration_str = get_time_interval_string(
             seconds=run_duration * s_per_hour
         )
+        output_interval = section.get('output_interval')
+        if output_interval == 'none':
+            output_interval_str = run_duration_str
+        else:
+            output_interval_str = get_time_interval_string(
+                seconds=float(output_interval) * s_per_hour
+            )
         replacements = dict(
             dt=get_time_interval_string(seconds=dt_per_km * self.resolution),
             run_duration=run_duration_str,
-            output_interval=run_duration_str,
+            output_interval=output_interval_str,
         )
 
         self.add_yaml_file('polaris.tasks.ocean.isomip_plus', 'physics.yaml')
@@ -141,3 +170,31 @@ class Forward(OceanModelStep):
             'forward.yaml',
             template_replacements=replacements,
         )
+
+        if self.thin_film:
+            self.add_yaml_file(
+                'polaris.tasks.ocean.isomip_plus',
+                'thin_film.yaml',
+                template_replacements=dict(
+                    forcing_interval=self._get_forcing_interval(at_setup)
+                ),
+            )
+
+    def _get_forcing_interval(self, at_setup):
+        """
+        Get the spacing of the land-ice forcing records, which MPAS-Ocean
+        needs to find them.  The forcing file is only available at runtime,
+        so a placeholder is used at setup.
+        """
+        if at_setup:
+            return 'none'
+        filename = os.path.join(self.work_dir, 'land_ice_forcing.nc')
+        with open_dataset(filename) as ds:
+            record_times = get_record_times(ds.xtime.values)
+        spacings = np.unique(np.diff(record_times))
+        if len(spacings) != 1:
+            raise ValueError(
+                f'The land-ice forcing records must be evenly spaced, but '
+                f'they are at {record_times} s'
+            )
+        return get_time_interval_string(seconds=float(spacings[0]))
