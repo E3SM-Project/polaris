@@ -1,4 +1,6 @@
 ocean:
+  cvmix:
+    config_use_cvmix_kpp: false
   time_management:
     config_stop_time: none
     config_run_duration: {{ run_duration }}
@@ -68,6 +70,8 @@ Omega:
   State:
     PrescribeVelocityType: {{ flow_type }}
   Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
     ThicknessFluxTendencyEnable : true
     PVTendencyEnable : false
     KETendencyEnable : false
