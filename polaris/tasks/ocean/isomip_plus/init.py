@@ -395,9 +395,14 @@ class Init(OceanIOStep):
         # "evaporation" in the restoring region offsets the melt water,
         # removing salt and heat at the surface restoring values
         mask = np.logical_and(x_cell >= restore_xmin, x_cell <= restore_xmax)
-        mask = mask.expand_dims(dim='Time', axis=0)
+        if self.thin_film:
+            # MPAS-Ocean's tidal forcing holds SSH at zero in the restoring
+            # region, so the water that the changing ice load displaces can
+            # leave the domain (or return)
+            ds_forcing['tidalInputMask'] = mask.astype(float)
         # convert m/yr to m/s, negative for evaporation
         evap_rate = -restore_evap_rate / (s_per_day * 365.0)
+        mask = mask.expand_dims(dim='Time', axis=0)
         top_temp = config.getfloat('isomip_plus', f'{profile}_top_temp')
         top_sal = config.getfloat('isomip_plus', f'{profile}_top_sal')
         ds_forcing['evaporationFlux'] = mask * ref_density * evap_rate
