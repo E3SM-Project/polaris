@@ -3,7 +3,8 @@ import xarray as xr
 from mpas_tools.io import open_dataset, write_netcdf
 
 from polaris import Step
-from polaris.constants import get_constant
+from polaris.ocean.ice_shelf import compute_land_ice_pressure_from_thickness
+from polaris.tasks.ocean.isomip_plus.topo.calving import calve_thin_ice
 
 
 class TopoRemap(Step):
@@ -70,25 +71,33 @@ class TopoRemap(Step):
         self._renormalize()
 
     def _preprocess(self):
-        ice_density = self.config.getfloat('isomip_plus', 'ice_density')
+        config = self.config
+        ice_density = config.getfloat('isomip_plus_topo', 'ice_density')
+        min_ice_thickness = config.getfloat(
+            'isomip_plus_topo', 'min_ice_thickness'
+        )
 
         with xr.open_dataset('topography.nc') as ds_in:
             if 't' in ds_in.dims:
                 ds_in = ds_in.chunk({'t': 1})
+            ds_in = calve_thin_ice(ds_in, min_ice_thickness)
             ds_in['iceThickness'] = ds_in.upperSurface - ds_in.lowerSurface
             ds_in.iceThickness.attrs['description'] = 'ice thickness'
             ds_in.iceThickness.attrs['units'] = 'm'
 
-            gravity = get_constant('standard_acceleration_of_gravity')
             ds_in['landIcePressure'] = (
-                ice_density * gravity * ds_in.iceThickness
+                compute_land_ice_pressure_from_thickness(
+                    land_ice_thickness=ds_in.iceThickness,
+                    modify_mask=ds_in.iceThickness > 0.0,
+                    land_ice_density=ice_density,
+                )
             )
-            ds_in.iceThickness.attrs['description'] = (
+            ds_in.landIcePressure.attrs['description'] = (
                 'pressure at the ice base'
             )
-            ds_in.iceThickness.attrs['units'] = 'Pa'
+            ds_in.landIcePressure.attrs['units'] = 'Pa'
 
-            ds_in.drop_vars(['upperSurface'])
+            ds_in = ds_in.drop_vars(['upperSurface'])
             ds_in = ds_in.rename(
                 {
                     'floatingMask': 'landIceFloatingFraction',

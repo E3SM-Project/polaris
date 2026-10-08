@@ -204,9 +204,9 @@ class Forward(OceanModelStep):
             )
 
         if self.tidal_forcing:
-            land_ice_flux_mode = 'pressure_only'
+            land_ice_flux_mode = 'off'
         else:
-            land_ice_flux_mode = 'standalone'
+            land_ice_flux_mode = 'active'
 
         replacements = dict(
             do_restart=do_restart_str,

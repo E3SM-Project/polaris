@@ -342,6 +342,57 @@
    viz.Viz.run
 ```
 
+### isomip_plus
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.isomip_plus
+
+.. autosummary::
+   :toctree: generated/
+
+   add_isomip_plus_tasks
+
+   IsomipPlusTest
+
+   cell_count.estimate_cell_count
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+
+   mesh.CullMesh
+   mesh.CullMesh.run
+   mesh.PlanarMesh
+   mesh.PlanarMesh.run
+   mesh.SphericalMesh
+   mesh.SphericalMesh.build_cell_width_lat_lon
+   mesh.SphericalMesh.run
+   mesh.xy.add_isomip_plus_xy
+
+   projection.get_projection_string
+   projection.get_projections
+
+   ssh_forward.SshForward
+   ssh_forward.SshForward.compute_cell_count
+
+   topo.TopoMap
+   topo.TopoMap.run
+   topo.TopoRemap
+   topo.TopoRemap.run
+   topo.TopoScale
+   topo.TopoScale.run
+   topo.calving.calve_thin_ice
+
+   viz.Viz
+   viz.Viz.run
+
+   xtime.get_record_times
+```
+
 ### inertial_gravity_wave
 
 ```{eval-rst}
@@ -769,6 +820,11 @@
    SshForward
    SshForward.compute_cell_count
    SshForward.dynamic_model_config
+
+   compute_freezing_temperature
+   compute_land_ice_draft_from_pressure
+   compute_land_ice_pressure_from_draft
+   compute_land_ice_pressure_from_thickness
 ```
 
 ### Ocean Model

@@ -136,6 +136,10 @@ def update_layer_thickness(config, ds):
     already been initialized based on the ``bottomDepth`` and ``ssh``
     variables of the mesh data set.
 
+    ``ds`` is expected to be as :py:func:`init_vertical_coord` leaves it (or
+    as read from a file written from it), with one-based ``minLevelCell`` and
+    ``maxLevelCell``.  ``zMid`` and ``GeomZInterface`` are also updated.
+
     Parameters
     ----------
     config : polaris.config.PolarisConfigParser
@@ -155,6 +159,16 @@ def update_layer_thickness(config, ds):
         # drop it for now, we'll add it back at the end
         ds['ssh'] = ds.ssh.isel(Time=0)
 
+    # the coordinate-specific functions expect zero-based level indices and
+    # restingThickness without a Time dimension; we'll restore them at the end
+    min_level_cell = ds.minLevelCell
+    max_level_cell = ds.maxLevelCell
+    ds['minLevelCell'] = min_level_cell - 1
+    ds['maxLevelCell'] = max_level_cell - 1
+    resting_thickness = ds.restingThickness
+    if 'Time' in resting_thickness.dims:
+        ds['restingThickness'] = resting_thickness.isel(Time=0)
+
     coord_type = config.get('vertical_grid', 'coord_type')
 
     if coord_type == 'z-level':
@@ -173,9 +187,23 @@ def update_layer_thickness(config, ds):
     else:
         raise ValueError(f'Unknown coordinate type {coord_type}')
 
+    # mask layerThickness as in init_vertical_coord()
+    ds['layerThickness'] = ds.layerThickness.where(ds.cellMask.astype(bool))
+
     # add (back) Time dimension
     ds['ssh'] = ds.ssh.expand_dims(dim='Time', axis=0)
     ds['layerThickness'] = ds.layerThickness.expand_dims(dim='Time', axis=0)
+
+    ds['GeomZInterface'], ds['zMid'] = compute_zint_zmid_from_layer_thickness(
+        layer_thickness=ds.layerThickness,
+        bottom_depth=ds.bottomDepth,
+        min_level_cell=ds.minLevelCell,
+        max_level_cell=ds.maxLevelCell,
+    )
+
+    ds['minLevelCell'] = min_level_cell
+    ds['maxLevelCell'] = max_level_cell
+    ds['restingThickness'] = resting_thickness
 
 
 def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):
