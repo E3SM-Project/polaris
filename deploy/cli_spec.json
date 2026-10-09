@@ -1,7 +1,7 @@
 {
   "meta": {
     "software": "polaris",
-    "mache_version": "5.0.0rc1",
+    "mache_version": "5.0.0rc2",
     "description": "Deploy polaris environment"
   },
   "arguments": [
