@@ -9,6 +9,8 @@ the vertical dynamics of the ocean model only. The test cases are:
 - Testing the Ideal Age tracer under surface forcing
 - Testing the Coriolis term by quantifying the inertial frequency
 - Testing the Ekman solution under wind forcing
+- Testing frazil ice formation under melting and freezing conditions for
+  the ``FixedProperty`` and ``teos`` algorithms
 
 Here, we describe the tests and their shared framework.
 
@@ -130,6 +132,115 @@ compares the inertial frequency with its theoretical value and induces a
 failure if the frequency is more than a given fractional difference from
 theory, as determined by the config option
 `single_column_inertial:period_tolerance_fraction`.
+
+## frazil
+
+The {py:class}`polaris.tasks.ocean.single_column.frazil.Frazil` task creates
+four single-column cases covering the combinations of the two initial
+conditions (``melting`` and ``freezing``) and the two frazil algorithms
+(``FixedProperty`` and ``teos``).  Each case uses the standard 10-day run
+length from the shared `single_column` config and runs the shared `Viz` step
+from the single-column framework.
+
+The melting case sets a linear salinity profile with depth and a vertical
+profile with warm water near the surface and colder water below, using the
+config options in `single_column_frazil` including
+`temperature_upper_melting`, `temperature_lower_melting`, and
+`transition_depth_melting`.  The freezing case uses a linear salinity profile
+and a negative surface latent heat flux, with `latent_heat_flux_freezing`
+set in the `single_column_forcing` section.  In both cases, the profile is built
+with `salinity_surface` and `dsdz`, while the frazil algorithm is selected by
+`frazil_type` in the forward step.
+
+Each case runs a forward step that writes the state and diagnostics needed to
+track frazil formation, while the shared `Viz` step plots the depth-dependent
+state and tendency fields.  The conservation summary step records aggregated
+frazil thickness and salinity for each algorithm variant.
+
+Because `compute_frazil_fluxes` reads Omega-only history fields, the
+conservation property checks report `FAIL` for MPAS-Ocean; this is an
+accounting gap rather than a model error and does not fail the task.
+
+## frazil one layer (freezing)
+
+The
+{py:class}`polaris.tasks.ocean.single_column.frazil.one_layer.FrazilOneLayer`
+class runs a single-layer, 10 m thick column initialized at the local
+freezing point for both frazil algorithms and four Omega time integrators:
+RK4, RungeKutta2, SplitExplicitRK2 and UnsplitRK2. MPAS-Ocean retains only the
+RK4 `FixedProperty` run. It reuses
+{py:class}`polaris.tasks.ocean.single_column.frazil.init.FrazilInit` with
+`at_freezing=True`, which sets temperature to the freezing point from the
+equation of state rather than to the uniform `temperature_freezing` value.
+Four tasks reuse this class: `freezing_1layer_baseline` uses `one_layer.cfg`
+alone, while the others add one config overlay after it. `cold.cfg` sets the
+surface latent heat flux to -3000 W/m$^2$, `fresh.cfg` sets
+`salinity_surface = 2.0` and `dsdz = 0.0`, and `thin.cfg` sets
+`bottom_depth = 0.5` m with the same -3000 W/m$^2$ flux. The init step
+recomputes the pressure-dependent freezing temperature for each task.
+
+The task's `forward.yaml` disables every Omega tendency except
+`SfcTracerForcingTendencyEnable` and `FrazilTendencyEnable`, so the only terms
+acting on the column are the surface heat flux and frazil formation.  The run
+is exactly one day long, with output every time step, set through the
+`run_duration_steps` argument to the shared `Forward` step. Each run overrides
+the shared time integrator without affecting other single-column tasks.
+
+The
+{py:class}`polaris.tasks.ocean.single_column.frazil.one_layer.viz.OneLayerViz`
+step writes three figures. `layer-evolution.png` shows top-layer temperature,
+salinity, thickness, and thickness-times-temperature over the full run and the
+first five time steps, with freezing-point curves and initial-state markers.
+It uses Omega pseudo-thickness for Omega and geometric layer thickness for
+MPAS-Ocean. For Omega, `frazil-fluxes.png` plots per-step frazil energy, mass,
+and salt rates, while `conservation-residuals.png` plots the corresponding
+top-layer budget residuals. These two frazil diagnostic plots are not produced
+for MPAS-Ocean because the history fields are Omega-specific.
+
+The conservation property checks likewise report `FAIL` for MPAS-Ocean, since
+the frazil transfer is missing from the expected change; this does not fail the
+task.
+
+## frazil melting short
+
+The
+{py:class}`polaris.tasks.ocean.single_column.frazil.melting_short.FrazilMeltingShort`
+class runs a two-layer column with a top layer over a supercooled bottom
+layer and no surface forcing, for both frazil algorithms and the same four
+Omega time integrators. MPAS-Ocean retains only the RK4 `FixedProperty` run.
+It reuses
+{py:class}`polaris.tasks.ocean.single_column.frazil.init.FrazilInit` with
+`case='melting_short'`, which sets temperature to
+`temperature_top_melting_short` above `transition_depth_melting_short` and to
+`supercooling_melting_short` degrees below the freezing point from the
+equation of state beneath it.
+
+Three tasks reuse this class, `melting_short/warm`, `melting_short/cold` and
+`melting_short/melt0.1h`, each adding one config overlay after
+`melting_short.cfg`. `warm.cfg` and `cold.cfg` set
+`temperature_top_melting_short` and `supercooling_melting_short` for that
+variant. `melt0.1h.cfg` also overrides `[vertical_grid]` to place a 1 m
+melting layer over a 10 m supercooled layer, sized so that the frazil melt
+mass limiter binds while formation stays below its own limit. Each task
+builds its own init step.
+
+The task's `forward.yaml` disables every Omega tendency except
+`FrazilTendencyEnable`, and `melting_short.cfg` overrides `latent_heat_flux`
+to zero, so frazil is the only term acting on the column. The run duration is
+set by `RUN_DURATION_STEPS`, with output every time step.
+
+The
+{py:class}`polaris.tasks.ocean.single_column.frazil.melting_short.viz.MeltingShortViz`
+step writes the same three figures, reusing the diagnostic and frazil-plotting
+helpers from `OneLayerViz`. Here `layer-evolution.png` is a two-by-four grid
+with the top layer on the first row and the bottom layer on the second, and
+columns for temperature, thickness, salinity and thickness-times-temperature.
+Because frazil acts below the top layer, `conservation-residuals.png` is built
+from column-integrated state rates rather than from the top layer alone.
+
+As for the other frazil tasks, the conservation property checks report `FAIL`
+for MPAS-Ocean because the frazil transfer is unaccounted; the task still
+passes.
 
 ## thermo
 

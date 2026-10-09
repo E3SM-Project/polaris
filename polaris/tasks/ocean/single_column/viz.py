@@ -83,6 +83,65 @@ class Viz(OceanIOStep):
                 target=f'{comparison_path}/{output_file}',
             )
 
+    def _get_comparison_data(self, t_target):
+        comparison_data = []
+        for comparison_name, comparison_path in self.comparisons.items():
+            source = os.path.join(comparison_path, 'output.nc')
+            target = f'{comparison_name}.nc'
+            if not os.path.exists(source):
+                self.logger.warning(
+                    'Missing comparison output for %s: %s',
+                    comparison_name,
+                    source,
+                )
+                continue
+            try:
+                if os.path.lexists(target):
+                    os.remove(target)
+                os.symlink(source, target)
+            except OSError as exc:
+                self.logger.warning(
+                    'Could not link comparison output for %s to %s: %s',
+                    comparison_name,
+                    target,
+                    exc,
+                )
+                continue
+            try:
+                if os.path.exists('coeffs.nc'):
+                    ds_comp = self.open_model_dataset(
+                        target,
+                        decode_times=True,
+                        mesh_filename='mesh.nc',
+                        reconstruct_variables=['normalVelocity'],
+                        reconstruct_method='RBF',
+                        coeffs_filename='coeffs.nc',
+                        config=self.config,
+                    )
+                else:
+                    ds_comp = self.open_model_dataset(
+                        target,
+                        decode_times=True,
+                        config=self.config,
+                    )
+            except FileNotFoundError:
+                self.logger.warning(
+                    'Skipping unavailable comparison input %s for %s',
+                    target,
+                    comparison_name,
+                )
+                continue
+            t_arr = get_time_since_start(ds_comp, units='days')
+            t_index = np.argmin(np.abs(t_arr - t_target))
+            comparison_data.append(
+                (
+                    comparison_name,
+                    ds_comp.isel(Time=t_index),
+                    float(t_arr[t_index]),
+                )
+            )
+        return comparison_data
+
     def run(self):
         """
         Run this step of the test case
@@ -98,28 +157,7 @@ class Viz(OceanIOStep):
                 )
                 t_target = 10.0
 
-            ds_list = []
-            time_ds = []
-            # Remove missing comparison so it won't be used later
-            comparisons = dict()
-            for comparison_name in self.comparisons.keys():
-                if os.path.exists(f'{comparison_name}.nc'):
-                    comparisons[comparison_name] = self.comparisons[
-                        comparison_name
-                    ]
-                else:
-                    continue
-                ds_comp = self.open_model_dataset(
-                    f'{comparison_name}.nc',
-                    decode_times=True,
-                    mesh_filename='mesh.nc',
-                    reconstruct_variables=['normalVelocity'],
-                    config=self.config,
-                )
-                t_arr = get_time_since_start(ds_comp, units='days')
-                t_index = np.argmin(np.abs(t_arr - t_target))
-                time_ds.append(float(t_arr[t_index]))
-                ds_list.append(ds_comp.isel(Time=t_index))
+            comparison_data = self._get_comparison_data(t_target)
             ds_init = self.open_model_dataset('init.nc', config=self.config)
             ds_init = ds_init.isel(Time=0)
 
@@ -142,9 +180,9 @@ class Viz(OceanIOStep):
                 fig = plt.figure(figsize=(3, 5))
                 colors = ['k', 'b', 'r', 'darkgreen']
                 for comparison_name, ds_comp, t_days, color in zip(
-                    self.comparisons.keys(),
-                    ds_list,
-                    time_ds,
+                    [name for name, _, _ in comparison_data],
+                    [ds for _, ds, _ in comparison_data],
+                    [t for _, _, t in comparison_data],
                     colors,
                     strict=False,
                 ):

@@ -506,6 +506,279 @@ All config options shown in {ref}`ocean-single-column` are also used.
 
 See {ref}`ocean-single-column`.
 
+## frazil column
+
+### description
+
+The `frazil` task creates four single-column cases that combine the two
+initial-condition regimes (``melting`` and ``freezing``) with the two frazil
+algorithms (``FixedProperty`` and ``teos``). Each run uses the default
+single-column 10-day forward setup and outputs the state and diagnostics needed
+for frazil growth and melting. For MPAS-Ocean, the ``teos`` variant is omitted
+because that model only supports the ``FixedProperty`` algorithm.
+
+The melting case uses a linear salinity profile with depth and a temperature
+profile that transitions from warm water near the surface to colder water below
+`transition_depth_melting`. The freezing case uses a uniform negative
+temperature profile with a sustained negative surface latent heat flux so that
+frazil can form under cooling.
+
+For MPAS-Ocean, the conservation property checks are expected to report `FAIL`
+because frazil transfers are not yet included in the Polaris budgets; the task
+itself still passes.
+
+### mesh
+
+See {ref}`ocean-single-column`.
+
+### vertical grid
+
+See {ref}`ocean-single-column`.
+
+### initial conditions
+
+The frazil tests use the standard single-column vertical profile setup, with
+salinity and temperature defined by the options in the
+`single_column_frazil` config section. The default values are:
+
+```cfg
+[single_column_frazil]
+
+# Salinity at the surface [PSU]
+salinity_surface = 34.0
+
+# Salinity gradient with depth (salinity increases with depth) [PSU/m]
+dsdz = 0.01
+
+# Temperature near the surface for the melting case, above the local
+# freezing point [degC]
+temperature_upper_melting = 2.0
+
+# Temperature at depth for the melting case, below the local freezing
+# point [degC]
+temperature_lower_melting = -2.0
+
+# Depth of the transition between the upper and lower temperature for the
+# melting case [m]
+transition_depth_melting = 50.0
+
+# Temperature applied uniformly through the water column for the freezing
+# case [degC]
+temperature_freezing = -1.8
+
+# Net latent heat flux applied at the surface for the freezing case.
+# Negative values indicate a net loss of heat from the ocean, consistent
+# with surface freezing [W/m^2]
+latent_heat_flux_freezing = -50.0
+```
+
+### forcing
+
+The freezing case sets the surface latent heat flux via the shared forcing
+section:
+
+```cfg
+[single_column_forcing]
+
+# Net latent heat flux applied when bulk forcing is used, set to the
+# freezing-case latent heat flux above.  Only applied to the freezing task,
+# since the melting task does not include latent_heat_flux in its list of
+# active forcing variables.
+latent_heat_flux = ${single_column_frazil:latent_heat_flux_freezing}
+```
+
+The frazil algorithm is selected in the forward step via `frazil_type`, with
+`FixedProperty` and `teos` both available for Omega and `FixedProperty` the
+only supported option for MPAS-Ocean.
+
+### time step and run duration
+
+The time step is given in {ref}`ocean-single-column`. The run duration is 10
+days.
+
+### config options
+
+See {ref}`ocean-single-column` and the frazil-specific options in the
+`single_column_frazil` and `single_column_forcing` sections above.
+
+### cores
+
+See {ref}`ocean-single-column`.
+
+## frazil one layer freezing
+
+### description
+
+The `frazil/freezing_1layer_baseline` task isolates the interaction between
+the surface heat flux and frazil formation in a single, thick surface layer.
+The column is initialized exactly at the local freezing point and every
+tendency is disabled except the surface tracer forcing and the frazil
+tendency, so the heat content of the layer evolves only in response to the
+applied surface heat flux and to frazil growth. Omega runs both frazil
+algorithms (`FixedProperty` and `teos`) with each of its four time
+integrators: `RungeKutta2`, `RungeKutta4`, `SplitExplicitRK2` and
+`UnsplitRK2`. MPAS-Ocean retains only the `RK4`/`FixedProperty` run.
+
+Three additional tasks modify the baseline:
+
+| Task | Change from baseline |
+| --- | --- |
+| `frazil/freezing_1layer_cold` | Surface latent heat flux of -3000 W/m$^2$ instead of -50 W/m$^2$ |
+| `frazil/freezing_1layer_fresh` | Uniform initial salinity of 2.0 PSU instead of the baseline depth-dependent profile |
+| `frazil/freezing_1layer_thin` | A 0.5 m layer with a -3000 W/m$^2$ cooling flux (intended to hit the 0.1h mass limiter) |
+
+Each task has its own initial condition and forcing file, and runs the same
+time-integrator and frazil-algorithm combinations.
+
+For MPAS-Ocean, the conservation property checks are expected to report `FAIL`
+because frazil transfers are not yet included in the Polaris budgets; the task
+itself still passes.
+
+### mesh
+
+See {ref}`ocean-single-column`.
+
+### vertical grid
+
+The baseline, cold and fresh tasks have a single uniform 10 m layer:
+
+```cfg
+[vertical_grid]
+
+# Number of vertical levels
+vert_levels = 1
+
+# Depth of the bottom of the ocean, giving a single 10 m layer
+bottom_depth = 10.0
+```
+
+The thin task sets `bottom_depth = 0.5` m while retaining one level. Omega's
+initial pseudo-thickness can differ from 0.5 m because it is computed from
+pressure and the equation of state.
+
+### initial conditions
+
+Salinity uses the same linear profile as the `frazil` task, set by
+`salinity_surface` and `dsdz` in the `single_column_frazil` section.
+Temperature is set to the local freezing point computed from the equation of
+state at each layer, rather than to the uniform `temperature_freezing` value,
+so that frazil begins forming as soon as the surface cooling is applied.
+The fresh task sets `salinity_surface = 2.0` PSU and `dsdz = 0.0` PSU/m,
+then computes the freezing temperature at the layer's pressure.
+
+### forcing
+
+The surface latent heat flux is inherited from the `frazil` task, as described
+in [frazil column](#frazil-column) above. The cold and thin tasks both override
+`latent_heat_flux_freezing` to -3000 W/m$^2$.
+
+### time step and run duration
+
+The time step is given in {ref}`ocean-single-column`. The run duration is one
+day, with output written every time step.
+
+The optional visualization writes `layer-evolution.png`, showing top-layer
+temperature, salinity, thickness, and thickness-times-temperature over the day
+and during the first five time steps, with freezing-point curves and the
+initial state from `init.nc`. Omega uses pseudo-thickness for the thickness
+series; MPAS-Ocean uses geometric layer thickness. For Omega,
+`frazil-fluxes.png` shows per-step frazil energy, mass, and salt rates, and
+`conservation-residuals.png` shows the associated top-layer budget residuals.
+The two frazil diagnostic plots are not produced for MPAS-Ocean.
+
+### config options
+
+See {ref}`ocean-single-column` and the frazil-specific options in the
+`single_column_frazil` and `single_column_forcing` sections above.
+
+### cores
+
+See {ref}`ocean-single-column`.
+
+## frazil melting short
+
+### description
+
+The `frazil/melting_short/warm`, `frazil/melting_short/cold` and
+`frazil/melting_short/melt0.1h` tasks isolate frazil melting in a short,
+two-layer run. A top layer sits above a
+supercooled bottom layer, no surface forcing is applied, and every tendency is
+disabled except frazil, so the evolution of both layers is driven entirely by
+frazil formation and melting. Omega runs both frazil algorithms
+(`FixedProperty` and `teos`) with each of its four time integrators:
+`RungeKutta2`, `RungeKutta4`, `SplitExplicitRK2` and `UnsplitRK2`. MPAS-Ocean
+retains only the `RK4`/`FixedProperty` run.
+
+The tasks differ in their initial temperature and, for `melt0.1h`, in their
+vertical grid; each has its own initial condition:
+
+| Task | Change from `melting_short.cfg` |
+| --- | --- |
+| `frazil/melting_short/warm` | `warm.cfg` sets the top-layer temperature and bottom-layer supercooling so that all the frazil formed is melted |
+| `frazil/melting_short/cold` | `cold.cfg` sets the same two options so that there is more frazil formed than melted |
+| `frazil/melting_short/melt0.1h` | `melt0.1h.cfg` sets a thin melting layer over a 10x thicker supercooled layer, sized so that the frazil melt mass limiter (`LayerMassFracMax`) binds while frazil formation stays below its own limit |
+
+For MPAS-Ocean, the conservation property checks are expected to report `FAIL`
+because frazil transfers are not yet included in the Polaris budgets; the task
+itself still passes.
+
+### mesh
+
+See {ref}`ocean-single-column`.
+
+### vertical grid
+
+The warm and cold tasks have two uniform 1 m layers:
+
+```cfg
+[vertical_grid]
+
+# Number of vertical levels
+vert_levels = 2
+
+# Depth of the bottom of the ocean, giving two 1 m layers
+bottom_depth = 2.0
+```
+
+The `melt0.1h` task instead uses `grid_type = tanh_dz` with
+`bottom_depth = 11.0` m and `min_layer_thickness = 1.0` m, which for two
+levels gives a 1 m top layer over a 10 m bottom layer.
+
+### initial conditions
+
+Salinity is uniform at `salinity_surface` (34 PSU) because `dsdz = 0.0`.
+Temperature is `temperature_top_melting_short` above
+`transition_depth_melting_short` (1 m) and `supercooling_melting_short`
+below the local freezing point computed from the equation of state beneath
+it, so the bottom layer is supercooled. The warm and cold variants set the
+first two of these options to different values.
+
+### forcing
+
+No surface forcing is applied; `latent_heat_flux` is overridden to zero.
+
+### time step and run duration
+
+The time step is given in {ref}`ocean-single-column`. The run is a small,
+fixed number of time steps long, with output written every time step.
+
+The optional visualization writes `layer-evolution.png`, a two-by-four grid
+of temperature, thickness, salinity and thickness-times-temperature, with the
+top layer on the first row and the bottom layer on the second, including
+freezing-point curves. For Omega, `frazil-fluxes.png` shows per-step frazil
+energy, mass, and salt rates, and `conservation-residuals.png` shows the
+column-integrated budget residuals. The two frazil diagnostic plots are not
+produced for MPAS-Ocean.
+
+### config options
+
+See {ref}`ocean-single-column` and the frazil-specific options in the
+`single_column_frazil` and `single_column_forcing` sections above.
+
+### cores
+
+See {ref}`ocean-single-column`.
+
 ## thermo
 
 ### description

@@ -1,11 +1,11 @@
 import os
 
 from polaris import Task
-from polaris.tasks.ocean.single_column.forward import Forward
-from polaris.tasks.ocean.single_column.init import Init
-from polaris.tasks.ocean.single_column.thermo.conservation_summary import (
+from polaris.tasks.ocean.single_column.conservation_summary import (
     ConservationSummary,
 )
+from polaris.tasks.ocean.single_column.forward import Forward
+from polaris.tasks.ocean.single_column.init import Init
 from polaris.tasks.ocean.single_column.viz import Viz
 
 

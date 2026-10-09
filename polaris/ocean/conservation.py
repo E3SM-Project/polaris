@@ -295,6 +295,42 @@ def compute_flux_forcing(
     return total * dt
 
 
+def compute_frazil_fluxes(ds_mesh, ds, time_index_end=-1):
+    """Integrate Omega frazil contributions to ocean-state change.
+
+    Omega reports frazil fluxes with the coupling conventions
+    (counted positive into the ocean).
+    """
+    from polaris.ocean.model.time import get_time_since_start
+
+    fields = (
+        'FrazilMassFlux',
+        'FrazilSaltFlux',
+        'FrazilEnergyFlux',
+    )
+    missing = [field for field in fields if field not in ds]
+    if missing:
+        raise ValueError(
+            'Omega frazil fields are missing from output: '
+            + ', '.join(missing)
+        )
+
+    time = np.asarray(get_time_since_start(ds, units='seconds'), dtype=float)
+    end = len(time) if time_index_end == -1 else time_index_end + 1
+    time = time[:end]
+    intervals = np.diff(np.concatenate(([0.0], time)))
+    area = np.asarray(ds_mesh['areaCell'].values, dtype=float)
+    totals = []
+    for field in fields:
+        flux = np.asarray(ds[field].values, dtype=float)[:end]
+        totals.append(float(np.sum(flux * intervals[:, None] * area)))
+    return dict(
+        mass=totals[0],
+        salt=totals[1],
+        energy=totals[2],
+    )
+
+
 def _compute_enthalpy_forcing(
     ds_mesh,
     ds,
