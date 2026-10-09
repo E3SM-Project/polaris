@@ -26,17 +26,3 @@ Then, you can build the MPAS model with
 ```bash
 make [DEBUG=true] [OPENMP=true] [ALBANY=true] gfortran
 ```
-
-## intel-classic
-
-If the environment has been set up properly, you should be able to source:
-
-```bash
-source load_polaris_chrysalis_intel-classic_openmpi.sh
-```
-
-Then, you can build the MPAS model with
-
-```bash
-make [DEBUG=true] [OPENMP=true] ifort
-```
