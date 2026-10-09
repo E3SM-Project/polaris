@@ -10,7 +10,7 @@ the new environment.
 ## MPAS-Ocean: Running the `pr` Suite
 
 For each machine, compiler, and MPI combination (for example, on Chrysalis
-with `intel-classic` and OpenMPI):
+with `gnu` and OpenMPI):
 
 1. **Start a Clean Environment**
 
@@ -19,10 +19,10 @@ with `intel-classic` and OpenMPI):
 2. **Source the Load Script**
 
    ```bash
-   source load_polaris_chrysalis_intel-classic_openmpi.sh
+   source load_polaris_chrysalis_gnu_openmpi.sh
    ```
 
-   *(Replace `chrysalis`, `intel-classic`, and `openmpi` with your machine,
+   *(Replace `chrysalis`, `gnu`, and `openmpi` with your machine,
    compiler, and MPI as appropriate. See {ref}`dev-supported-machines`.)*
 
 3. **Set Up (and Auto-Build) the Suite**
@@ -32,7 +32,7 @@ with `intel-classic` and OpenMPI):
 
    ```bash
    polaris suite -c ocean -t pr --clean_build --model mpas-ocean\
-       -w /path/to/polaris_scratch/mpaso_pr_intel-classic_openmpi
+       -w /path/to/polaris_scratch/mpaso_pr_gnu_openmpi
    ```
 
    Notes:
@@ -48,7 +48,7 @@ with `intel-classic` and OpenMPI):
 4. **Run the Suite**
 
    ```bash
-   cd /path/to/polaris_scratch/mpaso_pr_intel-classic_openmpi
+   cd /path/to/polaris_scratch/mpaso_pr_gnu_openmpi
    sbatch job_script_pr.sh
    ```
 
