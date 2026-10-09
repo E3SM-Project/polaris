@@ -3,20 +3,16 @@ machines:
   - name: aurora
     models:
       - model: Omega
-        compiler: oneapi-ifx
+        compiler: intel
         mpi: mpich
         mpas_target: null
       - model: Omega
-        compiler: oneapi-ifxgpu
+        compiler: intelgpu
         mpi: mpich
         mpas_target: null
 
   - name: chrysalis
     models:
-      - model: MPAS
-        compiler: intel-classic
-        mpi: openmpi
-        mpas_target: ifort
       - model: MPAS
         compiler: gnu
         mpi: openmpi

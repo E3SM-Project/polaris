@@ -35,9 +35,6 @@ mpi_intel = openmpi
 # the system MPI library to use for gnu compiler
 mpi_gnu = openmpi
 
-# the system MPI library to use for intel-classic compiler
-mpi_intel_classic = openmpi
-
 # the base path for spack environments used by polaris
 spack = /lcrc/soft/climate/polaris/chrysalis/spack
 

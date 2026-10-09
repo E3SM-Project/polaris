@@ -11,7 +11,6 @@ from shared import check_call, get_logger
 # https://mpas-dev.github.io/polaris/latest/developers_guide/machines/index.html#supported-machines
 all_build_targets = {
     'chrysalis': {
-        ('intel-classic', 'openmpi'): 'ifort',
         ('gnu', 'openmpi'): 'gfortran',
     },
     'frontier': {
