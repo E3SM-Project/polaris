@@ -69,11 +69,13 @@ class Row:
 
 
 #: the rows of the testing checklist in the Omega PR template.  The
-#: template still calls Chrysalis's compiler ``oneapi-ifx``, which Polaris
-#: calls ``intel``, until Omega catches up with E3SM's compiler names.
+#: template calls Aurora's compilers ``intel`` and ``intelgpu``, as Omega
+#: has since E3SM-Project/Omega#566, while Polaris still calls them
+#: ``oneapi-ifx`` and ``oneapi-ifxgpu``.
 TEMPLATE_ROWS = [
-    Row('aurora', 'oneapi-ifx', 'mpich', 'aurora, oneapi-ifx, mpich'),
-    Row('chrysalis', 'intel', 'openmpi', 'chrysalis, oneapi-ifx, openmpi'),
+    Row('aurora', 'oneapi-ifx', 'mpich', 'aurora, intel, mpich'),
+    Row('aurora', 'oneapi-ifxgpu', 'mpich', 'aurora, intelgpu, mpich'),
+    Row('chrysalis', 'intel', 'openmpi', 'chrysalis, intel, openmpi'),
     Row('frontier', 'craygnu', 'mpich', 'frontier, craygnu, mpich'),
     Row(
         'frontier',

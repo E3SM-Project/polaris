@@ -47,9 +47,7 @@ def test_report(finished):
     )
 
     assert url is None
-    assert text.startswith(
-        '## Testing: chrysalis, oneapi-ifx, openmpi (Polaris `intel`)\n'
-    )
+    assert text.startswith('## Testing: chrysalis, intel, openmpi\n')
     assert 'CTests: 50 of 50 passed. `omega_pr`: 3 of 3 tasks passed.' in text
     assert (
         f'Tested the merge of E3SM-Project/Omega#5 '
@@ -127,7 +125,9 @@ def test_report_not_run(finished):
         not_run='Aurora is down for maintenance.',
     )
 
-    assert text.startswith('## Testing: aurora, oneapi-ifx, mpich\n')
+    assert text.startswith(
+        '## Testing: aurora, intel, mpich (Polaris `oneapi-ifx`)\n'
+    )
     assert 'Not run: Aurora is down for maintenance.' in text
     marker = pr_test_report.parse_marker(text)
     assert marker is not None

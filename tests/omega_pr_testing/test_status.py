@@ -82,7 +82,7 @@ def test_run_status_off_the_machines(monkeypatch):
     lines = text.splitlines()
     assert lines[-5:] == [
         "Rows to test from each machine's login nodes:",
-        '  aurora: aurora/oneapi-ifx',
+        '  aurora: aurora/oneapi-ifx, aurora/oneapi-ifxgpu',
         '  chrysalis: chrysalis/intel',
         '  frontier: frontier/craygnu, frontier/craygnu-mphipcc',
         '  pm-cpu and pm-gpu: pm-cpu/gnu, pm-gpu/gnugpu',

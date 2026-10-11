@@ -229,11 +229,10 @@ def test_init_closed_pr(fixture, monkeypatch):
 
 
 def test_get_row():
-    assert get_row('chrysalis/intel').template == (
-        'chrysalis, oneapi-ifx, openmpi'
-    )
-    assert get_row('chrysalis/intel').label == (
-        'chrysalis, oneapi-ifx, openmpi (Polaris `intel`)'
+    assert get_row('chrysalis/intel').template == ('chrysalis, intel, openmpi')
+    assert get_row('chrysalis/intel').label == 'chrysalis, intel, openmpi'
+    assert get_row('aurora/oneapi-ifx').label == (
+        'aurora, intel, mpich (Polaris `oneapi-ifx`)'
     )
     assert get_row('pm-cpu/gnu').label == 'pm-cpu, gnu, mpich'
     extra = get_row('chrysalis/gnu')
