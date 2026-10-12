@@ -150,7 +150,7 @@ location in <code class="docutils literal notranslate"><span class="pre">ds</spa
 length one</p></li>
 <li><p><strong>location</strong> (<em>{'cell-center'</em><em>, </em><em>'cell-interfaces'</em><em>, </em><em>'cell-top'}</em>) – Where the variable is defined: layer midpoints, layer interfaces,
 or the top of each layer</p></li>
-<li><p><strong>allow_reconstruct</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to reconstruct the coordinate from <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> via
+<li><p><strong>allow_reconstruct</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to reconstruct the coordinate from <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> via
 <code class="xref py py-func docutils literal notranslate"><span class="pre">_reconstruct_z_mid_and_interface()</span></code> when the data set does
 not carry the field directly</p></li>
 <li><p><strong>ds_vert</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.9.0)"><em>xarray.Dataset</em></a><em>, </em><em>optional</em>) – The vertical coordinate dataset containing <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and
@@ -167,7 +167,7 @@ A <code class="docutils literal notranslate"><span class="pre">Time</span></code
 <code class="docutils literal notranslate"><span class="pre">'cell-top'</span></code>, respectively</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">location</span></code> is not one of the supported values, the
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">location</span></code> is not one of the supported values, the
     corresponding field is not present in the dataset and it may not
     be reconstructed, or <code class="docutils literal notranslate"><span class="pre">ds</span></code> has a <code class="docutils literal notranslate"><span class="pre">Time</span></code> dimension of length
     other than one</p>

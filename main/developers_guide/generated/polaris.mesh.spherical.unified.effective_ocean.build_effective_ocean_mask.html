@@ -192,24 +192,24 @@ on the same grid</p></li>
 <li><p><strong>ocean_background</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – The ocean background cell width in km on the same grid</p></li>
 <li><p><strong>lat</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – The latitude coordinate in degrees</p></li>
 <li><p><strong>lon</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a>) – The longitude coordinate in degrees</p></li>
-<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The grid resolution in degrees</p></li>
+<li><p><strong>resolution</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – The grid resolution in degrees</p></li>
 <li><p><strong>land_blockages</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a><em>, </em><em>optional</em>) – A boolean mask of rasterized critical land blockages (removed
 from the emulated ocean)</p></li>
 <li><p><strong>passages</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>numpy.ndarray</em></a><em>, </em><em>optional</em>) – A boolean mask of rasterized critical ocean passages (widened
 and added to the emulated ocean)</p></li>
-<li><p><strong>seed_points</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">(lon,</span> <span class="pre">lat)</span></code> seed points in degrees for the flood fill; if
+<li><p><strong>seed_points</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><em>tuple</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">(lon,</span> <span class="pre">lat)</span></code> seed points in degrees for the flood fill; if
 <code class="docutils literal notranslate"><span class="pre">None</span></code>, no flood fill is performed and all mesh-scale ocean
 is retained</p></li>
-<li><p><strong>grow_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The hysteresis lower bound on the candidate fraction (&lt; 0.5);
+<li><p><strong>grow_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – The hysteresis lower bound on the candidate fraction (&lt; 0.5);
 connected regions above this threshold that touch the strict
 flood-filled ocean are added, covering cells whose fate at the
 strict 0.5 threshold depends on the exact MPAS cell tiling</p></li>
-<li><p><strong>passage_widen_factor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The passage swath width in units of the local ocean background
+<li><p><strong>passage_widen_factor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – The passage swath width in units of the local ocean background
 cell width</p></li>
-<li><p><strong>passage_widen_factor_high_lat</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The passage swath width factor poleward of
+<li><p><strong>passage_widen_factor_high_lat</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – The passage swath width factor poleward of
 <code class="docutils literal notranslate"><span class="pre">passage_widen_latitude_threshold</span></code> (mimicking
 <code class="docutils literal notranslate"><span class="pre">widen_transect_edge_masks</span></code> in the MPAS cull)</p></li>
-<li><p><strong>passage_widen_latitude_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The latitude in degrees poleward of which
+<li><p><strong>passage_widen_latitude_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – The latitude in degrees poleward of which
 <code class="docutils literal notranslate"><span class="pre">passage_widen_factor_high_lat</span></code> applies</p></li>
 </ul>
 </dd>
