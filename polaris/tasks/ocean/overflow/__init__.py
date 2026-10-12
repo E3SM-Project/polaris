@@ -91,6 +91,20 @@ def _add_overflow_variant_tasks(component, eos_type, coord_type):
     smoke_test.set_shared_config(config, link=config_filename)
     component.add_task(smoke_test)
 
+    if eos_type == 'nonlinear' and coord_type == 'pstar':
+        # Omega's production configuration, kept with the centered pressure
+        # gradient alongside its finite-volume twin
+        smoke_test = SmokeTest(
+            component=component,
+            indir=taskdir,
+            init=init_step,
+            horiz_adv_order=4,
+            use_mom_del4=True,
+            centered_pgf=True,
+        )
+        smoke_test.set_shared_config(config, link=config_filename)
+        component.add_task(smoke_test)
+
     component.add_task(
         Rpe(
             component=component,

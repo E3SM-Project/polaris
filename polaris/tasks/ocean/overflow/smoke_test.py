@@ -20,6 +20,7 @@ class SmokeTest(Task):
         horiz_adv_order,
         horiz_fct_enable_omega=True,
         use_mom_del4=False,
+        centered_pgf=False,
     ):
         """
         Create the test case
@@ -37,12 +38,27 @@ class SmokeTest(Task):
 
         horiz_adv_order : int
             The horizontal advection order for the test case
+
+        horiz_fct_enable_omega : bool, optional
+            Whether Omega uses flux-corrected transport
+
+        use_mom_del4 : bool, optional
+            Whether to enable del4 viscosity
+
+        centered_pgf : bool, optional
+            Whether Omega uses the centered pressure gradient rather than
+            its default
         """
         task_name = f'smoke_test_horiz_adv_order_{horiz_adv_order}'
         if use_mom_del4:
             task_name += '_del4'
         if not horiz_fct_enable_omega and horiz_adv_order > 2:
             task_name += '_nofct'
+        if centered_pgf:
+            task_name += '_centered_pgf'
+            pressure_grad_type = 'Centered'
+        else:
+            pressure_grad_type = None
         super().__init__(component=component, name=task_name, indir=indir)
 
         self.add_step(init, symlink='init')
@@ -56,6 +72,7 @@ class SmokeTest(Task):
             horiz_adv_order=horiz_adv_order,
             horiz_fct_enable_omega=horiz_fct_enable_omega,
             use_mom_del4=use_mom_del4,
+            pressure_grad_type=pressure_grad_type,
         )
         self.add_step(forward_step)
 
