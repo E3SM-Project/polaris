@@ -272,8 +272,10 @@ apply, with these differences:
   Say which tasks differ and what you think caused it.
 - **CTests fail.**  `ctests.log` is in the PR build directory.
 - **The scheduler refuses a job**, for a per-user limit, say.  `setup`
-  stops with the scheduler's message.  Tell the requester rather than
-  resubmitting or choosing another queue.  The utility already submits
+  stops with the scheduler's message, having recorded the jobs it did
+  submit.  Tell the requester rather than resubmitting by hand or choosing
+  another queue.  With their permission, run `setup --submit` again once
+  the queue allows; it submits only the jobs that were not submitted.  The utility already submits
   Frontier's jobs with the normal QOS and an hour's wall time, and
   Aurora's to the capacity queue, one after another.
 - **The connection to a machine drops**, often because the requester

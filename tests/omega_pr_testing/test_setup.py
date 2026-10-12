@@ -9,6 +9,8 @@ import pytest
 from pr_test_fixtures import commit, git, make_complete_baseline, make_tester
 from pr_test_manifest import ManifestError
 
+from polaris.job import SubmissionError
+
 
 @pytest.fixture
 def tester(tmp_path, monkeypatch):
@@ -178,6 +180,42 @@ def test_setup_aurora_chains_jobs(tester, monkeypatch):
     dependencies = [call[2] for call in calls['submit']]
     assert dependencies == [None, '1001', '1002']
     assert calls['extra_args'] == [['-q', 'capacity']] * 3
+
+
+def test_setup_resumes_after_refused_job(tester, monkeypatch):
+    fixture, manifest, calls = tester
+    monkeypatch.setenv('POLARIS_MACHINE', 'aurora')
+    monkeypatch.setenv('POLARIS_COMPILER', 'oneapi-ifx')
+    monkeypatch.setenv('POLARIS_MPI', 'mpich')
+    monkeypatch.setattr(pr_test_setup, '_get_system', lambda machine: 'pbs')
+    submit_job = pr_test_setup.submit_job
+
+    def refuse_ctests(script, work_dir, system, dependency=None, **kwargs):
+        if 'ctest' in script:
+            raise SubmissionError('qsub: would exceed per-user limit')
+        return submit_job(script, work_dir, system, dependency, **kwargs)
+
+    monkeypatch.setattr(pr_test_setup, 'submit_job', refuse_ctests)
+    with pytest.raises(SubmissionError, match='run setup --submit again'):
+        _setup(fixture, manifest, submit=True)
+    row_dir = Path(fixture.config.work_base) / manifest.run_name
+    state = pr_test_setup.read_state(str(row_dir / 'aurora_oneapi-ifx'))
+    assert [job['job_id'] for job in state.jobs] == ['1001', '1002', None]
+    text = pr_test_setup.format_state(state, str(row_dir), 'aurora')
+    assert 'Not yet submitted: CTests.' in text
+
+    monkeypatch.setattr(pr_test_setup, 'submit_job', submit_job)
+    suites = len(calls['suite'])
+    state = _setup(fixture, manifest, submit=True)
+
+    # only the refused job, still waiting on the one before it
+    assert len(calls['suite']) == suites
+    assert 'ctest' in calls['submit'][-1][1]
+    assert calls['submit'][-1][2] == '1002'
+    assert [job['job_id'] for job in state.jobs] == ['1001', '1002', '1003']
+
+    with pytest.raises(pr_test_setup.SetupError, match='already submitted'):
+        _setup(fixture, manifest, submit=True)
 
 
 def test_setup_pin_mismatch(tester):

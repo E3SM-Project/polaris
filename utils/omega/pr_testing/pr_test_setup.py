@@ -34,7 +34,12 @@ from polaris.baselines import (
     find_build_log,
 )
 from polaris.config import PolarisConfigParser
-from polaris.job import get_submit_args, is_job_active, submit_job
+from polaris.job import (
+    SubmissionError,
+    get_submit_args,
+    is_job_active,
+    submit_job,
+)
 from polaris.provenance import read as read_provenance
 
 SUITE = 'omega_pr'
@@ -247,6 +252,9 @@ def run_setup(
             f'The PR suite in {pr_work_dir} has already run.  Remove '
             f'{run_dir} to test this row again.'
         )
+    previous = _read_submitted_state(run_dir)
+    if previous is not None:
+        return _resume(previous, row.machine, run_dir, submit)
 
     omega_dir = os.path.join(config.work_base, 'omega')
     test_tree = os.path.join(omega_dir, manifest.test_commit[:12])
@@ -310,10 +318,10 @@ def run_setup(
     if baseline_polaris.hash != polaris_hash:
         state.baseline_polaris_hash = baseline_polaris.hash
 
-    if submit:
-        _submit(jobs, row.machine, baseline.active_job)
     state.jobs = [asdict(job) for job in jobs]
     write_state(run_dir, state)
+    if submit:
+        _submit(state, jobs, row.machine, run_dir)
     return state
 
 
@@ -341,6 +349,13 @@ def format_state(state: SetupState, row_dir: str, machine: str) -> str:
         lines.extend(
             f'  {job["name"]}: job {job["job_id"]}' for job in submitted
         )
+        pending = [job['name'] for job in state.jobs if job['job_id'] is None]
+        if pending:
+            lines.append(
+                f'Not yet submitted: {", ".join(pending)}.  With the '
+                f"requester's permission, run setup --submit again to "
+                f'submit them.'
+            )
     else:
         system = _get_system(machine)
         lines.append(
@@ -760,23 +775,65 @@ def _get_baseline_build_log(criteria, roots, baseline_work_dir):
     return logs[0] if logs else None
 
 
-def _submit(jobs, machine, active_baseline_id):
+def _read_submitted_state(row_dir):
+    """What setup did for a row, if it has submitted any of its jobs"""
+    if not os.path.exists(os.path.join(row_dir, STATE_FILENAME)):
+        return None
+    state = read_state(row_dir)
+    if not any(job['job_id'] is not None for job in state.jobs):
+        return None
+    return state
+
+
+def _resume(state, machine, row_dir, submit):
+    """
+    Submit the jobs a row's earlier setup did not, without setting it up
+    again under the jobs already running
+    """
+    jobs = [Job(**job) for job in state.jobs]
+    if all(job.job_id is not None for job in jobs):
+        ids = ', '.join(f'{job.name} {job.job_id}' for job in jobs)
+        raise SetupError(
+            f'This row has already submitted its jobs ({ids}).  Run report '
+            f'when they finish, or remove {row_dir} to test it again.'
+        )
+    if submit:
+        _submit(state, jobs, machine, row_dir)
+    return state
+
+
+def _submit(state, jobs, machine, row_dir):
+    """
+    Submit the jobs that have no id yet, recording each id in the state as
+    it is submitted, so a refused job leaves the others' ids behind
+    """
     system = _get_system(machine)
-    baseline_id = active_baseline_id
+    baseline_id = state.baseline_job
     previous_id = None
     for job in jobs:
-        dependency = baseline_id if job.depends_on_baseline else None
-        if machine in SERIAL_SUBMISSION and previous_id is not None:
-            dependency = previous_id
-        job.job_id = submit_job(
-            job.script,
-            job.work_dir,
-            system,
-            dependency,
-            extra_args=SUBMIT_ARGS.get(machine),
-        )
-        with open(os.path.join(job.work_dir, JOB_ID_FILENAME), 'w') as f:
-            f.write(f'{job.job_id}\n')
+        if job.job_id is None:
+            dependency = baseline_id if job.depends_on_baseline else None
+            if machine in SERIAL_SUBMISSION and previous_id is not None:
+                dependency = previous_id
+            try:
+                job.job_id = submit_job(
+                    job.script,
+                    job.work_dir,
+                    system,
+                    dependency,
+                    extra_args=SUBMIT_ARGS.get(machine),
+                )
+            except SubmissionError as exc:
+                raise SubmissionError(
+                    f'{exc}\nThe jobs submitted before it are recorded in '
+                    f'{os.path.join(row_dir, STATE_FILENAME)}.  Once the '
+                    f'scheduler allows it, run setup --submit again to '
+                    f'submit the rest.'
+                ) from exc
+            with open(os.path.join(job.work_dir, JOB_ID_FILENAME), 'w') as f:
+                f.write(f'{job.job_id}\n')
+            state.jobs = [asdict(submitted) for submitted in jobs]
+            write_state(row_dir, state)
         previous_id = job.job_id
         if job.name == 'baseline suite':
             baseline_id = job.job_id
