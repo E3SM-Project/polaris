@@ -14,9 +14,10 @@ tasks:
 - {ref}`ocean-realistic-global-init`, which creates mesh-specific ocean initial
   conditions from that hydrography and forcing together with the culled mesh
   from `e3sm/init`.
-- {ref}`ocean-realistic-global-analysis-members`, short forward runs on
-  realistic global meshes that exercise the global-statistics analysis member
-  and compare its output between MPAS-Ocean and Omega.
+- {ref}`ocean-realistic-global-analysis-members`, forward runs on realistic
+  global meshes that exercise the analysis members: short runs comparing the
+  global statistics of MPAS-Ocean and Omega, and one-year Omega runs writing
+  what the {ref}`ocean-analysis` tasks read.
 - {ref}`ocean-realistic-global-restart`, a short run split across a restart,
   checking that the history output survives the restart intact.
 
@@ -25,7 +26,9 @@ tasks:
 The `woa23` and `jra55` tasks are model-independent and do not require either
 MPAS-Ocean or Omega to be built.
 
-The `init` and `analysis_members` tasks support both MPAS-Ocean and Omega.
+The `init` task and the `short` `analysis_members` tasks support both
+MPAS-Ocean and Omega.  The `1_year` tasks support only Omega, since the
+analysis reads only Omega output.
 
 The `restart` task supports Omega only.  It is a regression test for the way
 Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
@@ -521,27 +524,35 @@ this task run serially.
 
 ## analysis_members
 
-These tasks perform a short forward run on a realistic global mesh with the
+These tasks perform a forward run on a realistic global mesh with the
 global-statistics analysis member enabled, then plot time series of the
-resulting statistics.  Their main purpose is to compare the analysis-member
-output of MPAS-Ocean and Omega on the same mesh and initial condition.
+resulting statistics.  There are two runs on each mesh:
 
-A task is defined for each of two meshes:
+- `short` compares the analysis-member output of MPAS-Ocean and Omega on the
+  same mesh and initial condition.
+- `1_year` runs Omega for a year with its `MonthlyAverages` and `MOC` analysis
+  groups on, writing what the {ref}`ocean-analysis` tasks read.  It is meant
+  to become a cached step for regression testing the `omega_analysis` suite.
 
-| mesh | cells | time step | barotropic step | run duration |
-|------|-------|-----------|-----------------|--------------|
-| `QU.240km` | 7,153 | 2 h | 4 min | 5 days |
+| mesh | cells | time step | barotropic step | `short` run |
+|------|-------|-----------|-----------------|-------------|
+| `QU.240km` | 7,153 | 1 h | 3 min | 5 days |
 | `EC30to60E2r2` | 236,853 | 30 min | 1 min | 1 day |
 
 They can be set up with, e.g.:
 
 ```bash
-polaris setup -t ocean/spherical/realistic_global/QU.240km/analysis_members_test ...
+polaris setup -t ocean/spherical/realistic_global/QU.240km/analysis_members/short ...
+polaris setup -t ocean/spherical/realistic_global/QU.240km/analysis_members/1_year ...
 ```
+
+The `QU.240km` `short` run is in the `omega_pr` suite.  The `1_year` runs are
+in no suite.  The `QU.240km` year takes about 8 minutes on a Chrysalis node,
+and the `EC30to60E2r2` year about 50 minutes on 6 nodes, writing about 40 GB.
 
 ### description
 
-Each task contains three steps:
+The `short` tasks contain three steps:
 
 1. `forward` runs the ocean model from a cached initial condition, writing
    both a regular `output.nc` history file and the global statistics produced
@@ -561,6 +572,45 @@ WARNING: As of Omega commit [061d0ab](https://github.com/E3SM-Project/Omega/comm
 Omega does not area- or volume-weight the global stats while MPAS-Ocean does.
 Thus, the two models' stats cannot be directly compared.
 
+The `1_year` tasks contain the `forward` and `global_stats` steps.  The run
+writes, in the `forward` step's work directory:
+
+- `monthly_means_1MonthTimeStats.<year>-<month>.nc`, the monthly means
+  from the `MonthlyAverages` group of conservative temperature, absolute
+  salinity, pseudo-thickness, specific volume, the layer-midpoint and
+  interface elevations, sea surface height, normal velocity and kinetic
+  energy;
+- `moc_1MonthTimeStats.<year>-<month>.nc`, the monthly-mean global
+  overturning streamfunction from the `MOC` group, in 60 latitude bins on
+  `QU.240km` and Omega's default of 180 on `EC30to60E2r2`;
+- `global_stats_1DayInstants`, daily global statistics of the state, kinetic
+  energy and sea surface height;
+- `output/ocn.hist.<year>-<month>.nc`, a monthly snapshot of the same fields
+  as the monthly means, taken at the instant each mean is finalized, as a
+  check on the means.
+
+Omega names a time-mean file for the instant it was finalized, the start of
+the following month, so the twelve files covering year 1 are named `0001-02`
+through `0002-01`.  The analysis accounts for this; see {ref}`ocean-analysis`.
+
+To analyze the run, point the `omega_analysis` suite at the `omega.yml` in
+the `forward` step's work directory:
+
+```cfg
+[ocean_analysis]
+
+omega_config_filename = <work_dir>/ocean/spherical/realistic_global/<mesh>/analysis_members/1_year/forward/omega.yml
+
+[ocean_analysis_climatology]
+
+start_year = 1
+end_year = 1
+
+[ocean_analysis_time_series]
+
+start_year = 1
+end_year = 1
+```
 
 ### mesh
 
@@ -589,12 +639,28 @@ applied through bulk wind stress. Vertical mixing uses CVMix with convection
 and shear mixing enabled, and a constant implicit bottom drag coefficient of
 1.0e-3 is applied.
 
+The harmonic and biharmonic momentum viscosities are set per mesh by the
+`mom_del2` and `mom_del4` config options, raised from Omega's defaults of
+1.0e3 m^2/s and 1.2e11 m^4/s to reduce, but not remove, grid-scale noise in
+the velocity.  On `QU.240km`, the biharmonic viscosity is raised to 1.0e15
+m^4/s.  On `EC30to60E2r2`, the harmonic viscosity is raised to 1.0e4 m^2/s,
+since Omega does not scale the biharmonic viscosity with cell width and it
+cannot be raised enough to damp the 60-km cells without going unstable in the
+30-km ones.  These values are provisional until Omega has KPP and the fix to
+its pressure-gradient errors over bathymetry.  These are coarse runs for
+testing the analysis members, not scientifically valid simulations.
+
 ### time step and run duration
 
-The time step and run duration are set per mesh as shown in the table above.
-The forward run uses the split-explicit time stepper (`SplitExplicitRK2` in
-Omega), so each baroclinic step is 30 barotropic substeps long and divides a
-day evenly.  Output, including the global statistics, is written once per day.
+The time steps and the length of the `short` run are set per mesh as shown in
+the table above.  On `QU.240km` they are E3SM's values for this mesh.  The
+forward run uses the split-explicit time stepper (`SplitExplicitRK2` in
+Omega).  The `short` run writes output, including the global statistics, once
+per day.
+
+The `1_year` run lasts 365 days from `0001-01-01`, one year on the No Leap
+calendar.  Restarts are written monthly, because Omega requires the restart
+interval to be a multiple of every averaging period.
 
 ### config options
 
@@ -608,7 +674,30 @@ eos_type = teos-10
 
 # Time step duration per kilometer [s]
 dt_per_km = 3.0
+
+# options for the analysis_members tasks
+[analysis_members]
+
+# The fields to plot global statistics for, using MPAS-Ocean (Polaris
+# standard) names.  Leave this empty, as it is by default, to plot every
+# field the run wrote statistics for, which is what the models' own default
+# lists give.  A field the run did not write is skipped with a message, not
+# an error.
+fields =
+
+# The harmonic momentum viscosity (m^2/s): Omega's default
+mom_del2 = 1.0e3
+
+# The biharmonic momentum viscosity (m^4/s).  Omega's default of 1.2e11 is
+# meant for much finer meshes and leaves grid-scale noise in the velocity on
+# this one.  1.0e15 gave the least of the values tried in one-year runs;
+# 3.0e15 is unstable with a 1-hour time step.  Some noise remains in the
+# wind-driven top layer.
+mom_del4 = 1.0e15
 ```
+
+The viscosities are for `QU.240km`.  On `EC30to60E2r2`, `mom_del2` is 1.0e4
+and `mom_del4` is 1.2e11.
 
 The `viz` step is controlled by the
 `[realistic_global_viz_temperature]`, `[realistic_global_viz_salinity]`,
