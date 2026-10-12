@@ -107,7 +107,7 @@ same quantities as anomalies relative to their initial values.
 This step normalizes two differences between the models:
 
 - **Output location.** Omega writes the statistics to a separate
-  `global_stats_1DayTimeStats` file, whereas MPAS-Ocean writes
+  `global_stats_1DayInstants` file, whereas MPAS-Ocean writes
   `global_stats.nc`.  The input file is therefore selected in `setup()`, once
   the model is known.
 - **Standard deviation.** Omega writes the standard deviation directly in its
