@@ -73,13 +73,17 @@ class FrazilOneLayer(Task):
         )
         self.add_step(init_step)
 
-        time_step = self.config.getfloat('single_column', 'time_step')
-        run_duration_steps = int(round(86400.0 / time_step))
-        if run_duration_steps * time_step != 86400.0:
-            raise ValueError(
-                'The frazil top-layer run must contain an integer number of '
-                'time steps in one day'
-            )
+        section = self.config['single_column']
+        if section.has_option('run_duration_steps'):
+            run_duration_steps = section.getint('run_duration_steps')
+        else:
+            time_step = section.getfloat('time_step')
+            run_duration_steps = int(round(86400.0 / time_step))
+            if run_duration_steps * time_step != 86400.0:
+                raise ValueError(
+                    'The frazil top-layer run must contain an integer '
+                    'number of time steps in one day'
+                )
 
         validate_vars = [
             'temperature',
