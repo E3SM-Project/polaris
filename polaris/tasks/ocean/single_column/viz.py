@@ -157,7 +157,11 @@ class Viz(OceanIOStep):
         """
         with mplstyle_context():
             section = self.config['single_column']
-            if section.has_option('run_duration'):
+            if section.has_option('run_duration_steps'):
+                run_duration_steps = section.getint('run_duration_steps')
+                time_step = section.getfloat('time_step')
+                t_target = run_duration_steps * time_step / 86400.0
+            elif section.has_option('run_duration'):
                 t_target = section.getfloat('run_duration')
             else:
                 self.logger.info(

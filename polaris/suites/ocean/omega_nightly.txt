@@ -1,3 +1,4 @@
+ocean/column/frazil/freezing
 ocean/column/horiz_press_grad/salinity_gradient
 ocean/column/horiz_press_grad/surface_pressure_gradient
 ocean/column/horiz_press_grad/temperature_gradient

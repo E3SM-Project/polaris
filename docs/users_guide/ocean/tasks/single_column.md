@@ -935,8 +935,8 @@ Three additional tasks modify the baseline:
 
 | Task | Change from baseline |
 | --- | --- |
-| `frazil/freezing_1layer_cold` | Surface latent heat flux of -3000 W/m$^2$ instead of -50 W/m$^2$ |
-| `frazil/freezing_1layer_fresh` | Uniform initial salinity of 2.0 PSU instead of the baseline depth-dependent profile |
+| `frazil/freezing_1layer_cold` | Surface latent heat flux of -3000 W/m$^2$ instead of -50 W/m$^2$ (Guest, 2021)|
+| `frazil/freezing_1layer_fresh` | Uniform initial salinity of 2.0 PSU instead of the baseline salinity of rougly 34.0 PSU|
 | `frazil/freezing_1layer_thin` | A 0.5 m layer with a -3000 W/m$^2$ cooling flux (intended to hit the 0.1h mass limiter) |
 
 Each task has its own initial condition and forcing file, and runs the same

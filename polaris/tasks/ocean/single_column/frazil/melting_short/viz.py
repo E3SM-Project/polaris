@@ -5,7 +5,7 @@ import numpy as np
 
 from polaris.constants import get_constant
 from polaris.ocean.model import OceanIOStep, get_time_since_start
-from polaris.tasks.ocean.single_column.frazil.one_layer.viz import (
+from polaris.tasks.ocean.single_column.frazil.utils import (
     FRAZIL_RATE_UNITS,
     _comparison_style,
     _diagnostics,
@@ -69,12 +69,13 @@ class MeltingShortViz(OceanIOStep):
         config = self.config
         model = config.get('ocean', 'model')
         rho_sw = get_constant('seawater_density_reference')
-        # no surface forcing is applied in this task
-        heat_flux = 0.0
-        frazil_steps = 10
+        heat_flux = config.getfloat(
+            'single_column_forcing', 'latent_heat_flux'
+        )
+        frazil_steps = config.getint('single_column', 'run_duration_steps')
 
         ds_init = self.open_model_dataset('init.nc', config=config)
-        init = _diagnostics(ds_init, rho_sw, config, model)
+        init_diags = _diagnostics(ds_init, rho_sw, config, model)
         ds_init.close()
 
         series = []
@@ -99,7 +100,7 @@ class MeltingShortViz(OceanIOStep):
             )
             run = _diagnostics(ds, rho_sw, config, model)
             fields = {
-                key: np.concatenate([init[key], value], axis=0)
+                key: np.concatenate([init_diags[key], value], axis=0)
                 for key, value in run.items()
             }
             frazil_rates = None
