@@ -230,15 +230,20 @@ class Forward(OceanModelStep):
         config = self.config
         section = config['single_column']
         time_step = section.getfloat('time_step')
-        if self.run_duration_steps is not None:
-            if self.run_duration_steps > 0:
+        run_duration_steps = self.run_duration_steps
+        if run_duration_steps is None and section.has_option(
+            'run_duration_steps'
+        ):
+            run_duration_steps = section.getint('run_duration_steps')
+        if run_duration_steps is not None:
+            if run_duration_steps > 0:
                 # run for a given number of time steps, with output every step
-                duration_seconds = self.run_duration_steps * time_step
+                duration_seconds = run_duration_steps * time_step
                 output_interval_seconds = time_step
             else:
                 raise ValueError(
                     'run_duration_steps must be >0 but was '
-                    f'{self.run_duration_steps}'
+                    f'{run_duration_steps}'
                 )
         else:
             duration_seconds = section.getfloat('run_duration') * 86400.0
