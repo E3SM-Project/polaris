@@ -15,8 +15,6 @@ TIME_INTEGRATORS = (
     'UnsplitRK2',
 )
 
-RUN_DURATION_STEPS = 10
-
 
 class FrazilMeltingShort(Task):
     """
@@ -96,7 +94,6 @@ class FrazilMeltingShort(Task):
                         'melting_short'
                     ),
                     frazil_type=frazil_type,
-                    run_duration_steps=RUN_DURATION_STEPS,
                     frazil_conservation=True,
                     time_integrator=time_integrator,
                 )

@@ -111,9 +111,12 @@ class FrazilInit(Init):
                 + (temperature_lower - temperature_upper) * smooth
             )
         elif self.case == 'melting_short':
-            temperature_top = section.getfloat('temperature_top_melting_short')
-            supercooling = section.getfloat('supercooling_melting_short')
-            transition_depth = section.getfloat(
+            melting_section = config['single_column_frazil_melting']
+            temperature_top = melting_section.getfloat('temperature_top_layer')
+            supercooling = melting_section.getfloat(
+                'supercooling_delta_temperature'
+            )
+            transition_depth = melting_section.getfloat(
                 'transition_depth_melting_short'
             )
             ct_freezing = compute_ct_freezing(

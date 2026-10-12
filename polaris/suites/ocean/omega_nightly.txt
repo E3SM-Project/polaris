@@ -8,6 +8,7 @@ ocean/spherical/icos/correlated_tracers_2d
 ocean/spherical/icos/divergent_2d
 ocean/spherical/icos/nondivergent_2d
 ocean/spherical/icos/rotation_2d
+ocean/column/frazil/freezing
 ocean/column/horiz_press_grad/salinity_gradient
 ocean/column/horiz_press_grad/surface_pressure_gradient
 ocean/column/horiz_press_grad/temperature_gradient
