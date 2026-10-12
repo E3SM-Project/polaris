@@ -2,25 +2,40 @@ from polaris.tasks.ocean.realistic_global.forward import (
     Forward as RealisticGlobalForward,
 )
 
-#: The durations of the runs: a ``short`` one whose length is set per mesh
-DURATIONS = ['short']
+#: The durations of the runs: a ``short`` one whose length is set per mesh,
+#: and a ``1_year`` one that writes the monthly output the ocean analysis
+#: reads
+DURATIONS = ['short', '1_year']
 
-# The baroclinic and barotropic time steps of each mesh and the length of its
-# short run.  For QU.240km the time steps are E3SM's MPAS-Ocean values for
-# oQU240: a 2-hour step gave a growing surface hotspot along the Aleutians in
-# a one-year run.
+# The baroclinic and barotropic time steps of each mesh, the length of its
+# short run and the number of latitude bins of its MOC.  For QU.240km the time
+# steps are E3SM's MPAS-Ocean values for oQU240: a 2-hour step gave a growing
+# surface hotspot along the Aleutians in a one-year run.  Its MOC bins are
+# three degrees, since Omega's default of one degree is finer than the mesh.
+# EC30to60E2r2 uses Omega's default MOC bins.
 MESH_INFO = {
     'QU.240km': dict(
         dt='01:00:00',
         btr_dt='00:03:00',
         short_duration='0005_00:00:00',
+        moc_num_bins=60,
     ),
     'EC30to60E2r2': dict(
         dt='00:30:00',
         btr_dt='00:01:00',
         short_duration='0001_00:00:00',
+        moc_num_bins=180,
     ),
 }
+
+# The one-year run starts on 0001-01-01, so the first monthly file is written
+# at the start of February.  Omega names a file for the time it is written,
+# which for a time mean is the end of the month it averages
+# (E3SM-Project/Omega#554), so the twelve files covering year 1 are named
+# 0001-02 through 0002-01.  The monthly snapshots are named the same way, for
+# the instant they are taken.
+START_YEAR = 1
+MONTHS = 12
 
 
 class Forward(RealisticGlobalForward):
@@ -28,7 +43,13 @@ class Forward(RealisticGlobalForward):
     A forward run for the ``analysis_members`` tasks, with the time steps
     and momentum viscosities of its mesh
 
-    The ``short`` run writes daily output and global statistics.
+    The ``short`` run writes daily output and global statistics.  The
+    ``1_year`` run layers ``monthly_output.yaml`` over the shared
+    ``realistic_global`` yaml file, replacing the ``History`` stream with
+    monthly snapshots, turning on the ``MonthlyAverages`` and ``MOC``
+    analysis groups and writing restarts monthly, which Omega requires of a
+    run with a monthly reduction.  It supports only Omega, since the ocean
+    analysis reads only Omega output.
 
     Attributes
     ----------
@@ -87,6 +108,22 @@ class Forward(RealisticGlobalForward):
             replacements['run_duration'] = mesh_info['short_duration']
             replacements['output_freq_units'] = 'days'
             output_filenames = None
+        elif duration == '1_year':
+            # Omega's TimeInterval parser understands only DDDD_HH:MM:SS, so
+            # the duration is given in days: 365 on the No Leap calendar
+            replacements['run_duration'] = '0365_00:00:00'
+            replacements['output_freq_units'] = 'months'
+            replacements['moc_num_bins'] = mesh_info['moc_num_bins']
+            # every monthly file is declared as an output so that a run
+            # whose analysis groups did not write is reported as a missing
+            # output rather than found later by the analysis
+            output_filenames = []
+            for template in [
+                'output/ocn.hist.{year:04d}-{month:02d}.nc',
+                'monthly_means_1MonthTimeStats.{year:04d}-{month:02d}.nc',
+                'moc_1MonthTimeStats.{year:04d}-{month:02d}.nc',
+            ]:
+                output_filenames.extend(_monthly_filenames(template))
         else:
             raise ValueError(f'Unexpected duration {duration}')
 
@@ -102,15 +139,61 @@ class Forward(RealisticGlobalForward):
             output_filenames=output_filenames,
         )
         self.duration = duration
+        if duration == '1_year':
+            self.stream_dirs.append('output')
 
     def setup(self):
         """
-        Add the per-mesh momentum viscosities from the config options
+        Add the monthly output of the one-year run over the shared yaml
+        file, then the per-mesh momentum viscosities from the config options
         """
+        if (
+            self.duration == '1_year'
+            and self.config.get('ocean', 'model') != 'omega'
+        ):
+            raise ValueError(
+                'The 1_year analysis_members task runs only Omega, since the '
+                'ocean analysis reads only Omega output.'
+            )
         super().setup()
+        if self.duration == '1_year':
+            self.add_yaml_file(
+                package='polaris.tasks.ocean.realistic_global.'
+                'analysis_members',
+                yaml='monthly_output.yaml',
+                template_replacements=self.replacements,
+            )
         section = self.config['analysis_members']
         options = {
             'config_mom_del2': section.getfloat('mom_del2'),
             'config_mom_del4': section.getfloat('mom_del4'),
         }
         self.add_model_config_options(options=options, config_model='ocean')
+
+
+def _monthly_filenames(template):
+    """
+    Get the names of the monthly files the one-year run writes, which are
+    named for the month after the one they cover; see the note on
+    ``START_YEAR``
+
+    Parameters
+    ----------
+    template : str
+        The file name, with ``{year}`` and ``{month}`` in it
+
+    Returns
+    -------
+    filenames : list of str
+        The file names, relative to the step's work directory
+    """
+    year = START_YEAR
+    month = 1
+    filenames = []
+    for _ in range(MONTHS):
+        month += 1
+        if month > 12:
+            month = 1
+            year += 1
+        filenames.append(template.format(year=year, month=month))
+    return filenames

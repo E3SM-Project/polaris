@@ -23,8 +23,11 @@ class AnalysisMembers(Task):
 
     The task runs the ocean model forward from a cached initial condition
     with the global-statistics analysis member enabled, then plots time
-    series of the resulting statistics and global maps of the state
-    variables.  Only the ``forward`` step runs by default.
+    series of the resulting statistics.  The ``short`` run, which supports
+    both MPAS-Ocean and Omega, also plots global maps of the state
+    variables.  The ``1_year`` run supports only Omega and also writes the
+    monthly means and overturning streamfunction the ocean analysis reads.
+    Only the ``forward`` step runs by default.
     """
 
     def __init__(
@@ -106,10 +109,13 @@ class AnalysisMembers(Task):
         stats_analysis.set_shared_config(config, link=config_filename)
         self.add_step(stats_analysis, run_by_default=False)
 
-        viz = Viz(
-            component=component,
-            indir=subdir,
-            forward=forward_step,
-        )
-        viz.set_shared_config(config, link=config_filename)
-        self.add_step(viz, run_by_default=False)
+        # the one-year run writes monthly snapshots rather than the single
+        # output.nc the viz step reads
+        if duration == 'short':
+            viz = Viz(
+                component=component,
+                indir=subdir,
+                forward=forward_step,
+            )
+            viz.set_shared_config(config, link=config_filename)
+            self.add_step(viz, run_by_default=False)
