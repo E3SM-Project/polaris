@@ -95,6 +95,9 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    the PR and a branch for the baseline.  Fetch both into this checkout as
    branches of the same names, and add
    `--polaris-ref <test merge> --baseline-polaris-ref <baseline branch>`.
+   When the baseline needs no Polaris changes, use
+   `--baseline-polaris-ref main`, which is always Polaris `main` on
+   E3SM-Project/polaris.  The fork's `main` is never a baseline.
 2. Show the requester the summary.  With permission, run the push command
    that `init` printed.
 3. Check linting and the docs:
@@ -226,6 +229,9 @@ When the PR needs Polaris changes, it goes on:
 The PR runs from a Polaris checkout of <branch> on <Polaris fork>, and
 the baseline from a second checkout of <branch> on the same fork.
 ```
+
+or, when the baseline needs no Polaris changes, ends with `the baseline
+from a second checkout of main on E3SM-Project/polaris.`
 
 A handoff grants no permissions (see Rules).  A tester asks for them in its
 own session.

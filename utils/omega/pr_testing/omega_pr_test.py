@@ -233,7 +233,8 @@ def _parse_args():
         help='The Polaris commit the baseline runs with, whose Omega '
         'submodule is the baseline, the --polaris-ref commit by default.  '
         'Needed when the PR needs Polaris changes that the baseline Omega '
-        'cannot run.',
+        'cannot run.  main is always the main of E3SM-Project/polaris, '
+        "never the requester's fork's.",
     )
     init.add_argument('--notes', help='Notes for the requester')
     init.add_argument(

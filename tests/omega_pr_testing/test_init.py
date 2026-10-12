@@ -214,6 +214,33 @@ def test_init_baseline_polaris(fixture):
     assert f'Baseline Polaris: {main}' in summary
 
 
+def test_init_baseline_polaris_main(fixture):
+    upstream_main = git(fixture.polaris_dir, 'rev-parse', 'HEAD')
+    git(
+        fixture.polaris_dir,
+        'update-index',
+        '--cacheinfo',
+        f'160000,{fixture.develop},e3sm_submodules/Omega',
+    )
+    git(fixture.polaris_dir, 'commit', '-q', '-m', 'Follow the PR')
+    git(fixture.polaris_dir, 'branch', 'test-merge')
+    # a local main that is not E3SM-Project/polaris's
+    git(fixture.polaris_dir, 'checkout', '-q', '-B', 'main')
+    fixture.config.polaris_fork = 'git@github.com:me/polaris.git'
+
+    result = _initiate(
+        fixture, polaris_ref='test-merge', baseline_polaris_ref='main'
+    )
+    manifest = result.manifest
+
+    assert manifest.baseline_polaris_commit == upstream_main
+    assert result.prompt.endswith(
+        'The PR runs from a Polaris checkout of test-merge on '
+        'git@github.com:me/polaris.git, and the baseline from a second '
+        'checkout of main on E3SM-Project/polaris.'
+    )
+
+
 def test_init_pr_moved(fixture, monkeypatch):
     mock_github(monkeypatch, 'f' * 40)
 

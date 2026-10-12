@@ -31,6 +31,10 @@ POLARIS_DIR = str(Path(__file__).resolve().parents[3])
 #: where the default Polaris commit comes from, which needs no credentials
 POLARIS_URL = 'https://github.com/E3SM-Project/polaris.git'
 
+#: the Polaris branch that always means E3SM-Project/polaris's, never the
+#: requester's fork's, which is not kept up to date
+POLARIS_MAIN = 'main'
+
 OMEGA_SUBMODULE = 'e3sm_submodules/Omega'
 
 
@@ -109,7 +113,8 @@ def initiate(
 
     baseline_polaris_ref : str, optional
         The Polaris branch the baseline runs with, on the same fork, whose
-        Omega submodule is the baseline, ``polaris_ref`` by default
+        Omega submodule is the baseline, ``polaris_ref`` by default.
+        ``main`` is always that of E3SM-Project/polaris, never the fork's.
 
     baseline_ref : str, optional
         An Omega branch or commit to use as the baseline instead of the
@@ -173,7 +178,7 @@ def initiate(
     polaris_commit = _resolve_polaris(polaris_dir, polaris_ref)
     baseline_polaris_commit = polaris_commit
     if baseline_polaris_ref is not None:
-        baseline_polaris_commit = git_tools.rev_parse(
+        baseline_polaris_commit = _resolve_polaris(
             polaris_dir, baseline_polaris_ref
         )
     pin = git_tools.submodule_pin(
@@ -349,9 +354,11 @@ def get_prompt(
 
     polaris_ref : str, optional
         The Polaris branch the pull request is tested with, if not ``main``
+        of E3SM-Project/polaris
 
     baseline_polaris_ref : str, optional
-        The Polaris branch the baseline runs with, if not ``polaris_ref``
+        The Polaris branch the baseline runs with, if not ``polaris_ref``.
+        ``main`` is that of E3SM-Project/polaris.
 
     Returns
     -------
@@ -370,12 +377,15 @@ def get_prompt(
     ):
         return (
             f'{prompt}  The PR and baseline run from a Polaris checkout of '
-            f'{polaris_ref} on {polaris_fork}.'
+            f'{_describe_polaris(polaris_ref, polaris_fork)}.'
         )
+    baseline = _describe_polaris(baseline_polaris_ref, polaris_fork)
+    if baseline_polaris_ref != POLARIS_MAIN and polaris_ref != POLARIS_MAIN:
+        baseline = f'{baseline_polaris_ref} on the same fork'
     return (
-        f'{prompt}  The PR runs from a Polaris checkout of {polaris_ref} on '
-        f'{polaris_fork}, and the baseline from a second checkout of '
-        f'{baseline_polaris_ref} on the same fork.'
+        f'{prompt}  The PR runs from a Polaris checkout of '
+        f'{_describe_polaris(polaris_ref, polaris_fork)}, and the baseline '
+        f'from a second checkout of {baseline}.'
     )
 
 
@@ -467,11 +477,22 @@ def _find_equivalent(repo, fork, manifest):
 
 
 def _resolve_polaris(polaris_dir, polaris_ref):
-    if polaris_ref is not None:
+    """
+    The commit of a Polaris branch, fetching ``main`` from
+    E3SM-Project/polaris
+    """
+    if polaris_ref is not None and polaris_ref != POLARIS_MAIN:
         return git_tools.rev_parse(polaris_dir, polaris_ref)
     local_ref = f'{REF_PREFIX}/polaris-main'
     git_tools.fetch(polaris_dir, POLARIS_URL, [f'refs/heads/main:{local_ref}'])
     return git_tools.rev_parse(polaris_dir, local_ref)
+
+
+def _describe_polaris(polaris_ref, polaris_fork):
+    """Where a tester gets a Polaris branch"""
+    if polaris_ref == POLARIS_MAIN:
+        return f'{POLARIS_MAIN} on E3SM-Project/polaris'
+    return f'{polaris_ref} on {polaris_fork}'
 
 
 def _fetch_omega(repo, base_branch, pull_requests):
