@@ -10,7 +10,8 @@ continental slope and includes the following test cases:
 3. ``smoke_test_horiz_adv_order_3`` — short (12 min) smoke test using horizontal advection order = 3 for rapid CI checks. For Omega, FCT is enabled by default for this order.
 4. ``smoke_test_horiz_adv_order_3_nofct`` — same as (3) but with FCT disabled for Omega, for comparison.
 5. ``smoke_test_horiz_adv_order_4`` — short (12 min) smoke test using horizontal advection order = 4 for rapid CI checks. For Omega, FCT is enabled by default for this order.
-6. ``rpe`` — long run (40 days) exploring Resting Potential Energy (RPE) evolution for a set of Laplacian viscosities.
+6. ``smoke_test_horiz_adv_order_4_del4_centered_pgf`` — only in the ``nonlinear/pstar`` tree; same as the order-4 ``_del4`` smoke test but with Omega's centered horizontal pressure gradient instead of its default finite-volume scheme, so the centered scheme stays covered by testing. It has no effect on MPAS-Ocean.
+7. ``rpe`` — long run (40 days) exploring Resting Potential Energy (RPE) evolution for a set of Laplacian viscosities.
 
 Each of these tasks (plus the `_del4` variants of orders 3 and 4) is
 available in five variants that combine the equation of state (EOS) with
@@ -288,7 +289,10 @@ There are three smoke test cases corresponding to horizontal advection orders
 and `smoke_test_horiz_adv_order_4` (each also available with del4 viscosity
 enabled). For Omega, FCT is enabled by default for advection orders 3 and 4
 and disabled for order 2; the additional `smoke_test_horiz_adv_order_3_nofct`
-task runs order 3 with FCT disabled for comparison. Each smoke test is the
+task runs order 3 with FCT disabled for comparison. In the
+`nonlinear/pstar` tree, `smoke_test_horiz_adv_order_4_del4_centered_pgf`
+runs Omega with the centered pressure gradient (`PressureGradType:
+Centered`) rather than its finite-volume default. Each smoke test is the
 same as described above except the run is stopped before it is allowed to
 reach equilibrium to facilitate rapid testing. The horizontal advection order
 and FCT setting are controlled by the `horiz_adv_order` and
