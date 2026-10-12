@@ -22,11 +22,13 @@ fi
 
 cd {{ omega_base_dir }}
 
-git submodule update --init --recursive \
-    externals/ekat \
-    externals/scorpio \
-    components/omega/external \
-    cime
+{# update only when needed: an update rewrites each submodule's config even
+   when nothing changes, so concurrent builds of one tree would collide #}
+submodules="externals/ekat externals/scorpio components/omega/external cime"
+submodule_status=$(git submodule status --recursive -- ${submodules})
+if grep -q '^[-+U]' <<< "${submodule_status}"; then
+    git submodule update --init --recursive -- ${submodules}
+fi
 
 cd ${cwd}
 
