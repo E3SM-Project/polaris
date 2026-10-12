@@ -11,6 +11,8 @@ ocean:
     config_use_mom_del4: false
   forcing:
     config_use_bulk_wind_stress: true
+  cvmix:
+    config_use_cvmix_kpp: false
   debug:
     config_disable_vel_explicit_bottom_drag: true
   bottom_drag:
@@ -39,6 +41,7 @@ mpas-ocean:
     config_use_bulk_wind_stress: true
   debug:
     config_disable_vel_coriolis: true
+    config_disable_tr_nonlocalflux: true
   streams:
     restart:
       output_interval: 0000_01:00:00
@@ -76,6 +79,8 @@ Omega:
     ModeSplitShare:
       BtrTimeStep: 0000_00:00:00.500
   Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
     TracerHorzAdvTendencyEnable : false
     TracerDiffTendencyEnable : false
     TracerHyperDiffTendencyEnable : false
