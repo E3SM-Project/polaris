@@ -142,9 +142,12 @@ they finish.
 1. Work in a Polaris checkout on the machine.  Without Polaris branches in
    the manifest, use the checkout from the `[machines]` line, which should
    be Polaris `main`.  With them, fetch the branches from the requester's
-   Polaris fork.  Work in a checkout of the PR's branch, and the baseline's
-   branch needs a second checkout.  If a checkout is missing, make it
-   yourself, as a worktree beside that one, named after its branch.
+   Polaris fork, except a baseline of `main`, which comes from
+   E3SM-Project/polaris.  Work in a checkout of the PR's branch, and the
+   baseline's branch needs a second checkout.  If a checkout is missing,
+   make it yourself, as a worktree beside that one, named after its
+   branch.  If the PR's branch does not have this utility yet, merge the
+   branch you have it from into that checkout locally, without pushing.
 2. Each of the machine's rows needs a load script for its compiler in each
    checkout.  If one is missing, run `./deploy.py --compiler <compiler>
    ...` in that checkout, with the compilers of all the machine's rows.  On
