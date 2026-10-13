@@ -59,8 +59,6 @@ def plot_global_mpas_field(
     enforce_aspect_ratio=False,
     extent=None,
     circular_boundary=False,
-    use_contours=True,
-    ncontours=64,
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -136,9 +134,6 @@ def plot_global_mpas_field(
         how a polar stereographic map of everything poleward of some latitude
         is drawn.  Meaningless without ``extent``
 
-    ncontours : int, optional
-        Number of contour levels when ``use_contours`` is ``True``
-
     Returns
     -------
     descriptor : mosaic.Descriptor
@@ -210,6 +205,12 @@ def plot_global_mpas_field(
         if title is not None:
             add_fitted_suptitle(fig, title)
 
+        section = config[colormap_section]
+        use_contours = (
+            section.getboolean('use_contours', fallback=True)
+            and 'nEdges' not in da.dims
+            and 'nVertices' not in da.dims
+        )
         colormap, norm, ticks = setup_colormap(config, colormap_section)
 
         pcolor_kwargs = dict(
@@ -230,6 +231,7 @@ def plot_global_mpas_field(
             _add_land_lakes_coastline(ax)
 
         if use_contours:
+            ncontours = section.getint('ncontours', fallback=64)
             t0 = time.time()
             pc = mosaic.contourf(
                 ax,
