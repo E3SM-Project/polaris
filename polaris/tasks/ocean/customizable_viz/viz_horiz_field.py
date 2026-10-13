@@ -64,6 +64,7 @@ class VizHorizField(OceanIOStep):
         section_name = 'customizable_viz_horiz_field'
         section = self.config[section_name]
         use_contours = self.config.getboolean(section_name, 'use_contours')
+        ncontours = self.config.getint(section_name, 'ncontours')
 
         # Determine the projection from the config file
         projection_name = section.get('projection')
@@ -291,6 +292,7 @@ class VizHorizField(OceanIOStep):
                     cell_indices=cell_indices[0],
                     ds_transect=ds_transect,
                     use_contours=use_contours,
+                    ncontours=ncontours,
                 )
             else:
                 raise ValueError(

@@ -60,6 +60,7 @@ def plot_global_mpas_field(
     extent=None,
     circular_boundary=False,
     use_contours=True,
+    ncontours=64,
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -134,6 +135,9 @@ def plot_global_mpas_field(
         Whether to clip the map to a circle inscribed in the axes, which is
         how a polar stereographic map of everything poleward of some latitude
         is drawn.  Meaningless without ``extent``
+
+    ncontours : int, optional
+        Number of contour levels when ``use_contours`` is ``True``
 
     Returns
     -------
@@ -231,7 +235,7 @@ def plot_global_mpas_field(
                 ax,
                 descriptor,
                 da,
-                levels=64,
+                levels=ncontours,
                 **pcolor_kwargs,
             )
             elapsed = time.time() - t0
@@ -301,6 +305,7 @@ def plot_global_lat_lon_field(
     plot_land=True,
     colorbar_label=None,
     figsize=(8, 4.5),
+    ncontours=64,
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -351,6 +356,9 @@ def plot_global_lat_lon_field(
     figsize : tuple, optional
         The size of the figure in inches.  A size that matches the aspect
         ratio of the map leaves the least empty canvas around it
+
+    ncontours : int, optional
+        Number of contour levels
     """
 
     with mplstyle_context():
@@ -412,7 +420,7 @@ def plot_global_lat_lon_field(
             lon_corner,
             lat_corner,
             data_array,
-            levels=64,
+            levels=ncontours,
             cmap=colormap,
             norm=norm,
             transform=ref_projection,

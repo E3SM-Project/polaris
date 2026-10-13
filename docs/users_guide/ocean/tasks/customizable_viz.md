@@ -69,6 +69,12 @@ transect_file =
 
 [customizable_viz_horiz_field]
 
+# Whether to use contourf for cell-centered fields
+use_contours = True
+
+# Number of contour levels when use_contours is True
+ncontours = 64
+
 # Projection to use for the horizontal field plot, must be supported by mosaic
 projection = PlateCarree
 
