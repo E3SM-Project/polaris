@@ -193,7 +193,11 @@ def _parse_args():
         "Polaris' Omega submodule",
     )
     init.add_argument(
-        '--reason', help='Why --baseline is used instead of the submodule'
+        '--reason',
+        help='Why --baseline is used instead of the submodule, as a '
+        'lowercase clause that reports print after "because", such as '
+        '"answer-changing PRs have merged into develop since the commit '
+        'Polaris pins"',
     )
     init.add_argument(
         '--test-ref',

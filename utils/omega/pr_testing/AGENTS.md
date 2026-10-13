@@ -84,7 +84,10 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    ```
    The baseline is the Omega commit that Polaris `main` pins in
    `e3sm_submodules/Omega`.  Use another baseline only if the requester
-   asks, with `--baseline <ref> --reason "<why>"`.  If `develop` does not
+   asks, with `--baseline <ref> --reason "<why>"`.  Every report prints
+   the reason after "because", so write it as a lowercase clause with no
+   final period, such as `"answer-changing PRs have merged into develop
+   since the commit Polaris pins"`.  If `develop` does not
    build without an unmerged fix, the requester may ask for
    `--merge-pr <number>` (or `--baseline-merge-pr`).  If the PR does not
    merge cleanly, stop and tell the requester.  They may resolve the

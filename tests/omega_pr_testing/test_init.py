@@ -165,12 +165,12 @@ def test_init_other_baseline_needs_reason(fixture):
         _initiate(fixture, baseline_ref='develop')
 
     result = _initiate(
-        fixture, baseline_ref='develop', reason='The pin is too old'
+        fixture, baseline_ref='develop', reason='the pin is too old'
     )
 
     assert result.manifest.baseline_commit == fixture.develop
     assert result.manifest.baseline_source == 'develop'
-    assert result.manifest.baseline_reason == 'The pin is too old'
+    assert result.manifest.baseline_reason == 'the pin is too old'
 
 
 def test_init_baseline_polaris(fixture):
