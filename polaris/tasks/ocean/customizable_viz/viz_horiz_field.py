@@ -63,6 +63,7 @@ class VizHorizField(OceanIOStep):
 
         section_name = 'customizable_viz_horiz_field'
         section = self.config[section_name]
+        use_contours = self.config.getboolean(section_name, 'use_contours')
 
         # Determine the projection from the config file
         projection_name = section.get('projection')
@@ -273,6 +274,7 @@ class VizHorizField(OceanIOStep):
                     projection_name=projection_name,
                     ds_transect=ds_transect,
                     central_longitude=central_longitude,
+                    use_contours=False,
                 )
             elif 'nCells' in mpas_field.dims and 'nVertices' in ds_mesh.dims:
                 descriptor = plot_global_mpas_field(
@@ -288,6 +290,7 @@ class VizHorizField(OceanIOStep):
                     central_longitude=central_longitude,
                     cell_indices=cell_indices[0],
                     ds_transect=ds_transect,
+                    use_contours=use_contours,
                 )
             else:
                 raise ValueError(

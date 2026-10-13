@@ -1,5 +1,6 @@
 import configparser
 import importlib.resources as imp_res
+import time
 
 import cartopy
 import cmocean  # noqa: F401
@@ -34,6 +35,9 @@ _CONNECTIVITY_ARRAYS = [
     'edgesOnVertex',
 ]
 
+_CONTOURF_TOTAL_TIME = 0.0
+_CONTOURF_CALL_COUNT = 0
+
 
 def plot_global_mpas_field(
     da,
@@ -55,6 +59,7 @@ def plot_global_mpas_field(
     enforce_aspect_ratio=False,
     extent=None,
     circular_boundary=False,
+    use_contours=True,
 ):
     """
     Plots a data set as a longitude-latitude map
@@ -138,6 +143,8 @@ def plot_global_mpas_field(
     """
 
     with mplstyle_context(dpi=dpi):
+        global _CONTOURF_TOTAL_TIME, _CONTOURF_CALL_COUNT
+
         transform = cartopy.crs.Geodetic()
         projection = get_projection(
             projection_name, central_longitude=central_longitude
@@ -218,7 +225,34 @@ def plot_global_mpas_field(
         if plot_land:
             _add_land_lakes_coastline(ax)
 
-        pc = mosaic.polypcolor(ax, descriptor, da, **pcolor_kwargs)
+        if use_contours:
+            t0 = time.time()
+            pc = mosaic.contourf(
+                ax,
+                descriptor,
+                da,
+                levels=64,
+                **pcolor_kwargs,
+            )
+            elapsed = time.time() - t0
+            _CONTOURF_TOTAL_TIME += elapsed
+            _CONTOURF_CALL_COUNT += 1
+            print(
+                f'contourf call count: {_CONTOURF_CALL_COUNT}, '
+                f'call time: {elapsed:.4f} s, '
+                f'total time: {_CONTOURF_TOTAL_TIME:.4f} s'
+            )
+        else:
+            t0 = time.time()
+            pc = mosaic.polypcolor(ax, descriptor, da, **pcolor_kwargs)
+            elapsed = time.time() - t0
+            _CONTOURF_TOTAL_TIME += elapsed
+            _CONTOURF_CALL_COUNT += 1
+            print(
+                f'polypcolor call count: {_CONTOURF_CALL_COUNT}, '
+                f'call time: {elapsed:.4f} s, '
+                f'total time: {_CONTOURF_TOTAL_TIME:.4f} s'
+            )
 
         cbar = fig.colorbar(
             pc, ax=ax, label=colorbar_label, extend='both', shrink=0.6
@@ -320,6 +354,8 @@ def plot_global_lat_lon_field(
     """
 
     with mplstyle_context():
+        global _CONTOURF_TOTAL_TIME, _CONTOURF_CALL_COUNT
+
         nlat, nlon = data_array.shape
         if lon.shape[0] == nlon:
             lon_corner = interp_extrap_corner(lon)
@@ -371,6 +407,7 @@ def plot_global_lat_lon_field(
         gl.top_labels = False
         make_room_for_gridline_labels(ax)
 
+        t0 = time.time()
         plotHandle = ax.contourf(
             lon_corner,
             lat_corner,
@@ -380,6 +417,14 @@ def plot_global_lat_lon_field(
             norm=norm,
             transform=ref_projection,
             zorder=1,
+        )
+        elapsed = time.time() - t0
+        _CONTOURF_TOTAL_TIME += elapsed
+        _CONTOURF_CALL_COUNT += 1
+        print(
+            f'contourf call count: {_CONTOURF_CALL_COUNT}, '
+            f'call time: {elapsed:.4f} s, '
+            f'total time: {_CONTOURF_TOTAL_TIME:.4f} s'
         )
 
         if plot_land:
