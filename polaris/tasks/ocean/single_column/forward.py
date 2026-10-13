@@ -29,10 +29,17 @@ class Forward(OceanModelStep):
         update_eos=True,
         enable_vadv=True,
         enable_hadv=True,
+        disable_coriolis=None,
         enable_restoring=False,
         constant_diff=False,
         conservation_intervals=None,
+        check_properties=None,
         run_duration_steps=None,
+        match_technique=None,
+        use_langmuir_circulation=False,
+        use_theory_wave=False,
+        min_obl_under_sea_ice=5.0,
+        enable_kpp=None,
     ):
         """
         Create a new test case
@@ -82,7 +89,32 @@ class Forward(OceanModelStep):
             the time index in ``output.nc`` at the end of the interval.  By
             default, conservation is checked between the initial condition
             and the end of the run.
+
+        check_properties : list of str, optional
+            Conservation properties to check. If not provided, mass, salt and
+            energy conservation are checked.
+
+        match_technique : str, optional
+            Omega KPP ``MatchTechnique`` override (``'SimpleShapes'`` or
+            ``'MatchBoth'``). If not provided, the model default is used.
+            The equivalent MPAS-Ocean ``config_cvmix_kpp_matching`` option is
+            set to the same value.
+
+        enable_kpp : bool, optional
+            Enable KPP and non-local transport. By default, only dedicated
+            KPP regime tasks enable them. An explicit false value adds a
+            ``no_kpp`` suffix and retains background and local mixing.
+
+        disable_coriolis : bool, optional
+            Whether to disable Omega's ``PVTendencyEnable`` (which carries
+            both relative and planetary vorticity/Coriolis in a single
+            term), independent of ``enable_hadv``.  If not provided,
+            defaults to ``not enable_hadv`` to preserve prior behavior.
+            MPAS-Ocean has no equivalent option, so Coriolis there is
+            always governed solely by the ``[coriolis]`` config section.
         """
+        if disable_coriolis is None:
+            disable_coriolis = not enable_hadv
         if not enable_vadv:
             name = f'{name}_no_vadv'
         if not enable_hadv:
@@ -91,6 +123,12 @@ class Forward(OceanModelStep):
             name = f'{name}_restoring'
         if constant_diff:
             name = f'{name}_constant'
+        if match_technique is not None:
+            name = f'{name}_{match_technique.lower()}'
+        if use_theory_wave:
+            name = f'{name}_langmuir'
+        if enable_kpp is False:
+            name = f'{name}_no_kpp'
         super().__init__(
             component=component,
             name=name,
@@ -124,11 +162,12 @@ class Forward(OceanModelStep):
         )
         if conservation_intervals is None:
             conservation_intervals = [('init', -1)]
-        check_properties = [
-            'mass conservation',
-            'salt conservation',
-            'energy conservation',
-        ]
+        if check_properties is None:
+            check_properties = [
+                'mass conservation',
+                'salt conservation',
+                'energy conservation',
+            ]
         for baseline, time_index_end in conservation_intervals:
             self.add_property_check(
                 filename='output.nc',
@@ -143,10 +182,17 @@ class Forward(OceanModelStep):
         self.task_name = task_name
 
         self.enable_hadv = enable_hadv
+        self.disable_coriolis = disable_coriolis
         self.enable_vadv = enable_vadv
         self.enable_restoring = enable_restoring
 
         self.constant_diff = constant_diff
+
+        self.match_technique = match_technique
+        self.use_langmuir_circulation = use_langmuir_circulation
+        self.use_theory_wave = use_theory_wave
+        self.min_obl_under_sea_ice = min_obl_under_sea_ice
+        self.enable_kpp = enable_kpp
 
     def setup(self):
         """
@@ -211,18 +257,52 @@ class Forward(OceanModelStep):
                 time_integrator=time_integrator,
             ),
         )
+        template_replacements = dict(
+            output_interval=output_interval_str,
+            output_freq=f'{int(output_interval_seconds)}',
+        )
+        if 'kpp_regimes' in self.task_package:
+            template_replacements['match_technique'] = (
+                self.match_technique or 'SimpleShapes'
+            )
+            template_replacements['use_theory_wave'] = self.use_theory_wave
+            template_replacements['langmuir_mixing_opt'] = (
+                'LWF16' if self.use_langmuir_circulation else 'NONE'
+            )
+            template_replacements['langmuir_entrainment_opt'] = (
+                'LF17' if self.use_langmuir_circulation else 'NONE'
+            )
+            template_replacements['min_OBL_under_sea_ice'] = (
+                self.min_obl_under_sea_ice
+            )
+
         self.add_yaml_file(
             self.task_package,
             'forward.yaml',
-            template_replacements=dict(
-                output_interval=output_interval_str,
-                output_freq=f'{int(output_interval_seconds)}',
-            ),
+            template_replacements=template_replacements,
         )
 
-        shared_options = {}
-        mpas_options = {}
-        omega_options = {}
+        # Preserve legacy mixing in non-KPP tests even when model defaults
+        # enable KPP. Dedicated KPP tasks opt in explicitly.
+        is_kpp = (
+            self.task_package
+            == 'polaris.tasks.ocean.single_column.kpp_regimes'
+        )
+        if self.enable_kpp is not None:
+            is_kpp = self.enable_kpp
+        shared_options = {'config_use_cvmix_kpp': is_kpp}
+        mpas_options: dict[str, bool | str] = {}
+        if self.enable_kpp is False:
+            mpas_options.update(
+                {
+                    'config_use_cvmix': True,
+                    'config_disable_tr_nonlocalflux': True,
+                }
+            )
+        omega_options = {
+            'KPPNonLocalTracerFluxTendencyEnable': is_kpp,
+            'KPPNonLocalTracerDiagnosticsEnable': is_kpp,
+        }
 
         if self.task_name == 'ekman':
             nu = self.config.getfloat(
@@ -253,10 +333,15 @@ class Forward(OceanModelStep):
             omega_options.update(
                 {
                     'TracerHorzAdvTendencyEnable': False,
-                    'PVTendencyEnable': False,
                     'KETendencyEnable': False,
                 }
             )
+        if self.disable_coriolis:
+            # PVTendencyEnable carries both relative vorticity and Coriolis
+            # in one term, so it's gated separately from enable_hadv: tasks
+            # that need Coriolis (e.g. wind-driven regimes) must not disable
+            # it just to turn off horizontal advection.
+            omega_options.update({'PVTendencyEnable': False})
         if self.enable_restoring:
             shared_options.update(
                 {
@@ -278,6 +363,12 @@ class Forward(OceanModelStep):
                     'config_use_cvmix_shear': True,
                 }
             )
+
+        omega_options.update(
+            {
+                'UseLangmuirTurbulence': self.use_langmuir_circulation,
+            }
+        )
 
         self.add_model_config_options(
             options=shared_options,

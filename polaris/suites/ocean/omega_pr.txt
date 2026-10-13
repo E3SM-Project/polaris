@@ -27,3 +27,5 @@ ocean/spherical/realistic_global/QU.240km/analysis_members_test
 ocean/spherical/realistic_global/QU.240km/restart
 ocean/column/ekman
 ocean/column/inertial
+ocean/column/kpp_combined
+ocean/column/kpp_cooling_with_mixedlayer

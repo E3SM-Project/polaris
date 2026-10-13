@@ -1,3 +1,7 @@
+ocean:
+  cvmix:
+    config_use_cvmix_kpp: false
+
 Omega:
   TimeIntegration:
     TimeStep: 0000_00:00:01
@@ -5,6 +9,8 @@ Omega:
     StopType: AtTime
     StopCriterion: 0001-01-01_00:00:01
   Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
     ThicknessFluxTendencyEnable: false
     PVTendencyEnable: false
     KETendencyEnable: false

@@ -1,4 +1,6 @@
 ocean:
+  cvmix:
+    config_use_cvmix_kpp: false
   time_management:
     config_stop_time: none
     config_run_duration: {{ run_duration }}
@@ -43,6 +45,8 @@ Omega:
   Eos:
     EosType: constant
   Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
     VelDiffTendencyEnable: false
     VelHyperDiffTendencyEnable: false
     UseCustomTendency: true

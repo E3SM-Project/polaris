@@ -33,6 +33,7 @@ ocean:
   # above (Omega aborts outright if VelVertMixTendencyEnable is false while
   # the bottom drag is implicit).
   cvmix:
+    config_use_cvmix_kpp: false
     config_use_cvmix_convection: false
     config_use_cvmix_shear: false
     config_cvmix_background_diffusion: 0.0
@@ -65,6 +66,8 @@ mpas-ocean:
 
 Omega:
   Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
     SSHTendencyEnable: false
   Tracers:
     Base: [Temperature, Salinity]

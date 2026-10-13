@@ -1,7 +1,4 @@
 ocean:
-  time_management:
-    config_stop_time: none
-    config_run_duration: {{ run_duration }}
   time_integration:
     config_time_integrator: {{ time_integrator }}
     config_dt: {{ dt }}
@@ -14,6 +11,9 @@ ocean:
     config_use_tracer_del2: false
 
 mpas-ocean:
+  time_management:
+    config_stop_time: none
+    config_run_duration: {{ run_duration }}
   run_modes:
     config_ocean_run_mode: forward
   forcing:
@@ -25,6 +25,9 @@ mpas-ocean:
     restart: {}
 
 Omega:
+  TimeIntegration:
+    StopType: AfterDuration
+    StopCriterion: {{ run_duration }}
   IOStreams:
     InitialVertCoord:
       UsePointerFile: false

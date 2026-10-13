@@ -1,4 +1,6 @@
 ocean:
+  cvmix:
+    config_use_cvmix_kpp: false
   time_management:
     config_stop_time: none
     config_run_duration: {{ run_duration }}
@@ -75,6 +77,8 @@ mpas-ocean:
 
 Omega:
   Tendencies:
+    KPPNonLocalTracerFluxTendencyEnable: false
+    KPPNonLocalTracerDiagnosticsEnable: false
     TracerHorzAdvTendencyEnable: true
     TracerVertAdvTendencyEnable: true
     PVTendencyEnable: false
