@@ -16,6 +16,8 @@
       <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -93,6 +95,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#ekman">ekman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ideal-age">ideal age</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#inertial">inertial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kpp-regimes">KPP regimes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#thermo">thermo</a></li>
 </ul>
 </li>
@@ -162,6 +165,8 @@ the vertical dynamics of the ocean model only. The test cases are:</p>
 <li><p>Testing the Ideal Age tracer under surface forcing</p></li>
 <li><p>Testing the Coriolis term by quantifying the inertial frequency</p></li>
 <li><p>Testing the Ekman solution under wind forcing</p></li>
+<li><p>Testing KPP boundary-layer regimes; see
+<a class="reference internal" href="#dev-ocean-single-column-kpp"><span class="std std-ref">KPP regimes</span></a>.</p></li>
 </ul>
 <p>Here, we describe the tests and their shared framework.</p>
 <section id="framework">
@@ -304,6 +309,190 @@ compares the inertial frequency with its theoretical value and induces a
 failure if the frequency is more than a given fractional difference from
 theory, as determined by the config option
 <code class="docutils literal notranslate"><span class="pre">single_column_inertial:period_tolerance_fraction</span></code>.</p>
+</section>
+</section>
+<section id="kpp-regimes">
+<span id="dev-ocean-single-column-kpp"></span><h2>KPP regimes<a class="headerlink" href="#kpp-regimes" title="Link to this heading"></a></h2>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.kpp_regimes.KPPRegimes</span></code>
+task class creates all nine regimes documented in
+<a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column-kpp"><span class="std std-ref">KPP regimes</span></a>. Their physical goals, literature
+attributions, profile values and forcing signs are described there.
+This section covers configuration composition, model-specific controls
+and validation; the regimes are not additional implementations of KPP.</p>
+<section id="registration-and-shared-initialization">
+<h3>registration and shared initialization<a class="headerlink" href="#registration-and-shared-initialization" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">add_single_column_tasks()</span></code> in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/single_column/__init__.py</span></code> registers each regime’s
+forcing and profile configuration lists. It starts with <code class="docutils literal notranslate"><span class="pre">single_column.cfg</span></code>
+and <code class="docutils literal notranslate"><span class="pre">neutral_temperature_salinity.cfg</span></code>, adds forcing files, then adds
+<code class="docutils literal notranslate"><span class="pre">stable_temperature_strong.cfg</span></code> and finally the regime-specific profile
+files. Later entries override earlier ones. In particular, the file named
+<code class="docutils literal notranslate"><span class="pre">neutral_temperature_salinity.cfg</span></code> does not make the final wind or
+suppression profile neutral: the strong profile is loaded afterward.</p>
+<p><code class="docutils literal notranslate"><span class="pre">KPPRegimes</span></code> adds <code class="docutils literal notranslate"><span class="pre">kpp_regimes.cfg</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos/teos10.cfg</span></code> to
+the shared configuration. Shared initialization steps are keyed by regime,
+at <code class="docutils literal notranslate"><span class="pre">ocean/column/init/kpp/&lt;regime&gt;/stable</span></code>, and linked into each task as
+<code class="docutils literal notranslate"><span class="pre">init</span></code>. Do not key them on forcing alone: cooling and mixed-layer cooling
+share forcing but have different initial profiles.</p>
+<p>The common <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.init.Init.html#polaris.tasks.ocean.single_column.init.Init" title="polaris.tasks.ocean.single_column.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.init.Init</span></code></a> writes
+the mesh, initial tracers, vertical coordinate and forcing described in
+<a class="reference internal" href="#dev-ocean-single-column-framework"><span class="std std-ref">framework</span></a>. The named-grid branch of
+<a class="reference internal" href="../generated/polaris.ocean.vertical.grid_1d.generate_1d_grid.html#polaris.ocean.vertical.grid_1d.generate_1d_grid" title="polaris.ocean.vertical.grid_1d.generate_1d_grid"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.grid_1d.generate_1d_grid()</span></code></a> crops the JSON
+interface depths instead of scaling them. Document and inspect the
+generated layer count, not just <code class="docutils literal notranslate"><span class="pre">vert_levels</span></code>, when changing a named grid.</p>
+<p>The suppression profile override is currently loaded after <code class="docutils literal notranslate"><span class="pre">evap_strong.cfg</span></code>.
+It zeros the inherited evaporation, latent and shortwave terms and sets
+sensible heating to +125 W/m². Removing those overrides would change the
+experiment, even if the task name remained unchanged.</p>
+</section>
+<section id="forward-steps-and-model-controls">
+<h3>forward steps and model controls<a class="headerlink" href="#forward-steps-and-model-controls" title="Link to this heading"></a></h3>
+<p>All cases use the shared
+<a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.forward.Forward.html#polaris.tasks.ocean.single_column.forward.Forward" title="polaris.tasks.ocean.single_column.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.forward.Forward</span></code></a>. The KPP
+constructor explicitly supplies <code class="docutils literal notranslate"><span class="pre">match_technique='SimpleShapes'</span></code>; the
+second ordinary forward step overrides it with <code class="docutils literal notranslate"><span class="pre">MatchBoth</span></code>. Their paths
+are <code class="docutils literal notranslate"><span class="pre">forward_no_vadv_no_hadv_simpleshapes</span></code> and
+<code class="docutils literal notranslate"><span class="pre">forward_no_vadv_no_hadv_matchboth</span></code>. Langmuir instead creates two
+<code class="docutils literal notranslate"><span class="pre">SimpleShapes</span></code> steps, distinguished by the <code class="docutils literal notranslate"><span class="pre">_langmuir</span></code> suffix for the
+enabled run. Visualization and analysis consume these paths through the
+constructor’s <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> dictionary.</p>
+<p>Combined forcing and mixed-layer cooling add a third <code class="docutils literal notranslate"><span class="pre">Forward</span></code> with
+<code class="docutils literal notranslate"><span class="pre">enable_kpp=False</span></code> and <code class="docutils literal notranslate"><span class="pre">match_technique=None</span></code>. The resulting
+<code class="docutils literal notranslate"><span class="pre">forward_no_vadv_no_hadv_no_kpp</span></code> step retains background, convective and
+local shear mixing but disables KPP and non-local transport in both models.
+Its <code class="docutils literal notranslate"><span class="pre">no_kpp</span></code> entry is added only to the visualization comparisons, not the
+analysis inputs. <code class="docutils literal notranslate"><span class="pre">KPPViz</span></code> registers and plots only diffusivity and viscosity
+for this entry, omitting BLD and other KPP-specific diagnostics.</p>
+<p>Keep KPP defaults scoped to this task package. Non-KPP single-column
+steps retain their original names and explicitly disable KPP and its
+non-local tendency; changing a shared default must not rename their
+forward outputs or activate additional physics.</p>
+<p><code class="docutils literal notranslate"><span class="pre">kpp_regimes/forward.yaml</span></code> supplies common KPP parameters and model-specific
+options. <code class="docutils literal notranslate"><span class="pre">Forward.dynamic_model_config()</span></code> provides template replacements
+and explicit enable flags. Important controls are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Control</p></th>
+<th class="head"><p>Setting</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Critical bulk Richardson number</p></td>
+<td><p>0.25</p></td>
+</tr>
+<tr class="row-odd"><td><p>Surface-layer extent</p></td>
+<td><p>0.1</p></td>
+</tr>
+<tr class="row-even"><td><p>Background diffusivity / viscosity</p></td>
+<td><p><span class="math notranslate nohighlight">\(10^{-5}\)</span> / <span class="math notranslate nohighlight">\(10^{-4}\)</span> m²/s</p></td>
+</tr>
+<tr class="row-odd"><td><p>Shear Richardson-number smoothing</p></td>
+<td><p>Two loops</p></td>
+</tr>
+<tr class="row-even"><td><p>MPAS-Ocean BLD interpolation</p></td>
+<td><p>Linear</p></td>
+</tr>
+<tr class="row-odd"><td><p>EOS</p></td>
+<td><p>TEOS-10 in Omega; <code class="docutils literal notranslate"><span class="pre">jm</span></code> in MPAS-Ocean</p></td>
+</tr>
+<tr class="row-even"><td><p>Ordinary Langmuir setting</p></td>
+<td><p>Disabled</p></td>
+</tr>
+<tr class="row-odd"><td><p>Enabled Langmuir variant</p></td>
+<td><p>Omega <code class="docutils literal notranslate"><span class="pre">UseLangmuirTurbulence</span></code>; MPAS-Ocean theory-wave estimate, <code class="docutils literal notranslate"><span class="pre">LWF16</span></code> mixing and <code class="docutils literal notranslate"><span class="pre">LF17</span></code> entrainment</p></td>
+</tr>
+<tr class="row-even"><td><p>Sea-ice minimum BLD</p></td>
+<td><p>30 m in both sea-ice forward steps</p></td>
+</tr>
+</tbody>
+</table>
+<p>The MPAS-Ocean theory-wave switch alone does not enable Langmuir mixing:
+the mixing and entrainment options must also differ from <code class="docutils literal notranslate"><span class="pre">NONE</span></code>. The
+forward constructor keeps Omega’s Coriolis tendency independent of the
+horizontal-advection switch; <code class="docutils literal notranslate"><span class="pre">kpp_wind</span></code> removes Coriolis through the
+initial mesh’s <code class="docutils literal notranslate"><span class="pre">[coriolis]</span> <span class="pre">type</span> <span class="pre">=</span> <span class="pre">zero</span></code> setting.</p>
+<p>The ordinary 600 s timestep and 3600 s output interval come from config.
+For strong cooling, <code class="docutils literal notranslate"><span class="pre">run_duration_steps=36</span></code> overrides the run duration
+and sets output every timestep. Omega’s history frequency uses the
+templated seconds interval. MPAS-Ocean disables its startup output, so
+both first write after one interval. Use the actual initial-condition
+file when a true time-zero state is needed.</p>
+</section>
+<section id="visualization">
+<h3>visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h3>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.kpp_regimes.viz.KPPViz</span></code>
+writes <code class="docutils literal notranslate"><span class="pre">boundary_layer_depth.png</span></code> and comparison-specific time-depth
+figures for available Richardson-number, viscosity, diffusivity and
+non-local-flux diagnostics. It uses the shared ocean I/O abstraction to
+read model fields under MPAS-style names. Missing optional diagnostics
+are skipped; absence of a figure is not a physical pass criterion.</p>
+</section>
+<section id="analysis-and-validation">
+<h3>analysis and validation<a class="headerlink" href="#analysis-and-validation" title="Link to this heading"></a></h3>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.kpp_regimes.analysis.Analysis</span></code>
+reports cell-mean BLD at the output nearest day one and the relative
+final diffusivity difference between matching variants. Regime-specific
+checks are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Regime</p></th>
+<th class="head"><p>Analysis diagnostic</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Wind</p></td>
+<td><p>Compare day-one BLD with <span class="math notranslate nohighlight">\(h=u_* (15t/N_0^2)^{1/3}\)</span> using diagnosed stratification</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cooling, evaporation, mixed-layer cooling</p></td>
+<td><p>Log initial/final BLD, finite tracer/density checks, F11 trajectory error and final non-local flux</p></td>
+</tr>
+<tr class="row-even"><td><p>Combined</p></td>
+<td><p>Common BLD and matching comparison; no separate combined-forcing analytic check</p></td>
+</tr>
+<tr class="row-odd"><td><p>Suppression</p></td>
+<td><p>Warn if final maximum absolute non-local flux exceeds <span class="math notranslate nohighlight">\(10^{-10}\)</span>, or diffusivity is nonpositive</p></td>
+</tr>
+<tr class="row-even"><td><p>Langmuir</p></td>
+<td><p>Warn if enabled day-one BLD is less than disabled BLD</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sea ice</p></td>
+<td><p>Warn if the sampled BLD is below 30 m</p></td>
+</tr>
+<tr class="row-even"><td><p>Strong cooling</p></td>
+<td><p>Warn if surface temperature does not decrease or final column-wide maximum <span class="math notranslate nohighlight">\(N^2\)</span> is nonpositive</p></td>
+</tr>
+</tbody>
+</table>
+<p>These checks log information and warnings rather than asserting a
+regime-specific accuracy tolerance. Missing diagnostics may skip checks.
+The current F11 implementation is
+<span class="math notranslate nohighlight">\(h=\sqrt{2.8 B t/N^2}\)</span>, with positive destabilizing flux magnitude <span class="math notranslate nohighlight">\(B\)</span>.
+<code class="docutils literal notranslate"><span class="pre">initial_n_squared()</span></code> estimates temperature-driven stratification from
+the configured EOS. It omits salinity gradients: for the uniform-temperature
+evaporation case it returns zero and can produce division-by-zero/NaN
+diagnostics. Its zero-mixed-layer formula is also only a reference for
+the mixed-layer case. The strong-cooling maximum is not restricted to
+the diagnosed BLD and cannot establish stability specifically within it.</p>
+<p>Forward steps register baseline validation for <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>, <code class="docutils literal notranslate"><span class="pre">vertDiffTopOfCell</span></code> and
+<code class="docutils literal notranslate"><span class="pre">vertViscTopOfCell</span></code> when a baseline is supplied, including the no-KPP
+controls. The coefficient fields represent total local diffusivity and
+viscosity, not just the KPP contribution. They
+also register mass, salt and energy property checks, except combined
+forcing and suppression, which currently register mass and salt only.
+The KPP config sets energy tolerance to <span class="math notranslate nohighlight">\(10^{-6}\)</span> and salt tolerance to
+<span class="math notranslate nohighlight">\(10^{-10}\)</span>; mass uses the inherited tolerance. Consult each forward
+step’s <code class="docutils literal notranslate"><span class="pre">property_check_results.json</span></code> as well as the suite status: property
+failures can be reported independently of task execution success.</p>
+</section>
+<section id="extending-a-regime">
+<h3>extending a regime<a class="headerlink" href="#extending-a-regime" title="Link to this heading"></a></h3>
+<p>Add a registration entry with forcing and profile configurations and keep
+its shared init path unique. Add any special paired-forward controls to
+<code class="docutils literal notranslate"><span class="pre">KPPRegimes</span></code>, supplying matching <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> paths to visualization and
+analysis. Record whether the case adapts a published experiment or tests
+a specific implementation feature, and distinguish its intended physical
+signature from an enforced validation threshold.</p>
 </section>
 </section>
 <section id="thermo">

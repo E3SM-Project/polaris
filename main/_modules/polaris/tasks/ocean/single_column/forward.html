@@ -147,10 +147,17 @@
         <span class="n">update_eos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">enable_vadv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">enable_hadv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">disable_coriolis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">enable_restoring</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">constant_diff</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">conservation_intervals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">check_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">run_duration_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">match_technique</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">use_langmuir_circulation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_theory_wave</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">min_obl_under_sea_ice</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">enable_kpp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create a new test case</span>
@@ -200,7 +207,32 @@
 <span class="sd">            the time index in ``output.nc`` at the end of the interval.  By</span>
 <span class="sd">            default, conservation is checked between the initial condition</span>
 <span class="sd">            and the end of the run.</span>
+
+<span class="sd">        check_properties : list of str, optional</span>
+<span class="sd">            Conservation properties to check. If not provided, mass, salt and</span>
+<span class="sd">            energy conservation are checked.</span>
+
+<span class="sd">        match_technique : str, optional</span>
+<span class="sd">            Omega KPP ``MatchTechnique`` override (``'SimpleShapes'`` or</span>
+<span class="sd">            ``'MatchBoth'``). If not provided, the model default is used.</span>
+<span class="sd">            The equivalent MPAS-Ocean ``config_cvmix_kpp_matching`` option is</span>
+<span class="sd">            set to the same value.</span>
+
+<span class="sd">        enable_kpp : bool, optional</span>
+<span class="sd">            Enable KPP and non-local transport. By default, only dedicated</span>
+<span class="sd">            KPP regime tasks enable them. An explicit false value adds a</span>
+<span class="sd">            ``no_kpp`` suffix and retains background and local mixing.</span>
+
+<span class="sd">        disable_coriolis : bool, optional</span>
+<span class="sd">            Whether to disable Omega's ``PVTendencyEnable`` (which carries</span>
+<span class="sd">            both relative and planetary vorticity/Coriolis in a single</span>
+<span class="sd">            term), independent of ``enable_hadv``.  If not provided,</span>
+<span class="sd">            defaults to ``not enable_hadv`` to preserve prior behavior.</span>
+<span class="sd">            MPAS-Ocean has no equivalent option, so Coriolis there is</span>
+<span class="sd">            always governed solely by the ``[coriolis]`` config section.</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">disable_coriolis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">disable_coriolis</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">enable_hadv</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">enable_vadv</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_no_vadv'</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">enable_hadv</span><span class="p">:</span>
@@ -209,6 +241,12 @@
             <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_restoring'</span>
         <span class="k">if</span> <span class="n">constant_diff</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_constant'</span>
+        <span class="k">if</span> <span class="n">match_technique</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">match_technique</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">if</span> <span class="n">use_theory_wave</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_langmuir'</span>
+        <span class="k">if</span> <span class="n">enable_kpp</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_no_kpp'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
@@ -242,11 +280,12 @@
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">conservation_intervals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">conservation_intervals</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'init'</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
-        <span class="n">check_properties</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">'mass conservation'</span><span class="p">,</span>
-            <span class="s1">'salt conservation'</span><span class="p">,</span>
-            <span class="s1">'energy conservation'</span><span class="p">,</span>
-        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">check_properties</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">check_properties</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s1">'mass conservation'</span><span class="p">,</span>
+                <span class="s1">'salt conservation'</span><span class="p">,</span>
+                <span class="s1">'energy conservation'</span><span class="p">,</span>
+            <span class="p">]</span>
         <span class="k">for</span> <span class="n">baseline</span><span class="p">,</span> <span class="n">time_index_end</span> <span class="ow">in</span> <span class="n">conservation_intervals</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_property_check</span><span class="p">(</span>
                 <span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
@@ -261,10 +300,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">=</span> <span class="n">task_name</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">enable_hadv</span> <span class="o">=</span> <span class="n">enable_hadv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_coriolis</span> <span class="o">=</span> <span class="n">disable_coriolis</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enable_vadv</span> <span class="o">=</span> <span class="n">enable_vadv</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enable_restoring</span> <span class="o">=</span> <span class="n">enable_restoring</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">constant_diff</span> <span class="o">=</span> <span class="n">constant_diff</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constant_diff</span> <span class="o">=</span> <span class="n">constant_diff</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">match_technique</span> <span class="o">=</span> <span class="n">match_technique</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_langmuir_circulation</span> <span class="o">=</span> <span class="n">use_langmuir_circulation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_theory_wave</span> <span class="o">=</span> <span class="n">use_theory_wave</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_obl_under_sea_ice</span> <span class="o">=</span> <span class="n">min_obl_under_sea_ice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_kpp</span> <span class="o">=</span> <span class="n">enable_kpp</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -332,18 +378,52 @@
                 <span class="n">time_integrator</span><span class="o">=</span><span class="n">time_integrator</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
+        <span class="n">template_replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
+            <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">output_interval_seconds</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'kpp_regimes'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_package</span><span class="p">:</span>
+            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'match_technique'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">match_technique</span> <span class="ow">or</span> <span class="s1">'SimpleShapes'</span>
+            <span class="p">)</span>
+            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'use_theory_wave'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_theory_wave</span>
+            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'langmuir_mixing_opt'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'LWF16'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_langmuir_circulation</span> <span class="k">else</span> <span class="s1">'NONE'</span>
+            <span class="p">)</span>
+            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'langmuir_entrainment_opt'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'LF17'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_langmuir_circulation</span> <span class="k">else</span> <span class="s1">'NONE'</span>
+            <span class="p">)</span>
+            <span class="n">template_replacements</span><span class="p">[</span><span class="s1">'min_OBL_under_sea_ice'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">min_obl_under_sea_ice</span>
+            <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">task_package</span><span class="p">,</span>
             <span class="s1">'forward.yaml'</span><span class="p">,</span>
-            <span class="n">template_replacements</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
-                <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span><span class="p">,</span>
-                <span class="n">output_freq</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">output_interval_seconds</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-            <span class="p">),</span>
+            <span class="n">template_replacements</span><span class="o">=</span><span class="n">template_replacements</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">shared_options</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">mpas_options</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">omega_options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Preserve legacy mixing in non-KPP tests even when model defaults</span>
+        <span class="c1"># enable KPP. Dedicated KPP tasks opt in explicitly.</span>
+        <span class="n">is_kpp</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_package</span>
+            <span class="o">==</span> <span class="s1">'polaris.tasks.ocean.single_column.kpp_regimes'</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_kpp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">is_kpp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_kpp</span>
+        <span class="n">shared_options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'config_use_cvmix_kpp'</span><span class="p">:</span> <span class="n">is_kpp</span><span class="p">}</span>
+        <span class="n">mpas_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_kpp</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">mpas_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">'config_use_cvmix'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s1">'config_disable_tr_nonlocalflux'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="n">omega_options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'KPPNonLocalTracerFluxTendencyEnable'</span><span class="p">:</span> <span class="n">is_kpp</span><span class="p">,</span>
+            <span class="s1">'KPPNonLocalTracerDiagnosticsEnable'</span><span class="p">:</span> <span class="n">is_kpp</span><span class="p">,</span>
+        <span class="p">}</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_name</span> <span class="o">==</span> <span class="s1">'ekman'</span><span class="p">:</span>
             <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
@@ -374,10 +454,15 @@
             <span class="n">omega_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
                     <span class="s1">'TracerHorzAdvTendencyEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                    <span class="s1">'PVTendencyEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                     <span class="s1">'KETendencyEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_coriolis</span><span class="p">:</span>
+            <span class="c1"># PVTendencyEnable carries both relative vorticity and Coriolis</span>
+            <span class="c1"># in one term, so it's gated separately from enable_hadv: tasks</span>
+            <span class="c1"># that need Coriolis (e.g. wind-driven regimes) must not disable</span>
+            <span class="c1"># it just to turn off horizontal advection.</span>
+            <span class="n">omega_options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">'PVTendencyEnable'</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_restoring</span><span class="p">:</span>
             <span class="n">shared_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
@@ -399,6 +484,12 @@
                     <span class="s1">'config_use_cvmix_shear'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
+
+        <span class="n">omega_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s1">'UseLangmuirTurbulence'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_langmuir_circulation</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span>
             <span class="n">options</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>

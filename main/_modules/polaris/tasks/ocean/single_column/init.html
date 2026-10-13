@@ -352,6 +352,11 @@
             <span class="n">wind_stress_meridional</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
         <span class="p">)</span>
 
+        <span class="n">wind_speed_10m</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'wind_speed_10m'</span><span class="p">)</span>
+        <span class="n">ice_fraction</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'ice_fraction'</span><span class="p">)</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">'windSpeed10m'</span><span class="p">]</span> <span class="o">=</span> <span class="n">wind_speed_10m</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
+        <span class="n">ds_forcing</span><span class="p">[</span><span class="s1">'iceFraction'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ice_fraction</span> <span class="o">*</span> <span class="n">forcing_array_surface</span>
+
         <span class="n">all_forcing_vars</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">'latent_heat_flux'</span><span class="p">,</span>
             <span class="s1">'sensible_heat_flux'</span><span class="p">,</span>

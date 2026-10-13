@@ -116,6 +116,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.ideal_age</span><span class="w"> </span><span class="kn">import</span> <span class="n">IdealAge</span> <span class="k">as</span> <span class="n">IdealAge</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.inertial</span><span class="w"> </span><span class="kn">import</span> <span class="n">Inertial</span> <span class="k">as</span> <span class="n">Inertial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.init</span><span class="w"> </span><span class="kn">import</span> <span class="n">Init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.kpp_regimes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">KPPRegimes</span> <span class="k">as</span> <span class="n">KPPRegimes</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.thermo</span><span class="w"> </span><span class="kn">import</span> <span class="n">Thermo</span> <span class="k">as</span> <span class="n">Thermo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.single_column.vmix</span><span class="w"> </span><span class="kn">import</span> <span class="n">VMix</span> <span class="k">as</span> <span class="n">VMix</span>
 
@@ -134,20 +137,26 @@
     <span class="n">group_name</span> <span class="o">=</span> <span class="s1">'single_column'</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s1">'vmix_stable'</span>
-    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'wind'</span><span class="p">,</span> <span class="s1">'evap'</span><span class="p">]</span>
+    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'wind_stress'</span><span class="p">,</span> <span class="s1">'evap_strong'</span><span class="p">]</span>
     <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">'_'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">'no_forcing'</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
         <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span>
+        <span class="s1">'neutral_temperature_salinity.cfg'</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
             <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
         <span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'stable_stratification.cfg'</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span>
+        <span class="s1">'stable_temperature_strong.cfg'</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'linear.cfg'</span><span class="p">)</span>
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
         <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'column/init/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/stable'</span><span class="p">,</span>
@@ -172,6 +181,10 @@
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
         <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span>
+        <span class="s1">'neutral_temperature_salinity.cfg'</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
             <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
@@ -195,12 +208,16 @@
         <span class="p">)</span>
     <span class="p">)</span>
 
-    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'wind'</span><span class="p">]</span>
+    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'wind_stress'</span><span class="p">]</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s1">'ekman'</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
         <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
+    <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span>
+        <span class="s1">'neutral_temperature_salinity.cfg'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
@@ -222,20 +239,26 @@
     <span class="p">)</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s1">'ideal_age'</span>
-    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'evap'</span><span class="p">]</span>
+    <span class="n">forcing</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'evap_strong'</span><span class="p">]</span>
     <span class="n">forcing_dir</span> <span class="o">=</span> <span class="s1">'_'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">forcing</span><span class="p">)</span> <span class="k">if</span> <span class="n">forcing</span> <span class="k">else</span> <span class="s1">'no_forcing'</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
         <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
     <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span>
+        <span class="s1">'neutral_temperature_salinity.cfg'</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
             <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
         <span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'stable_stratification.cfg'</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span>
+        <span class="s1">'stable_temperature_strong.cfg'</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.eos'</span><span class="p">,</span> <span class="s1">'linear.cfg'</span><span class="p">)</span>
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
         <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'column/init/</span><span class="si">{</span><span class="n">forcing_dir</span><span class="si">}</span><span class="s1">/stable'</span><span class="p">,</span>
@@ -264,7 +287,8 @@
             <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
         <span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
-        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="s1">'stable_stratification.cfg'</span>
+        <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span>
+        <span class="s1">'stable_temperature_strong.cfg'</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
@@ -286,7 +310,101 @@
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">indir</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+
+    <span class="n">kpp_regimes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># matches Van Roekel et al. (2018) Table 3, WNF (wind without</span>
+        <span class="c1"># Coriolis)</span>
+        <span class="s1">'kpp_wind'</span><span class="p">:</span> <span class="p">([</span><span class="s1">'wind_stress'</span><span class="p">],</span> <span class="p">[</span><span class="s1">'no_coriolis'</span><span class="p">]),</span>
+        <span class="c1"># matches Van Roekel et al. (2018) Table 3, FC (free convection)</span>
+        <span class="s1">'kpp_convection_cooling'</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s1">'sensible_heat_cooling'</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">'stable_temperature_weak'</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="c1"># matches Van Roekel et al. (2018) Table 3, CEW (cooling,</span>
+        <span class="c1"># evaporation, and wind)</span>
+        <span class="s1">'kpp_combined'</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s1">'wind_stress'</span><span class="p">,</span> <span class="s1">'sensible_heat_cooling'</span><span class="p">,</span> <span class="s1">'evap_weak'</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">'stable_temperature_weak'</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s1">'kpp_non_local_flux_suppression'</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s1">'evap_strong'</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">'non_local_flux_suppression'</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s1">'kpp_langmuir'</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s1">'wind_stress'</span><span class="p">,</span>
+                <span class="s1">'wind_speed'</span><span class="p">,</span>
+                <span class="s1">'latent_heat_cooling'</span><span class="p">,</span>
+                <span class="s1">'sensible_heat_cooling'</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="s1">'stable_temperature_strong'</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s1">'kpp_sea_ice'</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s1">'wind_stress'</span><span class="p">,</span> <span class="s1">'sea_ice'</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">'stable_temperature_strong'</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s1">'kpp_convection_evaporation'</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s1">'evap_weak'</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">'stable_salinity_weak'</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s1">'kpp_cooling_with_mixedlayer'</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s1">'sensible_heat_cooling'</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">'mixed_layer_stable_temperature_salinity'</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s1">'kpp_strong_convection_cooling'</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s1">'sensible_heat_cooling_strong'</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">'stable_temperature_weak'</span><span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">forcing</span><span class="p">,</span> <span class="n">profile_configs</span><span class="p">)</span> <span class="ow">in</span> <span class="n">kpp_regimes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/column/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s1">.cfg'</span>
+        <span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span>
+            <span class="s1">'neutral_temperature_salinity.cfg'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">forcing_name</span> <span class="ow">in</span> <span class="n">forcing</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+                <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">forcing_name</span><span class="si">}</span><span class="s1">.cfg'</span>
+            <span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+            <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span>
+            <span class="s1">'stable_temperature_strong.cfg'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">profile_config</span> <span class="ow">in</span> <span class="n">profile_configs</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span>
+                <span class="s1">'polaris.tasks.ocean.single_column'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">profile_config</span><span class="si">}</span><span class="s1">.cfg'</span>
+            <span class="p">)</span>
+        <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
+            <span class="n">step_cls</span><span class="o">=</span><span class="n">Init</span><span class="p">,</span>
+            <span class="c1"># Keyed on the regime name (not just the forcing combination):</span>
+            <span class="c1"># several regimes now share the same forcing list (e.g.</span>
+            <span class="c1"># kpp_convection_cooling and kpp_cooling_with_mixedlayer both</span>
+            <span class="c1"># use ['sensible_heat_cooling']) but differ in profile_configs,</span>
+            <span class="c1"># so forcing_dir alone is no longer unique within this loop.</span>
+            <span class="c1"># "kpp/" additionally avoids colliding with other tasks' shared</span>
+            <span class="c1"># init steps that happen to use the same forcing combo (e.g.</span>
+            <span class="c1"># ideal_age also uses evap_strong+stable), which would silently</span>
+            <span class="c1"># reuse the wrong config (missing eos_linear.cfg and the</span>
+            <span class="c1"># kpp_regimes.cfg vertical grid override) via</span>
+            <span class="c1"># get_or_create_shared_step.</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="sa">f</span><span class="s1">'column/init/kpp/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/stable'</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.cfg'</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">component</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
+            <span class="n">KPPRegimes</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="n">init</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
 </pre></div>
 

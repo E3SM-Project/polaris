@@ -93,6 +93,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#ekman">ekman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-ideal-age">ideal age</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#inertial">inertial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kpp-regimes">KPP regimes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#thermo">thermo</a></li>
 </ul>
 </li>
@@ -176,6 +177,9 @@ the vertical dynamics of the ocean model only. The test cases are:</p>
 <li><p>Testing the Ekman solution under wind forcing</p></li>
 <li><p>Testing the Ideal Age tracer under surface forcing</p></li>
 <li><p>Testing the Coriolis term by quantifying the inertial frequency</p></li>
+<li><p>Testing K-profile parameterization (KPP) boundary-layer regimes under wind,
+cooling, evaporation, Langmuir enhancement and sea ice; see
+<a class="reference internal" href="#ocean-single-column-kpp"><span class="std std-ref">KPP regimes</span></a>.</p></li>
 </ul>
 </section>
 <section id="suppported-models">
@@ -624,10 +628,254 @@ days.</p>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
-<section id="thermo">
-<h2>thermo<a class="headerlink" href="#thermo" title="Link to this heading"></a></h2>
+<section id="kpp-regimes">
+<span id="ocean-single-column-kpp"></span><h2>KPP regimes<a class="headerlink" href="#kpp-regimes" title="Link to this heading"></a></h2>
 <section id="id34">
 <h3>description<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<p>The nine <code class="docutils literal notranslate"><span class="pre">kpp_*</span></code> tasks exercise boundary-layer depth (BLD), vertical mixing
+coefficients and non-local tracer transport. Most compare the <code class="docutils literal notranslate"><span class="pre">SimpleShapes</span></code>
+and <code class="docutils literal notranslate"><span class="pre">MatchBoth</span></code> matching methods; <code class="docutils literal notranslate"><span class="pre">kpp_langmuir</span></code> instead compares Langmuir
+enhancement enabled and disabled. These are controlled column experiments,
+not coupled wave or sea-ice simulations.</p>
+<p>The wind, cooling, combined forcing, evaporation and mixed-layer cases are
+adapted from the forcing and profiles in Tables 3 and 4 of
+<a class="reference external" href="https://doi.org/10.1029/2018MS001336">Van Roekel et al. (2018)</a>.
+The mixed-layer profile is an approximation, and the grid and equations of
+state differ from the published experiments. Langmuir, sea-ice and non-local
+suppression are targeted regression cases. The strong-cooling case is
+motivated by the six-hour experiment attributed to
+<a class="reference external" href="https://doi.org/10.1029/2024MS004522">Wagner et al. (2024)</a> in the forcing
+configuration.</p>
+</section>
+<section id="supported-models">
+<h3>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h3>
+<p>All nine tasks support MPAS-Ocean and Omega. Omega uses TEOS-10; MPAS-Ocean
+uses Jackett–McDougall (<code class="docutils literal notranslate"><span class="pre">jm</span></code>), its available nonlinear equation of state.
+Identical forcing does not imply bit-for-bit matching tracer or BLD output.</p>
+</section>
+<section id="id35">
+<h3>mesh<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<p>All regimes share a periodic 4-by-4 planar hexagonal mesh, initially at rest.
+The inherited <code class="docutils literal notranslate"><span class="pre">single_column:resolution</span></code> is <strong>960 km</strong>. The purpose is a
+horizontally uniform column, not a horizontally resolved ocean experiment.
+Horizontal and vertical advection, pressure-gradient forcing and explicit
+bottom drag are disabled. Coriolis is retained except in <code class="docutils literal notranslate"><span class="pre">kpp_wind</span></code>.</p>
+</section>
+<section id="id36">
+<h3>vertical grid<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<p>The default is <code class="docutils literal notranslate"><span class="pre">80layerE3SMv1</span></code> cropped at the interface nearest 200 m, with
+that final interface set to exactly 200 m. The named grid determines the
+number of layers: the current default generates <strong>27 layers</strong>, not 80 or
+200. It retains the upper-ocean spacing of the original approximately
+5550 m-deep reference grid rather than rescaling every layer to 200 m.
+Choosing <code class="docutils literal notranslate"><span class="pre">grid_type</span> <span class="pre">=</span> <span class="pre">uniform</span></code> instead makes <code class="docutils literal notranslate"><span class="pre">vert_levels</span></code> control the count.</p>
+</section>
+<section id="id37">
+<h3>initial conditions<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<p>The profiles follow <a class="reference internal" href="#ocean-single-column-stable"><span class="std std-ref">initial conditions</span></a>, with surface
+temperature 20 degrees Celsius, surface salinity 35 and zero velocity.
+Here, <span class="math notranslate nohighlight">\(z\)</span> is negative below the surface: a positive temperature gradient
+means temperature decreases downward, and a negative salinity gradient
+means salinity increases downward. The initializer sets the top-layer
+tracer values to the prescribed surface values.</p>
+</section>
+<section id="id38">
+<h3>forcing<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<p>Heat fluxes are in W/m² and are positive into the ocean. Freshwater mass
+fluxes are in kg/m²/s and are positive into the ocean; evaporation is
+negative and increases surface salinity. Wind stress is in Pa.
+Only the nonzero components listed for each regime below are applied;
+surface and interior tracer restoring are disabled. Langmuir enhancement
+is disabled except in the enabled variant of <code class="docutils literal notranslate"><span class="pre">kpp_langmuir</span></code>.</p>
+</section>
+<section id="id39">
+<h3>time step and run duration<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<p>The timestep is 600 s. Most regimes run for eight days and first write
+output after one hour, then hourly. Strong cooling runs for 36 timesteps
+(six hours), first writing after 600 s and then every timestep. Output
+record zero is the first evolved state, not the initial condition.</p>
+</section>
+<section id="id40">
+<h3>config options<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<p>The common overrides in <code class="docutils literal notranslate"><span class="pre">kpp_regimes/kpp_regimes.cfg</span></code> are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[vertical_grid]</span>
+<span class="na">grid_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">80layerE3SMv1</span>
+<span class="na">vert_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200</span>
+<span class="na">bottom_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">200.0</span>
+
+<span class="k">[single_column]</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8.</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3600.</span>
+
+<span class="k">[ocean]</span>
+<span class="na">energy_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.e-6</span>
+<span class="na">salt_conservation_tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.e-10</span>
+</pre></div>
+</div>
+<p>Profile options belong to <code class="docutils literal notranslate"><span class="pre">[single_column]</span></code> and forcing options to
+<code class="docutils literal notranslate"><span class="pre">[single_column_forcing]</span></code>; the case descriptions below specify their
+overrides. The timestep is <code class="docutils literal notranslate"><span class="pre">single_column:time_step</span></code>. The six-hour duration
+is selected in the strong-cooling task constructor and takes precedence
+over <code class="docutils literal notranslate"><span class="pre">run_duration</span></code>.</p>
+</section>
+<section id="id41">
+<h3>cores<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<p>All regimes use one MPI rank and one OpenMP thread, with one rank minimum.</p>
+</section>
+<section id="output-and-interpretation">
+<h3>output and interpretation<a class="headerlink" href="#output-and-interpretation" title="Link to this heading"></a></h3>
+<p>Each task includes <code class="docutils literal notranslate"><span class="pre">init</span></code>, two KPP forward steps, <code class="docutils literal notranslate"><span class="pre">viz</span></code> and <code class="docutils literal notranslate"><span class="pre">analysis</span></code>.
+Ordinary cases write to <code class="docutils literal notranslate"><span class="pre">forward_no_vadv_no_hadv_simpleshapes/output.nc</span></code>
+and <code class="docutils literal notranslate"><span class="pre">forward_no_vadv_no_hadv_matchboth/output.nc</span></code>. Langmuir uses the
+<code class="docutils literal notranslate"><span class="pre">simpleshapes</span></code> step for the disabled variant and
+<code class="docutils literal notranslate"><span class="pre">forward_no_vadv_no_hadv_simpleshapes_langmuir/output.nc</span></code> for the enabled one.</p>
+<p><code class="docutils literal notranslate"><span class="pre">kpp_combined</span></code> and <code class="docutils literal notranslate"><span class="pre">kpp_cooling_with_mixedlayer</span></code> also include
+<code class="docutils literal notranslate"><span class="pre">forward_no_vadv_no_hadv_no_kpp/output.nc</span></code>, a control with the same initial
+state, forcing and timing. KPP and non-local transport are disabled, while
+background diffusion, convective adjustment and local shear mixing remain
+enabled. Its visualization adds <code class="docutils literal notranslate"><span class="pre">no_kpp_vertDiffTopOfCell_time_depth.png</span></code>
+and <code class="docutils literal notranslate"><span class="pre">no_kpp_vertViscTopOfCell_time_depth.png</span></code>. The control is excluded from
+the BLD plot and KPP-specific analysis because KPP’s depth diagnostic is
+not meaningful when the scheme is disabled.</p>
+<p>The visualization includes BLD time series and time-depth plots of bulk
+Richardson number, diffusivity, viscosity and non-local flux when available.
+The analysis logs physical signatures and warnings; these warnings are
+not quantitative pass/fail criteria. Inspect property-check results as
+well as task status; a completed task alone is not evidence of matching
+physics. Implementation and validation details are in
+<a class="reference internal" href="../../../developers_guide/ocean/tasks/single_column.html#dev-ocean-single-column-kpp"><span class="std std-ref">KPP regimes</span></a>.</p>
+</section>
+<section id="kpp-wind">
+<span id="ocean-single-column-kpp-wind"></span><h3>kpp_wind<a class="headerlink" href="#kpp-wind" title="Link to this heading"></a></h3>
+<p><strong>Description:</strong> wind-only boundary-layer evolution, based on the WNF
+(wind without Coriolis) experiment in Van Roekel et al. (2018).</p>
+<p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.05</span></code> degrees
+Celsius/m; uniform salinity. This is the inherited strong-stratification
+profile, not a neutral column. <code class="docutils literal notranslate"><span class="pre">[coriolis]</span> <span class="pre">type</span> <span class="pre">=</span> <span class="pre">zero</span></code>.</p>
+<p><strong>Forcing:</strong> <code class="docutils literal notranslate"><span class="pre">wind_stress_zonal</span> <span class="pre">=</span> <span class="pre">0.1</span></code>; no heat or freshwater forcing.</p>
+<p><strong>Expected response:</strong> mechanical mixing redistributes temperature and
+deepens the boundary layer. Analysis compares BLD near day one with the
+wind-driven scaling using diagnosed stratification. Uniform salinity
+should remain uniform apart from numerical error.</p>
+<p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
+</section>
+<section id="kpp-convection-cooling">
+<span id="ocean-single-column-kpp-cooling"></span><h3>kpp_convection_cooling<a class="headerlink" href="#kpp-convection-cooling" title="Link to this heading"></a></h3>
+<p><strong>Description:</strong> free convection under cooling (FC), using the weak
+temperature-stratified profile A from Van Roekel et al. (2018).</p>
+<p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.01</span></code>; uniform
+salinity, with no prescribed mixed layer.</p>
+<p><strong>Forcing:</strong> <code class="docutils literal notranslate"><span class="pre">sensible_heat_flux</span> <span class="pre">=</span> <span class="pre">-75.0</span></code>.</p>
+<p><strong>Expected response:</strong> surface cooling, BLD growth and nonzero non-local
+transport. Analysis reports the F11 free-convection trajectory comparison;
+this is a diagnostic rather than a required error tolerance.</p>
+<p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
+</section>
+<section id="kpp-combined">
+<span id="ocean-single-column-kpp-combined"></span><h3>kpp_combined<a class="headerlink" href="#kpp-combined" title="Link to this heading"></a></h3>
+<p><strong>Description:</strong> combined cooling, evaporation and wind (CEW) forcing,
+adapted from Van Roekel et al. (2018).</p>
+<p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.01</span></code>; uniform
+salinity, with no prescribed mixed layer.</p>
+<p><strong>Forcing:</strong> <code class="docutils literal notranslate"><span class="pre">wind_stress_zonal</span> <span class="pre">=</span> <span class="pre">0.1</span></code>, <code class="docutils literal notranslate"><span class="pre">sensible_heat_flux</span> <span class="pre">=</span> <span class="pre">-75.0</span></code> and
+<code class="docutils literal notranslate"><span class="pre">evaporation_flux</span> <span class="pre">=</span> <span class="pre">-1.5856e-5</span></code> (approximately 1.37 mm/day freshwater loss).</p>
+<p><strong>Expected response:</strong> mechanical and convective mixing, surface cooling
+and salinification, with active non-local transport. It need not be deeper
+than every wind-only case, whose stratification and Coriolis differ.
+The forward property checks cover mass and salt, but not energy.</p>
+<p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
+</section>
+<section id="kpp-non-local-flux-suppression">
+<span id="ocean-single-column-kpp-suppression"></span><h3>kpp_non_local_flux_suppression<a class="headerlink" href="#kpp-non-local-flux-suppression" title="Link to this heading"></a></h3>
+<p><strong>Description:</strong> regression test that stabilizing surface buoyancy forcing
+suppresses non-local transport without disabling background diffusion.</p>
+<p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.05</span></code>; uniform
+salinity.</p>
+<p><strong>Forcing:</strong> <code class="docutils literal notranslate"><span class="pre">sensible_heat_flux</span> <span class="pre">=</span> <span class="pre">125.0</span></code>; latent heat, shortwave,
+evaporation and wind stress are zero. Non-penetrative heating avoids the
+different shortwave treatment in the two models.</p>
+<p><strong>Expected response:</strong> surface warming and approximately zero non-local
+flux, with background mixing remaining active. Small BLD changes are
+allowed: suppression does not require a perfectly constant BLD.
+The forward property checks currently cover mass and salt only.</p>
+<p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
+</section>
+<section id="kpp-langmuir">
+<span id="ocean-single-column-kpp-langmuir"></span><h3>kpp_langmuir<a class="headerlink" href="#kpp-langmuir" title="Link to this heading"></a></h3>
+<p><strong>Description:</strong> paired runs isolating Langmuir enhancement from otherwise
+identical wind and cooling forcing.</p>
+<p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.05</span></code>; uniform
+salinity.</p>
+<p><strong>Forcing:</strong> <code class="docutils literal notranslate"><span class="pre">wind_stress_zonal</span> <span class="pre">=</span> <span class="pre">0.1</span></code>, <code class="docutils literal notranslate"><span class="pre">wind_speed_10m</span> <span class="pre">=</span> <span class="pre">8.0</span></code>,
+<code class="docutils literal notranslate"><span class="pre">latent_heat_flux</span> <span class="pre">=</span> <span class="pre">-150.0</span></code> and <code class="docutils literal notranslate"><span class="pre">sensible_heat_flux</span> <span class="pre">=</span> <span class="pre">-75.0</span></code>.
+Total prescribed heat loss is 225 W/m²; there is no evaporation.</p>
+<p><strong>Expected response:</strong> the enabled run should deepen the BLD, or at least
+not shoal it, relative to the disabled run. MPAS-Ocean uses <code class="docutils literal notranslate"><span class="pre">LWF16</span></code> mixing
+and <code class="docutils literal notranslate"><span class="pre">LF17</span></code> entrainment with theory-wave estimates in the enabled run;
+both options are <code class="docutils literal notranslate"><span class="pre">NONE</span></code> in the disabled run. Omega toggles
+<code class="docutils literal notranslate"><span class="pre">UseLangmuirTurbulence</span></code>. Both runs use <code class="docutils literal notranslate"><span class="pre">SimpleShapes</span></code>.</p>
+<p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
+</section>
+<section id="kpp-sea-ice">
+<span id="ocean-single-column-kpp-sea-ice"></span><h3>kpp_sea_ice<a class="headerlink" href="#kpp-sea-ice" title="Link to this heading"></a></h3>
+<p><strong>Description:</strong> exercise the minimum boundary-layer depth under a
+prescribed sea-ice fraction. No evolving sea-ice model is involved.</p>
+<p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.05</span></code>; uniform
+salinity.</p>
+<p><strong>Forcing:</strong> <code class="docutils literal notranslate"><span class="pre">wind_stress_zonal</span> <span class="pre">=</span> <span class="pre">0.1</span></code>, <code class="docutils literal notranslate"><span class="pre">ice_fraction</span> <span class="pre">=</span> <span class="pre">0.5</span></code>; no heat or
+freshwater flux. The forward steps set the minimum BLD under ice to 30 m.</p>
+<p><strong>Expected response:</strong> BLD at least 30 m once diagnosed. This is a lower
+bound, not a requirement that BLD remain exactly 30 m. Langmuir enhancement
+is disabled in both matching variants; this case alone does not isolate
+the ice-dependent Langmuir suppression switch.</p>
+<p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
+</section>
+<section id="kpp-convection-evaporation">
+<span id="ocean-single-column-kpp-evaporation"></span><h3>kpp_convection_evaporation<a class="headerlink" href="#kpp-convection-evaporation" title="Link to this heading"></a></h3>
+<p><strong>Description:</strong> salinity-driven convection, using profile B from
+Van Roekel et al. (2018).</p>
+<p><strong>Initial conditions:</strong> uniform temperature,
+<code class="docutils literal notranslate"><span class="pre">salinity_gradient_interior</span> <span class="pre">=</span> <span class="pre">-0.007813</span></code>; no prescribed mixed layer.</p>
+<p><strong>Forcing:</strong> <code class="docutils literal notranslate"><span class="pre">evaporation_flux</span> <span class="pre">=</span> <span class="pre">-1.5856e-5</span></code>; no imposed heat or wind flux.</p>
+<p><strong>Expected response:</strong> freshwater loss salinifies the surface and drives
+boundary-layer deepening with non-local transport. The current F11 helper
+uses temperature stratification only, so its zero-stratification result
+is not a valid analytic reference for this case.</p>
+<p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
+</section>
+<section id="kpp-cooling-with-mixedlayer">
+<span id="ocean-single-column-kpp-mixedlayer"></span><h3>kpp_cooling_with_mixedlayer<a class="headerlink" href="#kpp-cooling-with-mixedlayer" title="Link to this heading"></a></h3>
+<p><strong>Description:</strong> cooling an existing mixed layer (FCML), approximating
+profile C from Van Roekel et al. (2018).</p>
+<p><strong>Initial conditions:</strong> both mixed-layer depths are 25 m. Below them,
+<code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.01</span></code> and
+<code class="docutils literal notranslate"><span class="pre">salinity_gradient_interior</span> <span class="pre">=</span> <span class="pre">-0.03</span></code>. The initializer does not reproduce
+the published finite-width halocline.</p>
+<p><strong>Forcing:</strong> <code class="docutils literal notranslate"><span class="pre">sensible_heat_flux</span> <span class="pre">=</span> <span class="pre">-75.0</span></code>.</p>
+<p><strong>Expected response:</strong> cooling and entrainment into the stratified
+interior, with non-local transport. The zero-initial-mixed-layer F11
+formula is not an exact solution for this configuration.</p>
+<p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
+</section>
+<section id="kpp-strong-convection-cooling">
+<span id="ocean-single-column-kpp-strong-cooling"></span><h3>kpp_strong_convection_cooling<a class="headerlink" href="#kpp-strong-convection-cooling" title="Link to this heading"></a></h3>
+<p><strong>Description:</strong> strongly forced, short free-convection experiment,
+motivated by the KPP profile behavior discussed by Wagner et al. (2024).</p>
+<p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.01</span></code>; uniform
+salinity.</p>
+<p><strong>Forcing:</strong> <code class="docutils literal notranslate"><span class="pre">sensible_heat_flux</span> <span class="pre">=</span> <span class="pre">-2000.0</span></code>.</p>
+<p><strong>Expected response:</strong> rapid surface cooling and BLD growth. Analysis
+also looks for remaining positive buoyancy frequency; its current check
+uses a column-wide maximum, so it does not by itself prove stable
+stratification inside the boundary layer.</p>
+<p><strong>Mesh, vertical grid, cores:</strong> shared KPP settings above.
+<strong>Timestep and duration:</strong> 600 s, 36 timesteps (six hours), output every step.</p>
+</section>
+</section>
+<section id="thermo">
+<h2>thermo<a class="headerlink" href="#thermo" title="Link to this heading"></a></h2>
+<section id="id42">
+<h3>description<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">thermo</span></code> test verifies that the ocean model conserves mass, heat and salt
 under surface thermodynamic forcing.  It performs a separate forward run of 3
 time steps, with output written every time step,
@@ -648,33 +896,33 @@ also carry an enthalpy heat flux that depends on the evolving surface state,
 the heat budget is skipped for those runs; their mass (and, where applicable,
 salt) budgets are still checked.</p>
 </section>
-<section id="id35">
-<h3>mesh<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<section id="id43">
+<h3>mesh<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="id36">
-<h3>vertical grid<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<section id="id44">
+<h3>vertical grid<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="id37">
-<h3>initial conditions<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<section id="id45">
+<h3>initial conditions<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
 <p>The temperature profile follows <code class="docutils literal notranslate"><span class="pre">stable.cfg</span></code> and salinity is constant with
 depth. See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="id38">
-<h3>forcing<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<section id="id46">
+<h3>forcing<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
 <p>Each run applies a single nonzero surface forcing variable from the
 <code class="docutils literal notranslate"><span class="pre">[single_column_forcing]</span></code> section (for example <code class="docutils literal notranslate"><span class="pre">latent_heat_flux</span></code>,
 <code class="docutils literal notranslate"><span class="pre">evaporation_flux</span></code> or <code class="docutils literal notranslate"><span class="pre">sea_ice_salinity_flux</span></code>).  The values used by this test
 override the defaults in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="id39">
-<h3>time step and run duration<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<section id="id47">
+<h3>time step and run duration<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
 <p>The time step is given in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>. The run duration is 10
 days.</p>
 </section>
-<section id="id40">
-<h3>config options<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<section id="id48">
+<h3>config options<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
 <p>The config option specific to this test case is the conservation tolerance:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[single_column_thermo]</span>
 
@@ -690,8 +938,8 @@ days.</p>
 </div>
 <p>All config options shown in <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a> are also used.</p>
 </section>
-<section id="id41">
-<h3>cores<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<section id="id49">
+<h3>cores<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>

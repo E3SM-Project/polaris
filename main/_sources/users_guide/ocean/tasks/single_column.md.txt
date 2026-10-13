@@ -11,6 +11,9 @@ the vertical dynamics of the ocean model only. The test cases are:
 - Testing the Ekman solution under wind forcing
 - Testing the Ideal Age tracer under surface forcing
 - Testing the Coriolis term by quantifying the inertial frequency
+- Testing K-profile parameterization (KPP) boundary-layer regimes under wind,
+  cooling, evaporation, Langmuir enhancement and sea ice; see
+  {ref}`ocean-single-column-kpp`.
 
 ## suppported models
 
@@ -505,6 +508,310 @@ All config options shown in {ref}`ocean-single-column` are also used.
 ### cores
 
 See {ref}`ocean-single-column`.
+
+(ocean-single-column-kpp)=
+
+## KPP regimes
+
+### description
+
+The nine `kpp_*` tasks exercise boundary-layer depth (BLD), vertical mixing
+coefficients and non-local tracer transport. Most compare the `SimpleShapes`
+and `MatchBoth` matching methods; `kpp_langmuir` instead compares Langmuir
+enhancement enabled and disabled. These are controlled column experiments,
+not coupled wave or sea-ice simulations.
+
+The wind, cooling, combined forcing, evaporation and mixed-layer cases are
+adapted from the forcing and profiles in Tables 3 and 4 of
+[Van Roekel et al. (2018)](https://doi.org/10.1029/2018MS001336).
+The mixed-layer profile is an approximation, and the grid and equations of
+state differ from the published experiments. Langmuir, sea-ice and non-local
+suppression are targeted regression cases. The strong-cooling case is
+motivated by the six-hour experiment attributed to 
+[Wagner et al. (2024)](https://doi.org/10.1029/2024MS004522) in the forcing 
+configuration.
+
+### supported models
+
+All nine tasks support MPAS-Ocean and Omega. Omega uses TEOS-10; MPAS-Ocean
+uses Jackett--McDougall (`jm`), its available nonlinear equation of state.
+Identical forcing does not imply bit-for-bit matching tracer or BLD output.
+
+### mesh
+
+All regimes share a periodic 4-by-4 planar hexagonal mesh, initially at rest.
+The inherited `single_column:resolution` is **960 km**. The purpose is a
+horizontally uniform column, not a horizontally resolved ocean experiment.
+Horizontal and vertical advection, pressure-gradient forcing and explicit
+bottom drag are disabled. Coriolis is retained except in `kpp_wind`.
+
+### vertical grid
+
+The default is `80layerE3SMv1` cropped at the interface nearest 200 m, with
+that final interface set to exactly 200 m. The named grid determines the
+number of layers: the current default generates **27 layers**, not 80 or
+200. It retains the upper-ocean spacing of the original approximately
+5550 m-deep reference grid rather than rescaling every layer to 200 m.
+Choosing `grid_type = uniform` instead makes `vert_levels` control the count.
+
+### initial conditions
+
+The profiles follow {ref}`ocean-single-column-stable`, with surface
+temperature 20 degrees Celsius, surface salinity 35 and zero velocity.
+Here, $z$ is negative below the surface: a positive temperature gradient
+means temperature decreases downward, and a negative salinity gradient
+means salinity increases downward. The initializer sets the top-layer
+tracer values to the prescribed surface values.
+
+### forcing
+
+Heat fluxes are in W/m² and are positive into the ocean. Freshwater mass
+fluxes are in kg/m²/s and are positive into the ocean; evaporation is
+negative and increases surface salinity. Wind stress is in Pa.
+Only the nonzero components listed for each regime below are applied;
+surface and interior tracer restoring are disabled. Langmuir enhancement
+is disabled except in the enabled variant of `kpp_langmuir`.
+
+### time step and run duration
+
+The timestep is 600 s. Most regimes run for eight days and first write
+output after one hour, then hourly. Strong cooling runs for 36 timesteps
+(six hours), first writing after 600 s and then every timestep. Output
+record zero is the first evolved state, not the initial condition.
+
+### config options
+
+The common overrides in `kpp_regimes/kpp_regimes.cfg` are:
+
+```cfg
+[vertical_grid]
+grid_type = 80layerE3SMv1
+vert_levels = 200
+bottom_depth = 200.0
+
+[single_column]
+run_duration = 8.
+output_interval = 3600.
+
+[ocean]
+energy_conservation_tolerance = 1.e-6
+salt_conservation_tolerance = 1.e-10
+```
+
+Profile options belong to `[single_column]` and forcing options to
+`[single_column_forcing]`; the case descriptions below specify their
+overrides. The timestep is `single_column:time_step`. The six-hour duration
+is selected in the strong-cooling task constructor and takes precedence
+over `run_duration`.
+
+### cores
+
+All regimes use one MPI rank and one OpenMP thread, with one rank minimum.
+
+### output and interpretation
+
+Each task includes `init`, two KPP forward steps, `viz` and `analysis`.
+Ordinary cases write to `forward_no_vadv_no_hadv_simpleshapes/output.nc`
+and `forward_no_vadv_no_hadv_matchboth/output.nc`. Langmuir uses the
+`simpleshapes` step for the disabled variant and
+`forward_no_vadv_no_hadv_simpleshapes_langmuir/output.nc` for the enabled one.
+
+`kpp_combined` and `kpp_cooling_with_mixedlayer` also include
+`forward_no_vadv_no_hadv_no_kpp/output.nc`, a control with the same initial
+state, forcing and timing. KPP and non-local transport are disabled, while
+background diffusion, convective adjustment and local shear mixing remain
+enabled. Its visualization adds `no_kpp_vertDiffTopOfCell_time_depth.png`
+and `no_kpp_vertViscTopOfCell_time_depth.png`. The control is excluded from
+the BLD plot and KPP-specific analysis because KPP's depth diagnostic is
+not meaningful when the scheme is disabled.
+
+The visualization includes BLD time series and time-depth plots of bulk
+Richardson number, diffusivity, viscosity and non-local flux when available.
+The analysis logs physical signatures and warnings; these warnings are
+not quantitative pass/fail criteria. Inspect property-check results as
+well as task status; a completed task alone is not evidence of matching
+physics. Implementation and validation details are in
+{ref}`dev-ocean-single-column-kpp`.
+
+(ocean-single-column-kpp-wind)=
+
+### kpp_wind
+
+**Description:** wind-only boundary-layer evolution, based on the WNF
+(wind without Coriolis) experiment in Van Roekel et al. (2018).
+
+**Initial conditions:** `temperature_gradient_interior = 0.05` degrees
+Celsius/m; uniform salinity. This is the inherited strong-stratification
+profile, not a neutral column. `[coriolis] type = zero`.
+
+**Forcing:** `wind_stress_zonal = 0.1`; no heat or freshwater forcing.
+
+**Expected response:** mechanical mixing redistributes temperature and
+deepens the boundary layer. Analysis compares BLD near day one with the
+wind-driven scaling using diagnosed stratification. Uniform salinity
+should remain uniform apart from numerical error.
+
+**Mesh, vertical grid, timestep, duration, cores:** shared KPP settings above.
+
+(ocean-single-column-kpp-cooling)=
+
+### kpp_convection_cooling
+
+**Description:** free convection under cooling (FC), using the weak
+temperature-stratified profile A from Van Roekel et al. (2018).
+
+**Initial conditions:** `temperature_gradient_interior = 0.01`; uniform
+salinity, with no prescribed mixed layer.
+
+**Forcing:** `sensible_heat_flux = -75.0`.
+
+**Expected response:** surface cooling, BLD growth and nonzero non-local
+transport. Analysis reports the F11 free-convection trajectory comparison;
+this is a diagnostic rather than a required error tolerance.
+
+**Mesh, vertical grid, timestep, duration, cores:** shared KPP settings above.
+
+(ocean-single-column-kpp-combined)=
+
+### kpp_combined
+
+**Description:** combined cooling, evaporation and wind (CEW) forcing,
+adapted from Van Roekel et al. (2018).
+
+**Initial conditions:** `temperature_gradient_interior = 0.01`; uniform
+salinity, with no prescribed mixed layer.
+
+**Forcing:** `wind_stress_zonal = 0.1`, `sensible_heat_flux = -75.0` and
+`evaporation_flux = -1.5856e-5` (approximately 1.37 mm/day freshwater loss).
+
+**Expected response:** mechanical and convective mixing, surface cooling
+and salinification, with active non-local transport. It need not be deeper
+than every wind-only case, whose stratification and Coriolis differ.
+The forward property checks cover mass and salt, but not energy.
+
+**Mesh, vertical grid, timestep, duration, cores:** shared KPP settings above.
+
+(ocean-single-column-kpp-suppression)=
+
+### kpp_non_local_flux_suppression
+
+**Description:** regression test that stabilizing surface buoyancy forcing
+suppresses non-local transport without disabling background diffusion.
+
+**Initial conditions:** `temperature_gradient_interior = 0.05`; uniform
+salinity.
+
+**Forcing:** `sensible_heat_flux = 125.0`; latent heat, shortwave,
+evaporation and wind stress are zero. Non-penetrative heating avoids the
+different shortwave treatment in the two models.
+
+**Expected response:** surface warming and approximately zero non-local
+flux, with background mixing remaining active. Small BLD changes are
+allowed: suppression does not require a perfectly constant BLD.
+The forward property checks currently cover mass and salt only.
+
+**Mesh, vertical grid, timestep, duration, cores:** shared KPP settings above.
+
+(ocean-single-column-kpp-langmuir)=
+
+### kpp_langmuir
+
+**Description:** paired runs isolating Langmuir enhancement from otherwise
+identical wind and cooling forcing.
+
+**Initial conditions:** `temperature_gradient_interior = 0.05`; uniform
+salinity.
+
+**Forcing:** `wind_stress_zonal = 0.1`, `wind_speed_10m = 8.0`,
+`latent_heat_flux = -150.0` and `sensible_heat_flux = -75.0`.
+Total prescribed heat loss is 225 W/m²; there is no evaporation.
+
+**Expected response:** the enabled run should deepen the BLD, or at least
+not shoal it, relative to the disabled run. MPAS-Ocean uses `LWF16` mixing
+and `LF17` entrainment with theory-wave estimates in the enabled run;
+both options are `NONE` in the disabled run. Omega toggles
+`UseLangmuirTurbulence`. Both runs use `SimpleShapes`.
+
+**Mesh, vertical grid, timestep, duration, cores:** shared KPP settings above.
+
+(ocean-single-column-kpp-sea-ice)=
+
+### kpp_sea_ice
+
+**Description:** exercise the minimum boundary-layer depth under a
+prescribed sea-ice fraction. No evolving sea-ice model is involved.
+
+**Initial conditions:** `temperature_gradient_interior = 0.05`; uniform
+salinity.
+
+**Forcing:** `wind_stress_zonal = 0.1`, `ice_fraction = 0.5`; no heat or
+freshwater flux. The forward steps set the minimum BLD under ice to 30 m.
+
+**Expected response:** BLD at least 30 m once diagnosed. This is a lower
+bound, not a requirement that BLD remain exactly 30 m. Langmuir enhancement
+is disabled in both matching variants; this case alone does not isolate
+the ice-dependent Langmuir suppression switch.
+
+**Mesh, vertical grid, timestep, duration, cores:** shared KPP settings above.
+
+(ocean-single-column-kpp-evaporation)=
+
+### kpp_convection_evaporation
+
+**Description:** salinity-driven convection, using profile B from
+Van Roekel et al. (2018).
+
+**Initial conditions:** uniform temperature,
+`salinity_gradient_interior = -0.007813`; no prescribed mixed layer.
+
+**Forcing:** `evaporation_flux = -1.5856e-5`; no imposed heat or wind flux.
+
+**Expected response:** freshwater loss salinifies the surface and drives
+boundary-layer deepening with non-local transport. The current F11 helper
+uses temperature stratification only, so its zero-stratification result
+is not a valid analytic reference for this case.
+
+**Mesh, vertical grid, timestep, duration, cores:** shared KPP settings above.
+
+(ocean-single-column-kpp-mixedlayer)=
+
+### kpp_cooling_with_mixedlayer
+
+**Description:** cooling an existing mixed layer (FCML), approximating
+profile C from Van Roekel et al. (2018).
+
+**Initial conditions:** both mixed-layer depths are 25 m. Below them,
+`temperature_gradient_interior = 0.01` and
+`salinity_gradient_interior = -0.03`. The initializer does not reproduce
+the published finite-width halocline.
+
+**Forcing:** `sensible_heat_flux = -75.0`.
+
+**Expected response:** cooling and entrainment into the stratified
+interior, with non-local transport. The zero-initial-mixed-layer F11
+formula is not an exact solution for this configuration.
+
+**Mesh, vertical grid, timestep, duration, cores:** shared KPP settings above.
+
+(ocean-single-column-kpp-strong-cooling)=
+
+### kpp_strong_convection_cooling
+
+**Description:** strongly forced, short free-convection experiment,
+motivated by the KPP profile behavior discussed by Wagner et al. (2024).
+
+**Initial conditions:** `temperature_gradient_interior = 0.01`; uniform
+salinity.
+
+**Forcing:** `sensible_heat_flux = -2000.0`.
+
+**Expected response:** rapid surface cooling and BLD growth. Analysis
+also looks for remaining positive buoyancy frequency; its current check
+uses a column-wide maximum, so it does not by itself prove stable
+stratification inside the boundary layer.
+
+**Mesh, vertical grid, cores:** shared KPP settings above.
+**Timestep and duration:** 600 s, 36 timesteps (six hours), output every step.
 
 ## thermo
 
