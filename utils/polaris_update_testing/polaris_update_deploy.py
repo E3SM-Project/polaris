@@ -338,17 +338,30 @@ def format_deployments(deployments: List[Deployment], polaris_dir: str) -> str:
 
 
 def _deploy(deployment: Deployment, polaris_dir: str) -> None:
-    """Run a deployment, with its output in its log"""
+    """
+    Run a deployment in a clean login shell, so that the environment loaded
+    to run this utility does not reach it, with its output in its log
+    """
     os.makedirs(os.path.dirname(deployment.log), exist_ok=True)
     print(
-        f'\nRunning in {polaris_dir}:\n  {shlex.join(deployment.command)}\n'
+        f'\nRunning in {polaris_dir}, in a clean login shell:\n'
+        f'  {shlex.join(deployment.command)}\n'
         f'with its output in {deployment.log}\n',
         flush=True,
     )
+    env = {
+        name: os.environ[name]
+        for name in setup_tools.LOGIN_ENV_VARS
+        if name in os.environ
+    }
+    command = (
+        f'cd {shlex.quote(polaris_dir)} && {shlex.join(deployment.command)}'
+    )
     with open(deployment.log, 'w', encoding='utf-8') as log:
         completed = subprocess.run(
-            deployment.command,
+            ['/bin/bash', '-l', '-c', command],
             cwd=polaris_dir,
+            env=env,
             stdout=log,
             stderr=subprocess.STDOUT,
         )

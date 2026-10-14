@@ -68,8 +68,10 @@ Below, `polaris_update_test.py` means
 ## Deploying
 
 The requester tells you whether to deploy test environments, shared ones
-or none, if they are already deployed.  In the PR's checkout, see what
-`deploy` would run:
+or none, if they are already deployed.  The PR's checkout has no load
+script yet, so source one from another checkout, such as the one on the
+`[machines]` line; `deploy` runs `./deploy.py` in a clean login shell.  In
+the PR's checkout, see what `deploy` would run:
 
 ```bash
 polaris_update_test.py deploy --fork <fork> --branch <branch> \
