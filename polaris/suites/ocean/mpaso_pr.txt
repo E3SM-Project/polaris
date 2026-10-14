@@ -13,6 +13,7 @@ ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/internal_wave/standard/default
 ocean/planar/internal_wave/vlr/default
 ocean/planar/manufactured_solution/convergence_both/default
+ocean/planar/manufactured_solution/rk4/convergence_both/default
 ocean/planar/merry_go_round/default
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_2
 ocean/planar/overflow/linear/zstar/smoke_test_horiz_adv_order_3
