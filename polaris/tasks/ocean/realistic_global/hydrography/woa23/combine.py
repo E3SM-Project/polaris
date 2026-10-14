@@ -5,10 +5,12 @@ from mpas_tools.io import write_netcdf
 
 from polaris import Step
 
+from .month import get_month_abbreviation, get_woa23_month
+
 
 class CombineStep(Step):
     """
-    A step for combining January and annual WOA23 climatologies.
+    A step for combining a monthly and the annual WOA23 climatology.
     """
 
     def __init__(self, component, subdir):
@@ -30,42 +32,41 @@ class CombineStep(Step):
             ntasks=1,
             min_tasks=1,
         )
-        self.add_output_file(filename='woa_combined.nc')
+
+    @property
+    def output_filename(self):
+        """
+        The name of the combined WOA23 file for the configured month.
+        """
+        month_name = get_month_abbreviation(get_woa23_month(self.config))
+        return f'woa_combined_{month_name}.nc'
 
     def setup(self):
         """
-        Set up input files for the step.
+        Set up input and output files for the step.
         """
         super().setup()
+        self.add_output_file(filename=self.output_filename)
 
         base_url = (
             'https://www.ncei.noaa.gov/thredds-ocean/fileServer/woa23/DATA'
         )
         directories = {
-            'temp': {
-                'ann': 'temperature/netcdf/decav91C0/0.25',
-                'jan': 'temperature/netcdf/decav91C0/0.25',
-            },
-            'salin': {
-                'ann': 'salinity/netcdf/decav91C0/0.25',
-                'jan': 'salinity/netcdf/decav91C0/0.25',
-            },
+            'temp': 'temperature/netcdf/decav91C0/0.25',
+            'salin': 'salinity/netcdf/decav91C0/0.25',
         }
-        filenames = {
-            'temp': {
-                'ann': 'woa23_decav91C0_t00_04.nc',
-                'jan': 'woa23_decav91C0_t01_04.nc',
-            },
-            'salin': {
-                'ann': 'woa23_decav91C0_s00_04.nc',
-                'jan': 'woa23_decav91C0_s01_04.nc',
-            },
-        }
+        prefixes = {'temp': 't', 'salin': 's'}
+
+        # WOA23 numbers the annual climatology 0 and the months 1 to 12
+        month = get_woa23_month(self.config)
+        seasons = {'ann': 0, get_month_abbreviation(month): month}
 
         for field in ['temp', 'salin']:
-            for season in ['jan', 'ann']:
-                woa_filename = filenames[field][season]
-                woa_dir = directories[field][season]
+            for season, index in seasons.items():
+                woa_filename = (
+                    f'woa23_decav91C0_{prefixes[field]}{index:02d}_04.nc'
+                )
+                woa_dir = directories[field]
                 self.add_input_file(
                     filename=f'woa_{field}_{season}.nc',
                     target=woa_filename,
@@ -75,11 +76,16 @@ class CombineStep(Step):
 
     def run(self):
         """
-        Combine January and annual climatologies and derive conservative
+        Combine the monthly and annual climatologies and derive conservative
         temperature and absolute salinity.
         """
         logger = self.logger
-        logger.info('Combining January and annual WOA23 climatologies')
+        month = get_woa23_month(self.config)
+        month_name = get_month_abbreviation(month)
+        logger.info(
+            f'Combining the WOA23 climatology for month {month} with the '
+            'annual climatology'
+        )
 
         with xr.open_dataset('woa_temp_ann.nc', decode_times=False) as ds_temp:
             ds_out = xr.Dataset()
@@ -94,13 +100,13 @@ class CombineStep(Step):
             ) as ds_ann:
                 ds_ann = ds_ann.isel(time=0, drop=True)
                 with xr.open_dataset(
-                    f'woa_{field}_jan.nc', decode_times=False
-                ) as ds_jan:
-                    ds_jan = ds_jan.isel(time=0, drop=True)
+                    f'woa_{field}_{month_name}.nc', decode_times=False
+                ) as ds_month:
+                    ds_month = ds_month.isel(time=0, drop=True)
                     slices = []
                     for depth_index in range(ds_ann.sizes['depth']):
-                        if depth_index < ds_jan.sizes['depth']:
-                            ds = ds_jan
+                        if depth_index < ds_month.sizes['depth']:
+                            ds = ds_month
                         else:
                             ds = ds_ann
                         slices.append(ds[var_name].isel(depth=depth_index))
@@ -109,8 +115,13 @@ class CombineStep(Step):
                     ds_out[var_name].attrs = ds_ann[var_name].attrs
 
         ds_out = self._to_canonical_teos10(ds_out)
-        write_netcdf(ds_out, 'woa_combined.nc')
-        logger.info('Wrote woa_combined.nc')
+        # WOA23 itself is single precision, so there is nothing to gain from
+        # writing doubles
+        for var_name in ['ct_an', 'sa_an']:
+            ds_out[var_name] = ds_out[var_name].astype(np.float32)
+        ds_out.attrs['month'] = month
+        write_netcdf(ds_out, self.output_filename)
+        logger.info(f'Wrote {self.output_filename}')
 
     @staticmethod
     def _to_canonical_teos10(ds):
