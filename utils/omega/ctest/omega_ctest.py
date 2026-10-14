@@ -23,6 +23,18 @@ CDASH_NIGHTLY_START_TIME = '01:00:00 UTC'
 THIS_DIR = os.path.realpath(os.path.dirname(__file__))
 CTEST_DASHBOARD_SCRIPT = os.path.join(THIS_DIR, 'ctest_dashboard.cmake')
 
+# the meshes Omega's CTests read, keyed by the name each is linked to in the
+# build's test directory.  This is the one list in Polaris: the nightly cron
+# jobs and the PR testing utility both run this script.  It must match the
+# test meshes in Omega's developer quick start
+# (components/omega/doc/devGuide/QuickStart.md).
+CTEST_MESH_DATABASE = 'ocean/omega_ctest'
+CTEST_MESHES = {
+    'OmegaMesh.nc': 'ocean.QU.240km.omega_vars.260807.nc',
+    'OmegaPlanarMesh.nc': 'PlanarPeriodic48x48.omega_vars.260825.nc',
+    'OmegaSphereMesh.nc': 'cosine_bell_icos480.omega_vars.260911.nc',
+}
+
 
 @dataclass
 class DashboardOptions:
@@ -61,9 +73,7 @@ def make_build_script(
     branch,
     build_only,
     build_dir,
-    mesh_filename,
-    planar_mesh_filename,
-    sphere_mesh_filename,
+    meshes,
     debug,
     clean,
     cmake_flags,
@@ -74,6 +84,9 @@ def make_build_script(
     """
     Make a shell script using the standard Omega builder, then append
     CTest-specific commands (link meshes and optionally run ctests).
+
+    ``meshes`` maps the name of each mesh in the build's ``test`` directory
+    to the file to link there, as returned by :py:func:`download_meshes`.
 
     With ``dashboard`` set, the build goes through ``ctest_build()`` so that
     CTest records it under ``Testing/<tag>/`` for CDash.  With ``build_jobs``
@@ -138,12 +151,11 @@ def make_build_script(
         with open(base_script, 'r', encoding='utf-8') as f:
             content = f.read()
 
-    # we need to symlink the 3 meshes regardless of whether we run CTests now
+    # we need to symlink the meshes regardless of whether we run CTests now
     # or later
-    extra = (
-        f'\n\nln -sfn "{mesh_filename}" test/OmegaMesh.nc\n'
-        f'ln -sfn "{planar_mesh_filename}" test/OmegaPlanarMesh.nc\n'
-        f'ln -sfn "{sphere_mesh_filename}" test/OmegaSphereMesh.nc\n'
+    extra = '\n\n' + ''.join(
+        f'ln -sfn "{filename}" test/{link_name}\n'
+        for link_name, filename in meshes.items()
     )
 
     if not build_only:
@@ -187,33 +199,33 @@ def validate_omega_build_dir(build_dir):
 
 def download_meshes(config):
     """
-    Download and symlink a mesh to use for testing.
+    Download the meshes in ``CTEST_MESHES`` to the Polaris database, if they
+    are not there already.
+
+    Returns
+    -------
+    meshes : dict
+        The path to each mesh, keyed by the name it is linked to in the
+        build's ``test`` directory
     """
     database_root = config.get('paths', 'database_root')
 
     base_url = 'https://web.lcrc.anl.gov/public/e3sm/polaris/'
 
-    files = [
-        'ocean.QU.240km.omega_vars.260807.nc',
-        'PlanarPeriodic48x48.omega_vars.260825.nc',
-        'cosine_bell_icos480.omega_vars.260911.nc',
-    ]
-
-    database_path = 'ocean/omega_ctest'
-
-    download_targets = []
-    for filename in files:
-        download_path = os.path.join(database_root, database_path, filename)
-        url = f'{base_url}/{database_path}/{filename}'
-        download_target = download(url, download_path, config)
-        download_targets.append(download_target)
+    meshes = {}
+    for link_name, filename in CTEST_MESHES.items():
+        download_path = os.path.join(
+            database_root, CTEST_MESH_DATABASE, filename
+        )
+        url = f'{base_url}/{CTEST_MESH_DATABASE}/{filename}'
+        meshes[link_name] = download(url, download_path, config)
 
     if config.has_option('e3sm_unified', 'group'):
-        database_path = os.path.join(database_root, database_path)
+        database_path = os.path.join(database_root, CTEST_MESH_DATABASE)
         group = config.get('e3sm_unified', 'group')
         update_permissions([database_path], group, group_writable=True)
 
-    return download_targets
+    return meshes
 
 
 def write_build_jobs_script(build_dir, build_jobs):
@@ -503,9 +515,7 @@ def main():
     else:
         build_only = True
 
-    mesh_filename, planar_mesh_filename, sphere_mesh_filename = (
-        download_meshes(config=config)
-    )
+    meshes = download_meshes(config=config)
 
     script_filename = make_build_script(
         machine=machine,
@@ -513,9 +523,7 @@ def main():
         branch=branch,
         build_only=build_only,
         build_dir=build_dir,
-        mesh_filename=mesh_filename,
-        planar_mesh_filename=planar_mesh_filename,
-        sphere_mesh_filename=sphere_mesh_filename,
+        meshes=meshes,
         debug=debug,
         clean=clean,
         cmake_flags=cmake_flags,
