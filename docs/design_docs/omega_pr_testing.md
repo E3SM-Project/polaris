@@ -484,7 +484,8 @@ which handles Slurm and PBS dependencies. On Frontier it adds
 and Frontier allows only one debug job at a time. It also adds
 `--time=01:00:00`, since the GPU row's baseline ran past the suite's
 30-minute wall time on Omega#524. On Aurora it adds
-`-q capacity`, Aurora's queue for 1 to 16 nodes, and each job waits for the
+`-q capacity`, Aurora's queue for 1 to 16 nodes, and `-l walltime=01:00:00`,
+since suites there ran past 30 minutes on slow nights. Each job waits for the
 one before, because Aurora limits how many jobs a user may have queued, and
 a job held on a dependency does not count. `utils/benchmark` keeps its own
 copy of that code, because its driver runs outside any Polaris

@@ -193,13 +193,16 @@ def test_setup_aurora_chains_jobs(tester, monkeypatch):
     text = pr_test_setup.format_state(state, str(row_dir), 'aurora')
     assert "-W 'depend=afterany:<baseline job id>'" in text
     assert "-W 'depend=afterany:<PR suite job id>'" in text
-    assert text.count('-q capacity') == 3
+    assert text.count('-q capacity -l walltime=01:00:00') == 3
 
     _setup(fixture, manifest, submit=True)
     # each job waits for the one before, so only one is ever queued
     dependencies = [call[2] for call in calls['submit']]
     assert dependencies == [None, '1001', '1002']
-    assert calls['extra_args'] == [['-q', 'capacity']] * 3
+    assert (
+        calls['extra_args']
+        == [['-q', 'capacity', '-l', 'walltime=01:00:00']] * 3
+    )
 
 
 def test_setup_resumes_after_refused_job(tester, monkeypatch):

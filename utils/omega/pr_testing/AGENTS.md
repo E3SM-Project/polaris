@@ -300,7 +300,8 @@ apply, with these differences:
   another queue.  With their permission, run `setup --submit` again once
   the queue allows; it submits only the jobs that were not submitted.  The utility already submits
   Frontier's jobs with the normal QOS and an hour's wall time, and
-  Aurora's to the capacity queue, one after another.
+  Aurora's to the capacity queue with an hour's wall time, one after
+  another.
 - **The connection to a machine drops**, often because the requester
   logged out.  Ask them to log in again.  A `setup` started under `nohup` keeps running; read its log
   before starting it again.

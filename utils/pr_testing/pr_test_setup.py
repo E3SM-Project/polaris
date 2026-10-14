@@ -54,9 +54,11 @@ BASELINE_JOB_PLACEHOLDER = '<baseline job id>'
 #: QOS, the suites' 30-minute wall time, chosen to fit debug queues, is
 #: lifted, since the GPU row's baseline ran past it on Omega#524.  Aurora's
 #: debug queue is limited in the same way; capacity is its queue for jobs of
-#: 1 to 16 nodes, since prod starts at 256.
+#: 1 to 16 nodes, since prod starts at 256.  Suites on Aurora ran past 30
+#: minutes on slow nights too (Omega#546, polaris#835), so they also get an
+#: hour.
 SUBMIT_ARGS: Dict[str, List[str]] = {
-    'aurora': ['-q', 'capacity'],
+    'aurora': ['-q', 'capacity', '-l', 'walltime=01:00:00'],
     'frontier': ['--qos=normal', '--time=01:00:00'],
 }
 
