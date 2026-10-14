@@ -116,6 +116,7 @@ def run_report(
     changed = _get_changed_omega_files(config, manifest)
     results = []
     states = []
+    comparisons = []
     missing = []
     for row in rows:
         try:
@@ -125,9 +126,11 @@ def run_report(
                 missing.append(f'  {row.name}: {exc}')
             else:
                 results.append(report.not_run(row, not_run, COLUMNS))
+                comparisons.append((row, None, f'it was not run: {not_run}'))
             continue
         results.append(result)
         states.append(state)
+        comparisons.append(_compare(manifest, row, state, result))
     if missing:
         raise ReportError(
             'These rows have no results to report:\n'
@@ -147,7 +150,10 @@ def run_report(
         heading=f'Testing on {" and ".join(machines)} with the {spack} '
         f'Spack environments',
         marker=marker,
-        sections=[describe(manifest, spack, states)]
+        sections=[
+            describe(manifest, spack, states),
+            report.format_bit_for_bit(comparisons),
+        ]
         + report.format_rows(COLUMNS, results),
         requester=manifest.requester,
         requester_notes=manifest.notes,
@@ -258,6 +264,23 @@ def _row_result(
         marker=marker,
     )
     return result, state
+
+
+def _compare(manifest, row, state, result):
+    """
+    A row's comparison with the baseline, recorded in its marker, or why
+    there is none
+    """
+    if state.baseline_work_dir is None:
+        if state.no_baseline_reason is not None:
+            reason = state.no_baseline_reason
+        else:
+            reason = 'there is no baseline'
+        return row, None, reason
+    comparison = report.compare_with_baseline(state.pr_work_dir, state.suite)
+    result.marker['non_bfb'] = len(comparison.differ)
+    result.marker['did_not_run'] = len(comparison.did_not_run)
+    return row, comparison, ''
 
 
 def _get_loaded_kind(polaris_dir, machine):
