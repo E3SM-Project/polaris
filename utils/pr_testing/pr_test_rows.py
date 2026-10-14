@@ -27,25 +27,39 @@ class Row:
     template : str, optional
         The row's label in the PR template's testing checklist, if it has
         one
+
+    model : str, optional
+        The model the row tests, ``omega`` or ``mpas-ocean``, when rows of
+        both are tested; ``None`` when the model goes without saying
     """
 
     machine: str
     compiler: str
     mpi: str
     template: Optional[str] = None
+    model: Optional[str] = None
 
     @property
     def name(self) -> str:
-        """The row as ``<machine>/<compiler>``"""
-        return f'{self.machine}/{self.compiler}'
+        """The row as ``<machine>/<compiler>``, then ``/<model>`` if any"""
+        name = f'{self.machine}/{self.compiler}'
+        if self.model is not None:
+            name = f'{name}/{self.model}'
+        return name
 
     @property
     def label(self) -> str:
         """How reports name the row"""
         polaris = f'{self.machine}, {self.compiler}, {self.mpi}'
-        if self.template is None or self.template == polaris:
-            return polaris
-        return f'{self.template} (Polaris `{self.compiler}`)'
+        if self.template is not None and self.template != polaris:
+            polaris = f'{self.template} (Polaris `{self.compiler}`)'
+        if self.model is not None:
+            polaris = f'{polaris} ({MODEL_LABELS[self.model]})'
+        return polaris
+
+
+#: how reports name each model
+MODEL_LABELS = {'omega': 'Omega', 'mpas-ocean': 'MPAS-Ocean'}
 
 
 #: machines whose rows are tested from the same login nodes

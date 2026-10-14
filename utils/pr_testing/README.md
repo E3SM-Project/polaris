@@ -1,8 +1,9 @@
 # Shared code for the PR testing utilities
 
 These modules are shared by the utilities that test pull requests on the
-supported machines, such as [the Omega PR testing
-utility](../omega/pr_testing/README.md).  They are not run directly.  Each
+supported machines: [the Omega PR testing
+utility](../omega/pr_testing/README.md) and [the Polaris version update
+testing utility](../polaris_update_testing/README.md).  They are not run directly.  Each
 utility's script puts this directory on `sys.path`.
 
 - `example.cfg`: the settings, which go in `~/.config/polaris_pr_test.cfg`

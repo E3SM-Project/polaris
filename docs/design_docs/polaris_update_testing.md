@@ -7,13 +7,6 @@ Contributors:
 - Xylar Asay-Davis
 - Claude
 
-## Open questions
-
-- Two utilities now read `~/.config/omega_pr_test.cfg`. Should it get a
-  neutral name, such as `~/.config/polaris_pr_test.cfg`?
-- Should `deploy --run` be allowed for the shared Spack environments, or
-  should the utility only print that command for the requester to run?
-
 ## Summary
 
 A pull request that updates Polaris to a new version, such as #664 or #835,
@@ -157,15 +150,16 @@ permission in the agent's session, as in the Omega utility.
 
 ### Implementation: Every supported row is tested.
 
-The shared `Row` gains a `model`, `omega` by default, which keeps the Omega
-utility's manifests valid. `pr_test_setup` builds MPAS-Ocean as well as
-Omega:
+The shared `Row` gains an optional `model`, which the Omega utility leaves
+out. `pr_test_setup` builds MPAS-Ocean as well as Omega:
 
 - `polaris_suite()` already takes the suite and model. For MPAS-Ocean it
   passes no `--branch`, so the build uses the checkout's submodule.
 - A lock on the E3SM-Project submodule, like the lock on an Omega
   worktree, makes rows build one at a time.
 - A finished MPAS-Ocean build is recognized by its `ocean_model`.
+- `BaselineCriteria.build_type` may be `None`, since MPAS-Ocean's
+  provenance has no build type.
 
 Only Omega rows set up CTests and compare build warnings.
 
@@ -212,19 +206,28 @@ the row's `setup.json`. Row directories are kept apart by kind:
 ### Implementation: The requester controls deploying Spack environments.
 
 ```
-polaris_update_test.py deploy [--machine <machine>] [--spack-path <path>]
+polaris_update_test.py deploy --fork <fork> --branch <branch>
+                              [--machine <machine>] [--spack-path <path>]
                               [--recreate] [--run]
 ```
 
 The compilers and MPI libraries come from the `mpi_<compiler>` options in
 `polaris/machines/<machine>.cfg`. `AGENTS.md` tells an agent to ask before
 `--run` on each machine, and to say whether it deploys test or shared
-environments.
+environments. With permission, `deploy --run` deploys the shared
+environments as well as test ones (see [Decisions](#decisions)).
 
 ### Implementation: A baseline is optional.
 
-`setup --baseline-load-script <script>` names the row's load script in the
-baseline checkout, as in the Omega utility. `setup` checks that the
+```
+polaris_update_test.py setup --fork <fork> --branch <branch> [--submit]
+                             [--baseline-load-script <script>]
+                             [--no-baseline <reason>]
+```
+
+`setup` sets up every row the loaded load script tests.
+`--baseline-load-script` names the load script for the same compiler in
+the baseline checkout, as in the Omega utility. `setup` checks that the
 checkout contains the manifest's baseline commit and pins its Omega and
 E3SM-Project commits. The baseline is found or set up with the shared
 `get_baseline()`, so an Omega baseline that the Omega utility ran from the
@@ -233,23 +236,26 @@ same `main` is reused.
 ### Implementation: Each machine's results are reported in one comment.
 
 ```
-polaris_update_test.py report [--machine <machine>] [--notes <file>]
-                              [--not-run <reason>] [--agent <name>] [--post]
+polaris_update_test.py report [--machine <machine>] [--spack <kind>]
+                              [--notes <file>] [--not-run <reason>]
+                              [--agent <name>] [--post]
 ```
 
 ```markdown
 ## Testing on chrysalis with the shared Spack environments
 <!-- polaris-update-test {...} -->
 
-Tested E3SM-Project/polaris#835 (`<sha>`, Polaris 1.2.0-alpha.1, mache
-5.0.0) with the Spack environments in `<path>`, against `main`
-(`<sha>`, Polaris 1.1.0-alpha.7) with its shared environments.
+Tested E3SM-Project/polaris#835 (`<sha>`), Polaris 1.2.0-alpha.1 with
+mache 5.0.0, Omega `<sha>` and E3SM `<sha>`, with the shared Spack
+environments in `<path>`. The baseline is `<sha>`, Polaris 1.1.0-alpha.7,
+Omega `<sha>` and E3SM `<sha>`, with its shared Spack environments, so
+differences can come from any of these.
 
 | Row | Suite | CTests | New build warnings |
 |---|---|---|---|
-| chrysalis, gnu, openmpi (MPAS-Ocean) | 24 of 24 passed | | |
-| chrysalis, gnu, openmpi (Omega) | 29 of 29 passed | 59 of 59 passed | 0 |
-| chrysalis, intel, openmpi (Omega) | 29 of 29 passed | 59 of 59 passed | 0 |
+| chrysalis, gnu, openmpi (MPAS-Ocean) | `mpaso_pr`: 24 of 24 passed | | |
+| chrysalis, intel, openmpi (Omega) | `omega_pr`: 29 of 29 passed | 59 of 59 passed | 0 |
+| chrysalis, gnu, openmpi (Omega) | `omega_pr`: 29 of 29 passed | 59 of 59 passed | 0 |
 
 <details>...</details>
 ```
@@ -271,9 +277,9 @@ is named `<machine>/<compiler>/<model>/<shared|test>`.
 `utils/polaris_update_testing/` holds `AGENTS.md`, `README.md`,
 `polaris_update_test.py` and its `polaris_update_*.py` modules. `AGENTS.md`
 links to the Omega utility's `AGENTS.md` for the rules and the ssh steps
-the two share, rather than repeating them. The settings come from the same
-file as the Omega utility's, so the two share `work_base`, its Omega
-worktrees and its baselines.
+the two share, rather than repeating them. The settings come from
+`~/.config/polaris_pr_test.cfg`, the Omega utility's file, so the two
+share `work_base`, its Omega worktrees and its baselines.
 
 ## Testing
 
@@ -318,6 +324,13 @@ Perlmutter and Aurora over ssh and with an agent on Frontier.
   pull request is on another repository, has MPAS-Ocean rows, deploys
   Spack environments and needs no lint step. One command line for both
   would put two workflows in one `AGENTS.md`.
+- **`deploy --run` does the deployment, shared environments included.**
+  Handing the command back for the requester to run would defeat the
+  utility. The requester's permission for each machine is what guards the
+  shared environments.
+- **The two utilities share one settings file**,
+  `~/.config/polaris_pr_test.cfg`, which replaced the Omega utility's
+  `~/.config/omega_pr_test.cfg`.
 - **The pull request's head is tested, not a merge into `main`.**
   Deployment runs from the pull request's branch, and an update pull
   request is brought up to date with `main` before it merges.
