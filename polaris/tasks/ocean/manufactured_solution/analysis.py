@@ -74,3 +74,35 @@ class Analysis(ConvergenceAnalysis):
         if field_name != 'ssh':
             raise ValueError(f'{field_name} is not currently supported')
         return exact.ssh(time)
+
+    def convergence_parameters(self, field_name=None):
+        """
+        Get convergence parameters, with a lower threshold for MPAS-Ocean's
+        unsplit_explicit time integrator, which converges at close to first
+        order until a fix for how it times the manufactured solution forcing
+        is merged into E3SM
+
+        Parameters
+        ----------
+        field_name : str
+            The name of the variable of which we evaluate convergence
+
+        Returns
+        -------
+        conv_thresh : float
+            The minimum convergence rate
+
+        error_type : {'l2', 'inf'}, str
+            The error norm to compute
+        """
+        conv_thresh, error_type = super().convergence_parameters(
+            field_name=field_name
+        )
+        config = self.config
+        model = config.get('ocean', 'model')
+        time_integrator = config.get('convergence_forward', 'time_integrator')
+        if model == 'mpas-ocean' and time_integrator == 'unsplit_explicit':
+            conv_thresh = config.getfloat(
+                'manufactured_solution', 'mpaso_unsplit_conv_thresh'
+            )
+        return conv_thresh, error_type
