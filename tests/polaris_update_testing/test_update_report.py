@@ -41,11 +41,8 @@ def finished(tmp_path, monkeypatch):
 def test_report(finished):
     fixture, manifest = finished
 
-    text, url, path = _report(
-        fixture, manifest, not_run='the intel queue is down'
-    )
+    text, path = _report(fixture, manifest, not_run='the intel queue is down')
 
-    assert url is None
     assert text.startswith(
         '## Testing on chrysalis with the shared Spack environments\n'
     )
@@ -132,7 +129,7 @@ def test_report_not_bit_for_bit(finished):
     contents['tasks'][1].update({'status': 'fail', 'execution': 'fail'})
     results.write_text(json.dumps(contents))
 
-    text, _, _ = _report(fixture, manifest, not_run='down')
+    text, _ = _report(fixture, manifest, not_run='down')
 
     assert '**Not bit-for-bit: 1 task, on 1 row.**' in text
     assert (
@@ -167,7 +164,7 @@ def test_report_kind_of_environment(finished, monkeypatch):
         _report(fixture, manifest, not_run='down')
 
     # off the machines, with nothing loaded, a machine that was not run
-    text, _, _ = _report(
+    text, _ = _report(
         fixture,
         manifest,
         machine='pm-cpu',
@@ -181,7 +178,7 @@ def test_report_kind_of_environment(finished, monkeypatch):
 
 def test_status(finished, monkeypatch):
     fixture, manifest = finished
-    text, _, _ = _report(fixture, manifest, not_run='down')
+    text, _ = _report(fixture, manifest, not_run='down')
     monkeypatch.setattr(
         pr_test_github, 'get_comment_bodies', lambda repo, number: [text]
     )

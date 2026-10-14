@@ -33,9 +33,9 @@ machine, and its code in [utils/pr_testing](../pr_testing).
    CTests for the rows the load script tests.  `--submit` submits the
    jobs.
 4. **`report`** (each machine) writes one comment for the machine's rows
-   with the loaded kind of Spack environment.  `--post` posts it.
-5. **`post`** (your computer) posts a comment that `report` wrote on a
-   machine without `gh`.
+   with the loaded kind of Spack environment.
+5. **`post`** posts a comment that `report` wrote, once someone has read
+   it.  `report` never posts by itself.
 6. **`status`** lists which rows have been reported, for each kind of
    environment.
 
