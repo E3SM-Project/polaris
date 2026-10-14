@@ -165,8 +165,15 @@ Only Omega rows set up CTests and compare build warnings.
 
 ```
 polaris_update_test.py init --pr 835 [--baseline main] [--rows ...]
+                            [--merge-omega-pr <number>]...
                             [--notes <text>] [--push]
 ```
+
+`--merge-omega-pr` merges an Omega pull request, such as a build fix still
+in review, into the Omega the pull request pins. The merge is pushed to the
+requester's E3SM fork, recorded in the manifest's `omega_merge`, and built
+by every Omega row in place of the pin. Checkouts are still checked against
+the pin.
 
 The manifest, `polaris_update_test.yaml`:
 
@@ -178,6 +185,11 @@ pr_head: <sha>
 polaris_version: 1.2.0-alpha.1
 omega_commit: <sha>
 e3sm_commit: <sha>
+omega_merge:            # or null
+  commit: <sha>         # built in place of omega_commit
+  pull_requests: [{pull_request: 600, commit: <sha>}]
+  fork: <the requester's E3SM fork>
+  branch: polaris-update-test/835-<sha7>-omega
 baseline:               # or null
   polaris_commit: <sha>
   polaris_version: 1.1.0-alpha.7

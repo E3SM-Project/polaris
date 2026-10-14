@@ -73,6 +73,7 @@ def _init(args):
         pull_request=args.pr,
         baseline_ref=args.baseline,
         row_names=row_names,
+        merge_omega_prs=args.merge_omega_pr,
         notes=args.notes,
         push=args.push,
         force=args.force,
@@ -179,11 +180,20 @@ def _parse_args():
         help='Comma-separated <machine>/<compiler>/<model> rows to test, '
         'every row the PR supports by default',
     )
+    init.add_argument(
+        '--merge-omega-pr',
+        type=int,
+        action='append',
+        default=[],
+        help='An Omega PR to merge into the Omega the Polaris PR pins, such '
+        'as a fix still in review (may be repeated).  The merge is pushed to '
+        'the E3SM fork, "fork" in the config file.',
+    )
     init.add_argument('--notes', help='Notes for the requester')
     init.add_argument(
         '--push',
         action='store_true',
-        help="Push the branch to the requester's Polaris fork.  Agents pass "
+        help="Push the branches to the requester's forks.  Agents pass "
         "this only with the requester's permission.",
     )
     init.add_argument(

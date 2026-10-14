@@ -90,6 +90,42 @@ def test_init_leaves_an_equivalent_branch(fixture):
     assert second.manifest == first.manifest
 
 
+def test_init_merges_omega_prs(fixture):
+    result = _initiate(
+        fixture, baseline_ref='main', merge_omega_prs=[600], push=True
+    )
+
+    merge = result.manifest.omega_merge
+    assert merge is not None
+    assert merge.pull_requests == {600: fixture.fix_head}
+    assert merge.branch == f'{result.manifest.branch}-omega'
+    assert result.manifest.omega_build_commit == merge.commit
+    # the merge is of the fix into the Omega the PR pins, on the E3SM fork
+    assert git(fixture.e3sm_fork, 'rev-parse', merge.branch) == merge.commit
+    parents = git(fixture.e3sm_fork, 'rev-parse', f'{merge.commit}^@')
+    assert parents.split() == [fixture.new_pin, fixture.fix_head]
+    # the PR's pin is still what the checkouts are checked against
+    assert result.manifest.test.omega_commit == fixture.new_pin
+    assert fetch_manifest(
+        fixture.polaris_dir, fixture.fork, result.manifest.branch
+    ) == (result.manifest)
+    assert 'with E3SM-Project/Omega#600 merged in' in (
+        polaris_update_init.format_result(result, fixture.polaris_dir)
+    )
+
+    # remaking the merge changes its hash, but not what testers build
+    again = _initiate(
+        fixture, baseline_ref='main', merge_omega_prs=[600], push=True
+    )
+    assert again.existing
+    assert again.manifest == result.manifest
+
+
+def test_init_refuses_an_omega_pr_already_pinned(fixture):
+    with pytest.raises(polaris_update_init.InitError, match='already in'):
+        _initiate(fixture, merge_omega_prs=[601])
+
+
 def test_init_refuses_a_baseline_with_the_pr(fixture):
     with pytest.raises(polaris_update_init.InitError, match='contains'):
         _initiate(fixture, baseline_ref=fixture.pr_head)
