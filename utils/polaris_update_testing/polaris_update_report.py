@@ -175,12 +175,21 @@ def describe(manifest: Manifest, spack: str, states: List[SetupState]) -> str:
     where = ''
     if paths:
         where = f' in {", ".join(f"`{path}`" for path in paths)}'
+    omega = f'Omega `{test.omega_commit[:10]}`'
+    if manifest.omega_merge is not None:
+        merged = ', '.join(
+            f'E3SM-Project/Omega#{number}'
+            for number in manifest.omega_merge.pull_requests
+        )
+        omega = (
+            f'{omega} with {merged} merged in '
+            f'(`{manifest.omega_merge.commit[:10]}`)'
+        )
     text = (
         f'Tested {UPSTREAM}#{manifest.pull_request} '
         f'(`{test.polaris_commit[:10]}`), Polaris {test.polaris_version}'
-        f'{with_mache}, Omega `{test.omega_commit[:10]}` and E3SM '
-        f'`{test.e3sm_commit[:10]}`, with the {spack} Spack environments'
-        f'{where}.'
+        f'{with_mache}, {omega} and E3SM `{test.e3sm_commit[:10]}`, with the '
+        f'{spack} Spack environments{where}.'
     )
     baseline = manifest.baseline
     if baseline is None:
@@ -270,7 +279,7 @@ def _get_changed_omega_files(config, manifest):
     if manifest.baseline is None:
         return []
     baseline = manifest.baseline.omega_commit
-    test = manifest.test.omega_commit
+    test = manifest.omega_build_commit
     if baseline == test:
         return []
     try:
