@@ -13,7 +13,8 @@ def add_overflow_tasks(component):
     doi:10.1016/j.ocemod.2014.12.004
 
     Variants combine the equation of state (linear or nonlinear) with the
-    vertical coordinate used for the initial condition (z-star or p-star).
+    vertical coordinate used for the initial condition (z-star, p-star or
+    sigma).
 
     component : polaris.ocean.Ocean
         the ocean component that the task will be added to
@@ -21,7 +22,9 @@ def add_overflow_tasks(component):
     for eos_type, coord_type in [
         ('linear', 'zstar'),
         ('linear', 'pstar'),
+        ('linear', 'sigma'),
         ('nonlinear', 'pstar'),
+        ('nonlinear', 'sigma'),
     ]:
         _add_overflow_variant_tasks(component, eos_type, coord_type)
 
@@ -30,7 +33,8 @@ def _add_overflow_variant_tasks(component, eos_type, coord_type):
     """
     Add the overflow tasks (smoke tests and RPE) for one combination of
     equation of state (``'linear'`` or ``'nonlinear'``) and vertical
-    coordinate for the initial condition (``'zstar'`` or ``'pstar'``).
+    coordinate for the initial condition (``'zstar'``, ``'pstar'`` or
+    ``'sigma'``).
     """
     taskdir = f'planar/overflow/{eos_type}/{coord_type}'
     config_filename = 'overflow.cfg'
@@ -43,12 +47,15 @@ def _add_overflow_variant_tasks(component, eos_type, coord_type):
         eos_cfg = 'teos10.cfg'
     config.add_from_package('polaris.ocean.eos', eos_cfg)
     config.add_from_package('polaris.tasks.ocean.overflow', config_filename)
+    if coord_type != 'zstar':
+        # overflow.cfg defines the z-star grid, which the others override
+        config.add_from_package(
+            'polaris.tasks.ocean.overflow', f'overflow_{coord_type}.cfg'
+        )
 
+    # sigma is a geometric coordinate like z-star, so it shares the init step
     init_step: Init | PStarInit
     if coord_type == 'pstar':
-        config.add_from_package(
-            'polaris.tasks.ocean.overflow', 'overflow_pstar.cfg'
-        )
         init_step = PStarInit(component=component, name='init', indir=taskdir)
     else:
         init_step = Init(component=component, name='init', indir=taskdir)
