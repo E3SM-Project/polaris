@@ -42,11 +42,11 @@ def run_report(
     not_run: Optional[str] = None,
     notes: Optional[str] = None,
     agent: Optional[str] = None,
-    post: bool = False,
     polaris_dir: str = POLARIS_DIR,
-) -> Tuple[str, Optional[str], str]:
+) -> Tuple[str, str]:
     """
-    Write, and optionally post, the Testing comment for a machine's rows
+    Write the Testing comment for a machine's rows, for someone to read
+    before it is posted,
     with one kind of Spack environment
 
     Parameters
@@ -78,9 +78,6 @@ def run_report(
     agent : str, optional
         The agent posting the comment, which adds the signature
 
-    post : bool, optional
-        Whether to post the comment
-
     polaris_dir : str, optional
         The Polaris checkout to fetch the test branch into
 
@@ -88,9 +85,6 @@ def run_report(
     -------
     text : str
         The comment
-
-    url : str, optional
-        The URL of the posted comment
 
     path : str
         The file the comment was written to
@@ -161,8 +155,8 @@ def run_report(
         agent=agent,
     )
     path = os.path.join(run_dir, f'report_{"_".join(machines)}.md')
-    url = report.deliver(text, path, UPSTREAM, manifest.pull_request, post)
-    return text, url, path
+    report.write_comment(text, path)
+    return text, path
 
 
 def describe(manifest: Manifest, spack: str, states: List[SetupState]) -> str:
