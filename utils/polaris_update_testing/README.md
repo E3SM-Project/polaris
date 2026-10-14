@@ -23,7 +23,8 @@ machine, and its code in [utils/pr_testing](../pr_testing).
    review, into the Omega the PR pins, and pushes the merge to your E3SM
    fork for the Omega rows to build.
 2. **`deploy`** (each machine) shows the `./deploy.py --deploy-spack`
-   command for the machine's compilers and MPI libraries, with
+   command for the compilers and MPI libraries of the machine's supported
+   rows, with
    `--spack-path` for test environments.  `--run` runs it.  Either way, it
    checks that each row has a load script that uses the environments.
 3. **`setup`** (each machine, once per compiler) checks the checkout and

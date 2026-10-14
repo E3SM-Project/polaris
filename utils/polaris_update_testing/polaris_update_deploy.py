@@ -9,12 +9,12 @@ import os
 import shlex
 import subprocess
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import mache
 import pr_test_setup as setup_tools
 from packaging.version import Version
-from polaris_update_manifest import fetch_manifest
+from polaris_update_manifest import fetch_manifest, read_rows
 from pr_test_config import PrTestConfig
 from pr_test_git import POLARIS_DIR
 from pr_test_rows import Row, get_machine_rows
@@ -122,13 +122,18 @@ def run_deploy(
     if spack_path is not None:
         spack_path = os.path.abspath(os.path.expanduser(spack_path))
 
+    # every row the PR supports, even if the manifest tests only some
+    supported = read_rows(polaris_dir, manifest.pr_head)
     deployments = []
     for row_machine in dict.fromkeys(row.machine for row in rows):
         path = spack_path or get_shared_spack_path(
             polaris_dir, row_machine, manifest.test.polaris_version
         )
         command = get_deploy_command(
-            polaris_dir, row_machine, spack_path, recreate
+            row_machine,
+            [row for row in supported if row.machine == row_machine],
+            spack_path,
+            recreate,
         )
         log = os.path.join(
             config.work_base, manifest.run_name, f'deploy_{row_machine}.log'
@@ -148,22 +153,22 @@ def run_deploy(
 
 
 def get_deploy_command(
-    polaris_dir: str,
     machine: str,
+    rows: List[Row],
     spack_path: Optional[str] = None,
     recreate: bool = False,
 ) -> List[str]:
     """
-    The command that deploys the Spack environments for every compiler and
-    MPI library a machine's config lists
+    The command that deploys the Spack environments for the compilers and
+    MPI libraries of a machine's supported rows
 
     Parameters
     ----------
-    polaris_dir : str
-        The Polaris checkout, whose machine config is read
-
     machine : str
         The Polaris machine
+
+    rows : list of pr_test_rows.Row
+        The rows the PR supports on the machine
 
     spack_path : str, optional
         Where to deploy test environments; the shared environments by
@@ -177,7 +182,9 @@ def get_deploy_command(
     command : list of str
         The command, run in the checkout
     """
-    pairs = _get_compilers(polaris_dir, machine)
+    pairs = list(dict.fromkeys((row.compiler, row.mpi) for row in rows))
+    if not pairs:
+        raise DeployError(f'The PR supports no rows on {machine}.')
     command = ['./deploy.py', '--deploy-spack', '--machine', machine]
     command += ['--compiler'] + [compiler for compiler, _ in pairs]
     command += ['--mpi'] + [mpi for _, mpi in pairs]
@@ -370,22 +377,6 @@ def _deploy(deployment: Deployment, polaris_dir: str) -> None:
             f'Deploying on {deployment.machine} failed; see {deployment.log}.'
         )
     deployment.ran = True
-
-
-def _get_compilers(polaris_dir, machine) -> List[Tuple[str, str]]:
-    """Each compiler and MPI library a machine's config lists"""
-    config = _read_machine_config(polaris_dir, machine)
-    pairs = [
-        (option[len('mpi_') :].replace('_', '-'), value.strip())
-        for option, value in config.items('deploy')
-        if option.startswith('mpi_') and value.strip()
-    ]
-    if not pairs:
-        raise DeployError(
-            f'polaris/machines/{machine}.cfg lists no compilers under '
-            f'[deploy].'
-        )
-    return pairs
 
 
 def _read_machine_config(polaris_dir, machine):
