@@ -7,7 +7,7 @@ import os
 import shlex
 import subprocess
 from dataclasses import dataclass
-from typing import List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import pr_test_git as git_tools
 import pr_test_github as github
@@ -16,6 +16,7 @@ from polaris_update_manifest import (
     UPSTREAM,
     Manifest,
     ManifestError,
+    OmegaMerge,
     fetch_manifest,
     read_rows,
     read_side,
@@ -45,12 +46,12 @@ class InitResult:
     manifest_commit : str
         The commit that adds the manifest on top of the PR's head
 
-    push_command : list of str
-        The command that pushes the test branch to the fork, run in the
-        Polaris checkout
+    push_commands : list of tuple
+        The directory to run each push in and the command: the test branch
+        to the Polaris fork, and any Omega merge to the E3SM fork
 
     pushed : bool
-        Whether the branch was pushed
+        Whether the branches were pushed
 
     prompt : str
         What to tell an agent testing on a machine itself, such as
@@ -63,7 +64,7 @@ class InitResult:
 
     manifest: Manifest
     manifest_commit: str
-    push_command: List[str]
+    push_commands: List[Tuple[str, List[str]]]
     pushed: bool
     prompt: str
     existing: bool = False
@@ -74,6 +75,7 @@ def initiate(
     pull_request: int,
     baseline_ref: Optional[str] = None,
     row_names: Optional[Sequence[str]] = None,
+    merge_omega_prs: Sequence[int] = (),
     notes: Optional[str] = None,
     push: bool = False,
     force: bool = False,
@@ -99,11 +101,16 @@ def initiate(
         The rows to test, as ``<machine>/<compiler>/<model>``, every row the
         PR supports by default
 
+    merge_omega_prs : sequence of int, optional
+        Omega PRs to merge into the Omega the PR pins, such as a fix still
+        in review.  The merge is pushed to the requester's E3SM fork, and
+        the PR's Omega rows build it.
+
     notes : str, optional
         Notes for the requester, repeated in reports
 
     push : bool, optional
-        Whether to push the branch to the requester's Polaris fork
+        Whether to push the branches to the requester's forks
 
     force : bool, optional
         Whether to overwrite a branch of the same name on the fork
@@ -119,6 +126,11 @@ def initiate(
     fork = config.polaris_fork
     if push and fork is None:
         raise InitError('Pushing needs "polaris_fork" in the config file.')
+    if merge_omega_prs and config.fork is None:
+        raise InitError(
+            '--merge-omega-pr needs "fork" in the config file, the E3SM fork '
+            'the merge is pushed to.'
+        )
 
     pr = github.get_pull_request(UPSTREAM, pull_request)
     if pr['state'] != 'OPEN':
@@ -177,6 +189,14 @@ def initiate(
         rows=rows,
         notes=notes,
     )
+    if merge_omega_prs:
+        manifest.omega_merge = _merge_omega(
+            config,
+            manifest.test.omega_commit,
+            merge_omega_prs,
+            f'{manifest.branch}-omega',
+            pull_request,
+        )
 
     work_dir = os.path.join(
         config.work_base, 'polaris', f'init-{pull_request}'
@@ -190,30 +210,46 @@ def initiate(
     shown_fork = fork or '<your Polaris fork>'
     # Testers may already be using the fork's test branch.  Replacing it with
     # an equivalent manifest only changes the commit hash under them.
-    existing = _find_equivalent(polaris_dir, fork, manifest)
+    existing = _find_equivalent(polaris_dir, config.omega_repo, fork, manifest)
     if existing is not None:
         existing_manifest, existing_commit = existing
         return InitResult(
             existing_manifest,
             existing_commit,
-            push_command=[],
+            push_commands=[],
             pushed=False,
             prompt=get_prompt(existing_manifest, shown_fork),
             existing=True,
         )
 
-    push_command = ['git', 'push']
-    if force:
-        push_command.append('--force')
-    push_command.extend(
-        [shown_fork, f'{manifest_commit}:refs/heads/{manifest.branch}']
-    )
+    force_flag = ['--force'] if force else []
+    push_commands = [
+        (
+            polaris_dir,
+            ['git', 'push']
+            + force_flag
+            + [shown_fork, f'{manifest_commit}:refs/heads/{manifest.branch}'],
+        )
+    ]
+    merge = manifest.omega_merge
+    if merge is not None:
+        push_commands.append(
+            (
+                config.omega_repo,
+                ['git', 'push']
+                + force_flag
+                + [merge.fork, f'{merge.commit}:refs/heads/{merge.branch}'],
+            )
+        )
     if push:
-        subprocess.run(push_command, cwd=polaris_dir, check=True)
+        # the Omega merge goes first, so the manifest never names a branch
+        # that is not there
+        for cwd, command in reversed(push_commands):
+            subprocess.run(command, cwd=cwd, check=True)
     return InitResult(
         manifest,
         manifest_commit,
-        push_command,
+        push_commands,
         push,
         get_prompt(manifest, shown_fork),
     )
@@ -269,6 +305,15 @@ def format_result(result: InitResult, polaris_dir: str) -> str:
             f'           Omega {baseline.omega_commit}, E3SM '
             f'{baseline.e3sm_commit}',
         ]
+    if manifest.omega_merge is not None:
+        merged = ', '.join(
+            f'E3SM-Project/Omega#{number}'
+            for number in manifest.omega_merge.pull_requests
+        )
+        lines.append(
+            f'Omega built: {manifest.omega_merge.commit}, with {merged} '
+            f'merged in'
+        )
     lines.append(f'Rows:      {", ".join(row.name for row in manifest.rows)}')
     lines += [f'Manifest commit: {result.manifest_commit}', '']
     if result.existing:
@@ -279,10 +324,13 @@ def format_result(result: InitResult, polaris_dir: str) -> str:
     elif result.pushed:
         lines.append(f'Pushed {manifest.branch}.')
     else:
-        lines += [
-            "Nothing was pushed.  With the requester's permission, run:",
-            f'  cd {polaris_dir} && {shlex.join(result.push_command)}',
-        ]
+        lines.append(
+            "Nothing was pushed.  With the requester's permission, run:"
+        )
+        lines.extend(
+            f'  cd {cwd} && {shlex.join(command)}'
+            for cwd, command in reversed(result.push_commands)
+        )
     lines += [
         '',
         'Prompt for an agent testing on a machine itself, such as Frontier:',
@@ -323,10 +371,69 @@ def _commit_manifest(polaris_dir, work_dir, manifest):
             os.rmdir(work_dir)
 
 
-def _find_equivalent(polaris_dir, fork, manifest):
+def _merge_omega(
+    config: PrTestConfig,
+    pin: str,
+    numbers: Sequence[int],
+    branch: str,
+    pull_request: int,
+) -> OmegaMerge:
+    """Merge Omega PRs into the Omega the Polaris PR pins"""
+    repo = config.omega_repo
+    assert config.fork is not None
+    git_tools.fetch(
+        repo,
+        git_tools.OMEGA_URL,
+        [
+            f'refs/pull/{number}/head:{REF_PREFIX}/pr-{number}'
+            for number in numbers
+        ],
+    )
+    heads: Dict[int, str] = {
+        number: git_tools.rev_parse(repo, f'{REF_PREFIX}/pr-{number}')
+        for number in numbers
+    }
+    if not git_tools.has_commit(repo, pin):
+        git_tools.fetch(repo, git_tools.OMEGA_URL, [f'{pin}:{REF_PREFIX}/pin'])
+    for number, head in heads.items():
+        if git_tools.is_ancestor(repo, head, pin):
+            raise InitError(
+                f'E3SM-Project/Omega#{number} is already in the Omega the PR '
+                f'pins ({pin[:12]}).'
+            )
+
+    worktree = os.path.join(
+        config.work_base, 'omega', f'init-polaris-{pull_request}'
+    )
+    if os.path.exists(worktree):
+        git_tools.remove_worktree(repo, worktree)
+    git_tools.add_worktree(repo, pin, worktree)
+    try:
+        for number, head in heads.items():
+            conflicts = git_tools.merge(
+                worktree,
+                head,
+                f'Test merge of E3SM-Project/Omega#{number} ({head[:10]}) '
+                f'into {pin[:10]}',
+            )
+            if conflicts is not None:
+                raise InitError(
+                    f'E3SM-Project/Omega#{number} does not merge cleanly into '
+                    f'the Omega the PR pins:\n{conflicts}'
+                )
+        commit = git_tools.rev_parse(worktree, 'HEAD')
+    finally:
+        git_tools.remove_worktree(repo, worktree)
+    git_tools.git(['update-ref', f'{REF_PREFIX}/{branch}', commit], repo)
+    return OmegaMerge(commit, heads, config.fork, branch)
+
+
+def _find_equivalent(polaris_dir, omega_repo, fork, manifest):
     """
     The fork's manifest and manifest commit, if the fork already has the
-    test branch with the same PR head, baseline and rows
+    test branch with the same PR head, baseline, rows and Omega merges.
+    Omega merges are compared by tree, since remaking a merge changes only
+    its hash.
     """
     if fork is None:
         return None
@@ -340,9 +447,30 @@ def _find_equivalent(polaris_dir, fork, manifest):
         getattr(existing, name) == getattr(manifest, name)
         for name in ['pull_request', 'test', 'baseline', 'rows']
     )
-    if not same:
+    if not same or not _same_omega_merge(
+        omega_repo, existing.omega_merge, manifest.omega_merge
+    ):
         return None
     existing_commit = git_tools.rev_parse(
         polaris_dir, f'{REF_PREFIX}/{manifest.branch}'
     )
     return existing, existing_commit
+
+
+def _same_omega_merge(omega_repo, existing, new):
+    """Whether two Omega merges merge the same PRs into the same tree"""
+    if existing is None or new is None:
+        return existing is None and new is None
+    if existing.pull_requests != new.pull_requests:
+        return False
+    try:
+        git_tools.fetch(
+            omega_repo,
+            existing.fork,
+            [f'refs/heads/{existing.branch}:{REF_PREFIX}/existing-merge'],
+        )
+        return git_tools.tree(omega_repo, existing.commit) == git_tools.tree(
+            omega_repo, new.commit
+        )
+    except git_tools.GitError:
+        return False

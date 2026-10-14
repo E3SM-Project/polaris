@@ -101,6 +101,8 @@ class Fixture:
     pr_head: str
     old_pin: str
     new_pin: str
+    fix_head: str
+    e3sm_fork: str
 
 
 def make_fixture(tmp_path, monkeypatch):
@@ -114,9 +116,20 @@ def make_fixture(tmp_path, monkeypatch):
     git(omega, 'init', '-q')
     old_pin = _commit(omega, {'a.txt': 'a\n'}, 'Initial commit')
     new_pin = _commit(omega, {'b.txt': 'b\n'}, 'Merge pull request #3')
+    # a fix still in review, made before the PR's Omega
+    git(omega, 'checkout', '-q', '-b', 'fix', old_pin)
+    fix_head = _commit(omega, {'fix.txt': 'fix\n'}, 'Set MPILIB')
     omega_upstream = tmp_path / 'omega.git'
     git(tmp_path, 'init', '-q', '--bare', str(omega_upstream))
-    git(omega, 'push', '-q', str(omega_upstream), 'HEAD:refs/heads/develop')
+    git(
+        omega,
+        'push',
+        '-q',
+        str(omega_upstream),
+        f'{new_pin}:refs/heads/develop',
+        f'{fix_head}:refs/pull/600/head',
+        f'{old_pin}:refs/pull/601/head',
+    )
     omega_clone = tmp_path / 'omega'
     git(tmp_path, 'clone', '-q', str(omega_upstream), str(omega_clone))
 
@@ -161,6 +174,8 @@ def make_fixture(tmp_path, monkeypatch):
 
     fork = tmp_path / 'fork.git'
     git(tmp_path, 'init', '-q', '--bare', str(fork))
+    e3sm_fork = tmp_path / 'e3sm-fork.git'
+    git(tmp_path, 'init', '-q', '--bare', str(e3sm_fork))
 
     monkeypatch.setattr(pr_test_git, 'OMEGA_URL', str(omega_upstream))
     monkeypatch.setattr(pr_test_git, 'POLARIS_URL', str(upstream))
@@ -169,6 +184,7 @@ def make_fixture(tmp_path, monkeypatch):
     config = PrTestConfig(
         work_base=str(tmp_path / 'work'),
         omega_repo=str(omega_clone),
+        fork=str(e3sm_fork),
         polaris_fork=str(fork),
     )
     return Fixture(
@@ -180,6 +196,8 @@ def make_fixture(tmp_path, monkeypatch):
         pr_head=pr_head,
         old_pin=old_pin,
         new_pin=new_pin,
+        fix_head=fix_head,
+        e3sm_fork=str(e3sm_fork),
     )
 
 
@@ -199,7 +217,7 @@ def mock_github(monkeypatch, head, state='OPEN'):
     monkeypatch.setattr(pr_test_github, 'get_requester', lambda fork: 'tester')
 
 
-def make_tester(tmp_path, monkeypatch, baseline='main'):
+def make_tester(tmp_path, monkeypatch, baseline='main', merge_omega_prs=()):
     """
     A pushed test branch, a loaded chrysalis/gnu environment with the
     shared Spack environments, and stand-ins for polaris suite, the CTest
@@ -210,6 +228,7 @@ def make_tester(tmp_path, monkeypatch, baseline='main'):
         config=fixture.config,
         pull_request=835,
         baseline_ref=baseline,
+        merge_omega_prs=merge_omega_prs,
         push=True,
         polaris_dir=fixture.polaris_dir,
     ).manifest

@@ -18,7 +18,10 @@ machine, and its code in [utils/pr_testing](../pr_testing).
 1. **`init`** (your computer) pins the PR's head, its Omega and E3SM
    submodules and its rows in a manifest, committed on top of the head in
    a branch on your Polaris fork.  With `--baseline main`, it pins the
-   current `main` of E3SM-Project/polaris as the baseline.
+   current `main` of E3SM-Project/polaris as the baseline.  With
+   `--merge-omega-pr`, it merges an Omega PR, such as a fix still in
+   review, into the Omega the PR pins, and pushes the merge to your E3SM
+   fork for the Omega rows to build.
 2. **`deploy`** (each machine) shows the `./deploy.py --deploy-spack`
    command for the machine's compilers and MPI libraries, with
    `--spack-path` for test environments.  `--run` runs it.  Either way, it

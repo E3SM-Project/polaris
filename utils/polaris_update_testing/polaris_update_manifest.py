@@ -79,6 +79,58 @@ class PolarisSide:
         }
 
 
+@dataclass(frozen=True)
+class OmegaMerge:
+    """
+    The Omega built in place of the one the PR pins: that commit with other
+    Omega PRs merged in, such as a fix still in review
+
+    Attributes
+    ----------
+    commit : str
+        The merge, which is built
+
+    pull_requests : dict of int to str
+        The head commit of each Omega PR merged in, by number
+
+    fork : str
+        The URL of the fork with the merge, the requester's E3SM fork
+
+    branch : str
+        The branch on the fork with the merge
+    """
+
+    commit: str
+    pull_requests: Dict[int, str]
+    fork: str
+    branch: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        """The merge as it is written in the manifest"""
+        return {
+            'commit': self.commit,
+            'pull_requests': [
+                {'pull_request': number, 'commit': head}
+                for number, head in self.pull_requests.items()
+            ],
+            'fork': self.fork,
+            'branch': self.branch,
+        }
+
+    @classmethod
+    def from_dict(cls, contents: Dict[str, Any]) -> 'OmegaMerge':
+        """Read the merge as it is written in the manifest"""
+        return cls(
+            commit=str(contents['commit']),
+            pull_requests={
+                int(merge['pull_request']): str(merge['commit'])
+                for merge in contents['pull_requests']
+            },
+            fork=str(contents['fork']),
+            branch=str(contents['branch']),
+        )
+
+
 def read_side(polaris_dir: str, commit: str) -> PolarisSide:
     """
     Read a Polaris commit's version and submodule pins
@@ -175,6 +227,10 @@ class Manifest:
 
     notes : str, optional
         Notes for the requester, repeated in reports and never acted on
+
+    omega_merge : polaris_update_manifest.OmegaMerge, optional
+        Other Omega PRs merged into the Omega the PR pins, if any, which is
+        then built in its place
     """
 
     requester: str
@@ -183,6 +239,14 @@ class Manifest:
     baseline: Optional[PolarisSide] = None
     rows: List[Row] = field(default_factory=list)
     notes: Optional[str] = None
+    omega_merge: Optional[OmegaMerge] = None
+
+    @property
+    def omega_build_commit(self) -> str:
+        """The Omega commit the PR's Omega rows are built from"""
+        if self.omega_merge is not None:
+            return self.omega_merge.commit
+        return self.test.omega_commit
 
     @property
     def pr_head(self) -> str:
@@ -217,6 +281,11 @@ class Manifest:
             'polaris_version': self.test.polaris_version,
             'omega_commit': self.test.omega_commit,
             'e3sm_commit': self.test.e3sm_commit,
+            'omega_merge': (
+                None
+                if self.omega_merge is None
+                else self.omega_merge.to_dict()
+            ),
             'baseline': (
                 None if self.baseline is None else self.baseline.to_dict()
             ),
@@ -295,6 +364,11 @@ class Manifest:
                     for row in contents.get('rows') or []
                 ],
                 notes=contents.get('notes'),
+                omega_merge=(
+                    None
+                    if contents.get('omega_merge') is None
+                    else OmegaMerge.from_dict(contents['omega_merge'])
+                ),
             )
         except (KeyError, TypeError, ValueError) as exc:
             raise ManifestError(

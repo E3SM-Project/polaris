@@ -40,7 +40,10 @@ Below, `polaris_update_test.py` means
    ```
    Leave off `--baseline main` only if the requester asks for no
    baseline.  The baseline is the current `main` of E3SM-Project/polaris,
-   run with its own shared environments.
+   run with its own shared environments.  If the Omega the PR pins needs
+   a fix still in review on some machine, the requester may ask for
+   `--merge-omega-pr <number>`.  The merge is pushed to their E3SM fork
+   (`fork` in the settings), and every machine's Omega rows build it.
 2. Show the requester the summary.  With permission, run the push command
    that `init` printed.
 3. List each machine's rows, with its ssh host and Polaris checkout:

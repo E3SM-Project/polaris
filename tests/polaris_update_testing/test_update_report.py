@@ -1,3 +1,4 @@
+import dataclasses
 import json
 from pathlib import Path
 
@@ -7,7 +8,7 @@ import polaris_update_status
 import pr_test_github
 import pr_test_report
 import pytest
-from polaris_update_manifest import MARKER_PREFIX
+from polaris_update_manifest import MARKER_PREFIX, OmegaMerge
 from update_fixtures import load_env, make_tester, write_load_script
 
 SUITE_MD = {
@@ -82,6 +83,20 @@ def test_report(finished):
     ]
     run_dir = Path(fixture.config.work_base) / manifest.run_name
     assert Path(path) == run_dir / 'shared' / 'report_chrysalis.md'
+
+
+def test_describe_omega_merge(finished):
+    _, manifest = finished
+    merge = OmegaMerge('m' * 40, {600: 'f' * 40}, 'e3sm-fork', 'branch')
+
+    text = polaris_update_report.describe(
+        dataclasses.replace(manifest, omega_merge=merge), 'shared', []
+    )
+
+    assert (
+        f'Omega `{manifest.test.omega_commit[:10]}` with '
+        f'E3SM-Project/Omega#600 merged in (`mmmmmmmmmm`)'
+    ) in text
 
 
 def test_report_needs_every_row(finished):
