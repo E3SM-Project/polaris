@@ -177,6 +177,8 @@ def test_mpas_ocean_builds_take_turns(tmp_path, monkeypatch):
 
     (args,) = calls
     assert '--branch' not in args
+    # another compiler's build may have left objects in the source tree
+    assert '--clean_build' in args
     assert args[:7] == [
         'polaris',
         'suite',

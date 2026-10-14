@@ -1031,11 +1031,13 @@ def _build_flags(build_dir, model):
     """
     The build flags for a build directory: none for a finished build, which
     is reused, and a clean build for an unfinished one, since only a
-    complete log from an empty build directory can be compared for warnings
+    complete log from an empty build directory can be compared for warnings.
+    MPAS-Ocean always builds clean, since it builds in its source tree,
+    where another compiler's build may have left objects and modules.
     """
     if os.path.exists(os.path.join(build_dir, EXECUTABLES[model])):
         return []
-    if os.path.exists(build_dir):
+    if model == 'mpas-ocean' or os.path.exists(build_dir):
         return ['--clean_build', '--quiet_build']
     return ['--build', '--quiet_build']
 
