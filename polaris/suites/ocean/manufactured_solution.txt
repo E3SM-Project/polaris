@@ -3,3 +3,4 @@ ocean/planar/manufactured_solution/convergence_space/default
 ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2
 ocean/planar/manufactured_solution/convergence_both/del4
+ocean/planar/manufactured_solution/rk4/convergence_both/default
