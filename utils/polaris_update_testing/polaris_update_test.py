@@ -113,7 +113,7 @@ def _setup(args):
 
 def _report(args):
     config = read_config(args.config_file)
-    text, url, path = polaris_update_report.run_report(
+    text, path = polaris_update_report.run_report(
         config=config,
         fork=args.fork,
         branch=args.branch,
@@ -122,13 +122,12 @@ def _report(args):
         not_run=args.not_run,
         notes=read_notes(args.notes),
         agent=args.agent,
-        post=args.post,
     )
-    if url is None:
-        print(text)
-        print(f'Not posted.  The comment is in {path}')
-    else:
-        print(f'Posted {url}')
+    print(text)
+    print(
+        f'Not posted.  The comment is in {path}.  Read it, and once it is '
+        f'right, post it with post.'
+    )
 
 
 def _post(args):
@@ -267,8 +266,8 @@ def _parse_args():
 
     report = subparsers.add_parser(
         'report',
-        help="Write and post the Testing comment for a machine's rows "
-        '(tester)',
+        help="Write the Testing comment for a machine's rows, for someone "
+        'to read before it is posted (tester)',
     )
     _add_branch_args(report)
     report.add_argument(
@@ -295,12 +294,6 @@ def _parse_args():
         '--agent',
         help='The agent posting the comment, e.g. "Claude Code", which adds '
         'the signature',
-    )
-    report.add_argument(
-        '--post',
-        action='store_true',
-        help='Post the comment on the PR.  Agents pass this only with the '
-        "requester's permission.",
     )
     report.set_defaults(func=_report)
 
