@@ -48,8 +48,9 @@ cron-scripts/
    compiler it then runs `./deploy.py` (with `--recreate` for the first,
    so there is one fresh environment a night), then each task with that
    compiler's load script sourced.  Output goes to `<cron root>/logs/<date>/`, one file per step,
-   and old dates are pruned.  Nothing is printed unless something failed,
-   so that the mail cron sends carries only failures.
+   and old dates are pruned.  The first line of `nightly.log` is the Polaris
+   remote, branch and commit the night ran from.  Nothing is printed unless
+   something failed, so that the mail cron sends carries only failures.
 4. `omega_cdash.py` keeps `<cron root>/omega_develop` at the tip of Omega
    `develop` and runs
    [`utils/omega/ctest/omega_ctest.py`](../utils/omega/ctest/README.md)
