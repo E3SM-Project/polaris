@@ -85,11 +85,39 @@ def test_setup_one_model(tester):
     assert [call['model'] for call in calls['suite']] == ['mpas-ocean']
 
 
+def test_setup_baseline_from_polaris_main(tester, monkeypatch):
+    fixture, manifest, calls = tester
+    fixture.config.polaris_main = fixture.baseline_dir
+    load_script = write_load_script(
+        Path(fixture.baseline_dir) / 'load_polaris_chrysalis_gnu_openmpi.sh',
+        fixture.baseline_dir,
+    )
+
+    _setup(fixture, manifest)
+
+    mpas_baseline = calls['suite'][0]
+    assert mpas_baseline['polaris_dir'] == fixture.baseline_dir
+    assert mpas_baseline['load_script'] == load_script
+
+    # main predates Aurora's compiler rename
+    load_env(monkeypatch, fixture, 'aurora', 'intel', 'mpich')
+    old = write_load_script(
+        Path(fixture.baseline_dir) / 'load_polaris_aurora_oneapi-ifx_mpich.sh',
+        fixture.baseline_dir,
+        machine='aurora',
+        compiler='oneapi-ifx',
+        mpi='mpich',
+    )
+
+    ((state, _),) = _setup(fixture, manifest)
+
+    assert calls['suite'][-2]['load_script'] == old
+    assert '/aurora_oneapi-ifx_polaris-' in state.baseline_work_dir
+
+
 def test_setup_needs_the_baseline_load_script(tester):
     fixture, manifest, _ = tester
-    with pytest.raises(
-        pr_test_setup.SetupError, match='--baseline-load-script'
-    ):
+    with pytest.raises(pr_test_setup.SetupError, match='polaris_main'):
         _setup(fixture, manifest)
 
 

@@ -105,7 +105,7 @@ def run_setup(
     baseline_checkout = None
     if manifest.baseline is not None and no_baseline is None:
         baseline_checkout = _get_baseline_checkout(
-            manifest, rows[0], baseline_load_script
+            manifest, rows[0], baseline_load_script, config.polaris_main
         )
     elif baseline_load_script is not None:
         raise SetupError(
@@ -307,17 +307,24 @@ def _get_env_rows(manifest: Manifest) -> List[Row]:
     return rows
 
 
-def _get_baseline_checkout(manifest, row, load_script):
-    """Check the Polaris checkout the baseline is found or set up with"""
+def _get_baseline_checkout(manifest, row, load_script, polaris_main):
+    """
+    Check the Polaris checkout the baseline is found or set up with, given
+    by its load script or the settings' ``polaris_main``
+    """
     baseline = manifest.baseline
     if load_script is None:
-        raise SetupError(
-            f'The baseline runs with Polaris {baseline.polaris_commit[:12]} '
-            f'(Polaris {baseline.polaris_version}).  Pass '
-            f'--baseline-load-script with the load script for '
-            f'{row.machine}/{row.compiler} of a Polaris checkout at that '
-            f'commit, or --no-baseline with the reason if it cannot run.'
-        )
+        if polaris_main is None:
+            raise SetupError(
+                f'The baseline runs with Polaris '
+                f'{baseline.polaris_commit[:12]} (Polaris '
+                f'{baseline.polaris_version}).  Set "polaris_main" in the '
+                f'config file to a Polaris checkout at that commit, or pass '
+                f'--baseline-load-script with its load script for '
+                f'{row.machine}/{row.compiler}, or --no-baseline with the '
+                f'reason if it cannot run.'
+            )
+        load_script = setup_tools.find_load_script(polaris_main, row)
     directory, compiler = setup_tools.read_load_script(load_script, row)
     polaris_hash = setup_tools.check_checkout(
         directory, baseline.polaris_commit, 'baseline Polaris commit'

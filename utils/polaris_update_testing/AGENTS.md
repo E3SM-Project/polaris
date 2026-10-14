@@ -61,10 +61,12 @@ Below, `polaris_update_test.py` means
    missing, make it as a worktree beside the checkout on the `[machines]`
    line.  If it does not have this utility yet, merge the branch you have
    the utility from into it locally, without pushing.
-2. With a baseline, you need a second checkout, at the `main` that `init`
-   pinned, with a load script for each of the machine's compilers that uses
-   `main`'s shared environments.  Run `./deploy.py --compiler ...` there,
-   with no Spack flags, if one is missing.
+2. With a baseline, you need the checkout of `main` that `polaris_main`
+   names in the machine's settings, at the `main` that `init` pinned, with
+   a load script for each of the machine's compilers that uses `main`'s
+   shared environments.  Fast-forward it if it is behind, and run
+   `./deploy.py --compiler ...` there, with no Spack flags, if a load
+   script is missing.
 3. Check `~/.config/polaris_pr_test.cfg` on the machine as the Omega
    utility's AGENTS.md says.
 
@@ -95,13 +97,13 @@ be submitted as soon as it is set up.
 1. For each of the machine's compilers, in a clean shell with the PR
    checkout's load script for that compiler sourced:
    ```bash
-   polaris_update_test.py setup --fork <fork> --branch <branch> \
-       --baseline-load-script <main checkout's load script> --submit
+   polaris_update_test.py setup --fork <fork> --branch <branch> --submit
    ```
-   This sets up every row the load script tests, with its baseline.
-   Leave off `--baseline-load-script` without a baseline.  For a compiler
-   the PR renames, such as Aurora's `oneapi-ifx`, which becomes `intel`,
-   use `main`'s load script under the old name.  If `main` cannot run a
+   This sets up every row the load script tests, with its baseline from
+   the checkout in `polaris_main`, using its load script for the same
+   compiler, or for a compiler the PR renames, such as Aurora's
+   `oneapi-ifx`, which becomes `intel`, its load script under the old
+   name.  `--baseline-load-script` names another.  If `main` cannot run a
    row, ask the requester; with their permission, use
    `--no-baseline "<why>"` instead, a lowercase clause the report prints
    after "because".

@@ -49,9 +49,9 @@ polaris_update_test.py init --pr 835 --baseline main --push
 polaris_update_test.py deploy --fork git@github.com:me/polaris.git \
     --branch polaris-update-test/835-6db39cb --run
 # ...then, with each compiler's load script sourced
+# (the baseline runs from the checkout of main that polaris_main names)
 polaris_update_test.py setup --fork git@github.com:me/polaris.git \
-    --branch polaris-update-test/835-6db39cb \
-    --baseline-load-script <main checkout>/load_polaris_<...>.sh --submit
+    --branch polaris-update-test/835-6db39cb --submit
 # ...when all of the machine's jobs finish
 polaris_update_test.py report --fork git@github.com:me/polaris.git \
     --branch polaris-update-test/835-6db39cb
