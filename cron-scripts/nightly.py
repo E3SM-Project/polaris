@@ -64,6 +64,7 @@ def main():
     compilers = _list(config.get('cron', 'compilers'))
 
     log = Log(os.path.join(log_dir, 'nightly.log'))
+    log.write(f'polaris {describe_clone(polaris_root)}')
     log.write(f'python {sys.version.split()[0]} at {sys.executable}')
     log.write(f'machine {machine}, compilers {", ".join(compilers)}')
     log.write(f'tasks {", ".join(tasks)}')
@@ -148,6 +149,19 @@ def update_pixi(polaris_root, log_dir, log, dry_run):
             [pixi, '--version'], capture_output=True, text=True, check=False
         ).stdout.strip()
         log.write(f'{version} at {pixi}')
+
+
+def describe_clone(polaris_root):
+    """
+    The remote, branch and commit of the Polaris clone, so that a crontab
+    left tracking an old branch shows up in the log.
+    """
+    remote = _git(polaris_root, 'remote', 'get-url', 'origin')
+    branch = _git(polaris_root, 'rev-parse', '--abbrev-ref', 'HEAD')
+    commit = _git(
+        polaris_root, 'log', '-1', '--date=short', '--format=%h (%cd) %s'
+    )
+    return f'{remote} {branch} at {commit} in {polaris_root}'
 
 
 def read_machine_config(machine):
@@ -260,6 +274,23 @@ class Log:
     def write(self, message):
         with open(self.filename, 'a', encoding='utf-8') as f:
             f.write(f'[{_now()}] {message}\n')
+
+
+def _git(polaris_root, *args):
+    """
+    The output of a git command in the Polaris clone, or ``unknown`` if it
+    fails (a hand run from a checkout with no ``origin``, say).
+    """
+    result = subprocess.run(
+        ['git', '-C', polaris_root, *args],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    output = result.stdout.strip()
+    if result.returncode != 0 or output == '':
+        return 'unknown'
+    return output
 
 
 def _list(value):
