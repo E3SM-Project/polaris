@@ -170,6 +170,11 @@ def run_tasks(
                     for name, result in task_results.items()
                     if result.baseline_diffs
                 },
+                'cf': [
+                    name
+                    for name, result in task_results.items()
+                    if result.cf_passed is False
+                ],
             },
         )
 
@@ -422,11 +427,12 @@ def _log_and_run_task(
         task_logger.info('')
         task_list = ', '.join(task.steps_to_run)
         task_logger.info(f'Running steps: {task_list}')
-        # Default in case execution fails before setting this
+        # Default in case execution fails before setting these
         baselines_passed = None
         diff_summary: Dict = {}
+        cf_passed = None
         try:
-            baselines_passed, diff_summary = _run_task(
+            baselines_passed, diff_summary, cf_passed = _run_task(
                 task, available_resources
             )
             run_status = success_str
@@ -450,6 +456,12 @@ def _log_and_run_task(
                     f'POLARIS BASELINE: '
                     f'{"PASS" if baselines_passed else "FAIL"}'
                 )
+            if cf_passed is not None:
+                cf_str = pass_str if cf_passed else fail_str
+                stdout_logger.info(f'  CF compliance:    {cf_str}')
+                task_logger.info(
+                    f'POLARIS CF COMPLIANCE: {"PASS" if cf_passed else "FAIL"}'
+                )
 
         else:
             stdout_logger.error(status)
@@ -467,6 +479,7 @@ def _log_and_run_task(
     result.baseline_passed = baselines_passed
     result.elapsed_seconds = task_time
     result.baseline_diffs = diff_summary
+    result.cf_passed = cf_passed
 
 
 def _read_baseline_status_from_logs(step_work_dir: str) -> Optional[bool]:
@@ -572,6 +585,49 @@ def _read_property_status_from_logs(step_work_dir: str) -> Optional[bool]:
     return None
 
 
+def _read_cf_status_from_logs(step_work_dir: str) -> Optional[bool]:
+    """Get CF check status from existing log markers.
+
+    Returns
+    -------
+    Optional[bool]
+        True if ``cf_check_passed.log`` exists, False if
+        ``cf_check_failed.log`` exists, otherwise None.
+    """
+    if os.path.exists(os.path.join(step_work_dir, 'cf_check_passed.log')):
+        return True
+    if os.path.exists(os.path.join(step_work_dir, 'cf_check_failed.log')):
+        return False
+    return None
+
+
+def _cf_check_message(results, passed: bool, step_name: str) -> str:
+    """Build the contents of the CF check log file.
+
+    The files that passed are listed.  For a failing step, the errors the
+    checker reported for each failing file are listed first.  The full
+    report, including warnings, is in the step's log.
+    """
+    if passed:
+        lines = [f'CF check passed for step {step_name}', '']
+    else:
+        lines = [f'CF check failed for step {step_name}', '']
+        lines.append('The following files had errors:')
+        for result in results:
+            if result['passed']:
+                continue
+            lines.append(f'  {result["filename"]}')
+            for error in result['errors']:
+                lines.append(f'    {error}')
+        lines.append('')
+    passing = [result for result in results if result['passed']]
+    if passing:
+        lines.append('The following files passed:')
+        for result in passing:
+            lines.append(f'  {result["filename"]}')
+    return '\n'.join(lines) + '\n'
+
+
 def _property_check_message(results, passed: bool, step_name: str) -> str:
     """Build the contents of the property check log file.
 
@@ -628,6 +684,7 @@ def _run_task(task, available_resources):
     baselines_passed = None
     property_passed = None
     diff_summary: Dict = {}
+    cf_passed = None
     for step_name in task.steps_to_run:
         step = task.steps[step_name]
         complete_filename = os.path.join(
@@ -662,6 +719,9 @@ def _run_task(task, available_resources):
                 property_passed = _accumulate_baselines(
                     property_passed, property_status
                 )
+            cf_passed = _report_cf_status(
+                task, _read_cf_status_from_logs(step.work_dir), cf_passed
+            )
             continue
         if step.cached:
             _print_to_stdout(task, '          cached')
@@ -734,6 +794,11 @@ def _run_task(task, available_resources):
                     property_passed, properties_passed
                 )
 
+        if step.cf_check:
+            cf_passed = _report_cf_status(
+                task, _check_step_cf(step, step_name), cf_passed
+            )
+
         compared, status = step.validate_baselines()
         if compared:
             if status:
@@ -754,7 +819,50 @@ def _run_task(task, available_resources):
             f'{start_time_color}{step_time_str}{end_color}',
         )
 
-    return baselines_passed, diff_summary
+    return baselines_passed, diff_summary, cf_passed
+
+
+def _check_step_cf(step, step_name) -> Optional[bool]:
+    """
+    Run the step's CF check and leave a ``cf_check_passed.log`` or
+    ``cf_check_failed.log`` marker in its work directory.
+
+    Returns
+    -------
+    Optional[bool]
+        Whether the check passed, or None if the step checked no files
+    """
+    checked, files_passed = step.check_cf()
+    if not checked:
+        return None
+    passed_log = os.path.join(step.work_dir, 'cf_check_passed.log')
+    failed_log = os.path.join(step.work_dir, 'cf_check_failed.log')
+    if files_passed:
+        write_log, remove_log = passed_log, failed_log
+    else:
+        write_log, remove_log = failed_log, passed_log
+    message = _cf_check_message(
+        step.cf_check_results, passed=files_passed, step_name=step_name
+    )
+    with open(write_log, 'w') as f:
+        f.write(message)
+    if os.path.exists(remove_log):
+        os.remove(remove_log)
+    return files_passed
+
+
+def _report_cf_status(
+    task, status: Optional[bool], cf_passed: Optional[bool]
+) -> Optional[bool]:
+    """
+    Print a step's CF compliance line, if it ran a check, and fold its
+    status into the task's aggregate.
+    """
+    if status is None:
+        return cf_passed
+    cf_str = pass_str if status else fail_str
+    _print_to_stdout(task, f'          CF compliance:    {cf_str}')
+    return _accumulate_baselines(cf_passed, status)
 
 
 def _run_step(
@@ -983,46 +1091,7 @@ def _write_output_for_pull_request(
 
     # If we have results, summarize them
     if results is not None and isinstance(results, dict):
-        total = int(results.get('total', 0) or 0)
-        failures: List[str] = list(results.get('failures', []) or [])
-        diffs: List[str] = list(results.get('diffs', []) or [])
-
-        if total > 0 and not failures and not diffs:
-            lines.append('- Result: All tests passed')
-        else:
-            lines.append('- Result:')
-            if failures:
-                lines.append(f'  - Failures ({len(failures)} of {total}):')
-                for name in failures:
-                    lines.append(f'    - `{name}`')
-            if diffs:
-                lines.append(f'  - Diffs ({len(diffs)} of {total}):')
-                diff_details: Dict[str, Dict] = dict(
-                    results.get('diff_details', {}) or {}
-                )
-                nonzero_by_task = {
-                    name: _nonzero_norms(diff_details.get(name))
-                    for name in diffs
-                }
-                name_width = max(
-                    (
-                        len(var)
-                        for norms in nonzero_by_task.values()
-                        for var in norms
-                    ),
-                    default=0,
-                )
-                # a code block keeps the norm columns aligned and is
-                # easier to read than nested bullets
-                lines.append('```')
-                for name in diffs:
-                    lines.append(f'    - {name}')
-                    lines.extend(
-                        _format_diff_summary_lines(
-                            nonzero_by_task[name], name_width
-                        )
-                    )
-                lines.append('```')
+        lines.extend(_result_lines(results))
 
     lines.extend(_format_commit_logs(pr_provenance, baseline_provenance))
 
@@ -1031,6 +1100,51 @@ def _write_output_for_pull_request(
     with open(out_path, 'w') as out:
         out.write('\n'.join(lines) + '\n')
     print('Done.')
+
+
+def _result_lines(results: dict) -> List[str]:
+    """The result lines of the pull-request summary."""
+    total = int(results.get('total', 0) or 0)
+    failures: List[str] = list(results.get('failures', []) or [])
+    diffs: List[str] = list(results.get('diffs', []) or [])
+    cf_failures: List[str] = list(results.get('cf', []) or [])
+
+    if total > 0 and not failures and not diffs and not cf_failures:
+        return ['- Result: All tests passed']
+
+    lines = ['- Result:']
+    if failures:
+        lines.append(f'  - Failures ({len(failures)} of {total}):')
+        for name in failures:
+            lines.append(f'    - `{name}`')
+    if diffs:
+        lines.append(f'  - Diffs ({len(diffs)} of {total}):')
+        diff_details: Dict[str, Dict] = dict(
+            results.get('diff_details', {}) or {}
+        )
+        nonzero_by_task = {
+            name: _nonzero_norms(diff_details.get(name)) for name in diffs
+        }
+        name_width = max(
+            (len(var) for norms in nonzero_by_task.values() for var in norms),
+            default=0,
+        )
+        # a code block keeps the norm columns aligned and is easier to read
+        # than nested bullets
+        lines.append('```')
+        for name in diffs:
+            lines.append(f'    - {name}')
+            lines.extend(
+                _format_diff_summary_lines(nonzero_by_task[name], name_width)
+            )
+        lines.append('```')
+    if cf_failures:
+        lines.append(
+            f'  - CF compliance failures ({len(cf_failures)} of {total}):'
+        )
+        for name in cf_failures:
+            lines.append(f'    - `{name}`')
+    return lines
 
 
 def _read_results_provenance(base_work_dir: str) -> Dict[str, Optional[str]]:
