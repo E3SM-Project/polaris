@@ -184,15 +184,15 @@ def test_report_not_run(finished):
 
     assert text.startswith('## Testing on aurora\n')
     assert (
-        '| aurora, intel, mpich (Polaris `oneapi-ifx`) | not run: Aurora is '
-        'down for maintenance |  |  |'
+        '| aurora, intel, mpich | not run: Aurora is down for maintenance '
+        '|  |  |'
     ) in text
     assert '<details>' not in text
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
     assert marker is not None
     assert [(row['row'], row['status']) for row in marker['rows']] == [
-        ('aurora/oneapi-ifx', 'not-run'),
-        ('aurora/oneapi-ifxgpu', 'not-run'),
+        ('aurora/intel', 'not-run'),
+        ('aurora/intelgpu', 'not-run'),
     ]
     assert Path(path).name == 'report_aurora.md'
 

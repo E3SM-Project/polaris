@@ -12,13 +12,13 @@ def test_format_status():
     markers = [
         _marker('chrysalis/intel', OLD_HEAD, result='fail'),
         _marker('chrysalis/intel', HEAD, result='pass', new_warnings=2),
-        _marker('aurora/oneapi-ifx', HEAD, status='not-run', result='none'),
+        _marker('aurora/intel', HEAD, status='not-run', result='none'),
         _marker('lint', OLD_HEAD, result='pass'),
         _marker('chrysalis/gnu', HEAD, result='pass'),
     ]
 
     lines = pr_test_status.format_status(
-        ['lint', 'chrysalis/intel', 'aurora/oneapi-ifx', 'pm-cpu/gnu'],
+        ['lint', 'chrysalis/intel', 'aurora/intel', 'pm-cpu/gnu'],
         markers,
         HEAD,
     ).splitlines()
@@ -29,7 +29,7 @@ def test_format_status():
     assert 'pass' in rows['chrysalis/intel']
     assert '2 new warnings' in rows['chrysalis/intel']
     assert 'stale' not in rows['chrysalis/intel']
-    assert 'not run' in rows['aurora/oneapi-ifx']
+    assert 'not run' in rows['aurora/intel']
     assert 'stale: the PR has moved' in rows['lint']
     assert rows['pm-cpu/gnu'].split() == ['pm-cpu/gnu', '-']
     # a row the list did not name still shows up, at the end
@@ -101,7 +101,7 @@ def test_run_status_off_the_machines(monkeypatch):
     lines = text.splitlines()
     assert lines[-5:] == [
         "Rows to test from each machine's login nodes:",
-        '  aurora: aurora/oneapi-ifx, aurora/oneapi-ifxgpu',
+        '  aurora: aurora/intel, aurora/intelgpu',
         '  chrysalis: chrysalis/intel',
         '  frontier: frontier/craygnu, frontier/craygnu-mphipcc',
         '  pm-cpu and pm-gpu: pm-cpu/gnu, pm-gpu/gnugpu',

@@ -172,7 +172,7 @@ polaris_commit: <sha>
 extra_merges:
   - {pull_request: 574, commit: <sha>, sides: [test]}
 rows:
-  - {machine: aurora, compiler: oneapi-ifx, mpi: mpich,
+  - {machine: aurora, compiler: intel, mpi: mpich,
      template: "aurora, intel, mpich"}
 notes: <free text for the requester>
 ```
@@ -492,10 +492,10 @@ copy of that code, because its driver runs outside any Polaris
 environment.
 
 A small table in the utility maps each template label to a Polaris machine,
-compiler and MPI library. For now, it maps Aurora's `intel` and `intelgpu`
-rows to `oneapi-ifx` and `oneapi-ifxgpu` (see [Decisions](#decisions)).
-Another table gives the names compilers had before Polaris renamed them,
-so that a baseline can run from a Polaris checkout older than the rename.
+compiler and MPI library. Another table gives the names compilers had
+before Polaris renamed them, such as Aurora's `oneapi-ifx` and
+`oneapi-ifxgpu` before E3SM-Project/polaris#835, so that a baseline can
+run from a Polaris checkout older than the rename.
 
 If the baseline cannot run on a row, such as an older Kokkos on a new GPU,
 the requester may ask for `setup --no-baseline <reason>`. The PR suite then
@@ -777,7 +777,8 @@ a changed file is marked. The #553 trial checks the section on every row.
   baseline Omega. Testing the pull request with Polaris `main` is not
   possible either.
 - **The template's compiler names are mapped where Polaris differs.**
-  Omega has called Aurora's and Chrysalis's compilers `intel` and
-  `intelgpu` since E3SM-Project/Omega#566, and the template follows. Polaris
-  still calls Aurora's `oneapi-ifx` and `oneapi-ifxgpu`, so the utility
-  maps those rows until it catches up.
+  Omega has called Aurora's compilers `intel` and `intelgpu` since
+  E3SM-Project/Omega#566, and the template follows. Polaris used
+  `oneapi-ifx` and `oneapi-ifxgpu` until E3SM-Project/polaris#835, so the
+  utility mapped those rows until then. The names now match, and only a
+  baseline from an older Polaris checkout needs its former names.

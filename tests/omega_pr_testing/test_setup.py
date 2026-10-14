@@ -184,7 +184,7 @@ def test_setup_frontier_avoids_debug_qos(tester, monkeypatch):
 def test_setup_aurora_chains_jobs(tester, monkeypatch):
     fixture, manifest, calls = tester
     monkeypatch.setenv('POLARIS_MACHINE', 'aurora')
-    monkeypatch.setenv('POLARIS_COMPILER', 'oneapi-ifx')
+    monkeypatch.setenv('POLARIS_COMPILER', 'intel')
     monkeypatch.setenv('POLARIS_MPI', 'mpich')
     monkeypatch.setattr(pr_test_setup, 'get_system', lambda machine: 'pbs')
 
@@ -208,7 +208,7 @@ def test_setup_aurora_chains_jobs(tester, monkeypatch):
 def test_setup_resumes_after_refused_job(tester, monkeypatch):
     fixture, manifest, calls = tester
     monkeypatch.setenv('POLARIS_MACHINE', 'aurora')
-    monkeypatch.setenv('POLARIS_COMPILER', 'oneapi-ifx')
+    monkeypatch.setenv('POLARIS_COMPILER', 'intel')
     monkeypatch.setenv('POLARIS_MPI', 'mpich')
     monkeypatch.setattr(pr_test_setup, 'get_system', lambda machine: 'pbs')
     submit_job = pr_test_setup.submit_job
@@ -222,7 +222,7 @@ def test_setup_resumes_after_refused_job(tester, monkeypatch):
     with pytest.raises(SubmissionError, match='run setup --submit again'):
         _setup(fixture, manifest, submit=True)
     row_dir = Path(fixture.config.work_base) / manifest.run_name
-    state = pr_test_setup.read_state(str(row_dir / 'aurora_oneapi-ifx'))
+    state = pr_test_setup.read_state(str(row_dir / 'aurora_intel'))
     assert [job['job_id'] for job in state.jobs] == ['1001', '1002', None]
     text = pr_test_setup.format_state(state, str(row_dir), 'aurora')
     assert 'Not yet submitted: CTests.' in text
