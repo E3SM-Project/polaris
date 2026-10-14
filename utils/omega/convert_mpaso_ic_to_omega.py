@@ -26,6 +26,14 @@ FORCING_VARIABLES = [
     'EvaporationFlux',
 ]
 
+SHORTWAVE_EXTINCTION_VARIABLES = [
+    'ExtinctionCoeffRed',
+    'ExtinctionCoeffBlue',
+]
+
+SHORTWAVE_EXTINCTION_FILENAME = 'shortwave_extinction_0.083x0.083_20261002.nc'
+SHORTWAVE_SCRIP_FILENAME = 'shortwave_extinction_scrip_20261002.nc'
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -88,6 +96,31 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        '--include-shortwave-extinction',
+        action='store_true',
+        help=(
+            'Include red and blue band shortwave extinction coefficients '
+            'interpolated from satellite data onto the mesh.'
+        ),
+    )
+    parser.add_argument(
+        '--shortwave-file',
+        default=None,
+        help=(
+            'Optional local shortwave extinction file. If not supplied, '
+            'the file is downloaded from the Polaris data repository.'
+        ),
+    )
+    parser.add_argument(
+        '--shortwave-scrip-file',
+        default=None,
+        help=(
+            'Optional local shortwave extinction SCRIP file. If not '
+            'supplied, the file is downloaded from the Polaris data '
+            'repository.'
+        ),
+    )
+    parser.add_argument(
         '--remap-method',
         choices=['conserve', 'bilinear'],
         default='conserve',
@@ -111,6 +144,7 @@ def _print_summary(
     eos_type,
     velocity_fields,
     include_idealized_sfc_stress,
+    include_shortwave_extinction,
     visualization,
 ):
     """Handles all the long-form stdout reporting for Omega."""
@@ -139,6 +173,11 @@ def _print_summary(
         if include_idealized_sfc_stress
         else 'Skipped SfcStressZonal and SfcStressMeridional fields'
     )
+    sw_msg = (
+        'Added ExtinctionCoeffRed and ExtinctionCoeffBlue fields'
+        if include_shortwave_extinction
+        else 'Skipped shortwave extinction fields'
+    )
 
     print(
         f'Added Omega variable PseudoThickness\n'
@@ -149,6 +188,7 @@ def _print_summary(
         f'Renamed refLayerThickness to RefPseudoThickness for '
         f'Omega output\n'
         f'{sfc_msg}\n'
+        f'{sw_msg}\n'
         f'Added SurfacePressure field\n'
         f'Removed unnecessary global attributes'
     )
@@ -164,6 +204,8 @@ def _prepare_mpas_zero(
     include_realistic_forcing,
     ds_forcing,
     include_idealized_sfc_stress,
+    include_shortwave_extinction,
+    ds_shortwave,
 ):
     """Generates and writes the baseline zero-velocity MPAS dataset."""
     input_path = Path(input_file)
@@ -184,6 +226,9 @@ def _prepare_mpas_zero(
             meridional_name='windStressMeridional',
         )
 
+    if include_shortwave_extinction:
+        _add_shortwave_extinction(ds_mpas_zero, ds_shortwave)
+
     _keep_selected_global_attrs(ds_mpas_zero)
     write_netcdf(
         ds_mpas_zero,
@@ -200,6 +245,8 @@ def _prepare_mpas_zero(
         )
     if include_idealized_sfc_stress:
         print('Added windStressZonal and windStressMeridional fields')
+    if include_shortwave_extinction:
+        print('Added ExtinctionCoeffRed and ExtinctionCoeffBlue fields')
 
     v_msg = (
         f'Zeroed velocity fields: {", ".join(mpas_velocity_fields)}'
@@ -221,6 +268,9 @@ def convert_to_omega(
     forcing_scrip_file=None,
     remap_method='conserve',
     include_idealized_sfc_stress=False,
+    include_shortwave_extinction=False,
+    shortwave_file=None,
+    shortwave_scrip_file=None,
     visualization=False,
 ):
     """Main function with low complexity and strict 79 line limits."""
@@ -228,7 +278,7 @@ def convert_to_omega(
         include_realistic_forcing, include_idealized_sfc_stress
     )
 
-    # 1. Setup forcing dependencies up front
+    # 1. Setup forcing and shortwave dependencies up front
     ds_forcing = None
     if include_realistic_forcing:
         if forcing_file is None or forcing_scrip_file is None:
@@ -242,6 +292,21 @@ def convert_to_omega(
             forcing_file=forcing_file,
             forcing_scrip_file=forcing_scrip_file,
             remap_method=remap_method,
+        )
+
+    ds_shortwave = None
+    if include_shortwave_extinction:
+        if shortwave_file is None or shortwave_scrip_file is None:
+            downloaded = _get_shortwave_extinction_files()
+            dl_sw, dl_scrip = downloaded
+            shortwave_file = shortwave_file or dl_sw
+            shortwave_scrip_file = shortwave_scrip_file or dl_scrip
+
+        ds_shortwave = _remap_shortwave_to_mpas(
+            mpas_file=input_file,
+            shortwave_file=shortwave_file,
+            shortwave_scrip_file=shortwave_scrip_file,
+            remap_method='bilinear',
         )
 
     # 2. Load and validate
@@ -264,6 +329,8 @@ def convert_to_omega(
         include_realistic_forcing,
         ds_forcing,
         include_idealized_sfc_stress,
+        include_shortwave_extinction,
+        ds_shortwave,
     )
 
     # 4. Initialize working copy and broadcast mask
@@ -288,7 +355,7 @@ def convert_to_omega(
     if spherical:
         _rescale_sphere_radius(ds_omega)
 
-    # 6. Apply surface stresses
+    # 6. Apply surface stresses and shortwave extinction
     if include_realistic_forcing:
         _add_surface_forcing(ds_omega, ds_forcing)
     elif include_idealized_sfc_stress:
@@ -297,6 +364,9 @@ def convert_to_omega(
             zonal_name='SfcStressZonal',
             meridional_name='SfcStressMeridional',
         )
+
+    if include_shortwave_extinction:
+        _add_shortwave_extinction(ds_omega, ds_shortwave)
 
     _add_surface_pressure(ds_omega)
 
@@ -325,6 +395,7 @@ def convert_to_omega(
         eos_type,
         velocity_fields,
         include_idealized_sfc_stress,
+        include_shortwave_extinction,
         visualization,
     )
 
@@ -419,6 +490,49 @@ def _get_realistic_forcing_files():
     )
 
     return forcing_file, forcing_scrip_file
+
+
+def _get_shortwave_extinction_files():
+    config = _get_polaris_config()
+
+    database_root = config.get('paths', 'database_root')
+    base_url = config.get('download', 'server_base_url')
+
+    database_path = os.path.join(
+        database_root,
+        'ocean/realistic_global/forcing',
+    )
+
+    sw_path = os.path.join(
+        database_path,
+        SHORTWAVE_EXTINCTION_FILENAME,
+    )
+    scrip_path = os.path.join(
+        database_path,
+        SHORTWAVE_SCRIP_FILENAME,
+    )
+
+    sw_url = (
+        f'{base_url}/ocean/realistic_global/forcing/'
+        f'{SHORTWAVE_EXTINCTION_FILENAME}'
+    )
+    scrip_url = (
+        f'{base_url}/ocean/realistic_global/forcing/{SHORTWAVE_SCRIP_FILENAME}'
+    )
+
+    sw_file = download(
+        sw_url,
+        sw_path,
+        config,
+    )
+
+    scrip_file = download(
+        scrip_url,
+        scrip_path,
+        config,
+    )
+
+    return sw_file, scrip_file
 
 
 def _append_eos_suffix(output_file, eos_type):
@@ -906,6 +1020,105 @@ def _remap_forcing_to_mpas(
     return ds_forcing
 
 
+def _remap_shortwave_to_mpas(
+    mpas_file,
+    shortwave_file,
+    shortwave_scrip_file=None,
+    remap_method='bilinear',
+    mpas_scrip_file=None,
+    work_dir=None,
+):
+    """Remap shortwave extinction coefficients from lat/lon to MPAS mesh."""
+    mpas_path = Path(mpas_file)
+    work_dir = Path(work_dir) if work_dir else mpas_path.parent
+    work_dir.mkdir(parents=True, exist_ok=True)
+
+    if mpas_scrip_file is not None:
+        mpas_scrip = Path(mpas_scrip_file)
+    else:
+        mpas_scrip = work_dir / 'mpas.scrip.nc'
+        if not mpas_scrip.exists():
+            subprocess.run(
+                [
+                    'scrip_from_mpas',
+                    '-m',
+                    str(mpas_file),
+                    '-s',
+                    str(mpas_scrip),
+                ],
+                check=True,
+            )
+
+    if shortwave_scrip_file is not None:
+        src_scrip = Path(shortwave_scrip_file)
+    else:
+        src_scrip = work_dir / 'shortwave_extinction.scrip.nc'
+        infer_tmp_file = work_dir / 'shortwave_extinction.infer_tmp.nc'
+        subprocess.run(
+            [
+                'ncks',
+                '-O',
+                '--rgr',
+                'infer',
+                '--rgr',
+                f'scrip={src_scrip}',
+                str(shortwave_file),
+                str(infer_tmp_file),
+            ],
+            check=True,
+        )
+
+    remapped_file = work_dir / 'shortwave_extinction.mpas.nc'
+    subprocess.run(
+        [
+            'ncremap',
+            '-a',
+            remap_method,
+            '-s',
+            str(src_scrip),
+            '-g',
+            str(mpas_scrip),
+            '-v',
+            ','.join(SHORTWAVE_EXTINCTION_VARIABLES),
+            '-i',
+            str(shortwave_file),
+            '-o',
+            str(remapped_file),
+        ],
+        check=True,
+    )
+
+    with xr.open_dataset(remapped_file, decode_times=False) as ds:
+        ds_shortwave = ds.load()
+
+    return ds_shortwave
+
+
+def _add_shortwave_extinction(ds, ds_shortwave):
+    ncell_dim = 'NCells' if 'NCells' in ds.dims else 'nCells'
+    n_cells = ds.sizes[ncell_dim]
+
+    for var_name in SHORTWAVE_EXTINCTION_VARIABLES:
+        if var_name not in ds_shortwave:
+            raise ValueError(
+                f'{var_name} not found in remapped shortwave file'
+            )
+
+        field = ds_shortwave[var_name].squeeze(drop=True)
+        if field.size != n_cells:
+            raise ValueError(
+                f'{var_name} contains {field.size} values, '
+                f'but mesh has {n_cells} cells'
+            )
+
+        values = field.values.reshape(n_cells)
+        ds[var_name] = xr.DataArray(
+            values,
+            dims=(ncell_dim,),
+            attrs=ds_shortwave[var_name].attrs,
+        )
+
+
 def _add_surface_forcing(ds_omega, ds_forcing):
     ncell_dim = 'NCells' if 'NCells' in ds_omega.dims else 'nCells'
     time_dim = 'Time' if 'Time' in ds_omega.dims else 'time'
@@ -1223,8 +1436,11 @@ def main():
         eos_type=args.eos_type,
         include_realistic_forcing=args.include_realistic_forcing,
         include_idealized_sfc_stress=args.include_idealized_sfc_stress,
+        include_shortwave_extinction=args.include_shortwave_extinction,
         forcing_file=args.forcing_file,
         forcing_scrip_file=args.forcing_scrip_file,
+        shortwave_file=args.shortwave_file,
+        shortwave_scrip_file=args.shortwave_scrip_file,
         remap_method=args.remap_method,
         visualization=args.visualization,
     )
