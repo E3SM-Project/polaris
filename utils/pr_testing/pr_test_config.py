@@ -1,6 +1,6 @@
 """
-The settings of the Omega PR testing utility, on the requester's computer
-or on a machine
+The settings of the PR testing utilities, on the requester's computer or on
+a machine
 """
 
 import configparser
@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from importlib import resources
 from typing import Dict, List, Optional
 
-from pr_test_manifest import SHARED_LOGIN_NODES
+from pr_test_rows import SHARED_LOGIN_NODES
 
 #: where the settings are read from unless another file is given
 DEFAULT_CONFIG = os.path.join('~', '.config', 'omega_pr_test.cfg')
@@ -50,7 +50,7 @@ class RemoteMachine:
 @dataclass
 class PrTestConfig:
     """
-    The settings of the Omega PR testing utility
+    The settings of the PR testing utilities
 
     Attributes
     ----------

@@ -1,8 +1,8 @@
-import pr_test_init
-import pr_test_manifest
+import omega_pr_init
+import pr_test_rows
 import pytest
-from pr_test_fixtures import git, make_fixture, mock_github
-from pr_test_manifest import (
+from omega_pr_fixtures import git, make_fixture, mock_github
+from omega_pr_manifest import (
     MANIFEST_FILENAME,
     POLARIS_SUBMODULE,
     TEMPLATE_ROWS,
@@ -76,7 +76,7 @@ def test_init_leaves_equivalent_branch(fixture):
     assert git(fixture.fork, 'rev-parse', first.manifest.branch) == (
         first.manifest_commit
     )
-    text = pr_test_init.format_result(second, fixture.config.omega_repo)
+    text = omega_pr_init.format_result(second, fixture.config.omega_repo)
     assert 'already has' in text
     assert 'git push' not in text
 
@@ -125,7 +125,7 @@ def test_init_baseline_merge(fixture):
 
 
 def test_init_conflict(fixture):
-    with pytest.raises(pr_test_init.InitError, match='does not merge'):
+    with pytest.raises(omega_pr_init.InitError, match='does not merge'):
         _initiate(fixture, merge_prs=[9])
 
 
@@ -151,17 +151,17 @@ def test_init_test_ref_needs_pr_head(fixture):
     branch = f'{fixture.extra_head}:refs/heads/fix'
     git(repo, 'push', '-q', fixture.fork, branch)
 
-    with pytest.raises(pr_test_init.InitError, match='#5 head'):
+    with pytest.raises(omega_pr_init.InitError, match='#5 head'):
         _initiate(fixture, test_ref='fix')
 
 
 def test_init_test_ref_missing(fixture):
-    with pytest.raises(pr_test_init.InitError, match='neither a branch'):
+    with pytest.raises(omega_pr_init.InitError, match='neither a branch'):
         _initiate(fixture, test_ref='no-such-branch')
 
 
 def test_init_other_baseline_needs_reason(fixture):
-    with pytest.raises(pr_test_init.InitError, match='--reason'):
+    with pytest.raises(omega_pr_init.InitError, match='--reason'):
         _initiate(fixture, baseline_ref='develop')
 
     result = _initiate(
@@ -184,9 +184,9 @@ def test_init_baseline_polaris(fixture):
     )
     git(fixture.polaris_dir, 'commit', '-q', '-m', 'Follow the PR')
 
-    with pytest.raises(pr_test_init.InitError, match='needs --polaris-ref'):
+    with pytest.raises(omega_pr_init.InitError, match='needs --polaris-ref'):
         _initiate(fixture, baseline_polaris_ref=main)
-    with pytest.raises(pr_test_init.InitError, match='polaris_fork'):
+    with pytest.raises(omega_pr_init.InitError, match='polaris_fork'):
         _initiate(fixture, polaris_ref='HEAD', baseline_polaris_ref=main)
 
     fixture.config.polaris_fork = 'git@github.com:me/polaris.git'
@@ -210,7 +210,7 @@ def test_init_baseline_polaris(fixture):
         f'checkout of test-merge on git@github.com:me/polaris.git, and the '
         f'baseline from a second checkout of baseline on the same fork.'
     )
-    summary = pr_test_init.format_result(result, fixture.config.omega_repo)
+    summary = omega_pr_init.format_result(result, fixture.config.omega_repo)
     assert f'Baseline Polaris: {main}' in summary
 
 
@@ -244,14 +244,14 @@ def test_init_baseline_polaris_main(fixture):
 def test_init_pr_moved(fixture, monkeypatch):
     mock_github(monkeypatch, 'f' * 40)
 
-    with pytest.raises(pr_test_init.InitError, match='moved'):
+    with pytest.raises(omega_pr_init.InitError, match='moved'):
         _initiate(fixture)
 
 
 def test_init_closed_pr(fixture, monkeypatch):
     mock_github(monkeypatch, fixture.pr_head, state='MERGED')
 
-    with pytest.raises(pr_test_init.InitError, match='merged, not open'):
+    with pytest.raises(omega_pr_init.InitError, match='merged, not open'):
         _initiate(fixture)
 
 
@@ -273,26 +273,26 @@ def test_get_row():
 def test_get_machine_rows():
     names = [
         row.name
-        for row in pr_test_manifest.get_machine_rows(TEMPLATE_ROWS, 'pm-cpu')
+        for row in pr_test_rows.get_machine_rows(TEMPLATE_ROWS, 'pm-cpu')
     ]
     # pm-cpu and pm-gpu share login nodes
     assert names == ['pm-cpu/gnu', 'pm-gpu/gnugpu']
     names = [
         row.name
-        for row in pr_test_manifest.get_machine_rows(TEMPLATE_ROWS, 'frontier')
+        for row in pr_test_rows.get_machine_rows(TEMPLATE_ROWS, 'frontier')
     ]
     assert names == ['frontier/craygnu', 'frontier/craygnu-mphipcc']
-    assert pr_test_manifest.get_machine_rows(TEMPLATE_ROWS, 'anvil') == []
+    assert pr_test_rows.get_machine_rows(TEMPLATE_ROWS, 'anvil') == []
 
 
 def test_template_rows_are_supported():
     for row in TEMPLATE_ROWS:
-        mpi = pr_test_manifest._get_polaris_mpi(row.machine, row.compiler)
+        mpi = pr_test_rows.get_polaris_mpi(row.machine, row.compiler)
         assert mpi == row.mpi
 
 
 def _initiate(fixture, **kwargs):
-    return pr_test_init.initiate(
+    return omega_pr_init.initiate(
         config=fixture.config,
         pull_request=5,
         polaris_dir=fixture.polaris_dir,

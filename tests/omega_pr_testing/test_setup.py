@@ -3,11 +3,11 @@ import os
 import subprocess
 from pathlib import Path
 
-import pr_test_init
+import omega_pr_init
+import omega_pr_setup
 import pr_test_setup
 import pytest
-from pr_test_fixtures import commit, git, make_complete_baseline, make_tester
-from pr_test_manifest import ManifestError
+from omega_pr_fixtures import commit, git, make_complete_baseline, make_tester
 
 from polaris.job import SubmissionError
 
@@ -29,7 +29,7 @@ def separate(tester, tmp_path):
     baseline_hash = git(baseline_polaris, 'rev-parse', 'HEAD')
     commit(fixture.polaris_dir, 'stop.txt', 'StopType\n', 'Follow the PR')
     fixture.config.polaris_fork = 'polaris-fork'
-    manifest = pr_test_init.initiate(
+    manifest = omega_pr_init.initiate(
         config=fixture.config,
         pull_request=5,
         polaris_dir=fixture.polaris_dir,
@@ -104,6 +104,26 @@ def test_setup_submit(tester):
     assert (Path(state.pr_work_dir) / 'job_id').read_text() == '1002\n'
 
 
+def test_setup_without_baseline(tester):
+    fixture, manifest, calls = tester
+
+    state = _setup(
+        fixture, manifest, submit=True, no_baseline='develop cannot run'
+    )
+
+    (pr_call,) = calls['suite']
+    assert pr_call['baseline_work_dir'] is None
+    assert state.baseline_work_dir is None
+    assert state.baseline_build_log is None
+    assert state.no_baseline_reason == 'develop cannot run'
+    assert [job['name'] for job in state.jobs] == ['PR suite', 'CTests']
+    pr_submit, _ = calls['submit']
+    assert pr_submit[2] is None
+    row_dir = Path(state.pr_work_dir).parent
+    text = pr_test_setup.format_state(state, str(row_dir), 'chrysalis')
+    assert 'Baseline:   none, because develop cannot run' in text
+
+
 def test_setup_reuses_matching_baseline(tester, tmp_path):
     fixture, manifest, calls = tester
     polaris_hash = git(fixture.polaris_dir, 'rev-parse', 'HEAD')
@@ -166,7 +186,7 @@ def test_setup_aurora_chains_jobs(tester, monkeypatch):
     monkeypatch.setenv('POLARIS_MACHINE', 'aurora')
     monkeypatch.setenv('POLARIS_COMPILER', 'oneapi-ifx')
     monkeypatch.setenv('POLARIS_MPI', 'mpich')
-    monkeypatch.setattr(pr_test_setup, '_get_system', lambda machine: 'pbs')
+    monkeypatch.setattr(pr_test_setup, 'get_system', lambda machine: 'pbs')
 
     state = _setup(fixture, manifest)
     row_dir = Path(state.pr_work_dir).parent
@@ -187,7 +207,7 @@ def test_setup_resumes_after_refused_job(tester, monkeypatch):
     monkeypatch.setenv('POLARIS_MACHINE', 'aurora')
     monkeypatch.setenv('POLARIS_COMPILER', 'oneapi-ifx')
     monkeypatch.setenv('POLARIS_MPI', 'mpich')
-    monkeypatch.setattr(pr_test_setup, '_get_system', lambda machine: 'pbs')
+    monkeypatch.setattr(pr_test_setup, 'get_system', lambda machine: 'pbs')
     submit_job = pr_test_setup.submit_job
 
     def refuse_ctests(script, work_dir, system, dependency=None, **kwargs):
@@ -292,6 +312,32 @@ def test_setup_baseline_load_script_wrong_row(separate, tmp_path):
         _setup(fixture, manifest, baseline_load_script=load_script)
 
 
+def test_setup_no_baseline_with_baseline_load_script(separate):
+    fixture, manifest, _, _, load_script = separate
+    with pytest.raises(pr_test_setup.SetupError, match='--no-baseline'):
+        _setup(
+            fixture,
+            manifest,
+            baseline_load_script=load_script,
+            no_baseline='develop cannot run',
+        )
+
+
+def test_setup_baseline_with_former_compiler(separate, tmp_path):
+    fixture, manifest, calls, baseline_polaris, _ = separate
+    load_script = _write_load_script(
+        tmp_path / 'load_old.sh', baseline_polaris, compiler='oneapi-ifx'
+    )
+    renames = {('chrysalis', 'intel'): 'oneapi-ifx'}
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(pr_test_setup, 'FORMER_COMPILERS', renames)
+        state = _setup(fixture, manifest, baseline_load_script=load_script)
+
+    baseline_call, _ = calls['suite']
+    assert baseline_call['load_script'] == load_script
+    assert '/chrysalis_oneapi-ifx_polaris-' in state.baseline_work_dir
+
+
 def test_polaris_suite_in_clean_login_shell(tmp_path, monkeypatch):
     calls = []
 
@@ -302,15 +348,22 @@ def test_polaris_suite_in_clean_login_shell(tmp_path, monkeypatch):
     monkeypatch.setenv('POLARIS_BRANCH', '/pr/polaris')
     build_dir = str(tmp_path / 'build')
 
-    pr_test_setup._polaris_suite(
+    pr_test_setup.polaris_suite(
         '/baseline/polaris',
+        suite='omega_pr',
+        model='omega',
         branch='/omega/tree',
         build_dir=build_dir,
         work_dir='/work',
         load_script='/baseline/polaris/load.sh',
     )
-    pr_test_setup._polaris_suite(
-        '/pr/polaris', branch='/omega/tree', build_dir=build_dir, work_dir='/w'
+    pr_test_setup.polaris_suite(
+        '/pr/polaris',
+        suite='omega_pr',
+        model='omega',
+        branch='/omega/tree',
+        build_dir=build_dir,
+        work_dir='/w',
     )
 
     (args, cwd, env), (pr_args, _, pr_env) = calls
@@ -382,7 +435,9 @@ def test_setup_dirty_polaris(tester):
 def test_setup_wrong_environment(tester, monkeypatch):
     fixture, manifest, _ = tester
     monkeypatch.setenv('POLARIS_COMPILER', 'gnu')
-    with pytest.raises(ManifestError, match='no row for chrysalis/gnu'):
+    with pytest.raises(
+        pr_test_setup.SetupError, match='no row for chrysalis/gnu'
+    ):
         _setup(fixture, manifest)
 
     monkeypatch.setenv('POLARIS_COMPILER', 'intel')
@@ -401,7 +456,7 @@ def test_setup_refuses_a_row_that_ran(tester):
 
 
 def _setup(fixture, manifest, **kwargs):
-    return pr_test_setup.run_setup(
+    return omega_pr_setup.run_setup(
         config=fixture.config,
         fork=fixture.fork,
         branch=manifest.branch,

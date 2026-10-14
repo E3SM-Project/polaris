@@ -6,7 +6,8 @@ asked to test an Omega pull request with this utility.  Read the Polaris
 
 There are two roles.  The **initiator** pins what to test and checks
 linting and the docs.  A **tester** runs the rows of the Omega PR
-template's testing checklist and reports each one.
+template's testing checklist and reports each machine's rows in one
+comment.
 
 By default, one agent does both from the requester's own computer, a
 laptop or workstation.  It runs each machine's rows over ssh, through the
@@ -185,8 +186,9 @@ can be submitted the moment it is set up.
 2. Set up each of the other rows the same way, each in its own clean
    shell.  The rows' `setup`s may run at the same time, on one machine or
    several.  Do not wait for the first row's jobs.
-3. When a row's jobs have finished (check with `squeue` or `qstat`), write
-   its comment, in a shell with that row's load script sourced:
+3. When all of the machine's rows have finished (check with `squeue` or
+   `qstat`), write the machine's comment, in a shell with one of its rows'
+   load scripts sourced.  Pm-cpu and pm-gpu rows share a comment.
    ```bash
    omega_pr_test.py report --fork <fork> --branch <branch> --agent "<name>"
    ```
@@ -205,11 +207,14 @@ can be submitted the moment it is set up.
    omega_pr_test.py post --pr <number> <local work_base>/<path>
    ```
 
-If a row cannot be run, for example because the machine is down, report it
-from the requester's computer, and post it with `--post`:
+If a row cannot be run, for example because its queue is down, add
+`--not-run "<reason>"` to `report`, which reports the rows without results
+as not run.  Never use it for jobs that are still running.  If none of a
+machine's rows can be run, report them from the requester's computer, and
+post the comment with `--post`:
 ```bash
 omega_pr_test.py report --fork <fork> --branch <branch> \
-    --row <machine>/<compiler> --not-run "<reason>" --agent "<name>"
+    --machine <machine> --not-run "<reason>" --agent "<name>"
 ```
 
 ## Testing on a machine itself
@@ -264,7 +269,7 @@ apply, with these differences:
   you start](#before-you-start).
 - Post with `report --post` instead of copying the comment.  If `gh` is
   not logged in here, put the comment in your reply as a code block, and
-  give the requester the path to `report.md`.  They can copy it to their
+  give the requester the path to its file, which `report` prints.  They can copy it to their
   own computer for the agent there to `post`, or post it by hand.
 
 ## When something fails
@@ -277,6 +282,10 @@ apply, with these differences:
   merged into `develop` since the Polaris pin can cause differences too.
   Say which tasks differ and what you think caused it.
 - **CTests fail.**  `ctests.log` is in the PR build directory.
+- **The baseline cannot run on a row**, such as an older Kokkos on a
+  new GPU.  Only if the requester asks, run `setup` with
+  `--no-baseline "<why>"`, a lowercase clause the report prints after
+  "because".  The PR suite then runs without a baseline.
 - **The scheduler refuses a job**, for a per-user limit, say.  `setup`
   stops with the scheduler's message, having recorded the jobs it did
   submit.  Tell the requester rather than resubmitting by hand or choosing

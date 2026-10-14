@@ -11,9 +11,10 @@ instructions agents follow.
 
 In outline, an *initiator* pins what to test in a branch on the requester's
 fork and reports on linting and the documentation build.  A *tester* builds
-and runs the baseline and the PR on each machine, then posts a comment made
-from the files Polaris and the CTests wrote, with the commits of Polaris
-and both Omega builds and any new compiler warnings.  By default, one agent
+and runs the baseline and the PR on each machine, then posts one comment
+for the machine's rows: a line for each row, and the files Polaris and the
+CTests wrote, with the commits of Polaris and both Omega builds and any new
+compiler warnings.  By default, one agent
 on the requester's own computer is both, running each machine's commands
 over ssh through the connections the requester opens by logging in.
 Frontier does not allow such connections, so an agent on Frontier tests its
@@ -41,4 +42,6 @@ utils/omega/pr_testing/AGENTS.md.
 `init` prints the prompt to give an agent on Frontier, which works out its
 own rows.
 
-The design is in {doc}`../design_docs/omega_pr_testing`.
+The modules it shares with other PR testing utilities are in
+`utils/pr_testing`.  The design is in
+{doc}`../design_docs/omega_pr_testing`.

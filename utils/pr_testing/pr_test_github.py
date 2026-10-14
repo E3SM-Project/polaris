@@ -1,5 +1,5 @@
 """
-GitHub queries for the Omega PR testing utility.  They use the ``gh`` CLI
+GitHub queries for the PR testing utilities.  They use the ``gh`` CLI
 when it is installed and logged in, and otherwise GitHub's REST API, which
 needs no login for a public repository.  Only posting a comment needs
 ``gh``.
@@ -14,8 +14,6 @@ import urllib.error
 import urllib.request
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
-
-from pr_test_manifest import UPSTREAM
 
 API_URL = 'https://api.github.com'
 
@@ -104,12 +102,15 @@ def api_get(path: str) -> List[Any]:
     return pages
 
 
-def get_pull_request(number: int) -> Dict[str, Any]:
+def get_pull_request(repo: str, number: int) -> Dict[str, Any]:
     """
-    Get an Omega pull request's state, head and base
+    Get a pull request's state, head and base
 
     Parameters
     ----------
+    repo : str
+        The repository, such as ``E3SM-Project/Omega``
+
     number : int
         The pull request number
 
@@ -122,11 +123,11 @@ def get_pull_request(number: int) -> Dict[str, Any]:
     if gh_usable():
         fields = 'state,isDraft,title,url,headRefOid,baseRefName'
         output = gh(
-            ['pr', 'view', str(number), '-R', UPSTREAM, '--json', fields]
+            ['pr', 'view', str(number), '-R', repo, '--json', fields]
         )
         return json.loads(output)
 
-    (pr,) = api_get(f'repos/{UPSTREAM}/pulls/{number}')
+    (pr,) = api_get(f'repos/{repo}/pulls/{number}')
     if pr['state'] == 'open':
         state = 'OPEN'
     elif pr.get('merged_at'):
@@ -174,18 +175,16 @@ def get_requester(fork: Optional[str]) -> str:
     )
 
 
-def get_comment_bodies(number: int) -> List[str]:
-    """The bodies of all comments on an Omega pull request, oldest first"""
+def get_comment_bodies(repo: str, number: int) -> List[str]:
+    """The bodies of all comments on a pull request, oldest first"""
     if not gh_usable():
-        pages = api_get(
-            f'repos/{UPSTREAM}/issues/{number}/comments?per_page=100'
-        )
+        pages = api_get(f'repos/{repo}/issues/{number}/comments?per_page=100')
         return [comment['body'] for page in pages for comment in page]
     output = gh(
         [
             'api',
             '--paginate',
-            f'repos/{UPSTREAM}/issues/{number}/comments',
+            f'repos/{repo}/issues/{number}/comments',
             '--jq',
             '.[].body | @json',
         ]
@@ -193,12 +192,15 @@ def get_comment_bodies(number: int) -> List[str]:
     return [json.loads(line) for line in output.splitlines() if line]
 
 
-def post_comment(number: int, body_file: str) -> str:
+def post_comment(repo: str, number: int, body_file: str) -> str:
     """
-    Post a comment on an Omega pull request, which needs ``gh``, logged in
+    Post a comment on a pull request, which needs ``gh``, logged in
 
     Parameters
     ----------
+    repo : str
+        The repository, such as ``E3SM-Project/Omega``
+
     number : int
         The pull request number
 
@@ -214,7 +216,7 @@ def post_comment(number: int, body_file: str) -> str:
         raise GitHubError(
             f'Posting needs gh, logged in, which is not available here, so '
             f'nothing was posted.  The comment is in {body_file}; post it '
-            f'on {UPSTREAM}#{number} by hand.'
+            f'on {repo}#{number} by hand.'
         )
     output = gh(
         [
@@ -222,7 +224,7 @@ def post_comment(number: int, body_file: str) -> str:
             'comment',
             str(number),
             '-R',
-            UPSTREAM,
+            repo,
             '--body-file',
             body_file,
         ]
@@ -230,12 +232,15 @@ def post_comment(number: int, body_file: str) -> str:
     return output.strip()
 
 
-def get_check_runs(sha: str) -> List[Dict[str, Any]]:
+def get_check_runs(repo: str, sha: str) -> List[Dict[str, Any]]:
     """
-    The check runs on a commit of E3SM-Project/Omega
+    The check runs on a commit
 
     Parameters
     ----------
+    repo : str
+        The repository, such as ``E3SM-Project/Omega``
+
     sha : str
         The commit
 
@@ -247,9 +252,7 @@ def get_check_runs(sha: str) -> List[Dict[str, Any]]:
     """
     keys = ['name', 'status', 'conclusion', 'id', 'html_url']
     if not gh_usable():
-        pages = api_get(
-            f'repos/{UPSTREAM}/commits/{sha}/check-runs?per_page=100'
-        )
+        pages = api_get(f'repos/{repo}/commits/{sha}/check-runs?per_page=100')
         return [
             {key: run[key] for key in keys}
             for page in pages
@@ -259,7 +262,7 @@ def get_check_runs(sha: str) -> List[Dict[str, Any]]:
         [
             'api',
             '--paginate',
-            f'repos/{UPSTREAM}/commits/{sha}/check-runs',
+            f'repos/{repo}/commits/{sha}/check-runs',
             '--jq',
             '.check_runs[] | {name, status, conclusion, id, html_url} '
             '| @json',
@@ -268,12 +271,15 @@ def get_check_runs(sha: str) -> List[Dict[str, Any]]:
     return [json.loads(line) for line in output.splitlines() if line]
 
 
-def get_job_steps(job_id: int) -> List[Dict[str, Any]]:
+def get_job_steps(repo: str, job_id: int) -> List[Dict[str, Any]]:
     """
     The steps of a GitHub Actions job, whose id is that of its check run
 
     Parameters
     ----------
+    repo : str
+        The repository, such as ``E3SM-Project/Omega``
+
     job_id : int
         The job
 
@@ -283,7 +289,7 @@ def get_job_steps(job_id: int) -> List[Dict[str, Any]]:
         Each step's ``name`` and ``conclusion``
     """
     if not gh_usable():
-        (job,) = api_get(f'repos/{UPSTREAM}/actions/jobs/{job_id}')
+        (job,) = api_get(f'repos/{repo}/actions/jobs/{job_id}')
         return [
             {'name': step['name'], 'conclusion': step['conclusion']}
             for step in job['steps']
@@ -291,7 +297,7 @@ def get_job_steps(job_id: int) -> List[Dict[str, Any]]:
     output = gh(
         [
             'api',
-            f'repos/{UPSTREAM}/actions/jobs/{job_id}',
+            f'repos/{repo}/actions/jobs/{job_id}',
             '--jq',
             '.steps[] | {name, conclusion} | @json',
         ]

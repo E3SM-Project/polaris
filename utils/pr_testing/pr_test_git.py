@@ -1,13 +1,23 @@
 """
-Git operations for the Omega PR testing utility
+Git operations for the PR testing utilities
 """
 
 import os
 import subprocess
+from pathlib import Path
 from typing import List, Optional
 
+#: the Polaris checkout the utilities are part of
+POLARIS_DIR = str(Path(__file__).resolve().parents[2])
+
 #: the URL fetches from E3SM-Project/Omega use, which needs no credentials
-UPSTREAM_URL = 'https://github.com/E3SM-Project/Omega.git'
+OMEGA_URL = 'https://github.com/E3SM-Project/Omega.git'
+
+#: the URL fetches from E3SM-Project/polaris use, which needs no credentials
+POLARIS_URL = 'https://github.com/E3SM-Project/polaris.git'
+
+#: where Polaris pins Omega
+OMEGA_SUBMODULE = 'e3sm_submodules/Omega'
 
 #: the namespace for refs the utility makes in the Omega clone, which keeps
 #: them apart from the developer's own branches

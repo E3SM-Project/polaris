@@ -3,14 +3,14 @@ from pathlib import Path
 
 import pytest
 
-UTILITY_DIR = (
-    Path(__file__).resolve().parents[2] / 'utils' / 'omega' / 'pr_testing'
-)
+UTILS_DIR = Path(__file__).resolve().parents[2] / 'utils'
 
-# the utility's modules import each other by name, as they do when the
-# script runs
-if str(UTILITY_DIR) not in sys.path:
-    sys.path.insert(0, str(UTILITY_DIR))
+# the utility's modules and the ones it shares import each other by name, as
+# they do when the script runs
+UTILITY_DIRS = [UTILS_DIR / 'pr_testing', UTILS_DIR / 'omega' / 'pr_testing']
+for directory in UTILITY_DIRS:
+    if str(directory) not in sys.path:
+        sys.path.insert(0, str(directory))
 
 #: git config the fixture repositories need, as ``GIT_CONFIG_*`` variables
 GIT_CONFIG = {

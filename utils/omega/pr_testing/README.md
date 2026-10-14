@@ -32,10 +32,11 @@ its rows.  An agent on every machine also works, but is discouraged.
    `--baseline-load-script`.  It then builds and sets up the PR suite, and
    prepares the CTests.  It prints the three jobs, or submits them with
    `--submit`.
-4. **`report`** (each machine) writes the row's comment: a generated
-   summary, the files Polaris and CTest wrote pasted unchanged, with the
-   commits of Polaris and both Omega builds, and the compiler warnings the
-   PR build has that the baseline build does not.  `--post` posts it.
+4. **`report`** (each machine) writes one comment for the machine's rows:
+   a table with a line for each row, generated from the results, and for
+   each row a collapsed block with the files Polaris and CTest wrote,
+   pasted unchanged, and the compiler warnings the PR build has that the
+   baseline build does not.  `--post` posts it.
 5. **`post`** (your computer) posts a comment that `report` wrote on a
    machine without `gh`, once it is copied over unchanged.
 6. **`status`** lists which rows have been reported and whether they are
@@ -87,16 +88,16 @@ omega_pr_test.py init --pr 553 --push
 omega_pr_test.py lint --fork git@github.com:me/E3SM.git \
     --branch omega-pr-test/553-54456ec --post
 
-# on each machine, or over ssh, with the row's load script sourced
+# on each machine, or over ssh, with each row's load script sourced
 omega_pr_test.py setup --fork git@github.com:me/E3SM.git \
     --branch omega-pr-test/553-54456ec --submit
-# ...when the jobs finish
+# ...when all of the machine's jobs finish
 omega_pr_test.py report --fork git@github.com:me/E3SM.git \
     --branch omega-pr-test/553-54456ec
 
-# on your computer, after copying report.md from the machine
+# on your computer, after copying the comment from the machine
 omega_pr_test.py post --pr 553 \
-    <work_base>/pr553-54456ec/chrysalis_intel/report.md
+    <work_base>/pr553-54456ec/report_chrysalis.md
 
 omega_pr_test.py status --pr 553
 ```
@@ -110,10 +111,14 @@ omega_pr_test.py status --pr 553
     build/  omega_pr/             baselines, reused across PRs
   pr<N>-<head sha7>/
     lint/                         lint report (and local logs)
+    report_<machine>.md           a machine's comment
     <machine>_<compiler>/
       build/  omega_pr/  ctest/   the PR build, suite and CTest job
-      setup.json  report.md
+      setup.json
 ```
+
+The modules this utility shares with other PR testing utilities are in
+[utils/pr_testing](../../pr_testing).
 
 Test branches, `omega-pr-test/<N>-<head sha7>` and its `-baseline`
 branch, can be deleted from the fork once the PR merges.

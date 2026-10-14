@@ -1,7 +1,8 @@
+import omega_pr_status
 import pr_test_github
 import pr_test_status
+from omega_pr_manifest import POLARIS_SUBMODULE, TEMPLATE_ROWS, Manifest
 from pr_test_config import PrTestConfig, RemoteMachine
-from pr_test_manifest import POLARIS_SUBMODULE, TEMPLATE_ROWS, Manifest
 
 HEAD = 'a' * 40
 OLD_HEAD = 'b' * 40
@@ -39,25 +40,43 @@ def test_run_status(monkeypatch):
     bodies = [
         'A comment from a person',
         '## Testing: lint and docs\n'
-        '<!-- omega-pr-test {"pr": 5, "pr_head": "' + HEAD + '", '
-        '"row": "lint", "status": "complete", "result": "pass"} -->',
-        '<!-- omega-pr-test {"pr": 6, "row": "pm-cpu/gnu"} -->',
+        '<!-- omega-pr-test {"schema": 2, "pr": 5, "pr_head": "' + HEAD + '", '
+        '"rows": [{"row": "lint", "status": "complete", "result": "pass"}]} '
+        '-->',
+        '## Testing on pm-cpu and pm-gpu\n'
+        '<!-- omega-pr-test {"schema": 2, "pr": 5, "pr_head": "' + HEAD + '", '
+        '"rows": [{"row": "pm-cpu/gnu", "status": "complete", '
+        '"result": "fail", "new_warnings": 3}, {"row": "pm-gpu/gnugpu", '
+        '"status": "not-run", "result": "none"}]} -->',
+        # a comment from before a machine's rows shared one
+        '## Testing: chrysalis, intel, openmpi\n'
+        '<!-- omega-pr-test {"schema": 1, "pr": 5, "pr_head": "'
+        + OLD_HEAD
+        + '", "row": "chrysalis/intel", "status": "complete", '
+        '"result": "pass"} -->',
+        '<!-- omega-pr-test {"schema": 2, "pr": 6, "rows": [{"row": '
+        '"frontier/craygnu", "status": "complete", "result": "pass"}]} -->',
     ]
     monkeypatch.setattr(
-        pr_test_github, 'get_comment_bodies', lambda number: bodies
+        pr_test_github, 'get_comment_bodies', lambda repo, number: bodies
     )
     monkeypatch.setattr(
         pr_test_github,
         'get_pull_request',
-        lambda number: {'headRefOid': HEAD},
+        lambda repo, number: {'headRefOid': HEAD},
     )
 
-    text = pr_test_status.run_status(5)
+    text = omega_pr_status.run_status(5)
 
     rows = {line.split()[0]: line for line in text.splitlines()[1:]}
     assert 'pass' in rows['lint']
+    assert 'fail' in rows['pm-cpu/gnu']
+    assert '3 new warnings' in rows['pm-cpu/gnu']
+    assert 'not run' in rows['pm-gpu/gnugpu']
+    assert 'pass' in rows['chrysalis/intel']
+    assert 'stale' in rows['chrysalis/intel']
     # a marker for another PR is ignored
-    assert rows['pm-cpu/gnu'].split() == ['pm-cpu/gnu', '-']
+    assert rows['frontier/craygnu'].split() == ['frontier/craygnu', '-']
 
 
 def test_run_status_names_machine_rows(monkeypatch):
@@ -66,7 +85,7 @@ def test_run_status_names_machine_rows(monkeypatch):
         pr_test_status, 'discover_machine', lambda quiet: 'pm-cpu'
     )
 
-    text = pr_test_status.run_status(5, _manifest())
+    text = omega_pr_status.run_status(5, _manifest())
 
     assert text.splitlines()[-1] == (
         'Rows to test on this machine (pm-cpu): pm-cpu/gnu, pm-gpu/gnugpu'
@@ -77,7 +96,7 @@ def test_run_status_off_the_machines(monkeypatch):
     _no_comments(monkeypatch)
     monkeypatch.setattr(pr_test_status, 'discover_machine', lambda quiet: None)
 
-    text = pr_test_status.run_status(5, _manifest())
+    text = omega_pr_status.run_status(5, _manifest())
 
     lines = text.splitlines()
     assert lines[-5:] == [
@@ -98,7 +117,7 @@ def test_run_status_names_how_to_reach_machines(monkeypatch):
         machines={'pm-cpu': RemoteMachine('pm', '~/polaris')},
     )
 
-    text = pr_test_status.run_status(5, _manifest(), config)
+    text = omega_pr_status.run_status(5, _manifest(), config)
 
     lines = text.splitlines()
     assert lines[-2] == (
@@ -113,12 +132,12 @@ def test_run_status_names_how_to_reach_machines(monkeypatch):
 
 def _no_comments(monkeypatch):
     monkeypatch.setattr(
-        pr_test_github, 'get_comment_bodies', lambda number: []
+        pr_test_github, 'get_comment_bodies', lambda repo, number: []
     )
     monkeypatch.setattr(
         pr_test_github,
         'get_pull_request',
-        lambda number: {'headRefOid': HEAD},
+        lambda repo, number: {'headRefOid': HEAD},
     )
 
 

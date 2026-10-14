@@ -10,18 +10,36 @@ import argparse
 import os
 import sys
 
-import pr_test_init
-import pr_test_lint
-import pr_test_results
-import pr_test_setup
-import pr_test_status
-from pr_test_config import ConfigError, read_config
-from pr_test_git import GitError
-from pr_test_github import GitHubError
-from pr_test_manifest import ManifestError, fetch_manifest, get_row
-from pr_test_report import post_file, read_notes
+# the modules the PR testing utilities share
+sys.path.insert(
+    1,
+    os.path.join(
+        os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ),
+        'pr_testing',
+    ),
+)
 
-from polaris.job import SubmissionError
+import omega_pr_init  # noqa: E402
+import omega_pr_lint  # noqa: E402
+import omega_pr_report  # noqa: E402
+import omega_pr_setup  # noqa: E402
+import omega_pr_status  # noqa: E402
+from omega_pr_manifest import (  # noqa: E402
+    MARKER_PREFIX,
+    UPSTREAM,
+    ManifestError,
+    fetch_manifest,
+    get_row,
+)
+from pr_test_config import ConfigError, read_config  # noqa: E402
+from pr_test_git import GitError  # noqa: E402
+from pr_test_github import GitHubError  # noqa: E402
+from pr_test_report import ReportError, post_file, read_notes  # noqa: E402
+from pr_test_setup import SetupError, format_state  # noqa: E402
+
+from polaris.job import SubmissionError  # noqa: E402
 
 #: the errors that are reported as a message rather than a traceback
 EXPECTED_ERRORS = (
@@ -30,10 +48,10 @@ EXPECTED_ERRORS = (
     GitHubError,
     ManifestError,
     ValueError,
-    pr_test_init.InitError,
-    pr_test_lint.LintError,
-    pr_test_results.ReportError,
-    pr_test_setup.SetupError,
+    omega_pr_init.InitError,
+    omega_pr_lint.LintError,
+    ReportError,
+    SetupError,
     SubmissionError,
 )
 
@@ -53,7 +71,7 @@ def _init(args):
     rows = None
     if args.rows is not None:
         rows = [get_row(name) for name in args.rows.split(',')]
-    result = pr_test_init.initiate(
+    result = omega_pr_init.initiate(
         config=config,
         pull_request=args.pr,
         polaris_ref=args.polaris_ref,
@@ -68,12 +86,12 @@ def _init(args):
         push=args.push,
         force=args.force,
     )
-    print(pr_test_init.format_result(result, config.omega_repo))
+    print(omega_pr_init.format_result(result, config.omega_repo))
 
 
 def _lint(args):
     config = read_config(args.config_file)
-    text, url, path, from_ci = pr_test_lint.run_lint(
+    text, url, path, from_ci = omega_pr_lint.run_lint(
         config=config,
         fork=args.fork,
         branch=args.branch,
@@ -93,26 +111,27 @@ def _lint(args):
 
 def _setup(args):
     config = read_config(args.config_file)
-    state = pr_test_setup.run_setup(
+    state = omega_pr_setup.run_setup(
         config=config,
         fork=args.fork,
         branch=args.branch,
         submit=args.submit,
         baseline_dir=args.baseline_dir,
         baseline_load_script=args.baseline_load_script,
+        no_baseline=args.no_baseline,
     )
     machine = state.row.split('/')[0]
     row_dir = os.path.dirname(state.pr_work_dir)
-    print(pr_test_setup.format_state(state, row_dir, machine))
+    print(format_state(state, row_dir, machine))
 
 
 def _report(args):
     config = read_config(args.config_file)
-    text, url, path = pr_test_results.run_report(
+    text, url, path = omega_pr_report.run_report(
         config=config,
         fork=args.fork,
         branch=args.branch,
-        row_name=args.row,
+        machine=args.machine,
         not_run=args.not_run,
         notes=read_notes(args.notes),
         agent=args.agent,
@@ -122,7 +141,7 @@ def _report(args):
 
 
 def _post(args):
-    url = post_file(args.pr, args.comment)
+    url = post_file(UPSTREAM, args.pr, args.comment, MARKER_PREFIX)
     print(f'Posted {url}')
 
 
@@ -134,7 +153,7 @@ def _status(args):
             raise ValueError('--branch needs --fork.')
         config = read_config(args.config_file)
         manifest = fetch_manifest(config.omega_repo, args.fork, args.branch)
-    print(pr_test_status.run_status(args.pr, manifest, config))
+    print(omega_pr_status.run_status(args.pr, manifest, config))
 
 
 def _print_report(text, url, path):
@@ -281,6 +300,14 @@ def _parse_args():
         'the PR is tested with.',
     )
     setup.add_argument(
+        '--no-baseline',
+        metavar='REASON',
+        help='Run the PR suite without a baseline, for a row where the '
+        'baseline commit cannot run, with the reason as a lowercase clause '
+        'that the report prints after "because".  Only if the requester '
+        'asks.',
+    )
+    setup.add_argument(
         '--submit',
         action='store_true',
         help="Submit the jobs.  Agents pass this only with the requester's "
@@ -289,18 +316,21 @@ def _parse_args():
     setup.set_defaults(func=_setup)
 
     report = subparsers.add_parser(
-        'report', help="Write and post this machine's Testing comment (tester)"
+        'report',
+        help="Write and post the Testing comment for a machine's rows "
+        '(tester)',
     )
     _add_branch_args(report)
     report.add_argument(
-        '--row',
-        help='The <machine>/<compiler> row, that of the loaded Polaris '
-        'environment by default',
+        '--machine',
+        help='The machine, that of the loaded Polaris environment, or else '
+        'the one this runs on, by default.  Pm-cpu and pm-gpu share a '
+        'comment.',
     )
     report.add_argument(
         '--not-run',
         metavar='REASON',
-        help='Report the row as not run, and why',
+        help='Report the rows without results as not run, and why',
     )
     _add_report_args(report)
     report.set_defaults(func=_report)

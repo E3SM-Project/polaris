@@ -4,6 +4,8 @@ import json
 import pr_test_github
 import pytest
 
+REPO = 'E3SM-Project/polaris'
+
 
 @pytest.fixture
 def no_gh(monkeypatch):
@@ -21,9 +23,17 @@ def test_get_pull_request_without_gh(no_gh, monkeypatch):
         'head': {'sha': 'a' * 40},
         'base': {'ref': 'develop'},
     }
-    monkeypatch.setattr(pr_test_github, 'api_get', lambda path: [pull])
+    paths = []
 
-    pr = pr_test_github.get_pull_request(5)
+    def api_get(path):
+        paths.append(path)
+        return [pull]
+
+    monkeypatch.setattr(pr_test_github, 'api_get', api_get)
+
+    pr = pr_test_github.get_pull_request(REPO, 5)
+
+    assert paths == [f'repos/{REPO}/pulls/5']
 
     assert pr == {
         'state': 'MERGED',
@@ -72,7 +82,7 @@ def test_get_comment_bodies_without_gh(no_gh, monkeypatch):
         'api_get',
         lambda path: [[{'body': 'one'}], [{'body': 'two'}]],
     )
-    assert pr_test_github.get_comment_bodies(5) == ['one', 'two']
+    assert pr_test_github.get_comment_bodies(REPO, 5) == ['one', 'two']
 
 
 def test_get_requester(no_gh):
@@ -86,5 +96,5 @@ def test_get_requester(no_gh):
 
 
 def test_post_comment_needs_gh(no_gh):
-    with pytest.raises(pr_test_github.GitHubError, match='by hand'):
-        pr_test_github.post_comment(5, '/work/report.md')
+    with pytest.raises(pr_test_github.GitHubError, match=f'{REPO}#5'):
+        pr_test_github.post_comment(REPO, 5, '/work/report.md')

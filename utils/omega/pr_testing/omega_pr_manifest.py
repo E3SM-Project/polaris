@@ -3,14 +3,13 @@ The manifest that pins what every machine tests, and the rows of the Omega
 PR template
 """
 
-import configparser
 import io
 from dataclasses import dataclass, field
-from importlib import resources
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import pr_test_git as git_tools
 from pr_test_git import REF_PREFIX
+from pr_test_rows import Row, get_polaris_mpi
 from ruamel.yaml import YAML
 
 SCHEMA_VERSION = 1
@@ -21,51 +20,15 @@ MANIFEST_FILENAME = 'omega_pr_test.yaml'
 #: the repository whose pull requests are tested
 UPSTREAM = 'E3SM-Project/Omega'
 
+#: what the utility's Testing comments are marked with
+MARKER_PREFIX = 'omega-pr-test'
+
 #: the baseline source that means the Omega commit Polaris pins
 POLARIS_SUBMODULE = 'polaris-submodule'
 
 
 class ManifestError(Exception):
     """A manifest is missing, malformed or of an unknown version"""
-
-
-@dataclass(frozen=True)
-class Row:
-    """
-    A machine, compiler and MPI library to test on
-
-    Attributes
-    ----------
-    machine : str
-        The Polaris machine
-
-    compiler : str
-        The Polaris compiler
-
-    mpi : str
-        The MPI library
-
-    template : str, optional
-        The row's label in the Omega PR template, if it has one
-    """
-
-    machine: str
-    compiler: str
-    mpi: str
-    template: Optional[str] = None
-
-    @property
-    def name(self) -> str:
-        """The row as ``<machine>/<compiler>``"""
-        return f'{self.machine}/{self.compiler}'
-
-    @property
-    def label(self) -> str:
-        """How reports name the row"""
-        polaris = f'{self.machine}, {self.compiler}, {self.mpi}'
-        if self.template is None or self.template == polaris:
-            return polaris
-        return f'{self.template} (Polaris `{self.compiler}`)'
 
 
 #: the rows of the testing checklist in the Omega PR template.  The
@@ -88,60 +51,6 @@ TEMPLATE_ROWS = [
 ]
 
 
-#: machines whose rows are tested from the same login nodes
-SHARED_LOGIN_NODES = [{'pm-cpu', 'pm-gpu'}]
-
-
-def get_machine_rows(rows: List[Row], machine: str) -> List[Row]:
-    """
-    The rows a tester on a machine runs: those of the machine, and of any
-    machine that shares its login nodes
-
-    Parameters
-    ----------
-    rows : list of pr_test_manifest.Row
-        The rows to choose from
-
-    machine : str
-        The Polaris machine the tester is on
-
-    Returns
-    -------
-    machine_rows : list of pr_test_manifest.Row
-        The tester's rows, in order
-    """
-    machines = {machine}
-    for group in SHARED_LOGIN_NODES:
-        if machine in group:
-            machines |= group
-    return [row for row in rows if row.machine in machines]
-
-
-def group_login_rows(rows: List[Row]) -> List[Tuple[List[str], List[Row]]]:
-    """
-    The rows grouped by the login nodes they are tested from
-
-    Parameters
-    ----------
-    rows : list of pr_test_manifest.Row
-        The rows to group
-
-    Returns
-    -------
-    groups : list of tuple
-        The machines that share each group's login nodes and the group's
-        rows, in the order the rows first appear
-    """
-    groups: List[Tuple[List[str], List[Row]]] = []
-    for row in rows:
-        if any(row in group_rows for _, group_rows in groups):
-            continue
-        machine_rows = get_machine_rows(rows, row.machine)
-        machines = list(dict.fromkeys(r.machine for r in machine_rows))
-        groups.append((machines, machine_rows))
-    return groups
-
-
 def get_row(name: str) -> Row:
     """
     Get a row by ``<machine>/<compiler>``
@@ -157,7 +66,7 @@ def get_row(name: str) -> Row:
 
     Returns
     -------
-    row : pr_test_manifest.Row
+    row : pr_test_rows.Row
         The row
     """
     machine, separator, compiler = name.partition('/')
@@ -167,7 +76,7 @@ def get_row(name: str) -> Row:
         if row.machine == machine and row.compiler == compiler:
             return row
 
-    mpi = _get_polaris_mpi(machine, compiler)
+    mpi = get_polaris_mpi(machine, compiler)
     if mpi is None:
         raise ValueError(
             f'Polaris does not support compiler {compiler} on {machine}.'
@@ -240,10 +149,10 @@ class Manifest:
         the default baseline.  It is ``polaris_commit`` unless the pull
         request needs Polaris changes that the baseline Omega cannot run.
 
-    extra_merges : list of pr_test_manifest.ExtraMerge
+    extra_merges : list of omega_pr_manifest.ExtraMerge
         Other pull requests merged into the test or baseline commit
 
-    rows : list of pr_test_manifest.Row
+    rows : list of pr_test_rows.Row
         The rows to test
 
     notes : str, optional
@@ -332,7 +241,7 @@ class Manifest:
 
         Returns
         -------
-        manifest : pr_test_manifest.Manifest
+        manifest : omega_pr_manifest.Manifest
             The manifest
         """
         try:
@@ -404,7 +313,7 @@ class Manifest:
 
         Returns
         -------
-        row : pr_test_manifest.Row
+        row : pr_test_rows.Row
             The row
         """
         for row in self.rows:
@@ -435,7 +344,7 @@ def fetch_manifest(repo: str, fork: str, branch: str) -> Manifest:
 
     Returns
     -------
-    manifest : pr_test_manifest.Manifest
+    manifest : omega_pr_manifest.Manifest
         The manifest, whose commits the clone now has
     """
     local = f'{REF_PREFIX}/{branch}'
@@ -485,21 +394,3 @@ def _yaml():
     yaml = YAML(typ='rt')
     yaml.default_flow_style = False
     return yaml
-
-
-def _get_polaris_mpi(machine, compiler):
-    """The MPI library Polaris uses with a compiler on a machine, if any"""
-    filename = f'{machine}.cfg'
-    try:
-        text = (
-            resources.files('polaris.machines')
-            .joinpath(filename)
-            .read_text(encoding='utf-8')
-        )
-    except (FileNotFoundError, OSError):
-        return None
-    parser = configparser.ConfigParser()
-    parser.read_string(text)
-    option = f'mpi_{compiler.replace("-", "_")}'
-    value = parser.get('deploy', option, fallback='').strip()
-    return value or None

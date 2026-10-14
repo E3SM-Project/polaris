@@ -6,14 +6,11 @@ import os
 import shlex
 import subprocess
 from dataclasses import dataclass
-from pathlib import Path
 from typing import List, Optional, Sequence
 
 import pr_test_git as git_tools
 import pr_test_github as github
-from pr_test_config import PrTestConfig
-from pr_test_git import REF_PREFIX
-from pr_test_manifest import (
+from omega_pr_manifest import (
     MANIFEST_FILENAME,
     POLARIS_SUBMODULE,
     TEMPLATE_ROWS,
@@ -21,21 +18,15 @@ from pr_test_manifest import (
     ExtraMerge,
     Manifest,
     ManifestError,
-    Row,
     fetch_manifest,
 )
-
-#: the Polaris checkout this utility is part of
-POLARIS_DIR = str(Path(__file__).resolve().parents[3])
-
-#: where the default Polaris commit comes from, which needs no credentials
-POLARIS_URL = 'https://github.com/E3SM-Project/polaris.git'
+from pr_test_config import PrTestConfig
+from pr_test_git import OMEGA_SUBMODULE, POLARIS_DIR, REF_PREFIX
+from pr_test_rows import Row
 
 #: the Polaris branch that always means E3SM-Project/polaris's, never the
 #: requester's fork's, which is not kept up to date
 POLARIS_MAIN = 'main'
-
-OMEGA_SUBMODULE = 'e3sm_submodules/Omega'
 
 
 class InitError(Exception):
@@ -49,7 +40,7 @@ class InitResult:
 
     Attributes
     ----------
-    manifest : pr_test_manifest.Manifest
+    manifest : omega_pr_manifest.Manifest
         The manifest
 
     manifest_commit : str
@@ -136,7 +127,7 @@ def initiate(
     baseline_merge_prs : sequence of int, optional
         Other Omega pull requests to merge into the baseline commit
 
-    rows : sequence of pr_test_manifest.Row, optional
+    rows : sequence of pr_test_rows.Row, optional
         The rows to test, the Omega PR template's by default
 
     notes : str, optional
@@ -153,7 +144,7 @@ def initiate(
 
     Returns
     -------
-    result : pr_test_init.InitResult
+    result : omega_pr_init.InitResult
         What the initiator made
     """
     if baseline_ref is not None and not reason:
@@ -168,7 +159,7 @@ def initiate(
             'testers know where to fetch it.'
         )
 
-    pr = github.get_pull_request(pull_request)
+    pr = github.get_pull_request(UPSTREAM, pull_request)
     if pr['state'] != 'OPEN':
         raise InitError(
             f'{UPSTREAM}#{pull_request} is {pr["state"].lower()}, not open.'
@@ -343,7 +334,7 @@ def get_prompt(
 
     Parameters
     ----------
-    manifest : pr_test_manifest.Manifest
+    manifest : omega_pr_manifest.Manifest
         The manifest
 
     fork : str
@@ -484,7 +475,9 @@ def _resolve_polaris(polaris_dir, polaris_ref):
     if polaris_ref is not None and polaris_ref != POLARIS_MAIN:
         return git_tools.rev_parse(polaris_dir, polaris_ref)
     local_ref = f'{REF_PREFIX}/polaris-main'
-    git_tools.fetch(polaris_dir, POLARIS_URL, [f'refs/heads/main:{local_ref}'])
+    git_tools.fetch(
+        polaris_dir, git_tools.POLARIS_URL, [f'refs/heads/main:{local_ref}']
+    )
     return git_tools.rev_parse(polaris_dir, local_ref)
 
 
@@ -502,7 +495,7 @@ def _fetch_omega(repo, base_branch, pull_requests):
         f'refs/pull/{number}/head:{REF_PREFIX}/pr-{number}'
         for number in pull_requests
     )
-    git_tools.fetch(repo, git_tools.UPSTREAM_URL, refspecs)
+    git_tools.fetch(repo, git_tools.OMEGA_URL, refspecs)
     return {
         number: git_tools.rev_parse(repo, f'{REF_PREFIX}/pr-{number}')
         for number in pull_requests
@@ -512,9 +505,7 @@ def _fetch_omega(repo, base_branch, pull_requests):
 def _fetch_commit(repo, sha):
     """Make sure the Omega clone has a commit, fetching it if needed"""
     if not git_tools.has_commit(repo, sha):
-        git_tools.fetch(
-            repo, git_tools.UPSTREAM_URL, [f'{sha}:{REF_PREFIX}/pin']
-        )
+        git_tools.fetch(repo, git_tools.OMEGA_URL, [f'{sha}:{REF_PREFIX}/pin'])
     return git_tools.rev_parse(repo, sha)
 
 
@@ -525,7 +516,7 @@ def _resolve_omega(repo, ref, base_branch):
     try:
         git_tools.fetch(
             repo,
-            git_tools.UPSTREAM_URL,
+            git_tools.OMEGA_URL,
             [f'refs/heads/{ref}:{REF_PREFIX}/baseline-ref'],
         )
         return git_tools.rev_parse(repo, f'{REF_PREFIX}/baseline-ref')

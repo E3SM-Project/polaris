@@ -6,9 +6,9 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+import omega_pr_init
 import pr_test_git
 import pr_test_github
-import pr_test_init
 import pr_test_setup
 from pr_test_config import PrTestConfig
 
@@ -93,8 +93,8 @@ def make_fixture(tmp_path, monkeypatch):
     clone = tmp_path / 'clone'
     git(tmp_path, 'clone', '-q', str(upstream), str(clone))
 
-    monkeypatch.setattr(pr_test_git, 'UPSTREAM_URL', str(upstream))
-    monkeypatch.setattr(pr_test_init, 'POLARIS_URL', str(polaris_upstream))
+    monkeypatch.setattr(pr_test_git, 'OMEGA_URL', str(upstream))
+    monkeypatch.setattr(pr_test_git, 'POLARIS_URL', str(polaris_upstream))
     mock_github(monkeypatch, pr_head)
 
     config = PrTestConfig(
@@ -115,7 +115,7 @@ def make_fixture(tmp_path, monkeypatch):
 
 
 def mock_github(monkeypatch, head, state='OPEN'):
-    def get_pull_request(number):
+    def get_pull_request(repo, number):
         return {
             'state': state,
             'isDraft': False,
@@ -135,7 +135,7 @@ def make_tester(tmp_path, monkeypatch):
     for polaris suite, the CTest utility and the scheduler
     """
     fixture = make_fixture(tmp_path, monkeypatch)
-    manifest = pr_test_init.initiate(
+    manifest = omega_pr_init.initiate(
         config=fixture.config,
         pull_request=5,
         polaris_dir=fixture.polaris_dir,
@@ -148,12 +148,12 @@ def make_tester(tmp_path, monkeypatch):
 
     calls: dict[str, list] = {'suite': [], 'submit': [], 'extra_args': []}
     monkeypatch.setattr(
-        pr_test_setup, '_polaris_suite', _fake_polaris_suite(calls, fixture)
+        pr_test_setup, 'polaris_suite', _fake_polaris_suite(calls, fixture)
     )
-    monkeypatch.setattr(pr_test_setup, '_set_up_ctests', _fake_ctests)
+    monkeypatch.setattr(pr_test_setup, 'set_up_ctests', _fake_ctests)
     # the fixture repositories have no submodules
     monkeypatch.setattr(pr_test_setup, 'OMEGA_SUBMODULES', [])
-    monkeypatch.setattr(pr_test_setup, '_get_system', lambda machine: 'slurm')
+    monkeypatch.setattr(pr_test_setup, 'get_system', lambda machine: 'slurm')
 
     def submit_job(script, work_dir, system, dependency=None, extra_args=None):
         calls['submit'].append((work_dir, script, dependency))
@@ -170,6 +170,8 @@ def make_tester(tmp_path, monkeypatch):
 def _fake_polaris_suite(calls, fixture):
     def polaris_suite(
         polaris_dir,
+        suite,
+        model,
         branch,
         build_dir,
         work_dir,
@@ -179,6 +181,8 @@ def _fake_polaris_suite(calls, fixture):
         calls['suite'].append(
             {
                 'polaris_dir': polaris_dir,
+                'suite': suite,
+                'model': model,
                 'branch': branch,
                 'build_dir': build_dir,
                 'work_dir': work_dir,

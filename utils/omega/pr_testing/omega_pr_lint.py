@@ -11,8 +11,10 @@ from typing import List, Optional, Tuple
 import pr_test_git as git_tools
 import pr_test_github as github
 import pr_test_report as report
+from omega_pr_manifest import UPSTREAM, Manifest, fetch_manifest
+from omega_pr_report import make_marker
+from omega_pr_setup import get_run_dir
 from pr_test_config import PrTestConfig
-from pr_test_manifest import Manifest, fetch_manifest
 
 #: the job in Omega's omega-pr workflow that lints and builds the docs
 CI_JOB = 'lint and test docs'
@@ -115,7 +117,7 @@ def run_lint(
         was not posted
     """
     manifest = fetch_manifest(config.omega_repo, fork, branch)
-    lint_dir = os.path.join(report.get_run_dir(config, manifest), 'lint')
+    lint_dir = os.path.join(get_run_dir(config, manifest), 'lint')
 
     ci_run = _find_ci_run(manifest.pr_head)
     ci_line = _format_ci_line(manifest, ci_run)
@@ -133,27 +135,32 @@ def run_lint(
 
     text = report.assemble(
         heading='Testing: lint and docs',
-        marker=report.make_marker(
+        marker=make_marker(
             manifest,
-            row='lint',
-            status='complete',
-            result='pass' if passed else 'fail',
+            [
+                {
+                    'row': 'lint',
+                    'status': 'complete',
+                    'result': 'pass' if passed else 'fail',
+                }
+            ],
         ),
         sections=['\n'.join(lines)],
-        manifest=manifest,
+        requester=manifest.requester,
+        requester_notes=manifest.notes,
         notes=notes,
         agent=agent,
     )
     path = os.path.join(lint_dir, 'report.md')
     # results that only repeat what the PR's own checks show are not posted
     url = report.deliver(
-        text, path, manifest.pull_request, post and not from_ci
+        text, path, UPSTREAM, manifest.pull_request, post and not from_ci
     )
     return text, url, path, from_ci
 
 
 def _find_ci_run(sha):
-    for run in github.get_check_runs(sha):
+    for run in github.get_check_runs(UPSTREAM, sha):
         if run['name'] == CI_JOB:
             return run
     return None
@@ -179,7 +186,7 @@ def _ci_results(ci_run):
     """The result of each check's step in a CI job that passed"""
     steps = {
         step['name']: step['conclusion']
-        for step in github.get_job_steps(ci_run['id'])
+        for step in github.get_job_steps(UPSTREAM, ci_run['id'])
     }
     return [
         (check.label, steps.get(check.ci_step) == 'success', 'CI')

@@ -215,13 +215,14 @@ Human testers get this too, whether or not they use the utility.
 
 ### Algorithm Design: Results are reported as Polaris and CTest write them.
 
-Code builds each report from the two `.md` files, which are pasted
-unchanged. The one-line summary at the top is generated from
-`<suite>_results.json` and the CTest counts. After the results, the agent
+Each machine gets one comment, with Perlmutter's pm-cpu and pm-gpu rows in
+one. A table at the top has a line for each row, generated from
+`<suite>_results.json`, the CTest counts and the warnings comparison. Below
+it, each row has a collapsed `<details>` block with its two `.md` files,
+pasted unchanged, and its warnings section. After the results, the agent
 may add a single `Notes` section for qualifications such as an extra merge
 or a known failure. When an agent writes the report, it ends with the
-signature that `AGENTS.md` prescribes. History and paths go in collapsed
-`<details>` blocks, which keeps the visible comment short.
+signature that `AGENTS.md` prescribes.
 
 ### Algorithm Design: The requester controls every outward-facing action.
 
@@ -240,15 +241,19 @@ other, because concurrent CIME configures race.
 Each report starts with a hidden marker:
 
 ```
-<!-- omega-pr-test {"schema": 1, "pr": 553, "pr_head": "<sha>",
+<!-- omega-pr-test {"schema": 2, "pr": 553, "pr_head": "<sha>",
      "test": "<sha>", "baseline": "<sha>",
-     "row": "chrysalis/intel", "status": "complete", "result": "pass"} -->
+     "rows": [{"row": "pm-cpu/gnu", "status": "complete", "result": "pass",
+               "new_warnings": 0},
+              {"row": "pm-gpu/gnugpu", "status": "not-run",
+               "result": "none"}]} -->
 ```
 
-The report heading uses the template's label for the row, so the requester
-can match it to a box. If a tester cannot run a row, for example because
-the machine is down, it posts a report with `"status": "not-run"` and gives
-the reason in `Notes`.
+The table uses the template's label for each row, so the requester can
+match it to a box. A row that cannot be run, for example because its queue
+is down, is reported with `"status": "not-run"`, and the table gives the
+reason. A report for a machine that is down entirely is written on the
+requester's computer.
 
 ### Algorithm Design: A matching baseline is reused wherever it was run.
 
@@ -289,7 +294,7 @@ result. If the job has not run for `pr_head`, or has not passed, the
 initiator runs the same two commands on the test commit, in an `omega_dev`
 environment. It then posts a `Testing` comment that gives pre-commit and the
 documentation build each its own result, passing or failing. The comment's
-marker has `lint` as its `row`.
+marker has `lint` as its only row.
 
 Checking that the rendered documentation "looks as expected" still needs a
 person.
@@ -327,14 +332,20 @@ reused because an earlier build failed, `setup` rebuilds it with
   prompts the requester gives each one.
 - `README.md`: the same workflow, written for people running the commands.
 - `omega_pr_test.py`: the subcommands `init`, `lint`, `setup`, `report`,
-  `post` and `status`, with the modules they use in `pr_test_*.py`.  The script's
-  directory is on `sys.path`, so the prefix keeps a module from shadowing
-  a standard one, such as `warnings`.
-- `pr_test_warnings.py`: the build log parser.
+  `post` and `status`, with the modules they use in `omega_pr_*.py`.
 - `example.cfg`: the settings for the requester's computer and each
   machine. Copy it to `~/.config/omega_pr_test.cfg`, or pass another path
   with `-f`.
 
+The modules that do not depend on Omega PRs are in `utils/pr_testing/`, as
+`pr_test_*.py`, so that other PR testing utilities can share them: the
+settings, git and GitHub helpers, the rows, setting up and submitting
+suites and CTests, markers and the table of rows, status, and
+`pr_test_warnings.py`, the build log parser.  `omega_pr_test.py` puts that
+directory on `sys.path`.  The prefixes keep a module from shadowing a
+standard one, such as `warnings`.
+
+The settings:
 ```ini
 [omega_pr_test]
 work_base = /path/to/scratch/omega_pr_test
@@ -413,6 +424,7 @@ and `post` posts them (see below, under results).
 omega_pr_test.py setup --fork <fork> --branch <branch> [--submit]
                        [--baseline-dir <dir>]
                        [--baseline-load-script <script>]
+                       [--no-baseline <reason>]
 ```
 
 `setup` fetches both branches and reads the manifest. It stops with a
@@ -431,7 +443,9 @@ message unless all of these hold:
   `baseline.polaris_commit` and does not contain `polaris_commit`;
 - the loaded Polaris environment belongs to this checkout
   (`POLARIS_BRANCH`), and its machine, compiler and MPI library give the
-  row.
+  row;
+- the baseline checkout's load script is for the same row, or for the
+  name the row's compiler had before Polaris renamed it.
 
 Omega worktrees are made from `omega_repo` at `<work_base>/omega/<sha12>`.
 They are keyed by commit, so baselines and pull requests share them.
@@ -442,12 +456,12 @@ tree's submodules at once. Each
 row gets its own directories:
 
 ```
+<work_base>/pr<N>-<head sha7>/report_<machine>.md
 <work_base>/pr<N>-<head sha7>/<machine>_<compiler>/
     build/       pull request build (-p)
     omega_pr/    pull request suite (-w, with -b <baseline>)
     ctest/       the CTest job script
     setup.json   what setup did, which report reads
-    report.md
 <work_base>/baselines/<machine>_<compiler>_polaris-<sha7>_omega-<sha7>/
     build/
     omega_pr/
@@ -474,6 +488,12 @@ environment.
 A small table in the utility maps each template label to a Polaris machine,
 compiler and MPI library. For now, it maps Aurora's `intel` and `intelgpu`
 rows to `oneapi-ifx` and `oneapi-ifxgpu` (see [Decisions](#decisions)).
+Another table gives the names compilers had before Polaris renamed them,
+so that a baseline can run from a Polaris checkout older than the rename.
+
+If the baseline cannot run on a row, such as an older Kokkos on a new GPU,
+the requester may ask for `setup --no-baseline <reason>`. The PR suite then
+runs without a baseline, and the report gives the reason.
 
 ### Implementation: Each report carries its own provenance.
 
@@ -497,16 +517,28 @@ directory and the Omega commit from `omega_source.txt`.
 ### Implementation: Results are reported as Polaris and CTest write them.
 
 ```
-omega_pr_test.py report --row <machine>/<compiler> [--notes <file>]
+omega_pr_test.py report [--machine <machine>] [--notes <file>]
                         [--not-run <reason>] [--agent <name>] [--post]
 ```
 
+`report` reports every row of the manifest on the machine, and on any
+machine that shares its login nodes. It stops if a row has no results,
+unless `--not-run` gives the reason those rows were not run.
+
 ```markdown
-## Testing: aurora, intel, mpich (Polaris `oneapi-ifx`)
+## Testing on aurora
 <!-- omega-pr-test {...} -->
 
-CTests: 50 of 50 passed. `omega_pr`: 25 of 25 tasks passed against the
-Polaris submodule baseline.
+Tested the merge of E3SM-Project/Omega#553 (`<sha>`) into `develop`
+(`<sha>`) as `<sha>`, against Polaris' Omega submodule (`<sha>`).
+
+| Row | CTests | `omega_pr` | New build warnings |
+|---|---|---|---|
+| aurora, intel, mpich | 50 of 50 passed | 25 of 25 passed | 0 |
+| aurora, intelgpu, mpich | 50 of 50 passed | 25 of 25 passed | 2 |
+
+<details>
+<summary>aurora, intel, mpich</summary>
 
 <omega_pr_output_for_pr.md>
 
@@ -515,6 +547,10 @@ Polaris submodule baseline.
 ### Build warnings
 
 <generated by pr_test_warnings.py>
+
+</details>
+
+<details>...</details>
 
 ### Notes
 
@@ -526,14 +562,14 @@ Polaris submodule baseline.
 ```
 
 `--post` runs `gh pr comment <pr> -R E3SM-Project/Omega --body-file
-report.md`. Without it, `report` prints the text for the requester to
-paste.
+report_<machine>.md`. Without it, `report` prints the text for the
+requester to paste.
 
 A report written on a machine without `gh` is copied unchanged to the
 requester's computer and posted there:
 
 ```
-omega_pr_test.py post --pr 553 <report.md>
+omega_pr_test.py post --pr 553 <report_<machine>.md>
 ```
 
 `post` refuses a file without a marker for that pull request, so it posts
@@ -664,8 +700,8 @@ appear byte for byte.
 
 ### Testing and Validation: Progress across machines is visible.
 
-Unit tests parse markers from fixture comments, including a stale report
-and a not-run report.
+Unit tests parse markers from fixture comments, including a stale report,
+a not-run row and a comment from before a machine's rows shared one.
 
 ### Testing and Validation: A matching baseline is reused wherever it was run.
 
@@ -712,8 +748,10 @@ a changed file is marked. The #553 trial checks the section on every row.
   requester's usual logins. The utility itself stays on the machines, so
   an agent on a machine runs the same commands, which Frontier still
   needs.
-- **Each row gets its own comment.** Rows finish at different times on
-  different machines, and separate comments need no coordination.
+- **Each machine gets one comment.** One tester runs all of a machine's
+  rows, so its comment needs no coordination with other machines. A
+  comment for each row, as the first trials posted, repeated the same
+  commits and paths for every row and was hard to read.
 - **Baselines are found from provenance, not from `utils/benchmark`'s
   cache or by an agent.** The cache sees only directories that `benchmark`
   named itself, and most existing baselines were set up some other way. An
