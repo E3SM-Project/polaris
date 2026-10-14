@@ -1,3 +1,4 @@
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -77,7 +78,12 @@ def test_deploy_run(tester, monkeypatch):
     (deployment,) = _deploy(fixture, manifest, 'chrysalis', run=True)
 
     assert deployment.ran
-    assert ran == [(deployment.command, fixture.polaris_dir)]
+    assert ran == [
+        (
+            f'cd {fixture.polaris_dir} && {shlex.join(deployment.command)}',
+            fixture.polaris_dir,
+        )
+    ]
     assert Path(deployment.log).name == 'deploy_chrysalis.log'
     # the intel rows still need a load script that uses the deployment
     assert deployment.missing == ['chrysalis/intel']
@@ -177,9 +183,11 @@ def _mock_run(monkeypatch, returncode=0):
     original = subprocess.run
 
     def run(command, *args, **kwargs):
-        if command[0] != './deploy.py':
+        if command[:3] != ['/bin/bash', '-l', '-c']:
             return original(command, *args, **kwargs)
-        ran.append((command, kwargs['cwd']))
+        # a clean login shell, with none of the loaded environment
+        assert 'POLARIS_MACHINE' not in kwargs['env']
+        ran.append((command[3], kwargs['cwd']))
         return subprocess.CompletedProcess(command, returncode)
 
     monkeypatch.setattr(subprocess, 'run', run)
