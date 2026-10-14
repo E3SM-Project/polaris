@@ -1,0 +1,28 @@
+﻿polaris.tasks.ocean.analysis.PublishTask
+========================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis
+
+.. autoclass:: PublishTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PublishTask.__init__
+      ~PublishTask.add_step
+      ~PublishTask.configure
+      ~PublishTask.rebuild_steps
+      ~PublishTask.remove_step
+      ~PublishTask.set_shared_config
+      ~PublishTask.year_range
+   
+   
+
+   
+   
+   

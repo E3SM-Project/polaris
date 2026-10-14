@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.analysis.analysis\_step.AnalysisStep.log\_inputs
+====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.analysis_step
+
+.. automethod:: AnalysisStep.log_inputs

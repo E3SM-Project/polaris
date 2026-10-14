@@ -1,0 +1,6 @@
+﻿polaris.coriolis.add\_rotated\_sphere\_coriolis
+===============================================
+
+.. currentmodule:: polaris.coriolis
+
+.. autofunction:: add_rotated_sphere_coriolis

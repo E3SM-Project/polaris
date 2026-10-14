@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.overflow.pstar\_init.PStarInit.setup
+========================================================
+
+.. currentmodule:: polaris.tasks.ocean.overflow.pstar_init
+
+.. automethod:: PStarInit.setup

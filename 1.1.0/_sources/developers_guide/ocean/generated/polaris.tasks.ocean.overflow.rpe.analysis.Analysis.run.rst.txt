@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.overflow.rpe.analysis.Analysis.run
+======================================================
+
+.. currentmodule:: polaris.tasks.ocean.overflow.rpe.analysis
+
+.. automethod:: Analysis.run

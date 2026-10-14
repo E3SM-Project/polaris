@@ -1,0 +1,6 @@
+﻿polaris.analysis.manifest.Manifest.add
+======================================
+
+.. currentmodule:: polaris.analysis.manifest
+
+.. automethod:: Manifest.add

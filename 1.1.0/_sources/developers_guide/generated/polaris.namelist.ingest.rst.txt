@@ -1,0 +1,6 @@
+﻿polaris.namelist.ingest
+=======================
+
+.. currentmodule:: polaris.namelist
+
+.. autofunction:: ingest

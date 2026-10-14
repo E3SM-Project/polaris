@@ -1,0 +1,708 @@
+(dev-api)=
+
+# API reference
+
+This page provides an auto-generated summary of the polaris API. For more
+details and examples, refer to the relevant sections in the main part of the
+documentation.
+
+## Components
+
+```{toctree}
+:maxdepth: 1
+:titlesonly: true
+
+e3sm/init/api
+mesh/api
+ocean/api
+seaice/api
+```
+
+## polaris framework
+
+### Command-line interface
+
+```{eval-rst}
+.. currentmodule:: polaris
+
+.. autosummary::
+   :toctree: generated/
+
+   __main__.main
+
+```
+
+#### list
+
+```{eval-rst}
+.. currentmodule:: polaris.list
+
+.. autosummary::
+   :toctree: generated/
+
+   list_cases
+   list_machines
+   list_suites
+```
+
+#### setup
+
+```{eval-rst}
+.. currentmodule:: polaris.setup
+
+.. autosummary::
+   :toctree: generated/
+
+   setup_tasks
+   setup_task
+```
+
+#### suite
+
+```{eval-rst}
+.. currentmodule:: polaris.suite
+
+.. autosummary::
+   :toctree: generated/
+
+   setup_suite
+```
+
+#### run
+
+```{eval-rst}
+.. currentmodule:: polaris.run
+
+.. autosummary::
+   :toctree: generated/
+
+   unpickle_suite
+   setup_config
+   load_dependencies
+   complete_step_run
+   serial.run_tasks
+   serial.run_single_step
+   results.TaskResult
+   results.write_suite_results
+
+```
+
+#### cache
+
+```{eval-rst}
+.. currentmodule:: polaris.cache
+
+.. autosummary::
+   :toctree: generated/
+
+   update_cache
+
+```
+
+#### mpas_to_yaml
+
+```{eval-rst}
+.. currentmodule:: polaris.yaml
+
+.. autosummary::
+   :toctree: generated/
+
+   main_mpas_to_yaml
+
+```
+
+
+### Base Classes
+
+#### Component
+
+```{eval-rst}
+.. currentmodule:: polaris
+
+.. autosummary::
+   :toctree: generated/
+
+   Component
+   Component.add_task
+   Component.add_step
+   Component.remove_step
+   Component.add_config
+   Component.get_or_create_shared_config
+   Component.configure
+   Component.has_model
+   Component.build_model
+   Component.check_model_version
+   Component.get_or_create_shared_step
+   Component.set_parallel_system
+   Component.get_available_resources
+   Component.run_parallel_command
+```
+
+#### Task
+
+```{eval-rst}
+.. currentmodule:: polaris
+
+.. autosummary::
+   :toctree: generated/
+
+   Task
+   Task.configure
+   Task.add_step
+   Task.remove_step
+   Task.set_shared_config
+```
+
+#### Step
+
+```{eval-rst}
+.. currentmodule:: polaris
+
+.. autosummary::
+   :toctree: generated/
+
+   Step
+   Step.set_resources
+   Step.constrain_resources
+   Step.setup
+   Step.runtime_setup
+   Step.run
+   Step.work_path
+   Step.add_input_file
+   Step.add_output_file
+   Step.add_property_check
+   Step.add_dependency
+   Step.validate_baselines
+   Step.check_properties
+   Step.set_shared_config
+```
+
+
+#### ModelStep
+
+```{eval-rst}
+.. currentmodule:: polaris
+
+.. autosummary::
+   :toctree: generated/
+
+   ModelStep
+   ModelStep.setup
+   ModelStep.set_model_resources
+   ModelStep.add_model_config_options
+   ModelStep.add_yaml_file
+   ModelStep.map_yaml_options
+   ModelStep.map_yaml_configs
+   ModelStep.map_yaml_to_namelist
+   ModelStep.add_namelist_file
+   ModelStep.add_streams_file
+   ModelStep.dynamic_model_config
+   ModelStep.runtime_setup
+   ModelStep.process_inputs_and_outputs
+   ModelStep.update_io_tasks_config
+   ModelStep.partition
+```
+
+### analysis
+
+#### analysis.manifest
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.manifest
+
+.. autosummary::
+   :toctree: generated/
+
+   Product
+   Product.to_dict
+   Product.from_dict
+
+   Manifest
+   Manifest.add
+   Manifest.write
+
+   range_key
+   read_fragment
+```
+
+#### analysis.publish
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.publish
+
+.. autosummary::
+   :toctree: generated/
+
+   publish
+   published_basename
+   write_merged_manifest
+```
+
+#### analysis.thumbnail
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.thumbnail
+
+.. autosummary::
+   :toctree: generated/
+
+   make_thumbnail
+   thumbnail_name
+   image_size
+```
+
+#### analysis.site
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.site
+
+.. autosummary::
+   :toctree: generated/
+
+   generate_site
+   gallery_filename
+```
+
+### attrs
+
+```{eval-rst}
+.. currentmodule:: polaris.attrs
+
+.. autosummary::
+   :toctree: generated/
+
+   set_attrs
+```
+
+### component_graph
+
+```{eval-rst}
+.. currentmodule:: polaris.component_graph
+
+.. autosummary::
+   :toctree: generated/
+
+   get_components_in_use
+   get_steps_by_component
+```
+
+### config
+
+```{eval-rst}
+.. currentmodule:: polaris.config
+
+.. autosummary::
+   :toctree: generated/
+
+   PolarisConfigParser
+   PolarisConfigParser.setup
+```
+
+### coriolis
+
+```{eval-rst}
+.. currentmodule:: polaris.coriolis
+
+.. autosummary::
+   :toctree: generated/
+
+   add_coriolis_to_dataset
+   add_beta_plane_coriolis
+   add_constant_coriolis
+   add_rotated_sphere_coriolis
+   add_spherical_coriolis
+   add_zero_coriolis
+```
+
+### io
+
+```{eval-rst}
+.. currentmodule:: polaris.io
+
+.. autosummary::
+   :toctree: generated/
+
+   download
+   symlink
+```
+
+### job
+```{eval-rst}
+.. currentmodule:: polaris.job
+
+.. autosummary::
+   :toctree: generated/
+
+   write_job_script
+```
+
+### logging
+
+```{eval-rst}
+.. currentmodule:: polaris.logging
+
+.. autosummary::
+   :toctree: generated/
+
+   log_method_call
+```
+
+### constants
+
+```{eval-rst}
+.. currentmodule:: polaris.constants
+
+.. autosummary::
+   :toctree: generated/
+
+   get_constant
+```
+
+#### constants.pcd
+
+```{eval-rst}
+.. currentmodule:: polaris.constants.pcd
+
+.. autosummary::
+   :toctree: generated/
+
+   get_constant
+   get_pcd_version
+   get_pcd_version_from_file
+   check_pcd_version_matches_branch
+```
+
+### mesh
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh
+
+.. autosummary::
+   :toctree: generated/
+
+   info.is_planar
+   info.is_spherical
+
+   planar.compute_planar_hex_nx_ny
+
+   connectivity.active_edge_masks
+   connectivity.count_active_edges
+   connectivity.has_active_vertex
+   connectivity.transport_link_mask
+   connectivity.connected_to_seeds
+   connectivity.seed_mask_from_points
+
+   vector.get_coordinate_matrix
+   vector.compute_edge_normal_vec
+
+   reconstruct.compute_reconstruction_weights
+   reconstruct.add_reconstruction_weights_to_dataset
+   reconstruct.tangential_reconstruction
+   reconstruct.cartesian_to_local_geographic
+   reconstruct.get_reconstruction_validate_vars
+
+   validate.MPAS_MESH_VALIDATE_VARS
+   validate.CELL_WIDTH_VALIDATE_VARS
+
+   spherical.SphericalBaseStep
+   spherical.SphericalBaseStep.setup
+   spherical.SphericalBaseStep.run
+   spherical.SphericalBaseStep.save_and_plot_cell_width
+
+   QuasiUniformSphericalMeshStep
+   QuasiUniformSphericalMeshStep.setup
+   QuasiUniformSphericalMeshStep.run
+   QuasiUniformSphericalMeshStep.build_cell_width_lat_lon
+   QuasiUniformSphericalMeshStep.make_jigsaw_mesh
+
+   IcosahedralMeshStep
+   IcosahedralMeshStep.setup
+   IcosahedralMeshStep.run
+   IcosahedralMeshStep.make_jigsaw_mesh
+   IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon
+   IcosahedralMeshStep.get_subdivisions
+   IcosahedralMeshStep.get_cell_width
+
+   spherical.recompute_angle_edge
+   spherical.calc_edge_normal_vector
+   spherical.calc_vector_east_north
+
+   spherical.quality.check_cell_polygon_quality
+```
+
+### Spherical Base Meshes
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.base
+
+.. autosummary::
+   :toctree: generated/
+
+   BASE_MESH_DEFINITIONS
+   BaseMeshDefinition
+   add_spherical_base_mesh_step
+   get_base_mesh_definition
+   get_base_mesh_step_names
+   get_base_mesh_steps
+   parse_mesh_filepath
+   rrs.RRSBaseMesh
+   rrs.RRSBaseMesh.build_cell_width_lat_lon
+   so.SOBaseMesh
+   so.SOBaseMesh.build_cell_width_lat_lon
+   so.background.build_southern_ocean_background
+```
+
+### Coastlines and Critical Transects
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.coastline
+
+.. autosummary::
+   :toctree: generated/
+
+   CONVENTIONS
+   COASTLINE_VALIDATE_VARS
+   build_coastline_datasets
+   build_coastline_dataset
+   signed_distance_from_ocean_mask
+   rasterize_critical_transects
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.critical_transects
+
+.. autosummary::
+   :toctree: generated/
+
+   CRITICAL_LAND_BLOCKAGE_TAG
+   CRITICAL_PASSAGE_TAG
+   CriticalTransects
+   load_default_critical_transects
+```
+
+### Unified Meshes
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. autosummary::
+   :toctree: generated/
+
+   UNIFIED_MESH_NAMES
+   LAT_LON_TARGET_GRID_RESOLUTIONS
+   RIVER_CONFIG_FILENAME
+   get_unified_mesh_config
+   get_unified_mesh_family
+   get_unified_background_cell_width
+   get_unified_finest_cell_width
+
+   UnifiedBaseMeshStep
+   UnifiedBaseMeshStep.setup
+   UnifiedBaseMeshStep.build_cell_width_lat_lon
+   UnifiedBaseMeshStep.make_jigsaw_mesh
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.unified.families
+
+.. autosummary::
+   :toctree: generated/
+
+   UnifiedMeshFamily
+   UnifiedMeshFamily.setup_sizing_field_step
+   UnifiedMeshFamily.build_ocean_background
+   default.DefaultUnifiedMeshFamily
+   default.build_ocean_background_from_mode
+   so_region.SORegionUnifiedMeshFamily
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.unified.effective_ocean
+
+.. autosummary::
+   :toctree: generated/
+
+   build_effective_ocean_mask
+   block_average
+   variable_box_average
+   widen_passages
+   flood_fill_from_seeds
+   hysteresis_grow
+```
+
+```{eval-rst}
+.. currentmodule:: polaris.mesh.spherical.unified.river
+
+.. autosummary::
+   :toctree: generated/
+
+   distance.haversine_distance
+   geojson.read_geojson
+   geojson.write_geojson
+```
+
+### model_step
+
+```{eval-rst}
+.. currentmodule:: polaris.model_step
+
+.. autosummary::
+   :toctree: generated/
+
+   make_graph_file
+```
+
+### build
+
+```{eval-rst}
+.. currentmodule:: polaris.build
+
+.. autosummary::
+   :toctree: generated/
+
+   mpas_ocean.build_mpas_ocean
+   mpas_ocean.make_build_script
+   omega.build_omega
+   omega.make_build_script
+   source_record.read_source_record
+```
+
+### mpas
+
+```{eval-rst}
+.. currentmodule:: polaris.mpas
+
+.. autosummary::
+   :toctree: generated/
+
+   area_for_field
+   cell_mask_to_edge_mask
+   time_index_from_xtime
+```
+
+### parallel
+
+```{eval-rst}
+.. currentmodule:: polaris.parallel
+
+.. autosummary::
+   :toctree: generated/
+
+   set_parallel_systems
+   check_mache_supports_placement
+```
+
+
+### namelist
+
+```{eval-rst}
+.. currentmodule:: polaris.namelist
+
+.. autosummary::
+   :toctree: generated/
+
+   parse_replacements
+   ingest
+   replace
+   write
+```
+
+
+### provenance
+
+```{eval-rst}
+.. currentmodule:: polaris.provenance
+
+.. autosummary::
+   :toctree: generated/
+
+   write
+   get_summary
+```
+
+
+### remap
+
+```{eval-rst}
+.. currentmodule:: polaris.remap
+
+.. autosummary::
+   :toctree: generated/
+
+   MappingFileStep
+   MappingFileStep.run
+```
+
+### resolution
+
+```{eval-rst}
+.. currentmodule:: polaris.resolution
+
+.. autosummary::
+   :toctree: generated/
+
+   resolution_to_string
+   resolution_to_string_and_units
+```
+
+### streams
+
+```{eval-rst}
+.. currentmodule:: polaris.streams
+
+.. autosummary::
+   :toctree: generated/
+
+   read
+   write
+   update_defaults
+   update_tree
+```
+
+### validate
+
+```{eval-rst}
+.. currentmodule:: polaris.validate
+
+.. autosummary::
+   :toctree: generated/
+
+   compare_variables
+   merge_diff_summary
+```
+
+### viz
+
+```{eval-rst}
+.. currentmodule:: polaris.viz
+
+.. autosummary::
+   :toctree: generated/
+
+   add_fitted_suptitle
+   determine_time_variable
+   get_projection
+   get_viz_defaults
+   mplstyle_context
+   plot_horiz_field
+   plot_global_lat_lon_field
+   plot_global_mpas_field
+```
+
+### yaml
+
+```{eval-rst}
+.. currentmodule:: polaris.yaml
+
+.. autosummary::
+   :toctree: generated/
+
+   PolarisYaml
+   PolarisYaml.read
+   PolarisYaml.update
+   PolarisYaml.write
+
+   mpas_namelist_and_streams_to_yaml
+   yaml_to_mpas_streams
+
+```

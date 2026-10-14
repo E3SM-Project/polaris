@@ -1,0 +1,46 @@
+﻿polaris.tasks.mesh.spherical.unified.coastline.ComputeCoastlineStep
+===================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.coastline
+
+.. autoclass:: ComputeCoastlineStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ComputeCoastlineStep.__init__
+      ~ComputeCoastlineStep.add_dependency
+      ~ComputeCoastlineStep.add_input_file
+      ~ComputeCoastlineStep.add_output_file
+      ~ComputeCoastlineStep.add_property_check
+      ~ComputeCoastlineStep.check_properties
+      ~ComputeCoastlineStep.constrain_resources
+      ~ComputeCoastlineStep.process_inputs_and_outputs
+      ~ComputeCoastlineStep.run
+      ~ComputeCoastlineStep.runtime_setup
+      ~ComputeCoastlineStep.set_resources
+      ~ComputeCoastlineStep.set_shared_config
+      ~ComputeCoastlineStep.setup
+      ~ComputeCoastlineStep.validate_baselines
+      ~ComputeCoastlineStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ComputeCoastlineStep.cores
+      ~ComputeCoastlineStep.gpus
+      ~ComputeCoastlineStep.may_span_nodes
+      ~ComputeCoastlineStep.min_cores
+      ~ComputeCoastlineStep.min_gpus
+   
+   

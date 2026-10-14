@@ -1,0 +1,6 @@
+﻿polaris.constants.pcd.get\_pcd\_version
+=======================================
+
+.. currentmodule:: polaris.constants.pcd
+
+.. autofunction:: get_pcd_version

@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.diagnostics.pseudothickness\_from\_ds
+============================================================
+
+.. currentmodule:: polaris.ocean.vertical.diagnostics
+
+.. autofunction:: pseudothickness_from_ds

@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.cull.get\_cull\_topo\_steps
+========================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull
+
+.. autofunction:: get_cull_topo_steps

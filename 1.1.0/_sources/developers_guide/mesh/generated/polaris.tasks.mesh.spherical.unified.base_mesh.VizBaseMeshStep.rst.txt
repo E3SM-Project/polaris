@@ -1,0 +1,46 @@
+﻿polaris.tasks.mesh.spherical.unified.base\_mesh.VizBaseMeshStep
+===============================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.base_mesh
+
+.. autoclass:: VizBaseMeshStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VizBaseMeshStep.__init__
+      ~VizBaseMeshStep.add_dependency
+      ~VizBaseMeshStep.add_input_file
+      ~VizBaseMeshStep.add_output_file
+      ~VizBaseMeshStep.add_property_check
+      ~VizBaseMeshStep.check_properties
+      ~VizBaseMeshStep.constrain_resources
+      ~VizBaseMeshStep.process_inputs_and_outputs
+      ~VizBaseMeshStep.run
+      ~VizBaseMeshStep.runtime_setup
+      ~VizBaseMeshStep.set_resources
+      ~VizBaseMeshStep.set_shared_config
+      ~VizBaseMeshStep.setup
+      ~VizBaseMeshStep.validate_baselines
+      ~VizBaseMeshStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VizBaseMeshStep.cores
+      ~VizBaseMeshStep.gpus
+      ~VizBaseMeshStep.may_span_nodes
+      ~VizBaseMeshStep.min_cores
+      ~VizBaseMeshStep.min_gpus
+   
+   

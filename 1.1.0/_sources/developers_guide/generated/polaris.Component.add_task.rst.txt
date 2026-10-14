@@ -1,0 +1,6 @@
+﻿polaris.Component.add\_task
+===========================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.add_task

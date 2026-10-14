@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.add\_init\_input\_file
+======================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.add_init_input_file

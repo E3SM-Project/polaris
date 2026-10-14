@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.critical\_transects.CRITICAL\_PASSAGE\_TAG
+=================================================================
+
+.. currentmodule:: polaris.mesh.spherical.critical_transects
+
+.. autodata:: CRITICAL_PASSAGE_TAG

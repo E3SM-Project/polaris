@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.families.UnifiedMeshFamily.setup\_sizing\_field\_step
+====================================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified.families
+
+.. automethod:: UnifiedMeshFamily.setup_sizing_field_step

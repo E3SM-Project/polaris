@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.feature\_masks.OceanFeatureMasksTask
+========================================================
+
+.. currentmodule:: polaris.tasks.ocean.feature_masks
+
+.. autoclass:: OceanFeatureMasksTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OceanFeatureMasksTask.__init__
+      ~OceanFeatureMasksTask.add_step
+      ~OceanFeatureMasksTask.configure
+      ~OceanFeatureMasksTask.remove_step
+      ~OceanFeatureMasksTask.set_shared_config
+   
+   
+
+   
+   
+   

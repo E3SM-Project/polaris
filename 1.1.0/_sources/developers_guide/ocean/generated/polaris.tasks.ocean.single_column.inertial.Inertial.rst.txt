@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.single\_column.inertial.Inertial
+====================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.inertial
+
+.. autoclass:: Inertial
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Inertial.__init__
+      ~Inertial.add_step
+      ~Inertial.configure
+      ~Inertial.remove_step
+      ~Inertial.set_shared_config
+   
+   
+
+   
+   
+   

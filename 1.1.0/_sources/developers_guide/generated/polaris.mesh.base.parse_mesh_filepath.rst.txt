@@ -1,0 +1,6 @@
+﻿polaris.mesh.base.parse\_mesh\_filepath
+=======================================
+
+.. currentmodule:: polaris.mesh.base
+
+.. autofunction:: parse_mesh_filepath

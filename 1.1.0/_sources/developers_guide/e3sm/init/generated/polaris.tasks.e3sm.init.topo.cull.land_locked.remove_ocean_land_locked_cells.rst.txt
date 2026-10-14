@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.cull.land\_locked.remove\_ocean\_land\_locked\_cells
+=================================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull.land_locked
+
+.. autofunction:: remove_ocean_land_locked_cells

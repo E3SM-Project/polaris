@@ -1,0 +1,6 @@
+﻿polaris.viz.mplstyle\_context
+=============================
+
+.. currentmodule:: polaris.viz
+
+.. autofunction:: mplstyle_context

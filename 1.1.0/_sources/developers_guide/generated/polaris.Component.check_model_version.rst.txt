@@ -1,0 +1,6 @@
+﻿polaris.Component.check\_model\_version
+=======================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.check_model_version

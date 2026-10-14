@@ -1,0 +1,27 @@
+﻿polaris.ocean.ice\_shelf.IceShelfTask
+=====================================
+
+.. currentmodule:: polaris.ocean.ice_shelf
+
+.. autoclass:: IceShelfTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IceShelfTask.__init__
+      ~IceShelfTask.add_step
+      ~IceShelfTask.configure
+      ~IceShelfTask.remove_step
+      ~IceShelfTask.set_shared_config
+      ~IceShelfTask.setup_ssh_adjustment_steps
+   
+   
+
+   
+   
+   

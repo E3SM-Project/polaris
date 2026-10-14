@@ -1,0 +1,6 @@
+﻿polaris.mesh.base.BASE\_MESH\_DEFINITIONS
+=========================================
+
+.. currentmodule:: polaris.mesh.base
+
+.. autodata:: BASE_MESH_DEFINITIONS

@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.diagnostics.get\_z\_mid\_and\_interface
+==============================================================
+
+.. currentmodule:: polaris.ocean.vertical.diagnostics
+
+.. autofunction:: get_z_mid_and_interface

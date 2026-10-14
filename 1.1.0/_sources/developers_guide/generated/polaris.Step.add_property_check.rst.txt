@@ -1,0 +1,6 @@
+﻿polaris.Step.add\_property\_check
+=================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Step.add_property_check

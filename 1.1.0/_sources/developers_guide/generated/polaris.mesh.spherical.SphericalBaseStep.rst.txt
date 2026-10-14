@@ -1,0 +1,47 @@
+﻿polaris.mesh.spherical.SphericalBaseStep
+========================================
+
+.. currentmodule:: polaris.mesh.spherical
+
+.. autoclass:: SphericalBaseStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SphericalBaseStep.__init__
+      ~SphericalBaseStep.add_dependency
+      ~SphericalBaseStep.add_input_file
+      ~SphericalBaseStep.add_output_file
+      ~SphericalBaseStep.add_property_check
+      ~SphericalBaseStep.check_properties
+      ~SphericalBaseStep.constrain_resources
+      ~SphericalBaseStep.process_inputs_and_outputs
+      ~SphericalBaseStep.run
+      ~SphericalBaseStep.runtime_setup
+      ~SphericalBaseStep.save_and_plot_cell_width
+      ~SphericalBaseStep.set_resources
+      ~SphericalBaseStep.set_shared_config
+      ~SphericalBaseStep.setup
+      ~SphericalBaseStep.validate_baselines
+      ~SphericalBaseStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SphericalBaseStep.cores
+      ~SphericalBaseStep.gpus
+      ~SphericalBaseStep.may_span_nodes
+      ~SphericalBaseStep.min_cores
+      ~SphericalBaseStep.min_gpus
+   
+   

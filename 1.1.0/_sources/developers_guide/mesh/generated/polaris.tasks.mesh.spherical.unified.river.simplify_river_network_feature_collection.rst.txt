@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.river.simplify\_river\_network\_feature\_collection
+========================================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.river
+
+.. autofunction:: simplify_river_network_feature_collection

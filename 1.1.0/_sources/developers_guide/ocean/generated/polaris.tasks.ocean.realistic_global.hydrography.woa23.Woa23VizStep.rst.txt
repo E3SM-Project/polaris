@@ -1,0 +1,46 @@
+﻿polaris.tasks.ocean.realistic\_global.hydrography.woa23.Woa23VizStep
+====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.hydrography.woa23
+
+.. autoclass:: Woa23VizStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Woa23VizStep.__init__
+      ~Woa23VizStep.add_dependency
+      ~Woa23VizStep.add_input_file
+      ~Woa23VizStep.add_output_file
+      ~Woa23VizStep.add_property_check
+      ~Woa23VizStep.check_properties
+      ~Woa23VizStep.constrain_resources
+      ~Woa23VizStep.process_inputs_and_outputs
+      ~Woa23VizStep.run
+      ~Woa23VizStep.runtime_setup
+      ~Woa23VizStep.set_resources
+      ~Woa23VizStep.set_shared_config
+      ~Woa23VizStep.setup
+      ~Woa23VizStep.validate_baselines
+      ~Woa23VizStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Woa23VizStep.cores
+      ~Woa23VizStep.gpus
+      ~Woa23VizStep.may_span_nodes
+      ~Woa23VizStep.min_cores
+      ~Woa23VizStep.min_gpus
+   
+   

@@ -1,0 +1,49 @@
+﻿polaris.mesh.spherical.unified.UnifiedBaseMeshStep
+==================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. autoclass:: UnifiedBaseMeshStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UnifiedBaseMeshStep.__init__
+      ~UnifiedBaseMeshStep.add_dependency
+      ~UnifiedBaseMeshStep.add_input_file
+      ~UnifiedBaseMeshStep.add_output_file
+      ~UnifiedBaseMeshStep.add_property_check
+      ~UnifiedBaseMeshStep.build_cell_width_lat_lon
+      ~UnifiedBaseMeshStep.check_properties
+      ~UnifiedBaseMeshStep.constrain_resources
+      ~UnifiedBaseMeshStep.make_jigsaw_mesh
+      ~UnifiedBaseMeshStep.process_inputs_and_outputs
+      ~UnifiedBaseMeshStep.run
+      ~UnifiedBaseMeshStep.runtime_setup
+      ~UnifiedBaseMeshStep.save_and_plot_cell_width
+      ~UnifiedBaseMeshStep.set_resources
+      ~UnifiedBaseMeshStep.set_shared_config
+      ~UnifiedBaseMeshStep.setup
+      ~UnifiedBaseMeshStep.validate_baselines
+      ~UnifiedBaseMeshStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UnifiedBaseMeshStep.cores
+      ~UnifiedBaseMeshStep.gpus
+      ~UnifiedBaseMeshStep.may_span_nodes
+      ~UnifiedBaseMeshStep.min_cores
+      ~UnifiedBaseMeshStep.min_gpus
+   
+   

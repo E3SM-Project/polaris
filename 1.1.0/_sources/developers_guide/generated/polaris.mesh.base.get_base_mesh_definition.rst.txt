@@ -1,0 +1,6 @@
+﻿polaris.mesh.base.get\_base\_mesh\_definition
+=============================================
+
+.. currentmodule:: polaris.mesh.base
+
+.. autofunction:: get_base_mesh_definition

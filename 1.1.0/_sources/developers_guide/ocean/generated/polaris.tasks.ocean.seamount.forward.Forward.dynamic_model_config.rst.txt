@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.seamount.forward.Forward.dynamic\_model\_config
+===================================================================
+
+.. currentmodule:: polaris.tasks.ocean.seamount.forward
+
+.. automethod:: Forward.dynamic_model_config

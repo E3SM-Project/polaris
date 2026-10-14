@@ -1,0 +1,6 @@
+﻿polaris.io.download
+===================
+
+.. currentmodule:: polaris.io
+
+.. autofunction:: download

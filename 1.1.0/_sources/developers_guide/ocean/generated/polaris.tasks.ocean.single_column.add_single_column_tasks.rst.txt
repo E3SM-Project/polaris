@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.single\_column.add\_single\_column\_tasks
+=============================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column
+
+.. autofunction:: add_single_column_tasks

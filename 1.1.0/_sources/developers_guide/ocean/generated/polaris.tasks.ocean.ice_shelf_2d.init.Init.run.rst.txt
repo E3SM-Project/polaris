@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.ice\_shelf\_2d.init.Init.run
+================================================
+
+.. currentmodule:: polaris.tasks.ocean.ice_shelf_2d.init
+
+.. automethod:: Init.run

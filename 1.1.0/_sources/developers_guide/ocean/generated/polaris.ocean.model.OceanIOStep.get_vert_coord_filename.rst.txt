@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.get\_vert\_coord\_filename
+==========================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.get_vert_coord_filename

@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.get\_unified\_mesh\_family
+=========================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. autofunction:: get_unified_mesh_family

@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.days\_per\_year
+===================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. autofunction:: days_per_year

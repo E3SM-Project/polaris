@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.analysis.sim\_files.OmegaConfig.stream\_filename
+====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.sim_files
+
+.. automethod:: OmegaConfig.stream_filename

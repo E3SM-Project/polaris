@@ -1,0 +1,6 @@
+﻿polaris.Step.constrain\_resources
+=================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Step.constrain_resources

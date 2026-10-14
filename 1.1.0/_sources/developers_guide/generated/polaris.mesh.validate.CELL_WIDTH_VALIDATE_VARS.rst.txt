@@ -1,0 +1,6 @@
+﻿polaris.mesh.validate.CELL\_WIDTH\_VALIDATE\_VARS
+=================================================
+
+.. currentmodule:: polaris.mesh.validate
+
+.. autodata:: CELL_WIDTH_VALIDATE_VARS

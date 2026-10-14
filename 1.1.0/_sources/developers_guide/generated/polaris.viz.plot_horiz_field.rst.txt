@@ -1,0 +1,6 @@
+﻿polaris.viz.plot\_horiz\_field
+==============================
+
+.. currentmodule:: polaris.viz
+
+.. autofunction:: plot_horiz_field

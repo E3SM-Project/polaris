@@ -1,0 +1,6 @@
+﻿polaris.yaml.yaml\_to\_mpas\_streams
+====================================
+
+.. currentmodule:: polaris.yaml
+
+.. autofunction:: yaml_to_mpas_streams

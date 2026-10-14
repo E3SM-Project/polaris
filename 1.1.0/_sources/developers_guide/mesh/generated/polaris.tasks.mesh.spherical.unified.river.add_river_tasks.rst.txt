@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.river.add\_river\_tasks
+============================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.river
+
+.. autofunction:: add_river_tasks

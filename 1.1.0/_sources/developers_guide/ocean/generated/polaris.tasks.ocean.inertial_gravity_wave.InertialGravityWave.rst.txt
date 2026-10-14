@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.inertial\_gravity\_wave.InertialGravityWave
+===============================================================
+
+.. currentmodule:: polaris.tasks.ocean.inertial_gravity_wave
+
+.. autoclass:: InertialGravityWave
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~InertialGravityWave.__init__
+      ~InertialGravityWave.add_step
+      ~InertialGravityWave.configure
+      ~InertialGravityWave.remove_step
+      ~InertialGravityWave.set_shared_config
+   
+   
+
+   
+   
+   

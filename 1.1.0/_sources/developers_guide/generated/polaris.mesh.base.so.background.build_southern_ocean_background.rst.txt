@@ -1,0 +1,6 @@
+﻿polaris.mesh.base.so.background.build\_southern\_ocean\_background
+==================================================================
+
+.. currentmodule:: polaris.mesh.base.so.background
+
+.. autofunction:: build_southern_ocean_background

@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.river.build\_river\_network\_dataset
+=========================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.river
+
+.. autofunction:: build_river_network_dataset

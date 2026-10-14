@@ -1,0 +1,46 @@
+﻿polaris.tasks.mesh.spherical.unified.coastline.RemapCoastlineStep
+=================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.coastline
+
+.. autoclass:: RemapCoastlineStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RemapCoastlineStep.__init__
+      ~RemapCoastlineStep.add_dependency
+      ~RemapCoastlineStep.add_input_file
+      ~RemapCoastlineStep.add_output_file
+      ~RemapCoastlineStep.add_property_check
+      ~RemapCoastlineStep.check_properties
+      ~RemapCoastlineStep.constrain_resources
+      ~RemapCoastlineStep.process_inputs_and_outputs
+      ~RemapCoastlineStep.run
+      ~RemapCoastlineStep.runtime_setup
+      ~RemapCoastlineStep.set_resources
+      ~RemapCoastlineStep.set_shared_config
+      ~RemapCoastlineStep.setup
+      ~RemapCoastlineStep.validate_baselines
+      ~RemapCoastlineStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RemapCoastlineStep.cores
+      ~RemapCoastlineStep.gpus
+      ~RemapCoastlineStep.may_span_nodes
+      ~RemapCoastlineStep.min_cores
+      ~RemapCoastlineStep.min_gpus
+   
+   

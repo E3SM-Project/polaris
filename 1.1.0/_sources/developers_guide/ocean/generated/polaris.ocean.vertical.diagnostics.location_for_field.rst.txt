@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.diagnostics.location\_for\_field
+=======================================================
+
+.. currentmodule:: polaris.ocean.vertical.diagnostics
+
+.. autofunction:: location_for_field

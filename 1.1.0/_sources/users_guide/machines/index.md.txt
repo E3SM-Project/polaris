@@ -1,0 +1,271 @@
+(machines)=
+
+# Machines
+
+Polaris  attempts to be aware of the capabilities of the machine it is running
+on.  This is a particular advantage for so-called "supported" machines with a
+config file defined for them in the `polaris` package.  But even for "unknown"
+machines, it is not difficult to set a few config options in your user config
+file to describe your machine.  Then, polaris can use this data to make sure
+tasks are configured in a way that is appropriate for your machine.
+
+## config options
+
+The config options typically defined for a machine are:
+
+```cfg
+# The paths section describes paths that are used within the ocean core test
+# cases.
+[paths]
+
+# A shared root directory where MPAS standalone data can be found
+database_root = /lcrc/group/e3sm/public_html/mpas_standalonedata
+
+# the path where deployed Polaris environments are located
+# been created
+polaris_envs = /lcrc/soft/climate/polaris/chrysalis/base
+
+
+# Options related to deploying Polaris environments on supported
+# machines
+[deploy]
+
+# the compiler set to use for system libraries and MPAS builds
+compiler = intel
+
+# the compiler to use to build software (e.g. ESMF and MOAB) with spack
+software_compiler = intel
+
+# the system MPI library to use for intel compiler
+mpi_intel = openmpi
+
+# the system MPI library to use for gnu compiler
+mpi_gnu = openmpi
+
+# the system MPI library to use for intel-classic compiler
+mpi_intel_classic = openmpi
+
+# the base path for spack environments used by polaris
+spack = /lcrc/soft/climate/polaris/chrysalis/spack
+
+# whether to use the same modules for hdf5, netcdf-c, netcdf-fortran and
+# pnetcdf as E3SM (spack modules are used otherwise)
+use_e3sm_hdf5_netcdf = True
+```
+
+The `paths` section provides local paths to the root of the "databases"
+(local caches) of data files for each MPAS core.  These are generally in a
+shared location for the project to save space.  Similarly, `polaris_envs`
+is a location where shared deployed environments will be created for polaris
+releases for users to share.
+
+The `deploy` section is used to help polaris create development and
+release environments and activation scripts.  It says which compiler set
+is the default, which MPI library is the default for each supported compiler,
+and where libraries built with system MPI will be placed.
+
+Some config options come from a package, [mache](https://github.com/E3SM-Project/mache/)
+that is a dependency of polaris.  Mache is designed to detect and
+provide a machine-specific configuration for E3SM supported machines.  Typical
+config options provided by mache that are relevant to polaris are:
+
+```cfg
+# The parallel section describes options related to running jobs in parallel
+[parallel]
+
+# parallel system of execution: slurm, pbs or single_node
+system = slurm
+
+# whether to use mpirun or srun to run a task
+parallel_executable = srun
+
+# cores per node on the machine
+cores_per_node = 128
+
+# account for running diagnostics jobs
+account = e3sm
+
+# available partition(s) (default is chosen based on the job size)
+partitions = regular, debug
+
+# available quality of service (default is chosen based on the job size)
+qos = regular, debug, premium
+
+# available constraint(s) (default is the first)
+constraints = cpu
+```
+
+The `parallel` section defined properties of the machine, to do with parallel
+runs. Currently, machine files are defined for high-performance computing (HPC)
+machines with multiple nodes.  These machines all use {ref}`slurm` to submit
+parallel jobs.  They also all use the `srun` command to run individual
+tasks within a job.  The number of `cores_per_node` vary between machines,
+as does the account that typical polaris users will have access to on the
+machine.
+
+(slurm)=
+
+## Slurm job queueing
+
+Most HPC systems now use the
+[slurm workload manager](https://slurm.schedmd.com/documentation.html).
+Here are some basic commands:
+
+```bash
+salloc -N 1 -t 2:0:0 # interactive job (see machine specific versions below)
+sbatch <script> # submit a script
+squeue # show all jobs
+squeue -u $USER # show only your jobs
+scancel jobID # cancel a job
+```
+
+(pbs)=
+
+## PBS job queueing
+
+A few HPC systems use
+[PBS Pro](https://2021.help.altair.com/2021.1.2/PBS%20Professional/PBSUserGuide2021.1.2.pdf).
+Here are some basic commands:
+
+```bash
+qsub -I -q debug -l select=1 -l walltime=00:30:00  # interactive job (see machine specific versions below)
+qsub <script> # submit a script
+qstat # show all jobs
+qstat -u $USER # show only your jobs
+qcancel <jobid> # cancel a job
+```
+
+(scheduler-targets)=
+
+## Requesting a partition, QOS or queue
+
+By default, Polaris lets mache choose which scheduler target to submit to
+based on how many nodes the job needs.  If you want a specific one, set it in
+the `job` section of your user config file:
+
+```cfg
+[job]
+
+# wall-clock time
+wall_time = 00:20:00
+
+# on a Slurm machine
+partition = debug
+qos = debug
+
+# on a PBS machine
+queue = debug
+```
+
+The values you can choose from are the `partitions`, `qos`, `queues` and
+`constraints` lists in the machine's `parallel` section, which are shown on
+each machine's page below.  Mache also knows the node limits and the maximum
+wall-clock time of each target.
+
+Machines hang the same concept off different axes, so if your intent is
+machine independent -- "use the debug target" -- name it once with
+`scheduler_target` and let mache work out which axis this machine uses:
+
+```cfg
+[job]
+
+wall_time = 00:20:00
+scheduler_target = debug
+```
+
+That selects the `debug` partition on Chrysalis, the `debug` QOS on Frontier
+and Perlmutter, and the `debug` queue on Aurora.  `partition`, `qos` and
+`queue` win on the axis they name, so you can set a broad `scheduler_target`
+and still pin one axis.
+
+A request is honored only if the machine can satisfy it.  If the target does
+not exist on that machine, if it does not allow the number of nodes the job
+needs, or if its maximum wall-clock time is shorter than `wall_time`, Polaris
+falls back to the machine default and prints a warning saying which of those
+was the problem.  A request on an axis the machine does not use at all -- a
+`qos` on a machine that defines none, say -- is not a denied request; it is
+simply ignored, so setting all of `partition`, `qos` and `queue` for
+portability is harmless.  For example, asking for `qos = debug` on Perlmutter
+with `wall_time = 02:00:00` gives:
+
+```none
+Warning: the "debug" qos allows a maximum wall clock of 00:30:00 but 02:00:00 was requested
+```
+
+Even without a request, `wall_time` is capped at the maximum the selected
+target allows, so a job never asks for more time than the scheduler would
+accept.  The partition, QOS, queue and constraint that were actually used are
+recorded in the `provenance` file in the work directory.
+
+(supported-machines)=
+
+## Supported Machines
+
+On each supported machine, users will be able to source a script to activate
+the appropriate polaris environment and compilers.  Most machines support 2
+compilers, each with one or more variants of MPI and the required NetCDF,
+pNetCDF and SCORPIO libraries.  These scripts will first load the conda
+environment for polaris, then it will load modules and set environment
+variables that will allow you to build and run the MPAS model.
+
+A table with the full list of supported machines, compilers, MPI variants,
+and MPAS-model build commands is found in {ref}`dev-supported-machines` in
+the Developer's Guide.  In the links below, we list only the commands needed
+to use the default MPI variant for each compiler on each machine.
+
+```{toctree}
+:titlesonly: true
+
+aurora
+chrysalis
+frontier
+perlmutter
+```
+
+(other-machines)=
+
+## Other Machines
+
+If you are working on an "unknown" machine, you will need to define some of
+the config options that would normally be in a machine's config file yourself
+in your user config file:
+
+```cfg
+# This file contains some common config options you might want to set
+
+# The paths section describes paths to databases and shared polaris environments
+[paths]
+
+# A root directory where MPAS standalone data can be found
+database_root = /home/xylar/data/mpas/mpas_standalonedata
+
+# The parallel section describes options related to running tasks in parallel
+[parallel]
+
+# parallel system of execution: slurm or single_node
+system = single_node
+
+# whether to use mpirun or srun to run the model
+parallel_executable = mpirun -host localhost
+
+# cores per node on the machine, detected automatically by default
+# cores_per_node = 4
+```
+
+The paths for the MPAS core "databases" can be any emtpy path to begin with.
+If the path doesn't exist, polaris will create it.
+
+If you're not working on an HPC machine, you will probably not have multiple
+nodes or {ref}`slurm`.  You will probably install
+[MPICH](https://www.mpich.org/) or [OpenMPI](https://www.open-mpi.org/),
+typically through your deployed pixi environment. In this case, the
+`parallel_executable` is usually `mpirun`.
+
+To deploy Polaris for your repo checkout, run `./deploy.py` from the repo
+root. For deployment details and options, see:
+
+- [mache deploy user guide](https://docs.e3sm.org/mache/main/users_guide/deploy.html)
+- [mache deploy quick start](https://docs.e3sm.org/mache/main/users_guide/quick_start.html)
+
+For unsupported machines, you may need to add or customize machine
+configuration before deployment can fully configure compiler/MPI settings.

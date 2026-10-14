@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.customizable\_viz.VizTransect.runtime\_setup
+================================================================
+
+.. currentmodule:: polaris.tasks.ocean.customizable_viz
+
+.. automethod:: VizTransect.runtime_setup

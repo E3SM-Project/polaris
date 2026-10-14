@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanModelStep.map\_yaml\_options
+=====================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanModelStep.map_yaml_options

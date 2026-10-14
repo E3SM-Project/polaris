@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanModelStep.compute\_cell\_count
+=======================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanModelStep.compute_cell_count

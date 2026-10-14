@@ -1,0 +1,46 @@
+﻿polaris.tasks.e3sm.init.topo.cull.CullMeshStep
+==============================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull
+
+.. autoclass:: CullMeshStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CullMeshStep.__init__
+      ~CullMeshStep.add_dependency
+      ~CullMeshStep.add_input_file
+      ~CullMeshStep.add_output_file
+      ~CullMeshStep.add_property_check
+      ~CullMeshStep.check_properties
+      ~CullMeshStep.constrain_resources
+      ~CullMeshStep.process_inputs_and_outputs
+      ~CullMeshStep.run
+      ~CullMeshStep.runtime_setup
+      ~CullMeshStep.set_resources
+      ~CullMeshStep.set_shared_config
+      ~CullMeshStep.setup
+      ~CullMeshStep.validate_baselines
+      ~CullMeshStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CullMeshStep.cores
+      ~CullMeshStep.gpus
+      ~CullMeshStep.may_span_nodes
+      ~CullMeshStep.min_cores
+      ~CullMeshStep.min_gpus
+   
+   

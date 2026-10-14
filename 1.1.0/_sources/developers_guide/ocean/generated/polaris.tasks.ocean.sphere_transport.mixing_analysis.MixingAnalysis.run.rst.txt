@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.sphere\_transport.mixing\_analysis.MixingAnalysis.run
+=========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.sphere_transport.mixing_analysis
+
+.. automethod:: MixingAnalysis.run

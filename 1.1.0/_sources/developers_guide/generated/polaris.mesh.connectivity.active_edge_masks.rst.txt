@@ -1,0 +1,6 @@
+﻿polaris.mesh.connectivity.active\_edge\_masks
+=============================================
+
+.. currentmodule:: polaris.mesh.connectivity
+
+.. autofunction:: active_edge_masks

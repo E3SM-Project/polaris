@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.UnifiedBaseMeshStep.make\_jigsaw\_mesh
+=====================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. automethod:: UnifiedBaseMeshStep.make_jigsaw_mesh

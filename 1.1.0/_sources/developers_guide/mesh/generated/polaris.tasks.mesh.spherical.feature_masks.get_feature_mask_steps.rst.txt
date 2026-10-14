@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.feature\_masks.get\_feature\_mask\_steps
+=====================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks
+
+.. autofunction:: get_feature_mask_steps

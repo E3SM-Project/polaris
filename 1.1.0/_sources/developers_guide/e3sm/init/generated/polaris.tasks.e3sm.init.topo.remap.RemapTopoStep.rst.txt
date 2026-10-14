@@ -1,0 +1,47 @@
+﻿polaris.tasks.e3sm.init.topo.remap.RemapTopoStep
+================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.remap
+
+.. autoclass:: RemapTopoStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RemapTopoStep.__init__
+      ~RemapTopoStep.add_dependency
+      ~RemapTopoStep.add_input_file
+      ~RemapTopoStep.add_output_file
+      ~RemapTopoStep.add_property_check
+      ~RemapTopoStep.check_properties
+      ~RemapTopoStep.constrain_resources
+      ~RemapTopoStep.define_smoothing
+      ~RemapTopoStep.process_inputs_and_outputs
+      ~RemapTopoStep.run
+      ~RemapTopoStep.runtime_setup
+      ~RemapTopoStep.set_resources
+      ~RemapTopoStep.set_shared_config
+      ~RemapTopoStep.setup
+      ~RemapTopoStep.validate_baselines
+      ~RemapTopoStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RemapTopoStep.cores
+      ~RemapTopoStep.gpus
+      ~RemapTopoStep.may_span_nodes
+      ~RemapTopoStep.min_cores
+      ~RemapTopoStep.min_gpus
+   
+   

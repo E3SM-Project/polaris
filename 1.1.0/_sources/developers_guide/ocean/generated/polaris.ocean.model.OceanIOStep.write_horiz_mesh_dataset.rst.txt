@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.write\_horiz\_mesh\_dataset
+===========================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.write_horiz_mesh_dataset

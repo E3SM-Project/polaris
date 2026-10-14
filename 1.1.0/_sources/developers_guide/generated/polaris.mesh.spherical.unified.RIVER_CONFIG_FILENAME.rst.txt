@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.RIVER\_CONFIG\_FILENAME
+======================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. autodata:: RIVER_CONFIG_FILENAME

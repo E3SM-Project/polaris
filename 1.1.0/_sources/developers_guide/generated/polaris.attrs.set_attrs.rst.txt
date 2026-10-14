@@ -1,0 +1,6 @@
+﻿polaris.attrs.set\_attrs
+========================
+
+.. currentmodule:: polaris.attrs
+
+.. autofunction:: set_attrs

@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.effective\_ocean.build\_effective\_ocean\_mask
+=============================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified.effective_ocean
+
+.. autofunction:: build_effective_ocean_mask

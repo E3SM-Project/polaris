@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.add\_produced\_file
+===================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.add_produced_file

@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.pstar.init\_pstar\_vertical\_coord
+=========================================================
+
+.. currentmodule:: polaris.ocean.vertical.pstar
+
+.. autofunction:: init_pstar_vertical_coord

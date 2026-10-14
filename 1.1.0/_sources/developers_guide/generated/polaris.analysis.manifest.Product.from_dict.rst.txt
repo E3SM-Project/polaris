@@ -1,0 +1,6 @@
+﻿polaris.analysis.manifest.Product.from\_dict
+============================================
+
+.. currentmodule:: polaris.analysis.manifest
+
+.. automethod:: Product.from_dict

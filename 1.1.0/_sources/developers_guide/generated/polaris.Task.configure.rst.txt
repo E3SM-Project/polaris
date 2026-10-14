@@ -1,0 +1,6 @@
+﻿polaris.Task.configure
+======================
+
+.. currentmodule:: polaris
+
+.. automethod:: Task.configure

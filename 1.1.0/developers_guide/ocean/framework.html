@@ -1,0 +1,1289 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ocean framework</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="convert_mpaso_ic_to_omega.py" href="convert_mpaso_ic_to_omega.html" />
+    <link rel="prev" title="single_column" href="tasks/single_column.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Ocean component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ocean framework</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#model">Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#input-and-output-from-an-e3sm-component">Input and output from an E3SM component</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-an-e3sm-component">Running an E3SM component</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setting-time-intervals-in-model-config-options">Setting time intervals in model config options</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#model-config-options-and-streams">Model config options and streams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#equations-of-state-eos">Equations of state (EOS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quasi-uniform-and-icosahedral-spherical-meshes">Quasi-uniform and Icosahedral Spherical Meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#convergence-tests">Convergence Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ice-shelf-tasks">Ice Shelf Tasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vertical-coordinate">Vertical coordinate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#initial-state">Initial state</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analysis-of-completed-simulations">Analysis of completed simulations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#locating-the-simulation-s-files">Locating the simulation’s files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#naming-the-models-global-statistics">Naming the models’ global statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#steps">Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#range-keyed-steps">Range-keyed steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#publishing-what-the-steps-made">Publishing what the steps made</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="convert_mpaso_ic_to_omega.html">convert_mpaso_ic_to_omega.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/index.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils/index.html">Ocean utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Ocean component</a></li>
+      <li class="breadcrumb-item active">Ocean framework</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/ocean/framework.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-framework">
+<span id="dev-ocean-framework"></span><h1>Ocean framework<a class="headerlink" href="#ocean-framework" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component contains an ever expanding set of shared framework code.</p>
+<section id="model">
+<span id="dev-ocean-model"></span><h2>Model<a class="headerlink" href="#model" title="Link to this heading"></a></h2>
+<section id="input-and-output-from-an-e3sm-component">
+<h3>Input and output from an E3SM component<a class="headerlink" href="#input-and-output-from-an-e3sm-component" title="Link to this heading"></a></h3>
+<p>Steps that write input files for or read output files from either Omega or
+MPAS-Ocean should descend from the <a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep" title="polaris.ocean.model.OceanIOStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep</span></code></a>
+class.  Methods in this class facilitate mapping between MPAS-Ocean variable
+names (used in Polaris) and Omega variable names for tasks that will run Omega.</p>
+<p>To map a dataset between MPAS-Ocean variable names and those appropriate for
+the model being run, use the methods
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_to_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_to_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_to_native_model_vars"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.map_to_native_model_vars()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.map_from_native_model_vars.html#polaris.ocean.model.OceanIOStep.map_from_native_model_vars" title="polaris.ocean.model.OceanIOStep.map_from_native_model_vars"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.map_from_native_model_vars()</span></code></a>. These
+methods should be called in Polaris immediatly before writing out input files
+and immediately after opening in output files, respectively. To make opening
+and writing easier, we also provide
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.write_model_dataset.html#polaris.ocean.model.OceanIOStep.write_model_dataset" title="polaris.ocean.model.OceanIOStep.write_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.write_model_dataset()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.open_model_dataset()</span></code></a>, which take
+care of of the mapping in addition to writing and opening a dataset,
+respectively. The <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code> method also supports reconstructing
+normal vector components to their zonal and meridional equivalents by passing
+a list of variable names, along with a mesh file carrying the least-squares
+reconstruction weights. This is for Omega, which has no vector reconstruction
+of its own; a variable whose components are already in the dataset is skipped,
+so nothing is reconstructed for MPAS-Ocean, which writes them itself. On
+planar meshes, the “zonal” and “meridional” components are the x and y
+components, respectively, following the convention MPAS-Ocean uses for its own
+reconstruction.
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset.html#polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset" title="polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.write_horiz_mesh_dataset()</span></code></a> is what
+puts the weights in Omega’s mesh file: a spherical mesh gets them from the
+step that built it, and a planar mesh, built in the same step that writes it,
+has them computed there and then. In addition,
+<code class="docutils literal notranslate"><span class="pre">write_model_dataset()</span></code> derives <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> from the ocean state when it
+is not present in the dataset. This provides a way of using the same initial
+conditions for MPAS-Ocean and Omega when the geometric thickness is the state
+variable for MPAS-Ocean and the pseudo-thickness is the state variable for
+Omega. Likewise, it converts <code class="docutils literal notranslate"><span class="pre">vertVelocityTop</span></code> and <code class="docutils literal notranslate"><span class="pre">vertAleTransportTop</span></code> to
+<code class="docutils literal notranslate"><span class="pre">VerticalPseudoVelocity</span></code> and <code class="docutils literal notranslate"><span class="pre">TotalVerticalPseudoVelocity</span></code> with
+<a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds.html#polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds" title="polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds()</span></code></a>,
+computing <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code> from the state if it is not in the dataset.
+Going the other way, <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code> adds <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> to
+Omega output from <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>. It derives nothing that
+needs an equation of state, so a step that needs <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code> or
+<code class="docutils literal notranslate"><span class="pre">vertVelocityTop</span></code> from Omega output that lacks them computes them itself with
+<a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.spec_vol_from_ds.html#polaris.ocean.vertical.diagnostics.spec_vol_from_ds" title="polaris.ocean.vertical.diagnostics.spec_vol_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.spec_vol_from_ds()</span></code></a> or
+<a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds.html#polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds" title="polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds()</span></code></a>.
+<code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code> can also convert <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code> to a requested
+convention, so that analysis and visualization do not have to care which model
+ran (see <a class="reference internal" href="#dev-ocean-framework-tracer-conventions-on-read"><span class="std std-ref">Tracer conventions on read</span></a>). Similarly,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.write_initial_state_dataset()</span></code>
+ensures that <code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> is present in initial conditions written for
+Omega, adding a spatially uniform field from the
+<code class="docutils literal notranslate"><span class="pre">vertical_grid:surface_pressure</span></code> config option (zero by default) if it is not
+already set.  <code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> is a relative (gauge) surface pressure that is
+required by Omega but not by MPAS-Ocean, so it is added only when the model is
+Omega.  It is an Omega-only field with no MPAS-Ocean equivalent (MPAS-Ocean’s
+<code class="docutils literal notranslate"><span class="pre">surfacePressure</span></code> is an absolute pressure supplied by the coupler), so it is
+deliberately not included in the
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml">mpaso_to_omega.yaml</a>
+variable map and keeps its Omega name.  Tasks that prescribe a spatially
+varying surface pressure should set <code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> themselves, in which case
+it is left as-is.  As new variables that do have an MPAS-Ocean equivalent are
+added to Omega, they should be added to the <code class="docutils literal notranslate"><span class="pre">variables</span></code> section in the
+<code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> file.</p>
+<p>For standalone conversion of an existing MPAS-Ocean initial-condition file to
+Omega format outside a Polaris task, see
+<a class="reference internal" href="convert_mpaso_ic_to_omega.html#dev-ocean-convert-mpaso-ic-to-omega"><span class="std std-ref">convert_mpaso_ic_to_omega.py</span></a>.</p>
+<section id="canonical-staged-files">
+<h4>Canonical staged files<a class="headerlink" href="#canonical-staged-files" title="Link to this heading"></a></h4>
+<p>The three files that flow through the ocean pipeline — horizontal mesh,
+vertical coordinate, and initial state — have canonical local filenames
+defined in the <code class="docutils literal notranslate"><span class="pre">[ocean_staged_files]</span></code> config section (in
+<code class="docutils literal notranslate"><span class="pre">polaris/ocean/ocean.cfg</span></code>):</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[ocean_staged_files]</span>
+<span class="na">horiz_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh.nc</span>
+<span class="na">vert_coord_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">vert_coord.nc</span>
+<span class="na">init_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">init.nc</span>
+</pre></div>
+</div>
+<p>These filenames are shared by all pipeline stages: init steps write them as
+outputs, model steps link them as inputs, and viz/analysis steps also link
+from upstream using the same names.</p>
+<p>Both <a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep" title="polaris.ocean.model.OceanIOStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code></a> inherit these conveniences from
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelFilesMixin.html#polaris.ocean.model.OceanModelFilesMixin" title="polaris.ocean.model.OceanModelFilesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelFilesMixin</span></code></a>:</p>
+<ul class="simple">
+<li><p><strong>Getters</strong> — <code class="docutils literal notranslate"><span class="pre">get_horiz_mesh_filename()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_vert_coord_filename()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">get_init_filename()</span></code> — read the current values from config.</p></li>
+<li><p><strong>Input-file registration</strong> — <code class="docutils literal notranslate"><span class="pre">add_horiz_mesh_input_file(**kwargs)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">add_vert_coord_input_file(filename=None,</span> <span class="pre">**kwargs)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">add_init_input_file(**kwargs)</span></code> — all safe to call from <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>.
+The model check is deferred to <code class="docutils literal notranslate"><span class="pre">process_inputs_and_outputs()</span></code>, so no
+<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">model</span> <span class="pre">==</span> <span class="pre">'omega':</span></code> guards are needed in <code class="docutils literal notranslate"><span class="pre">__init__()</span></code>.
+<code class="docutils literal notranslate"><span class="pre">add_vert_coord_input_file()</span></code> is a no-op for MPAS-Ocean when the default
+placeholder is used.  When an explicit <code class="docutils literal notranslate"><span class="pre">filename=</span></code> is given (for
+per-resolution files such as <code class="docutils literal notranslate"><span class="pre">'vert_coord_r04.nc'</span></code>), it must be called
+from <code class="docutils literal notranslate"><span class="pre">setup()</span></code> or later because <code class="docutils literal notranslate"><span class="pre">self.config</span></code> is required.</p></li>
+</ul>
+<p>A typical viz or analysis step that reads vert-coord variables:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Viz</span><span class="p">(</span><span class="n">OceanIOStep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="p">,</span> <span class="n">init</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">'viz'</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="n">indir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/culled_mesh.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'init.nc'</span><span class="p">,</span>
+                            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/init.nc'</span><span class="p">)</span>
+        <span class="c1"># registers vert_coord.nc for Omega; no-op for MPAS-Ocean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_vert_coord_input_file</span><span class="p">(</span>
+            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/vert_coord.nc'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">'../forward/output.nc'</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ds_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_model_dataset</span><span class="p">(</span><span class="s1">'init.nc'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># returns ds_init for MPAS-Ocean; opens vert_coord.nc for Omega</span>
+        <span class="n">ds_vert_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_vert_coord_dataset</span><span class="p">(</span><span class="n">ds_init</span><span class="p">)</span>
+        <span class="o">...</span>
+        <span class="n">compute_transect</span><span class="p">(</span>
+            <span class="o">...</span><span class="p">,</span>
+            <span class="n">bottom_depth</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">bottomDepth</span><span class="p">,</span>
+            <span class="n">min_level_cell</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">minLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_level_cell</span><span class="o">=</span><span class="n">ds_vert_coord</span><span class="o">.</span><span class="n">maxLevelCell</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">open_vert_coord_dataset(ds_init,</span> <span class="pre">vert_coord_filename=None)</span></code> returns
+the subset of variables associated with the veritcal coordinate taken from
+<code class="docutils literal notranslate"><span class="pre">ds_init</span></code> for MPAS-Ocean (the vert-coord variables live in <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>) and
+opens the separate <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> file for Omega, mapping
+Omega variable names to MPAS-Ocean equivalents via <code class="docutils literal notranslate"><span class="pre">open_model_dataset()</span></code>.
+Pass an explicit <code class="docutils literal notranslate"><span class="pre">vert_coord_filename=</span></code> when using per-resolution files
+(e.g. from a <code class="docutils literal notranslate"><span class="pre">ConvergenceAnalysis</span></code> subclass).</p>
+</section>
+</section>
+<section id="running-an-e3sm-component">
+<h3>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Link to this heading"></a></h3>
+<p>Steps that run either Omega or MPAS-Ocean should descend from the
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep</span></code></a> class.  This class descends
+from <a class="reference internal" href="../generated/polaris.ModelStep.html#polaris.ModelStep" title="polaris.ModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ModelStep</span></code></a>, so there is a lot of relevant
+discussion in <a class="reference internal" href="../framework/model.html#dev-model"><span class="std std-ref">Model</span></a>.</p>
+<p>If the graph partition file has been constructed prior to the ocean model step,
+the path to the graph file should be provided in the <code class="docutils literal notranslate"><span class="pre">graph_target</span></code> argument
+to the constructor <a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.html#polaris.ocean.model.OceanModelStep" title="polaris.ocean.model.OceanModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep()</span></code></a>.</p>
+<section id="yaml-files-vs-namelists-and-streams">
+<h4>YAML files vs. namelists and streams<a class="headerlink" href="#yaml-files-vs-namelists-and-streams" title="Link to this heading"></a></h4>
+<p>In order to have the same tasks support Omega or MPAS-Ocean, we want
+to be able to produce either the YAML config files used by Omega or the
+namelists and streams files used by MPAS-Ocean.  To support both, we decided
+that polaris would use Omega-style YAML files to configure all ocean tasks
+and convert to MPAS-Ocean’s namelists and streams files if needed when steps
+get set up.</p>
+<p>As a result, the <code class="docutils literal notranslate"><span class="pre">add_namelist_file()</span></code> and <code class="docutils literal notranslate"><span class="pre">add_streams_file()</span></code> methods should
+not be used for ocean model steps (they will raise errors).</p>
+</section>
+<section id="mapping-from-mpas-ocean-to-omega-config-options">
+<h4>Mapping from MPAS-Ocean to Omega config options<a class="headerlink" href="#mapping-from-mpas-ocean-to-omega-config-options" title="Link to this heading"></a></h4>
+<p>As the Omega component is in very early stages of development, it has far
+fewer config options than MPAS-Ocean at present.  To complicate things further,
+it is already clear that there will be config options in Omega without a
+corresponding option in MPAS-Ocean (just as there are clearly many MPAS-Ocean
+config options that don’t exist in Omega).  As a result, we need a way to
+support three categories of config options:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ocean</span></code> config options available in both models (we use the MPAS-Ocean names
+for these and map to the Omega names),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> config options that only exist in MPAS-Ocean,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">omega</span></code> config options that only exist in Omega.</p></li>
+</ol>
+<p>YAML files can have root-level sections with 1, 2 or all 3 of these
+so-called <code class="docutils literal notranslate"><span class="pre">config_models</span></code>, as in the following example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="p">:</span>
+  <span class="n">time_management</span><span class="p">:</span>
+    <span class="n">config_run_duration</span><span class="p">:</span> <span class="p">{{</span> <span class="n">run_duration</span> <span class="p">}}</span>
+  <span class="n">time_integration</span><span class="p">:</span>
+    <span class="n">config_dt</span><span class="p">:</span> <span class="p">{{</span> <span class="n">dt</span> <span class="p">}}</span>
+    <span class="n">config_time_integrator</span><span class="p">:</span> <span class="p">{{</span> <span class="n">time_integrator</span> <span class="p">}}</span>
+
+<span class="n">mpas</span><span class="o">-</span><span class="n">ocean</span><span class="p">:</span>
+  <span class="n">bottom_drag</span><span class="p">:</span>
+    <span class="n">config_bottom_drag_mode</span><span class="p">:</span> <span class="n">implicit</span>
+    <span class="n">config_implicit_bottom_drag_type</span><span class="p">:</span> <span class="n">constant</span>
+    <span class="n">config_implicit_constant_bottom_drag_coeff</span><span class="p">:</span> <span class="mf">0.0</span>
+  <span class="n">manufactured_solution</span><span class="p">:</span>
+     <span class="n">config_use_manufactured_solution</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">debug</span><span class="p">:</span>
+    <span class="n">config_disable_vel_hmix</span><span class="p">:</span> <span class="n">true</span>
+
+<span class="n">Omega</span><span class="p">:</span>
+  <span class="n">Tendencies</span><span class="p">:</span>
+    <span class="n">VelDiffTendencyEnable</span><span class="p">:</span> <span class="n">false</span>
+    <span class="n">VelHyperDiffTendencyEnable</span><span class="p">:</span> <span class="n">false</span>
+</pre></div>
+</div>
+<p>When model config options are set in code, it is also important to specify
+which <code class="docutils literal notranslate"><span class="pre">config_model</span></code> they apply to (<code class="docutils literal notranslate"><span class="pre">ocean</span></code>, <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> or <code class="docutils literal notranslate"><span class="pre">Omega</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_model_config_options</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">config_mom_del2</span><span class="o">=</span><span class="n">nu</span><span class="p">),</span>
+                              <span class="n">config_model</span><span class="o">=</span><span class="s1">'ocean'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We implement a mapping from the MPAS-Ocean names to the corresponding Omega
+names for the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> config options in the methods
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options" title="polaris.ocean.model.OceanModelStep.map_yaml_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.map_yaml_options()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs" title="polaris.ocean.model.OceanModelStep.map_yaml_configs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.map_yaml_configs()</span></code></a>.
+As new config options are added to Omega, they should be added to the
+<code class="docutils literal notranslate"><span class="pre">config</span></code> section in the
+<a class="reference external" href="https://github.com/E3SM-Project/polaris/blob/main/polaris/ocean/model/mpaso_to_omega.yaml">mpaso_to_omega.yaml</a>
+file. Note that <code class="docutils literal notranslate"><span class="pre">config_model='Omega'</span></code> must be capitalized since this is the
+convention on the model name in Omega’s own YAML files.</p>
+</section>
+<section id="setting-mpi-resources">
+<h4>Setting MPI resources<a class="headerlink" href="#setting-mpi-resources" title="Link to this heading"></a></h4>
+<p>The target and minimum number of MPI tasks (<code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>,
+respectively) are set automatically if <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> and <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code> have not
+already been set explicitly.  In such cases, a subclass of <code class="docutils literal notranslate"><span class="pre">OceanModelStep</span></code>
+must override the
+<a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.compute_cell_count.html#polaris.ocean.model.OceanModelStep.compute_cell_count" title="polaris.ocean.model.OceanModelStep.compute_cell_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.compute_cell_count()</span></code></a> method
+to approximate the number of cells in the mesh, using a simple heuristic.</p>
+<p>The algorithm for determining the resources is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ideally, about 200 cells per core</span>
+<span class="n">cpu_ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">goal_cells_per_core</span><span class="p">)))</span>
+<span class="c1"># In a pinch, about 2000 cells per core</span>
+<span class="n">cpu_min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">max_cells_per_core</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>The config options <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> seciton can be used to control how resources scale with the size of
+the planar mesh.  By default, the number of MPI tasks tries to apportion 200
+cells to each core, but it will allow as many as 2000.</p>
+<p>For Omega on GPU-capable parallel configs (<code class="docutils literal notranslate"><span class="pre">gpus_per_node</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>), dynamic
+sizing switches to GPU-based targets and asks for one GPU per MPI task.  That
+is stated as a total for the step rather than as a count per task, because a
+per-task count does not confine a step to those GPUs when steps run at the
+same time:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ideally, about 8000 cells per GPU</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">goal_cells_per_gpu</span><span class="p">)))</span>
+<span class="c1"># In a pinch, about 80000 cells per GPU</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">cell_count</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">max_cells_per_gpu</span><span class="p">)))</span>
+<span class="c1"># one GPU per task, as a total for the step</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">gpus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntasks</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">min_gpus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tasks</span>
+</pre></div>
+</div>
+<p>The corresponding <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> config options are <code class="docutils literal notranslate"><span class="pre">goal_cells_per_gpu</span></code> and
+<code class="docutils literal notranslate"><span class="pre">max_cells_per_gpu</span></code>.</p>
+</section>
+</section>
+<section id="setting-time-intervals-in-model-config-options">
+<h3>Setting time intervals in model config options<a class="headerlink" href="#setting-time-intervals-in-model-config-options" title="Link to this heading"></a></h3>
+<p>It is often useful to be able to convert a <code class="docutils literal notranslate"><span class="pre">float</span></code> time interval in days or
+seconds to a model config option in the form <code class="docutils literal notranslate"><span class="pre">DDDD_HH:MM:SS.S</span></code>.  The
+<a class="reference internal" href="generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string" title="polaris.ocean.model.get_time_interval_string"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.model.get_time_interval_string()</span></code></a> function will do this
+for you.  For example, if you have <code class="docutils literal notranslate"><span class="pre">resolution</span></code> in km and a config <code class="docutils literal notranslate"><span class="pre">section</span></code>
+with options <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> (in s/km) and <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> (in days), you can use
+the function to get appropriate strings for filling in a template model config
+file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_time_interval_string</span>
+
+
+<span class="n">dt_per_km</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'dt_per_km'</span><span class="p">)</span>
+<span class="n">dt_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">dt_per_km</span> <span class="o">*</span> <span class="n">resolution</span><span class="p">)</span>
+
+<span class="n">run_duration</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'run_duration'</span><span class="p">)</span>
+<span class="n">run_duration_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">run_duration</span><span class="p">)</span>
+
+<span class="n">output_interval</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'output_interval'</span><span class="p">)</span>
+<span class="n">output_interval_str</span> <span class="o">=</span> <span class="n">get_time_interval_string</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">output_interval</span><span class="p">)</span>
+
+<span class="n">replacements</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">dt</span><span class="o">=</span><span class="n">dt_str</span><span class="p">,</span>
+    <span class="n">run_duration</span><span class="o">=</span><span class="n">run_duration_str</span><span class="p">,</span>
+    <span class="n">output_interval</span><span class="o">=</span><span class="n">output_interval_str</span>
+<span class="p">)</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">add_yaml_file</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">yaml_filename</span><span class="p">,</span>
+                   <span class="n">template_replacements</span><span class="o">=</span><span class="n">replacements</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where the YAML file might include:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="p">:</span>
+  <span class="n">time_management</span><span class="p">:</span>
+    <span class="n">config_run_duration</span><span class="p">:</span> <span class="p">{{</span> <span class="n">run_duration</span> <span class="p">}}</span>
+  <span class="n">time_integration</span><span class="p">:</span>
+    <span class="n">config_dt</span><span class="p">:</span> <span class="p">{{</span> <span class="n">dt</span> <span class="p">}}</span>
+  <span class="n">streams</span><span class="p">:</span>
+    <span class="n">output</span><span class="p">:</span>
+      <span class="nb">type</span><span class="p">:</span> <span class="n">output</span>
+      <span class="n">filename_template</span><span class="p">:</span> <span class="n">output</span><span class="o">.</span><span class="n">nc</span>
+      <span class="n">output_interval</span><span class="p">:</span> <span class="p">{{</span> <span class="n">output_interval</span> <span class="p">}}</span>
+      <span class="n">clobber_mode</span><span class="p">:</span> <span class="n">truncate</span>
+      <span class="n">reference_time</span><span class="p">:</span> <span class="mi">0001</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01_00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span>
+      <span class="n">contents</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">xtime</span>
+      <span class="o">-</span> <span class="n">normalVelocity</span>
+      <span class="o">-</span> <span class="n">layerThickness</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="model-config-options-and-streams">
+<span id="dev-ocean-framework-config"></span><h2>Model config options and streams<a class="headerlink" href="#model-config-options-and-streams" title="Link to this heading"></a></h2>
+<p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.config</span></code> contains yaml files for setting model
+config options and configuring streams.  These include things like setting
+output to double precision, adjusting sea surface height in ice-shelf cavities,
+and outputting variables related to frazil ice and land-ice fluxes.</p>
+</section>
+<section id="equations-of-state-eos">
+<span id="dev-ocean-framework-eos"></span><h2>Equations of state (EOS)<a class="headerlink" href="#equations-of-state-eos" title="Link to this heading"></a></h2>
+<p>Polaris ocean tasks use EOS utilities from the <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> package.</p>
+<p>The high-level APIs are <a class="reference internal" href="generated/polaris.ocean.eos.compute_density.html#polaris.ocean.eos.compute_density" title="polaris.ocean.eos.compute_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_density()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.eos.compute_specvol.html#polaris.ocean.eos.compute_specvol" title="polaris.ocean.eos.compute_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_specvol()</span></code></a>.  These functions dispatch
+based on <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> in the <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> config section.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">constant</span></code> uses the linear EOS and calls
+<a class="reference internal" href="generated/polaris.ocean.eos.constant.compute_constant_density.html#polaris.ocean.eos.constant.compute_constant_density" title="polaris.ocean.eos.constant.compute_constant_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.constant.compute_constant_density()</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">linear</span></code> uses the linear EOS and calls
+<a class="reference internal" href="generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density" title="polaris.ocean.eos.linear.compute_linear_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.linear.compute_linear_density()</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">teos-10</span></code> uses TEOS-10 and calls
+<a class="reference internal" href="generated/polaris.ocean.eos.teos10.compute_specvol.html#polaris.ocean.eos.teos10.compute_specvol" title="polaris.ocean.eos.teos10.compute_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.teos10.compute_specvol()</span></code></a>, with density computed
+as the inverse of specific volume.</p></li>
+</ul>
+<p>The constant EOS density is set by the config option <code class="docutils literal notranslate"><span class="pre">eos_constant_rhoref</span></code>.
+The linear EOS coefficients and reference values are set with ocean config
+options such as <code class="docutils literal notranslate"><span class="pre">eos_linear_alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_linear_beta</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_linear_rhoref</span></code>,
+<code class="docutils literal notranslate"><span class="pre">eos_linear_Tref</span></code>, and <code class="docutils literal notranslate"><span class="pre">eos_linear_Sref</span></code>.  TEOS-10 requires pressure to be
+provided when calling the high-level EOS functions.</p>
+<p>Tasks select an EOS by adding one of the shared config files from the
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> package to their shared config parser:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">constant.cfg</span></code> sets <code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">constant</span></code> along with linear-EOS options
+that make the linear EOS constant.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">linear.cfg</span></code> sets <code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">linear</span></code> along with default linear-EOS
+coefficients.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">teos10.cfg</span></code> sets <code class="docutils literal notranslate"><span class="pre">eos_type</span> <span class="pre">=</span> <span class="pre">teos-10</span></code> and defines no linear-EOS
+options.</p></li>
+</ul>
+<p>Forward steps created with <code class="docutils literal notranslate"><span class="pre">update_eos=True</span></code> call
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanModelStep.update_namelist_eos()</span></code>, which
+translates <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> (and, for the linear and constant EOS, the
+<code class="docutils literal notranslate"><span class="pre">eos_linear_*</span></code> options) into model config options.  For <code class="docutils literal notranslate"><span class="pre">teos-10</span></code>,
+MPAS-Ocean has no TEOS-10 option, so <code class="docutils literal notranslate"><span class="pre">config_eos_type</span></code> is set to <code class="docutils literal notranslate"><span class="pre">jm</span></code>
+(Jackett-McDougall), the closest available nonlinear EOS; Omega receives
+<code class="docutils literal notranslate"><span class="pre">teos-10</span></code> unchanged.  For <code class="docutils literal notranslate"><span class="pre">constant</span></code>, MPAS-Ocean similarly falls back to
+its linear EOS with constant coefficients.</p>
+<p>The two models also disagree about what the <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code>
+tracers mean under TEOS-10: Omega expects conservative temperature (CT)
+and absolute salinity (SA) while MPAS-Ocean expects potential temperature
+(PT) and practical salinity (SP).  For any other <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> the models
+apply the same algebraic formula, so the distinction is meaningless.</p>
+<p><a class="reference internal" href="generated/polaris.ocean.eos.convert_tracers.html#polaris.ocean.eos.convert_tracers" title="polaris.ocean.eos.convert_tracers"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.convert_tracers()</span></code></a> converts between the two
+conventions in either direction: <code class="docutils literal notranslate"><span class="pre">gsw.pt_from_CT()</span></code> and <code class="docutils literal notranslate"><span class="pre">gsw.SP_from_SA()</span></code>
+going to the MPAS-Ocean convention, <code class="docutils literal notranslate"><span class="pre">gsw.CT_from_pt()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">gsw.SA_from_SP()</span></code> coming back.  It takes the pressure and the lon/lat
+(in degrees) at which to convert, does not modify the dataset it is given,
+and takes a <code class="docutils literal notranslate"><span class="pre">tracer_pairs</span></code> argument for converting variables other than
+<code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code> (surface restoring fields, for example).
+Cells where either tracer is NaN, such as those below the bathymetry, stay
+NaN.  <a class="reference internal" href="generated/polaris.ocean.eos.convert_tracer_pair.html#polaris.ocean.eos.convert_tracer_pair" title="polaris.ocean.eos.convert_tracer_pair"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.convert_tracer_pair()</span></code></a> does the same for
+tracers that are in hand rather than in a dataset.</p>
+<p>Steps do not normally call either function themselves.  The framework
+converts the tracers as it writes the initial state and, if asked, as it
+opens a dataset (see <a class="reference internal" href="#dev-ocean-framework-init-state"><span class="std std-ref">Initial state</span></a> and
+<a class="reference internal" href="#dev-ocean-framework-tracer-conventions-on-read"><span class="std std-ref">Tracer conventions on read</span></a>).</p>
+<p>Because TEOS-10 requires CT and SA,
+<a class="reference internal" href="generated/polaris.ocean.eos.compute_density.html#polaris.ocean.eos.compute_density" title="polaris.ocean.eos.compute_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_density()</span></code></a> takes a
+<code class="docutils literal notranslate"><span class="pre">tracer_convention</span></code> argument saying which convention its <code class="docutils literal notranslate"><span class="pre">temperature</span></code>
+and <code class="docutils literal notranslate"><span class="pre">salinity</span></code> are in.  It defaults to <code class="docutils literal notranslate"><span class="pre">'teos-10'</span></code>; pass
+<code class="docutils literal notranslate"><span class="pre">tracer_convention='mpas-ocean'</span></code>, along with <code class="docutils literal notranslate"><span class="pre">lon</span></code> and <code class="docutils literal notranslate"><span class="pre">lat</span></code>, for tracers
+straight out of MPAS-Ocean.</p>
+</section>
+<section id="quasi-uniform-and-icosahedral-spherical-meshes">
+<span id="dev-ocean-spherical-meshes"></span><h2>Quasi-uniform and Icosahedral Spherical Meshes<a class="headerlink" href="#quasi-uniform-and-icosahedral-spherical-meshes" title="Link to this heading"></a></h2>
+<p>Many ocean tasks support two types of meshes: <code class="docutils literal notranslate"><span class="pre">qu</span></code> meshes created with the
+<a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a> step and <code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes
+created with <a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code></a>.  In general, the
+<code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes are more uniform but the <code class="docutils literal notranslate"><span class="pre">qu</span></code> meshes are more flexible.  The
+<code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes only support a fixed set of resolutions described in
+<a class="reference internal" href="../mesh/framework/spherical.html#dev-spherical-meshes"><span class="std std-ref">Spherical Meshes</span></a>.</p>
+<p>The function <code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.base.add_uniform_spherical_base_mesh_step()</span></code>
+returns a step for for a spherical <code class="docutils literal notranslate"><span class="pre">qu</span></code> or <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh of a given resolution
+(in km).  The step can be shared between tasks.</p>
+</section>
+<section id="convergence-tests">
+<span id="dev-ocean-convergence"></span><h2>Convergence Tests<a class="headerlink" href="#convergence-tests" title="Link to this heading"></a></h2>
+<p>Several tests that are in Polaris or which we plan to add are convergence
+tests on <a class="reference internal" href="#dev-ocean-spherical-meshes"><span class="std std-ref">Quasi-uniform and Icosahedral Spherical Meshes</span></a> and planar meshes.
+The ocean framework includes shared config options and base classes for
+forward and analysis steps that are expected to be useful across these tests.</p>
+<p>The key config options that control the convergence test are <code class="docutils literal notranslate"><span class="pre">base_resolution</span></code>
+and <code class="docutils literal notranslate"><span class="pre">refinement_factors</span></code>. The <code class="docutils literal notranslate"><span class="pre">base_resolution</span></code> is multipled by the
+<code class="docutils literal notranslate"><span class="pre">refinement_factors</span></code> to determine which resolutions to test when the
+convergence is being tested in space (or space and time together). The
+<code class="docutils literal notranslate"><span class="pre">base_resolution</span></code> is applied to all steps when convergence in time is tested.
+<code class="docutils literal notranslate"><span class="pre">base_resolution</span></code> times <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> determines the base timestep in that case
+and is then multiplied by the <code class="docutils literal notranslate"><span class="pre">refinement_factors</span></code> to determine which time steps
+to test. When spherical meshes are being tested, the values in the
+<code class="docutils literal notranslate"><span class="pre">convergence</span></code> section are overridden by their values in the
+<code class="docutils literal notranslate"><span class="pre">spherical_convergence</span></code> section with a prefix indicating the mesh type.</p>
+<p>The shared config options are:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for spherical convergence tests</span>
+<span class="k">[spherical_convergence]</span>
+
+<span class="c1"># The base resolution for the icosahedral mesh to which the refinement</span>
+<span class="c1"># factors are applied</span>
+<span class="na">icos_base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">60.</span>
+
+<span class="c1"># a list of icosahedral mesh resolutions (km) to test</span>
+<span class="na">icos_refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8., 4., 2., 1.</span>
+
+<span class="c1"># The base resolution for the quasi-uniform mesh to which the refinement</span>
+<span class="c1"># factors are applied</span>
+<span class="na">qu_base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120.</span>
+
+<span class="c1"># a list of quasi-uniform mesh resolutions (km) to test</span>
+<span class="na">qu_refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.</span>
+
+<span class="k">[convergence]</span>
+
+<span class="c1"># Evaluation time for convergence analysis (in hours)</span>
+<span class="na">convergence_eval_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">24.0</span>
+
+<span class="c1"># Convergence threshold below which a test fails</span>
+<span class="na">convergence_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+
+<span class="c1"># Type of error to compute</span>
+<span class="na">error_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">l2</span>
+
+<span class="c1"># the base mesh resolution (km) to which refinement_factors</span>
+<span class="c1"># are applied if refinement is 'space' or 'both' on a planar mesh</span>
+<span class="c1"># base resolutions for spherical meshes are given in section spherical_convergence</span>
+<span class="na">base_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120</span>
+
+<span class="c1"># refinement factors for a planar mesh applied to either space or time</span>
+<span class="c1"># refinement factors for a spherical mesh given in section spherical_convergence</span>
+<span class="na">refinement_factors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4., 2., 1., 0.5</span>
+
+<span class="c1"># config options for convergence forward steps</span>
+<span class="k">[convergence_forward]</span>
+
+<span class="c1"># time integrator: {'RK4', 'split_explicit', 'unsplit_explicit'}</span>
+<span class="na">time_integrator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RK4</span>
+
+<span class="c1"># RK4 time step per resolution (s/km), since dt is proportional to resolution</span>
+<span class="na">rk4_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+
+<span class="c1"># unsplit time step per resolution (s/km), since dt is proportional to</span>
+<span class="c1"># resolution</span>
+<span class="na">unsplit_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.0</span>
+
+<span class="c1"># split time step per resolution (s/km), since dt is proportional to resolution</span>
+<span class="na">split_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30.0</span>
+
+<span class="c1"># the barotropic time step (s/km) for simulations using split time stepping,</span>
+<span class="c1"># since btr_dt is proportional to resolution</span>
+<span class="na">btr_dt_per_km</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span>
+
+<span class="c1"># Run duration in hours</span>
+<span class="na">run_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${convergence:convergence_eval_time}</span>
+
+<span class="c1"># Output interval in hours</span>
+<span class="na">output_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${run_duration}</span>
+</pre></div>
+</div>
+<p>The first 2 are the default resolutions for icosahedral and quasi-uniform
+base meshes, respectively.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> will generally be modified by each test case. The
+<code class="docutils literal notranslate"><span class="pre">convergence_thresh</span></code> will also be modified by each test case, and will depend
+on the numerical methods being tested. The <code class="docutils literal notranslate"><span class="pre">error_type</span></code> is the L2 norm by
+default. The L-infinity norm, <code class="docutils literal notranslate"><span class="pre">inf</span></code>, is also supported.</p>
+<p><code class="docutils literal notranslate"><span class="pre">time_integrator</span></code> will typically be overridden by the specific convergence
+task’s config options, and indicates which time integrator to use for the
+forward run.  Depending on the time integrator, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>,
+<code class="docutils literal notranslate"><span class="pre">unsplit_dt_per_km</span></code> or <code class="docutils literal notranslate"><span class="pre">split_dt_per_km</span></code> will be used to determine an
+appropriate time step for each mesh resolution (proportional to the cell
+size). For split time integrators, <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code> will be used to compute the
+barotropic time step in a similar way; the unsplit scheme
+(<code class="docutils literal notranslate"><span class="pre">unsplit_explicit</span></code>, which Omega calls <code class="docutils literal notranslate"><span class="pre">UnsplitRK2</span></code>) sets the split factor to
+zero and skips the barotropic subcycle, so it does not read this value.
+The <code class="docutils literal notranslate"><span class="pre">run_duration</span></code> and <code class="docutils literal notranslate"><span class="pre">output_interval</span></code> are typically the same and are
+specified in hours.</p>
+<p>Each convergence test can override these defaults with its own defaults by
+defining them in its own config file.  Convergence tests should bring in this
+config file in their constructor or by adding them to a shared <code class="docutils literal notranslate"><span class="pre">config</span></code>.  The
+options from the shared infrastructure should be added first, then those from
+its own config file to make sure they take precedence, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">add_cosine_bell_tasks</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">icosahedral</span><span class="p">,</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[(</span><span class="kc">True</span><span class="p">,</span> <span class="s1">'icos'</span><span class="p">),</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s1">'qu'</span><span class="p">)]:</span>
+
+        <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'spherical/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/cosine_bell/cosine_bell.cfg'</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">PolarisConfigParser</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.convergence'</span><span class="p">,</span>
+                                <span class="s1">'convergence.cfg'</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.ocean.convergence.spherical'</span><span class="p">,</span>
+                                <span class="s1">'spherical.cfg'</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">add_from_package</span><span class="p">(</span><span class="s1">'polaris.tasks.ocean.cosine_bell'</span><span class="p">,</span>
+                                <span class="s1">'cosine_bell.cfg'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In addition, the <a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>
+step can serve as a parent class for forward steps in convergence tests.  This
+parent class takes care of setting the time step based on the <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code>
+config option and computes the approximate number of cells in the mesh, used
+for determining the computational resources required. When convergence tests
+are run on spherical meshes,
+the <a class="reference internal" href="generated/polaris.ocean.convergence.spherical.SphericalConvergenceForward.html#polaris.ocean.convergence.spherical.SphericalConvergenceForward" title="polaris.ocean.convergence.spherical.SphericalConvergenceForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.spherical.SphericalConvergenceForward</span></code></a>
+should be invoked and overrides the <code class="docutils literal notranslate"><span class="pre">compute_cell_count</span></code> method with a
+heuristic appropriate for approximately uniform spherical meshes.  A
+convergence test’s <code class="docutils literal notranslate"><span class="pre">Forward</span></code> step should descend from this class like in this
+example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.convergence.spherical</span><span class="w"> </span><span class="kn">import</span> <span class="n">SphericalConvergenceForward</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Forward</span><span class="p">(</span><span class="n">SphericalConvergenceForward</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step for performing forward ocean component runs as part of the cosine</span>
+<span class="sd">    bell test case</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span>
+                 <span class="n">refinement_factor</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create a new step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the step</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory for the step</span>
+
+<span class="sd">        resolution : float</span>
+<span class="sd">            The resolution of the (uniform) mesh in km</span>
+
+<span class="sd">        mesh : polaris.Step</span>
+<span class="sd">            The base mesh step</span>
+
+<span class="sd">        init : polaris.Step</span>
+<span class="sd">            The init step</span>
+
+<span class="sd">        refinement_factor : float</span>
+<span class="sd">            The factor by which to scale space, time or both</span>
+<span class="sd">        """</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="s1">'polaris.tasks.ocean.cosine_bell'</span>
+        <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'normalVelocity'</span><span class="p">,</span> <span class="s1">'tracer1'</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                         <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,</span>
+                         <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span>
+                         <span class="n">yaml_filename</span><span class="o">=</span><span class="s1">'forward.yaml'</span><span class="p">,</span>
+                         <span class="n">output_filename</span><span class="o">=</span><span class="s1">'output.nc'</span><span class="p">,</span>
+                         <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
+                         <span class="n">graph_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">init</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/graph.info'</span><span class="p">,</span>
+                         <span class="n">refinement_factor</span><span class="o">=</span><span class="n">refinement_factor</span><span class="p">,</span>
+                         <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Each convergence test must define a YAML file with model config options, called
+<code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> by default.  The <code class="docutils literal notranslate"><span class="pre">package</span></code> parameter is the location of this
+file within the Polaris code (using python package syntax).  Although it is
+not used here, the <code class="docutils literal notranslate"><span class="pre">options</span></code> parameter can be used to pass model config options
+as a python dictionary so that they are added to with
+<a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>. The
+<code class="docutils literal notranslate"><span class="pre">output_filename</span></code> is an output file that will have fields to validate and
+analyze.  The <code class="docutils literal notranslate"><span class="pre">validate_vars</span></code> are a list of variables to compare against a
+baseline (if one is provided), and can be <code class="docutils literal notranslate"><span class="pre">None</span></code> if baseline validation should
+not be performed.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">mesh</span></code> step should be created with the function described in
+<a class="reference internal" href="#dev-ocean-spherical-meshes"><span class="std std-ref">Quasi-uniform and Icosahedral Spherical Meshes</span></a>, and the <code class="docutils literal notranslate"><span class="pre">init</span></code> step should produce a file
+<code class="docutils literal notranslate"><span class="pre">init.nc</span></code> that will be the initial condition for the forward run.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file should be a YAML file with Jinja templating for the
+time integrator, time step, run duration and output interval, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ocean</span><span class="p">:</span>
+  <span class="n">time_management</span><span class="p">:</span>
+    <span class="n">config_run_duration</span><span class="p">:</span> <span class="p">{{</span> <span class="n">run_duration</span> <span class="p">}}</span>
+  <span class="n">time_integration</span><span class="p">:</span>
+    <span class="n">config_dt</span><span class="p">:</span> <span class="p">{{</span> <span class="n">dt</span> <span class="p">}}</span>
+    <span class="n">config_time_integrator</span><span class="p">:</span> <span class="p">{{</span> <span class="n">time_integrator</span> <span class="p">}}</span>
+  <span class="n">split_explicit_ts</span><span class="p">:</span>
+    <span class="n">config_btr_dt</span><span class="p">:</span> <span class="p">{{</span> <span class="n">btr_dt</span> <span class="p">}}</span>
+<span class="n">mpas</span><span class="o">-</span><span class="n">ocean</span><span class="p">:</span>
+  <span class="n">streams</span><span class="p">:</span>
+    <span class="n">mesh</span><span class="p">:</span>
+      <span class="n">filename_template</span><span class="p">:</span> <span class="n">init</span><span class="o">.</span><span class="n">nc</span>
+    <span class="nb">input</span><span class="p">:</span>
+      <span class="n">filename_template</span><span class="p">:</span> <span class="n">init</span><span class="o">.</span><span class="n">nc</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="n">output</span><span class="p">:</span>
+      <span class="nb">type</span><span class="p">:</span> <span class="n">output</span>
+      <span class="n">filename_template</span><span class="p">:</span> <span class="n">output</span><span class="o">.</span><span class="n">nc</span>
+      <span class="n">output_interval</span><span class="p">:</span> <span class="p">{{</span> <span class="n">output_interval</span> <span class="p">}}</span>
+      <span class="n">clobber_mode</span><span class="p">:</span> <span class="n">truncate</span>
+      <span class="n">reference_time</span><span class="p">:</span> <span class="mi">0001</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01_00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span>
+      <span class="n">contents</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">xtime</span>
+      <span class="o">-</span> <span class="n">normalVelocity</span>
+      <span class="o">-</span> <span class="n">layerThickness</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ConvergenceForward</span></code> takes care of filling in the template based
+on the associated config options (first at setup and again at runtime in case
+the config options have changed).</p>
+<p>In addition, the <a class="reference internal" href="generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis</span></code></a>
+step can serve as a parent class for analysis steps in convergence tests.  This
+parent class computes the error norm for the output from each resolution’s
+forward step. It also produces the convergence plot.</p>
+<p>This is an example of how a task’s analysis step can descend from the parent
+class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Analysis</span><span class="p">(</span><span class="n">ConvergenceAnalysis</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A step for analyzing the output from the cosine bell test case</span>
+<span class="sd">    """</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">refinement</span><span class="o">=</span><span class="s1">'both'</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create the step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component : polaris.Component</span>
+<span class="sd">            The component the step belongs to</span>
+
+<span class="sd">        resolutions : list of float</span>
+<span class="sd">            The resolutions of the meshes that have been run</span>
+
+<span class="sd">        subdir : str</span>
+<span class="sd">            The subdirectory that the step resides in</span>
+
+<span class="sd">        dependencies : dict of dict of polaris.Steps</span>
+<span class="sd">            The dependencies of this step</span>
+
+<span class="sd">        refinement : str, optional</span>
+<span class="sd">            Whether to refine in space, time or both space and time</span>
+<span class="sd">        """</span>
+        <span class="n">convergence_vars</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'tracer1'</span><span class="p">,</span>
+                             <span class="s1">'title'</span><span class="p">:</span> <span class="s1">'tracer1'</span><span class="p">,</span>
+                             <span class="s1">'zidx'</span><span class="p">:</span> <span class="mi">0</span><span class="p">}]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+                         <span class="n">resolutions</span><span class="o">=</span><span class="n">resolutions</span><span class="p">,</span>
+                         <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
+                         <span class="n">convergence_vars</span><span class="o">=</span><span class="n">convergence_vars</span><span class="p">,</span>
+                         <span class="n">refinement</span><span class="o">=</span><span class="n">refinement</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Many tasks will also need to override the
+<a class="reference internal" href="generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution()</span></code></a>
+method. If not overridden, the analysis step will compute the difference of the
+output from the initial state.</p>
+<p>In some cases, the child class will also need to override the
+<a class="reference internal" href="generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field" title="polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.convergence.analysis.ConvergenceAnalysis.get_output_field()</span></code></a>
+method if the requested field is not available directly from the output put
+rather needs to be computed.  The default behavior is to read the requested
+variable (the value associate the <code class="docutils literal notranslate"><span class="pre">'name'</span></code> key) at the time index closest to
+the evaluation time specified by the <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> config option.</p>
+</section>
+<section id="ice-shelf-tasks">
+<span id="dev-ocean-framework-ice-shelf"></span><h2>Ice Shelf Tasks<a class="headerlink" href="#ice-shelf-tasks" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf</span></code> module provides support for ice shelf tasks.</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelf</span></code> class can serve as a parent
+class for ice shelf tests, such as
+<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.IceShelf2d</span></code>.</p>
+<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelf.setup_ssh_adjustment_steps()</span></code>
+sets up <code class="docutils literal notranslate"><span class="pre">ssh_forward</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> steps from the classes
+<a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshForward.html#polaris.ocean.ice_shelf.SshForward" title="polaris.ocean.ice_shelf.ssh_forward.SshForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.ssh_forward.SshForward</span></code></a>
+<a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshAdjustment.html#polaris.ocean.ice_shelf.SshAdjustment" title="polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment</span></code></a>.
+The <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> section of the config file sets the parameters for these
+steps, as described in <a class="reference internal" href="../../users_guide/ocean/framework/ice_shelf.html#ocean-ssh-adjustment"><span class="std std-ref">SSH adjustment steps</span></a>. It returns the last
+<code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> step, which is typically used as the
+initial state for subsequent forward steps.</p>
+</section>
+<section id="vertical-coordinate">
+<span id="dev-ocean-framework-vertical"></span><h2>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical</span></code> module provides support for computing general
+vertical coordinates for MPAS-Ocean tasks.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.grid_1d</span></code> module provides 1D vertical
+coordinates.  To create 1D vertical grids, tasks should call
+<a class="reference internal" href="generated/polaris.ocean.vertical.grid_1d.generate_1d_grid.html#polaris.ocean.vertical.grid_1d.generate_1d_grid" title="polaris.ocean.vertical.grid_1d.generate_1d_grid"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.grid_1d.generate_1d_grid()</span></code></a> with the desired
+config options set in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section (as described in
+the User’s Guide under <a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-vertical"><span class="std std-ref">Vertical coordinate</span></a>).</p>
+<p>The z-level and z-star coordinates are also controlled by config options from
+this section of the config file. The function
+<a class="reference internal" href="generated/polaris.ocean.vertical.init_vertical_coord.html#polaris.ocean.vertical.init_vertical_coord" title="polaris.ocean.vertical.init_vertical_coord"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.init_vertical_coord()</span></code></a> can be used to compute
+<code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">zMid</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> variables for <a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-z-level"><span class="std std-ref">z-level</span></a> and
+<a class="reference internal" href="../../users_guide/ocean/framework/vertical.html#ocean-z-star"><span class="std std-ref">z-star</span></a> coordinates (including the <code class="docutils literal notranslate"><span class="pre">z-tilde</span></code> option handled
+through z-star infrastructure) using the <code class="docutils literal notranslate"><span class="pre">ssh</span></code> and <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> as well
+as config options from <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code>. The function
+<a class="reference internal" href="generated/polaris.ocean.vertical.update_layer_thickness.html#polaris.ocean.vertical.update_layer_thickness" title="polaris.ocean.vertical.update_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.update_layer_thickness()</span></code></a> can be used to update
+<code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> when either or both of <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> have been
+changed.  After thicknesses are updated, tasks can call
+<a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness.html#polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness" title="polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness()</span></code></a>
+to recover <code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code> and <code class="docutils literal notranslate"><span class="pre">zMid</span></code> from the resulting layer thickness.</p>
+<p>For workflows that need pseudo-height/pressure conversion, the
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde</span></code> module provides utilities:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.z_tilde_from_pressure.html#polaris.ocean.vertical.ztilde.z_tilde_from_pressure" title="polaris.ocean.vertical.ztilde.z_tilde_from_pressure"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.z_tilde_from_pressure()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_from_z_tilde.html#polaris.ocean.vertical.ztilde.pressure_from_z_tilde" title="polaris.ocean.vertical.ztilde.pressure_from_z_tilde"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.pressure_from_z_tilde()</span></code></a> convert
+between pseudo-height and pressure.</p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_from_geom_thickness.html#polaris.ocean.vertical.ztilde.pressure_from_geom_thickness" title="polaris.ocean.vertical.ztilde.pressure_from_geom_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.pressure_from_geom_thickness()</span></code></a> and
+<a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height.html#polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height" title="polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.pressure_and_spec_vol_from_state_at_geom_height()</span></code></a>
+compute hydrostatic gauge pressure (and specific volume) from geometric
+layer thickness and state variables.</p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.pressure_from_pseudothickness.html#polaris.ocean.vertical.ztilde.pressure_from_pseudothickness" title="polaris.ocean.vertical.ztilde.pressure_from_pseudothickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.pressure_from_pseudothickness()</span></code></a>
+computes gauge pressure from pseudo-thickness, with no specific volume or
+iteration.</p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height.html#polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height" title="polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.ztilde.geom_height_from_pseudo_height()</span></code></a>
+reconstructs geometric layer-interface and midpoint heights from
+pseudo-thickness and specific volume.</p></li>
+</ul>
+<p>For the p-star coordinate — Omega’s ALE pseudo-compressible variant of
+z-tilde — two additional modules are provided.</p>
+<p>The function
+<a class="reference internal" href="generated/polaris.ocean.vertical.pstar.init_pstar_vertical_coord.html#polaris.ocean.vertical.pstar.init_pstar_vertical_coord" title="polaris.ocean.vertical.pstar.init_pstar_vertical_coord"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar.init_pstar_vertical_coord()</span></code></a> builds the
+p-star coordinate for one outer iteration.  It expects <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> and
+<code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> (both in Pa with dimension <code class="docutils literal notranslate"><span class="pre">nCells</span></code>) to already be
+present in the mesh dataset, and adds <code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>,
+<code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>,
+<code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, <code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>, and <code class="docutils literal notranslate"><span class="pre">vertCoordMovementWeights</span></code>, each
+with its own <code class="docutils literal notranslate"><span class="pre">long_name</span></code> and, where meaningful, <code class="docutils literal notranslate"><span class="pre">units</span></code> (see
+<a class="reference internal" href="../framework/attrs.html#dev-attrs"><span class="std std-ref">Variable attributes</span></a>).  <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> is updated in place to the
+post-partial-cell-snap value, keeping the attributes the caller gave it.
+The reference 1-D grid (in pseudo-height) is controlled by the same
+<code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> config options used by the z-star and z-level coordinates.
+Unlike those coordinates, the p-star coordinate cannot be constructed via
+<a class="reference internal" href="generated/polaris.ocean.vertical.init_vertical_coord.html#polaris.ocean.vertical.init_vertical_coord" title="polaris.ocean.vertical.init_vertical_coord"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.init_vertical_coord()</span></code></a>; tasks must call
+<code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord()</span></code> directly (or rely on the base class below).</p>
+<p>The <a class="reference internal" href="generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep" title="polaris.ocean.vertical.pstar_init.PStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep</span></code></a> class
+implements the fixed-point iteration that determines <code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code>
+(and therefore the p-star coordinate) such that the recovered geometric
+water-column thickness matches a target bathymetric depth within a
+configurable tolerance.  At each outer step the iteration scales
+<code class="docutils literal notranslate"><span class="pre">BottomPressure</span></code> by the ratio of the target to the recovered geometric
+water-column thickness.</p>
+<p>Subclasses of <code class="docutils literal notranslate"><span class="pre">PStarInitStep</span></code> must implement the abstract method
+<a class="reference internal" href="generated/polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers.html#polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers" title="polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep.init_tracers()</span></code></a>,
+which receives the current p-star dataset (containing <code class="docutils literal notranslate"><span class="pre">ZTildeMid</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ZTildeInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code>, <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>, <code class="docutils literal notranslate"><span class="pre">minLevelCell</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">maxLevelCell</span></code>) and returns conservative temperature and absolute salinity
+arrays with dimensions <code class="docutils literal notranslate"><span class="pre">(Time,</span> <span class="pre">nCells,</span> <span class="pre">nVertLevels)</span></code>.  The iteration is
+driven by calling
+<a class="reference internal" href="generated/polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init.html#polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init" title="polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init()</span></code></a>
+from within the step’s <code class="docutils literal notranslate"><span class="pre">run()</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.pstar_init</span><span class="w"> </span><span class="kn">import</span> <span class="n">PStarInitStep</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyInit</span><span class="p">(</span><span class="n">PStarInitStep</span><span class="p">,</span> <span class="n">OceanIOStep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_tracers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">):</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># (Time, nCells, nVertLevels)</span>
+        <span class="n">sa</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># (Time, nCells, nVertLevels)</span>
+        <span class="k">return</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sa</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pstar_init</span><span class="p">(</span>
+            <span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">,</span>
+            <span class="n">geom_z_bot</span><span class="o">=</span><span class="n">geom_z_bot</span><span class="p">,</span>
+            <span class="n">sea_surface_height</span><span class="o">=</span><span class="n">geom_ssh</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>At convergence, the returned dataset contains all p-star coordinate variables
+plus <code class="docutils literal notranslate"><span class="pre">temperature</span></code>, <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>, <code class="docutils literal notranslate"><span class="pre">pressure</span></code>, <code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code>,
+<code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code>, and <code class="docutils literal notranslate"><span class="pre">ssh</span></code>.  Here <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> is the
+geometric seafloor depth below <span class="math notranslate nohighlight">\(z = 0\)</span> (the negation of the converged bottom
+interface height), which Omega reads as <code class="docutils literal notranslate"><span class="pre">BottomGeomDepth</span></code>; it equals the
+geometric water-column thickness only when <code class="docutils literal notranslate"><span class="pre">ssh</span></code> is zero.</p>
+<p>The iteration is controlled by two <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> config options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Number of outer iterations</span>
+<span class="na">pseudothickness_iter_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6</span>
+
+<span class="c1"># Early-stopping threshold: iteration stops when the maximum fractional</span>
+<span class="c1"># change in geometric water-column thickness falls below this value</span>
+<span class="na">water_col_adjust_frac_change_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0e-12</span>
+</pre></div>
+</div>
+<p>For tasks where each column has a different reference pseudo-depth (for
+example because the z-tilde bottom varies spatially), the semi-private method
+<code class="docutils literal notranslate"><span class="pre">_build_pstar_coord_ds()</span></code> may be overridden to call
+<code class="docutils literal notranslate"><span class="pre">init_pstar_vertical_coord()</span></code> per cell with cell-specific config options,
+as done in
+<a class="reference internal" href="generated/polaris.tasks.ocean.horiz_press_grad.init.Init.html#polaris.tasks.ocean.horiz_press_grad.init.Init" title="polaris.tasks.ocean.horiz_press_grad.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad.init.Init</span></code></a>.</p>
+<section id="initial-state">
+<span id="dev-ocean-framework-init-state"></span><h3>Initial state<a class="headerlink" href="#initial-state" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code> package provides general helpers for
+building the initial-state fields the ocean models read (for example
+from a converged p-star dataset):</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/polaris.ocean.init_state.layer_thickness_from_geom_interfaces.html#polaris.ocean.init_state.layer_thickness_from_geom_interfaces" title="polaris.ocean.init_state.layer_thickness_from_geom_interfaces"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.init_state.layer_thickness_from_geom_interfaces()</span></code></a>
+adds <code class="docutils literal notranslate"><span class="pre">restingThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> computed from
+<code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, masked by <code class="docutils literal notranslate"><span class="pre">cellMask</span></code>.</p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.init_state.add_quiescent_normal_velocity.html#polaris.ocean.init_state.add_quiescent_normal_velocity" title="polaris.ocean.init_state.add_quiescent_normal_velocity"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.init_state.add_quiescent_normal_velocity()</span></code></a>
+adds an all-zero <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code>.</p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.init_state.add_density_from_specvol.html#polaris.ocean.init_state.add_density_from_specvol" title="polaris.ocean.init_state.add_density_from_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.init_state.add_density_from_specvol()</span></code></a>
+adds an in-situ <code class="docutils literal notranslate"><span class="pre">Density</span></code> field as the inverse of <code class="docutils literal notranslate"><span class="pre">SpecVol</span></code>.</p></li>
+</ul>
+<p>For sigma coordinates, shared functionality for direct thickness computation is
+available in
+<a class="reference internal" href="generated/polaris.ocean.vertical.sigma.compute_sigma_layer_thickness.html#polaris.ocean.vertical.sigma.compute_sigma_layer_thickness" title="polaris.ocean.vertical.sigma.compute_sigma_layer_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.sigma.compute_sigma_layer_thickness()</span></code></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics</span></code> module provides utilities:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.geom_thickness_from_ds.html#polaris.ocean.vertical.diagnostics.geom_thickness_from_ds" title="polaris.ocean.vertical.diagnostics.geom_thickness_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.geom_thickness_from_ds()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.pseudothickness_from_ds.html#polaris.ocean.vertical.diagnostics.pseudothickness_from_ds" title="polaris.ocean.vertical.diagnostics.pseudothickness_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.pseudothickness_from_ds()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.spec_vol_from_ds.html#polaris.ocean.vertical.diagnostics.spec_vol_from_ds" title="polaris.ocean.vertical.diagnostics.spec_vol_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.spec_vol_from_ds()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds.html#polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds" title="polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.vert_velocity_top_from_ds()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds.html#polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds" title="polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.vert_pseudo_velocity_from_ds()</span></code></a></p></li>
+<li><p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.depth_from_thickness.html#polaris.ocean.vertical.diagnostics.depth_from_thickness" title="polaris.ocean.vertical.diagnostics.depth_from_thickness"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.depth_from_thickness()</span></code></a></p></li>
+</ul>
+<section id="tracer-conventions">
+<h4>Tracer conventions<a class="headerlink" href="#tracer-conventions" title="Link to this heading"></a></h4>
+<p>An init step builds <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">salinity</span></code> in whatever
+convention is natural for its physics and hands them over;
+<code class="docutils literal notranslate"><span class="pre">write_initial_state_dataset()</span></code> converts them to the convention the
+ocean model expects (see <a class="reference internal" href="#dev-ocean-framework-eos"><span class="std std-ref">Equations of state (EOS)</span></a>) as it writes the
+file.  A step should not convert the tracers itself.</p>
+<p>By default, the step is assumed to have built its tracers in the
+convention implied by the <code class="docutils literal notranslate"><span class="pre">eos_type</span></code> config option: conservative
+temperature and absolute salinity for <code class="docutils literal notranslate"><span class="pre">teos-10</span></code> and, for any other EOS,
+tracers that need no conversion.  A step that builds potential
+temperature and practical salinity under TEOS-10 anyway (for example
+because it is initialized from an E3SM restart) says so with
+<code class="docutils literal notranslate"><span class="pre">tracer_convention='mpas-ocean'</span></code>, and the framework converts in the
+other direction if the model is Omega.</p>
+<p>The conversion happens on a copy just before the file is written, so it
+cannot contaminate an in-memory dataset that is also used to write the
+vertical coordinate.  It needs two things beyond the tracers themselves:</p>
+<ul class="simple">
+<li><p><strong>Pressure.</strong>
+<a class="reference internal" href="generated/polaris.ocean.init_state.pressure_for_tracer_conversion.html#polaris.ocean.init_state.pressure_for_tracer_conversion" title="polaris.ocean.init_state.pressure_for_tracer_conversion"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.init_state.pressure_for_tracer_conversion()</span></code></a>
+uses the <code class="docutils literal notranslate"><span class="pre">pressure</span></code> field if the dataset has one (as p-star initial
+conditions do) and otherwise computes it from <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code>, the
+tracers and <code class="docutils literal notranslate"><span class="pre">SurfacePressure</span></code> (zero if absent).  Since the pressure
+only enters through the absolute-to-practical salinity correction, it
+does not need to be accurate.  The <code class="docutils literal notranslate"><span class="pre">pressure</span></code> field itself is dropped
+from the initial state, whether or not any conversion happens.</p></li>
+<li><p><strong>Location</strong>, for the same salinity correction.  Explicit <code class="docutils literal notranslate"><span class="pre">lon</span></code> and
+<code class="docutils literal notranslate"><span class="pre">lat</span></code> arguments (in degrees) win.  Otherwise, <code class="docutils literal notranslate"><span class="pre">lonCell</span></code> and
+<code class="docutils literal notranslate"><span class="pre">latCell</span></code> are used, converted from radians, if the mesh has the
+<code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> attribute set to <code class="docutils literal notranslate"><span class="pre">YES</span></code>; a spherical mesh missing them
+is an error rather than a fallback.  On a planar mesh, whose
+<code class="docutils literal notranslate"><span class="pre">lonCell</span></code>/<code class="docutils literal notranslate"><span class="pre">latCell</span></code> are meaningless, the <code class="docutils literal notranslate"><span class="pre">nominal_lon</span></code> and
+<code class="docutils literal notranslate"><span class="pre">nominal_lat</span></code> config options in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section are used
+instead.</p></li>
+</ul>
+</section>
+<section id="tracer-conventions-on-read">
+<span id="dev-ocean-framework-tracer-conventions-on-read"></span><h4>Tracer conventions on read<a class="headerlink" href="#tracer-conventions-on-read" title="Link to this heading"></a></h4>
+<p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.open_model_dataset()</span></code></a> takes the
+same <code class="docutils literal notranslate"><span class="pre">tracer_convention</span></code> argument, so that visualization and analysis
+can work in one convention no matter which model ran.  In both cases the
+argument is the convention on the Polaris side of the boundary — the
+tracers a step hands over on write, the tracers it gets back on read —
+and the ocean model supplies the other side.</p>
+<p>The defaults differ, though.  On write, a step that says nothing is
+assumed to have built its tracers in the convention implied by
+<code class="docutils literal notranslate"><span class="pre">eos_type</span></code>.  On read, a caller that says nothing gets the tracers
+exactly as the model wrote them, since only the caller knows whether it
+wants the model’s own convention or a common one.</p>
+<p>The pressure comes from the same rules as on write.  The location does
+not: a dataset being read has had its horizontal mesh variables removed
+(or never had them), so <code class="docutils literal notranslate"><span class="pre">lonCell</span></code> and <code class="docutils literal notranslate"><span class="pre">latCell</span></code> come from the file
+named by the <code class="docutils literal notranslate"><span class="pre">mesh_filename</span></code> argument.  A conversion with neither
+<code class="docutils literal notranslate"><span class="pre">mesh_filename</span></code> nor an explicit <code class="docutils literal notranslate"><span class="pre">lon</span></code> and <code class="docutils literal notranslate"><span class="pre">lat</span></code> is an error, as is
+a mesh file with no <code class="docutils literal notranslate"><span class="pre">on_a_sphere</span></code> attribute, since assuming such a mesh
+were planar would silently convert a global ocean at (0, 0).</p>
+<p><a class="reference internal" href="generated/polaris.ocean.vertical.diagnostics.spec_vol_from_ds.html#polaris.ocean.vertical.diagnostics.spec_vol_from_ds" title="polaris.ocean.vertical.diagnostics.spec_vol_from_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.vertical.diagnostics.spec_vol_from_ds()</span></code></a> needs
+the tracers in the convention of the equation of state, so a step that
+calls it on Omega output should open the dataset without a
+<code class="docutils literal notranslate"><span class="pre">tracer_convention</span></code>.</p>
+</section>
+</section>
+</section>
+<section id="reference-resting-potential-energy-rpe">
+<span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Link to this heading"></a></h2>
+<p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.rpe</span></code> is used to compute the reference (or
+resting) potential energy for an entire model domain.  The RPE as given in
+<a class="reference external" href="https://doi.org/10.1016/j.ocemod.2014.12.004">Petersen et al. 2015</a> is:</p>
+<div class="math notranslate nohighlight">
+\[
+RPE = g \int_\Omega z \rho^*\left(z\right) dV
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega\)</span> is the domain and <span class="math notranslate nohighlight">\(\rho^*\left(z\right)\)</span> is the sorted
+density, which is horizontally constant and increases with depth.</p>
+<p>The <a class="reference internal" href="generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe" title="polaris.ocean.rpe.compute_rpe"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.rpe.compute_rpe()</span></code></a> is used to compute the RPE as
+a function of time in a series of one or more output files.  The RPE is stored
+in <code class="docutils literal notranslate"><span class="pre">rpe.csv</span></code> and also returned as a numpy array for plotting and analysis.</p>
+</section>
+<section id="analysis-of-completed-simulations">
+<span id="dev-ocean-analysis"></span><h2>Analysis of completed simulations<a class="headerlink" href="#analysis-of-completed-simulations" title="Link to this heading"></a></h2>
+<p>The package <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code> contains the tasks of the
+<code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite, which analyze a simulation that has already been run
+rather than running one.  <a class="reference internal" href="../../users_guide/ocean/tasks/analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> describes the suite from a
+user’s point of view.  Four pieces of it are shared machinery that a new
+analysis product builds on.</p>
+<section id="locating-the-simulation-s-files">
+<h3>Locating the simulation’s files<a class="headerlink" href="#locating-the-simulation-s-files" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files</span></code> is a leaf module — it does not
+import <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> — so that it can be unit tested and reused
+by every step that reads simulation output.</p>
+<p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.SimulationFiles.html#polaris.tasks.ocean.analysis.sim_files.SimulationFiles" title="polaris.tasks.ocean.analysis.sim_files.SimulationFiles"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.SimulationFiles</span></code></a> is the
+entry point.  It resolves the mesh, the vertical coordinate and the lists of
+monthly-mean, global-statistics and MOC files covering a range of years, and
+reports where each path came from.  Underneath it,
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.OmegaConfig</span></code></a> reads the
+simulation’s own Omega configuration and answers questions about it
+defensively: a missing stream, a stream that names no file, and an analysis
+group that is turned off are told apart rather than raising from inside a
+lookup.  This is the one place Polaris depends on the <em>shape</em> of Omega’s
+configuration rather than on its output.</p>
+<p>Two details are worth knowing before adding a product:</p>
+<ul class="simple">
+<li><p>File-name templates are expanded by
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.expand_template.html#polaris.tasks.ocean.analysis.sim_files.expand_template" title="polaris.tasks.ocean.analysis.sim_files.expand_template"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.expand_template()</span></code></a>, which
+substitutes <code class="docutils literal notranslate"><span class="pre">$Y</span></code> and <code class="docutils literal notranslate"><span class="pre">$M</span></code>.  A template with no <code class="docutils literal notranslate"><span class="pre">$M</span></code> gives one file per year,
+and one with no date at all gives a single file — which is the real case
+for Omega’s analysis output.  These templates come from the Omega
+configuration and never from a Polaris config file, because Polaris config
+files use extended interpolation and a bare <code class="docutils literal notranslate"><span class="pre">$</span></code> in a value is an error.</p></li>
+<li><p>Omega builds the file name of an analysis group’s output stream as
+<code class="docutils literal notranslate"><span class="pre">&lt;prefix&gt;_&lt;period&gt;&lt;TimeStats|Instants&gt;&lt;template&gt;</span></code>.  A group can write both
+time means and snapshots under different names, so
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams.html#polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams" title="polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.OmegaConfig.analysis_streams()</span></code></a>
+returns each stream with its period and whether it is a time reduction, and
+the caller must not assume either spelling.</p></li>
+</ul>
+</section>
+<section id="naming-the-models-global-statistics">
+<h3>Naming the models’ global statistics<a class="headerlink" href="#naming-the-models-global-statistics" title="Link to this heading"></a></h3>
+<p>Both ocean models write one variable per (field, statistic) pair in their
+global statistics output and name it after the two, so
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names</span></code> builds the names rather than listing them.
+It is a leaf module for the same reason <code class="docutils literal notranslate"><span class="pre">sim_files</span></code> is, and it lives under
+<code class="docutils literal notranslate"><span class="pre">polaris.ocean</span></code> rather than under the analysis package because the
+<code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> <code class="docutils literal notranslate"><span class="pre">analysis_members</span></code> task reads the same kind of output from
+a forward step in its own task.</p>
+<p>Three things about it are worth knowing:</p>
+<ul class="simple">
+<li><p><strong>The names are built, not mapped.</strong>  <code class="docutils literal notranslate"><span class="pre">mpaso_to_omega.yaml</span></code> needs an entry
+only for the field itself — <code class="docutils literal notranslate"><span class="pre">ssh:</span> <span class="pre">SshCell</span></code> — and the statistic and,
+for one of Omega’s time reductions, the period are appended.  Mapping the
+composite names instead would take an entry per (field, statistic) and,
+once Omega writes time means, one per (field, statistic, period).</p></li>
+<li><p><strong>The two models do not compute the same statistics.</strong>  MPAS-Ocean writes
+a root-mean-square where Omega writes a standard deviation, and those are
+different quantities, so neither model’s list in
+<code class="xref py py-data docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names.GLOBAL_STATS</span></code> has an entry for
+the other’s.  A step that wants a standard deviation from MPAS-Ocean
+derives one from the root-mean-square and the mean, which is a conversion
+and belongs in the step.</p></li>
+<li><p><strong>A step should not assume what a run wrote.</strong>
+<a class="reference internal" href="generated/polaris.ocean.global_stats_names.select_global_stats.html#polaris.ocean.global_stats_names.select_global_stats" title="polaris.ocean.global_stats_names.select_global_stats"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names.select_global_stats()</span></code></a> intersects
+the (field, statistic) pairs a step asks for with what a dataset holds,
+reports each one that is absent and drops it, and raises only when <em>none</em>
+of them is present — which is a step reading the wrong thing rather than
+a simulation writing a subset.
+<a class="reference internal" href="generated/polaris.ocean.global_stats_names.discover_fields.html#polaris.ocean.global_stats_names.discover_fields" title="polaris.ocean.global_stats_names.discover_fields"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.global_stats_names.discover_fields()</span></code></a> goes the other
+way, giving the fields a file holds statistics for, which is what a config
+option that names no fields falls back to.</p></li>
+</ul>
+</section>
+<section id="steps">
+<h3>Steps<a class="headerlink" href="#steps" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.analysis_step.AnalysisStep</span></code></a> extends
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.html#polaris.ocean.model.OceanIOStep" title="polaris.ocean.model.OceanIOStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep</span></code></a> with the year range every analysis
+step has and with the input handling every one of them needs:
+<code class="docutils literal notranslate"><span class="pre">get_sim_files()</span></code> to resolve the simulation, <code class="docutils literal notranslate"><span class="pre">add_sim_input_file()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">add_sim_input_files()</span></code> to link its files into the step’s work directory, and
+<code class="docutils literal notranslate"><span class="pre">log_inputs()</span></code> to report what was read.</p>
+<p>Analysis steps follow <a class="reference internal" href="../framework/task_parallelism.html#dev-task-parallelism"><span class="std std-ref">Writing task-parallel-safe steps</span></a> from the start, since it is
+cheap while the code is being written and expensive to retrofit.  In
+particular, every file a step opens in <code class="docutils literal notranslate"><span class="pre">run()</span></code> goes through
+<a class="reference internal" href="../generated/polaris.Step.work_path.html#polaris.Step.work_path" title="polaris.Step.work_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.work_path()</span></code></a> rather than a bare relative filename,
+temporary files go in the step’s own work directory, and a step declares the
+parallelism it will actually start as <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> rather than sizing
+itself to the machine.</p>
+<p>Which products an analysis step makes is usually not known until it has read
+the simulation, since a run writes some subset of the fields that were asked
+for.  Such a step declares no per-field outputs at setup and instead calls
+<a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.add_produced_file.html#polaris.ocean.model.OceanIOStep.add_produced_file" title="polaris.ocean.model.OceanIOStep.add_produced_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.add_produced_file()</span></code></a> as it writes
+each one.  That is also what keeps a plot and the netCDF file beside it from
+getting out of step with each other, since they are registered together.</p>
+</section>
+<section id="range-keyed-steps">
+<h3>Range-keyed steps<a class="headerlink" href="#range-keyed-steps" title="Link to this heading"></a></h3>
+<p>Every step lives at a subdirectory named for the range of years it covers —
+<code class="docutils literal notranslate"><span class="pre">climatology/0021-0040</span></code>, <code class="docutils literal notranslate"><span class="pre">global_stats/0001-0060</span></code> — built with
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.sim_files.year_range_key.html#polaris.tasks.ocean.analysis.sim_files.year_range_key" title="polaris.tasks.ocean.analysis.sim_files.year_range_key"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.sim_files.year_range_key()</span></code></a>.</p>
+<p>That is what gives the suite its re-analysis behavior, and it needs no
+framework support.  A setup with a new range creates steps in directories that
+have never run and so run; a setup with the same range lands on directories
+that are already complete and recomputes nothing; and two ranges never share a
+directory, so an earlier range’s results cannot be clobbered or mislabelled.</p>
+<p>A task’s subdirectory is fixed when the component is constructed, but its
+steps are not: <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> merges the user’s config into each task and
+then calls <code class="docutils literal notranslate"><span class="pre">configure()</span></code> before adding configs to steps, precisely so that
+steps created there are handled.  The analysis tasks therefore discard and
+rebuild their step lists from the config options, in the same way the cosine
+bell tasks do for resolutions.  Construction itself must read nothing but the
+packaged defaults, since <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> builds every task in every component;
+the simulation’s Omega configuration is not read until step setup.</p>
+<p>Steps are created with
+<a class="reference internal" href="../generated/polaris.Component.get_or_create_shared_step.html#polaris.Component.get_or_create_shared_step" title="polaris.Component.get_or_create_shared_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_or_create_shared_step()</span></code></a>, so a step several
+tasks want — the climatology, which every field group of <code class="docutils literal notranslate"><span class="pre">climatology_maps</span></code>
+reads — is built once for a range no matter how many of them ask for it.</p>
+</section>
+<section id="publishing-what-the-steps-made">
+<h3>Publishing what the steps made<a class="headerlink" href="#publishing-what-the-steps-made" title="Link to this heading"></a></h3>
+<p>Publication is three pieces, none of which knows anything about the ocean, so
+all three live in the component-neutral <code class="docutils literal notranslate"><span class="pre">polaris.analysis</span></code> package beside
+<code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code> rather than under <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code>:</p>
+<ul class="simple">
+<li><p>the <strong>manifest writer</strong>, <a class="reference internal" href="../generated/polaris.analysis.manifest.Manifest.html#polaris.analysis.manifest.Manifest" title="polaris.analysis.manifest.Manifest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.analysis.manifest.Manifest</span></code></a>,
+which a plotting step reaches through
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product()</span></code></a>
+once per product;</p></li>
+<li><p>the <strong>collector</strong>, <a class="reference internal" href="../generated/polaris.analysis.publish.publish.html#polaris.analysis.publish.publish" title="polaris.analysis.publish.publish"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.analysis.publish.publish()</span></code></a>, which merges
+the fragments, symlinks each product into the staging tree and renders its
+thumbnail;</p></li>
+<li><p>the <strong>site generator</strong>,
+<a class="reference internal" href="../generated/polaris.analysis.site.generate_site.html#polaris.analysis.site.generate_site" title="polaris.analysis.site.generate_site"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.analysis.site.generate_site()</span></code></a>, which renders the gallery
+from the merged manifest.</p></li>
+</ul>
+<p>A step describes what it made as it makes it, and writes no fragment itself:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_product</span><span class="p">(</span>
+    <span class="n">plot</span><span class="o">=</span><span class="s1">'temperature_ANN_-100m.png'</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="s1">'temperature_ANN_-100m.nc'</span><span class="p">,</span>
+    <span class="n">group</span><span class="o">=</span><span class="s1">'climatology_maps'</span><span class="p">,</span>
+    <span class="n">gallery</span><span class="o">=</span><span class="s1">'temperature'</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">'Potential temperature at 100 m, ANN, years 21-40'</span><span class="p">,</span>
+    <span class="n">field</span><span class="o">=</span><span class="s1">'temperature'</span><span class="p">,</span> <span class="n">season</span><span class="o">=</span><span class="s1">'ANN'</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s1">'-100m'</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">AnalysisStep</span></code> writes it.  <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> leaves an empty fragment before
+<code class="docutils literal notranslate"><span class="pre">run()</span></code> is called and each <code class="docutils literal notranslate"><span class="pre">add_product()</span></code> writes it again, so a step that
+makes products always has a current one on disk.  The range of years the step
+covers is added to the facets unless the call passes its own, since every
+product of a step covers the step’s range and that range is what keeps the
+published names of two analyses of one simulation apart.</p>
+<p>Three rules keep the fragment from growing into a format that needs a
+specification.  A step fills in the facets and nothing else — the published
+name, the thumbnail and the gallery page are the collector’s business, so a
+step never learns the staging tree’s layout.  Only <code class="docutils literal notranslate"><span class="pre">group</span></code> and <code class="docutils literal notranslate"><span class="pre">gallery</span></code> shape
+the site; every other facet is caption material today and filter material
+later, which is what makes adding a facet cheap.  And products keep the order
+they were added in, so a gallery reads ANN, DJF, MAM, JJA, SON because that is
+the order the step plotted them in, with no sort key anywhere.</p>
+<p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.publish.Publish.html#polaris.tasks.ocean.analysis.publish.Publish" title="polaris.tasks.ocean.analysis.publish.Publish"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.publish.Publish</span></code></a> is the one step that
+knows how results are presented, and everything about presentation can change
+without a plotting step changing.  Two things about it are easy to get wrong:</p>
+<ul>
+<li><p><strong>It never looks for its inputs.</strong>  Walking the work directory for anything
+named <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> would be invisible to Polaris’s input checking and to
+<a class="reference internal" href="../framework/task_parallelism.html#dev-task-parallelism"><span class="std std-ref">Writing task-parallel-safe steps</span></a>, so instead each fragment is a declared input,
+linked into the step’s <code class="docutils literal notranslate"><span class="pre">fragments/</span></code> directory from the step that wrote it,
+and each of those steps is a dependency as well.  A step that only computes
+intermediate results sets <code class="docutils literal notranslate"><span class="pre">makes_products</span> <span class="pre">=</span> <span class="pre">False</span></code> on its class — the
+climatology does — and is left out of both.</p>
+<p>This is why the fragment is written from <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> rather than at
+the end of <code class="docutils literal notranslate"><span class="pre">run()</span></code>.  A step with nothing to publish leaves an empty product
+list, which is what lets the fragment be declared and checked instead of
+tolerated when absent — and a rule that had to be obeyed at the end of
+<code class="docutils literal notranslate"><span class="pre">run()</span></code> would be forgotten in exactly that step.  The two failures stay
+distinguishable: a fragment that is missing means a step ran without
+writing one, and a dependency’s missing pickle means the step did not run
+at all.</p>
+</li>
+<li><p><strong>Its dependencies are step objects, and the tasks sharing a config are
+configured in an arbitrary order.</strong>  Every analysis task discards its steps
+and builds new ones each time it is configured, and Polaris checks that a
+dependency is an object that was set up, so wiring the step once at
+construction leaves it depending on steps that no longer exist.  Each task
+therefore calls
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.PublishTask.rebuild_steps.html#polaris.tasks.ocean.analysis.PublishTask.rebuild_steps" title="polaris.tasks.ocean.analysis.PublishTask.rebuild_steps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.PublishTask.rebuild_steps()</span></code></a> after
+rebuilding its own, and whichever task is configured last leaves the
+dependencies correct.</p></li>
+</ul>
+<p>Nothing about a dependency reorders steps — the runner walks them in the
+order the suite lists them — so <code class="docutils literal notranslate"><span class="pre">omega_analysis.txt</span></code> lists <code class="docutils literal notranslate"><span class="pre">publish</span></code> last.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tasks/single_column.html" class="btn btn-neutral float-left" title="single_column" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="convert_mpaso_ic_to_omega.html" class="btn btn-neutral float-right" title="convert_mpaso_ic_to_omega.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.1.0">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

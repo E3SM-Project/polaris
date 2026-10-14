@@ -1,0 +1,6 @@
+﻿polaris.config.PolarisConfigParser.setup
+========================================
+
+.. currentmodule:: polaris.config
+
+.. automethod:: PolarisConfigParser.setup

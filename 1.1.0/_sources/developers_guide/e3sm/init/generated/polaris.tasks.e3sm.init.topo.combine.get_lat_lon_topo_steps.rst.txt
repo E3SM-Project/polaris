@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.combine.get\_lat\_lon\_topo\_steps
+===============================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. autofunction:: get_lat_lon_topo_steps

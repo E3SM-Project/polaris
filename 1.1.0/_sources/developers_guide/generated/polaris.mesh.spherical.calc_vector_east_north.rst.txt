@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.calc\_vector\_east\_north
+================================================
+
+.. currentmodule:: polaris.mesh.spherical
+
+.. autofunction:: calc_vector_east_north

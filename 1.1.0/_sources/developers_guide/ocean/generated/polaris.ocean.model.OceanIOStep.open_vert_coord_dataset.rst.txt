@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.open\_vert\_coord\_dataset
+==========================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.open_vert_coord_dataset

@@ -1,0 +1,6 @@
+﻿polaris.viz.get\_projection
+===========================
+
+.. currentmodule:: polaris.viz
+
+.. autofunction:: get_projection

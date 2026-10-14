@@ -1,0 +1,6 @@
+﻿polaris.analysis.publish.write\_merged\_manifest
+================================================
+
+.. currentmodule:: polaris.analysis.publish
+
+.. autofunction:: write_merged_manifest

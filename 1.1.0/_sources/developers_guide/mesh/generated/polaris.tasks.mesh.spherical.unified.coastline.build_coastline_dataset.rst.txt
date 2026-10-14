@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.coastline.build\_coastline\_dataset
+========================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.coastline
+
+.. autofunction:: build_coastline_dataset

@@ -1,0 +1,6 @@
+﻿polaris.yaml.mpas\_namelist\_and\_streams\_to\_yaml
+===================================================
+
+.. currentmodule:: polaris.yaml
+
+.. autofunction:: mpas_namelist_and_streams_to_yaml

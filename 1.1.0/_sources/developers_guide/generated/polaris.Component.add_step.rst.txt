@@ -1,0 +1,6 @@
+﻿polaris.Component.add\_step
+===========================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.add_step

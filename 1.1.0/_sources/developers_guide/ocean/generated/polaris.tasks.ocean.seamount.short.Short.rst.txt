@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.seamount.short.Short
+========================================
+
+.. currentmodule:: polaris.tasks.ocean.seamount.short
+
+.. autoclass:: Short
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Short.__init__
+      ~Short.add_step
+      ~Short.configure
+      ~Short.remove_step
+      ~Short.set_shared_config
+   
+   
+
+   
+   
+   

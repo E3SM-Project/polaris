@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.analysis.sim\_files.check\_files\_exist
+===========================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.sim_files
+
+.. autofunction:: check_files_exist
