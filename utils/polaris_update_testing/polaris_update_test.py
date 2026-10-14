@@ -241,7 +241,8 @@ def _parse_args():
     setup.add_argument(
         '--baseline-load-script',
         help='The load script for the same compiler of a second Polaris '
-        "checkout at the manifest's baseline commit",
+        "checkout at the manifest's baseline commit, by default the one in "
+        '"polaris_main" in the config file',
     )
     setup.add_argument(
         '--no-baseline',

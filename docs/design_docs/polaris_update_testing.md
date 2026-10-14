@@ -239,9 +239,10 @@ polaris_update_test.py setup --fork <fork> --branch <branch> [--submit]
                              [--no-baseline <reason>]
 ```
 
-`setup` sets up every row the loaded load script tests.
-`--baseline-load-script` names the load script for the same compiler in
-the baseline checkout, as in the Omega utility. `setup` checks that the
+`setup` sets up every row the loaded load script tests. The baseline runs
+from the checkout of `main` that the settings' `polaris_main` names, with
+its load script for the same compiler, or for the compiler's name before a
+rename, as in the Omega utility. `--baseline-load-script` names another. `setup` checks that the
 checkout contains the manifest's baseline commit and pins its Omega and
 E3SM-Project commits. The baseline is found or set up with the shared
 `get_baseline()`, so an Omega baseline that the Omega utility ran from the
