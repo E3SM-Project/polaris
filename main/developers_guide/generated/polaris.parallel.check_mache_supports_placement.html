@@ -156,7 +156,7 @@
 <dt class="sig sig-object py" id="polaris.parallel.check_mache_supports_placement">
 <span class="sig-prename descclassname"><span class="pre">polaris.parallel.</span></span><span class="sig-name descname"><span class="pre">check_mache_supports_placement</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/parallel.html#check_mache_supports_placement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.parallel.check_mache_supports_placement" title="Link to this definition"></a></dt>
 <dd><p>Check that the installed mache can confine a launch to part of an
-allocation.</p>
+allocation, and can do it a node at a time.</p>
 <p>A mache without placement takes none of the arguments Polaris now passes
 it, so a run against one fails partway through with a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> from
 deep inside the launcher rather than saying what is wrong.  Worse, a
@@ -166,7 +166,8 @@ results, and slower than running one step at a time.  Both are much
 better caught here.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – If the installed mache has no placement support</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – If the installed mache has no placement support, or expresses a
+    placement’s cores as one set for the whole launch</p>
 </dd>
 </dl>
 </dd></dl>

@@ -113,7 +113,7 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mache</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelSystem</span><span class="p">,</span> <span class="n">ResourcePlacement</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.component_graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_components_in_use</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolarisConfigParser</span>
@@ -124,7 +124,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">check_mache_supports_placement</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check that the installed mache can confine a launch to part of an</span>
-<span class="sd">    allocation.</span>
+<span class="sd">    allocation, and can do it a node at a time.</span>
 
 <span class="sd">    A mache without placement takes none of the arguments Polaris now passes</span>
 <span class="sd">    it, so a run against one fails partway through with a ``TypeError`` from</span>
@@ -137,20 +137,59 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    RuntimeError</span>
-<span class="sd">        If the installed mache has no placement support</span>
+<span class="sd">        If the installed mache has no placement support, or expresses a</span>
+<span class="sd">        placement's cores as one set for the whole launch</span>
 <span class="sd">    """</span>
     <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span>
         <span class="n">ParallelSystem</span><span class="o">.</span><span class="n">get_parallel_command</span>
     <span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
-    <span class="k">if</span> <span class="s1">'placement'</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
-        <span class="k">return</span>
+    <span class="k">if</span> <span class="s1">'placement'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The installed mache (</span><span class="si">{</span><span class="n">mache</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s1">) cannot confine a '</span>
+            <span class="sa">f</span><span class="s1">'launch to part of an allocation, which Polaris now requires.</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'Update mache to a release whose get_parallel_command() '</span>
+            <span class="sa">f</span><span class="s1">'takes a placement.'</span>
+        <span class="p">)</span>
 
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s1">'The installed mache (</span><span class="si">{</span><span class="n">mache</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s1">) cannot confine a launch '</span>
-        <span class="sa">f</span><span class="s1">'to part of an allocation, which Polaris now requires.</span><span class="se">\n</span><span class="s1">'</span>
-        <span class="sa">f</span><span class="s1">'Install mache 3.12.0 or later.'</span>
-    <span class="p">)</span></div>
+    <span class="n">_check_placement_cores_are_per_node</span><span class="p">()</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_placement_cores_are_per_node</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that a placement's cores are one set per node.</span>
+
+<span class="sd">    An earlier mache took one flat set of unique cores for the whole launch,</span>
+<span class="sd">    which cannot describe a launch spanning nodes on the machines whose</span>
+<span class="sd">    launchers bind cores explicitly: core numbers are node-local, so two</span>
+<span class="sd">    nodes both using core 0 is the ordinary case and a single set forbids</span>
+<span class="sd">    it.</span>
+
+<span class="sd">    This builds exactly that -- two nodes, each offering core 0 -- rather</span>
+<span class="sd">    than reading a version, for the same reason the check above does: the</span>
+<span class="sd">    capability is what matters and a version is only a proxy for it.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">placement</span> <span class="o">=</span> <span class="n">ResourcePlacement</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">),</span> <span class="n">cores</span><span class="o">=</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)))</span>
+        <span class="n">total_cores</span> <span class="o">=</span> <span class="n">placement</span><span class="o">.</span><span class="n">total_cores</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The installed mache (</span><span class="si">{</span><span class="n">mache</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s1">) expresses a '</span>
+            <span class="sa">f</span><span class="s2">"placement's cores as one set for the whole launch, so Polaris "</span>
+            <span class="sa">f</span><span class="s1">'cannot place a step across nodes.</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'Update mache to a release that gives a placement one set '</span>
+            <span class="sa">f</span><span class="s1">'of cores per node.'</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exception</span>
+
+    <span class="k">if</span> <span class="n">total_cores</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'The installed mache (</span><span class="si">{</span><span class="n">mache</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s1">) accepted a placement '</span>
+            <span class="sa">f</span><span class="s1">'of one core on each of two nodes and reported </span><span class="si">{</span><span class="n">total_cores</span><span class="si">}</span><span class="s1"> '</span>
+            <span class="sa">f</span><span class="s1">'cores rather than 2, so Polaris cannot rely on what a '</span>
+            <span class="sa">f</span><span class="s1">'placement means.</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'Update mache to a release that gives a placement one set '</span>
+            <span class="sa">f</span><span class="s1">'of cores per node.'</span>
+        <span class="p">)</span>
 
 
 <div class="viewcode-block" id="set_parallel_systems">

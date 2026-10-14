@@ -182,7 +182,18 @@ even between Slurm versions on the same machine:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mache.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResourcePlacement</span>
 
 <span class="n">step</span><span class="o">.</span><span class="n">placement</span> <span class="o">=</span> <span class="n">ResourcePlacement</span><span class="p">(</span>
-    <span class="n">nodes</span><span class="o">=</span><span class="p">(</span><span class="s1">'nid001234'</span><span class="p">,),</span> <span class="n">cores</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)),</span> <span class="n">gpus</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">nodes</span><span class="o">=</span><span class="p">(</span><span class="s1">'nid001234'</span><span class="p">,),</span> <span class="n">cores</span><span class="o">=</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)),),</span> <span class="n">gpus</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">cores</span></code> is one set of core numbers <strong>per node</strong>, in the same order as
+<code class="docutils literal notranslate"><span class="pre">nodes</span></code>, which is why a placement on a single node still nests.  Core numbers
+are node-local, so a step spanning two nodes normally asks for the same ones
+on both:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">step</span><span class="o">.</span><span class="n">placement</span> <span class="o">=</span> <span class="n">ResourcePlacement</span><span class="p">(</span>
+    <span class="n">nodes</span><span class="o">=</span><span class="p">(</span><span class="s1">'nid001234'</span><span class="p">,</span> <span class="s1">'nid001235'</span><span class="p">),</span>
+    <span class="n">cores</span><span class="o">=</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)),</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">))),</span>
+    <span class="n">gpus</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -208,11 +219,19 @@ cores.</p></li>
 <p>Not every machine can confine a launch.  <code class="docutils literal notranslate"><span class="pre">mache</span></code> reports which mechanism a
 machine has through <code class="docutils literal notranslate"><span class="pre">ParallelSystem.placement_support</span></code>, decided at run time
 from the launcher that is actually installed rather than from configuration.</p>
-<p>Placement needs <code class="docutils literal notranslate"><span class="pre">mache</span></code> 3.12.0 or later, which the deployment pins.</p>
+<p>Placement needs a <code class="docutils literal notranslate"><span class="pre">mache</span></code> that gives a placement one set of cores per node,
+which the deployment pins.  The release that first brought placement
+expressed a launch’s cores as one flat set instead, which cannot describe a
+launch spanning nodes wherever the launcher binds cores explicitly: it
+required the numbers to be unique, and node-local numbering means two nodes
+normally use the same ones.</p>
 <p>Setup refuses to go any further against a <code class="docutils literal notranslate"><span class="pre">mache</span></code> that cannot place, rather
 than letting a run fail partway through with a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> from inside the
-launcher.  This will become an ordinary version requirement once the change
-is released.</p>
+launcher.  It tests capabilities rather than comparing version numbers,
+because the capability is the thing that matters and a version is only a
+proxy for it: it asks whether this <code class="docutils literal notranslate"><span class="pre">mache</span></code> accepts a placement at all, and
+then whether it accepts one core set per node, by building two nodes that
+both offer core 0.</p>
 </section>
 <section id="how-a-step-says-what-it-needs">
 <h2>How a step says what it needs<a class="headerlink" href="#how-a-step-says-what-it-needs" title="Link to this heading"></a></h2>

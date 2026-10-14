@@ -722,7 +722,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_placement_resources</span><span class="p">(</span><span class="n">placement</span><span class="p">,</span> <span class="n">parallel_system</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Describe what a placement gives a step, in the usual resource terms."""</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">cores_per_node</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">placement</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span>
+    <span class="n">cores</span> <span class="o">=</span> <span class="n">placement</span><span class="o">.</span><span class="n">total_cores</span>
+    <span class="c1"># what bounds a single task is the smallest of the placement's nodes,</span>
+    <span class="c1"># since a task cannot span nodes and may land on any of them.  Nodes</span>
+    <span class="c1"># normally offer the same cores, in which case this is that number.</span>
+    <span class="n">cores_per_node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node_cores</span><span class="p">)</span> <span class="k">for</span> <span class="n">node_cores</span> <span class="ow">in</span> <span class="n">placement</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span>
 
     <span class="c1"># a placement carries no memory, because no launcher acts on one.  What</span>
     <span class="c1"># a placement does imply is a share of the nodes it names, in the same</span>
@@ -731,12 +735,10 @@
     <span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">machine_cores_per_node</span> <span class="o">=</span> <span class="n">parallel_system</span><span class="o">.</span><span class="n">cores_per_node</span>
     <span class="k">if</span> <span class="n">memory_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">machine_cores_per_node</span><span class="p">:</span>
-        <span class="n">memory</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">nodes</span> <span class="o">*</span> <span class="n">memory_per_node</span> <span class="o">//</span> <span class="n">machine_cores_per_node</span>
-        <span class="p">)</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="n">cores</span> <span class="o">*</span> <span class="n">memory_per_node</span> <span class="o">//</span> <span class="n">machine_cores_per_node</span>
 
     <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
-        <span class="n">cores</span><span class="o">=</span><span class="n">cores_per_node</span> <span class="o">*</span> <span class="n">nodes</span><span class="p">,</span>
+        <span class="n">cores</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
         <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
         <span class="n">cores_per_node</span><span class="o">=</span><span class="n">cores_per_node</span><span class="p">,</span>
         <span class="n">gpus</span><span class="o">=</span><span class="n">placement</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span>

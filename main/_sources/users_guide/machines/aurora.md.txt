@@ -32,16 +32,16 @@ polaris_envs = /lus/flare/projects/E3SM_Dec/soft/polaris/aurora/base
 [deploy]
 
 # the compiler set to use for system libraries and MPAS builds
-compiler = oneapi-ifx
+compiler = intel
 
 # the compiler to use to build software (e.g. ESMF and MOAB) with spack
-software_compiler = oneapi-ifx
+software_compiler = intel
 
-# the system MPI library to use for oneapi-ifx compiler
-mpi_oneapi_ifx = mpich
+# the system MPI library to use for intel compiler
+mpi_intel = mpich
 
-# the system MPI library to use for oneapi-ifxgpu compiler
-mpi_oneapi_ifxgpu = mpich
+# the system MPI library to use for intelgpu compiler
+mpi_intelgpu = mpich
 
 # the base path for spack environments used by polaris
 spack = /lus/flare/projects/E3SM_Dec/soft/polaris/aurora/spack
@@ -64,7 +64,7 @@ system = pbs
 # whether to use mpirun or srun to run a task
 parallel_executable = mpiexec --label
 
-# cores per node on the machine (for the oneapi-ifx compiler)
+# cores per node on the machine (for the intel compiler)
 cores_per_node = 102
 
 # account for running diagnostics jobs
