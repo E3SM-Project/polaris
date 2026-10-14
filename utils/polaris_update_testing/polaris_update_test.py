@@ -104,6 +104,7 @@ def _setup(args):
         submit=args.submit,
         baseline_load_script=args.baseline_load_script,
         no_baseline=args.no_baseline,
+        model=args.model,
     )
     for state, row_dir in states:
         machine = state.row.split('/')[0]
@@ -249,6 +250,12 @@ def _parse_args():
         help="Run these rows without the manifest's baseline, with the "
         'reason as a lowercase clause that the report prints after '
         '"because".  Only if the requester asks.',
+    )
+    setup.add_argument(
+        '--model',
+        choices=['omega', 'mpas-ocean'],
+        help="Set up only the load script's row for this model, such as "
+        'to set one up again',
     )
     setup.add_argument(
         '--submit',
