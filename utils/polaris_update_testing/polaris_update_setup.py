@@ -40,6 +40,7 @@ def run_setup(
     submit: bool = False,
     baseline_load_script: Optional[str] = None,
     no_baseline: Optional[str] = None,
+    model: Optional[str] = None,
     polaris_dir: str = POLARIS_DIR,
 ) -> List[Tuple[SetupState, str]]:
     """
@@ -68,6 +69,10 @@ def run_setup(
         Why these rows run without the manifest's baseline, for rows the
         baseline cannot run
 
+    model : str, optional
+        Set up only the load script's row for this model, ``omega`` or
+        ``mpas-ocean``, rather than all of its rows
+
     polaris_dir : str, optional
         The Polaris checkout the loaded environment runs
 
@@ -83,6 +88,10 @@ def run_setup(
     manifest = fetch_manifest(polaris_dir, fork, branch)
     setup_tools.check_env_checkout(polaris_dir)
     rows = _get_env_rows(manifest)
+    if model is not None:
+        rows = [row for row in rows if row.model == model]
+        if not rows:
+            raise SetupError(f'The loaded load script tests no {model} row.')
     machine = rows[0].machine
     polaris_hash = setup_tools.check_checkout(
         polaris_dir, manifest.pr_head, 'PR head'

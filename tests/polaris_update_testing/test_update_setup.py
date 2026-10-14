@@ -74,6 +74,17 @@ def test_setup_builds_the_omega_merge(tmp_path, monkeypatch):
     )
 
 
+def test_setup_one_model(tester):
+    fixture, manifest, calls = tester
+
+    ((state, _),) = _setup(
+        fixture, manifest, no_baseline='main cannot run', model='mpas-ocean'
+    )
+
+    assert state.row == 'chrysalis/gnu/mpas-ocean'
+    assert [call['model'] for call in calls['suite']] == ['mpas-ocean']
+
+
 def test_setup_needs_the_baseline_load_script(tester):
     fixture, manifest, _ = tester
     with pytest.raises(
