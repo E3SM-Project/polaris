@@ -5,6 +5,7 @@ from polaris.analysis.manifest import range_key, read_fragment
 from polaris.analysis.thumbnail import (
     DEFAULT_FORMAT,
     DEFAULT_QUALITY,
+    DEFAULT_SCALE,
     DEFAULT_SIZE,
     THUMBNAILS_DIRNAME,
     image_size,
@@ -52,6 +53,7 @@ def publish(
     output_path,
     logger=None,
     thumbnail_size=DEFAULT_SIZE,
+    thumbnail_scale=DEFAULT_SCALE,
     thumbnail_format=DEFAULT_FORMAT,
     thumbnail_quality=DEFAULT_QUALITY,
 ):
@@ -82,7 +84,13 @@ def publish(
         nothing, and what was missing
 
     thumbnail_size : tuple of int, optional
-        The bounding box in pixels each thumbnail is scaled to fit inside
+        The bounding box, in displayed pixels, each thumbnail is scaled to
+        fit inside
+
+    thumbnail_scale : float, optional
+        The number of image pixels rendered per displayed pixel, so that a
+        thumbnail is sharp on a high-resolution display; it need not be a
+        whole number
 
     thumbnail_format : {'jpeg', 'webp'}, optional
         The format thumbnails are written in
@@ -140,6 +148,7 @@ def publish(
         published=published,
         output_path=output_path,
         size=thumbnail_size,
+        scale=thumbnail_scale,
         image_format=thumbnail_format,
         quality=thumbnail_quality,
     )
@@ -210,8 +219,13 @@ def _symlink(source, link_path):
     os.symlink(source, link_path)
 
 
-def _add_thumbnails(published, output_path, size, image_format, quality):
+def _add_thumbnails(
+    published, output_path, size, scale, image_format, quality
+):
     """Render a thumbnail for each published plot and record it"""
+    # the box is in displayed pixels, and the image has ``scale`` times as
+    # many along each side so that it is sharp on a high-resolution display
+    pixels = (round(size[0] * scale), round(size[1] * scale))
     rendered = 0
     for entry in published:
         basename = os.path.basename(entry['plot'])
@@ -220,17 +234,18 @@ def _add_thumbnails(published, output_path, size, image_format, quality):
         if make_thumbnail(
             plot_filename=os.path.join(output_path, entry['plot']),
             thumbnail_filename=filename,
-            size=size,
+            size=pixels,
             image_format=image_format,
             quality=quality,
         ):
             rendered += 1
         entry['thumbnail'] = os.path.join(THUMBNAILS_DIRNAME, name)
-        # the generated page gives every image its own width and height, so
-        # that lazy loading does not make the page reflow as they arrive
+        # the generated page gives every image its own width and height, in
+        # displayed pixels, so that lazy loading does not make the page
+        # reflow as they arrive
         width, height = image_size(filename)
-        entry['thumbnail_width'] = width
-        entry['thumbnail_height'] = height
+        entry['thumbnail_width'] = round(width / scale)
+        entry['thumbnail_height'] = round(height / scale)
     return rendered
 
 
