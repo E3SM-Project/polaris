@@ -11,6 +11,7 @@ ocean_analysis
 ocean_analysis_initial
 omega_pr_testing
 overflow_nonlinear_eos
+polaris_update_testing
 pstar_init
 shared_steps
 suite_results_file
