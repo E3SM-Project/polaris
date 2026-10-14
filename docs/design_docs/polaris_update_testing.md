@@ -96,8 +96,8 @@ the path, the Polaris version and the mache version.
 ### Algorithm Design: The requester controls deploying Spack environments.
 
 `deploy` prints the `./deploy.py --deploy-spack` command for a machine. It
-deploys every compiler and MPI library that the machine's config lists
-under `[deploy]` at the pull request's head. With a test path, it adds
+deploys the compilers and MPI libraries of the machine's supported rows at
+the pull request's head. With a test path, it adds
 `--spack-path`. On Perlmutter, pm-cpu and pm-gpu each get their own
 command. Only with `--run` does `deploy` run the command, under `nohup`,
 with its output in a log. Afterward, `deploy` checks that each of the
@@ -223,8 +223,9 @@ polaris_update_test.py deploy --fork <fork> --branch <branch>
                               [--recreate] [--run]
 ```
 
-The compilers and MPI libraries come from the `mpi_<compiler>` options in
-`polaris/machines/<machine>.cfg`. `AGENTS.md` tells an agent to ask before
+The compilers and MPI libraries come from the rows in
+`supported_machines.yaml` at the pull request's head, all of them, even if
+the manifest tests only some. `AGENTS.md` tells an agent to ask before
 `--run` on each machine, and to say whether it deploys test or shared
 environments. With permission, `deploy --run` deploys the shared
 environments as well as test ones (see [Decisions](#decisions)).
@@ -349,9 +350,11 @@ Perlmutter and Aurora over ssh and with an agent on Frontier.
 - **The kind of environment is read from the load scripts**, so a report
   states what was loaded (see the algorithm design for each report saying
   which Spack environments it tested).
-- **`deploy` covers every compiler and MPI library the machine's config
-  lists**, not only the rows. The shared environments serve every
-  supported combination, including ones no checklist row tests.
+- **`deploy` covers only the compilers and MPI libraries of supported
+  rows.** A machine's config can list combinations that are no longer
+  supported, such as Frontier's `crayamd` in #835, or that do not build,
+  such as pm-gpu's `intelgpu` (E3SM-Project/mache#526). The first trial
+  deployed everything the config listed and stopped on both.
 - **MPAS-Ocean builds in the checkout's submodule, one row at a time.**
   An E3SM worktree for each row would cost a large checkout for builds
   that take minutes.
