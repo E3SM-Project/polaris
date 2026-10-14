@@ -72,14 +72,15 @@ def run_lint(
     branch: str,
     notes: Optional[str] = None,
     agent: Optional[str] = None,
-    post: bool = False,
-) -> Tuple[str, Optional[str], str, bool]:
+) -> Tuple[str, str, bool]:
     """
-    Report on linting and the documentation build for a test branch
+    Report on linting and the documentation build for a test branch, in a
+    comment for someone to read before it is posted
 
     The results come from Omega's CI for the PR head if its job passed, and
     otherwise from running the same commands on the test commit.  Results
-    from CI are never posted, since the PR's own checks already show them.
+    from CI are not to be posted, since the PR's own checks already show
+    them.
 
     Parameters
     ----------
@@ -98,23 +99,17 @@ def run_lint(
     agent : str, optional
         The agent posting the comment, which adds the signature
 
-    post : bool, optional
-        Whether to post the comment, if its results did not come from CI
-
     Returns
     -------
     text : str
         The comment
-
-    url : str, optional
-        The URL of the posted comment
 
     path : str
         The file the comment was written to
 
     from_ci : bool
         Whether the results came from Omega's CI, in which case the comment
-        was not posted
+        is not to be posted
     """
     manifest = fetch_manifest(config.omega_repo, fork, branch)
     lint_dir = os.path.join(get_run_dir(config, manifest), 'lint')
@@ -152,11 +147,8 @@ def run_lint(
         agent=agent,
     )
     path = os.path.join(lint_dir, 'report.md')
-    # results that only repeat what the PR's own checks show are not posted
-    url = report.deliver(
-        text, path, UPSTREAM, manifest.pull_request, post and not from_ci
-    )
-    return text, url, path, from_ci
+    report.write_comment(text, path)
+    return text, path, from_ci
 
 
 def _find_ci_run(sha):

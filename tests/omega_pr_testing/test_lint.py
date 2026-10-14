@@ -4,7 +4,7 @@ import pr_test_github
 import pr_test_report
 import pytest
 from omega_pr_fixtures import make_fixture
-from omega_pr_manifest import MARKER_PREFIX
+from omega_pr_manifest import MARKER_PREFIX, UPSTREAM
 
 CI_RUN = {
     'name': 'lint and test docs',
@@ -32,11 +32,10 @@ def test_lint_from_ci(pushed, monkeypatch):
     fixture, manifest = pushed
     _mock_ci(monkeypatch, [CI_RUN], ['success', 'success'])
 
-    text, url, path, from_ci = omega_pr_lint.run_lint(
+    text, path, from_ci = omega_pr_lint.run_lint(
         fixture.config, fixture.fork, manifest.branch, agent='Claude Code'
     )
 
-    assert url is None
     assert from_ci
     assert text.startswith('## Testing: lint and docs\n<!-- omega-pr-test ')
     assert '- pre-commit on the files the PR changes: passed (CI)' in text
@@ -60,7 +59,7 @@ def test_lint_runs_locally_when_ci_failed(pushed, monkeypatch, tmp_path):
         _make_dev_env(tmp_path / 'omega_dev', make_exit=2)
     )
 
-    text, _, _, from_ci = omega_pr_lint.run_lint(
+    text, _, from_ci = omega_pr_lint.run_lint(
         fixture.config, fixture.fork, manifest.branch
     )
 
@@ -93,34 +92,27 @@ def test_lint_needs_dev_env_without_ci(pushed, monkeypatch):
         omega_pr_lint.run_lint(fixture.config, fixture.fork, manifest.branch)
 
 
-def test_lint_does_not_post_ci_results(pushed, monkeypatch):
+def test_lint_never_posts(pushed, monkeypatch, tmp_path):
     fixture, manifest = pushed
-    _mock_ci(monkeypatch, [CI_RUN], ['success', 'success'])
     posted = _mock_post(monkeypatch)
-
-    _, url, _, from_ci = omega_pr_lint.run_lint(
-        fixture.config, fixture.fork, manifest.branch, post=True
+    _mock_ci(monkeypatch, [CI_RUN], ['success', 'success'])
+    _, _, from_ci = omega_pr_lint.run_lint(
+        fixture.config, fixture.fork, manifest.branch
     )
-
     assert from_ci
-    assert url is None
-    assert posted == []
 
-
-def test_lint_posts_local_results(pushed, monkeypatch, tmp_path):
-    fixture, manifest = pushed
     _mock_ci(monkeypatch, [], [])
     fixture.config.omega_dev_env = str(
         _make_dev_env(tmp_path / 'omega_dev', make_exit=0)
     )
-    posted = _mock_post(monkeypatch)
-
-    _, url, path, from_ci = omega_pr_lint.run_lint(
-        fixture.config, fixture.fork, manifest.branch, post=True
+    _, path, from_ci = omega_pr_lint.run_lint(
+        fixture.config, fixture.fork, manifest.branch
     )
-
     assert not from_ci
-    assert url == 'https://github.com/E3SM-Project/Omega/pull/5#comment'
+    assert posted == []
+
+    # once someone has read it, the comment is posted with post
+    pr_test_report.post_file(UPSTREAM, 5, path, MARKER_PREFIX)
     assert posted == [(5, path)]
 
 

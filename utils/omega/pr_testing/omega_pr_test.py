@@ -91,22 +91,21 @@ def _init(args):
 
 def _lint(args):
     config = read_config(args.config_file)
-    text, url, path, from_ci = omega_pr_lint.run_lint(
+    text, path, from_ci = omega_pr_lint.run_lint(
         config=config,
         fork=args.fork,
         branch=args.branch,
         notes=read_notes(args.notes),
         agent=args.agent,
-        post=args.post,
     )
+    print(text)
     if from_ci:
-        print(text)
         print(
-            f"Not posted: Omega CI's checks passed, which the PR already "
-            f'shows.  The comment is in {path}'
+            f"Not to be posted: Omega CI's checks passed, which the PR "
+            f'already shows.  The comment is in {path}'
         )
     else:
-        _print_report(text, url, path)
+        _print_written(path)
 
 
 def _setup(args):
@@ -127,7 +126,7 @@ def _setup(args):
 
 def _report(args):
     config = read_config(args.config_file)
-    text, url, path = omega_pr_report.run_report(
+    text, path = omega_pr_report.run_report(
         config=config,
         fork=args.fork,
         branch=args.branch,
@@ -135,9 +134,9 @@ def _report(args):
         not_run=args.not_run,
         notes=read_notes(args.notes),
         agent=args.agent,
-        post=args.post,
     )
-    _print_report(text, url, path)
+    print(text)
+    _print_written(path)
 
 
 def _post(args):
@@ -156,12 +155,11 @@ def _status(args):
     print(omega_pr_status.run_status(args.pr, manifest, config))
 
 
-def _print_report(text, url, path):
-    if url is None:
-        print(text)
-        print(f'Not posted.  The comment is in {path}')
-    else:
-        print(f'Posted {url}')
+def _print_written(path):
+    print(
+        f'Not posted.  The comment is in {path}.  Read it, and once it is '
+        f'right, post it with post.'
+    )
 
 
 def _add_branch_args(parser):
@@ -179,12 +177,6 @@ def _add_report_args(parser):
         '--agent',
         help='The agent posting the comment, e.g. "Claude Code", which adds '
         'the signature',
-    )
-    parser.add_argument(
-        '--post',
-        action='store_true',
-        help='Post the comment on the PR.  Agents pass this only with the '
-        "requester's permission.",
     )
 
 
@@ -275,8 +267,9 @@ def _parse_args():
 
     lint = subparsers.add_parser(
         'lint',
-        help='Check linting and the documentation build, posting only if '
-        "they had to run here because Omega's CI had not passed (initiator)",
+        help='Check linting and the documentation build, and write a '
+        "comment, to be posted only if Omega's CI had not passed "
+        '(initiator)',
     )
     _add_branch_args(lint)
     _add_report_args(lint)
@@ -317,8 +310,8 @@ def _parse_args():
 
     report = subparsers.add_parser(
         'report',
-        help="Write and post the Testing comment for a machine's rows "
-        '(tester)',
+        help="Write the Testing comment for a machine's rows, for someone "
+        'to read before it is posted (tester)',
     )
     _add_branch_args(report)
     report.add_argument(
@@ -337,9 +330,9 @@ def _parse_args():
 
     post = subparsers.add_parser(
         'post',
-        help='Post a Testing comment that report or lint wrote, such as one '
-        'copied from a machine without gh.  Agents run this only with the '
-        "requester's permission.",
+        help='Post a Testing comment that report or lint wrote, once someone '
+        "has read it.  Agents run this only with the requester's "
+        'permission.',
     )
     post.add_argument('--pr', type=int, required=True, help='The Omega PR')
     post.add_argument('comment', help="The comment's file")

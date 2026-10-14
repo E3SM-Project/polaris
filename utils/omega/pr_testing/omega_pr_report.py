@@ -37,10 +37,10 @@ def run_report(
     not_run: Optional[str] = None,
     notes: Optional[str] = None,
     agent: Optional[str] = None,
-    post: bool = False,
-) -> Tuple[str, Optional[str], str]:
+) -> Tuple[str, str]:
     """
-    Write, and optionally post, the Testing comment for a machine's rows
+    Write the Testing comment for a machine's rows, for someone to read
+    before it is posted
 
     The rows are the manifest's rows on the machine and on any machine that
     shares its login nodes, so Perlmutter's pm-cpu and pm-gpu rows share a
@@ -71,16 +71,10 @@ def run_report(
     agent : str, optional
         The agent posting the comment, which adds the signature
 
-    post : bool, optional
-        Whether to post the comment
-
     Returns
     -------
     text : str
         The comment
-
-    url : str, optional
-        The URL of the posted comment
 
     path : str
         The file the comment was written to
@@ -138,8 +132,8 @@ def run_report(
     path = os.path.join(
         get_run_dir(config, manifest), f'report_{"_".join(machines)}.md'
     )
-    url = report.deliver(text, path, UPSTREAM, manifest.pull_request, post)
-    return text, url, path
+    report.write_comment(text, path)
+    return text, path
 
 
 def make_marker(manifest: Manifest, rows: List[Dict[str, Any]]) -> str:

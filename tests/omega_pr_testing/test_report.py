@@ -43,11 +43,10 @@ def finished(tester):
 def test_report(finished):
     fixture, manifest, state = finished
 
-    text, url, path = omega_pr_report.run_report(
+    text, path = omega_pr_report.run_report(
         fixture.config, fixture.fork, manifest.branch, agent='Claude Code'
     )
 
-    assert url is None
     assert text.startswith('## Testing on chrysalis\n')
     assert (
         f'Tested the merge of E3SM-Project/Omega#5 '
@@ -88,7 +87,7 @@ def test_report_shares_login_nodes(tester, monkeypatch):
         _set_env(monkeypatch, machine, compiler, 'mpich')
         _finish(_setup(fixture, manifest))
 
-    text, _, path = omega_pr_report.run_report(
+    text, path = omega_pr_report.run_report(
         fixture.config, fixture.fork, manifest.branch
     )
 
@@ -109,7 +108,7 @@ def test_report_without_baseline(tester):
     fixture, manifest, _ = tester
     _finish(_setup(fixture, manifest, no_baseline='develop cannot run'))
 
-    text, _, _ = omega_pr_report.run_report(
+    text, _ = omega_pr_report.run_report(
         fixture.config, fixture.fork, manifest.branch
     )
 
@@ -148,7 +147,7 @@ def test_report_failures(finished):
         '98% tests passed, 1 tests failed out of 50\n'
     )
 
-    text, _, _ = omega_pr_report.run_report(
+    text, _ = omega_pr_report.run_report(
         fixture.config, fixture.fork, manifest.branch
     )
 
@@ -175,7 +174,7 @@ def test_report_before_the_jobs_finish(finished):
 def test_report_not_run(finished):
     fixture, manifest, _ = finished
 
-    text, _, path = omega_pr_report.run_report(
+    text, path = omega_pr_report.run_report(
         fixture.config,
         fixture.fork,
         manifest.branch,
@@ -208,7 +207,7 @@ def test_report_some_rows_not_run(tester, monkeypatch):
             fixture.config, fixture.fork, manifest.branch
         )
 
-    text, _, _ = omega_pr_report.run_report(
+    text, _ = omega_pr_report.run_report(
         fixture.config,
         fixture.fork,
         manifest.branch,
@@ -225,7 +224,7 @@ def test_report_some_rows_not_run(tester, monkeypatch):
 
 def test_post_file(finished, tmp_path, monkeypatch):
     fixture, manifest, _ = finished
-    _, _, path = omega_pr_report.run_report(
+    _, path = omega_pr_report.run_report(
         fixture.config, fixture.fork, manifest.branch
     )
     posted = _mock_post(monkeypatch)

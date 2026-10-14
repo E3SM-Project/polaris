@@ -23,8 +23,8 @@ its rows.  An agent on every machine also works, but is discouraged.
    and `--baseline-polaris-ref` the Polaris commit for the baseline.
 2. **`lint`** (your computer) checks pre-commit and the docs build.  When
    Omega's CI has passed on the PR head, there is nothing to post, since
-   the PR's checks show it.  Otherwise it runs them, and `--post` posts the
-   result.
+   the PR's checks show it.  Otherwise it runs them and writes a comment
+   with the result.
 3. **`setup`** (each machine) checks the Polaris checkout against the
    manifest, reuses a matching baseline run if it finds one, and otherwise
    builds and sets one up.  A baseline with its own Polaris commit is found
@@ -36,9 +36,10 @@ its rows.  An agent on every machine also works, but is discouraged.
    a table with a line for each row, generated from the results, and for
    each row a collapsed block with the files Polaris and CTest wrote,
    pasted unchanged, and the compiler warnings the PR build has that the
-   baseline build does not.  `--post` posts it.
-5. **`post`** (your computer) posts a comment that `report` wrote on a
-   machine without `gh`, once it is copied over unchanged.
+   baseline build does not.
+5. **`post`** posts a comment that `report` or `lint` wrote, once someone
+   has read it.  Neither posts by itself.  A comment written on a machine
+   without `gh` is copied unchanged to your computer and posted there.
 6. **`status`** lists which rows have been reported and whether they are
    for the PR's current head.  Given the test branch, it lists the rows to
    test from each machine.
@@ -91,7 +92,7 @@ options.
 # on your computer
 omega_pr_test.py init --pr 553 --push
 omega_pr_test.py lint --fork git@github.com:me/E3SM.git \
-    --branch omega-pr-test/553-54456ec --post
+    --branch omega-pr-test/553-54456ec
 
 # on each machine, or over ssh, with each row's load script sourced
 omega_pr_test.py setup --fork git@github.com:me/E3SM.git \

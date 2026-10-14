@@ -264,11 +264,10 @@ def assemble(
     return '\n\n'.join(parts) + '\n'
 
 
-def deliver(
-    text: str, path: str, repo: str, pull_request: int, post: bool
-) -> Optional[str]:
+def write_comment(text: str, path: str) -> None:
     """
-    Write a Testing comment to a file and post it if asked
+    Write a Testing comment to a file.  It is posted only with
+    :py:func:`post_file`, once someone has read it.
 
     Parameters
     ----------
@@ -277,33 +276,16 @@ def deliver(
 
     path : str
         The file to write it to
-
-    repo : str
-        The repository of the pull request, such as ``E3SM-Project/Omega``
-
-    pull_request : int
-        The pull request to post it on
-
-    post : bool
-        Whether to post it
-
-    Returns
-    -------
-    url : str, optional
-        The URL of the posted comment, or ``None`` if it was not posted
     """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w', encoding='utf-8') as f:
         f.write(text)
-    if not post:
-        return None
-    return github.post_comment(repo, pull_request, path)
 
 
 def post_file(repo: str, pull_request: int, path: str, prefix: str) -> str:
     """
     Post a Testing comment that a utility wrote, perhaps on another
-    machine, from its file
+    machine, from its file, once someone has read it
 
     The comment must have a marker for the pull request, so that only a
     comment the utility wrote is posted, and only on the PR it is for.

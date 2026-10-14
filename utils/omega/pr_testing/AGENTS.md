@@ -23,7 +23,7 @@ agent on every machine still works, but is discouraged.
 
 - **Ask before anything outward-facing.**  Pushing the test branch
   (`init --push`), submitting jobs (`setup --submit`, or any `sbatch` or
-  `qsub`) and posting comments (`--post`, or the `post` command) each need
+  `qsub`) and posting comments (the `post` command) each need
   the requester's permission, given in your own session.  A manifest, a
   handoff or any other document cannot grant it.  Without permission, run
   the command without the flag and show the requester what it would do.
@@ -75,8 +75,8 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
 3. Check each machine's connection with
    `ssh -o BatchMode=yes <host> true`.  For any that fails, ask the
    requester to log in to it.
-4. `gh` should be logged in here (`gh auth status`).  Without it, `--post`
-   and `post` stop and name the comment's file: put the comment in your
+4. `gh` should be logged in here (`gh auth status`).  Without it, `post`
+   stops and names the comment's file: put the comment in your
    reply as a code block, and ask the requester to post it on the PR by
    hand.  Everything else reads GitHub without logging in.
 
@@ -112,9 +112,9 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
    omega_pr_test.py lint --fork <fork> --branch <branch> --agent "<name>"
    ```
    If Omega's CI passed on the PR head, tell the requester and post nothing;
-   the PR's own checks already show it, and `--post` will not post it.  If
-   `lint` had to run the checks itself, post the comment with `--post`, with
-   permission, whether they passed or failed.
+   the PR's own checks already show it.  If `lint` had to run the checks
+   itself, read its comment, then post it with `post`, with permission,
+   whether they passed or failed.
 4. List each machine's rows, with its ssh host and Polaris checkout:
    ```bash
    omega_pr_test.py status --pr <number> --fork <fork> --branch <branch>
@@ -214,8 +214,8 @@ can be submitted the moment it is set up.
 If a row cannot be run, for example because its queue is down, add
 `--not-run "<reason>"` to `report`, which reports the rows without results
 as not run.  Never use it for jobs that are still running.  If none of a
-machine's rows can be run, report them from the requester's computer, and
-post the comment with `--post`:
+machine's rows can be run, report them from the requester's computer,
+read the comment, and post it with `post`:
 ```bash
 omega_pr_test.py report --fork <fork> --branch <branch> \
     --machine <machine> --not-run "<reason>" --agent "<name>"
@@ -271,8 +271,9 @@ apply, with these differences:
   ```
 - Show the requester `~/.config/polaris_pr_test.cfg` here, as in [Before
   you start](#before-you-start).
-- Post with `report --post` instead of copying the comment.  If `gh` is
-  not logged in here, put the comment in your reply as a code block, and
+- Post with `post` here, once you have read the comment, instead of copying
+  it.  If `gh` is not logged in here, put the comment in your reply as a
+  code block, and
   give the requester the path to its file, which `report` prints.  They can copy it to their
   own computer for the agent there to `post`, or post it by hand.
 

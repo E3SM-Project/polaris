@@ -122,9 +122,7 @@ def get_pull_request(repo: str, number: int) -> Dict[str, Any]:
     """
     if gh_usable():
         fields = 'state,isDraft,title,url,headRefOid,baseRefName'
-        output = gh(
-            ['pr', 'view', str(number), '-R', repo, '--json', fields]
-        )
+        output = gh(['pr', 'view', str(number), '-R', repo, '--json', fields])
         return json.loads(output)
 
     (pr,) = api_get(f'repos/{repo}/pulls/{number}')
@@ -264,8 +262,7 @@ def get_check_runs(repo: str, sha: str) -> List[Dict[str, Any]]:
             '--paginate',
             f'repos/{repo}/commits/{sha}/check-runs',
             '--jq',
-            '.check_runs[] | {name, status, conclusion, id, html_url} '
-            '| @json',
+            '.check_runs[] | {name, status, conclusion, id, html_url} | @json',
         ]
     )
     return [json.loads(line) for line in output.splitlines() if line]

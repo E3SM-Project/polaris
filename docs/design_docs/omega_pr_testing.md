@@ -227,8 +227,9 @@ signature that `AGENTS.md` prescribes.
 ### Algorithm Design: The requester controls every outward-facing action.
 
 Each outward-facing step prints what it would do, and acts only when given
-a flag: `init --push`, `setup --submit`, and `--post` for `lint` and
-`report`. The `post` command is outward-facing in itself. The agent passes one of these only when the requester has allowed
+a flag: `init --push` and `setup --submit`. `lint` and `report` only write
+their comments. The `post` command posts one, once someone has read it,
+and is outward-facing in itself (see [Decisions](#decisions)). The agent passes one of these only when the requester has allowed
 it in that session.
 A manifest or any other document cannot grant permission.
 
@@ -518,7 +519,7 @@ directory and the Omega commit from `omega_source.txt`.
 
 ```
 omega_pr_test.py report [--machine <machine>] [--notes <file>]
-                        [--not-run <reason>] [--agent <name>] [--post]
+                        [--not-run <reason>] [--agent <name>]
 ```
 
 `report` reports every row of the manifest on the machine, and on any
@@ -561,12 +562,11 @@ Tested the merge of E3SM-Project/Omega#553 (`<sha>`) into `develop`
 *Posted by <agent> on @<requester>'s behalf. ...*
 ```
 
-`--post` runs `gh pr comment <pr> -R E3SM-Project/Omega --body-file
-report_<machine>.md`. Without it, `report` prints the text for the
-requester to paste.
-
-A report written on a machine without `gh` is copied unchanged to the
-requester's computer and posted there:
+`report` writes the comment to `report_<machine>.md` and prints it.
+Someone reads it, and then `post` runs `gh pr comment <pr> -R
+E3SM-Project/Omega --body-file report_<machine>.md`. A report written on a
+machine without `gh` is copied unchanged to the requester's computer and
+posted there:
 
 ```
 omega_pr_test.py post --pr 553 <report_<machine>.md>
@@ -578,8 +578,8 @@ only what `report` or `lint` wrote, on the right pull request.
 `gh` is never required. Queries use it when it is installed and logged in,
 and otherwise GitHub's REST API, which needs no login for a public
 repository (a token in `GH_TOKEN` raises the rate limit). The requester is
-the owner of `fork`. Only posting needs `gh`; without it, `--post` and
-`post` stop, and the comment is posted by hand.
+the owner of `fork`. Only posting needs `gh`; without it, `post` stops,
+and the comment is posted by hand.
 
 ### Implementation: The requester controls every outward-facing action.
 
@@ -623,7 +623,7 @@ answer decides whether to depend on the job or to stop.
 
 ```
 omega_pr_test.py lint --fork <fork> --branch <branch> [--notes <file>]
-                      [--agent <name>] [--post]
+                      [--agent <name>]
 ```
 
 `lint` reads the manifest, then finds the "lint and test docs" check run
@@ -632,8 +632,8 @@ the job's "Run pre-commit" and "Build Sphinx Docs" steps from the Actions
 API. If the job has not passed, `lint` puts `omega_dev_env` first on `PATH`
 in a worktree of its own at the test commit, since the checks can change
 files. It runs `pre-commit run --files <changed files>` at the root and
-`make html-strict` in `components/omega/doc`, keeping both logs. `--post`
-posts only results from such a local run.
+`make html-strict` in `components/omega/doc`, keeping both logs. Only
+results from such a local run are to be posted.
 
 The comment is headed `## Testing: lint and docs`, with one line each for
 pre-commit and the documentation build. Each line says `passed` or `failed`
@@ -748,6 +748,10 @@ a changed file is marked. The #553 trial checks the section on every row.
   requester's usual logins. The utility itself stays on the machines, so
   an agent on a machine runs the same commands, which Frontier still
   needs.
+- **Nothing is posted without being read first.** `report` and `lint`
+  only write their comments, and `post` posts one once an agent or a
+  person has read it. A flag that posted straight away would let a
+  comment reach the pull request unchecked.
 - **Each machine gets one comment.** One tester runs all of a machine's
   rows, so its comment needs no coordination with other machines. A
   comment for each row, as the first trials posted, repeated the same
