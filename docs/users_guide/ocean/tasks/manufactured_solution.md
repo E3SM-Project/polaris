@@ -120,7 +120,13 @@ n_wavelengths_y = 2
 dt_per_km = 1.5
 
 # Convergence threshold below which the test fails
-conv_thresh = 0.8
+conv_thresh = 1.8
+
+# Convergence threshold for MPAS-Ocean's unsplit_explicit time integrator,
+# which converges at close to first order until a fix for how it times the
+# manufactured solution forcing is merged into E3SM, see
+# https://github.com/E3SM-Project/polaris/issues/836
+mpaso_unsplit_conv_thresh = 1.0
 ```
 
 The time integrator and the time steps that go with it are set in the
@@ -146,10 +152,18 @@ split_dt_per_km = 22.5
 btr_dt_per_km = 0.75
 ```
 
+MPAS-Ocean's `unsplit_explicit` does not yet time the manufactured solution
+forcing correctly, so it converges at close to first order. Until a fix is
+merged into E3SM, MPAS-Ocean runs with `unsplit_explicit` are checked against
+`mpaso_unsplit_conv_thresh` rather than `conv_thresh` (see
+[#836](https://github.com/E3SM-Project/polaris/issues/836)). The
+{ref}`ocean-manufactured-solution-rk4` task checks both models against
+`conv_thresh`.
+
 The single layer means the wave this test measures is entirely the barotropic
 mode.  The split time stepper subcycles and time-averages that mode, which
 damps it, so `split_explicit` converges at a much lower order than the
-unsplit schemes; `conv_thresh` is set accordingly.
+unsplit schemes and will not meet the default `conv_thresh`.
 
 ### cores
 
@@ -174,3 +188,14 @@ except laplacian viscosity is turned on.
 All settings are the same as the {ref}`ocean-manufactured-solution-default` case
 except hyperviscosity is turned on. The expected convergence should not be
 significantly different from the {ref}`ocean-manufactured-solution-default` case.
+
+(ocean-manufactured-solution-rk4)=
+
+## rk4
+
+### description
+
+The `rk4/convergence_both/default` task is the same as `convergence_both` in
+the {ref}`ocean-manufactured-solution-default` case except that it uses the
+`RK4` time integrator, with a time step of `dt_per_km`.  It has its own config
+file in the `rk4` directory.

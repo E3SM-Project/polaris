@@ -7,7 +7,10 @@ uses the Method of Manufactured Solutions (see
 {ref}`ocean-manufactured-solution`) at 4 resolutions (200, 100, 50, and 25 km).
 
 The {py:class}`polaris.tasks.ocean.manufactured_solution.ManufacturedSolution`
-test performs a 10-hour run.
+test performs a 10-hour run.  The tasks use the `unsplit_explicit` time
+integrator, except for `rk4/convergence_both/default`, which has its own shared
+config with `manufactured_solution_rk4.cfg` added, and its own forward steps.
+All tasks share the `init` steps.
 
 ## framework
 
@@ -69,6 +72,9 @@ descends from {py:class}`polaris.ocean.convergence.analysis.ConvergenceAnalysis`
 a step for computing the error from the final simulated field
 and the exact solution. It uses the config options to determine whether the
 convergence rate falls within acceptable bounds.
+{py:meth}`polaris.tasks.ocean.manufactured_solution.analysis.Analysis.convergence_parameters()`
+uses `mpaso_unsplit_conv_thresh` in place of `conv_thresh` for MPAS-Ocean's
+`unsplit_explicit` time integrator.
 
 ### viz
 

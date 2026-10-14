@@ -399,6 +399,7 @@
 
    analysis.Analysis
    analysis.Analysis.exact_solution
+   analysis.Analysis.convergence_parameters
 
    exact_solution.ExactSolution
    exact_solution.ExactSolution.ssh

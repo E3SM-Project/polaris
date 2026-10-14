@@ -174,6 +174,7 @@ ocean/planar/inertial_gravity_wave/convergence_both
 ocean/planar/manufactured_solution/convergence_both/default
 ocean/planar/manufactured_solution/convergence_both/del2
 ocean/planar/manufactured_solution/convergence_both/del4
+ocean/planar/manufactured_solution/rk4/convergence_both/default
 ocean/spherical/icos/correlated_tracers_2d
 ocean/spherical/qu/correlated_tracers_2d
 ocean/spherical/icos/cosine_bell/convergence_both
