@@ -24,26 +24,13 @@ from polaris.tasks.ocean.manufactured_solution.viz import Viz as Viz
 
 def add_manufactured_solution_tasks(component):
     """
-    Add a task that defines a convergence test that uses the method of
+    Add tasks that define convergence tests that use the method of
     manufactured solutions
 
     component : polaris.tasks.ocean.Ocean
         the ocean component that the task will be added to
     """
-    basedir = 'planar/manufactured_solution'
-    config_filename = 'manufactured_solution.cfg'
-    filepath = os.path.join(component.name, basedir, config_filename)
-    config = PolarisConfigParser(filepath=filepath)
-    config.add_from_package('polaris.ocean.eos', 'constant.cfg')
-    config.set(
-        'ocean',
-        'eos_constant_rhoref',
-        value=f'{get_constant("seawater_density_reference"):02g}',
-    )
-    config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
-    config.add_from_package(
-        'polaris.tasks.ocean.manufactured_solution', config_filename
-    )
+    config = _get_config(component, rk4=False)
     for refinement in ['space', 'time', 'both']:
         component.add_task(
             ManufacturedSolution(
@@ -61,6 +48,15 @@ def add_manufactured_solution_tasks(component):
         )
     )
 
+    # an RK4 version of the default task, so both unsplit time integrators
+    # are tested in each model
+    rk4_config = _get_config(component, rk4=True)
+    component.add_task(
+        ManufacturedSolution(
+            component=component, config=rk4_config, refinement='both', rk4=True
+        )
+    )
+
 
 class ManufacturedSolution(Task):
     """
@@ -68,7 +64,13 @@ class ManufacturedSolution(Task):
     """
 
     def __init__(
-        self, component, config, refinement='both', del2=False, del4=False
+        self,
+        component,
+        config,
+        refinement='both',
+        del2=False,
+        del4=False,
+        rk4=False,
     ):
         """
         Create the test case
@@ -89,10 +91,21 @@ class ManufacturedSolution(Task):
 
         del4 : bool
             Whether to evaluate the momentum del4 operator
+
+        rk4 : bool
+            Whether this task uses the RK4 time integrator, rather than the
+            default unsplit_explicit, in which case it goes in an ``rk4``
+            subdirectory with its own config file
         """
         basedir = 'planar/manufactured_solution'
-        subdir = f'{basedir}/convergence_{refinement}'
-        name = f'manufactured_solution_convergence_{refinement}'
+        if rk4:
+            taskdir = f'{basedir}/rk4'
+            name = 'manufactured_solution_rk4'
+        else:
+            taskdir = basedir
+            name = 'manufactured_solution'
+        subdir = f'{taskdir}/convergence_{refinement}'
+        name = f'{name}_convergence_{refinement}'
 
         if del2:
             test_name = 'del2'
@@ -152,7 +165,7 @@ class ManufacturedSolution(Task):
             timestep = ceil(timestep)
             timesteps.append(timestep)
 
-            subdir = f'{basedir}/{test_name}/forward/{mesh_name}_{timestep}s'
+            subdir = f'{taskdir}/{test_name}/forward/{mesh_name}_{timestep}s'
             symlink = f'forward/{mesh_name}_{timestep}s'
             forward_step = component.get_or_create_shared_step(
                 step_cls=Forward,
@@ -197,3 +210,32 @@ class ManufacturedSolution(Task):
         config.add_from_package(
             'polaris.tasks.ocean.manufactured_solution', config_filename
         )
+
+
+def _get_config(component, rk4):
+    """
+    Get the shared config options for the manufactured solution tasks that
+    use either the default (unsplit_explicit) or the RK4 time integrator
+    """
+    basedir = 'planar/manufactured_solution'
+    if rk4:
+        basedir = f'{basedir}/rk4'
+    config_filename = 'manufactured_solution.cfg'
+    filepath = os.path.join(component.name, basedir, config_filename)
+    config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.ocean.eos', 'constant.cfg')
+    config.set(
+        'ocean',
+        'eos_constant_rhoref',
+        value=f'{get_constant("seawater_density_reference"):02g}',
+    )
+    config.add_from_package('polaris.ocean.convergence', 'convergence.cfg')
+    config.add_from_package(
+        'polaris.tasks.ocean.manufactured_solution', config_filename
+    )
+    if rk4:
+        config.add_from_package(
+            'polaris.tasks.ocean.manufactured_solution',
+            'manufactured_solution_rk4.cfg',
+        )
+    return config
