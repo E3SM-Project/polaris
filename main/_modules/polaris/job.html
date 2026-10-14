@@ -112,6 +112,8 @@
   <h1>Source code for polaris.job</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span> <span class="k">as</span> <span class="n">Template</span>
@@ -348,6 +350,178 @@
         <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">options</span></div>
+
+
+
+<div class="viewcode-block" id="SubmissionError">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.job.SubmissionError.html#polaris.job.SubmissionError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubmissionError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The scheduler refused a job script"""</span></div>
+
+
+
+<div class="viewcode-block" id="get_submit_args">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.job.get_submit_args.html#polaris.job.get_submit_args">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_submit_args</span><span class="p">(</span><span class="n">job_script</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">dependency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the command that submits a job script, optionally after another job</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    job_script : str</span>
+<span class="sd">        The job script to submit</span>
+
+<span class="sd">    system : {'slurm', 'pbs'}</span>
+<span class="sd">        The scheduler, as in the ``[parallel] system`` config option</span>
+
+<span class="sd">    dependency : str, optional</span>
+<span class="sd">        A job id that must finish, successfully or not, before this job</span>
+<span class="sd">        starts</span>
+
+<span class="sd">    extra_args : list of str, optional</span>
+<span class="sd">        More options for ``sbatch`` or ``qsub``, which override those in the</span>
+<span class="sd">        job script</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    args : list of str</span>
+<span class="sd">        The submission command and its arguments</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">'slurm'</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'sbatch'</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dependency</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="sa">f</span><span class="s1">'--dependency=afterany:</span><span class="si">{</span><span class="n">dependency</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+                    <span class="s1">'--kill-on-invalid-dep=yes'</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">'pbs'</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'qsub'</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dependency</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">'-W'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'depend=afterany:</span><span class="si">{</span><span class="n">dependency</span><span class="si">}</span><span class="s1">'</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unsupported parallel system: </span><span class="si">{</span><span class="n">system</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">extra_args</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_args</span><span class="p">)</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">job_script</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">args</span></div>
+
+
+
+<div class="viewcode-block" id="submit_job">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.job.submit_job.html#polaris.job.submit_job">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">submit_job</span><span class="p">(</span><span class="n">job_script</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">dependency</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Submit a job script from its work directory</span>
+
+<span class="sd">    Polaris job scripts change to the directory they were submitted from, so</span>
+<span class="sd">    the script is always submitted from ``work_dir``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    job_script : str</span>
+<span class="sd">        The job script to submit, relative to ``work_dir`` or absolute</span>
+
+<span class="sd">    work_dir : str</span>
+<span class="sd">        The directory to submit the job from</span>
+
+<span class="sd">    system : {'slurm', 'pbs'}</span>
+<span class="sd">        The scheduler, as in the ``[parallel] system`` config option</span>
+
+<span class="sd">    dependency : str, optional</span>
+<span class="sd">        A job id that must finish, successfully or not, before this job</span>
+<span class="sd">        starts</span>
+
+<span class="sd">    extra_args : list of str, optional</span>
+<span class="sd">        More options for ``sbatch`` or ``qsub``, which override those in the</span>
+<span class="sd">        job script</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    job_id : str</span>
+<span class="sd">        The id of the submitted job</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    polaris.job.SubmissionError</span>
+<span class="sd">        If the scheduler refuses the job, with its message</span>
+<span class="sd">    """</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">get_submit_args</span><span class="p">(</span><span class="n">job_script</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">dependency</span><span class="p">,</span> <span class="n">extra_args</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SubmissionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="si">}</span><span class="s1">" in </span><span class="si">{</span><span class="n">work_dir</span><span class="si">}</span><span class="s1"> failed:</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parse_job_id</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">system</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_job_id">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.job.parse_job_id.html#polaris.job.parse_job_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_job_id</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the job id from the output of a submission command</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output : str</span>
+<span class="sd">        The output of ``sbatch`` or ``qsub``</span>
+
+<span class="sd">    system : {'slurm', 'pbs'}</span>
+<span class="sd">        The scheduler, as in the ``[parallel] system`` config option</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    job_id : str</span>
+<span class="sd">        The id of the submitted job</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">'slurm'</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">'Submitted batch job (\d+)'</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()):</span>
+            <span class="n">job_id</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s1">'\d+(?:\.[\w.-]+)?'</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">job_id</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'Could not determine the </span><span class="si">{</span><span class="n">system</span><span class="si">}</span><span class="s1"> job id from output:</span><span class="se">\n</span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s1">'</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="is_job_active">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.job.is_job_active.html#polaris.job.is_job_active">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_job_active</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whether a job is still queued or running</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    job_id : str</span>
+<span class="sd">        The id of the job</span>
+
+<span class="sd">    system : {'slurm', 'pbs'}</span>
+<span class="sd">        The scheduler, as in the ``[parallel] system`` config option</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    active : bool</span>
+<span class="sd">        Whether the scheduler still lists the job as queued or running</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">'slurm'</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'squeue'</span><span class="p">,</span> <span class="s1">'--noheader'</span><span class="p">,</span> <span class="s1">'--jobs'</span><span class="p">,</span> <span class="n">job_id</span><span class="p">,</span> <span class="s1">'--format=%T'</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">'pbs'</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'qstat'</span><span class="p">,</span> <span class="n">job_id</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unsupported parallel system: </span><span class="si">{</span><span class="n">system</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="c1"># both commands fail for a job that has finished and been purged</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">''</span></div>
 
 
 

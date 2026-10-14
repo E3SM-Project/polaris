@@ -1,0 +1,6 @@
+﻿polaris.job.get\_submit\_args
+=============================
+
+.. currentmodule:: polaris.job
+
+.. autofunction:: get_submit_args

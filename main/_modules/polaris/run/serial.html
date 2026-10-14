@@ -129,6 +129,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_omega_build_type</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_function_call</span><span class="p">,</span> <span class="n">log_method_call</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_parallel_systems</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">read_provenance</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">complete_step_run</span><span class="p">,</span>
     <span class="n">load_dependencies</span><span class="p">,</span>
@@ -148,6 +149,9 @@
 <span class="n">success_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">start_pass</span><span class="si">}</span><span class="s1">SUCCESS</span><span class="si">{</span><span class="n">end_color</span><span class="si">}</span><span class="s1">'</span>
 <span class="n">fail_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">start_fail</span><span class="si">}</span><span class="s1">FAIL</span><span class="si">{</span><span class="n">end_color</span><span class="si">}</span><span class="s1">'</span>
 <span class="n">error_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">start_fail</span><span class="si">}</span><span class="s1">ERROR</span><span class="si">{</span><span class="n">end_color</span><span class="si">}</span><span class="s1">'</span>
+
+<span class="c1"># how the models that provenance records are named in PR summaries</span>
+<span class="n">_MODEL_NAMES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'omega'</span><span class="p">:</span> <span class="s1">'Omega'</span><span class="p">,</span> <span class="s1">'mpas-ocean'</span><span class="p">:</span> <span class="s1">'MPAS-Ocean'</span><span class="p">}</span>
 
 
 <div class="viewcode-block" id="run_tasks">
@@ -1037,8 +1041,8 @@
 <span class="sd">    ``POLARIS_RUN_OUTPUT`` in ``utils/benchmark/benchmark.py`` to match.</span>
 <span class="sd">    """</span>
     <span class="n">work_dir</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'work_dir'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
-    <span class="n">provenance_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'provenance'</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">):</span>
+    <span class="n">pr_provenance</span> <span class="o">=</span> <span class="n">read_provenance</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pr_provenance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
 
     <span class="c1"># keys in provenance are written exactly like these labels</span>
@@ -1052,12 +1056,13 @@
         <span class="s1">'compiler'</span><span class="p">:</span> <span class="s1">'compiler'</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
-    <span class="n">_parse_provenance_into</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+    <span class="n">values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">value</span><span class="p">:</span> <span class="n">pr_provenance</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
 
-    <span class="c1"># If a baseline workdir exists, parse its provenance to get baseline build</span>
-    <span class="n">baseline_build</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">baseline_build</span> <span class="o">=</span> <span class="n">_parse_baseline_build</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'baseline'</span><span class="p">))</span>
+    <span class="n">baseline_provenance</span><span class="p">,</span> <span class="n">baseline_build</span> <span class="o">=</span> <span class="n">_read_baseline_provenance</span><span class="p">(</span>
+        <span class="n">values</span><span class="p">[</span><span class="s1">'baseline'</span><span class="p">]</span>
+    <span class="p">)</span>
 
     <span class="c1"># Build the output content. Only include optional lines if present.</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'### Polaris `</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">` suite'</span><span class="p">]</span>
@@ -1070,6 +1075,7 @@
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'- PR build: `</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s2">"build"</span><span class="p">]</span><span class="si">}</span><span class="s1">`'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="s1">'work'</span><span class="p">]:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'- PR workdir: `</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s2">"work"</span><span class="p">]</span><span class="si">}</span><span class="s1">`'</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_format_commit_lines</span><span class="p">(</span><span class="n">pr_provenance</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="s1">'machine'</span><span class="p">]:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'- Machine: `</span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s2">"machine"</span><span class="p">]</span><span class="si">}</span><span class="s1">`'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="s1">'partition'</span><span class="p">]:</span>
@@ -1137,6 +1143,8 @@
                     <span class="p">)</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'```'</span><span class="p">)</span>
 
+    <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_format_commit_logs</span><span class="p">(</span><span class="n">pr_provenance</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="p">))</span>
+
     <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">_output_for_pr.md'</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Writing output useful for copy/paste into PRs to:</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
@@ -1193,27 +1201,105 @@
         <span class="k">pass</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_parse_baseline_build</span><span class="p">(</span><span class="n">baseline_workdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline_workdir</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">baseline_workdir</span><span class="p">,</span> <span class="s1">'provenance'</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">':'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">':'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">key</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'build directory'</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">val</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="kc">None</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_baseline_provenance</span><span class="p">(</span>
+    <span class="n">baseline_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The provenance of the baseline run and its build directory, or ``None``</span>
+<span class="sd">    for either one that is not known</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline_dir</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">baseline_provenance</span> <span class="o">=</span> <span class="n">read_provenance</span><span class="p">(</span><span class="n">baseline_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">baseline_provenance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">baseline_provenance</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'build directory'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_commit_lines</span><span class="p">(</span>
+    <span class="n">pr_provenance</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Lines naming the Polaris and component commits of the PR and baseline</span>
+<span class="sd">    runs, with Polaris on one line when both runs used the same commit</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s1">'- </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">_format_commit</span><span class="p">(</span><span class="n">info</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">_commit_sides</span><span class="p">(</span><span class="n">pr_provenance</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="p">)</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_commit_logs</span><span class="p">(</span>
+    <span class="n">pr_provenance</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A collapsed block with the recent commits of each side, or nothing if</span>
+<span class="sd">    provenance records no logs</span>
+<span class="sd">    """</span>
+    <span class="n">sides</span> <span class="o">=</span> <span class="n">_commit_sides</span><span class="p">(</span><span class="n">pr_provenance</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="p">)</span>
+    <span class="n">sides</span> <span class="o">=</span> <span class="p">[(</span><span class="n">label</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">sides</span> <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">'log'</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sides</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s1">''</span><span class="p">,</span> <span class="s1">'&lt;details&gt;'</span><span class="p">,</span> <span class="s1">'&lt;summary&gt;Recent commits&lt;/summary&gt;'</span><span class="p">,</span> <span class="s1">''</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">sides</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">:'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'```'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">'log'</span><span class="p">])</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'```'</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'&lt;/details&gt;'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lines</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_commit_sides</span><span class="p">(</span>
+    <span class="n">pr_provenance</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The labels and git entries to report, in the order they are listed</span>
+<span class="sd">    """</span>
+    <span class="n">component</span> <span class="o">=</span> <span class="n">_MODEL_NAMES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pr_provenance</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'model'</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">,</span> <span class="s1">'Component'</span><span class="p">)</span>
+    <span class="n">pr_polaris</span> <span class="o">=</span> <span class="n">pr_provenance</span><span class="p">[</span><span class="s1">'polaris'</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">baseline_provenance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sides</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">'Polaris'</span><span class="p">,</span> <span class="n">pr_polaris</span><span class="p">),</span>
+            <span class="p">(</span><span class="sa">f</span><span class="s1">'PR </span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">pr_provenance</span><span class="p">[</span><span class="s1">'component'</span><span class="p">]),</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">label</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">sides</span> <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="n">baseline_polaris</span> <span class="o">=</span> <span class="n">baseline_provenance</span><span class="p">[</span><span class="s1">'polaris'</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">_same_commit</span><span class="p">(</span><span class="n">pr_polaris</span><span class="p">,</span> <span class="n">baseline_polaris</span><span class="p">):</span>
+        <span class="n">sides</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'Polaris'</span><span class="p">,</span> <span class="n">pr_polaris</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sides</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">'Baseline Polaris'</span><span class="p">,</span> <span class="n">baseline_polaris</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">'PR Polaris'</span><span class="p">,</span> <span class="n">pr_polaris</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="n">sides</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span><span class="sa">f</span><span class="s1">'Baseline </span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">baseline_provenance</span><span class="p">[</span><span class="s1">'component'</span><span class="p">]),</span>
+            <span class="p">(</span><span class="sa">f</span><span class="s1">'PR </span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">pr_provenance</span><span class="p">[</span><span class="s1">'component'</span><span class="p">]),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">label</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">sides</span> <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_same_commit</span><span class="p">(</span><span class="n">info1</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">info2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">info1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">info2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">info1</span> <span class="ow">is</span> <span class="n">info2</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">info1</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">],</span> <span class="n">info1</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">])</span> <span class="o">==</span> <span class="p">(</span>
+        <span class="n">info2</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">],</span>
+        <span class="n">info2</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">],</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_commit</span><span class="p">(</span><span class="n">info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">]</span> <span class="ow">and</span> <span class="n">info</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">]:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'`</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">"hash"</span><span class="p">]</span><span class="si">}</span><span class="s1">` (`</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">"describe"</span><span class="p">]</span><span class="si">}</span><span class="s1">`)'</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'`</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">"hash"</span><span class="p">]</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">info</span><span class="p">[</span><span class="s2">"describe"</span><span class="p">]</span><span class="si">}</span><span class="s1">`'</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">'at_setup'</span><span class="p">]:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s1"> (at setup, not build)'</span>
+    <span class="k">return</span> <span class="n">text</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_derive_job_log_path</span><span class="p">(</span>

@@ -1,0 +1,6 @@
+﻿polaris.job.parse\_job\_id
+==========================
+
+.. currentmodule:: polaris.job
+
+.. autofunction:: parse_job_id

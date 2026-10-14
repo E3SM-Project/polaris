@@ -114,7 +114,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
 
@@ -377,6 +377,45 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">return</span> <span class="n">_read_cmake_cache_value</span><span class="p">(</span><span class="n">cache_path</span><span class="p">,</span> <span class="s1">'CMAKE_HOME_DIRECTORY'</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_omega_cime_target">
+<a class="viewcode-back" href="../../../developers_guide/generated/polaris.build.omega.get_omega_cime_target.html#polaris.build.omega.get_omega_cime_target">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_omega_cime_target</span><span class="p">(</span>
+    <span class="n">build_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the machine and compiler that a standalone Omega build was</span>
+<span class="sd">    configured for.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    build_dir : str, optional</span>
+<span class="sd">        The root of the standalone Omega build directory.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    machine : str, optional</span>
+<span class="sd">        The ``OMEGA_CIME_MACHINE`` of the build, or ``None`` if it cannot be</span>
+<span class="sd">        determined.</span>
+
+<span class="sd">    compiler : str, optional</span>
+<span class="sd">        The ``OMEGA_CIME_COMPILER`` of the build, or ``None`` if it cannot</span>
+<span class="sd">        be determined.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">build_dir</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="n">build_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span>
+    <span class="n">cache_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">'CMakeCache.txt'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_omega_build_dir</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cache_path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">_read_cmake_cache_value</span><span class="p">(</span><span class="n">cache_path</span><span class="p">,</span> <span class="s1">'OMEGA_CIME_MACHINE'</span><span class="p">),</span>
+        <span class="n">_read_cmake_cache_value</span><span class="p">(</span><span class="n">cache_path</span><span class="p">,</span> <span class="s1">'OMEGA_CIME_COMPILER'</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_omega_build_dir</span><span class="p">(</span><span class="n">build_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

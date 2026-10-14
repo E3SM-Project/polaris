@@ -1,0 +1,6 @@
+﻿polaris.provenance.read
+=======================
+
+.. currentmodule:: polaris.provenance
+
+.. autofunction:: read

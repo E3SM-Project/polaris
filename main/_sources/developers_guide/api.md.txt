@@ -274,6 +274,22 @@ seaice/api
    set_attrs
 ```
 
+### baselines
+
+```{eval-rst}
+.. currentmodule:: polaris.baselines
+
+.. autosummary::
+   :toctree: generated/
+
+   BaselineCriteria
+   NearMiss
+   find_baseline
+   check_baseline
+   find_build_log
+   check_build
+```
+
 ### component_graph
 
 ```{eval-rst}
@@ -334,6 +350,11 @@ seaice/api
    :toctree: generated/
 
    write_job_script
+   get_submit_args
+   submit_job
+   parse_job_id
+   is_job_active
+   SubmissionError
 ```
 
 ### logging
@@ -563,6 +584,7 @@ seaice/api
    mpas_ocean.build_mpas_ocean
    mpas_ocean.make_build_script
    omega.build_omega
+   omega.get_omega_cime_target
    omega.make_build_script
    source_record.read_source_record
 ```
@@ -618,6 +640,7 @@ seaice/api
 
    write
    get_summary
+   read
 ```
 
 

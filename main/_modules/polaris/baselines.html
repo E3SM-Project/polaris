@@ -1,0 +1,544 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>polaris.baselines</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">polaris.baselines</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for polaris.baselines</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Find existing suite runs and builds that can serve as a baseline</span>
+
+<span class="sd">A run can be reused as a baseline only if its provenance shows that it ran</span>
+<span class="sd">the same suite, with the same Polaris, on the same machine and compiler,</span>
+<span class="sd">from a build of the same component commit, and that every task passed.</span>
+<span class="sd">The component commit has to come from the record Polaris's build scripts</span>
+<span class="sd">write, since a commit read from the source tree at setup may not be the one</span>
+<span class="sd">that was built.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shlex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_omega_build_type</span><span class="p">,</span> <span class="n">get_omega_cime_target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.source_record</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_source_record</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">read_provenance</span>
+
+<span class="c1"># how far below each search root to look for runs and builds</span>
+<span class="n">MAX_SEARCH_DEPTH</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+<div class="viewcode-block" id="BaselineCriteria">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.baselines.BaselineCriteria.html#polaris.baselines.BaselineCriteria">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaselineCriteria</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    What a run or build must have been made with to serve as a baseline</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    machine : str</span>
+<span class="sd">        The machine the run or build was made on</span>
+
+<span class="sd">    compiler : str</span>
+<span class="sd">        The compiler the component was built with</span>
+
+<span class="sd">    build_type : str</span>
+<span class="sd">        The build type of the component, ``Release`` or ``Debug``</span>
+
+<span class="sd">    component_hash : str</span>
+<span class="sd">        The full hash of the component commit that was built</span>
+
+<span class="sd">    polaris_hash : str</span>
+<span class="sd">        The full hash of the Polaris commit that set up the run</span>
+
+<span class="sd">    suite : str</span>
+<span class="sd">        The name of the suite</span>
+<span class="sd">    """</span>
+
+    <span class="n">machine</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">compiler</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">build_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">component_hash</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">polaris_hash</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">suite</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'omega_pr'</span></div>
+
+
+
+<div class="viewcode-block" id="NearMiss">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.baselines.NearMiss.html#polaris.baselines.NearMiss">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NearMiss</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A run or build that was considered but does not match</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        The work directory of the run, or the build directory</span>
+
+<span class="sd">    reasons : list of str</span>
+<span class="sd">        Why it does not match</span>
+<span class="sd">    """</span>
+
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">reasons</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="find_baseline">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.baselines.find_baseline.html#polaris.baselines.find_baseline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_baseline</span><span class="p">(</span>
+    <span class="n">roots</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">criteria</span><span class="p">:</span> <span class="n">BaselineCriteria</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">NearMiss</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Find suite runs that match the criteria for a baseline</span>
+
+<span class="sd">    A candidate is a directory at most :py:data:`MAX_SEARCH_DEPTH` levels</span>
+<span class="sd">    below a search root with the suite's pickle file, which ``polaris</span>
+<span class="sd">    suite`` writes to the base work directory.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    roots : iterable of str</span>
+<span class="sd">        The directories to search</span>
+
+<span class="sd">    criteria : polaris.baselines.BaselineCriteria</span>
+<span class="sd">        What a baseline must have been made with</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matches : list of str</span>
+<span class="sd">        The work directories of the runs that match</span>
+
+<span class="sd">    near_misses : list of polaris.baselines.NearMiss</span>
+<span class="sd">        The other candidates and why each does not match, fewest reasons</span>
+<span class="sd">        first</span>
+<span class="sd">    """</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">near_misses</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">criteria</span><span class="o">.</span><span class="n">suite</span><span class="si">}</span><span class="s1">.pickle'</span>
+    <span class="k">for</span> <span class="n">work_dir</span> <span class="ow">in</span> <span class="n">_find_dirs_with</span><span class="p">(</span><span class="n">roots</span><span class="p">,</span> <span class="n">marker</span><span class="p">):</span>
+        <span class="n">reasons</span> <span class="o">=</span> <span class="n">check_baseline</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reasons</span><span class="p">:</span>
+            <span class="n">near_misses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">NearMiss</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">reasons</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
+    <span class="n">near_misses</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">near_miss</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">near_miss</span><span class="o">.</span><span class="n">reasons</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">near_misses</span></div>
+
+
+
+<div class="viewcode-block" id="check_baseline">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.baselines.check_baseline.html#polaris.baselines.check_baseline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_baseline</span><span class="p">(</span><span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">criteria</span><span class="p">:</span> <span class="n">BaselineCriteria</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check whether a suite run matches the criteria for a baseline</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    work_dir : str</span>
+<span class="sd">        The base work directory of the suite run</span>
+
+<span class="sd">    criteria : polaris.baselines.BaselineCriteria</span>
+<span class="sd">        What a baseline must have been made with</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reasons : list of str</span>
+<span class="sd">        Why the run does not match, empty if it does</span>
+<span class="sd">    """</span>
+    <span class="n">provenance</span> <span class="o">=</span> <span class="n">read_provenance</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">provenance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'it has no provenance file'</span><span class="p">]</span>
+
+    <span class="n">reasons</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'machine'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">,</span> <span class="s1">'build type'</span><span class="p">]:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">provenance</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">label</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">' '</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
+            <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'its </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">, not </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="n">reasons</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="n">_commit_problems</span><span class="p">(</span>
+            <span class="s1">'component'</span><span class="p">,</span> <span class="n">provenance</span><span class="p">[</span><span class="s1">'component'</span><span class="p">],</span> <span class="n">criteria</span><span class="o">.</span><span class="n">component_hash</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">reasons</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="n">_commit_problems</span><span class="p">(</span>
+            <span class="s1">'Polaris'</span><span class="p">,</span> <span class="n">provenance</span><span class="p">[</span><span class="s1">'polaris'</span><span class="p">],</span> <span class="n">criteria</span><span class="o">.</span><span class="n">polaris_hash</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">reasons</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="n">_command_problems</span><span class="p">(</span><span class="n">provenance</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'command'</span><span class="p">),</span> <span class="n">criteria</span><span class="o">.</span><span class="n">suite</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">reasons</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_results_problems</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="o">.</span><span class="n">suite</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">reasons</span></div>
+
+
+
+<div class="viewcode-block" id="find_build_log">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.baselines.find_build_log.html#polaris.baselines.find_build_log">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_build_log</span><span class="p">(</span>
+    <span class="n">roots</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">criteria</span><span class="p">:</span> <span class="n">BaselineCriteria</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">NearMiss</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Find complete build logs of the baseline's component commit</span>
+
+<span class="sd">    Only the machine, compiler, build type and component commit of the</span>
+<span class="sd">    criteria apply to a build.  A candidate is a directory at most</span>
+<span class="sd">    :py:data:`MAX_SEARCH_DEPTH` levels below a search root with a source</span>
+<span class="sd">    record, or the build directory of a suite run found there.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    roots : iterable of str</span>
+<span class="sd">        The directories to search</span>
+
+<span class="sd">    criteria : polaris.baselines.BaselineCriteria</span>
+<span class="sd">        What the build must have been made with</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    logs : list of str</span>
+<span class="sd">        The build logs of the builds that match</span>
+
+<span class="sd">    near_misses : list of polaris.baselines.NearMiss</span>
+<span class="sd">        The other builds and why each does not match, fewest reasons first</span>
+<span class="sd">    """</span>
+    <span class="n">roots</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">roots</span><span class="p">)</span>
+    <span class="n">build_dirs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_find_dirs_with</span><span class="p">(</span><span class="n">roots</span><span class="p">,</span> <span class="s1">'omega_source.txt'</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">work_dir</span> <span class="ow">in</span> <span class="n">_find_dirs_with</span><span class="p">(</span><span class="n">roots</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">criteria</span><span class="o">.</span><span class="n">suite</span><span class="si">}</span><span class="s1">.pickle'</span><span class="p">):</span>
+        <span class="n">provenance</span> <span class="o">=</span> <span class="n">read_provenance</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">provenance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">provenance</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'build directory'</span><span class="p">):</span>
+            <span class="n">build_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">provenance</span><span class="p">[</span><span class="s1">'build directory'</span><span class="p">])</span>
+
+    <span class="n">logs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">near_misses</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">build_dir</span> <span class="ow">in</span> <span class="n">build_dirs</span><span class="p">:</span>
+        <span class="n">real_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">real_path</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">real_path</span><span class="p">)</span>
+        <span class="n">reasons</span> <span class="o">=</span> <span class="n">check_build</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reasons</span><span class="p">:</span>
+            <span class="n">near_misses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">NearMiss</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="n">reasons</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">'build_omega.log'</span><span class="p">))</span>
+    <span class="n">near_misses</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">near_miss</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">near_miss</span><span class="o">.</span><span class="n">reasons</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">logs</span><span class="p">,</span> <span class="n">near_misses</span></div>
+
+
+
+<div class="viewcode-block" id="check_build">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.baselines.check_build.html#polaris.baselines.check_build">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_build</span><span class="p">(</span><span class="n">build_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">criteria</span><span class="p">:</span> <span class="n">BaselineCriteria</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check whether an Omega build has a complete log of a build that matches</span>
+<span class="sd">    the criteria</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    build_dir : str</span>
+<span class="sd">        The build directory</span>
+
+<span class="sd">    criteria : polaris.baselines.BaselineCriteria</span>
+<span class="sd">        What the build must have been made with</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reasons : list of str</span>
+<span class="sd">        Why the build does not match, empty if it does</span>
+<span class="sd">    """</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="n">read_source_record</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'it has no source record'</span><span class="p">]</span>
+
+    <span class="n">reasons</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">machine</span><span class="p">,</span> <span class="n">compiler</span> <span class="o">=</span> <span class="n">get_omega_cime_target</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span>
+    <span class="n">build_type</span> <span class="o">=</span> <span class="n">detect_omega_build_type</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">'machine'</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">criteria</span><span class="o">.</span><span class="n">machine</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'compiler'</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">criteria</span><span class="o">.</span><span class="n">compiler</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">'build type'</span><span class="p">,</span> <span class="n">build_type</span><span class="p">,</span> <span class="n">criteria</span><span class="o">.</span><span class="n">build_type</span><span class="p">),</span>
+    <span class="p">]:</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
+            <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'its </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1"> is </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">, not </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'describe'</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">],</span>
+        <span class="s1">'hash'</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">],</span>
+        <span class="s1">'at_setup'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">reasons</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="n">_commit_problems</span><span class="p">(</span><span class="s1">'component'</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">criteria</span><span class="o">.</span><span class="n">component_hash</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">record</span><span class="p">[</span><span class="s1">'clean_build'</span><span class="p">]:</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'it was not built from an empty build directory'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">'src'</span><span class="p">,</span> <span class="s1">'omega.exe'</span><span class="p">)):</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'it has no omega.exe, so the build did not finish'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">build_dir</span><span class="p">,</span> <span class="s1">'build_omega.log'</span><span class="p">)):</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'it has no build_omega.log'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reasons</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_dirs_with</span><span class="p">(</span><span class="n">roots</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Directories at most MAX_SEARCH_DEPTH levels below each root that</span>
+<span class="sd">    contain the file, without looking inside the ones that do</span>
+<span class="sd">    """</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">roots</span><span class="p">:</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">root_depth</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dir_path</span><span class="p">,</span> <span class="n">dir_names</span><span class="p">,</span> <span class="n">file_names</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">file_names</span><span class="p">:</span>
+                <span class="n">dir_names</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">real_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">real_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">real_path</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">dir_path</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">dir_path</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="o">-</span> <span class="n">root_depth</span> <span class="o">&gt;=</span> <span class="n">MAX_SEARCH_DEPTH</span><span class="p">:</span>
+                <span class="n">dir_names</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dir_names</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">dir_names</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)</span>
+                <span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_commit_problems</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">expected_hash</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">info</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'it does not record its </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> commit'</span><span class="p">]</span>
+    <span class="n">reasons</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">]</span> <span class="o">!=</span> <span class="n">expected_hash</span><span class="p">:</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'its </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> commit is </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s2">"hash"</span><span class="p">][:</span><span class="mi">12</span><span class="p">]</span><span class="si">}</span><span class="s1">, '</span>
+            <span class="sa">f</span><span class="s1">'not </span><span class="si">{</span><span class="n">expected_hash</span><span class="p">[:</span><span class="mi">12</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">'at_setup'</span><span class="p">]:</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'its </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> commit was recorded at setup, not when it was built'</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">''</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'-dirty'</span><span class="p">):</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'its </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> tree had uncommitted changes'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reasons</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_command_problems</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">suite</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'it does not record the command that set it up'</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'the command that set it up could not be parsed'</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">'suite'</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'it was not set up with "polaris suite"'</span><span class="p">]</span>
+
+    <span class="n">reasons</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">set_up_suite</span> <span class="o">=</span> <span class="n">_option_value</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s1">'-t'</span><span class="p">,</span> <span class="s1">'--task_suite'</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">set_up_suite</span> <span class="o">!=</span> <span class="n">suite</span><span class="p">:</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'it was set up as suite </span><span class="si">{</span><span class="n">set_up_suite</span><span class="si">}</span><span class="s1">, not </span><span class="si">{</span><span class="n">suite</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">_option_value</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s1">'-f'</span><span class="p">,</span> <span class="s1">'--config_file'</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">config_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'it was set up with config file </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_option_value</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s1">'--cmake_flags'</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'it was set up with --cmake_flags'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reasons</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_option_value</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The value of the last of the named options in args, if any"""</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">separator</span><span class="p">,</span> <span class="n">inline_value</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">'='</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">separator</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">inline_value</span>
+        <span class="k">elif</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_results_problems</span><span class="p">(</span><span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suite</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite</span><span class="si">}</span><span class="s1">_results.json'</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'it has no readable </span><span class="si">{</span><span class="n">suite</span><span class="si">}</span><span class="s1">_results.json'</span><span class="p">]</span>
+
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'summary'</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">reasons</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'complete'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'its run is not complete'</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">verb</span> <span class="ow">in</span> <span class="p">[(</span><span class="s1">'failed'</span><span class="p">,</span> <span class="s1">'failed'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'pending'</span><span class="p">,</span> <span class="s1">'did not run'</span><span class="p">)]:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">count</span><span class="p">:</span>
+            <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> of its tasks </span><span class="si">{</span><span class="n">verb</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reasons</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

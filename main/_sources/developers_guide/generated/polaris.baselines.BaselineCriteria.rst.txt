@@ -1,0 +1,33 @@
+﻿polaris.baselines.BaselineCriteria
+==================================
+
+.. currentmodule:: polaris.baselines
+
+.. autoclass:: BaselineCriteria
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaselineCriteria.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaselineCriteria.suite
+      ~BaselineCriteria.machine
+      ~BaselineCriteria.compiler
+      ~BaselineCriteria.build_type
+      ~BaselineCriteria.component_hash
+      ~BaselineCriteria.polaris_hash
+   
+   

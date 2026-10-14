@@ -147,6 +147,11 @@ write into the build directory (see <a class="reference internal" href="build.ht
 that was built.  For a build without a record, such as one made by hand, they
 come from the build’s source tree at setup, which may have moved since the
 build, and are marked <code class="docutils literal notranslate"><span class="pre">(at</span> <span class="pre">setup,</span> <span class="pre">not</span> <span class="pre">build)</span></code>.</p>
+<p><a class="reference internal" href="../generated/polaris.provenance.read.html#polaris.provenance.read" title="polaris.provenance.read"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.provenance.read()</span></code></a> reads the file back, returning the
+entries before the list of tasks and the git entries for Polaris and the
+component, with their logs and whether they were marked
+<code class="docutils literal notranslate"><span class="pre">(at</span> <span class="pre">setup,</span> <span class="pre">not</span> <span class="pre">build)</span></code>.  The file also records the <code class="docutils literal notranslate"><span class="pre">model</span></code> the component
+is, <code class="docutils literal notranslate"><span class="pre">omega</span></code> or <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code>, when there is one.</p>
 </section>
 
 

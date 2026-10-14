@@ -113,6 +113,15 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.attrs.set_attrs.html">polaris.attrs.set_attrs</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#baselines">baselines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.baselines.BaselineCriteria.html">polaris.baselines.BaselineCriteria</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.baselines.NearMiss.html">polaris.baselines.NearMiss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.baselines.find_baseline.html">polaris.baselines.find_baseline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.baselines.check_baseline.html">polaris.baselines.check_baseline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.baselines.find_build_log.html">polaris.baselines.find_build_log</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.baselines.check_build.html">polaris.baselines.check_build</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#component-graph">component_graph</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.component_graph.get_components_in_use.html">polaris.component_graph.get_components_in_use</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.component_graph.get_steps_by_component.html">polaris.component_graph.get_steps_by_component</a></li>
@@ -139,6 +148,11 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#job">job</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.job.write_job_script.html">polaris.job.write_job_script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.job.get_submit_args.html">polaris.job.get_submit_args</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.job.submit_job.html">polaris.job.submit_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.job.parse_job_id.html">polaris.job.parse_job_id</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.job.is_job_active.html">polaris.job.is_job_active</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.job.SubmissionError.html">polaris.job.SubmissionError</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#logging">logging</a><ul>
@@ -256,6 +270,7 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mpas_ocean.build_mpas_ocean.html">polaris.build.mpas_ocean.build_mpas_ocean</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mpas_ocean.make_build_script.html">polaris.build.mpas_ocean.make_build_script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.omega.build_omega.html">polaris.build.omega.build_omega</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.omega.get_omega_cime_target.html">polaris.build.omega.get_omega_cime_target</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.omega.make_build_script.html">polaris.build.omega.make_build_script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.source_record.read_source_record.html">polaris.build.source_record.read_source_record</a></li>
 </ul>
@@ -281,6 +296,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#provenance">provenance</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.provenance.write.html">polaris.provenance.write</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.provenance.get_summary.html">polaris.provenance.get_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.provenance.read.html">polaris.provenance.read</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#remap">remap</a><ul>
@@ -746,6 +762,31 @@ documentation.</p>
 </tbody>
 </table>
 </section>
+<section id="baselines">
+<h3>baselines<a class="headerlink" href="#baselines" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.baselines.BaselineCriteria.html#polaris.baselines.BaselineCriteria" title="polaris.baselines.BaselineCriteria"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaselineCriteria</span></code></a>(machine, compiler, ...[, suite])</p></td>
+<td><p>What a run or build must have been made with to serve as a baseline</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.baselines.NearMiss.html#polaris.baselines.NearMiss" title="polaris.baselines.NearMiss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NearMiss</span></code></a>(path, reasons)</p></td>
+<td><p>A run or build that was considered but does not match</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.baselines.find_baseline.html#polaris.baselines.find_baseline" title="polaris.baselines.find_baseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_baseline</span></code></a>(roots, criteria)</p></td>
+<td><p>Find suite runs that match the criteria for a baseline</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.baselines.check_baseline.html#polaris.baselines.check_baseline" title="polaris.baselines.check_baseline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_baseline</span></code></a>(work_dir, criteria)</p></td>
+<td><p>Check whether a suite run matches the criteria for a baseline</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.baselines.find_build_log.html#polaris.baselines.find_build_log" title="polaris.baselines.find_build_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_build_log</span></code></a>(roots, criteria)</p></td>
+<td><p>Find complete build logs of the baseline's component commit</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.baselines.check_build.html#polaris.baselines.check_build" title="polaris.baselines.check_build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_build</span></code></a>(build_dir, criteria)</p></td>
+<td><p>Check whether an Omega build has a complete log of a build that matches the criteria</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="component-graph">
 <h3>component_graph<a class="headerlink" href="#component-graph" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -816,6 +857,21 @@ documentation.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.job.write_job_script.html#polaris.job.write_job_script" title="polaris.job.write_job_script"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_job_script</span></code></a>(config, machine, work_dir)</p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.job.get_submit_args.html#polaris.job.get_submit_args" title="polaris.job.get_submit_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_submit_args</span></code></a>(job_script, system[, ...])</p></td>
+<td><p>Get the command that submits a job script, optionally after another job</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.job.submit_job.html#polaris.job.submit_job" title="polaris.job.submit_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">submit_job</span></code></a>(job_script, work_dir, system[, ...])</p></td>
+<td><p>Submit a job script from its work directory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.job.parse_job_id.html#polaris.job.parse_job_id" title="polaris.job.parse_job_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_job_id</span></code></a>(output, system)</p></td>
+<td><p>Get the job id from the output of a submission command</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.job.is_job_active.html#polaris.job.is_job_active" title="polaris.job.is_job_active"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_job_active</span></code></a>(job_id, system)</p></td>
+<td><p>Whether a job is still queued or running</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.job.SubmissionError.html#polaris.job.SubmissionError" title="polaris.job.SubmissionError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubmissionError</span></code></a></p></td>
+<td><p>The scheduler refused a job script</p></td>
 </tr>
 </tbody>
 </table>
@@ -1184,10 +1240,13 @@ documentation.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.build.omega.build_omega.html#polaris.build.omega.build_omega" title="polaris.build.omega.build_omega"><code class="xref py py-obj docutils literal notranslate"><span class="pre">omega.build_omega</span></code></a>(branch, build_dir, clean, ...)</p></td>
 <td><p>Build Omega on the current machine.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.build.omega.make_build_script.html#polaris.build.omega.make_build_script" title="polaris.build.omega.make_build_script"><code class="xref py py-obj docutils literal notranslate"><span class="pre">omega.make_build_script</span></code></a>(machine, compiler, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.build.omega.get_omega_cime_target.html#polaris.build.omega.get_omega_cime_target" title="polaris.build.omega.get_omega_cime_target"><code class="xref py py-obj docutils literal notranslate"><span class="pre">omega.get_omega_cime_target</span></code></a>(build_dir)</p></td>
+<td><p>Get the machine and compiler that a standalone Omega build was configured for.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.build.omega.make_build_script.html#polaris.build.omega.make_build_script" title="polaris.build.omega.make_build_script"><code class="xref py py-obj docutils literal notranslate"><span class="pre">omega.make_build_script</span></code></a>(machine, compiler, ...)</p></td>
 <td><p>Make a shell script for checking out Omega and its submodules and building Omega.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.build.source_record.read_source_record.html#polaris.build.source_record.read_source_record" title="polaris.build.source_record.read_source_record"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_record.read_source_record</span></code></a>(build_dir)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.build.source_record.read_source_record.html#polaris.build.source_record.read_source_record" title="polaris.build.source_record.read_source_record"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_record.read_source_record</span></code></a>(build_dir)</p></td>
 <td><p>Read the record of the source that Polaris built a model from.</p></td>
 </tr>
 </tbody>
@@ -1250,6 +1309,9 @@ documentation.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.provenance.get_summary.html#polaris.provenance.get_summary" title="polaris.provenance.get_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_summary</span></code></a>([config])</p></td>
 <td><p>Get a short provenance of the Polaris that is running</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.provenance.read.html#polaris.provenance.read" title="polaris.provenance.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read</span></code></a>(work_dir)</p></td>
+<td><p>Read the provenance file that <a class="reference internal" href="generated/polaris.provenance.write.html#polaris.provenance.write" title="polaris.provenance.write"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.provenance.write()</span></code></a> wrote to a work directory</p></td>
 </tr>
 </tbody>
 </table>

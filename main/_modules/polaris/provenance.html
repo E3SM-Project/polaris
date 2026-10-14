@@ -111,9 +111,11 @@
              
   <h1>Source code for polaris.provenance</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.mpas_ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mpas_ocean_source_dir</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -126,6 +128,9 @@
 <span class="c1"># marks a component's git entries that come from its source tree at setup,</span>
 <span class="c1"># which may have moved since the build</span>
 <span class="n">_AT_SETUP</span> <span class="o">=</span> <span class="s1">'(at setup, not build)'</span>
+
+<span class="c1"># the labels of the git entries that _write_git_info() writes</span>
+<span class="n">_GIT_ENTRY</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">'(polaris|component) git (version|hash|log)'</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="write">
@@ -211,6 +216,7 @@
     <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'machine'</span><span class="p">,</span> <span class="n">machine</span><span class="p">)</span>
     <span class="n">_write_scheduler_metadata</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">job_options</span><span class="p">)</span>
     <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">,</span> <span class="n">_get_compiler</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">,</span> <span class="n">_get_model</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
     <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'work directory'</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
     <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'build directory'</span><span class="p">,</span> <span class="n">_get_build_dir</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
     <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="s1">'build type'</span><span class="p">,</span> <span class="n">_get_build_type</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
@@ -286,6 +292,82 @@
 
     <span class="n">summary</span><span class="p">[</span><span class="s1">'command'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">summary</span></div>
+
+
+
+<div class="viewcode-block" id="read">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.provenance.read.html#polaris.provenance.read">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Read the provenance file that :py:func:`polaris.provenance.write` wrote</span>
+<span class="sd">    to a work directory</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    work_dir : str</span>
+<span class="sd">        The work directory with the provenance file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    provenance : dict, optional</span>
+<span class="sd">        The entries before the list of tasks, keyed by their labels (for</span>
+<span class="sd">        example ``machine`` or ``build directory``), with the git entries</span>
+<span class="sd">        gathered into ``polaris`` and ``component``.  Each of those is</span>
+<span class="sd">        ``None`` if the file does not record it, or else has the git</span>
+<span class="sd">        version (``describe``), the full hash (``hash``), the last five</span>
+<span class="sd">        first-parent commits (``log``) and whether the entries came from</span>
+<span class="sd">        the source tree at setup rather than from a record of the build</span>
+<span class="sd">        (``at_setup``).  ``None`` if there is no provenance file.</span>
+<span class="sd">    """</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'provenance'</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">provenance</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'polaris'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">'component'</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">log</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">' '</span><span class="p">):</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">continue</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'tasks:'</span><span class="p">):</span>
+            <span class="c1"># the tasks and pixi list that follow are not one-line entries</span>
+            <span class="k">break</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">separator</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">separator</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">at_setup</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">_AT_SETUP</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">at_setup</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">_AT_SETUP</span><span class="p">)]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="n">_GIT_ENTRY</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">provenance</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="ow">or</span> <span class="kc">None</span>
+            <span class="k">continue</span>
+
+        <span class="n">name</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">provenance</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">provenance</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">'describe'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">'hash'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">'log'</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s1">'at_setup'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">provenance</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">info</span><span class="p">[</span><span class="s1">'at_setup'</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">'at_setup'</span><span class="p">]</span> <span class="ow">or</span> <span class="n">at_setup</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">'log'</span><span class="p">:</span>
+            <span class="n">log</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">'log'</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">'version'</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">'describe'</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">'hash'</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="ow">or</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">provenance</span></div>
 
 
 
