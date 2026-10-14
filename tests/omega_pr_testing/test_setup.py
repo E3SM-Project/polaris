@@ -135,6 +135,44 @@ def test_setup_without_baseline(tester):
     assert 'Baseline:   none, because develop cannot run' in text
 
 
+def test_setup_uses_its_own_finished_baseline(tester):
+    fixture, manifest, calls = tester
+    _setup(fixture, manifest, submit=True)
+    baseline_dir = Path(calls['submit'][0][0])
+    # main's baseline finished with a failing task, which a run found
+    # elsewhere would not be reused with
+    (baseline_dir / 'omega_pr_results.json').write_text(
+        json.dumps(
+            {
+                'complete': True,
+                'summary': {'total': 2, 'passed': 1, 'failed': 1},
+                'tasks': [],
+            }
+        )
+    )
+    row_dir = Path(fixture.config.work_base) / manifest.run_name
+    for path in sorted(row_dir.rglob('*'), reverse=True):
+        path.unlink() if path.is_file() else path.rmdir()
+
+    state = _setup(fixture, manifest, submit=True)
+
+    assert state.baseline_work_dir == str(baseline_dir)
+    assert state.baseline_job is None
+    assert [job['name'] for job in state.jobs] == ['PR suite', 'CTests']
+
+
+def test_setup_refuses_its_own_unfinished_baseline(tester):
+    fixture, manifest, calls = tester
+    _setup(fixture, manifest, submit=True)
+    row_dir = Path(fixture.config.work_base) / manifest.run_name
+    for path in sorted(row_dir.rglob('*'), reverse=True):
+        path.unlink() if path.is_file() else path.rmdir()
+
+    # the baseline's job ended without finishing its run
+    with pytest.raises(pr_test_setup.SetupError, match='not usable'):
+        _setup(fixture, manifest, submit=True)
+
+
 def test_setup_reuses_matching_baseline(tester, tmp_path):
     fixture, manifest, calls = tester
     polaris_hash = git(fixture.polaris_dir, 'rev-parse', 'HEAD')

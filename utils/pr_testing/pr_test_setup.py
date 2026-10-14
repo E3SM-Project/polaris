@@ -653,6 +653,13 @@ def get_baseline(
             return Baseline(work_dir, reused=False, job=job)
         if is_job_active(job_id, get_system(criteria.machine)):
             return Baseline(work_dir, reused=False, active_job=job_id)
+        if _finished(work_dir, suite):
+            # This utility set the baseline up, from a checkout whose
+            # tracked files were checked, so a finished run is used even if
+            # some of its tasks failed or the checkout's submodules were not
+            # at their pins, which the stricter test for reusing a run
+            # rejects.  The report gives each task's comparison.
+            return Baseline(work_dir, reused=False)
         reasons = check_baseline(work_dir, criteria)
         raise SetupError(
             f'The baseline in {work_dir} is not usable and its job '
@@ -1031,6 +1038,16 @@ def _build_flags(build_dir, model):
     if os.path.exists(build_dir):
         return ['--clean_build', '--quiet_build']
     return ['--build', '--quiet_build']
+
+
+def _finished(work_dir, suite):
+    """Whether a suite's run finished, whatever its tasks' results"""
+    path = os.path.join(work_dir, f'{suite}_results.json')
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return bool(json.load(f).get('complete', False))
+    except (OSError, ValueError):
+        return False
 
 
 def _read_job_id(work_dir):
