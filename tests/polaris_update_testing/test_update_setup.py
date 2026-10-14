@@ -59,6 +59,21 @@ def test_setup_both_models(tester, tmp_path):
     assert git(omega_pr['branch'], 'rev-parse', 'HEAD') == fixture.new_pin
 
 
+def test_setup_builds_the_omega_merge(tmp_path, monkeypatch):
+    fixture, manifest, calls = make_tester(
+        tmp_path, monkeypatch, baseline=None, merge_omega_prs=[600]
+    )
+    assert manifest.omega_merge is not None
+
+    _setup(fixture, manifest)
+
+    omega_pr = calls['suite'][-1]
+    assert omega_pr['model'] == 'omega'
+    assert git(omega_pr['branch'], 'rev-parse', 'HEAD') == (
+        manifest.omega_merge.commit
+    )
+
+
 def test_setup_needs_the_baseline_load_script(tester):
     fixture, manifest, _ = tester
     with pytest.raises(

@@ -18,7 +18,7 @@ from polaris_update_manifest import (
     fetch_manifest,
 )
 from pr_test_config import PrTestConfig
-from pr_test_git import OMEGA_SUBMODULE, OMEGA_URL, POLARIS_DIR
+from pr_test_git import OMEGA_SUBMODULE, OMEGA_URL, POLARIS_DIR, REF_PREFIX
 from pr_test_rows import Row
 from pr_test_setup import (
     BUILD_TYPE,
@@ -185,7 +185,7 @@ def _set_up_row(
     omega = row.model == 'omega'
     tree = None
     if omega:
-        tree = _prepare_omega(config, manifest.test.omega_commit)
+        tree = _prepare_omega(config, manifest)
 
     jobs = []
     baseline: Optional[Baseline] = None
@@ -339,9 +339,22 @@ def _check_pins(polaris_dir: str, side: PolarisSide, what: str) -> None:
             )
 
 
-def _prepare_omega(config, commit):
-    """An Omega worktree at a commit, shared with other rows and PRs"""
-    setup_tools.ensure_commit(config.omega_repo, OMEGA_URL, commit)
+def _prepare_omega(config, manifest: Manifest):
+    """
+    An Omega worktree of what the PR's Omega rows build, shared with other
+    rows and PRs: the Omega the PR pins, or its merge with other Omega PRs,
+    from the requester's E3SM fork
+    """
+    commit = manifest.omega_build_commit
+    merge = manifest.omega_merge
+    if merge is None:
+        setup_tools.ensure_commit(config.omega_repo, OMEGA_URL, commit)
+    elif not git_tools.has_commit(config.omega_repo, commit):
+        git_tools.fetch(
+            config.omega_repo,
+            merge.fork,
+            [f'refs/heads/{merge.branch}:{REF_PREFIX}/{merge.branch}'],
+        )
     tree = os.path.join(config.work_base, 'omega', commit[:12])
     setup_tools.prepare_tree(config.omega_repo, commit, tree)
     return tree
