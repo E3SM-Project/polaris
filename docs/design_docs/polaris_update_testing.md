@@ -143,8 +143,9 @@ Polaris checkout must contain the head, with this utility merged in
 locally if the head does not have it.
 
 The outward-facing steps are `init --push`, `deploy --run`,
-`setup --submit`, `report --post` and `post`. Each needs the requester's
-permission in the agent's session, as in the Omega utility.
+`setup --submit` and `post`. Each needs the requester's permission in the
+agent's session, as in the Omega utility. `report` only writes its comment,
+and `post` posts it once someone has read it.
 
 ## Implementation
 
@@ -251,7 +252,7 @@ same `main` is reused.
 ```
 polaris_update_test.py report [--machine <machine>] [--spack <kind>]
                               [--notes <file>] [--not-run <reason>]
-                              [--agent <name>] [--post]
+                              [--agent <name>]
 ```
 
 ```markdown
