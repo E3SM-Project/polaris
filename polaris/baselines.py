@@ -38,8 +38,9 @@ class BaselineCriteria:
     compiler : str
         The compiler the component was built with
 
-    build_type : str
-        The build type of the component, ``Release`` or ``Debug``
+    build_type : str, optional
+        The build type of the component, ``Release`` or ``Debug``, or
+        ``None`` for MPAS-Ocean, whose provenance has none
 
     component_hash : str
         The full hash of the component commit that was built
@@ -53,7 +54,7 @@ class BaselineCriteria:
 
     machine: str
     compiler: str
-    build_type: str
+    build_type: Optional[str]
     component_hash: str
     polaris_hash: str
     suite: str = 'omega_pr'

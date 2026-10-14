@@ -83,14 +83,18 @@ OMEGA_SUBMODULES = [
 ]
 
 #: the executable a finished build has, by model, relative to the build
-EXECUTABLES = {'omega': os.path.join('src', 'omega.exe')}
+EXECUTABLES = {
+    'omega': os.path.join('src', 'omega.exe'),
+    'mpas-ocean': 'ocean_model',
+}
+
+#: where a Polaris checkout has the E3SM branch MPAS-Ocean is built from
+E3SM_SUBMODULE = 'e3sm_submodules/E3SM-Project'
 
 #: how long setup waits for another setup to prepare an Omega worktree
 TREE_LOCK_TIMEOUT = 3600
 
-_LOAD_SCRIPT_EXPORT = re.compile(
-    r'^export (POLARIS_[A-Z]+)="([^"]*)"$', re.MULTILINE
-)
+_LOAD_SCRIPT_EXPORT = re.compile(r'^export ([A-Z_]+)="([^"]*)"$', re.MULTILINE)
 
 
 class SetupError(Exception):
@@ -165,8 +169,8 @@ class SetupState:
     pr_work_dir : str
         The PR suite's work directory
 
-    ctest_dir : str
-        Where the CTest job was set up
+    ctest_dir : str, optional
+        Where the CTest job was set up, if the row has CTests
 
     jobs : list of dict
         The jobs to submit, with their ids once submitted
@@ -177,6 +181,16 @@ class SetupState:
 
     no_baseline_reason : str, optional
         Why the PR suite ran without a baseline, if it did
+
+    model : str
+        The model the row tests
+
+    suite : str
+        The suite the row runs
+
+    environment : dict
+        Anything a utility records about the loaded environment, such as
+        its Spack environment
     """
 
     fork: str
@@ -189,10 +203,13 @@ class SetupState:
     baseline_build_log: Optional[str]
     pr_build_dir: str
     pr_work_dir: str
-    ctest_dir: str
+    ctest_dir: Optional[str]
     jobs: List[Dict] = field(default_factory=list)
     baseline_polaris_hash: Optional[str] = None
     no_baseline_reason: Optional[str] = None
+    model: str = 'omega'
+    suite: str = 'omega_pr'
+    environment: Dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -417,7 +434,7 @@ def read_load_script(load_script: str, row: Row) -> Tuple[str, str]:
         raise SetupError(
             f'The load script {load_script} cannot be read: {exc}'
         ) from exc
-    values = dict(_LOAD_SCRIPT_EXPORT.findall(text))
+    values = read_exports(text)
     former = FORMER_COMPILERS.get((row.machine, row.compiler))
     if former is not None and values.get('POLARIS_COMPILER') == former:
         compiler = former
@@ -441,6 +458,30 @@ def read_load_script(load_script: str, row: Row) -> Tuple[str, str]:
             f'checkout in POLARIS_BRANCH.'
         )
     return directory, compiler
+
+
+def read_exports(text: str) -> Dict[str, str]:
+    """The variables a load script exports, with their values"""
+    return dict(_LOAD_SCRIPT_EXPORT.findall(text))
+
+
+def ensure_commit(repo: str, url: str, sha: str) -> None:
+    """
+    Make sure a repository has a commit, fetching it from a URL if needed
+
+    Parameters
+    ----------
+    repo : str
+        The repository
+
+    url : str
+        Where to fetch the commit from
+
+    sha : str
+        The full hash of the commit
+    """
+    if not git_tools.has_commit(repo, sha):
+        git_tools.fetch(repo, url, [f'{sha}:{REF_PREFIX}/commit-{sha[:12]}'])
 
 
 def prepare_tree(repo: str, sha: str, tree: str) -> None:
@@ -565,7 +606,9 @@ def get_baseline(
         The Polaris checkout to set the baseline up with
 
     model : str
-        The model the suite runs, such as ``omega``
+        The model the suite runs, ``omega`` or ``mpas-ocean``.  Omega is
+        built from a worktree of the component commit, and MPAS-Ocean from
+        the checkout's E3SM-Project submodule.
 
     parallel : bool, optional
         Whether a baseline that is set up here runs its steps at the same
@@ -589,11 +632,13 @@ def get_baseline(
     if matches:
         return Baseline(_newest(matches, suite), reused=True)
 
+    component = 'omega' if model == 'omega' else 'e3sm'
     own_dir = os.path.join(
         config.work_base,
         'baselines',
         f'{criteria.machine}_{criteria.compiler}_polaris-'
-        f'{criteria.polaris_hash[:7]}_omega-{criteria.component_hash[:7]}',
+        f'{criteria.polaris_hash[:7]}_{component}-'
+        f'{criteria.component_hash[:7]}',
     )
     work_dir = os.path.join(own_dir, suite)
     job = Job(
@@ -615,10 +660,12 @@ def get_baseline(
             f'{own_dir} to set it up again.'
         )
 
-    baseline_tree = os.path.join(
-        config.work_base, 'omega', criteria.component_hash[:12]
-    )
-    prepare_tree(config.omega_repo, criteria.component_hash, baseline_tree)
+    baseline_tree = None
+    if model == 'omega':
+        baseline_tree = os.path.join(
+            config.work_base, 'omega', criteria.component_hash[:12]
+        )
+        prepare_tree(config.omega_repo, criteria.component_hash, baseline_tree)
     polaris_suite(
         checkout.directory,
         suite=suite,
@@ -636,7 +683,7 @@ def polaris_suite(
     polaris_dir: str,
     suite: str,
     model: str,
-    branch: str,
+    branch: Optional[str],
     build_dir: str,
     work_dir: str,
     baseline_work_dir: Optional[str] = None,
@@ -657,10 +704,12 @@ def polaris_suite(
         The suite, such as ``omega_pr``
 
     model : str
-        The model it runs, such as ``omega``
+        The model it runs, ``omega`` or ``mpas-ocean``
 
-    branch : str
-        The model's source tree
+    branch : str, optional
+        The model's source tree, or ``None`` for the checkout's submodule.
+        MPAS-Ocean builds in its source tree, so builds from the checkout's
+        E3SM-Project submodule take turns.
 
     build_dir : str
         Where to build, or the finished build to reuse
@@ -681,7 +730,9 @@ def polaris_suite(
     """
     args = ['polaris', 'suite', '-c', 'ocean', '-t', suite, '--model', model]
     args.extend(_build_flags(build_dir, model))
-    args.extend(['--branch', branch, '-p', build_dir, '-w', work_dir])
+    if branch is not None:
+        args.extend(['--branch', branch])
+    args.extend(['-p', build_dir, '-w', work_dir])
     if baseline_work_dir is not None:
         args.extend(['-b', baseline_work_dir])
     if parallel:
@@ -706,7 +757,11 @@ def polaris_suite(
         env = None
     # provenance reads the Polaris commit from the directory Polaris runs in,
     # and the job script loads the environment Polaris was set up with
-    subprocess.run(args, cwd=polaris_dir, env=env, check=True)
+    if model == 'mpas-ocean' and branch is None:
+        with _tree_lock(os.path.join(polaris_dir, E3SM_SUBMODULE)):
+            subprocess.run(args, cwd=polaris_dir, env=env, check=True)
+    else:
+        subprocess.run(args, cwd=polaris_dir, env=env, check=True)
 
 
 def set_up_ctests(
@@ -847,11 +902,14 @@ def format_state(state: SetupState, row_dir: str, machine: str) -> str:
         f'Baseline:   {baseline}',
         f'PR build:   {state.pr_build_dir}',
         f'PR suite:   {state.pr_work_dir}',
-        f'CTests:     {state.ctest_dir}',
-        f'Warnings:   baseline build log '
-        f'{state.baseline_build_log or "not found"}',
-        '',
     ]
+    if state.ctest_dir is not None:
+        lines += [
+            f'CTests:     {state.ctest_dir}',
+            f'Warnings:   baseline build log '
+            f'{state.baseline_build_log or "not found"}',
+        ]
+    lines.append('')
     submitted = [job for job in state.jobs if job['job_id'] is not None]
     if submitted:
         lines.append('Submitted:')
@@ -931,8 +989,8 @@ def _device(path: str) -> int:
 @contextmanager
 def _tree_lock(tree: str) -> Iterator[None]:
     """
-    Hold a lock on an Omega worktree, made with mkdir, which is atomic on
-    the shared file systems where flock may not work
+    Hold a lock on a source tree, made with mkdir, which is atomic on the
+    shared file systems where flock may not work
     """
     lock = f'{tree}.lock'
     os.makedirs(os.path.dirname(lock), exist_ok=True)
@@ -945,13 +1003,13 @@ def _tree_lock(tree: str) -> Iterator[None]:
         except FileExistsError:
             if time.monotonic() - start > TREE_LOCK_TIMEOUT:
                 raise SetupError(
-                    f'Another setup has been preparing {tree} for more than '
+                    f'Another setup has been using {tree} for more than '
                     f'{TREE_LOCK_TIMEOUT // 60} minutes.  If none is '
                     f'running, remove {lock} and run setup again.'
                 ) from None
             if not waiting:
                 print(
-                    f'Waiting for another setup to prepare {tree}',
+                    f'Waiting for another setup to finish with {tree}',
                     flush=True,
                 )
                 waiting = True
