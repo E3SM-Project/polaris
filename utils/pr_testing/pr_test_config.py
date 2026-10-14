@@ -83,6 +83,11 @@ class PrTestConfig:
     baseline_search_roots : list of str
         Other directories to look in for a baseline to reuse
 
+    polaris_main : str, optional
+        A deployed Polaris checkout that tracks ``main``, with a load script
+        for each of the machine's compilers, that a baseline from ``main``
+        is found or set up with; needed only by testers
+
     machines : dict of str to pr_test_config.RemoteMachine
         The machines an agent on the requester's computer tests over ssh,
         by Polaris machine; only on the requester's computer
@@ -94,6 +99,7 @@ class PrTestConfig:
     polaris_fork: Optional[str] = None
     omega_dev_env: Optional[str] = None
     baseline_search_roots: List[str] = field(default_factory=list)
+    polaris_main: Optional[str] = None
     machines: Dict[str, RemoteMachine] = field(default_factory=dict)
 
     def find_machine(self, machine: str) -> Optional[RemoteMachine]:
@@ -174,6 +180,7 @@ def read_config(filename: Optional[str] = None) -> PrTestConfig:
         fork=_optional(parser, section, 'fork', expand=False),
         polaris_fork=_optional(parser, section, 'polaris_fork', expand=False),
         omega_dev_env=_optional(parser, section, 'omega_dev_env'),
+        polaris_main=_optional(parser, section, 'polaris_main'),
         baseline_search_roots=[
             _expand(root) for root in roots.replace(',', ' ').split()
         ],

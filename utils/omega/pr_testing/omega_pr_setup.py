@@ -93,7 +93,7 @@ def run_setup(
     baseline_polaris = None
     if no_baseline is None:
         baseline_polaris = _get_baseline_polaris(
-            manifest, row, polaris_dir, baseline_load_script
+            manifest, row, polaris_dir, baseline_load_script, config
         )
 
     run_dir = get_row_dir(config, manifest, row)
@@ -197,22 +197,26 @@ def get_row_dir(config: PrTestConfig, manifest: Manifest, row: Row) -> str:
     )
 
 
-def _get_baseline_polaris(manifest, row, polaris_dir, load_script):
+def _get_baseline_polaris(manifest, row, polaris_dir, load_script, config):
     """
     Check the Polaris checkout the baseline is found or set up with: this
-    one, or the one a second load script belongs to
+    one, or a second one, given by its load script or the settings'
+    ``polaris_main``
     """
     separate = manifest.baseline_polaris_commit != manifest.polaris_commit
-    if load_script is None:
-        if separate:
+    if load_script is None and separate:
+        if config.polaris_main is None:
             raise SetupError(
                 f'The baseline runs with Polaris '
                 f'{manifest.baseline_polaris_commit[:12]}, without the '
                 f"changes in the manifest's Polaris commit "
-                f'{manifest.polaris_commit[:12]}.  Pass '
-                f'--baseline-load-script with the load script for '
-                f'{row.name} of a Polaris checkout at that commit.'
+                f'{manifest.polaris_commit[:12]}.  Set "polaris_main" in '
+                f'the config file to a Polaris checkout at that commit, or '
+                f'pass --baseline-load-script with its load script for '
+                f'{row.name}.'
             )
+        load_script = setup_tools.find_load_script(config.polaris_main, row)
+    if load_script is None:
         checkout = PolarisCheckout(
             polaris_dir, git_tools.rev_parse(polaris_dir, 'HEAD'), row.compiler
         )

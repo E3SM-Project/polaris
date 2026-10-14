@@ -28,8 +28,9 @@ its rows.  An agent on every machine also works, but is discouraged.
 3. **`setup`** (each machine) checks the Polaris checkout against the
    manifest, reuses a matching baseline run if it finds one, and otherwise
    builds and sets one up.  A baseline with its own Polaris commit is found
-   or set up from a second checkout, given by its load script with
-   `--baseline-load-script`.  It then builds and sets up the PR suite, and
+   or set up from a second checkout: by default the deployed checkout of
+   `main` that the settings' `polaris_main` names, or the one whose load
+   script `--baseline-load-script` gives.  It then builds and sets up the PR suite, and
    prepares the CTests.  It prints the three jobs, or submits them with
    `--submit`.
 4. **`report`** (each machine) writes one comment for the machine's rows:

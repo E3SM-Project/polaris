@@ -286,11 +286,32 @@ def test_setup_reuses_baseline_from_second_checkout(separate, tmp_path):
     assert len(calls['suite']) == 1
 
 
+def test_setup_baseline_from_polaris_main(separate):
+    fixture, manifest, calls, baseline_polaris, _ = separate
+    # the checkout of main the settings name, with its own load script
+    load_script = _write_load_script(
+        baseline_polaris / 'load_polaris_chrysalis_intel_openmpi.sh',
+        baseline_polaris,
+    )
+    fixture.config.polaris_main = str(baseline_polaris)
+
+    _setup(fixture, manifest)
+
+    baseline_call, _ = calls['suite']
+    assert baseline_call['polaris_dir'] == str(baseline_polaris)
+    assert baseline_call['load_script'] == load_script
+
+
+def test_setup_polaris_main_without_load_script(separate, tmp_path):
+    fixture, manifest, _, baseline_polaris, _ = separate
+    fixture.config.polaris_main = str(baseline_polaris)
+    with pytest.raises(pr_test_setup.SetupError, match='no load script'):
+        _setup(fixture, manifest)
+
+
 def test_setup_needs_baseline_load_script(separate):
     fixture, manifest, _, _, _ = separate
-    with pytest.raises(
-        pr_test_setup.SetupError, match='--baseline-load-script'
-    ):
+    with pytest.raises(pr_test_setup.SetupError, match='polaris_main'):
         _setup(fixture, manifest)
 
 

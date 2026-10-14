@@ -289,8 +289,9 @@ def _parse_args():
         '--baseline-load-script',
         help='The load script for this row of a second Polaris checkout at '
         "the manifest's baseline Polaris commit, to find or set up the "
-        'baseline with.  Needed when that commit is not the Polaris commit '
-        'the PR is tested with.',
+        'baseline with, by default the one in "polaris_main" in the config '
+        'file.  Needed when that commit is not the Polaris commit the PR is '
+        'tested with.',
     )
     setup.add_argument(
         '--no-baseline',

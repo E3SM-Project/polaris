@@ -359,6 +359,9 @@ polaris_fork = git@github.com:<user>/polaris.git
 omega_dev_env = /path/to/conda/envs/omega_dev
 # other places to look for a baseline to reuse, besides work_base
 baseline_search_roots = /path/to/earlier/test/dirs
+# a deployed Polaris checkout tracking main, which baselines of main run
+# from (testers only)
+polaris_main = /path/to/polaris/main
 
 # on the requester's computer only: <ssh host>:<Polaris on the machine>
 [machines]
@@ -439,9 +442,10 @@ message unless all of these hold:
   it contains `polaris_commit`;
 - the Polaris checkout the baseline runs from pins `baseline.commit`, if
   the baseline is the submodule;
-- if `baseline.polaris_commit` differs from `polaris_commit`, the tester
-  gave the load script of a second checkout, which is clean, contains
-  `baseline.polaris_commit` and does not contain `polaris_commit`;
+- if `baseline.polaris_commit` differs from `polaris_commit`, a second
+  checkout, which is clean, contains `baseline.polaris_commit` and does not
+  contain `polaris_commit`: by default the one in `polaris_main`, with its
+  load script for the row, or the one whose load script the tester gave;
 - the loaded Polaris environment belongs to this checkout
   (`POLARIS_BRANCH`), and its machine, compiler and MPI library give the
   row;

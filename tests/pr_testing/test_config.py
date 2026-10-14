@@ -13,6 +13,16 @@ def test_read_config_without_machines(tmp_path):
     assert config.work_base == '/scratch/polaris_pr_test'
     assert config.machines == {}
     assert config.find_machine('chrysalis') is None
+    assert config.polaris_main is None
+
+
+def test_read_config_polaris_main(tmp_path, monkeypatch):
+    monkeypatch.setenv('HOME', str(tmp_path))
+    config = read_config(
+        _write(tmp_path, f'{SETTINGS}polaris_main = ~/polaris/main\n')
+    )
+
+    assert config.polaris_main == str(tmp_path / 'polaris' / 'main')
 
 
 def test_read_config_old_section(tmp_path):

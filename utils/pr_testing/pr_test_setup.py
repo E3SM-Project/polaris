@@ -4,6 +4,7 @@ the Polaris checkouts and environment, prepare Omega worktrees, find or set
 up a baseline, set up suites and CTests, and submit or print the jobs
 """
 
+import glob
 import json
 import os
 import re
@@ -346,6 +347,43 @@ def check_checkout(polaris_dir: str, commit: str, what: str) -> str:
             f'./deploy.py if needed) first.'
         )
     return git_tools.rev_parse(polaris_dir, 'HEAD')
+
+
+def find_load_script(polaris_dir: str, row: Row) -> str:
+    """
+    A Polaris checkout's load script for a row, under the name the row's
+    compiler had before Polaris renamed it if the checkout is older
+
+    Parameters
+    ----------
+    polaris_dir : str
+        The Polaris checkout, such as the settings' ``polaris_main``
+
+    row : pr_test_rows.Row
+        The row
+
+    Returns
+    -------
+    load_script : str
+        The newest matching load script
+    """
+    compilers = [row.compiler]
+    former = FORMER_COMPILERS.get((row.machine, row.compiler))
+    if former is not None:
+        compilers.append(former)
+    for compiler in compilers:
+        pattern = os.path.join(
+            polaris_dir, f'load_polaris*_{row.machine}_{compiler}_{row.mpi}.sh'
+        )
+        matches = glob.glob(pattern)
+        if matches:
+            return max(matches, key=os.path.getmtime)
+    raise SetupError(
+        f'The Polaris checkout {polaris_dir} has no load script for '
+        f'{row.machine}/{row.compiler} with {row.mpi}.  Run ./deploy.py '
+        f'there with --compiler {compilers[-1]}, or pass '
+        f'--baseline-load-script.'
+    )
 
 
 def read_load_script(load_script: str, row: Row) -> Tuple[str, str]:

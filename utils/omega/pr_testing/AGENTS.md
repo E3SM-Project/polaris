@@ -163,7 +163,8 @@ they finish.
 3. The machine's `~/.config/polaris_pr_test.cfg` holds the tester's
    settings (testers can leave out those marked for the initiator).  Check
    it, and rename an old one, as you did on the requester's computer, and
-   show it the same way.
+   show it the same way.  Its `polaris_main` names the machine's deployed
+   checkout of Polaris `main`, which a baseline of `main` runs from.
 
 ## Testing a row
 
@@ -183,10 +184,12 @@ can be submitted the moment it is set up.
    checkout is clean, contains the manifest's Polaris commit and pins the
    same Omega; if not, stop and tell the requester.  It chains the PR suite
    after the baseline.
-   If the baseline has its own Polaris branch, add
+   If the baseline has its own Polaris branch, `setup` runs it from the
+   checkout in `polaris_main`, with that checkout's load script for the
+   row.  For a baseline branch other than `main`, add
    `--baseline-load-script <script>` with the load script for the row in
-   that branch's checkout.  Do not source it yourself; `setup` sources it
-   in a clean shell for the baseline.
+   that branch's checkout instead.  Do not source it yourself; `setup`
+   sources it in a clean shell for the baseline.
 2. Set up each of the other rows the same way, each in its own clean
    shell.  The rows' `setup`s may run at the same time, on one machine or
    several.  Do not wait for the first row's jobs.
