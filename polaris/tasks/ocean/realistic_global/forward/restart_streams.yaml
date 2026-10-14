@@ -1,0 +1,47 @@
+# Restart-stream overrides applied by the Forward step when a stage is part of
+# a restart chain (its ForwardStage sets restart_out).  Each stage writes its
+# restart to a shared ``../restarts`` directory using a time-stamped filename,
+# so the next stage can read it via config_do_restart / config_start_time.
+# Only the restart stream is touched here; the output_interval already set in
+# forward.yaml is preserved by Polaris' per-stream merge.
+#
+# MPAS-Ocean's restart stream is both an input and an output stream, so this one
+# filename_template serves the read and the write side.  A restarting stage sets
+# config_start_time to the timestamp its predecessor wrote, and the template
+# resolves to that file; input_interval is stated rather than left to the
+# Registry default so that the file is read once, at initialization.
+mpas-ocean:
+    streams:
+        restart:
+            filename_template: ../restarts/rst.$Y-$M-$D_$h.$m.$s.nc
+            filename_interval: output_interval
+            input_interval: initial_only
+
+# Omega splits the two directions into separate streams, so RestartRead has to
+# be requested here: setup drops any Default.yml stream that no yaml file asks
+# for, and forward.yaml requests only RestartWrite and History.  This follows
+# the realistic_global restart task: whether a restart is read at all is
+# decided by StartType, and the pointer file names the restart to read.
+#
+# Each stage writes into a directory of its own under ``../restarts``, named
+# for the restart time, and a restarting stage reads its predecessor's.  A
+# shared directory would let a stage's own restart replace the pointer it had
+# just read, so re-running that stage alone would continue from the wrong time.
+# A stage that starts from the initial state never opens RestartRead, so it is
+# pointed at its own directory.
+#
+# StartTime is left at Omega's default, the start of the whole sequence, as in
+# the restart task: on a Continue the clock's current time comes from the
+# restart file.
+Omega:
+    TimeIntegration:
+        StartType: {{ start_type }}
+    IOStreams:
+        RestartRead:
+            UsePointerFile: true
+            PointerFilename: {{ restart_read_dir }}/ocn.pointer
+            UseStartEnd: false
+        RestartWrite:
+            UsePointerFile: true
+            PointerFilename: {{ restart_write_dir }}/ocn.pointer
+            Filename: {{ restart_write_dir }}/ocn.restart.$Y-$M-$D_$h.$m.$s
