@@ -60,8 +60,11 @@ Below, `omega_pr_test.py` means `./utils/omega/pr_testing/omega_pr_test.py`.
 1. Work in a Polaris checkout on the requester's computer, with its load
    script sourced (`load_polaris_*.sh`; if there is none, run
    `./deploy.py`).
-2. The requester's settings are in `~/.config/omega_pr_test.cfg` (see
-   `example.cfg`).  Here, it needs the initiator's settings and a
+2. The requester's settings are in `~/.config/polaris_pr_test.cfg` (see
+   `utils/pr_testing/example.cfg`).  For now, if there is a
+   `~/.config/omega_pr_test.cfg` instead, from before the settings were
+   shared, rename it to `~/.config/polaris_pr_test.cfg`; the utility stops
+   and says so otherwise.  Here, it needs the initiator's settings and a
    `[machines]` line for each machine you will test over ssh.  Check that
    it has them and that its local paths exist; the utility checks the form
    of the `[machines]` lines when it reads the file.  Put the whole file in your reply
@@ -157,9 +160,10 @@ they finish.
    ...` in that checkout, with the compilers of all the machine's rows.  On
    Perlmutter, deploy once for pm-cpu and again with `--machine pm-gpu`.
    Skip any row that already has a current result.
-3. The machine's `~/.config/omega_pr_test.cfg` holds the tester's settings
-   (testers can leave out those marked for the initiator).  Check it as you
-   checked the one on the requester's computer, and show it the same way.
+3. The machine's `~/.config/polaris_pr_test.cfg` holds the tester's
+   settings (testers can leave out those marked for the initiator).  Check
+   it, and rename an old one, as you did on the requester's computer, and
+   show it the same way.
 
 ## Testing a row
 
@@ -265,7 +269,7 @@ apply, with these differences:
   ```bash
   omega_pr_test.py status --pr <number> --fork <fork> --branch <branch>
   ```
-- Show the requester `~/.config/omega_pr_test.cfg` here, as in [Before
+- Show the requester `~/.config/polaris_pr_test.cfg` here, as in [Before
   you start](#before-you-start).
 - Post with `report --post` instead of copying the comment.  If `gh` is
   not logged in here, put the comment in your reply as a code block, and

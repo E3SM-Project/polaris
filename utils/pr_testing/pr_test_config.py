@@ -13,9 +13,15 @@ from typing import Dict, List, Optional
 from pr_test_rows import SHARED_LOGIN_NODES
 
 #: where the settings are read from unless another file is given
-DEFAULT_CONFIG = os.path.join('~', '.config', 'omega_pr_test.cfg')
+DEFAULT_CONFIG = os.path.join('~', '.config', 'polaris_pr_test.cfg')
 
-SECTION = 'omega_pr_test'
+SECTION = 'polaris_pr_test'
+
+#: the file and section the settings had when only the Omega PR testing
+#: utility read them.  For now, a file with the old name is to be renamed,
+#: and the old section is still read, so that renaming is all it takes.
+OLD_CONFIG = os.path.join('~', '.config', 'omega_pr_test.cfg')
+OLD_SECTION = 'omega_pr_test'
 
 #: the section with the machines an agent on the requester's computer
 #: tests over ssh
@@ -129,36 +135,45 @@ def read_config(filename: Optional[str] = None) -> PrTestConfig:
         The settings
     """
     if filename is None:
-        filename = DEFAULT_CONFIG
+        filename = _expand(DEFAULT_CONFIG)
+        old = _expand(OLD_CONFIG)
+        if not os.path.exists(filename) and os.path.exists(old):
+            raise ConfigError(
+                f'The settings have moved to {filename}.  Rename the old '
+                f'file:\n  mv {old} {filename}'
+            )
     filename = _expand(filename)
     if not os.path.exists(filename):
         raise ConfigError(
             f'There is no config file at {filename}.  Copy '
-            f'utils/omega/pr_testing/example.cfg there and fill it in.'
+            f'utils/pr_testing/example.cfg there and fill it in.'
         )
 
     parser = configparser.ConfigParser()
     parser.read(filename)
-    if not parser.has_section(SECTION):
+    section = SECTION
+    if not parser.has_section(section):
+        section = OLD_SECTION
+    if not parser.has_section(section):
         raise ConfigError(f'{filename} has no [{SECTION}] section.')
 
     missing = [
         option
         for option in ['work_base', 'omega_repo']
-        if not parser.get(SECTION, option, fallback='').strip()
+        if not parser.get(section, option, fallback='').strip()
     ]
     if missing:
         raise ConfigError(
-            f'{filename} does not set {" or ".join(missing)} in [{SECTION}].'
+            f'{filename} does not set {" or ".join(missing)} in [{section}].'
         )
 
-    roots = parser.get(SECTION, 'baseline_search_roots', fallback='')
+    roots = parser.get(section, 'baseline_search_roots', fallback='')
     return PrTestConfig(
-        work_base=_expand(parser.get(SECTION, 'work_base')),
-        omega_repo=_expand(parser.get(SECTION, 'omega_repo')),
-        fork=_optional(parser, 'fork', expand=False),
-        polaris_fork=_optional(parser, 'polaris_fork', expand=False),
-        omega_dev_env=_optional(parser, 'omega_dev_env'),
+        work_base=_expand(parser.get(section, 'work_base')),
+        omega_repo=_expand(parser.get(section, 'omega_repo')),
+        fork=_optional(parser, section, 'fork', expand=False),
+        polaris_fork=_optional(parser, section, 'polaris_fork', expand=False),
+        omega_dev_env=_optional(parser, section, 'omega_dev_env'),
         baseline_search_roots=[
             _expand(root) for root in roots.replace(',', ' ').split()
         ],
@@ -206,8 +221,8 @@ def _is_polaris_machine(machine):
     return resources.files('polaris.machines').joinpath(filename).is_file()
 
 
-def _optional(parser, option, expand=True):
-    value = parser.get(SECTION, option, fallback='').strip()
+def _optional(parser, section, option, expand=True):
+    value = parser.get(section, option, fallback='').strip()
     if not value:
         return None
     return _expand(value) if expand else value

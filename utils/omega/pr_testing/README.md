@@ -49,8 +49,9 @@ On your own computer:
 
 - A Polaris checkout with a load script (`./deploy.py`), a clone of
   E3SM-Project/Omega, and `gh`, logged in.
-- `~/.config/omega_pr_test.cfg`, copied from [example.cfg](example.cfg),
-  with a `[machines]` line for each machine to test over ssh, which
+- `~/.config/polaris_pr_test.cfg`, copied from
+  [utils/pr_testing/example.cfg](../../pr_testing/example.cfg), with a
+  `[machines]` line for each machine to test over ssh, which
   `status` shows.
 - A host alias for each of those machines in `~/.ssh/config`, sharing one
   connection, for example:
@@ -71,7 +72,11 @@ On each machine:
   (`./deploy.py`).  A PR that needs Polaris changes needs a second one at
   the baseline's Polaris commit.  Agents make these when they are missing.
 - A clone of E3SM-Project/Omega.
-- `~/.config/omega_pr_test.cfg`, copied from [example.cfg](example.cfg).
+- `~/.config/polaris_pr_test.cfg`, copied from
+  [utils/pr_testing/example.cfg](../../pr_testing/example.cfg).
+
+For now, a `~/.config/omega_pr_test.cfg` from before the settings were
+shared just needs renaming to `~/.config/polaris_pr_test.cfg`.
 - `gh` only on a machine where an agent tests by itself and posts, such as
   Frontier.  Otherwise comments are posted by hand, and everything else
   reads GitHub without logging in.

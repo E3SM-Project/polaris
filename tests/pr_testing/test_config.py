@@ -1,8 +1,8 @@
 import pytest
 from pr_test_config import ConfigError, RemoteMachine, read_config
 
-SETTINGS = """[omega_pr_test]
-work_base = /scratch/omega_pr_test
+SETTINGS = """[polaris_pr_test]
+work_base = /scratch/polaris_pr_test
 omega_repo = /home/me/Omega
 """
 
@@ -10,9 +10,30 @@ omega_repo = /home/me/Omega
 def test_read_config_without_machines(tmp_path):
     config = read_config(_write(tmp_path, SETTINGS))
 
-    assert config.work_base == '/scratch/omega_pr_test'
+    assert config.work_base == '/scratch/polaris_pr_test'
     assert config.machines == {}
     assert config.find_machine('chrysalis') is None
+
+
+def test_read_config_old_section(tmp_path):
+    old = SETTINGS.replace('[polaris_pr_test]', '[omega_pr_test]')
+
+    config = read_config(_write(tmp_path, old))
+
+    assert config.work_base == '/scratch/polaris_pr_test'
+
+
+def test_read_config_old_name(tmp_path, monkeypatch):
+    monkeypatch.setenv('HOME', str(tmp_path))
+    (tmp_path / '.config').mkdir()
+    old = tmp_path / '.config' / 'omega_pr_test.cfg'
+    old.write_text(SETTINGS)
+
+    with pytest.raises(ConfigError, match=f'mv {old} '):
+        read_config()
+
+    old.rename(tmp_path / '.config' / 'polaris_pr_test.cfg')
+    assert read_config().work_base == '/scratch/polaris_pr_test'
 
 
 def test_read_config_machines(tmp_path):
@@ -57,6 +78,6 @@ def test_read_config_bad_machines(tmp_path, line, message):
 
 
 def _write(tmp_path, text):
-    path = tmp_path / 'omega_pr_test.cfg'
+    path = tmp_path / 'polaris_pr_test.cfg'
     path.write_text(text)
     return str(path)

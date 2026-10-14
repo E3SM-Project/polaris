@@ -195,7 +195,7 @@ def _parse_args():
     parser.add_argument(
         '-f',
         '--config_file',
-        help='The config file, ~/.config/omega_pr_test.cfg by default',
+        help='The config file, ~/.config/polaris_pr_test.cfg by default',
     )
     subparsers = parser.add_subparsers(required=True, metavar='command')
 

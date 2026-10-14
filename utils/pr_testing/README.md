@@ -5,7 +5,8 @@ supported machines, such as [the Omega PR testing
 utility](../omega/pr_testing/README.md).  They are not run directly.  Each
 utility's script puts this directory on `sys.path`.
 
-- `pr_test_config.py`: the settings in `~/.config/omega_pr_test.cfg`
+- `example.cfg`: the settings, which go in `~/.config/polaris_pr_test.cfg`
+- `pr_test_config.py`: reads the settings
 - `pr_test_git.py` and `pr_test_github.py`: git and GitHub helpers
 - `pr_test_rows.py`: the machine, compiler and MPI combinations to test
 - `pr_test_setup.py`: Polaris checkouts, Omega worktrees, baselines, suites,

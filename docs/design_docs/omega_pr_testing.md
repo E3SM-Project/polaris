@@ -333,10 +333,6 @@ reused because an earlier build failed, `setup` rebuilds it with
 - `README.md`: the same workflow, written for people running the commands.
 - `omega_pr_test.py`: the subcommands `init`, `lint`, `setup`, `report`,
   `post` and `status`, with the modules they use in `omega_pr_*.py`.
-- `example.cfg`: the settings for the requester's computer and each
-  machine. Copy it to `~/.config/omega_pr_test.cfg`, or pass another path
-  with `-f`.
-
 The modules that do not depend on Omega PRs are in `utils/pr_testing/`, as
 `pr_test_*.py`, so that other PR testing utilities can share them: the
 settings, git and GitHub helpers, the rows, setting up and submitting
@@ -345,10 +341,14 @@ suites and CTests, markers and the table of rows, status, and
 directory on `sys.path`.  The prefixes keep a module from shadowing a
 standard one, such as `warnings`.
 
-The settings:
+The settings for the requester's computer and each machine are in
+`utils/pr_testing/example.cfg`, shared with other PR testing utilities.
+Copy it to `~/.config/polaris_pr_test.cfg`, or pass another path with
+`-f`:
+
 ```ini
-[omega_pr_test]
-work_base = /path/to/scratch/omega_pr_test
+[polaris_pr_test]
+work_base = /path/to/scratch/polaris_pr_test
 omega_repo = /path/to/a/clone/of/E3SM-Project/Omega
 # needed by the initiator only
 fork = git@github.com:<user>/E3SM.git

@@ -29,8 +29,8 @@ run is reused when its provenance matches (see
 {py:func}`polaris.baselines.find_baseline`), which relies on the record of
 the source that Polaris's build scripts write (see {ref}`dev-provenance`).
 
-To start, the requester copies `utils/omega/pr_testing/example.cfg` to
-`~/.config/omega_pr_test.cfg` on their computer and on each machine, fills
+To start, the requester copies `utils/pr_testing/example.cfg` to
+`~/.config/polaris_pr_test.cfg` on their computer and on each machine, fills
 it in, logs in to each machine, and asks an agent in a Polaris checkout on
 their computer something like:
 
