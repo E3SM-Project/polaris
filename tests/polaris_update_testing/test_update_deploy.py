@@ -4,6 +4,7 @@ from pathlib import Path
 
 import polaris_update_deploy
 import pytest
+from pr_test_rows import Row
 from update_fixtures import (
     SHARED_SPACK,
     SHARED_VIEW,
@@ -20,24 +21,25 @@ def tester(tmp_path, monkeypatch):
 
 
 def test_deploy_command(tester):
-    fixture, _, _ = tester
+    fixture, manifest, _ = tester
+    (deployment,) = _deploy(fixture, manifest, 'aurora')
 
-    assert polaris_update_deploy.get_deploy_command(
-        fixture.polaris_dir, 'chrysalis'
-    ) == [
+    # aurora's config also lists intelgpu, which the PR does not support
+    assert deployment.command == [
         './deploy.py',
         '--deploy-spack',
         '--machine',
-        'chrysalis',
+        'aurora',
         '--compiler',
         'intel',
-        'gnu',
         '--mpi',
-        'openmpi',
-        'openmpi',
+        'mpich',
     ]
     assert polaris_update_deploy.get_deploy_command(
-        fixture.polaris_dir, 'pm-gpu', spack_path='/test/spack', recreate=True
+        'pm-gpu',
+        [Row('pm-gpu', 'gnugpu', 'mpich', model='omega')],
+        spack_path='/test/spack',
+        recreate=True,
     )[-6:] == [
         'gnugpu',
         '--mpi',
@@ -45,6 +47,22 @@ def test_deploy_command(tester):
         '--spack-path',
         '/test/spack',
         '--recreate',
+    ]
+
+
+def test_deploy_command_supported_compilers(tester):
+    fixture, manifest, _ = tester
+
+    # chrysalis/gnu has two rows, but is deployed once
+    (deployment,) = _deploy(fixture, manifest, 'chrysalis')
+
+    assert deployment.command[4:] == [
+        '--compiler',
+        'gnu',
+        'intel',
+        '--mpi',
+        'openmpi',
+        'openmpi',
     ]
 
 
